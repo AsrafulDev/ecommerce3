@@ -679,7 +679,31 @@ $brands = Brand::where('status', 1)
     public function shop(Request $request)
     {
         $products = Product::where(['status' => 1, 'approval_status' => 'approved'])
-            ->select('id', 'name', 'slug', 'new_price', 'old_price','stock');
+            ->select('id', 'name', 'slug', 'new_price', 'old_price','stock','category_id','brand_id');
+
+        // Filter by category
+        if ($request->filled('category')) {
+            $products = $products->whereIn('category_id', $request->category);
+        }
+
+        // Filter by brand
+        if ($request->filled('brand')) {
+            $products = $products->whereIn('brand_id', $request->brand);
+        }
+
+        // Filter by size
+        if ($request->filled('size')) {
+            $products = $products->whereHas('prosizes', function ($q) use ($request) {
+                $q->whereIn('size_id', $request->size);
+            });
+        }
+
+        // Filter by color
+        if ($request->filled('color')) {
+            $products = $products->whereHas('procolors', function ($q) use ($request) {
+                $q->whereIn('color_id', $request->color);
+            });
+        }
 
         if ($request->sort == 1) {
             $products = $products->orderBy('created_at', 'desc');
@@ -704,7 +728,25 @@ $brands = Brand::where('status', 1)
             $products = $products->where('new_price','<=',$request->max_price);
         }
         $products = $products->paginate(36);
-        return view('frontEnd.layouts.pages.shop', compact('products'));
+
+        // Get filter data
+        $categories = Category::where('status', 1)->whereHas('homeproducts', function ($q) {
+            $q->where(['status' => 1, 'approval_status' => 'approved']);
+        })->select('id', 'name', 'slug')->get();
+
+        $brands = Brand::whereHas('products', function ($q) {
+            $q->where(['status' => 1, 'approval_status' => 'approved']);
+        })->select('id', 'name', 'slug')->get();
+
+        $sizes = Size::whereHas('productsizes.product', function ($q) {
+            $q->where(['status' => 1, 'approval_status' => 'approved']);
+        })->select('id', 'sizeName')->get();
+
+        $colors = Color::whereHas('productColors.product', function ($q) {
+            $q->where(['status' => 1, 'approval_status' => 'approved']);
+        })->select('id', 'colorName', 'color')->get();
+
+        return view('frontEnd.layouts.pages.shop', compact('products', 'categories', 'brands', 'sizes', 'colors', 'min_price', 'max_price'));
     }
 
 
@@ -766,6 +808,25 @@ $brands = Brand::where('status', 1)
             $products = $products->latest();
         }
 
+        // Filter by brand
+        if ($request->filled('brand')) {
+            $products = $products->whereIn('brand_id', $request->brand);
+        }
+
+        // Filter by size
+        if ($request->filled('size')) {
+            $products = $products->whereHas('prosizes', function ($q) use ($request) {
+                $q->whereIn('size_id', $request->size);
+            });
+        }
+
+        // Filter by color
+        if ($request->filled('color')) {
+            $products = $products->whereHas('procolors', function ($q) use ($request) {
+                $q->whereIn('color_id', $request->color);
+            });
+        }
+
         $min_price = $products->min('new_price');
         $max_price = $products->max('new_price');
         if($request->min_price && $request->max_price){
@@ -781,7 +842,21 @@ $brands = Brand::where('status', 1)
         });
 
         $products = $products->paginate(24);
-        return view('frontEnd.layouts.pages.category', compact('category', 'products', 'subcategories', 'min_price', 'max_price','soldShow'));
+
+        // Get filter data for this category
+        $brands = Brand::whereHas('products', function ($q) use ($category) {
+            $q->where(['status' => 1, 'approval_status' => 'approved', 'category_id' => $category->id]);
+        })->select('id', 'name', 'slug')->get();
+
+        $sizes = Size::whereHas('productsizes.product', function ($q) use ($category) {
+            $q->where(['status' => 1, 'approval_status' => 'approved', 'category_id' => $category->id]);
+        })->select('id', 'sizeName')->get();
+
+        $colors = Color::whereHas('productColors.product', function ($q) use ($category) {
+            $q->where(['status' => 1, 'approval_status' => 'approved', 'category_id' => $category->id]);
+        })->select('id', 'colorName', 'color')->get();
+
+        return view('frontEnd.layouts.pages.category', compact('category', 'products', 'subcategories', 'brands', 'sizes', 'colors', 'min_price', 'max_price','soldShow'));
     }
 
     public function subcategory($slug, Request $request)

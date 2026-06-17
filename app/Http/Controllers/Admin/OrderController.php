@@ -109,7 +109,7 @@ class OrderController extends Controller
             return response()->json(['status' => 'success', 'message' => 'Fraud check is disabled']);
         }
 
-        // ফ্রি API (কোন API Key লাগে না)
+        // ফ্রি API (কোন API Key লাগে না) — same as manual fraud check
         $apiUrl = "https://www.fraudcheck.online/config/check-phone.php?phone=" . urlencode($mobile);
 
         try {
@@ -118,43 +118,57 @@ class OrderController extends Controller
 
             // API থেকে valid response আসলেই ডাটা আপডেট হবে
             if ($res && isset($res['mobile_number'])) {
-                
-                // এই মোবাইল নাম্বারের সব অর্ডার খুঁজে বের করা
+
+                // --- Transform API response to match frontend buildSummary() format ---
+                $apiCouriers = $res['apis'] ?? [];
+
+                // Helper to extract courier stats from API courier data
+                $extractStats = function ($courierData) {
+                    return [
+                        'total_parcel'      => (int) ($courierData['total_parcels'] ?? 0),
+                        'success_parcel'    => (int) ($courierData['total_delivered_parcels'] ?? 0),
+                        'cancelled_parcel'  => (int) ($courierData['total_cancelled_parcels'] ?? 0),
+                    ];
+                };
+
+                // Map API courier names → frontend key names
+                $transformed = [
+                    'pathao'    => $extractStats($apiCouriers['Pathao'] ?? []),
+                    'redx'      => $extractStats($apiCouriers['Redex'] ?? []),
+                    'steadfast' => $extractStats($apiCouriers['CarryBee'] ?? []),
+                    'parceldex' => ['total_parcel' => 0, 'success_parcel' => 0, 'cancelled_parcel' => 0],
+                    'paperfly'  => ['total_parcel' => 0, 'success_parcel' => 0, 'cancelled_parcel' => 0],
+                ];
+
+                // Summary totals
+                $totalParcels   = (int) ($res['total_parcels'] ?? 0);
+                $totalDelivered = (int) ($res['total_delivered'] ?? 0);
+                $totalCancel    = (int) ($res['total_cancel'] ?? 0);
+                $successRate    = $totalParcels > 0 ? round(($totalDelivered / $totalParcels) * 100) : 0;
+
+                // Update all orders for this phone number
                 $orders = Order::whereHas('shipping', function ($q) use ($mobile) {
                     $q->where('phone', $mobile);
                 })->get();
 
-                // summary data
-                $totalParcels    = (int) ($res['total_parcels'] ?? 0);
-                $totalDelivered  = (int) ($res['total_delivered'] ?? 0);
-                $totalCancel     = (int) ($res['total_cancel'] ?? 0);
-                
-                // success rate calculation (0-100)
-                $successRate = $totalParcels > 0 ? round(($totalDelivered / $totalParcels) * 100) : 0;
-
-                // API data
-                $pathaoData   = $res['apis']['Pathao'] ?? [];
-                $redexData    = $res['apis']['Redex'] ?? [];
-                $carrybeeData = $res['apis']['CarryBee'] ?? [];
-
                 foreach ($orders as $order) {
                     // Pathao
-                    $order->pathao_success = (int) ($pathaoData['total_delivered_parcels'] ?? 0);
-                    $order->pathao_cancel  = (int) ($pathaoData['total_cancelled_parcels'] ?? 0);
-                    $pTotal = (int) ($pathaoData['total_parcels'] ?? 0);
-                    $order->pathao_rate    = $pTotal > 0 ? round(((int)($pathaoData['total_delivered_parcels'] ?? 0) / $pTotal) * 100) : 0;
+                    $order->pathao_success = $transformed['pathao']['success_parcel'];
+                    $order->pathao_cancel  = $transformed['pathao']['cancelled_parcel'];
+                    $pTotal = $transformed['pathao']['total_parcel'];
+                    $order->pathao_rate    = $pTotal > 0 ? round(($transformed['pathao']['success_parcel'] / $pTotal) * 100) : 0;
 
                     // Redx
-                    $order->redx_success = (int) ($redexData['total_delivered_parcels'] ?? 0);
-                    $order->redx_cancel  = (int) ($redexData['total_cancelled_parcels'] ?? 0);
-                    $rTotal = (int) ($redexData['total_parcels'] ?? 0);
-                    $order->redx_rate    = $rTotal > 0 ? round(((int)($redexData['total_delivered_parcels'] ?? 0) / $rTotal) * 100) : 0;
+                    $order->redx_success = $transformed['redx']['success_parcel'];
+                    $order->redx_cancel  = $transformed['redx']['cancelled_parcel'];
+                    $rTotal = $transformed['redx']['total_parcel'];
+                    $order->redx_rate    = $rTotal > 0 ? round(($transformed['redx']['success_parcel'] / $rTotal) * 100) : 0;
 
-                    // CarryBee → steadfast fields (since no Steadfast in free API)
-                    $order->steadfast_success = (int) ($carrybeeData['total_delivered_parcels'] ?? 0);
-                    $order->steadfast_cancel  = (int) ($carrybeeData['total_cancelled_parcels'] ?? 0);
-                    $cTotal = (int) ($carrybeeData['total_parcels'] ?? 0);
-                    $order->steadfast_rate    = $cTotal > 0 ? round(((int)($carrybeeData['total_delivered_parcels'] ?? 0) / $cTotal) * 100) : 0;
+                    // Steadfast (mapped from CarryBee)
+                    $order->steadfast_success = $transformed['steadfast']['success_parcel'];
+                    $order->steadfast_cancel  = $transformed['steadfast']['cancelled_parcel'];
+                    $cTotal = $transformed['steadfast']['total_parcel'];
+                    $order->steadfast_rate    = $cTotal > 0 ? round(($transformed['steadfast']['success_parcel'] / $cTotal) * 100) : 0;
 
                     // Summary / Fraud rate
                     $order->fraud_success = $totalDelivered;
@@ -166,8 +180,9 @@ class OrderController extends Controller
 
                 return response()->json([
                     'status' => 'success',
-                    'data'   => $res
+                    'data'   => $transformed
                 ]);
+
             } else {
                 // API failed / invalid response → set orders to pending with note
                 $orders = Order::whereHas('shipping', function ($q) use ($mobile) {
