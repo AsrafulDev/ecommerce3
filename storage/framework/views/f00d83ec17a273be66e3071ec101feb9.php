@@ -1,8 +1,8 @@
-@extends('backEnd.layouts.master')
 
-@section('title','Fraud API Settings')
 
-@section('content')
+<?php $__env->startSection('title','Fraud API Settings'); ?>
+
+<?php $__env->startSection('content'); ?>
 
 <style>
     :root {
@@ -139,26 +139,27 @@
         
         <div class="col-lg-5 mb-4">
             
-            @if(session()->has('success') || session()->has('message'))
+            <?php if(session()->has('success') || session()->has('message')): ?>
                 <div class="alert alert-success alert-custom alert-dismissible fade show mb-4 d-flex align-items-center" role="alert">
                     <i class="fe-check-circle fs-4 me-2"></i>
                     <div>
-                        <strong>সফল হয়েছে!</strong> {{ session('success') ?? session('message') }}
+                        <strong>সফল হয়েছে!</strong> <?php echo e(session('success') ?? session('message')); ?>
+
                     </div>
                     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                 </div>
-            @endif
+            <?php endif; ?>
 
-            @if ($errors->any())
+            <?php if($errors->any()): ?>
                 <div class="alert alert-danger alert-custom alert-dismissible fade show mb-4" role="alert">
                     <ul class="mb-0 ps-3">
-                        @foreach ($errors->all() as $error)
-                            <li>{{ $error }}</li>
-                        @endforeach
+                        <?php $__currentLoopData = $errors->all(); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $error): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                            <li><?php echo e($error); ?></li>
+                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                     </ul>
                     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                 </div>
-            @endif
+            <?php endif; ?>
 
             <div class="card settings-card h-100">
                 <div class="settings-card-header">
@@ -167,8 +168,8 @@
                 
                 <div class="card-body p-4 d-flex flex-column justify-content-center">
                     
-                    <form action="{{ route('admin.fraud.update') }}" method="POST">
-                        @csrf
+                    <form action="<?php echo e(route('admin.fraud.update')); ?>" method="POST">
+                        <?php echo csrf_field(); ?>
                         
                         <div class="mb-4">
                             <div class="d-flex align-items-center justify-content-between p-3 bg-light rounded border">
@@ -180,10 +181,12 @@
                                     <input type="checkbox" name="fraud_check_enabled" id="fraud_check_enabled" 
                                            class="form-check-input" 
                                            value="1" 
-                                           {{ old('fraud_check_enabled', $data->fraud_check_enabled ?? 1) ? 'checked' : '' }}
+                                           <?php echo e(old('fraud_check_enabled', $data->fraud_check_enabled ?? 1) ? 'checked' : ''); ?>
+
                                            style="width: 3rem; height: 1.5rem; cursor: pointer;">
-                                    <label class="form-check-label fw-bold ms-2" for="fraud_check_enabled" id="fraud_status_label">
-                                        {{ ($data->fraud_check_enabled ?? 1) ? 'সক্রিয়' : 'নিষ্ক্রিয়' }}
+                                    <label class="form-check-label fw-bold ms-2" for="fraud_check_enabled">
+                                        <?php echo e(($data->fraud_check_enabled ?? 1) ? 'সক্রিয়' : 'নিষ্ক্রিয়'); ?>
+
                                     </label>
                                 </div>
                             </div>
@@ -191,14 +194,6 @@
                                 <i class="fe-shield me-1"></i> বন্ধ থাকলে অর্ডার প্লেস করার সময় API কল করা হবে না।
                             </small>
                         </div>
-
-                        @section('js')
-                        <script>
-                            document.getElementById('fraud_check_enabled').addEventListener('change', function() {
-                                document.getElementById('fraud_status_label').textContent = this.checked ? 'সক্রিয়' : 'নিষ্ক্রিয়';
-                            });
-                        </script>
-                        @endsection
 
                         <button type="submit" class="btn btn-primary btn-save w-100 text-white rounded-pill">
                             <i class="fe-save me-2"></i> সেটিংস আপডেট করুন
@@ -270,4 +265,5 @@
     </div>
 </div> 
 
-@endsection
+<?php $__env->stopSection(); ?>
+<?php echo $__env->make('backEnd.layouts.master', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH /media/asraful/F/project/20-code/All Code/Ecommerce3/ecommerce3/resources/views/backEnd/fraud_setting/index.blade.php ENDPATH**/ ?>

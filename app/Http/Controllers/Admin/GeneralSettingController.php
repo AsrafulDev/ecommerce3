@@ -40,7 +40,6 @@ class GeneralSettingController extends Controller
         $this->validate($request, [
             'name' => 'required',
 
-			'fraud_api_key' => 'required',
 			'copyright_color' => 'required',
 			'primary_color' => 'required',
 			'secodery_color' => 'required',

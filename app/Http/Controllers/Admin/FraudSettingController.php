@@ -18,12 +18,11 @@ class FraudSettingController extends Controller
     public function update(Request $request)
     {
         $request->validate([
-            'fraud_api_key' => 'required',
             'duplicate_order_api_key' => 'nullable',
         ]);
 
         $setting = GeneralSetting::first();
-        $setting->fraud_api_key = $request->fraud_api_key;
+        $setting->fraud_check_enabled = $request->has('fraud_check_enabled') ? 1 : 0;
         $setting->duplicate_order_api_key = $request->duplicate_order_api_key ?? null;
         $setting->save();
 

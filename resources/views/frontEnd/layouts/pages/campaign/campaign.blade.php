@@ -135,6 +135,7 @@
         <!-- ========== End Facebook Pixel ========== -->
 
         <!-- ========== TikTok Pixel ========== -->
+        @php $tiktok_pixels = $tiktok_pixels ?? collect(); @endphp
         @if($tiktok_pixels->count() > 0)
         <script>
             !function (w, d, t) {

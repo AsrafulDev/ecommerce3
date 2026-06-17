@@ -101,65 +101,66 @@ class OrderController extends Controller
             return response()->json(['status' => 'failed', 'message' => 'Mobile number missing']);
         }
 
-        // সেটিংস থেকে API Key নেওয়া - manual check-এর মতোই same approach
+        // সেটিংস থেকে চেক করা - ফ্রড চেক অন/অফ
         $generalSetting = GeneralSetting::where('status', 1)->first();
-        $apiKey = isset($generalSetting->fraud_api_key) ? $generalSetting->fraud_api_key : null;
 
-        if (!$apiKey) {
-            return response()->json(['status' => 'failed', 'message' => 'Fraud API Key missing']);
+        // ফ্রড চেক বন্ধ থাকলে API কল না করেই success return
+        if (!$generalSetting || !($generalSetting->fraud_check_enabled ?? 1)) {
+            return response()->json(['status' => 'success', 'message' => 'Fraud check is disabled']);
         }
 
-        $apiUrl = "https://www.creativedesign.com.bd/api/v1/check-fraud";
+        // ফ্রি API (কোন API Key লাগে না)
+        $apiUrl = "https://www.fraudcheck.online/config/check-phone.php?phone=" . urlencode($mobile);
 
         try {
-            // Manual check-এর মতোই same API call (timeout ছাড়া)
-            $response = Http::withHeaders([
-                'x-api-key'    => $apiKey,
-                'Content-Type' => 'application/json'
-            ])->post($apiUrl, [
-                'phone' => $mobile,
-            ]);
-
+            $response = Http::timeout(30)->get($apiUrl);
             $res = $response->json();
 
-            if (isset($res['status']) && $res['status'] === 'success') {
+            // API থেকে valid response আসলেই ডাটা আপডেট হবে
+            if ($res && isset($res['mobile_number'])) {
                 
-                // ⭐ মূল পরিবর্তন: শুধুমাত্র একটি অর্ডার নয়, এই মোবাইল নাম্বারের সব অর্ডার খুঁজে বের করা
+                // এই মোবাইল নাম্বারের সব অর্ডার খুঁজে বের করা
                 $orders = Order::whereHas('shipping', function ($q) use ($mobile) {
                     $q->where('phone', $mobile);
                 })->get();
 
-                if ($orders->isEmpty()) {
-                    return response()->json(['status' => 'success', 'data' => $res]);
-                }
+                // summary data
+                $totalParcels    = (int) ($res['total_parcels'] ?? 0);
+                $totalDelivered  = (int) ($res['total_delivered'] ?? 0);
+                $totalCancel     = (int) ($res['total_cancel'] ?? 0);
+                
+                // success rate calculation (0-100)
+                $successRate = $totalParcels > 0 ? round(($totalDelivered / $totalParcels) * 100) : 0;
 
-                // সব অর্ডারে লুপ চালিয়ে ডাটা আপডেট করা
+                // API data
+                $pathaoData   = $res['apis']['Pathao'] ?? [];
+                $redexData    = $res['apis']['Redex'] ?? [];
+                $carrybeeData = $res['apis']['CarryBee'] ?? [];
+
                 foreach ($orders as $order) {
-                    
-                    if (isset($res['is_fraud']) && $res['is_fraud'] === true) {
-                        $order->fraud_rate = 0; 
-                    } 
-                    elseif (isset($res['data'])) {
-                        $cData = $res['data'];
+                    // Pathao
+                    $order->pathao_success = (int) ($pathaoData['total_delivered_parcels'] ?? 0);
+                    $order->pathao_cancel  = (int) ($pathaoData['total_cancelled_parcels'] ?? 0);
+                    $pTotal = (int) ($pathaoData['total_parcels'] ?? 0);
+                    $order->pathao_rate    = $pTotal > 0 ? round(((int)($pathaoData['total_delivered_parcels'] ?? 0) / $pTotal) * 100) : 0;
 
-                        $order->pathao_success = isset($cData['pathao']['success_parcel']) ? $cData['pathao']['success_parcel'] : 0;
-                        $order->pathao_cancel  = isset($cData['pathao']['cancelled_parcel']) ? $cData['pathao']['cancelled_parcel'] : 0;
-                        $order->pathao_rate    = isset($cData['pathao']['success_ratio']) ? $cData['pathao']['success_ratio'] : 0;
+                    // Redx
+                    $order->redx_success = (int) ($redexData['total_delivered_parcels'] ?? 0);
+                    $order->redx_cancel  = (int) ($redexData['total_cancelled_parcels'] ?? 0);
+                    $rTotal = (int) ($redexData['total_parcels'] ?? 0);
+                    $order->redx_rate    = $rTotal > 0 ? round(((int)($redexData['total_delivered_parcels'] ?? 0) / $rTotal) * 100) : 0;
 
-                        $order->redx_success   = isset($cData['redx']['success_parcel']) ? $cData['redx']['success_parcel'] : 0;
-                        $order->redx_cancel    = isset($cData['redx']['cancelled_parcel']) ? $cData['redx']['cancelled_parcel'] : 0;
-                        $order->redx_rate      = isset($cData['redx']['success_ratio']) ? $cData['redx']['success_ratio'] : 0;
+                    // CarryBee → steadfast fields (since no Steadfast in free API)
+                    $order->steadfast_success = (int) ($carrybeeData['total_delivered_parcels'] ?? 0);
+                    $order->steadfast_cancel  = (int) ($carrybeeData['total_cancelled_parcels'] ?? 0);
+                    $cTotal = (int) ($carrybeeData['total_parcels'] ?? 0);
+                    $order->steadfast_rate    = $cTotal > 0 ? round(((int)($carrybeeData['total_delivered_parcels'] ?? 0) / $cTotal) * 100) : 0;
 
-                        $order->steadfast_success = isset($cData['steadfast']['success_parcel']) ? $cData['steadfast']['success_parcel'] : 0;
-                        $order->steadfast_cancel  = isset($cData['steadfast']['cancelled_parcel']) ? $cData['steadfast']['cancelled_parcel'] : 0;
-                        $order->steadfast_rate    = isset($cData['steadfast']['success_ratio']) ? $cData['steadfast']['success_ratio'] : 0;
+                    // Summary / Fraud rate
+                    $order->fraud_success = $totalDelivered;
+                    $order->fraud_cancel  = $totalCancel;
+                    $order->fraud_rate    = $successRate;
 
-                        if(isset($cData['summary'])) {
-                             $order->fraud_success = isset($cData['summary']['success_parcel']) ? $cData['summary']['success_parcel'] : 0;
-                             $order->fraud_cancel  = isset($cData['summary']['cancelled_parcel']) ? $cData['summary']['cancelled_parcel'] : 0;
-                             $order->fraud_rate    = isset($cData['summary']['success_ratio']) ? $cData['summary']['success_ratio'] : 0;
-                        }
-                    }
                     $order->save();
                 }
 
@@ -168,15 +169,37 @@ class OrderController extends Controller
                     'data'   => $res
                 ]);
             } else {
+                // API failed / invalid response → set orders to pending with note
+                $orders = Order::whereHas('shipping', function ($q) use ($mobile) {
+                    $q->where('phone', $mobile);
+                })->get();
+
+                foreach ($orders as $order) {
+                    $order->order_status = 1; // Pending
+                    $order->admin_note = ($order->admin_note ? $order->admin_note . "\n" : '') . 'Fraud check failed at ' . now()->format('d/m/Y h:i A');
+                    $order->save();
+                }
+
                 return response()->json([
                     'status' => 'failed', 
-                    'message' => isset($res['message']) ? $res['message'] : 'Fraud check ব্যর্থ হয়েছে'
+                    'message' => 'Fraud check API response invalid. Orders set to pending.'
                 ]);
             }
         } catch (\Exception $e) {
+            // API exception → set orders to pending with note
+            $orders = Order::whereHas('shipping', function ($q) use ($mobile) {
+                $q->where('phone', $mobile);
+            })->get();
+
+            foreach ($orders as $order) {
+                $order->order_status = 1; // Pending
+                $order->admin_note = ($order->admin_note ? $order->admin_note . "\n" : '') . 'Fraud check failed at ' . now()->format('d/m/Y h:i A');
+                $order->save();
+            }
+
             return response()->json([
                 'status' => 'error', 
-                'message' => 'API Error: ' . $e->getMessage()
+                'message' => 'API Error: ' . $e->getMessage() . '. Orders set to pending.'
             ]);
         }
     }
@@ -194,41 +217,18 @@ class OrderController extends Controller
             return back()->with('error', 'দয়া করে একটি মোবাইল নাম্বার লিখুন');
         }
 
-        // 1. ডাটাবেস থেকে সেটিংস আনা
-        $generalSetting = GeneralSetting::where('status', 1)->first();
-        $apiKey = isset($generalSetting->fraud_api_key) ? $generalSetting->fraud_api_key : null;
-
-        if (!$apiKey) {
-            return back()->with('error', 'Fraud API Key সেটিংস প্যানেলে সেট করা নেই');
-        }
-
-        $apiUrl = "https://www.creativedesign.com.bd/api/v1/check-fraud";
+        // ফ্রি API (কোন API Key লাগে না)
+        $apiUrl = "https://www.fraudcheck.online/config/check-phone.php?phone=" . urlencode($mobile);
 
         try {
-            $response = Http::withHeaders([
-                'x-api-key'    => $apiKey,
-                'Content-Type' => 'application/json'
-            ])->post($apiUrl, [
-                'phone' => $mobile,
-            ]);
-
+            $response = Http::timeout(30)->get($apiUrl);
             $res = $response->json();
 
-            if (isset($res['status']) && $res['status'] === 'success') {
-                
-                if (isset($res['is_fraud']) && $res['is_fraud'] === true) {
-                    $data = [
-                        'is_fraud' => true,
-                        'message'  => $res['message']
-                    ];
-                } else {
-                    $data = isset($res['data']) ? $res['data'] : [];
-                }
-                
+            if ($res && isset($res['mobile_number'])) {
+                $data = $res;
                 return view('backEnd.fraud.manual_check', compact('mobile', 'data'));
-
             } else {
-                return back()->with('error', isset($res['message']) ? $res['message'] : 'Fraud check ব্যর্থ হয়েছে');
+                return back()->with('error', 'Fraud check ব্যর্থ হয়েছে');
             }
         } catch (\Exception $e) {
             return back()->with('error', 'API Error: ' . $e->getMessage());

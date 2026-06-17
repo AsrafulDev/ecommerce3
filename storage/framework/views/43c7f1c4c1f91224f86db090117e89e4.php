@@ -1,1 +1,0 @@
-<?php echo e(Cart::instance('shopping')->count()); ?><?php /**PATH C:\xampp\htdocs\resources\views/frontEnd/layouts/ajax/mobilecart_qty.blade.php ENDPATH**/ ?>

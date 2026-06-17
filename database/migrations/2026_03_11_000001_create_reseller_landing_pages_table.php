@@ -10,7 +10,7 @@ return new class extends Migration
     {
         Schema::create('reseller_landing_pages', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('user_id');
+            $table->unsignedInteger('user_id');
             $table->string('slug', 100)->unique();
             $table->string('custom_domain', 255)->nullable();
             $table->string('logo')->nullable();

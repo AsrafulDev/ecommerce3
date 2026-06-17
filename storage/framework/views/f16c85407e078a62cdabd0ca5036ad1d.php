@@ -4,46 +4,46 @@
         <meta charset="utf-8" />
       <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
      
-        <meta name="csrf-token" content="{{ csrf_token() }}" />
+        <meta name="csrf-token" content="<?php echo e(csrf_token()); ?>" />
          
-		<title>@yield('title') - {{$generalsetting->name}}</title>
+		<title><?php echo $__env->yieldContent('title'); ?> - <?php echo e($generalsetting->name); ?></title>
 		
         <!-- App favicon -->
 
-        <link rel="shortcut icon" href="{{asset($generalsetting->favicon)}}" alt="{{$generalsetting->name}} Favicon" />
+        <link rel="shortcut icon" href="<?php echo e(asset($generalsetting->favicon)); ?>" alt="<?php echo e($generalsetting->name); ?> Favicon" />
         <meta name="author" content="Creative Design" />
         <link rel="canonical" href="https://creativedesign.com.bd" />
-        @stack('seo') 
-        @stack('css')
-        <link rel="stylesheet" href="{{asset('public/frontEnd/css/bootstrap.min.css')}}" />
-        <link rel="stylesheet" href="{{asset('public/frontEnd/css/animate.css')}}" />
-        <link rel="stylesheet" href="{{asset('public/frontEnd/css/all.min.css')}}" />
-        <link rel="stylesheet" href="{{asset('public/frontEnd/css/owl.carousel.min.css')}}" />
-        <link rel="stylesheet" href="{{asset('public/frontEnd/css/owl.theme.default.min.css')}}" />
-        <link rel="stylesheet" href="{{asset('public/frontEnd/css/mobile-menu.css')}}" />
-        <link rel="stylesheet" href="{{asset('public/frontEnd/css/select2.min.css')}}" />
+        <?php echo $__env->yieldPushContent('seo'); ?> 
+        <?php echo $__env->yieldPushContent('css'); ?>
+        <link rel="stylesheet" href="<?php echo e(asset('public/frontEnd/css/bootstrap.min.css')); ?>" />
+        <link rel="stylesheet" href="<?php echo e(asset('public/frontEnd/css/animate.css')); ?>" />
+        <link rel="stylesheet" href="<?php echo e(asset('public/frontEnd/css/all.min.css')); ?>" />
+        <link rel="stylesheet" href="<?php echo e(asset('public/frontEnd/css/owl.carousel.min.css')); ?>" />
+        <link rel="stylesheet" href="<?php echo e(asset('public/frontEnd/css/owl.theme.default.min.css')); ?>" />
+        <link rel="stylesheet" href="<?php echo e(asset('public/frontEnd/css/mobile-menu.css')); ?>" />
+        <link rel="stylesheet" href="<?php echo e(asset('public/frontEnd/css/select2.min.css')); ?>" />
         <!-- toastr css -->
-        <link rel="stylesheet" href="{{asset('public/backEnd/')}}/assets/css/toastr.min.css" />
+        <link rel="stylesheet" href="<?php echo e(asset('public/backEnd/')); ?>/assets/css/toastr.min.css" />
 
-        <link rel="stylesheet" href="{{asset('public/frontEnd/css/wsit-menu.css')}}" />
-<link rel="stylesheet" href="{{ url('/style.css') }}?v={{ time() }}">
-<link rel="stylesheet" href="{{ url('/responsive.css') }}?v={{ time() }}">
-        <link rel="stylesheet" href="{{asset('public/frontEnd/css/main.css')}}" />
+        <link rel="stylesheet" href="<?php echo e(asset('public/frontEnd/css/wsit-menu.css')); ?>" />
+<link rel="stylesheet" href="<?php echo e(url('/style.css')); ?>?v=<?php echo e(time()); ?>">
+<link rel="stylesheet" href="<?php echo e(url('/responsive.css')); ?>?v=<?php echo e(time()); ?>">
+        <link rel="stylesheet" href="<?php echo e(asset('public/frontEnd/css/main.css')); ?>" />
 
-        <meta name="facebook-domain-verification" content="{{$generalsetting->facebook_verification}}" />
-        <meta name="google-site-verification" content="{{$generalsetting->google_verification}}" />
+        <meta name="facebook-domain-verification" content="<?php echo e($generalsetting->facebook_verification); ?>" />
+        <meta name="google-site-verification" content="<?php echo e($generalsetting->google_verification); ?>" />
 
-        {{-- Data Layer - must load first for GTM/GA4/Facebook/TikTok --}}
+        
         <script>
             window.dataLayer = window.dataLayer || [];
             window.dataLayer.push({
-                pageType: '{{ $pageType ?? (\Illuminate\Support\Facades\Route::currentRouteName() ?? "general") }}',
-                pageTitle: '{{ addslashes($generalsetting->name ?? "") }}',
-                siteName: '{{ addslashes($generalsetting->name ?? "") }}',
+                pageType: '<?php echo e($pageType ?? (\Illuminate\Support\Facades\Route::currentRouteName() ?? "general")); ?>',
+                pageTitle: '<?php echo e(addslashes($generalsetting->name ?? "")); ?>',
+                siteName: '<?php echo e(addslashes($generalsetting->name ?? "")); ?>',
                 currency: 'BDT',
                 language: 'bn'
             });
-            @stack('dataLayer')
+            <?php echo $__env->yieldPushContent('dataLayer'); ?>
         </script>
 		
 		<style> 
@@ -51,12 +51,12 @@
 </style> 
 		
 
-        @php
+        <?php
             $pixels = $pixels ?? collect();
             $gtm_code = $gtm_code ?? collect();
             $tiktok_pixels = $tiktok_pixels ?? collect();
-        @endphp
-        @foreach($pixels as $pixel)
+        ?>
+        <?php $__currentLoopData = $pixels; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $pixel): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
         <!-- Facebook Pixel Code -->
         <script>
             !(function (f, b, e, v, n, t, s) {
@@ -75,36 +75,36 @@
                 s = b.getElementsByTagName(e)[0];
                 s.parentNode.insertBefore(t, s);
             })(window, document, "script", "https://connect.facebook.net/en_US/fbevents.js");
-            fbq("init", "{{{$pixel->code}}}");
+            fbq("init", "<?php echo e($pixel->code); ?>");
             fbq("track", "PageView");
         </script>
         <noscript>
-            <img height="1" width="1" style="display: none;" src="https://www.facebook.com/tr?id={{{$pixel->code}}}&ev=PageView&noscript=1" />
+            <img height="1" width="1" style="display: none;" src="https://www.facebook.com/tr?id=<?php echo e($pixel->code); ?>&ev=PageView&noscript=1" />
         </noscript>
         <!-- End Facebook Pixel Code -->
-        @endforeach
+        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
         
-        @foreach($gtm_code as $gtm)
+        <?php $__currentLoopData = $gtm_code; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $gtm): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
         <!-- Google Tag Manager -->
         <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
         new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
         j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
         'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-        })(window,document,'script','dataLayer','{{ str_starts_with($gtm->code, "GTM-") ? $gtm->code : "GTM-".$gtm->code }}');</script>
+        })(window,document,'script','dataLayer','<?php echo e(str_starts_with($gtm->code, "GTM-") ? $gtm->code : "GTM-".$gtm->code); ?>');</script>
         <!-- End Google Tag Manager -->
-        @endforeach
+        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
 
-        @foreach($tiktok_pixels as $tp)
+        <?php $__currentLoopData = $tiktok_pixels; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $tp): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
         <!-- TikTok Pixel -->
         <script>
             !function (w, d, t) {
                 w.TiktokAnalyticsObject=t;var ttq=w[t]=w[t]||[];ttq.methods=["page","track","identify","instances","debug","on","off","once","ready","alias","group","enableCookie","disableCookie"],ttq.setAndDefer=function(t,e){t[e]=function(){t.push([e].concat(Array.prototype.slice.call(arguments,0)))}};for(var i=0;i<ttq.methods.length;i++)ttq.setAndDefer(ttq,ttq.methods[i]);ttq.instance=function(t){for(var e=ttq._i[t]||[],n=0;n<ttq.methods.length;n++)ttq.setAndDefer(e,ttq.methods[n]);return e},ttq.load=function(e,n){var i="https://analytics.tiktok.com/i18n/pixel/events.js";ttq._i=ttq._i||{},ttq._i[e]=[],ttq._i[e]._u=i,ttq._t=ttq._t||{},ttq._t[e]=+new Date,ttq._o=ttq._o||{},ttq._o[e]=n||{};var o=document.createElement("script");o.type="text/javascript",o.async=!0,o.src=i+"?sdkid="+e+"&lib="+t;var a=document.getElementsByTagName("script")[0];a.parentNode.insertBefore(o,a)};
-                ttq.load('{{ $tp->code }}');
+                ttq.load('<?php echo e($tp->code); ?>');
                 ttq.page();
             }(window, document, 'ttq');
         </script>
         <!-- End TikTok Pixel -->
-        @endforeach
+        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
         <style>
             .whatsapp-float {
                 position: fixed;
@@ -419,64 +419,67 @@
                 100% { transform: translateX(-50%); }
             }
         </style>
-        {!! $generalsetting->header_code !!}
+        <?php echo $generalsetting->header_code; ?>
+
     </head>
     <body class="gotop">
        
-        @php $subtotal = Cart::instance('shopping')->subtotal(); @endphp
+        <?php $subtotal = Cart::instance('shopping')->subtotal(); ?>
         <div class="mobile-menu">
                 <div class="mobile-menu-logo">
                     <div class="logo-image">
-                        <img src="{{asset($generalsetting->dark_logo)}}" alt="" />
+                        <img src="<?php echo e(asset($generalsetting->dark_logo)); ?>" alt="" />
                     </div>
                     <div class="mobile-menu-close">
                         <i class="fa fa-times"></i>
                     </div>
                 </div>
                 <ul class="first-nav">
-                    @foreach($menucategories as $scategory)
+                    <?php $__currentLoopData = $menucategories; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $scategory): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                     <li class="parent-category">
-                        <a href="{{url('category/'.$scategory->slug)}}" class="menu-category-name">
-                            <img src="{{asset($scategory->image)}}" alt="" class="side_cat_img" />
-                            {{$scategory->name}}
+                        <a href="<?php echo e(url('category/'.$scategory->slug)); ?>" class="menu-category-name">
+                            <img src="<?php echo e(asset($scategory->image)); ?>" alt="" class="side_cat_img" />
+                            <?php echo e($scategory->name); ?>
+
                         </a>
-                        @if($scategory->subcategories->count() > 0)
+                        <?php if($scategory->subcategories->count() > 0): ?>
                         <span class="menu-category-toggle">
                             <i class="fa fa-chevron-down"></i>
                         </span>
-                        @endif
+                        <?php endif; ?>
                         <ul class="second-nav" style="display: none;">
-                            @foreach($scategory->subcategories as $subcategory)
+                            <?php $__currentLoopData = $scategory->subcategories; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $subcategory): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                             <li class="parent-subcategory">
-                                <a href="{{url('subcategory/'.$subcategory->slug)}}" class="menu-subcategory-name">{{$subcategory->subcategoryName}}</a>
-                                @if($subcategory->childcategories->count() > 0)
+                                <a href="<?php echo e(url('subcategory/'.$subcategory->slug)); ?>" class="menu-subcategory-name"><?php echo e($subcategory->subcategoryName); ?></a>
+                                <?php if($subcategory->childcategories->count() > 0): ?>
                                 <span class="menu-subcategory-toggle"><i class="fa fa-chevron-down"></i></span>
-                                @endif
+                                <?php endif; ?>
                                 <ul class="third-nav" style="display: none;">
-                                    @foreach($subcategory->childcategories as $childcat)
-                                    <li class="childcategory"><a href="{{url('products/'.$childcat->slug)}}" class="menu-childcategory-name">{{$childcat->childcategoryName}}</a></li>
-                                    @endforeach
+                                    <?php $__currentLoopData = $subcategory->childcategories; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $childcat): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                    <li class="childcategory"><a href="<?php echo e(url('products/'.$childcat->slug)); ?>" class="menu-childcategory-name"><?php echo e($childcat->childcategoryName); ?></a></li>
+                                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                                 </ul>
                             </li>
-                            @endforeach
+                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                         </ul>
                     </li>
-                    @endforeach
+                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                 </ul>
             </div>
         <header id="navbar_top">
-            <div class="top_header" style="background-color:{{$generalsetting->secodery_color}}">
+            <div class="top_header" style="background-color:<?php echo e($generalsetting->secodery_color); ?>">
                     <div class="container d-flex align-items-center">
                         <!-- Hotline button on the left side -->
-                        <a href="tel:{{ $contact->hotline }}" class="text-center bg-light px-2 d-none d-sm-block fw-bold fs-4" style="color:#13027D;min-width:270px;">
-                            <i class="fa-solid fa-headset"></i> {{ $contact->hotline }}
+                        <a href="tel:<?php echo e($contact->hotline); ?>" class="text-center bg-light px-2 d-none d-sm-block fw-bold fs-4" style="color:#13027D;min-width:270px;">
+                            <i class="fa-solid fa-headset"></i> <?php echo e($contact->hotline); ?>
+
                         </a>
                         
                         <!-- Marquee headline - CSS animation (marquee deprecated) -->
                         <div class="d-flex align-items-center flex-grow-1 overflow-hidden">
                             <div class="headline-scroll-wrapper">
-                                <span class="headline-scroll-text text-light fs-6">{{$generalsetting->top_headline}}</span>
-                                <span class="headline-scroll-text headline-scroll-duplicate text-light fs-6" aria-hidden="true">{{$generalsetting->top_headline}}</span>
+                                <span class="headline-scroll-text text-light fs-6"><?php echo e($generalsetting->top_headline); ?></span>
+                                <span class="headline-scroll-text headline-scroll-duplicate text-light fs-6" aria-hidden="true"><?php echo e($generalsetting->top_headline); ?></span>
                             </div>
                         </div>
                     </div>
@@ -489,12 +492,12 @@
                         </a>
                     </div>
                     <div class="menu-logo">
-                        <a href="{{route('home')}}"><img src="{{asset($generalsetting->dark_logo)}}" alt="" /></a>
+                        <a href="<?php echo e(route('home')); ?>"><img src="<?php echo e(asset($generalsetting->dark_logo)); ?>" alt="" /></a>
                     </div>
     <div class="menu-bag">
-    <a href="{{ route('customer.checkout') }}" class="margin-shopping">
+    <a href="<?php echo e(route('customer.checkout')); ?>" class="margin-shopping">
         <i class="fa-solid fa-cart-shopping"></i>
-        <span class="mobilecart-qty">{{ Cart::instance('shopping')->count() }}</span>
+        <span class="mobilecart-qty"><?php echo e(Cart::instance('shopping')->count()); ?></span>
     </a>
 </div>
 
@@ -502,7 +505,7 @@
             </div>
 
             <div class="mobile-search">
-                <form action="{{route('search')}}">
+                <form action="<?php echo e(route('search')); ?>">
                     <input type="text" placeholder="Search Product ... " value="" class="msearch_keyword msearch_click" name="keyword" />
                     <button><i data-feather="search"></i></button>
                 </form>
@@ -521,10 +524,10 @@
                             <div class="col-sm-12">
                                 <div class="logo-header">
                                     <div class="main-logo">
-                                        <a href="{{route('home')}}"><img src="{{asset($generalsetting->dark_logo)}}" alt="" /></a>
+                                        <a href="<?php echo e(route('home')); ?>"><img src="<?php echo e(asset($generalsetting->dark_logo)); ?>" alt="" /></a>
                                     </div>
                                     <div class="main-search">
-                                        <form action="{{route('search')}}">
+                                        <form action="<?php echo e(route('search')); ?>">
                                             <input type="text" placeholder="Search Product..." class="search_keyword search_click" name="keyword" />
                                             <button>
                                                 <i data-feather="search"></i>
@@ -535,52 +538,53 @@
                                     <div class="header-list-items">
                                         <ul>
                                             <li class="track_btn">
-                                                <a href="{{route('customer.order_track')}}"> <i class="fa fa-truck"></i>Track Order</a>
+                                                <a href="<?php echo e(route('customer.order_track')); ?>"> <i class="fa fa-truck"></i>Track Order</a>
                                             </li>
-                                            @if(Auth::guard('customer')->user())
+                                            <?php if(Auth::guard('customer')->user()): ?>
                                             <li class="for_order">
                                                 <p>
-                                                    <a href="{{route('customer.account')}}">
+                                                    <a href="<?php echo e(route('customer.account')); ?>">
                                                         <i class="fa-regular fa-user"></i>
 
-                                                        {{Str::limit(Auth::guard('customer')->user()->name,14)}}
+                                                        <?php echo e(Str::limit(Auth::guard('customer')->user()->name,14)); ?>
+
                                                     </a>
                                                 </p>
                                             </li>
-                                            @else
+                                            <?php else: ?>
                                             <li class="for_order">
                                                 <p>
-                                                    <a href="{{route('customer.login')}}">
+                                                    <a href="<?php echo e(route('customer.login')); ?>">
                                                         <i class="fa-regular fa-user"></i>
                                                         Login / Sign Up
                                                     </a>
                                                 </p>
                                             </li>
-                                            @endif
+                                            <?php endif; ?>
 
                                             <li class="cart-dialog" id="cart-qty">
-                                                <a href="{{route('customer.checkout')}}">
+                                                <a href="<?php echo e(route('customer.checkout')); ?>">
                                                     <p class="margin-shopping">
                                                         <i class="fa-solid fa-cart-shopping"></i>
-                                                        <span>{{Cart::instance('shopping')->count()}}</span>
+                                                        <span><?php echo e(Cart::instance('shopping')->count()); ?></span>
                                                     </p>
                                                 </a>
                                                 <div class="cshort-summary">
                                                     <ul>
-                                                        @foreach(Cart::instance('shopping')->content() as $key=>$value)
+                                                        <?php $__currentLoopData = Cart::instance('shopping')->content(); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $key=>$value): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                                                         <li>
-                                                            <a href=""><img src="{{asset($value->options->image)}}" alt="" /></a>
+                                                            <a href=""><img src="<?php echo e(asset($value->options->image)); ?>" alt="" /></a>
                                                         </li>
-                                                        <li><a href="">{{Str::limit($value->name, 30)}}</a></li>
-                                                        <li>Qty: {{$value->qty}}</li>
+                                                        <li><a href=""><?php echo e(Str::limit($value->name, 30)); ?></a></li>
+                                                        <li>Qty: <?php echo e($value->qty); ?></li>
                                                         <li>
-                                                            <p>৳{{$value->price}}</p>
-                                                            <button class="remove-cart cart_remove" data-id="{{$value->rowId}}"><i data-feather="x"></i></button>
+                                                            <p>৳<?php echo e($value->price); ?></p>
+                                                            <button class="remove-cart cart_remove" data-id="<?php echo e($value->rowId); ?>"><i data-feather="x"></i></button>
                                                         </li>
-                                                        @endforeach
+                                                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                                                     </ul>
-                                                    <p><strong>সর্বমোট : ৳{{$subtotal}}</strong></p>
-                                                    <a href="{{route('customer.checkout')}}" class="go_cart"> অর্ডার করুন </a>
+                                                    <p><strong>সর্বমোট : ৳<?php echo e($subtotal); ?></strong></p>
+                                                    <a href="<?php echo e(route('customer.checkout')); ?>" class="go_cart"> অর্ডার করুন </a>
                                                 </div>
                                             </li>
                                         </ul>
@@ -597,38 +601,38 @@
                             <div class="col-sm-12">
                                 <div class="catagory_menu text-center">
                                     <ul>
-                                        @foreach ($menucategories as $scategory)
+                                        <?php $__currentLoopData = $menucategories; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $scategory): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                                         <li class="cat_bar ">
-                                            <a href="{{ url('category/' . $scategory->slug) }}"> 
-                                                <span class="cat_head">{{ $scategory->name }}</span>
-                                                @if ($scategory->subcategories->count() > 0)
+                                            <a href="<?php echo e(url('category/' . $scategory->slug)); ?>"> 
+                                                <span class="cat_head"><?php echo e($scategory->name); ?></span>
+                                                <?php if($scategory->subcategories->count() > 0): ?>
                                                 <i class="fa-solid fa-angle-down cat_down"></i>
-                                                @endif
+                                                <?php endif; ?>
                                             </a>
-                                            @if($scategory->subcategories->count() > 0)
+                                            <?php if($scategory->subcategories->count() > 0): ?>
                                             <ul class="Cat_menu">
-                                                @foreach ($scategory->subcategories as $subcat)
+                                                <?php $__currentLoopData = $scategory->subcategories; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $subcat): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                                                 <li class="Cat_list cat_list_hover">
-                                                    <a href="{{ url('subcategory/' . $subcat->slug) }}">
-                                                        <span>{{ Str::limit($subcat->subcategoryName, 25) }}</span>
-                                                        @if($subcat->childcategories->count() > 0)<i class="fa-solid fa-chevron-right cat_down"></i>@endif
+                                                    <a href="<?php echo e(url('subcategory/' . $subcat->slug)); ?>">
+                                                        <span><?php echo e(Str::limit($subcat->subcategoryName, 25)); ?></span>
+                                                        <?php if($subcat->childcategories->count() > 0): ?><i class="fa-solid fa-chevron-right cat_down"></i><?php endif; ?>
                                                     </a>
-                                                    @if($subcat->childcategories->count() > 0)
+                                                    <?php if($subcat->childcategories->count() > 0): ?>
                                                     <ul class="child_menu">
-                                                        @foreach($subcat->childcategories as $childcat)
+                                                        <?php $__currentLoopData = $subcat->childcategories; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $childcat): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                                                         <li class="child_main">
-                                                            <a href="{{ url('products/'.$childcat->slug) }}">{{ $childcat->childcategoryName }}</a>
+                                                            <a href="<?php echo e(url('products/'.$childcat->slug)); ?>"><?php echo e($childcat->childcategoryName); ?></a>
                                                             
                                                         </li>
-                                                        @endforeach
+                                                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                                                     </ul>
-                                                    @endif
+                                                    <?php endif; ?>
                                                 </li>
-                                                @endforeach
+                                                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                                             </ul>
-                                            @endif
+                                            <?php endif; ?>
                                         </li>
-                                        @endforeach
+                                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                                     </ul>
                                 </div>
                             </div>
@@ -639,27 +643,27 @@
             <!-- main-header end -->
         </header>
         <div id="content">
-            @yield('content')
+            <?php echo $__env->yieldContent('content'); ?>
         </div>
             <!-- content end -->
-        <footer style="background: {{$generalsetting->footer_color ?? '#1a1a1a'}} !important;">
-            <div class="footer-top" style="background: {{$generalsetting->footer_color ?? '#1a1a1a'}} !important;">
+        <footer style="background: <?php echo e($generalsetting->footer_color ?? '#1a1a1a'); ?> !important;">
+            <div class="footer-top" style="background: <?php echo e($generalsetting->footer_color ?? '#1a1a1a'); ?> !important;">
                 <div class="container">
                     <div class="row">
                         <div class="col-sm-4 mb-3 mb-sm-0">
                             <div class="footer-about">
-                                <a href="{{route('home')}}">
-                                    <img src="{{asset($generalsetting->dark_logo)}}" alt="" />
+                                <a href="<?php echo e(route('home')); ?>">
+                                    <img src="<?php echo e(asset($generalsetting->dark_logo)); ?>" alt="" />
                                 </a>
-                                <p>{{ optional($generalsetting)->footer_about_text ?? 'আপনার ব্যবসার ডিজিটাল পার্টনার। আমরা বিশ্বাস করি গুণগত মান এবং গ্রাহক সন্তুষ্টিতে। প্রযুক্তির সাথে এগিয়ে চলুন আমাদের সাথে।' }}</p>
-                                <a href="tel:{{$contact->hotline}}" class="footer-hotlint">{{$contact->hotline}}</a>
+                                <p><?php echo e(optional($generalsetting)->footer_about_text ?? 'আপনার ব্যবসার ডিজিটাল পার্টনার। আমরা বিশ্বাস করি গুণগত মান এবং গ্রাহক সন্তুষ্টিতে। প্রযুক্তির সাথে এগিয়ে চলুন আমাদের সাথে।'); ?></p>
+                                <a href="tel:<?php echo e($contact->hotline); ?>" class="footer-hotlint"><?php echo e($contact->hotline); ?></a>
                                 
                                 <!-- App Store Buttons -->
                                 <div class="app-badges mt-3">
-                                    <a href="{{ optional($generalsetting)->google_play_link ?? '#' }}" class="app-badge-btn" target="_blank" rel="noopener">
+                                    <a href="<?php echo e(optional($generalsetting)->google_play_link ?? '#'); ?>" class="app-badge-btn" target="_blank" rel="noopener">
                                         <img src="/public/uploads/play.svg" alt="Get it on Google Play" style="height: 35px !important; max-height: 35px !important; width: auto !important; max-width: 140px !important;">
                                     </a>
-                                    <a href="{{ optional($generalsetting)->app_store_link ?? '#' }}" class="app-badge-btn" target="_blank" rel="noopener">
+                                    <a href="<?php echo e(optional($generalsetting)->app_store_link ?? '#'); ?>" class="app-badge-btn" target="_blank" rel="noopener">
                                         <img src="/public/uploads/app.png" alt="Download on the App Store" style="height: 35px !important; max-height: 35px !important; width: auto !important; max-width: 140px !important;">
                                     </a>
                                 </div>
@@ -671,14 +675,14 @@
                                 <ul>
                                     <li class="title"><a>Useful Link</a></li>
                                     <li>
-                                        <a href="{{route('sellers')}}"> All Sellers</a>
+                                        <a href="<?php echo e(route('sellers')); ?>"> All Sellers</a>
                                     </li>
 									     <li>
-                                        <a href="{{route('complaint')}}"> Complaints</a>
+                                        <a href="<?php echo e(route('complaint')); ?>"> Complaints</a>
                                     </li>
-                                    @foreach($pages as $page)
-                                    <li><a href="{{route('page',['slug'=>$page->slug])}}">{{$page->name}}</a></li>
-                                    @endforeach
+                                    <?php $__currentLoopData = $pages; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $page): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                    <li><a href="<?php echo e(route('page',['slug'=>$page->slug])); ?>"><?php echo e($page->name); ?></a></li>
+                                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                                 </ul>
                             </div>
                         </div>
@@ -688,13 +692,13 @@
                                 <ul>
                                     <li class="title"><a>Link</a></li>
                                      <li>
-                                        <a href="{{route('shop')}}">All Products</a>
+                                        <a href="<?php echo e(route('shop')); ?>">All Products</a>
                                     </li>
-                                    @foreach($pagesright as $key=>$value)
+                                    <?php $__currentLoopData = $pagesright; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $key=>$value): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                                     <li>
-                                        <a href="{{route('page',['slug'=>$value->slug])}}">{{$value->name}}</a>
+                                        <a href="<?php echo e(route('page',['slug'=>$value->slug])); ?>"><?php echo e($value->name); ?></a>
                                     </li>
-                                    @endforeach
+                                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                                 </ul>
                             </div>
                         </div>
@@ -707,10 +711,10 @@
                                     <li class="title stay_conn"><a style="color: #000000 !important;">Newsletter Subscribe</a></li>
                                 </ul>
                                 <div class="footer-newsletter" style="background: transparent; background-color: transparent; padding: 0;">
-                                    <form action="{{ route('frontend.newsletter.subscribe') }}" method="POST" class="modern-subscribe">
-                                        @csrf
+                                    <form action="<?php echo e(route('frontend.newsletter.subscribe')); ?>" method="POST" class="modern-subscribe">
+                                        <?php echo csrf_field(); ?>
                                         <div class="input-group newsletter-input-group" style="background: transparent; background-color: transparent; border: none;">
-                                            <input type="email" name="email" class="form-control newsletter-input" placeholder="Enter your email..." required style="background: {{ optional($generalsetting)->primary_color ?? '#007bff' }}; background-color: {{ optional($generalsetting)->primary_color ?? '#007bff' }};">
+                                            <input type="email" name="email" class="form-control newsletter-input" placeholder="Enter your email..." required style="background: <?php echo e(optional($generalsetting)->primary_color ?? '#007bff'); ?>; background-color: <?php echo e(optional($generalsetting)->primary_color ?? '#007bff'); ?>;">
                                             <button class="btn btn-primary newsletter-btn" type="submit" style="background: #dc3545; background-color: #dc3545;">
                                                 <i class="fas fa-paper-plane"></i>
                                             </button>
@@ -722,11 +726,11 @@
                                 <!-- Follow Us Section -->
                               
                                 <ul class="social_link">
-                                    @foreach($socialicons as $value)
+                                    <?php $__currentLoopData = $socialicons; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $value): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                                     <li class="social_list">
-                                        <a class="mobile-social-link" href="{{$value->link}}"><i class="{{$value->icon}}"></i></a>
+                                        <a class="mobile-social-link" href="<?php echo e($value->link); ?>"><i class="<?php echo e($value->icon); ?>"></i></a>
                                     </li>
-                                    @endforeach
+                                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                                 </ul>
                                
                             </div>
@@ -735,20 +739,20 @@
                     </div>
                 </div>
             </div>
-                       <div class="footer-bottom" style="background: {{$generalsetting->copyright_color ?? '#000000'}} !important;">
+                       <div class="footer-bottom" style="background: <?php echo e($generalsetting->copyright_color ?? '#000000'); ?> !important;">
     <div class="container">
         <div class="row">
             <div class="col-sm-12">
                 <div class="copyright">
                     <p style="margin: 0; display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 5px;">
-                        Copyright © {{ date('Y') }} {{ $generalsetting->name }}. All rights reserved 
+                        Copyright © <?php echo e(date('Y')); ?> <?php echo e($generalsetting->name); ?>. All rights reserved 
                         
                         <span style="margin: 0 5px;">|</span>
                         
                         <span>Website Designed by:</span>
 
                         <a href="https://www.curlware.com" target="_blank" style="display: inline-flex; align-items: center; text-decoration: none; color: white; margin-left: 5px;">
-                            <img src="{{ asset('public/uploads/curlware.png') }}" alt="Curlware" style="height: 24px; margin-right: 5px;">
+                            <img src="<?php echo e(asset('public/uploads/curlware.png')); ?>" alt="Curlware" style="height: 24px; margin-right: 5px;">
                             <strong>Curlware</strong>
                         </a>
                     </p>
@@ -759,17 +763,17 @@
 </div>
         </footer>
 
-        {{-- Floating Cart - ক্লিক করলে ডান দিকের সাইডবার কার্ট ওপেন হবে --}}
+        
         <a href="javascript:void(0)" class="floating-cart-widget" id="floatingCartBtn" title="কার্ট দেখুন">
             <i class="fa-solid fa-cart-shopping"></i>
-            <span class="floating-cart-badge mobilecart-qty">{{ Cart::instance('shopping')->count() }}</span>
+            <span class="floating-cart-badge mobilecart-qty"><?php echo e(Cart::instance('shopping')->count()); ?></span>
         </a>
 
-        {{-- Sidebar Cart Drawer - ডান দিক থেকে স্লাইড আউট --}}
+        
         <div id="sidebarCartOverlay" class="sidebar-cart-overlay" onclick="closeSidebarCart()"></div>
         <div id="sidebarCartDrawer" class="sidebar-cart-drawer">
             <div id="sidebarCartContent">
-                {{-- AJAX দিয়ে লোড হবে --}}
+                
             </div>
         </div>
 
@@ -781,13 +785,13 @@
                 transform: translateY(-50%);
                 width: 52px;
                 height: 70px;
-                background: {{ $generalsetting->primary_color ?? '#007bff' }};
+                background: <?php echo e($generalsetting->primary_color ?? '#007bff'); ?>;
                 color: #fff;
                 display: flex;
                 align-items: center;
                 justify-content: center;
                 border-radius: 12px 0 0 12px;
-                box-shadow: -3px 0 15px {{ ($generalsetting->primary_color ?? '#007bff') }}66;
+                box-shadow: -3px 0 15px <?php echo e(($generalsetting->primary_color ?? '#007bff')); ?>66;
                 z-index: 9998;
                 text-decoration: none;
                 transition: all 0.3s ease;
@@ -795,7 +799,7 @@
             .floating-cart-widget:hover {
                 color: #fff;
                 width: 56px;
-                box-shadow: -4px 0 20px {{ ($generalsetting->primary_color ?? '#007bff') }}80;
+                box-shadow: -4px 0 20px <?php echo e(($generalsetting->primary_color ?? '#007bff')); ?>80;
             }
             .floating-cart-widget i {
                 font-size: 24px;
@@ -808,11 +812,11 @@
                 min-width: 22px;
                 height: 22px;
                 background: #fff;
-                color: {{ $generalsetting->primary_color ?? '#007bff' }};
+                color: <?php echo e($generalsetting->primary_color ?? '#007bff'); ?>;
                 font-size: 11px;
                 font-weight: bold;
                 border-radius: 50%;
-                border: 2px solid {{ $generalsetting->primary_color ?? '#007bff' }};
+                border: 2px solid <?php echo e($generalsetting->primary_color ?? '#007bff'); ?>;
                 display: flex;
                 align-items: center;
                 justify-content: center;
@@ -930,7 +934,7 @@
                 font-size: 14px;
                 line-height: 1.3;
             }
-            .sidebar-cart-item-title:hover { color: {{ $generalsetting->primary_color ?? '#007bff' }}; }
+            .sidebar-cart-item-title:hover { color: <?php echo e($generalsetting->primary_color ?? '#007bff'); ?>; }
             .sidebar-cart-item-price {
                 font-size: 13px;
                 color: #444;
@@ -948,7 +952,7 @@
                 right: 0;
                 background: none;
                 border: none;
-                color: {{ $generalsetting->primary_color ?? '#007bff' }};
+                color: <?php echo e($generalsetting->primary_color ?? '#007bff'); ?>;
                 cursor: pointer;
                 padding: 4px;
                 font-size: 14px;
@@ -978,7 +982,7 @@
                 transition: background 0.2s;
             }
             .sidebar-qty-btn:hover {
-                background: {{ $generalsetting->primary_color ?? '#007bff' }};
+                background: <?php echo e($generalsetting->primary_color ?? '#007bff'); ?>;
                 color: #fff;
             }
             .sidebar-qty-num {
@@ -1086,7 +1090,7 @@
             document.body.style.overflow = "";
         }
         function sidebarCartRefresh() {
-            $.get("{{ route('cart.sidebar') }}", function(html) {
+            $.get("<?php echo e(route('cart.sidebar')); ?>", function(html) {
                 $("#sidebarCartContent").html(html);
                 if (typeof feather !== "undefined") feather.replace();
             });
@@ -1107,7 +1111,7 @@
             <span class="nav_text">Category</span>
         </a>
 
-        <a href="{{route('customer.order_track')}}" class="nav_item {{ Route::is('customer.order_track') ? 'active' : '' }}">
+        <a href="<?php echo e(route('customer.order_track')); ?>" class="nav_item <?php echo e(Route::is('customer.order_track') ? 'active' : ''); ?>">
             <div class="icon_box">
                 <i class="fa fa-truck"></i>
             </div>
@@ -1115,48 +1119,48 @@
         </a>
 
         <div class="nav_item home_wrapper">
-            <a href="{{route('home')}}" class="home_fab {{ Route::is('home') ? 'active' : '' }}">
+            <a href="<?php echo e(route('home')); ?>" class="home_fab <?php echo e(Route::is('home') ? 'active' : ''); ?>">
                 <i class="fa-solid fa-house"></i>
             </a>
         </div>
 
-        <a href="{{route('customer.checkout')}}" class="nav_item {{ Route::is('customer.checkout') ? 'active' : '' }}">
+        <a href="<?php echo e(route('customer.checkout')); ?>" class="nav_item <?php echo e(Route::is('customer.checkout') ? 'active' : ''); ?>">
             <div class="icon_box">
                 <i class="fa-solid fa-cart-shopping"></i>
-                <span class="cart_badge mobilecart-qty">{{Cart::instance('shopping')->count()}}</span>
+                <span class="cart_badge mobilecart-qty"><?php echo e(Cart::instance('shopping')->count()); ?></span>
             </div>
             <span class="nav_text">Cart</span>
         </a>
 
-        @if(Auth::guard('customer')->user())
-            <a href="{{route('customer.account')}}" class="nav_item {{ Route::is('customer.account') ? 'active' : '' }}">
+        <?php if(Auth::guard('customer')->user()): ?>
+            <a href="<?php echo e(route('customer.account')); ?>" class="nav_item <?php echo e(Route::is('customer.account') ? 'active' : ''); ?>">
                 <div class="icon_box">
                     <i class="fa-solid fa-user"></i>
                 </div>
                 <span class="nav_text">Account</span>
             </a>
-        @elseif(Auth::guard('admin')->check() && Auth::guard('admin')->user()->hasRole('vendor'))
-            <a href="{{route('vendor.dashboard')}}" class="nav_item">
+        <?php elseif(Auth::guard('admin')->check() && Auth::guard('admin')->user()->hasRole('vendor')): ?>
+            <a href="<?php echo e(route('vendor.dashboard')); ?>" class="nav_item">
                 <div class="icon_box">
                     <i class="fa-solid fa-store"></i>
                 </div>
                 <span class="nav_text">Vendor</span>
             </a>
-        @elseif(Auth::guard('admin')->check() && (Auth::guard('admin')->user()->hasRole('reseller') || (isset(Auth::guard('admin')->user()->role) && strtolower(Auth::guard('admin')->user()->role) === 'reseller')))
-            <a href="{{route('reseller.dashboard')}}" class="nav_item">
+        <?php elseif(Auth::guard('admin')->check() && (Auth::guard('admin')->user()->hasRole('reseller') || (isset(Auth::guard('admin')->user()->role) && strtolower(Auth::guard('admin')->user()->role) === 'reseller'))): ?>
+            <a href="<?php echo e(route('reseller.dashboard')); ?>" class="nav_item">
                 <div class="icon_box">
                     <i class="fa-solid fa-handshake"></i>
                 </div>
                 <span class="nav_text">Reseller</span>
             </a>
-        @else
-            <a href="{{route('customer.login')}}" class="nav_item {{ Route::is('customer.login') ? 'active' : '' }}">
+        <?php else: ?>
+            <a href="<?php echo e(route('customer.login')); ?>" class="nav_item <?php echo e(Route::is('customer.login') ? 'active' : ''); ?>">
                 <div class="icon_box">
                     <i class="fa-solid fa-right-to-bracket"></i>
                 </div>
                 <span class="nav_text">Login</span>
             </a>
-        @endif
+        <?php endif; ?>
     </div>
 </div>
 <style>
@@ -1230,7 +1234,7 @@
 .home_fab {
     width: 60px;
     height: 60px;
-    background: {{$generalsetting->primary_color}}; /* ব্র্যান্ড কালার */
+    background: <?php echo e($generalsetting->primary_color); ?>; /* ব্র্যান্ড কালার */
     border-radius: 50%;
     display: flex;
     justify-content: center;
@@ -1275,13 +1279,13 @@
 
   <!-- Chat Options -->
   <div class="chat-options" id="chatOptions">
-          <a href="https://m.me/{{$generalsetting->facebook_page_username}}" target="_blank" class="chat-btn messenger" title="Messenger">
+          <a href="https://m.me/<?php echo e($generalsetting->facebook_page_username); ?>" target="_blank" class="chat-btn messenger" title="Messenger">
       <i class="fab fa-facebook-messenger"></i>
     </a>
-          <a href="https://wa.me/{{ $contact->whatsapp }}" target="_blank" class="chat-btn whatsapp" title="WhatsApp">
+          <a href="https://wa.me/<?php echo e($contact->whatsapp); ?>" target="_blank" class="chat-btn whatsapp" title="WhatsApp">
       <i class="fab fa-whatsapp"></i>
     </a>
-    <a href="tel:{{$contact->hotline}}" class="chat-btn hotline" title="Hotline">
+    <a href="tel:<?php echo e($contact->hotline); ?>" class="chat-btn hotline" title="Hotline">
       <i class="fas fa-phone"></i>
     </a>
 
@@ -1381,61 +1385,62 @@
 }
 
 </style>
-@php
+<?php
     $popup = App\Models\Popup::where('status', 1)->latest()->first();
     // শুধু ইমেইজ দেখাবে যখন বর্ণনা ও লিংক খালি — btn_text ইগনোর (ডিফল্ট "Shop Now" থাকলেও)
     $popupImageOnly = $popup && !trim($popup->description ?? '') && !trim($popup->link ?? '');
-@endphp
-@if($popup)
+?>
+<?php if($popup): ?>
 <div class="modal fade pop-banner-modal" id="popShopModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="true" style="z-index: 10000;">
-    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable {{ $popupImageOnly ? 'pop-banner-dialog' : 'modal-lg' }}">
-        <div class="modal-content ps-content {{ $popupImageOnly ? 'ps-content-image-only' : '' }}">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable <?php echo e($popupImageOnly ? 'pop-banner-dialog' : 'modal-lg'); ?>">
+        <div class="modal-content ps-content <?php echo e($popupImageOnly ? 'ps-content-image-only' : ''); ?>">
             <button type="button" class="ps-close pop-banner-close" data-bs-dismiss="modal" aria-label="বন্ধ করুন">
                 <span aria-hidden="true">&times;</span>
             </button>
             
-            @if($popupImageOnly)
-            {{-- শুধু ইমেইজ পপআপ - বানার স্টাইল --}}
+            <?php if($popupImageOnly): ?>
+            
             <div class="ps-image-only-wrap">
-                @if(trim($popup->link ?? ''))
-                <a href="{{ $popup->link }}" target="_blank" class="d-block">
-                    <img src="{{ url('public/'.$popup->image) }}" alt="{{ $popup->title ?? 'Fabrilife and bkash promotion' }}" class="img-fluid w-100">
+                <?php if(trim($popup->link ?? '')): ?>
+                <a href="<?php echo e($popup->link); ?>" target="_blank" class="d-block">
+                    <img src="<?php echo e(url('public/'.$popup->image)); ?>" alt="<?php echo e($popup->title ?? 'Fabrilife and bkash promotion'); ?>" class="img-fluid w-100">
                 </a>
-                @else
-                <img src="{{ url('public/'.$popup->image) }}" alt="{{ $popup->title ?? 'Promotional offer' }}" class="img-fluid w-100">
-                @endif
+                <?php else: ?>
+                <img src="<?php echo e(url('public/'.$popup->image)); ?>" alt="<?php echo e($popup->title ?? 'Promotional offer'); ?>" class="img-fluid w-100">
+                <?php endif; ?>
             </div>
-            @else
-            {{-- টেক্সট + ইমেইজ পপআপ --}}
+            <?php else: ?>
+            
             <div class="ps-layout">
                 <div class="ps-text-section">
-                    <h3 class="ps-brand">{{ $popup->title ?? 'Offer' }}</h3>
+                    <h3 class="ps-brand"><?php echo e($popup->title ?? 'Offer'); ?></h3>
                     
                     <div class="ps-headline">
-                        <p>{!! nl2br(e($popup->description ?? '')) !!}</p>
+                        <p><?php echo nl2br(e($popup->description ?? '')); ?></p>
                     </div>
 
-                    @if($popup->offer_end_text)
-                    <p class="ps-deadline">{{ $popup->offer_end_text }}</p>
-                    @endif
+                    <?php if($popup->offer_end_text): ?>
+                    <p class="ps-deadline"><?php echo e($popup->offer_end_text); ?></p>
+                    <?php endif; ?>
 
-                    <a href="{{ $popup->link ?? '#' }}" class="ps-btn">
-                        {{ $popup->btn_text ?? 'Shop the Sale' }}
+                    <a href="<?php echo e($popup->link ?? '#'); ?>" class="ps-btn">
+                        <?php echo e($popup->btn_text ?? 'Shop the Sale'); ?>
+
                     </a>
 
                     <div class="ps-footer">
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-box-seam" viewBox="0 0 16 16">
                           <path d="M8.186 1.113a.5.5 0 0 0-.372 0L1.846 3.5l2.404.961L10.404 2l-2.218-.887zm3.564 1.426L5.596 5 8 5.961 14.154 3.5l-2.404-.961zm3.25 1.7-6.5 2.6v7.922l6.5-2.6V4.24zM7.5 14.762V6.838L1 4.239v7.923l6.5 2.6zM7.443.184a1.5 1.5 0 0 1 1.114 0l7.129 2.852A.5.5 0 0 1 16 3.5v8.662a1 1 0 0 1-.629.928l-7.185 2.874a.5.5 0 0 1-.372 0L.63 13.09a1 1 0 0 1-.63-.928V3.5a.5.5 0 0 1 .314-.464L7.443.184z"/>
                         </svg>
-                        <span>POWERED BY <strong>{{ $generalsetting->name ?? 'CommerceGurus' }}</strong></span>
+                        <span>POWERED BY <strong><?php echo e($generalsetting->name ?? 'CommerceGurus'); ?></strong></span>
                     </div>
                 </div>
 
                 <div class="ps-image-section">
-                    <img src="{{ url('public/'.$popup->image) }}" alt="{{ $popup->title ?? 'Offer' }}">
+                    <img src="<?php echo e(url('public/'.$popup->image)); ?>" alt="<?php echo e($popup->title ?? 'Offer'); ?>">
                 </div>
             </div>
-            @endif
+            <?php endif; ?>
         </div>
     </div>
 </div>
@@ -1720,16 +1725,16 @@
         }
     });
 </script>
-@endif
+<?php endif; ?>
 
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-@if(session('show_order_limit_modal'))
+<?php if(session('show_order_limit_modal')): ?>
 <script>
     document.addEventListener("DOMContentLoaded", function() {
         // ডাইনামিক হোয়াটসঅ্যাপ নাম্বার (ডাটাবেস থেকে)
-        var whatsappNumber = "{{ $contact->whatsapp ?? $contact->hotline ?? '8801700000000' }}"; 
+        var whatsappNumber = "<?php echo e($contact->whatsapp ?? $contact->hotline ?? '8801700000000'); ?>"; 
         
         Swal.fire({
             title: '', 
@@ -1887,7 +1892,7 @@
         }
     }
 </style>
-@endif
+<?php endif; ?>
 
 
 <script>
@@ -1904,13 +1909,13 @@ document.getElementById("chatToggle").addEventListener("click", function() {
         <div id="page-overlay"></div>
         <div id="loading"><div class="custom-loader"></div></div>
 
-        <script src="{{asset('public/frontEnd/js/jquery-3.6.3.min.js')}}"></script>
-        <script src="{{asset('public/frontEnd/js/bootstrap.min.js')}}"></script>
-        <script src="{{asset('public/frontEnd/js/owl.carousel.min.js')}}"></script>
-        <script src="{{asset('public/frontEnd/js/mobile-menu.js')}}"></script>
-        <script src="{{asset('public/frontEnd/js/wsit-menu.js')}}"></script>
-        <script src="{{asset('public/frontEnd/js/mobile-menu-init.js')}}"></script>
-        <script src="{{asset('public/frontEnd/js/wow.min.js')}}"></script>
+        <script src="<?php echo e(asset('public/frontEnd/js/jquery-3.6.3.min.js')); ?>"></script>
+        <script src="<?php echo e(asset('public/frontEnd/js/bootstrap.min.js')); ?>"></script>
+        <script src="<?php echo e(asset('public/frontEnd/js/owl.carousel.min.js')); ?>"></script>
+        <script src="<?php echo e(asset('public/frontEnd/js/mobile-menu.js')); ?>"></script>
+        <script src="<?php echo e(asset('public/frontEnd/js/wsit-menu.js')); ?>"></script>
+        <script src="<?php echo e(asset('public/frontEnd/js/mobile-menu-init.js')); ?>"></script>
+        <script src="<?php echo e(asset('public/frontEnd/js/wow.min.js')); ?>"></script>
         <script>
             new WOW().init();
         </script>
@@ -1922,8 +1927,8 @@ document.getElementById("chatToggle").addEventListener("click", function() {
         <script>
             feather.replace();
         </script>
-        <script src="{{asset('public/backEnd/')}}/assets/js/toastr.min.js"></script>
-        {!! Toastr::message() !!} @stack('script')
+        <script src="<?php echo e(asset('public/backEnd/')); ?>/assets/js/toastr.min.js"></script>
+        <?php echo Toastr::message(); ?> <?php echo $__env->yieldPushContent('script'); ?>
         <script>
             $(".quick_view").on("click", function () {
                 var id = $(this).data("id");
@@ -1932,7 +1937,7 @@ document.getElementById("chatToggle").addEventListener("click", function() {
                     $.ajax({
                         type: "GET",
                         data: { id: id },
-                        url: "{{route('quickview')}}",
+                        url: "<?php echo e(route('quickview')); ?>",
                         success: function (data) {
                             if (data) {
                                 $("#custom-modal").html(data);
@@ -2000,7 +2005,7 @@ document.getElementById("chatToggle").addEventListener("click", function() {
                     $.ajax({
                         cache: "false",
                         type: "GET",
-                        url: "{{url('add-to-cart')}}/" + id + "/" + qty,
+                        url: "<?php echo e(url('add-to-cart')); ?>/" + id + "/" + qty,
                         dataType: "json",
                         success: function (data) {
                             if (data) {
@@ -2047,7 +2052,7 @@ document.getElementById("chatToggle").addEventListener("click", function() {
                             cart_count();
                             mobile_cart();
                             if (typeof sidebarCartRefresh === "function") sidebarCartRefresh();
-                            var checkoutUrl = (data.redirect) ? data.redirect : "{{ route('customer.checkout') }}";
+                            var checkoutUrl = (data.redirect) ? data.redirect : "<?php echo e(route('customer.checkout')); ?>";
                             if (data.redirect || hasOrderNow) {
                                 window.location.href = checkoutUrl;
                             } else {
@@ -2109,7 +2114,7 @@ document.getElementById("chatToggle").addEventListener("click", function() {
                     $.ajax({
                         type: "GET",
                         data: { id: id },
-                        url: "{{route('cart.remove')}}",
+                        url: "<?php echo e(route('cart.remove')); ?>",
                         success: function (data) {
                             if (data) {
                                 $(".cartlist").html(data);
@@ -2129,7 +2134,7 @@ document.getElementById("chatToggle").addEventListener("click", function() {
                     $.ajax({
                         type: "GET",
                         data: { id: id },
-                        url: "{{route('cart.increment')}}",
+                        url: "<?php echo e(route('cart.increment')); ?>",
                         success: function (data) {
                             if (data) {
                                 $(".cartlist").html(data);
@@ -2148,7 +2153,7 @@ document.getElementById("chatToggle").addEventListener("click", function() {
                     $.ajax({
                         type: "GET",
                         data: { id: id },
-                        url: "{{route('cart.decrement')}}",
+                        url: "<?php echo e(route('cart.decrement')); ?>",
                         success: function (data) {
                             if (data) {
                                 $(".cartlist").html(data);
@@ -2164,7 +2169,7 @@ document.getElementById("chatToggle").addEventListener("click", function() {
             function cart_count() {
                 $.ajax({
                     type: "GET",
-                    url: "{{route('cart.count')}}",
+                    url: "<?php echo e(route('cart.count')); ?>",
                     success: function (data) {
                         if (data) {
                             $("#cart-qty").html(data);
@@ -2177,7 +2182,7 @@ document.getElementById("chatToggle").addEventListener("click", function() {
             function mobile_cart() {
                 $.ajax({
                     type: "GET",
-                    url: "{{route('mobile.cart.count')}}",
+                    url: "<?php echo e(route('mobile.cart.count')); ?>",
                     success: function (data) {
                         if (data) {
                             $(".mobilecart-qty").html(data);
@@ -2190,7 +2195,7 @@ document.getElementById("chatToggle").addEventListener("click", function() {
             function cart_summary() {
                 $.ajax({
                     type: "GET",
-                    url: "{{route('shipping.charge')}}",
+                    url: "<?php echo e(route('shipping.charge')); ?>",
                     dataType: "html",
                     success: function (response) {
                         $(".cart-summary").html(response);
@@ -2205,7 +2210,7 @@ document.getElementById("chatToggle").addEventListener("click", function() {
                 $.ajax({
                     type: "GET",
                     data: { keyword: keyword },
-                    url: "{{route('livesearch')}}",
+                    url: "<?php echo e(route('livesearch')); ?>",
                     success: function (products) {
                         if (products) {
                             $(".search_result").html(products);
@@ -2220,7 +2225,7 @@ document.getElementById("chatToggle").addEventListener("click", function() {
                 $.ajax({
                     type: "GET",
                     data: { keyword: keyword },
-                    url: "{{route('livesearch')}}",
+                    url: "<?php echo e(route('livesearch')); ?>",
                     success: function (products) {
                         if (products) {
                             $("#loading").hide();
@@ -2241,7 +2246,7 @@ document.getElementById("chatToggle").addEventListener("click", function() {
                 $.ajax({
                     type: "GET",
                     data: { id: id },
-                    url: "{{route('districts')}}",
+                    url: "<?php echo e(route('districts')); ?>",
                     success: function (res) {
                         if (res) {
                             $(".area").empty();
@@ -2376,13 +2381,14 @@ document.getElementById("chatToggle").addEventListener("click", function() {
         </script>
         <!--search ANIMAtion end-->
         <!-- Google Tag Manager (noscript) -->
-        @foreach($gtm_code as $gtm)
-        @php $gtmId = str_starts_with($gtm->code, 'GTM-') ? $gtm->code : 'GTM-'.$gtm->code; @endphp
-        <noscript><iframe src="https://www.googletagmanager.com/ns.html?id={{ $gtmId }}"
+        <?php $__currentLoopData = $gtm_code; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $gtm): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+        <?php $gtmId = str_starts_with($gtm->code, 'GTM-') ? $gtm->code : 'GTM-'.$gtm->code; ?>
+        <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=<?php echo e($gtmId); ?>"
         height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
-        @endforeach
+        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
         <!-- End Google Tag Manager (noscript) -->
 		
 		
     </body>
 </html>
+<?php /**PATH /media/asraful/F/project/20-code/All Code/Ecommerce3/ecommerce3/resources/views/frontEnd/layouts/master.blade.php ENDPATH**/ ?>

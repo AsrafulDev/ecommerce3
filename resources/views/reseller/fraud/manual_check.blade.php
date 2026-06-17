@@ -110,10 +110,11 @@
                     </h3>
 
                     @php
-                        $summary = $data['summary'] ?? [];
-                        $overallRate = isset($summary['success_ratio']) ? round($summary['success_ratio']) : null;
+                        $totalParcels = (int) ($data['total_parcels'] ?? 0);
+                        $totalDelivered = (int) ($data['total_delivered'] ?? 0);
+                        $totalCancel = (int) ($data['total_cancel'] ?? 0);
+                        $overallRate = $totalParcels > 0 ? round(($totalDelivered / $totalParcels) * 100) : null;
                         $rateText = $overallRate !== null ? $overallRate.'%' : 'N/A';
-                        $totalParcels = $summary['total_parcel'] ?? 0;
                     @endphp
 
                     {{-- Circle --}}
@@ -123,7 +124,7 @@
                                 {{ $rateText }}
                             </span>
                             <br>
-                            <small class="text-muted" style="font-size: 12px;">({{ $totalParcels }} টি অর্ডার)</small>
+                            <small class="text-muted" style="font-size: 12px;">({{ $totalParcels ?? 0 }} টি অর্ডার)</small>
                         </div>
                     </div>
 
@@ -181,37 +182,31 @@
                             <tbody>
 
                                 @php
-                                    $couriers = [
-                                        'pathao'    => 'Pathao',
-                                        'steadfast' => 'SteadFast',
-                                        'redx'      => 'RedX',
-                                        'paperfly'  => 'PaperFly',
-                                        'parceldex' => 'ParcelDex',
-                                        'carrybee'  => 'CarryBee'
+                                    $apiCouriers = $data['apis'] ?? [];
+                                    $courierMapping = [
+                                        'Pathao'  => ['key' => 'pathao', 'name' => 'Pathao', 'logo' => 'pathao-logo.png'],
+                                        'Redex'   => ['key' => 'redx', 'name' => 'RedX', 'logo' => 'redx-logo.png'],
+                                        'CarryBee' => ['key' => 'carrybee', 'name' => 'CarryBee', 'logo' => 'carrybee-logo.webp'],
                                     ];
 
-                                    // Courier logos
                                     $myLogos = [
                                         'pathao'    => asset('public/assets/images/courier/pathao-logo.png'),
-                                        'steadfast' => asset('public/assets/images/courier/steadfast-logo.png'),
                                         'redx'      => asset('public/assets/images/courier/redx-logo.png'),
-                                        'paperfly'  => asset('public/assets/images/courier/paperfly-logo.png'),
-                                        'parceldex' => asset('public/assets/images/courier/parceldex-logo.png'),
                                         'carrybee'  => asset('public/assets/images/courier/carrybee-logo.webp'),
                                     ];
                                 @endphp
 
-                                @foreach($couriers as $key => $name)
+                                @foreach($courierMapping as $apiName => $mapped)
 
                                     @php
-                                        $info = $data[$key] ?? [];
-                                        $s = (int) ($info['success_parcel'] ?? 0);
-                                        $c = (int) ($info['cancelled_parcel'] ?? 0);
-                                        $t = (int) ($info['total_parcel'] ?? ($s + $c));
-                                        $rate = isset($info['success_ratio']) ? round($info['success_ratio']) : ($t > 0 ? round(($s/$t)*100) : 0);
+                                        $info = $apiCouriers[$apiName] ?? [];
+                                        $s = (int) ($info['total_delivered_parcels'] ?? 0);
+                                        $c = (int) ($info['total_cancelled_parcels'] ?? 0);
+                                        $t = (int) ($info['total_parcels'] ?? ($s + $c));
+                                        $rate = $t > 0 ? round(($s/$t)*100) : 0;
                                         
-                                        // Courier logo
-                                        $logo = $myLogos[$key] ?? null;
+                                        $logo = $myLogos[$mapped['key']] ?? null;
+                                        $name = $mapped['name'];
                                     @endphp
 
                                     <tr>

