@@ -137,7 +137,7 @@
         <div class="col-12">
             <div class="page-title-box d-flex align-items-center justify-content-between" style="padding: 20px 0;">
                 <div class="d-flex align-items-center">
-                    <img src="{{ asset('public/frontEnd/images/creativedesignbd.png') }}" alt="Logo" style="height: 40px; margin-right: 15px; border-radius:4px;">
+                    <i class="fas fa-sms" style="font-size: 28px; margin-right: 15px; color: #556ee6;"></i>
                     <h4 class="mb-0 font-size-18">SMS Gateway Integration</h4>
                 </div>
                 <div class="page-title-right">
@@ -176,6 +176,51 @@
                         @error('api_key')
                             <span class="invalid-feedback d-block" role="alert"><strong>{{ $message }}</strong></span>
                         @enderror
+                    </div>
+
+                    <div class="form-group mb-4">
+                        <label for="url" class="form-label font-weight-bold">API URL <span class="text-danger">*</span></label>
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text"><i class="fas fa-link"></i></span>
+                            </div>
+                            <input type="text" class="form-control @error('url') is-invalid @enderror" 
+                                name="url" value="{{ $sms->url }}" id="url" 
+                                placeholder="https://api.smsprovider.com/send" required />
+                        </div>
+                        <small class="text-muted">আপনার SMS প্রদানকারীর API এন্ডপয়েন্ট URL দিন।</small>
+                        @error('url')
+                            <span class="invalid-feedback d-block" role="alert"><strong>{{ $message }}</strong></span>
+                        @enderror
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-3 mb-4">
+                            <label for="method" class="form-label font-weight-bold">API Method</label>
+                            <select name="method" id="method" class="form-control">
+                                <option value="POST" {{ ($sms->method ?? 'POST') == 'POST' ? 'selected' : '' }}>POST</option>
+                                <option value="GET" {{ ($sms->method ?? 'POST') == 'GET' ? 'selected' : '' }}>GET</option>
+                            </select>
+                            <small class="text-muted">HTTP Method (POST/GET)</small>
+                        </div>
+                        <div class="col-md-3 mb-4">
+                            <label for="phone_key" class="form-label font-weight-bold">Phone Key</label>
+                            <input type="text" name="phone_key" id="phone_key" class="form-control" 
+                                value="{{ $sms->phone_key ?? 'number' }}" placeholder="number" />
+                            <small class="text-muted">ফোন নম্বর প্যারামিটার নাম</small>
+                        </div>
+                        <div class="col-md-3 mb-4">
+                            <label for="message_key" class="form-label font-weight-bold">Message Key</label>
+                            <input type="text" name="message_key" id="message_key" class="form-control" 
+                                value="{{ $sms->message_key ?? 'message' }}" placeholder="message" />
+                            <small class="text-muted">মেসেজ প্যারামিটার নাম</small>
+                        </div>
+                        <div class="col-md-3 mb-4">
+                            <label for="serderid" class="form-label font-weight-bold">Sender ID</label>
+                            <input type="text" name="serderid" id="serderid" class="form-control" 
+                                value="{{ $sms->serderid }}" placeholder="Ex: 8801234" />
+                            <small class="text-muted">SMS Sender ID (optional)</small>
+                        </div>
                     </div>
 
                     <div class="form-group mb-4">
@@ -271,10 +316,10 @@
                 <div class="p-2">
                     <h5 class="text-primary mb-3">কিভাবে সেটআপ করবেন?</h5>
                     <ul class="instruction-list pl-3">
-                        <li><strong>ধাপ ১:</strong> প্রথমে <a href="https://www.creativedesign.com.bd/login" target="_blank">www.creativedesign.com.bd</a> এ লগইন করুন।</li>
-                        <li><strong>ধাপ ২:</strong> মেনু থেকে <code>এসএমএস সার্ভিস থেকে এপিআই ডকুমেন্টেশন</code> অপশনে যান।</li>
-                        <li><strong>ধাপ ৩:</strong> সেখান থেকে আপনার <span class="badge badge-soft-primary">API KEY</span> টি কপি করুন।</li>
-                        <li><strong>ধাপ ৪:</strong> বাম পাশের ফর্মে API Key টি পেস্ট করুন এবং সেভ করুন।</li>
+                        <li><strong>ধাপ ১:</strong> আপনার SMS প্রদানকারীর API থেকে API Key সংগ্রহ করুন।</li>
+                        <li><strong>ধাপ ২:</strong> API URL, Method (POST/GET) এবং Phone Number Key সেট করুন।</li>
+                        <li><strong>ধাপ ৩:</strong> বাম পাশের ফর্মে তথ্য পূরণ করে সেভ করুন।</li>
+                        <li><strong>ধাপ ৪:</strong> অটোমেশন ট্রিগারগুলো অন/অফ করে নিন।</li>
                     </ul>
 
                     <h5 class="text-primary mt-4 mb-3">API Parameters</h5>
@@ -293,14 +338,14 @@
                                 <td>Your unique API key</td>
                             </tr>
                             <tr>
-                                <td><code>number</code></td>
+                                <td><code>{{ $sms->phone_key ?? 'number' }}</code></td>
                                 <td>88017...</td>
-                                <td>Receiver Number</td>
+                                <td>Receiver Number (ডায়নামিক কী)</td>
                             </tr>
                             <tr>
-                                <td><code>message</code></td>
+                                <td><code>{{ $sms->message_key ?? 'message' }}</code></td>
                                 <td>Text</td>
-                                <td>SMS Content</td>
+                                <td>SMS Content (ডায়নামিক কী)</td>
                             </tr>
                         </tbody>
                     </table>
@@ -310,18 +355,20 @@
                     
                     <div class="code-block">
 <pre>
-<span class="keyword">$url</span> = <span class="string">"https://www.creativedesign.com.bd/api/smsapi"</span>;
+<span class="keyword">$url</span> = <span class="string">"YOUR_API_URL"</span>;
+<span class="keyword">$method</span> = <span class="string">"POST"</span>; <span class="variable">// or GET</span>
 <span class="keyword">$data</span> = [
   <span class="string">"api_key"</span> => <span class="string">"YOUR_API_KEY"</span>,
-  <span class="string">"type"</span> => <span class="string">"text"</span>,
-  <span class="string">"number"</span> => <span class="string">"88017XXXXXXXX"</span>,
-  <span class="string">"message"</span> => <span class="string">"Test SMS"</span>
+  <span class="string">"YOUR_PHONE_KEY"</span> => <span class="string">"88017XXXXXXXX"</span>,
+  <span class="string">"YOUR_MESSAGE_KEY"</span> => <span class="string">"Test SMS"</span>
 ];
 
 <span class="keyword">$ch</span> = curl_init();
 curl_setopt(<span class="keyword">$ch</span>, CURLOPT_URL, <span class="keyword">$url</span>);
-curl_setopt(<span class="keyword">$ch</span>, CURLOPT_POST, 1);
-curl_setopt(<span class="keyword">$ch</span>, CURLOPT_POSTFIELDS, <span class="keyword">$data</span>);
+<span class="keyword">if</span>(<span class="keyword">$method</span> == <span class="string">"POST"</span>) {
+    curl_setopt(<span class="keyword">$ch</span>, CURLOPT_POST, 1);
+    curl_setopt(<span class="keyword">$ch</span>, CURLOPT_POSTFIELDS, <span class="keyword">$data</span>);
+}
 curl_setopt(<span class="keyword">$ch</span>, CURLOPT_RETURNTRANSFER, true);
 <span class="keyword">$response</span> = curl_exec(<span class="keyword">$ch</span>);
 curl_close(<span class="keyword">$ch</span>);

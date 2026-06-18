@@ -123,7 +123,7 @@ class ShurjopayControllers extends Controller
         Cart::instance('shopping')->destroy(); 
 
         Toastr::success('Thanks, Your order place successfully', 'Success!');
-        $redirectRoute = ($order->reseller_profit) ? 'reseller.order.success' : 'customer.order_success';
+        $redirectRoute = 'customer.order_success';
         return redirect()->route($redirectRoute, $order->id);
     }
 

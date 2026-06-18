@@ -34,17 +34,7 @@ class AuthenticatedSessionController extends Controller
 
         $user = Auth::guard('admin')->user();
 
-        // Check if user role is 'reseller', redirect to reseller dashboard
-        // Check both Spatie role and direct role column
-        $isReseller = $user->hasRole('reseller') || 
-                      (isset($user->role) && strtolower($user->role) === 'reseller') ||
-                      $user->getRoleNames()->contains('reseller');
-        
-        if ($isReseller) {
-            return redirect()->route('reseller.dashboard');
-        }
-
-        // Otherwise, redirect to default dashboard
+        // Redirect to default dashboard
         return redirect()->intended('/admin/dashboard');
     }
 

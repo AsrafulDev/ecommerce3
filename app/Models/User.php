@@ -21,25 +21,8 @@ class User extends Authenticatable
         'password',
         'status',
         'image',
-        'vendor_id',
-        'shop_name',
         'role',
-        'wallet_balance',
-        'verification_status',
-        'voter_id_front',
-        'voter_id_back',
-        'self_image',
-        'verification_note',
-        'verified_at',
     ];
-
-    /**
-     * Get the vendor that owns the user.
-     */
-    public function vendor()
-    {
-        return $this->belongsTo(Vendor::class, 'vendor_id');
-    }
 
     /**
      * Get the employee record for this user.

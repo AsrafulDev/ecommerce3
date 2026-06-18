@@ -62,8 +62,6 @@
                                     <th style="width:10%;">Date</th>
                                     <th style="width:10%;">Name</th>
                                     <th style="width:8%;">Type</th>
-                                    <th style="width:10%;">Vendor</th>
-                                    <th style="width:8%;">Reseller</th>
                                     <th style="width:8%;">IP</th>
                                     <th style="width:10%;">Order Note</th>
                                     <th style="width:10%;">Admin Note</th>
@@ -120,44 +118,7 @@
                                                 }
                                             ?>
                                         </td>
-                                        <td>
-                                            <?php
-                                                $vendors = [];
-                                                if ($value->orderDetails) {
-                                                    foreach ($value->orderDetails as $item) {
-                                                        if ($item->vendor && $item->vendor->shop_name) {
-                                                            $vendors[$item->vendor->id] = $item->vendor->shop_name;
-                                                        }
-                                                    }
-                                                }
-                                                $uniqueVendors = array_unique($vendors);
-                                            ?>
-                                            <?php if(count($uniqueVendors) > 0): ?>
-                                                <?php $__currentLoopData = $uniqueVendors; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $vendorName): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                                                    <span class="badge bg-primary mb-1 d-block"><?php echo e($vendorName); ?></span>
-                                                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
-                                            <?php else: ?>
-                                                <span class="text-muted">-</span>
-                                            <?php endif; ?>
-                                        </td>
-                                        <td>
-                                            <?php if($value->reseller_profit): ?>
-                                                <?php if($value->user): ?>
-                                                    <span class="badge bg-info" title="Reseller: <?php echo e($value->user->name); ?>">
-                                                        <i class="fe-user"></i> <?php echo e(Str::limit($value->user->name, 15)); ?>
 
-                                                    </span>
-                                                    <br>
-                                                    <small class="text-muted" style="font-size: 0.7rem;">Profit: ৳<?php echo e(number_format($value->reseller_profit, 0)); ?></small>
-                                                <?php else: ?>
-                                                    <span class="badge bg-warning">Reseller Order</span>
-                                                    <br>
-                                                    <small class="text-muted" style="font-size: 0.7rem;">Profit: ৳<?php echo e(number_format($value->reseller_profit, 0)); ?></small>
-                                                <?php endif; ?>
-                                            <?php else: ?>
-                                                <span class="text-muted">-</span>
-                                            <?php endif; ?>
-                                        </td>
                                         <td>
                                             <div class="d-flex align-items-center gap-2">
                                                 <span><?php echo e($value->ip_address); ?></span>

@@ -38,7 +38,6 @@ use Illuminate\Support\Facades\Log;
 use App\Helpers\OrderHelper;
 use App\Models\Brand;
 use App\Models\Blog;
-use App\Models\Vendor;
 use Illuminate\Support\Str;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Cache;
@@ -186,37 +185,6 @@ $brands = Brand::where('status', 1)
             $all_products = null;
         }
 
-        // Active Vendors with shop info - for shop cards display
-        $vendors = Vendor::where('status', 1)
-            ->where('verification_status', 'approved')
-            ->select('id', 'shop_name', 'slug', 'logo', 'banner', 'status')
-            ->withCount(['products' => function($query) {
-                $query->where('status', 1)->where('approval_status', 'approved');
-            }])
-            ->having('products_count', '>', 0) // Only show vendors with at least one approved product
-            ->orderBy('id', 'DESC')
-            ->limit(12)
-            ->get();
-
-        // ✅ Performance: Single query instead of N+1 for vendor review stats
-        $vendorIds = $vendors->pluck('id')->toArray();
-        $vendorReviewStats = DB::table('reviews')
-            ->join('products', 'reviews.product_id', '=', 'products.id')
-            ->whereIn('products.vendor_id', $vendorIds)
-            ->where('products.status', 1)
-            ->where('products.approval_status', 'approved')
-            ->where('reviews.status', 'active')
-            ->selectRaw('products.vendor_id, COUNT(*) as total_reviews, AVG(reviews.ratting) as avg_rating')
-            ->groupBy('products.vendor_id')
-            ->get()
-            ->keyBy('vendor_id');
-
-        foreach ($vendors as $vendor) {
-            $stats = $vendorReviewStats->get($vendor->id);
-            $vendor->total_reviews = $stats ? (int) $stats->total_reviews : 0;
-            $vendor->average_rating = $stats && $stats->total_reviews > 0 ? round((float) $stats->avg_rating, 1) : 0;
-        }
-
         return compact(
             'seo',
             'generalsetting',
@@ -236,8 +204,7 @@ $brands = Brand::where('status', 1)
             'flas_sales',
             'campaognads',
             'reviews',
-            'all_products',
-            'vendors'
+            'all_products'
         );
     }
 
@@ -488,68 +455,6 @@ $brands = Brand::where('status', 1)
     ));
 }
 
-    public function vendorShop($slug, Request $request)
-    {
-        $generalSetting = GeneralSetting::where('status', 1)->first();
-        if (!$generalSetting || ($generalSetting->vendor_enabled ?? 1) != 1) {
-            abort(404);
-        }
-
-        $vendor = Vendor::where('slug', $slug)
-            ->where('status', 1)
-            ->where('verification_status', 'approved')
-            ->firstOrFail();
-
-        // Get vendor products
-        $products = Product::where('vendor_id', $vendor->id)
-            ->where('status', 1)
-            ->where('approval_status', 'approved')
-            ->select('id', 'name', 'slug', 'new_price', 'old_price', 'stock', 'sold')
-            ->with(['image', 'reviews', 'prosizes', 'procolors']);
-
-        // Sorting
-        if ($request->sort == 1) {
-            $products = $products->orderBy('created_at', 'desc');
-        } elseif ($request->sort == 2) {
-            $products = $products->orderBy('created_at', 'asc');
-        } elseif ($request->sort == 3) {
-            $products = $products->orderBy('new_price', 'desc');
-        } elseif ($request->sort == 4) {
-            $products = $products->orderBy('new_price', 'asc');
-        } else {
-            $products = $products->latest();
-        }
-
-        $products = $products->paginate(24);
-
-        // Calculate vendor stats
-        $vendorProducts = Product::where('vendor_id', $vendor->id)
-            ->where('status', 1)
-            ->where('approval_status', 'approved')
-            ->pluck('id');
-        
-        $reviews = Review::whereIn('product_id', $vendorProducts)
-            ->where('status', 'active')
-            ->get();
-        
-        $vendor->total_reviews = $reviews->count();
-        $vendor->average_rating = $reviews->count() > 0 
-            ? round($reviews->avg('ratting'), 1) 
-            : 0;
-        $vendor->total_products = $vendorProducts->count();
-
-        // General setting
-        $generalsetting = GeneralSetting::where('status', 1)->limit(1)->first();
-        $seo = DB::table('seo_settings')->first();
-
-        return view('frontEnd.layouts.pages.vendor-shop', compact(
-            'vendor',
-            'products',
-            'generalsetting',
-            'seo'
-        ));
-    }
-	
     public function storeIncompleteOrder(Request $request)
     {
         try {
@@ -622,58 +527,6 @@ $brands = Brand::where('status', 1)
         }
         $products = $products->paginate(36);
         return view('frontEnd.layouts.pages.hotdeals', compact('products'));
-    }
-
-    public function sellers(Request $request)
-    {
-        $generalSetting = GeneralSetting::where('status', 1)->first();
-        if (!$generalSetting || ($generalSetting->vendor_enabled ?? 1) != 1) {
-            abort(404);
-        }
-
-        // Get all active and verified vendors
-        $vendors = Vendor::where('status', 1)
-            ->where('verification_status', 'approved')
-            ->select('id', 'shop_name', 'slug', 'logo', 'banner', 'status', 'verification_status')
-            ->withCount(['products' => function($query) {
-                $query->where('status', 1)->where('approval_status', 'approved');
-            }])
-            ->having('products_count', '>', 0) // Only show vendors with at least one approved product
-            ->orderBy('id', 'DESC');
-
-        // Search functionality
-        if ($request->keyword) {
-            $vendors->where('shop_name', 'like', '%' . $request->keyword . '%');
-        }
-
-        $vendors = $vendors->paginate(24);
-
-        // Calculate average rating for each vendor
-        foreach ($vendors as $vendor) {
-            $vendorProducts = Product::where('vendor_id', $vendor->id)
-                ->where('status', 1)
-                ->where('approval_status', 'approved')
-                ->pluck('id');
-            
-            $reviews = Review::whereIn('product_id', $vendorProducts)
-                ->where('status', 'active')
-                ->get();
-            
-            $vendor->total_reviews = $reviews->count();
-            $vendor->average_rating = $reviews->count() > 0 
-                ? round($reviews->avg('ratting'), 1) 
-                : 0;
-        }
-
-        // General setting
-        $generalsetting = GeneralSetting::where('status', 1)->limit(1)->first();
-        $seo = DB::table('seo_settings')->first();
-
-        return view('frontEnd.layouts.pages.sellers', compact(
-            'vendors',
-            'generalsetting',
-            'seo'
-        ));
     }
 
     public function shop(Request $request)

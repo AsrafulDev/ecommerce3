@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Auth;
 class AdminMiddleware
 {
     /**
-     * Ensure the user is authenticated with admin guard and has admin role (not vendor).
+     * Ensure the user is authenticated with admin guard and has admin role.
      */
     public function handle(Request $request, Closure $next)
     {
@@ -35,32 +35,9 @@ class AdminMiddleware
             return $next($request);
         }
 
-        // ✅ Blocklist: শুধু vendor এবং reseller (customer allow)
-        $blockedSpatieRoles = ['vendor', 'reseller'];
-        
-        // Check if user has reseller Spatie role
-        if (in_array('reseller', $spatieRoles)) {
-            return redirect()->route('reseller.dashboard')->with('error', 'You do not have permission to access admin panel.');
-        }
-
-        // Check if user has vendor Spatie role
-        if (in_array('vendor', $spatieRoles)) {
-            return redirect()->route('vendor.dashboard')->with('error', 'You do not have permission to access admin panel.');
-        }
-        
-        // ✅ If user has any Spatie role (not blocked), allow access
-        // This allows Staff, Salesman, Super Viser, customer, etc.
+        // ✅ If user has any Spatie role, allow access
         if (count($spatieRoles) > 0) {
             return $next($request);
-        }
-        
-        // ✅ If no Spatie role, check role column - শুধু vendor এবং reseller block
-        $roleColumn = isset($user->role) ? strtolower($user->role) : null;
-        $blockedRoleColumns = ['vendor', 'reseller'];
-        
-        if ($roleColumn && in_array($roleColumn, $blockedRoleColumns)) {
-            Auth::guard('admin')->logout();
-            return redirect()->route('login')->with('error', 'You do not have permission to access admin panel.');
         }
 
         return $next($request);

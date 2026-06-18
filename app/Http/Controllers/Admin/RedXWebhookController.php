@@ -9,8 +9,6 @@ use App\Models\OrderDetails;
 use App\Models\OrderStatus;
 use App\Models\Courierapi;
 use App\Models\FundTransaction;
-use App\Models\VendorWallet;
-use App\Models\VendorWalletTransaction;
 use App\Models\SmsGateway;
 use App\Models\GeneralSetting;
 use App\Models\User;
@@ -78,10 +76,6 @@ class RedXWebhookController extends Controller
                 // Handle stock change (same logic as OrderController)
                 $this->handleStockChange($order, $oldStatus, $newOrderStatus);
 
-                if ($newOrderStatus == 11) {
-                    \App\Helpers\ResellerOrderHelper::deductDeliveryChargeOnCancel($order);
-                }
-
                 // If order is delivered/completed (status = 6)
                 if ($newOrderStatus == 6 && $oldStatus != 6) {
                     // Add money to fund
@@ -93,12 +87,6 @@ class RedXWebhookController extends Controller
                         'note'       => 'Order complete via RedX webhook (#' . $order->invoice_id . ')',
                         'created_by' => 1, // System user
                     ]);
-
-                    // Credit vendors for their items
-                    $this->distributeVendorEarnings($order);
-                    
-                    // Credit reseller wallet if this is a reseller order
-                    $this->creditResellerWallet($order);
                 }
 
                 // Send SMS notification if configured
@@ -173,149 +161,6 @@ class RedXWebhookController extends Controller
                 }
             }
         }
-    }
-
-    /**
-     * Distribute vendor earnings when order is completed
-     * Same logic as OrderController
-     */
-    private function distributeVendorEarnings(Order $order): void
-    {
-        $details = $order->orderdetails()
-            ->with([
-                'product:id,vendor_id,name',
-                'product.vendor:id,commission_rate'
-            ])
-            ->get();
-
-        foreach ($details as $item) {
-            $product = $item->product;
-            if (!$product || !$product->vendor_id) {
-                continue;
-            }
-
-            // Skip if already processed
-            if ($item->vendor_paid_at) {
-                continue;
-            }
-
-            $vendorId = $product->vendor_id;
-            $vendor   = $product->vendor;
-
-            if (!$vendor) {
-                Log::warning('Vendor not loaded for product: ' . $product->id);
-                continue;
-            }
-
-            $commissionRate = $vendor->commission_rate ?? config('app.vendor_commission', 10);
-            $lineTotal      = (float) ($item->sale_price ?? 0) * (float) ($item->qty ?? 0);
-
-            $adminCommission = round($lineTotal * ($commissionRate / 100), 2);
-            $vendorEarning   = max(0, round($lineTotal - $adminCommission, 2));
-
-            // Update order detail record
-            $item->update([
-                'vendor_id'        => $vendorId,
-                'commission_rate'  => $commissionRate,
-                'admin_commission' => $adminCommission,
-                'vendor_earning'   => $vendorEarning,
-                'vendor_paid_at'   => now(),
-            ]);
-
-            // Update wallet
-            $wallet = VendorWallet::firstOrCreate(['vendor_id' => $vendorId]);
-            $wallet->balance       += $vendorEarning;
-            $wallet->total_earned  += $vendorEarning;
-            $wallet->save();
-
-            VendorWalletTransaction::create([
-                'vendor_id'   => $vendorId,
-                'type'        => 'earning',
-                'status'      => 'completed',
-                'amount'      => $vendorEarning,
-                'source_type' => 'order',
-                'source_id'   => $item->id,
-                'note'        => 'Order #' . $order->invoice_id . ' item earning (RedX)',
-            ]);
-
-            // Add admin commission to fund transaction
-            if ($adminCommission > 0) {
-                FundTransaction::create([
-                    'direction'  => 'in',
-                    'source'     => 'vendor_commission',
-                    'source_id'  => $order->id,
-                    'amount'     => $adminCommission,
-                    'note'       => 'Vendor commission from Order #' . $order->invoice_id . ' - Product: ' . $item->product_name . ' (RedX)',
-                    'created_by' => 1, // System user
-                ]);
-            }
-        }
-    }
-
-    /**
-     * Credit reseller wallet when order is delivered
-     * Same logic as OrderController
-     */
-    private function creditResellerWallet(Order $order): void
-    {
-        // Check if this is a reseller order
-        if (!$order->reseller_profit || $order->reseller_profit <= 0) {
-            return;
-        }
-
-        // Check if already credited
-        if ($order->reseller_wallet_credited) {
-            return;
-        }
-
-        // Get reseller user
-        $resellerUser = null;
-        if ($order->user_id) {
-            $resellerUser = User::find($order->user_id);
-            if ($resellerUser && 
-                ($resellerUser->hasRole('reseller') || 
-                 (isset($resellerUser->role) && strtolower($resellerUser->role) === 'reseller'))) {
-                // Reseller found
-            } else {
-                $resellerUser = null;
-            }
-        }
-
-        // Fallback: Check customer email (for old orders)
-        if (!$resellerUser && $order->customer && $order->customer->email) {
-            $resellerUser = User::where('email', $order->customer->email)
-                ->where(function($query) {
-                    $query->where('role', 'reseller')
-                          ->orWhereHas('roles', function($q) {
-                              $q->where('name', 'reseller');
-                          });
-                })
-                ->first();
-        }
-
-        if (!$resellerUser) {
-            return;
-        }
-
-        // Credit reseller wallet
-        $resellerUser->wallet_balance = ($resellerUser->wallet_balance ?? 0) + $order->reseller_profit;
-        $resellerUser->save();
-
-        \App\Models\ResellerWalletTransaction::log(
-            $resellerUser->id, 'order_profit', (float) $order->reseller_profit,
-            'Order', $order->id,
-            'অর্ডার #' . ($order->invoice_id ?? $order->id) . ' প্রফিট'
-        );
-
-        // Mark as credited
-        $order->reseller_wallet_credited = true;
-        $order->save();
-
-        Log::info('Reseller wallet credited via RedX webhook', [
-            'order_id' => $order->id,
-            'reseller_id' => $resellerUser->id,
-            'amount' => $order->reseller_profit
-        ]);
     }
 
     /**

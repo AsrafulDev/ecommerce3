@@ -192,6 +192,37 @@
                             </small>
                         </div>
 
+                        <div class="mb-4">
+                            <label class="fw-bold text-dark mb-1 d-block">Duplicate Order API URL</label>
+                            <small class="text-muted d-block mb-2">ডুপ্লিকেট অর্ডার চেক করার জন্য API Endpoint URL</small>
+                            <input type="text" name="duplicate_order_api_url" class="form-control form-control-lg-custom" 
+                                   value="{{ old('duplicate_order_api_url', $data->duplicate_order_api_url ?? '') }}"
+                                   placeholder="https://api.example.com/check-duplicate">
+                        </div>
+
+                        <div class="row mb-4">
+                            <div class="col-md-4">
+                                <label class="fw-bold text-dark mb-1 d-block">API Method</label>
+                                <select name="duplicate_order_method" class="form-control form-control-lg-custom">
+                                    <option value="POST" {{ ($data->duplicate_order_method ?? 'POST') == 'POST' ? 'selected' : '' }}>POST</option>
+                                    <option value="GET" {{ ($data->duplicate_order_method ?? 'POST') == 'GET' ? 'selected' : '' }}>GET</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="fw-bold text-dark mb-1 d-block">Phone Number Key</label>
+                                <input type="text" name="duplicate_order_phone_key" class="form-control form-control-lg-custom" 
+                                       value="{{ old('duplicate_order_phone_key', $data->duplicate_order_phone_key ?? 'phone') }}"
+                                       placeholder="phone">
+                                <small class="text-muted">API তে ফোন পাঠানোর প্যারামিটার নাম</small>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="fw-bold text-dark mb-1 d-block">API Key</label>
+                                <input type="text" name="duplicate_order_api_key" class="form-control form-control-lg-custom" 
+                                       value="{{ old('duplicate_order_api_key', $data->duplicate_order_api_key ?? '') }}"
+                                       placeholder="API Key">
+                            </div>
+                        </div>
+
                         @section('js')
                         <script>
                             document.getElementById('fraud_check_enabled').addEventListener('change', function() {
@@ -209,7 +240,7 @@
                         <div class="d-flex">
                             <i class="fe-info text-primary mt-1 me-2"></i>
                             <p class="small text-muted mb-0">
-                                <strong>বিঃদ্রঃ</strong> ফ্রি API <a href="https://www.fraudcheck.online" target="_blank">fraudcheck.online</a> থেকে ডাটা সংগ্রহ করা হয়। API ব্যর্থ হলে অর্ডার পেন্ডিং রাখা হবে এবং নোট যোগ করা হবে।
+                                <strong>বিঃদ্রঃ</strong> ডুপ্লিকেট অর্ডার চেক করার জন্য আপনার API প্রদানকারীর তথ্য দিন। API ব্যর্থ হলে অর্ডার পেন্ডিং রাখা হবে এবং নোট যোগ করা হবে।
                             </p>
                         </div>
                     </div>
@@ -221,15 +252,15 @@
         <div class="col-lg-6">
             <div class="ms-lg-3">
                 <h5 class="mb-4 fw-bold text-dark px-2 border-start border-4 border-primary">
-                    &nbsp;ফ্রি Fraud Check API সম্পর্কে
+                    &nbsp;Fraud Check API সেটআপ গাইড
                 </h5>
 
                 <div class="timeline mt-2">
                     <div class="timeline-item">
                         <div class="timeline-badge"></div>
                         <div class="timeline-content ms-3">
-                            <h6>মুদ্রা Fraud Check API</h6>
-                            <p>এটি একটি সম্পূর্ণ <strong>ফ্রি</strong> API যা <a href="https://www.fraudcheck.online" target="_blank" class="fw-bold text-primary text-decoration-none">Fraudcheck.online</a> থেকে পাওয়া যায়। কোনো API Key প্রয়োজন নেই।</p>
+                            <h6>ডায়নামিক API কনফিগারেশন</h6>
+                            <p>এখন আপনি নিজের পছন্দের Fraud Check API প্রদানকারীর এন্ডপয়েন্ট, মেথড (POST/GET), এবং ফোন নম্বর প্যারামিটার কী কনফিগার করতে পারবেন।</p>
                         </div>
                     </div>
 
@@ -237,7 +268,7 @@
                         <div class="timeline-badge"></div>
                         <div class="timeline-content ms-3">
                             <h6>কিভাবে কাজ করে?</h6>
-                            <p>API টি শুধুমাত্র মোবাইল নাম্বার দিয়ে GET রিকোয়েস্ট করলে কুরিয়ার সার্ভিস (Pathao, Redx, CarryBee) থেকে প্যার্সেল হিট রেশিও দেখায়।</p>
+                            <p>অর্ডার প্লেস করার সময় আপনার দেওয়া API URL-এ কল যাবে। GET মেথডে প্যারামিটারগুলো URL-এর সাথে সংযুক্ত হবে, POST মেথডে ফর্ম ডাটা হিসেবে যাবে।</p>
                         </div>
                     </div>
 

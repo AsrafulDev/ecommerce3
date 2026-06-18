@@ -119,9 +119,6 @@ class GeneralSettingController extends Controller
         $input['favicon'] = $image3Url;
 		 $input['og_baner'] = $image4Url;
         
-        $input['vendor_enabled'] = $request->has('vendor_enabled') ? 1 : 0;
-        $input['reseller_enabled'] = $request->has('reseller_enabled') ? 1 : 0;
-        
         GeneralSetting::create($input);
         Toastr::success('Success','Data insert successfully');
         return redirect()->route('settings.index');

@@ -3,7 +3,7 @@
 namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
-use App\Models\{GeneralSetting, Category, Brand, SocialMedia, Contact, CreatePage, OrderStatus, EcomPixel, GoogleTagManager, Order, PaymentGateway, User, Review, Vendor, ResellerWithdrawal};
+use App\Models\{GeneralSetting, Category, Brand, SocialMedia, Contact, CreatePage, OrderStatus, EcomPixel, GoogleTagManager, Order, PaymentGateway, User, Review};
 use Illuminate\Support\Facades\{Config, Session, Gate, Http, Cache, Auth, Hash};
 
 class AppServiceProvider extends ServiceProvider
@@ -243,72 +243,7 @@ class AppServiceProvider extends ServiceProvider
             });
             view()->share('gtm_code', $gtm_code);
             
-            // Share vendor variable for vendor views
-            if (Auth::guard('admin')->check() && Auth::guard('admin')->user()->vendor_id) {
-                $vendor = \App\Models\Vendor::find(Auth::guard('admin')->user()->vendor_id);
-                view()->share('vendor', $vendor);
-            }
-            
-            // Share reseller notification data for reseller views (Cached 2 min - performance fix)
-            if (Auth::guard('admin')->check()) {
-                $resellerUser = Auth::guard('admin')->user();
-                $isReseller = $resellerUser->hasRole('reseller') || 
-                              (isset($resellerUser->role) && strtolower($resellerUser->role) === 'reseller') ||
-                              $resellerUser->getRoleNames()->contains('reseller');
-                
-                if ($isReseller) {
-                    $resellerData = Cache::remember('reseller_notifications_' . $resellerUser->id, 120, function () use ($resellerUser) {
-                        $pendingOrdersCount = Order::whereNotNull('reseller_profit')
-                            ->where(function($query) use ($resellerUser) {
-                                $query->where('user_id', $resellerUser->id)
-                                      ->orWhereHas('customer', function($q) use ($resellerUser) {
-                                          $q->where('email', $resellerUser->email);
-                                      });
-                            })
-                            ->where(function($q) {
-                                $q->where('order_status', '!=', '6')
-                                  ->where('order_status', '!=', '11');
-                            })
-                            ->count();
-                        
-                        $pendingWithdrawalsCount = \App\Models\ResellerWithdrawal::where('user_id', $resellerUser->id)
-                            ->where('status', 'pending')
-                            ->count();
-                        
-                        $recentOrders = Order::whereNotNull('reseller_profit')
-                            ->where(function($query) use ($resellerUser) {
-                                $query->where('user_id', $resellerUser->id)
-                                      ->orWhereHas('customer', function($q) use ($resellerUser) {
-                                          $q->where('email', $resellerUser->email);
-                                      });
-                            })
-                            ->with(['orderdetails.product.image', 'customer', 'status'])
-                            ->latest()
-                            ->limit(5)
-                            ->get();
-                        
-                        $recentWithdrawals = \App\Models\ResellerWithdrawal::where('user_id', $resellerUser->id)
-                            ->latest()
-                            ->limit(3)
-                            ->get();
-                        
-                        $verificationStatus = isset($resellerUser->verification_status) ? $resellerUser->verification_status : 'pending';
-                        $totalNotifications = $pendingOrdersCount + $pendingWithdrawalsCount;
-                        if ($verificationStatus != 'approved') {
-                            $totalNotifications += 1;
-                        }
-                        
-                        return compact('pendingOrdersCount', 'pendingWithdrawalsCount', 'recentOrders', 'recentWithdrawals', 'verificationStatus', 'totalNotifications');
-                    });
-                    
-                    view()->share('resellerPendingOrders', $resellerData['pendingOrdersCount']);
-                    view()->share('resellerPendingWithdrawals', $resellerData['pendingWithdrawalsCount']);
-                    view()->share('resellerRecentOrders', $resellerData['recentOrders']);
-                    view()->share('resellerRecentWithdrawals', $resellerData['recentWithdrawals']);
-                    view()->share('resellerVerificationStatus', $resellerData['verificationStatus']);
-                    view()->share('resellerTotalNotifications', $resellerData['totalNotifications']);
-                }
-            }
+
         } catch (\Exception $e) {}
     }
 }

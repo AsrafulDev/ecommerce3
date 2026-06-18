@@ -24,28 +24,14 @@ class RoleSeeder extends Seeder
             ['name' => 'admin', 'guard_name' => 'admin']
         );
 
-        // Vendor role (uses 'admin' guard - vendors use User model)
-        Role::firstOrCreate(
-            ['name' => 'vendor', 'guard_name' => 'admin'],
-            ['name' => 'vendor', 'guard_name' => 'admin']
-        );
-
         // Customer role (uses 'customer' guard)
         Role::firstOrCreate(
             ['name' => 'customer', 'guard_name' => 'customer'],
             ['name' => 'customer', 'guard_name' => 'customer']
         );
 
-        // Reseller role (uses 'admin' guard - resellers use User model)
-        Role::firstOrCreate(
-            ['name' => 'reseller', 'guard_name' => 'admin'],
-            ['name' => 'reseller', 'guard_name' => 'admin']
-        );
-
         $this->command->info('Roles created successfully!');
         $this->command->info('- Admin role (admin guard)');
-        $this->command->info('- Vendor role (admin guard)');
         $this->command->info('- Customer role (customer guard)');
-        $this->command->info('- Reseller role (admin guard)');
     }
 }

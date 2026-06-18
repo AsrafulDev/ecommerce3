@@ -15,17 +15,7 @@ class UserController extends Controller
 {
     public function index(Request $request)
     {
-        // ✅ Filter out Vendor and Reseller users - only show Admin/Staff users
-        $data = User::whereNull('vendor_id') // Exclude vendor users
-            ->where(function($query) {
-                $query->where('role', '!=', 'reseller')
-                      ->orWhereNull('role');
-            })
-            ->whereDoesntHave('roles', function($q) {
-                $q->whereIn('name', ['vendor', 'reseller']);
-            })
-            ->orderBy('id','DESC')
-            ->get();
+        $data = User::orderBy('id','DESC')->get();
         
         return view('backEnd.users.index',compact('data'));
     }

@@ -22,11 +22,6 @@ class OrderDetails extends Model
         'variant_price_id',
         'product_color',
         'qty',
-        'vendor_id',
-        'commission_rate',
-        'admin_commission',
-        'vendor_earning',
-        'vendor_paid_at',
     ];
 
     // ✅ অর্ডারের সাথে রিলেশন
@@ -62,10 +57,4 @@ class OrderDetails extends Model
                     ->select('id', 'product_id', 'image');
     }
 
-    // ✅ ভেন্ডর রিলেশন
-    public function vendor()
-    {
-        return $this->belongsTo(Vendor::class, 'vendor_id')
-                    ->select('id', 'shop_name', 'owner_name');
-    }
 }

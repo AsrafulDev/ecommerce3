@@ -163,11 +163,7 @@
                                         <span class="badge badge-soft-info">{{ $product->category->name ?? 'N/A' }}</span>
                                     </td>
                                     <td>
-                                        @if($product->vendor)
-                                            <span class="badge badge-soft-primary">{{ $product->vendor->shop_name ?? 'Vendor #' . $product->vendor_id }}</span>
-                                        @else
-                                            <span class="badge badge-soft-secondary">Inhouse</span>
-                                        @endif
+                                        <span class="badge badge-soft-secondary">Inhouse</span>
                                     </td>
                                     <td>
                                         @if($product->wholesalePrices && $product->wholesalePrices->count() > 0)

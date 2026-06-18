@@ -279,11 +279,7 @@
     <ul class="nav-second-level">
       <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('order-list')): ?>
       <li><a href="<?php echo e(route('admin.orders', ['slug'=>'all'])); ?>"><i data-feather="file-plus"></i> All Order</a></li>
-	        <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('order-list')): ?>
-      <li>
-        <a href="<?php echo e(route('admin.reseller-orders.index')); ?>"><i data-feather="users"></i> Reseller Orders</a>
-      </li>
-      <?php endif; ?>
+
       <li><a href="<?php echo e(route('admin.incomplete-orders.index')); ?>"><i data-feather="file-plus"></i> Incomplete Orders</a></li>
       <?php $__currentLoopData = $orderstatus; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $value): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
         <li><a href="<?php echo e(route('admin.orders', ['slug'=>$value->slug])); ?>"><i data-feather="file-plus"></i><?php echo e($value->name); ?></a></li>
@@ -334,7 +330,6 @@
     <ul class="nav-second-level">
       <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('product-list')): ?>
       <li><a href="<?php echo e(route('inhouse.products.index')); ?>"><i data-feather="package"></i> All Inhouse Products</a></li>
-      <li><a href="<?php echo e(route('products.index')); ?>"><i data-feather="shopping-bag"></i> All Vendor Products</a></li>
       <li><a href="<?php echo e(route('products.pending')); ?>"><i data-feather="clock"></i> Pending Products</a></li>
       <li><a href="<?php echo e(route('admin.products.wholesale')); ?>"><i data-feather="layers"></i> Wholesale Products</a></li>
       <?php endif; ?>
@@ -582,101 +577,8 @@
 <?php endif; ?>
 
 
-<?php
-  $vendorEnabled = (isset($generalsetting) && $generalsetting) ? (isset($generalsetting->vendor_enabled) ? $generalsetting->vendor_enabled : 1) : 1;
-?>
-<?php if($vendorEnabled == 1): ?>
-<?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->any(['vendor-list', 'vendor-create', 'vendor-edit', 'vendor-verification', 'vendor-withdrawal'])): ?>
-<?php
-  $pendingVerificationCount = \App\Models\Vendor::where('verification_status', 'pending')->count();
-?>
-<li>
-  <a href="#sidebar-vendors" data-bs-toggle="collapse">
-    <i data-feather="users"></i>
-    <span> Vendors </span>
-    <span class="menu-arrow"></span>
-  </a>
-  <div class="collapse <?php echo e(request()->routeIs('admin.vendors.*') || request()->routeIs('admin.vendor.verification.*') || request()->routeIs('admin.vendor.withdrawals.*') ? 'show' : ''); ?>" id="sidebar-vendors">
-    <ul class="nav-second-level">
-      <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('vendor-list')): ?>
-      <li><a href="<?php echo e(route('admin.vendors.index')); ?>"><i data-feather="file-plus"></i> All Vendors</a></li>
-      <?php endif; ?>
-      <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('vendor-verification')): ?>
-      <li>
-        <a href="<?php echo e(route('admin.vendor.verification.index')); ?>">
-          <i data-feather="shield-check"></i><i data-feather="file-plus"></i> Vendor Verifications
-          <?php if($pendingVerificationCount > 0): ?>
-            <span class="badge bg-danger rounded-pill float-end"> <?php echo e($pendingVerificationCount); ?></span>
-          <?php endif; ?>
-        </a>
-      </li>
-      <?php endif; ?>
-      <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('vendor-withdrawal')): ?>
-      <li><a href="<?php echo e(route('admin.vendor.withdrawals.index')); ?>"><i data-feather="dollar-sign"></i> Vendor Withdrawals</a></li>
-      <?php endif; ?>
-    </ul>
-  </div>
-</li>
-<?php endif; ?>
-<?php endif; ?>
 
 
-<?php
-  $resellerEnabled = (isset($generalsetting) && $generalsetting) ? (isset($generalsetting->reseller_enabled) ? $generalsetting->reseller_enabled : 1) : 1;
-?>
-<?php if($resellerEnabled == 1): ?>
-<?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->any(['reseller-list', 'reseller-create', 'reseller-edit', 'reseller-verification', 'reseller-withdrawal'])): ?>
-<?php
-  $pendingResellerVerificationCount = \App\Models\User::where('role', 'reseller')->where('verification_status', 'pending')->count();
-  $pendingResellerWithdrawalCount = \App\Models\ResellerWithdrawal::where('status', 'pending')->count();
-?>
-<li>
-  <a href="#sidebar-resellers" data-bs-toggle="collapse">
-    <i data-feather="user-check"></i>
-    <span> Resellers </span>
-    <span class="menu-arrow"></span>
-  </a>
-  <div class="collapse <?php echo e(request()->routeIs('admin.resellers.*') || request()->routeIs('admin.reseller.verification.*') || request()->routeIs('admin.reseller.withdrawals.*') || request()->routeIs('admin.reseller-deposits.*') ? 'show' : ''); ?>" id="sidebar-resellers">
-    <ul class="nav-second-level">
-      <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('reseller-list')): ?>
-      <li><a href="<?php echo e(route('admin.resellers.index')); ?>"><i data-feather="file-plus"></i> All Resellers</a></li>
-      <?php endif; ?>
-      <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('reseller-withdrawal')): ?>
-      <li>
-        <a href="<?php echo e(route('admin.reseller-deposits.index')); ?>">
-          <i data-feather="wallet"></i> Reseller Deposits
-          <?php $pendingDepositCount = \App\Models\ResellerDeposit::where('status', 'pending')->count(); ?>
-          <?php if($pendingDepositCount > 0): ?>
-            <span class="badge bg-warning rounded-pill float-end"><?php echo e($pendingDepositCount); ?></span>
-          <?php endif; ?>
-        </a>
-      </li>
-      <?php endif; ?>
-      <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('reseller-verification')): ?>
-      <li>
-        <a href="<?php echo e(route('admin.reseller.verification.index')); ?>">
-          <i data-feather="shield-check"></i><i data-feather="file-plus"></i> Reseller Verifications
-          <?php if($pendingResellerVerificationCount > 0): ?>
-            <span class="badge bg-danger rounded-pill float-end"><?php echo e($pendingResellerVerificationCount); ?></span>
-          <?php endif; ?>
-        </a>
-      </li>
-      <?php endif; ?>
-      <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('reseller-withdrawal')): ?>
-      <li>
-        <a href="<?php echo e(route('admin.reseller.withdrawals.index')); ?>">
-          <i data-feather="dollar-sign"></i> Reseller Withdrawals
-          <?php if($pendingResellerWithdrawalCount > 0): ?>
-            <span class="badge bg-warning rounded-pill float-end"><?php echo e($pendingResellerWithdrawalCount); ?></span>
-          <?php endif; ?>
-        </a>
-      </li>
-      <?php endif; ?>
-    </ul>
-  </div>
-</li>
-<?php endif; ?>
-<?php endif; ?>
 
 
 <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->any(['user-list', 'role-list', 'permission-list'])): ?>

@@ -63,8 +63,6 @@
                                     <th style="width:10%;">Date</th>
                                     <th style="width:10%;">Name</th>
                                     <th style="width:8%;">Type</th>
-                                    <th style="width:10%;">Vendor</th>
-                                    <th style="width:8%;">Reseller</th>
                                     <th style="width:8%;">IP</th>
                                     <th style="width:10%;">Order Note</th>
                                     <th style="width:10%;">Admin Note</th>
@@ -120,43 +118,7 @@
                                                 }
                                             @endphp
                                         </td>
-                                        <td>
-                                            @php
-                                                $vendors = [];
-                                                if ($value->orderDetails) {
-                                                    foreach ($value->orderDetails as $item) {
-                                                        if ($item->vendor && $item->vendor->shop_name) {
-                                                            $vendors[$item->vendor->id] = $item->vendor->shop_name;
-                                                        }
-                                                    }
-                                                }
-                                                $uniqueVendors = array_unique($vendors);
-                                            @endphp
-                                            @if(count($uniqueVendors) > 0)
-                                                @foreach($uniqueVendors as $vendorName)
-                                                    <span class="badge bg-primary mb-1 d-block">{{ $vendorName }}</span>
-                                                @endforeach
-                                            @else
-                                                <span class="text-muted">-</span>
-                                            @endif
-                                        </td>
-                                        <td>
-                                            @if($value->reseller_profit)
-                                                @if($value->user)
-                                                    <span class="badge bg-info" title="Reseller: {{ $value->user->name }}">
-                                                        <i class="fe-user"></i> {{ Str::limit($value->user->name, 15) }}
-                                                    </span>
-                                                    <br>
-                                                    <small class="text-muted" style="font-size: 0.7rem;">Profit: ৳{{ number_format($value->reseller_profit, 0) }}</small>
-                                                @else
-                                                    <span class="badge bg-warning">Reseller Order</span>
-                                                    <br>
-                                                    <small class="text-muted" style="font-size: 0.7rem;">Profit: ৳{{ number_format($value->reseller_profit, 0) }}</small>
-                                                @endif
-                                            @else
-                                                <span class="text-muted">-</span>
-                                            @endif
-                                        </td>
+
                                         <td>
                                             <div class="d-flex align-items-center gap-2">
                                                 <span>{{ $value->ip_address }}</span>

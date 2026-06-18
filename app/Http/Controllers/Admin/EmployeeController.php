@@ -54,11 +54,7 @@ class EmployeeController extends Controller
     {
         // Get users who don't have employee record yet
         $employeeUserIds = Employee::whereNotNull('user_id')->pluck('user_id')->toArray();
-        $availableUsers = User::whereNull('vendor_id')
-            ->whereDoesntHave('roles', function($q) {
-                $q->whereIn('name', ['vendor', 'reseller']);
-            })
-            ->whereNotIn('id', $employeeUserIds)
+        $availableUsers = User::whereNotIn('id', $employeeUserIds)
             ->select('id', 'name', 'email')
             ->get();
 
@@ -153,11 +149,7 @@ class EmployeeController extends Controller
     {
         $employee = Employee::with('user')->findOrFail($id);
         $employeeUserIds = Employee::whereNotNull('user_id')->pluck('user_id')->toArray();
-        $availableUsers = User::whereNull('vendor_id')
-            ->whereDoesntHave('roles', function($q) {
-                $q->whereIn('name', ['vendor', 'reseller']);
-            })
-            ->whereNotIn('id', $employeeUserIds)
+        $availableUsers = User::whereNotIn('id', $employeeUserIds)
             ->select('id', 'name', 'email')
             ->get();
 

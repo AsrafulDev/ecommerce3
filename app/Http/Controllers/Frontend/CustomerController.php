@@ -85,42 +85,11 @@ class CustomerController extends Controller
             'password' => 'required|string',
         ]);
 
-        $login    = $request->input('login');   // phone or email
+        $login    = $request->input('login');
         $password = $request->input('password');
 
-        // Check if login is phone number and if it belongs to a vendor or reseller
-        $isVendorPhone = false;
-        $isResellerPhone = false;
-        $vendor = null;
-        $resellerUser = null;
-        
+        // Try customer login by phone
         if (preg_match('/^[0-9+]+$/', $login)) {
-            // Check if it's a vendor phone
-            $vendor = \App\Models\Vendor::where('phone', $login)->first();
-            if ($vendor) {
-                $isVendorPhone = true;
-            }
-            
-            // Check if it's a reseller phone (via customer record email matching)
-            $customer = Customer::where('phone', $login)->first();
-            if ($customer && $customer->email) {
-                $resellerUser = \App\Models\User::where('email', $customer->email)
-                    ->where(function($query) {
-                        $query->where('role', 'reseller')
-                              ->orWhereHas('roles', function($q) {
-                                  $q->where('name', 'reseller');
-                              });
-                    })
-                    ->first();
-                if ($resellerUser) {
-                    $isResellerPhone = true;
-                }
-            }
-        }
-
-        // 1) Try customer (phone-based) - only if not a vendor or reseller phone
-        // Also check if customer exists with this phone number
-        if (!$isVendorPhone && !$isResellerPhone && preg_match('/^[0-9+]+$/', $login)) {
             $customerExists = Customer::where('phone', $login)->exists();
             if ($customerExists && Auth::guard('customer')->attempt(['phone' => $login, 'password' => $password])) {
                 Toastr::success('You are login successfully', 'success!');
@@ -130,99 +99,17 @@ class CustomerController extends Controller
                 return redirect()->intended('customer/account');
             }
         }
-        
-        // If reseller phone, use admin guard with reseller email
-        if ($isResellerPhone && $resellerUser) {
-            $adminCredentials = ['email' => $resellerUser->email, 'password' => $password];
-        }
 
-        // 2) Try vendor/admin/reseller via admin guard (email mapped from vendor/reseller phone or direct email)
-        if (!isset($adminCredentials)) {
-            $adminCredentials = null;
-        }
-
-        // If login looks like a phone number, map to vendor email (if not already set for reseller)
-        if (!isset($adminCredentials) && preg_match('/^[0-9+]+$/', $login)) {
-            // Re-check vendor if not already checked
-            if (!$vendor) {
-                $vendor = \App\Models\Vendor::where('phone', $login)->first();
-            }
-            if ($vendor) {
-                $adminCredentials = ['email' => $vendor->email, 'password' => $password];
-            }
-        } elseif (filter_var($login, FILTER_VALIDATE_EMAIL)) {
-            // Email input - check if it's a reseller email first
-            $resellerUser = \App\Models\User::where('email', $login)
-                ->where(function($query) {
-                    $query->where('role', 'reseller')
-                          ->orWhereHas('roles', function($q) {
-                              $q->where('name', 'reseller');
-                          });
-                })
-                ->first();
-            
-            if ($resellerUser) {
-                // It's a reseller email, use admin guard
-                $adminCredentials = ['email' => $login, 'password' => $password];
-            } else {
-                // Check if it's a vendor email
-                $vendor = \App\Models\Vendor::where('email', $login)->first();
-                if ($vendor) {
-                    // It's a vendor email, use admin guard
-                    $adminCredentials = ['email' => $login, 'password' => $password];
-                } else {
-                    // Check if it's a customer email (but not a reseller)
-                    $customerExists = Customer::where('email', $login)->exists();
-                    // Also check if this customer email is not linked to a reseller
-                    $isResellerCustomer = \App\Models\User::where('email', $login)
-                        ->where(function($query) {
-                            $query->where('role', 'reseller')
-                                  ->orWhereHas('roles', function($q) {
-                                      $q->where('name', 'reseller');
-                                  });
-                        })
-                        ->exists();
-                    
-                    if ($customerExists && !$isResellerCustomer && Auth::guard('customer')->attempt(['email' => $login, 'password' => $password])) {
-                        Toastr::success('You are login successfully', 'success!');
-                        if (Cart::instance('shopping')->count() > 0) {
-                            return redirect()->route('customer.checkout');
-                        }
-                        return redirect()->intended('customer/account');
-                    }
-                    // Try admin/user email
-                    $adminCredentials = ['email' => $login, 'password' => $password];
+        // Try customer login by email
+        if (filter_var($login, FILTER_VALIDATE_EMAIL)) {
+            $customerExists = Customer::where('email', $login)->exists();
+            if ($customerExists && Auth::guard('customer')->attempt(['email' => $login, 'password' => $password])) {
+                Toastr::success('You are login successfully', 'success!');
+                if (Cart::instance('shopping')->count() > 0) {
+                    return redirect()->route('customer.checkout');
                 }
+                return redirect()->intended('customer/account');
             }
-        }
-
-        if ($adminCredentials && Auth::guard('admin')->attempt($adminCredentials)) {
-            $user = Auth::guard('admin')->user();
-            
-            // Check if user has reseller role, redirect to reseller dashboard
-            // Check both Spatie role and direct role column
-            $isReseller = $user->hasRole('reseller') || 
-                          (isset($user->role) && strtolower($user->role) === 'reseller') ||
-                          $user->getRoleNames()->contains('reseller');
-            
-            if ($isReseller) {
-                Toastr::success('You are login successfully', 'success!');
-                return redirect()->route('reseller.dashboard');
-            }
-            
-            if ($user->hasRole('vendor')) {
-                Toastr::success('You are login successfully', 'success!');
-                return redirect()->route('vendor.dashboard');
-            }
-            if ($user->hasRole('admin')) {
-                Toastr::success('You are login successfully', 'success!');
-                return redirect()->route('admin.dashboard');
-            }
-
-            // Unknown role -> logout and show error
-            Auth::guard('admin')->logout();
-            Toastr::error('Role not allowed for this login path', 'Error');
-            return redirect()->back();
         }
 
         // Failed
@@ -237,224 +124,35 @@ class CustomerController extends Controller
 
     public function store(Request $request)
     {
-        $isReseller = $request->has('is_reseller') && $request->is_reseller == '1';
-        $isSeller = $request->has('is_seller') && $request->is_seller == '1';
+        // Customer registration
+        $this->validate($request, [
+            'name'     => 'required',
+            'phone'    => 'required|unique:customers',
+            'password' => 'required|min:6'
+        ]);
 
-        if ($isReseller) {
-            // Reseller registration
-            $request->validate([
-                'name'                  => 'required|string|max:255',
-                'phone'                 => 'required|string|max:55|unique:customers,phone',
-                'email'                 => 'required|email|unique:users,email|unique:customers,email',
-                'reseller_shop_name'    => 'required|string|max:255',
-                'password'              => 'required|confirmed|min:6',
-                'voter_id_front'       => 'required|image|mimes:jpeg,jpg,png,webp|max:102400',
-                'voter_id_back'        => 'required|image|mimes:jpeg,jpg,png,webp|max:102400',
-                'self_image'           => 'required|image|mimes:jpeg,jpg,png,webp|max:102400',
-            ]);
+        $last_id = Customer::orderBy('id', 'desc')->first();
+        $last_id = $last_id?$last_id->id+1:1;
 
-            // Upload verification documents
-            $voterFrontPath = null;
-            $voterBackPath = null;
-            $selfImagePath = null;
+        $store = new Customer();
+        $store->name = $request->name;
+        $store->slug = strtolower(Str::slug($request->name.'-'.$last_id));
+        $store->phone = $request->phone;
+        $store->email = $request->email ?? null;
+        $store->password = bcrypt($request->password);
+        $store->verify = 1;
+        $store->status = 'active';
+        $store->save();
 
-            if ($request->hasFile('voter_id_front')) {
-                $frontImage = $request->file('voter_id_front');
-                $frontName = time() . '-voter-front-' . uniqid() . '.webp';
-                $frontPath = 'public/uploads/reseller/verification/';
-                
-                if (!File::exists($frontPath)) {
-                    File::makeDirectory($frontPath, 0755, true);
-                }
+        // Assign customer role
+        $customerRole = \Spatie\Permission\Models\Role::firstOrCreate(
+            ['name' => 'customer', 'guard_name' => 'customer'],
+            ['name' => 'customer', 'guard_name' => 'customer']
+        );
+        $store->assignRole($customerRole);
 
-                $img = Image::make($frontImage->getRealPath());
-                $img->encode('webp', 90);
-                $img->resize(800, 800, function ($constraint) {
-                    $constraint->aspectRatio();
-                    $constraint->upsize();
-                });
-                $img->save($frontPath . $frontName);
-                $voterFrontPath = $frontPath . $frontName;
-            }
-
-            if ($request->hasFile('voter_id_back')) {
-                $backImage = $request->file('voter_id_back');
-                $backName = time() . '-voter-back-' . uniqid() . '.webp';
-                $backPath = 'public/uploads/reseller/verification/';
-                
-                if (!File::exists($backPath)) {
-                    File::makeDirectory($backPath, 0755, true);
-                }
-
-                $img = Image::make($backImage->getRealPath());
-                $img->encode('webp', 90);
-                $img->resize(800, 800, function ($constraint) {
-                    $constraint->aspectRatio();
-                    $constraint->upsize();
-                });
-                $img->save($backPath . $backName);
-                $voterBackPath = $backPath . $backName;
-            }
-
-            if ($request->hasFile('self_image')) {
-                $selfImage = $request->file('self_image');
-                $selfName = time() . '-self-' . uniqid() . '.webp';
-                $selfPath = 'public/uploads/reseller/verification/';
-                
-                if (!File::exists($selfPath)) {
-                    File::makeDirectory($selfPath, 0755, true);
-                }
-
-                $img = Image::make($selfImage->getRealPath());
-                $img->encode('webp', 90);
-                $img->resize(600, 600, function ($constraint) {
-                    $constraint->aspectRatio();
-                    $constraint->upsize();
-                });
-                $img->save($selfPath . $selfName);
-                $selfImagePath = $selfPath . $selfName;
-            }
-
-            // Create user account with reseller role
-            $user = \App\Models\User::create([
-                'name'                  => $request->name,
-                'email'                 => $request->email,
-                'password'              => HashFacade::make($request->password),
-                'status'                => 1,
-                'role'                  => 'reseller',
-                'shop_name'             => $request->reseller_shop_name,
-                'verification_status'   => 'pending',
-                'voter_id_front'        => $voterFrontPath,
-                'voter_id_back'         => $voterBackPath,
-                'self_image'            => $selfImagePath,
-            ]);
-
-            // Ensure reseller role exists and assign (using admin guard like vendors)
-            $role = \Spatie\Permission\Models\Role::firstOrCreate(
-                ['name' => 'reseller', 'guard_name' => 'admin'],
-                ['name' => 'reseller', 'guard_name' => 'admin']
-            );
-            $user->assignRole($role);
-            
-            // Clear role cache to ensure role is immediately available
-            app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
-
-            // Also create customer record for phone-based login
-            $last_id = Customer::orderBy('id', 'desc')->first();
-            $last_id = $last_id?$last_id->id+1:1;
-
-            $customer = new Customer();
-            $customer->name = $request->name;
-            $customer->slug = strtolower(Str::slug($request->name.'-'.$last_id));
-            $customer->phone = $request->phone;
-            $customer->email = $request->email;
-            $customer->password = bcrypt($request->password);
-            $customer->verify = 1;
-            $customer->status = 'active';
-            $customer->save();
-
-            // Assign customer role to customer record
-            $customerRole = \Spatie\Permission\Models\Role::firstOrCreate(
-                ['name' => 'customer', 'guard_name' => 'customer'],
-                ['name' => 'customer', 'guard_name' => 'customer']
-            );
-            $customer->assignRole($customerRole);
-
-            // Auto login reseller after registration
-            Auth::guard('admin')->login($user);
-
-            Toastr::success('Reseller account created successfully!', 'Success');
-            return redirect()->route('reseller.dashboard');
-        } elseif ($isSeller) {
-            // Vendor registration
-            $request->validate([
-                'name'                  => 'required|string|max:255',
-                'phone'                 => 'required|string|max:55|unique:vendors,phone|unique:customers,phone',
-                'email'                 => 'required|email|unique:users,email|unique:vendors,email|unique:customers,email',
-                'shop_name'             => 'required|string|max:255',
-                'slug'                  => 'required|string|max:255|unique:vendors,slug',
-                'password'              => 'required|confirmed|min:6',
-                'address'               => 'nullable|string',
-                'logo'                  => 'nullable|image|max:2048',
-                'banner'                => 'nullable|image|max:3072',
-            ]);
-
-            // Upload files if provided
-            $logoPath = null;
-            if ($request->hasFile('logo')) {
-                $logoPath = $request->file('logo')->store('uploads/vendor/logo', 'public');
-            }
-
-            $bannerPath = null;
-            if ($request->hasFile('banner')) {
-                $bannerPath = $request->file('banner')->store('uploads/vendor/banner', 'public');
-            }
-
-            // Create vendor record first
-            $vendor = \App\Models\Vendor::create([
-                'shop_name'  => $request->shop_name,
-                'slug'       => $request->slug,
-                'owner_name' => $request->name,
-                'email'      => $request->email,
-                'phone'      => $request->phone,
-                'address'    => $request->address ?? null,
-                'logo'       => $logoPath,
-                'banner'     => $bannerPath,
-                'status'     => 1,
-            ]);
-
-            // Create user account with vendor_id
-            $user = \App\Models\User::create([
-                'name'      => $request->name,
-                'email'     => $request->email,
-                'password'  => HashFacade::make($request->password),
-                'status'    => 1,
-                'vendor_id' => $vendor->id,
-            ]);
-
-            // Ensure vendor role exists and assign
-            $role = \Spatie\Permission\Models\Role::firstOrCreate(
-                ['name' => 'vendor', 'guard_name' => 'admin'],
-                ['name' => 'vendor', 'guard_name' => 'admin']
-            );
-            $user->assignRole($role);
-
-            // Auto login vendor after registration
-            Auth::guard('admin')->login($user);
-
-            Toastr::success('Vendor account created successfully!', 'Success');
-            return redirect()->route('vendor.dashboard');
-        } else {
-            // Customer registration
-            $this->validate($request, [
-                'name'     => 'required',
-                'phone'    => 'required|unique:customers',
-                'password' => 'required|min:6'
-            ]);
-
-            $last_id = Customer::orderBy('id', 'desc')->first();
-            $last_id = $last_id?$last_id->id+1:1;
-
-            $store = new Customer();
-            $store->name = $request->name;
-            $store->slug = strtolower(Str::slug($request->name.'-'.$last_id));
-            $store->phone = $request->phone;
-            $store->email = $request->email ?? null;
-            $store->password = bcrypt($request->password);
-            $store->verify = 1;
-            $store->status = 'active';
-            $store->save();
-
-            // Assign customer role
-            $customerRole = \Spatie\Permission\Models\Role::firstOrCreate(
-                ['name' => 'customer', 'guard_name' => 'customer'],
-                ['name' => 'customer', 'guard_name' => 'customer']
-            );
-            $store->assignRole($customerRole);
-
-            Toastr::success('Success','Account Create Successfully');
-            return redirect()->route('customer.login');
-        }
+        Toastr::success('Success','Account Create Successfully');
+        return redirect()->route('customer.login');
     }
 
     public function verify()
@@ -471,22 +169,8 @@ class CustomerController extends Controller
         $sms_gateway = SmsGateway::where('status', 1)->first();
 
         if($sms_gateway) {
-            $url = "$sms_gateway->url";
-            $data = [
-                "api_key" => "$sms_gateway->api_key",
-                "number" => $customer_info->phone,
-                "type" => 'text',
-                "senderid" => "$sms_gateway->serderid",
-                "message" => "Dear $customer_info->name!\r\nYour account verify OTP is $customer_info->verify \r\nThank you for using $site_setting->name"
-            ];
-            $ch = curl_init();
-            curl_setopt($ch, CURLOPT_URL, $url);
-            curl_setopt($ch, CURLOPT_POST, 1);
-            curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
-            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-            curl_exec($ch);
-            curl_close($ch);
+            $message = "Dear $customer_info->name!\r\nYour account verify OTP is $customer_info->verify \r\nThank you for using $site_setting->name";
+            $this->sendSms($sms_gateway, $customer_info->phone, $message);
         }
 
         Toastr::success('Success','Resend code send successfully');
@@ -518,77 +202,28 @@ class CustomerController extends Controller
     public function forgot_verify(Request $request)
     {
         $phone = $request->phone;
-        $customer_info = null;
-        $vendor_info = null;
-        $reseller_user = null;
-        $user_type = null;
-        $name = null;
+        $customer_info = Customer::where('phone', $phone)->first();
 
-        // First check if phone belongs to a reseller (priority check)
-        $customer = Customer::where('phone', $phone)->first();
-        if($customer && $customer->email){
-            $reseller_user = \App\Models\User::where('email', $customer->email)
-                ->where(function($query) {
-                    $query->where('role', 'reseller')
-                          ->orWhereHas('roles', function($q) {
-                              $q->where('name', 'reseller');
-                          });
-                })
-                ->first();
-            if($reseller_user){
-                $user_type = 'reseller';
-                $name = $reseller_user->name ?? $customer->name;
-                // Store OTP in session for reseller
-                Session::put('reseller_forgot_otp', rand(1111,9999));
-            } else {
-                // Regular customer
-                $customer_info = $customer;
-                $user_type = 'customer';
-                $name = $customer_info->name;
-                $customer_info->forgot = rand(1111,9999);
-                $customer_info->save();
-            }
-        } else {
-            // Check Vendor
-            $vendor_info = \App\Models\Vendor::where('phone', $phone)->first();
-            if($vendor_info){
-                $user_type = 'vendor';
-                $name = $vendor_info->owner_name;
-                $vendor_info->forgot = rand(1111,9999);
-                $vendor_info->save();
-            }
-        }
-
-        if(!$customer_info && !$vendor_info && !$reseller_user){
+        if(!$customer_info){
             Toastr::error('Your phone number not found');
             return back();
         }
 
+        $customer_info->forgot = rand(1111,9999);
+        $customer_info->save();
+
         $site_setting = GeneralSetting::where('status', 1)->first();
         $sms_gateway = SmsGateway::where(['status'=> 1, 'forget_pass'=>1])->first();
         
-        $otp = $customer_info ? $customer_info->forgot : ($vendor_info ? $vendor_info->forgot : Session::get('reseller_forgot_otp'));
+        $otp = $customer_info->forgot;
+        $name = $customer_info->name;
         
         if($sms_gateway) {
-            $url = "$sms_gateway->url";
-            $data = [
-                "api_key" => "$sms_gateway->api_key",
-                "number" => $phone,
-                "type" => 'text',
-                "senderid" => "$sms_gateway->serderid",
-                "message" => "Dear $name!\r\nYour forgot password verify OTP is $otp \r\nThank you for using $site_setting->name"
-            ];
-            $ch = curl_init($url);
-            curl_setopt($ch, CURLOPT_POST, 1);
-            curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
-            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-            curl_exec($ch);
-            curl_close($ch);
+            $message = "Dear $name!\r\nYour forgot password verify OTP is $otp \r\nThank you for using $site_setting->name";
+            $this->sendSms($sms_gateway, $phone, $message);
         }
 
         Session::put('verify_phone', $phone);
-        Session::put('user_type', $user_type);
         Toastr::success('OTP sent successfully to your phone');
         return redirect()->route('customer.forgot.reset');
     }
@@ -596,72 +231,24 @@ class CustomerController extends Controller
     public function forgot_resend(Request $request)
     {
         $phone = Session::get('verify_phone');
-        $user_type = Session::get('user_type');
-        $customer_info = null;
-        $vendor_info = null;
-        $reseller_user = null;
-        $name = null;
-        $otp = null;
+        $customer_info = Customer::where('phone', $phone)->first();
 
-        if($user_type == 'customer'){
-            $customer_info = Customer::where('phone', $phone)->first();
-            if($customer_info){
-                $customer_info->forgot = rand(1111,9999);
-                $customer_info->save();
-                $name = $customer_info->name;
-                $otp = $customer_info->forgot;
-            }
-        } elseif($user_type == 'vendor'){
-            $vendor_info = \App\Models\Vendor::where('phone', $phone)->first();
-            if($vendor_info){
-                $vendor_info->forgot = rand(1111,9999);
-                $vendor_info->save();
-                $name = $vendor_info->owner_name;
-                $otp = $vendor_info->forgot;
-            }
-        } elseif($user_type == 'reseller'){
-            $customer = Customer::where('phone', $phone)->first();
-            if($customer && $customer->email){
-                $reseller_user = \App\Models\User::where('email', $customer->email)
-                    ->where(function($query) {
-                        $query->where('role', 'reseller')
-                              ->orWhereHas('roles', function($q) {
-                                  $q->where('name', 'reseller');
-                              });
-                    })
-                    ->first();
-                if($reseller_user){
-                    $otp = rand(1111,9999);
-                    Session::put('reseller_forgot_otp', $otp);
-                    $name = $reseller_user->name ?? $customer->name;
-                }
-            }
-        }
-
-        if(!$customer_info && !$vendor_info && !$reseller_user){
+        if(!$customer_info){
             Toastr::error('Something went wrong');
             return redirect()->route('customer.forgot.password');
         }
+
+        $customer_info->forgot = rand(1111,9999);
+        $customer_info->save();
+        $name = $customer_info->name;
+        $otp = $customer_info->forgot;
 
         $site_setting = GeneralSetting::where('status', 1)->first();
         $sms_gateway = SmsGateway::where(['status'=> 1])->first();
 
         if($sms_gateway) {
-            $url = "$sms_gateway->url";
-            $data = [
-                "api_key" => "$sms_gateway->api_key",
-                "number" => $phone,
-                "type" => 'text',
-                "senderid" => "$sms_gateway->serderid",
-                "message" => "Dear $name!\r\nYour forgot password verify OTP is $otp \r\nThank you for using $site_setting->name"
-            ];
-            $ch = curl_init($url);
-            curl_setopt($ch, CURLOPT_POST, 1);
-            curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
-            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-            curl_exec($ch);
-            curl_close($ch);
+            $message = "Dear $name!\r\nYour forgot password verify OTP is $otp \r\nThank you for using $site_setting->name";
+            $this->sendSms($sms_gateway, $phone, $message);
         }
 
         Toastr::success('Success','Resend code send successfully');
@@ -680,78 +267,21 @@ class CustomerController extends Controller
     public function forgot_store(Request $request)
     {
         $phone = Session::get('verify_phone');
-        $user_type = Session::get('user_type');
-        $customer_info = null;
-        $vendor_info = null;
-        $reseller_user = null;
+        $customer_info = Customer::where('phone', $phone)->first();
 
-        if($user_type == 'customer'){
-            $customer_info = Customer::where('phone', $phone)->first();
-            if(!$customer_info || $customer_info->forgot != $request->otp){
-                Toastr::error('Your OTP not match');
-                return redirect()->back();
-            }
-            $customer_info->forgot = 1;
-            $customer_info->password = bcrypt($request->password);
-            $customer_info->save();
-            if(Auth::guard('customer')->attempt(['phone' => $customer_info->phone, 'password' => $request->password])) {
-                Session::forget('verify_phone');
-                Session::forget('user_type');
-                Toastr::success('Password reset successfully. You are logged in!', 'Success!');
-                return redirect()->intended('customer/account');
-            }
-        } elseif($user_type == 'vendor'){
-            $vendor_info = \App\Models\Vendor::where('phone', $phone)->first();
-            if(!$vendor_info || $vendor_info->forgot != $request->otp){
-                Toastr::error('Your OTP not match');
-                return redirect()->back();
-            }
-            // Find user by vendor email (vendor login uses admin guard with User model)
-            $user = \App\Models\User::where('email', $vendor_info->email)->first();
-            if(!$user){
-                Toastr::error('User account not found');
-                return redirect()->route('customer.forgot.password');
-            }
-            $user->password = bcrypt($request->password);
-            $user->save();
-            $vendor_info->forgot = 1;
-            $vendor_info->save();
+        if(!$customer_info || $customer_info->forgot != $request->otp){
+            Toastr::error('Your OTP not match');
+            return redirect()->back();
+        }
+
+        $customer_info->forgot = 1;
+        $customer_info->password = bcrypt($request->password);
+        $customer_info->save();
+
+        if(Auth::guard('customer')->attempt(['phone' => $customer_info->phone, 'password' => $request->password])) {
             Session::forget('verify_phone');
-            Session::forget('user_type');
-            Toastr::success('Password reset successfully. Please login with your new password.', 'Success!');
-            return redirect()->route('customer.login');
-        } elseif($user_type == 'reseller'){
-            $stored_otp = Session::get('reseller_forgot_otp');
-            if($stored_otp != $request->otp){
-                Toastr::error('Your OTP not match');
-                return redirect()->back();
-            }
-            $customer = Customer::where('phone', $phone)->first();
-            if($customer && $customer->email){
-                $reseller_user = \App\Models\User::where('email', $customer->email)
-                    ->where(function($query) {
-                        $query->where('role', 'reseller')
-                              ->orWhereHas('roles', function($q) {
-                                  $q->where('name', 'reseller');
-                              });
-                    })
-                    ->first();
-                if($reseller_user){
-                    // Update password in User table (for reseller panel login)
-                    $reseller_user->password = bcrypt($request->password);
-                    $reseller_user->save();
-                    
-                    // Also update password in Customer table (for customer dashboard login)
-                    $customer->password = bcrypt($request->password);
-                    $customer->save();
-                    
-                    Session::forget('verify_phone');
-                    Session::forget('user_type');
-                    Session::forget('reseller_forgot_otp');
-                    Toastr::success('Password reset successfully. Please login with your new password.', 'Success!');
-                    return redirect()->route('customer.login');
-                }
-            }
+            Toastr::success('Password reset successfully. You are logged in!', 'Success!');
+            return redirect()->intended('customer/account');
         }
 
         Toastr::error('Something went wrong');
@@ -789,18 +319,6 @@ class CustomerController extends Controller
 
         // ⭐ কার্টে ডিজিটাল প্রোডাক্ট আছে কি না
         $hasDigital = \App\Http\Controllers\Frontend\ShoppingController::hasDigitalProductInCart();
-
-        // If reseller is logged in, redirect to reseller checkout
-        if (Auth::guard('admin')->check()) {
-            $resellerUser = Auth::guard('admin')->user();
-            $isReseller = $resellerUser->hasRole('reseller') || 
-                          (isset($resellerUser->role) && strtolower($resellerUser->role) === 'reseller') ||
-                          $resellerUser->getRoleNames()->contains('reseller');
-            
-            if ($isReseller && Cart::instance('shopping')->count() > 0) {
-                return redirect()->route('reseller.checkout');
-            }
-        }
 
         // Facebook CAPI InitiateCheckout (server-side)
         if (Cart::instance('shopping')->count() > 0) {
@@ -996,34 +514,15 @@ public function order_save(Request $request)
             }
 
             if($sms_gateway) {
-                $url = $sms_gateway->url;
-
                 $customerPhone = isset($shipping) && $shipping->phone ? $shipping->phone : ($request->phone ?? ($order->customer->phone ?? null));
                 $customerName  = isset($shipping) && $shipping->name ? $shipping->name : ($request->name ?? ($order->customer->name ?? 'Customer'));
                 $site_setting = GeneralSetting::where('status', 1)->first();
 
                 if($customerPhone) {
                     $customerMessage = "প্রিয় {$customerName}! আপনার অর্ডার #{$order->invoice_id} সফলভাবে গ্রহণ করা হয়েছে। মোট: {$order->amount} Tk. {$site_setting->name}";
-
-                    $postData = [
-                        'api_key' => $sms_gateway->api_key,
-                        'number'  => preg_replace('/[^0-9+]/','', $customerPhone),
-                        'type'    => 'text',
-                        'senderid'=> $sms_gateway->serderid ?? $sms_gateway->senderid ?? '',
-                        'message' => $customerMessage,
-                    ];
-
-                    $ch = curl_init();
-                    curl_setopt($ch, CURLOPT_URL, $url);
-                    curl_setopt($ch, CURLOPT_POST, 1);
-                    curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($postData));
-                    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-                    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-                    $resp = curl_exec($ch);
-                    $err  = curl_error($ch);
-                    curl_close($ch);
-
-                    \Log::info("Customer SMS to {$customerPhone}: resp=" . substr($resp ?? '',0,200) . " err=" . $err);
+                    $phone = preg_replace('/[^0-9+]/','', $customerPhone);
+                    $resp = $this->sendSms($sms_gateway, $phone, $customerMessage, $sms_gateway->serderid ?? $sms_gateway->senderid ?? '');
+                    \Log::info("Customer SMS to {$phone}: resp=" . substr($resp ?? '',0,200));
                 } else {
                     \Log::warning("Customer SMS skipped: no phone for order {$order->id}");
                 }
@@ -1036,8 +535,6 @@ public function order_save(Request $request)
         try {
             $sms_gateway = SmsGateway::where('status', 1)->first();
             if($sms_gateway) {
-                $url = $sms_gateway->url;
-
                 $adminPhones = env('ADMIN_PHONE_LIST', null);
                 if(!$adminPhones && isset($sms_gateway->admin_phone)){
                     $adminPhones = $sms_gateway->admin_phone;
@@ -1056,25 +553,9 @@ public function order_save(Request $request)
                     $numbers = array_filter(array_map('trim', explode(',', $adminPhones)));
                     foreach($numbers as $adminPhone){
                         $adminPhone = preg_replace('/[^0-9+]/', '', $adminPhone);
-                        $postData = [
-                            'api_key' => $sms_gateway->api_key,
-                            'number'  => $adminPhone,
-                            'type'    => 'text',
-                            'senderid'=> $sms_gateway->serderid ?? $sms_gateway->senderid ?? '',
-                            'message' => $adminMessage,
-                        ];
-
-                        $ch = curl_init();
-                        curl_setopt($ch, CURLOPT_URL, $url);
-                        curl_setopt($ch, CURLOPT_POST, 1);
-                        curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($postData));
-                        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-                        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-                        $resp = curl_exec($ch);
-                        $err  = curl_error($ch);
-                        curl_close($ch);
-
-                        \Log::info("Admin SMS to {$adminPhone}: resp=" . substr($resp ?? '',0,200) . " err=" . $err);
+                        $senderid = $sms_gateway->serderid ?? $sms_gateway->senderid ?? '';
+                        $resp = $this->sendSms($sms_gateway, $adminPhone, $adminMessage, $senderid);
+                        \Log::info("Admin SMS to {$adminPhone}: resp=" . substr($resp ?? '',0,200));
                     }
                 }
             }
@@ -1431,5 +912,43 @@ public function order_save(Request $request)
                 );
             }
         }
+    }
+
+    /**
+     * Send SMS using the configured gateway (supports dynamic method & phone_key).
+     */
+    private function sendSms($sms_gateway, $phone, $message, $senderid = null)
+    {
+        $phoneKey   = $sms_gateway->phone_key ?? 'number';
+        $messageKey = $sms_gateway->message_key ?? 'message';
+        $method     = strtoupper($sms_gateway->method ?? 'POST');
+        $senderid   = $senderid ?? $sms_gateway->serderid ?? '';
+
+        $params = [
+            'api_key' => $sms_gateway->api_key,
+            $phoneKey => $phone,
+            'type'    => 'text',
+            'senderid'=> $senderid,
+            $messageKey => $message,
+        ];
+
+        $ch = curl_init();
+
+        if ($method === 'GET') {
+            $url = $sms_gateway->url . '?' . http_build_query($params);
+            curl_setopt($ch, CURLOPT_URL, $url);
+        } else {
+            curl_setopt($ch, CURLOPT_URL, $sms_gateway->url);
+            curl_setopt($ch, CURLOPT_POST, 1);
+            curl_setopt($ch, CURLOPT_POSTFIELDS, $params);
+        }
+
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        $response = curl_exec($ch);
+        $error    = curl_error($ch);
+        curl_close($ch);
+
+        return $response;
     }
 }

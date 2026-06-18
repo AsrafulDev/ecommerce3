@@ -12,7 +12,6 @@ class Refund extends Model
     protected $fillable = [
         'order_id',
         'customer_id',
-        'vendor_id',
         'refund_id',
         'amount',
         'shipping_charge',
@@ -50,11 +49,6 @@ class Refund extends Model
     public function processedBy()
     {
         return $this->belongsTo(User::class, 'processed_by');
-    }
-
-    public function vendor()
-    {
-        return $this->belongsTo(Vendor::class, 'vendor_id');
     }
 
     // Scopes

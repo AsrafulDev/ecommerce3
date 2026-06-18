@@ -37,7 +37,7 @@
             <div class="page-title-box d-flex align-items-center justify-content-between py-3">
                 <h4 class="page-title mb-0">Edit Product: {{ $edit_data->name }}</h4>
                 <div class="page-title-right">
-                    <a href="{{route('products.index')}}" class="btn btn-primary rounded-pill px-4 shadow-sm"><i class="fe-list me-1"></i> Manage Products</a>
+                    <a href="{{route('inhouse.products.index')}}" class="btn btn-primary rounded-pill px-4 shadow-sm"><i class="fe-list me-1"></i> Manage Products</a>
                 </div>
             </div>
         </div>

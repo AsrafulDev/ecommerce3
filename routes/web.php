@@ -36,7 +36,6 @@ use App\Http\Controllers\Admin\CampaignController;
 use App\Http\Controllers\Admin\ErrorLogController;
 use App\Http\Controllers\Admin\ReviewController;
 use App\Http\Controllers\Admin\CustomerManageController;
-use App\Http\Controllers\Admin\VendorController;
 use App\Http\Controllers\Admin\ShippingChargeController;
 use App\Http\Controllers\Admin\ColorController;
 use App\Http\Controllers\Admin\SizeController;
@@ -65,10 +64,6 @@ use App\Http\Controllers\Frontend\ContactMessageController as FrontendContactMes
 use App\Http\Controllers\Frontend\BlogController;
 use App\Http\Controllers\Admin\BlogController as AdminBlogController;
 use App\Http\Controllers\Admin\PopupController;
-use App\Http\Controllers\Vendor\DashboardController as VendorDashboardController;
-use App\Http\Controllers\Vendor\ProductController as VendorProductController;
-use App\Http\Controllers\Vendor\SettingsController as VendorSettingsController;
-use App\Http\Controllers\Reseller\ResellerDashboardController;
 
 
 Route::get('admin/clear-cache', function () {
@@ -180,132 +175,7 @@ Route::get('/blogs', [BlogController::class, 'index'])->name('blogs');
 Route::get('/blog/{slug}', [BlogController::class, 'details'])->name('blog.details');
 
 
-// Vendor protected routes
-Route::prefix('vendor')
-    ->middleware(['vendor', 'demo_mode'])
-    ->name('vendor.')
-    ->group(function () {
-        Route::get('/dashboard', [VendorDashboardController::class, 'index'])->name('dashboard');
-        
-        // Product routes
-        Route::get('/products', [VendorProductController::class, 'index'])->name('products.index');
-        Route::get('/products/create', [VendorProductController::class, 'create'])->name('products.create');
-        Route::post('/products/store', [VendorProductController::class, 'store'])->name('products.store');
-        Route::get('/products/{id}/edit', [VendorProductController::class, 'edit'])->name('products.edit');
-        Route::post('/products/update', [VendorProductController::class, 'update'])->name('products.update');
-        Route::post('/products/destroy', [VendorProductController::class, 'destroy'])->name('products.destroy');
-        Route::post('/products/image/destroy', [VendorProductController::class, 'imgdestroy'])->name('products.image.destroy');
-        
-        Route::get('/orders', [VendorDashboardController::class, 'orders'])->name('orders');
-        Route::get('/orders/export', [VendorDashboardController::class, 'exportOrders'])->name('orders.export');
-        Route::get('/analytics', [VendorDashboardController::class, 'analytics'])->name('analytics');
-        Route::get('/customers', [VendorDashboardController::class, 'customers'])->name('customers');
-        
-        // Settings routes
-        Route::get('/settings', [VendorSettingsController::class, 'index'])->name('settings');
-        Route::post('/settings/shop-info', [VendorSettingsController::class, 'updateShopInfo'])->name('settings.shop-info');
-        Route::post('/settings/profile', [VendorSettingsController::class, 'updateProfile'])->name('settings.profile');
-        Route::post('/settings/password', [VendorSettingsController::class, 'updatePassword'])->name('settings.password');
 
-        // Withdrawals
-        Route::get('/withdrawals', [\App\Http\Controllers\Vendor\WithdrawalController::class, 'index'])->name('withdrawals.index');
-        Route::post('/withdrawals', [\App\Http\Controllers\Vendor\WithdrawalController::class, 'store'])->name('withdrawals.store');
-        
-        // Refunds
-        Route::get('/refunds', [\App\Http\Controllers\Vendor\RefundController::class, 'index'])->name('refunds.index');
-        Route::get('/refunds/{id}', [\App\Http\Controllers\Vendor\RefundController::class, 'show'])->name('refunds.show');
-        
-        // Wholesale Products
-        Route::get('/wholesale-products', [\App\Http\Controllers\Vendor\WholesaleProductController::class, 'index'])->name('wholesale_products.index');
-        Route::get('/wholesale-products/create', [\App\Http\Controllers\Vendor\WholesaleProductController::class, 'create'])->name('wholesale_products.create');
-        Route::post('/wholesale-products', [\App\Http\Controllers\Vendor\WholesaleProductController::class, 'store'])->name('wholesale_products.store');
-        Route::get('/wholesale-products/{id}', [\App\Http\Controllers\Vendor\WholesaleProductController::class, 'show'])->name('wholesale_products.show');
-        Route::get('/wholesale-products/{id}/edit', [\App\Http\Controllers\Vendor\WholesaleProductController::class, 'edit'])->name('wholesale_products.edit');
-        Route::post('/wholesale-products/{id}', [\App\Http\Controllers\Vendor\WholesaleProductController::class, 'update'])->name('wholesale_products.update');
-        Route::delete('/wholesale-products/{id}', [\App\Http\Controllers\Vendor\WholesaleProductController::class, 'destroy'])->name('wholesale_products.destroy');
-        Route::get('/ajax-wholesale-subcategory', [\App\Http\Controllers\Vendor\WholesaleProductController::class, 'getSubcategory'])->name('ajax.wholesale.subcategory');
-        Route::get('/ajax-wholesale-childcategory', [\App\Http\Controllers\Vendor\WholesaleProductController::class, 'getChildcategory'])->name('ajax.wholesale.childcategory');
-        
-        // Verification
-        Route::get('/verification', [\App\Http\Controllers\Vendor\VerificationController::class, 'index'])->name('verification.index');
-        Route::post('/verification', [\App\Http\Controllers\Vendor\VerificationController::class, 'store'])->name('verification.store');
-        
-        // Logout route
-        Route::post('/logout', [\App\Http\Controllers\Vendor\AuthController::class, 'logout'])->name('logout');
-    });
-
-// Vendor AJAX routes (no middleware needed for AJAX)
-Route::prefix('vendor')->name('vendor.')->group(function () {
-    Route::get('/ajax-product-subcategory', [VendorProductController::class, 'getSubcategory'])->name('ajax.subcategory');
-    Route::get('/ajax-product-childcategory', [VendorProductController::class, 'getChildcategory'])->name('ajax.childcategory');
-});
-
-// Reseller Public Landing Page (no auth) - blocked when reseller is disabled
-Route::middleware(['reseller_public_enabled'])->group(function () {
-    Route::get('/r/{slug}', [\App\Http\Controllers\Reseller\PublicLandingController::class, 'show'])->name('reseller.landing.public');
-    Route::get('/r/{slug}/category/{categorySlug}', [\App\Http\Controllers\Reseller\PublicLandingController::class, 'category'])->name('reseller.landing.category');
-    Route::get('/r/{slug}/subcategory/{subcategorySlug}', [\App\Http\Controllers\Reseller\PublicLandingController::class, 'subcategory'])->name('reseller.landing.subcategory');
-    Route::get('/r/{slug}/product/{productSlug}', [\App\Http\Controllers\Reseller\PublicLandingController::class, 'product'])->name('reseller.landing.product');
-
-    Route::post('/r/{slug}/cart/add', [\App\Http\Controllers\Reseller\LandingOrderController::class, 'addToCart'])->name('reseller.landing.cart.add');
-    Route::get('/r/{slug}/cart/remove/{productId}', [\App\Http\Controllers\Reseller\LandingOrderController::class, 'removeFromCart'])->name('reseller.landing.cart.remove');
-    Route::get('/r/{slug}/order', [\App\Http\Controllers\Reseller\LandingOrderController::class, 'orderForm'])->name('reseller.landing.order');
-    Route::post('/r/{slug}/order', [\App\Http\Controllers\Reseller\LandingOrderController::class, 'storeOrder'])->name('reseller.landing.order.store');
-    Route::get('/r/{slug}/order/success/{orderId}', [\App\Http\Controllers\Reseller\LandingOrderController::class, 'orderSuccess'])->name('reseller.landing.order.success');
-    Route::get('/r/{slug}/order-track', [\App\Http\Controllers\Reseller\LandingOrderController::class, 'orderTrack'])->name('reseller.landing.order-track');
-    Route::get('/r/{slug}/order-track/result', [\App\Http\Controllers\Reseller\LandingOrderController::class, 'orderTrackResult'])->name('reseller.landing.order-track.result');
-    Route::get('/r/{slug}/contact', [\App\Http\Controllers\Reseller\LandingContactController::class, 'show'])->name('reseller.landing.contact');
-    Route::post('/r/{slug}/contact', [\App\Http\Controllers\Reseller\LandingContactController::class, 'store'])->name('reseller.landing.contact.store');
-    Route::post('/r/{slug}/newsletter/subscribe', [\App\Http\Controllers\Reseller\LandingNewsletterController::class, 'subscribe'])->name('reseller.landing.newsletter.subscribe');
-});
-
-// Reseller protected routes
-Route::prefix('reseller')
-    ->middleware(['auth:admin', 'reseller', 'demo_mode'])
-    ->name('reseller.')
-    ->group(function () {
-        Route::get('/dashboard', [ResellerDashboardController::class, 'index'])->name('dashboard');
-        
-        // Product Catalog
-        Route::get('/products', [\App\Http\Controllers\Reseller\ProductCatalogController::class, 'index'])->name('products.index');
-        Route::get('/products/{slug}', [\App\Http\Controllers\Reseller\ProductCatalogController::class, 'show'])->name('products.show');
-        
-        // Cart
-        Route::post('/cart/add', [\App\Http\Controllers\Reseller\ResellerCartController::class, 'addToCart'])->name('cart.add');
-        Route::post('/cart/add-ajax', [\App\Http\Controllers\Reseller\ResellerCartController::class, 'addToCartAjax'])->name('cart.add.ajax');
-        
-        // Checkout
-        Route::get('/checkout', [\App\Http\Controllers\Reseller\ResellerCheckoutController::class, 'index'])->name('checkout');
-        Route::post('/checkout', [\App\Http\Controllers\Reseller\ResellerCheckoutController::class, 'store'])->name('checkout.store');
-        
-        // Order Success
-        Route::get('/order-success/{id}', [\App\Http\Controllers\Reseller\ResellerOrderSuccessController::class, 'show'])->name('order.success');
-        
-        Route::get('/orders', [ResellerDashboardController::class, 'orders'])->name('orders');
-        Route::get('/customers', [ResellerDashboardController::class, 'customers'])->name('customers');
-        Route::get('/wallet', [ResellerDashboardController::class, 'wallet'])->name('wallet');
-        Route::get('/deposit', [\App\Http\Controllers\Reseller\ResellerDepositController::class, 'index'])->name('deposit');
-        Route::post('/deposit', [\App\Http\Controllers\Reseller\ResellerDepositController::class, 'store'])->name('deposit.store');
-        Route::get('/withdrawals', [\App\Http\Controllers\Reseller\WithdrawalController::class, 'index'])->name('withdrawals.index');
-        Route::post('/withdrawals', [\App\Http\Controllers\Reseller\WithdrawalController::class, 'store'])->name('withdrawals.store');
-        Route::get('/verification', [\App\Http\Controllers\Reseller\VerificationController::class, 'index'])->name('verification.index');
-        Route::post('/verification', [\App\Http\Controllers\Reseller\VerificationController::class, 'store'])->name('verification.store');
-        Route::get('/settings', [\App\Http\Controllers\Reseller\SettingsController::class, 'index'])->name('settings');
-        Route::get('/landing', [\App\Http\Controllers\Reseller\LandingPageController::class, 'index'])->name('landing.index');
-        Route::post('/landing', [\App\Http\Controllers\Reseller\LandingPageController::class, 'store'])->name('landing.store');
-        Route::get('/landing/products', [\App\Http\Controllers\Reseller\LandingProductController::class, 'index'])->name('landing.products');
-        Route::get('/landing/products/add', [\App\Http\Controllers\Reseller\LandingProductController::class, 'addForm'])->name('landing.products.add');
-        Route::post('/landing/products/add', [\App\Http\Controllers\Reseller\LandingProductController::class, 'add'])->name('landing.products.add.store');
-        Route::post('/landing/products/update-price', [\App\Http\Controllers\Reseller\LandingProductController::class, 'updatePrice'])->name('landing.products.update-price');
-        Route::post('/landing/products/remove/{productId}', [\App\Http\Controllers\Reseller\LandingProductController::class, 'remove'])->name('landing.products.remove');
-        
-        // Fraud Check
-        Route::get('/fraud-check', [\App\Http\Controllers\Reseller\ResellerFraudController::class, 'manualFraudCheckPage'])->name('fraud.page');
-        Route::post('/fraud-check', [\App\Http\Controllers\Reseller\ResellerFraudController::class, 'manualFraudCheck'])->name('fraud.check');
-        Route::post('/settings/profile', [\App\Http\Controllers\Reseller\SettingsController::class, 'updateProfile'])->name('settings.profile');
-        Route::post('/settings/password', [\App\Http\Controllers\Reseller\SettingsController::class, 'updatePassword'])->name('settings.password');
-        Route::post('/logout', [\App\Http\Controllers\Reseller\AuthController::class, 'logout'])->name('logout');
-    });
 
 Route::prefix('admin')
     ->middleware(['auth', 'demo_mode'])
@@ -365,11 +235,6 @@ Route::prefix('admin')->middleware(['auth:admin', 'admin', 'demo_mode'])->group(
     Route::post('/fund/{id}/update', [FundController::class, 'update'])->name('admin.fund.update');
     Route::delete('/fund/{id}', [FundController::class, 'destroy'])->name('admin.fund.destroy');
 
-    // Vendor withdrawals
-    Route::get('/vendor-withdrawals', [\App\Http\Controllers\Admin\VendorWithdrawalController::class, 'index'])->name('admin.vendor.withdrawals.index');
-    Route::post('/vendor-withdrawals/{id}/approve', [\App\Http\Controllers\Admin\VendorWithdrawalController::class, 'approve'])->name('admin.vendor.withdrawals.approve');
-    Route::post('/vendor-withdrawals/{id}/reject', [\App\Http\Controllers\Admin\VendorWithdrawalController::class, 'reject'])->name('admin.vendor.withdrawals.reject');
-
     // Expense Routes
     Route::get('/expenses', [ExpenseController::class,'index'])->name('admin.expenses.index');
     Route::post('/expenses/store', [ExpenseController::class,'store'])->name('admin.expenses.store');
@@ -425,13 +290,6 @@ Route::prefix('admin')->middleware(['auth:admin', 'admin', 'demo_mode'])->group(
     Route::delete('/incomplete-orders/{id}', [IncompleteOrderController::class, 'destroy'])
         ->name('admin.incomplete-orders.destroy');
 
-    // Reseller Orders Management
-    Route::get('/reseller-orders', [\App\Http\Controllers\Admin\ResellerOrderController::class, 'index'])
-        ->name('admin.reseller-orders.index');
-    Route::post('/reseller-orders/update-status', [\App\Http\Controllers\Admin\ResellerOrderController::class, 'updateStatus'])
-        ->name('admin.reseller-orders.update-status');
-    Route::post('/reseller-orders/bulk-update-status', [\App\Http\Controllers\Admin\ResellerOrderController::class, 'bulkUpdateStatus'])
-        ->name('admin.reseller-orders.bulk-update-status');
 });
 
 // Manual Fraud Check Routes
@@ -462,7 +320,7 @@ Route::group(['namespace'=>'Frontend', 'middleware' => ['ipcheck','check_refer']
 	
 	    Route::get('brand/{slug}', [FrontendController::class, 'brand'])
         ->name('brand.products');
-    Route::get('shop/{slug}', [FrontendController::class, 'vendorShop'])->name('vendor.shop');
+
     Route::get('category/{category}', [FrontendController::class, 'category'])->name('category');
 
     Route::get('subcategory/{subcategory}', [FrontendController::class, 'subcategory'])->name('subcategory');
@@ -472,7 +330,6 @@ Route::group(['namespace'=>'Frontend', 'middleware' => ['ipcheck','check_refer']
 
     Route::get('hot-deals', [FrontendController::class, 'hotdeals'])->name('hotdeals');
     Route::get('flash-sales', [FrontendController::class, 'flashsales'])->name('flashsales');
-    Route::get('sellers', [FrontendController::class, 'sellers'])->name('sellers');
     Route::get('shop', [FrontendController::class, 'shop'])->name('shop');
     Route::get('livesearch', [FrontendController::class, 'livesearch'])->name('livesearch');
     Route::get('search', [FrontendController::class, 'search'])->name('search');
@@ -918,15 +775,14 @@ Route::get('dashboard', [DashboardController::class, 'dashboard'])->name('admin.
     Route::post('size/destroy', [SizeController::class,'destroy'])->name('sizes.destroy');
    
    
-    // product
-    Route::get('products/manage', [ProductController::class,'index'])->name('products.index');
-    Route::get('products/wholesale', [ProductController::class,'wholesale'])->name('admin.products.wholesale');
-    Route::get('products/{id}/show', [ProductController::class,'show'])->name('products.show');
-    Route::get('products/create', [ProductController::class,'create'])->name('products.create');
-    
     // Inhouse Products
     Route::get('inhouse-products/manage', [App\Http\Controllers\Admin\InhouseProductController::class,'index'])->name('inhouse.products.index');
     Route::get('inhouse-products/{id}/show', [App\Http\Controllers\Admin\InhouseProductController::class,'show'])->name('inhouse.products.show');
+    
+    // product
+    Route::get('products/wholesale', [ProductController::class,'wholesale'])->name('admin.products.wholesale');
+    Route::get('products/{id}/show', [ProductController::class,'show'])->name('products.show');
+    Route::get('products/create', [ProductController::class,'create'])->name('products.create');
     
     // Wholesale Products
     Route::get('wholesale-products', [\App\Http\Controllers\Admin\WholesaleProductController::class, 'index'])->name('admin.wholesale_products.index');
@@ -1109,44 +965,6 @@ Route::get('dashboard', [DashboardController::class, 'dashboard'])->name('admin.
     Route::post('customer/ip-update', [CustomerManageController::class,'ipblock_update'])->name('customers.ipblock.update');
     Route::post('customer/ip-destroy', [CustomerManageController::class,'ipblock_destroy'])->name('customers.ipblock.destroy');
     Route::post('customer/ip-quick-block', [CustomerManageController::class,'ipblock_quick_store'])->name('customers.ipblock.quick');
-
-    // Vendor Management Routes
-    Route::get('vendors', [VendorController::class,'index'])->name('admin.vendors.index');
-    Route::get('vendors/manage', [VendorController::class,'index'])->name('admin.vendors.manage');
-    Route::get('vendors/{id}/edit', [VendorController::class,'edit'])->name('admin.vendors.edit');
-    Route::post('vendors/update', [VendorController::class,'update'])->name('admin.vendors.update');
-    Route::post('vendors/{id}/toggle-status', [VendorController::class,'toggleStatus'])->name('admin.vendors.toggle-status');
-    Route::post('vendors/{id}/approve-verification', [VendorController::class,'approveVerification'])->name('admin.vendors.approve-verification');
-    Route::post('vendors/{id}/reject-verification', [VendorController::class,'rejectVerification'])->name('admin.vendors.reject-verification');
-    Route::delete('vendors/{id}', [VendorController::class,'destroy'])->name('admin.vendors.destroy');
-    
-    // Vendor Verification Management
-    Route::get('vendor-verifications', [\App\Http\Controllers\Admin\VendorVerificationController::class,'index'])->name('admin.vendor.verification.index');
-    Route::get('vendor-verifications/{id}', [\App\Http\Controllers\Admin\VendorVerificationController::class,'show'])->name('admin.vendor.verification.show');
-    Route::post('vendor-verifications/{id}/approve', [\App\Http\Controllers\Admin\VendorVerificationController::class,'approve'])->name('admin.vendor.verification.approve');
-    Route::post('vendor-verifications/{id}/reject', [\App\Http\Controllers\Admin\VendorVerificationController::class,'reject'])->name('admin.vendor.verification.reject');
-
-    // Reseller Management
-    Route::get('resellers', [\App\Http\Controllers\Admin\ResellerController::class,'index'])->name('admin.resellers.index');
-    Route::get('resellers/{id}/edit', [\App\Http\Controllers\Admin\ResellerController::class,'edit'])->name('admin.resellers.edit');
-    Route::post('resellers/update', [\App\Http\Controllers\Admin\ResellerController::class,'update'])->name('admin.resellers.update');
-    Route::post('resellers/{id}/toggle-status', [\App\Http\Controllers\Admin\ResellerController::class,'toggleStatus'])->name('admin.resellers.toggle-status');
-    Route::delete('resellers/{id}', [\App\Http\Controllers\Admin\ResellerController::class,'destroy'])->name('admin.resellers.destroy');
-    
-    // Reseller Verification Management
-    Route::get('reseller-verifications', [\App\Http\Controllers\Admin\ResellerVerificationController::class,'index'])->name('admin.reseller.verification.index');
-    Route::get('reseller-verifications/{id}', [\App\Http\Controllers\Admin\ResellerVerificationController::class,'show'])->name('admin.reseller.verification.show');
-    Route::post('reseller-verifications/{id}/approve', [\App\Http\Controllers\Admin\ResellerVerificationController::class,'approve'])->name('admin.reseller.verification.approve');
-    Route::post('reseller-verifications/{id}/reject', [\App\Http\Controllers\Admin\ResellerVerificationController::class,'reject'])->name('admin.reseller.verification.reject');
-
-    // Reseller Withdrawal Management
-    Route::get('reseller-withdrawals', [\App\Http\Controllers\Admin\ResellerWithdrawalController::class,'index'])->name('admin.reseller.withdrawals.index');
-    Route::post('reseller-withdrawals/{id}/approve', [\App\Http\Controllers\Admin\ResellerWithdrawalController::class,'approve'])->name('admin.reseller.withdrawals.approve');
-    Route::post('reseller-withdrawals/{id}/reject', [\App\Http\Controllers\Admin\ResellerWithdrawalController::class,'reject'])->name('admin.reseller.withdrawals.reject');
-
-    // Reseller Deposit Management
-    Route::get('reseller-deposits', [\App\Http\Controllers\Admin\ResellerDepositController::class,'index'])->name('admin.reseller-deposits.index');
-    Route::post('reseller-deposits/{id}/mark-paid', [\App\Http\Controllers\Admin\ResellerDepositController::class,'markAsPaid'])->name('admin.reseller-deposits.mark-paid');
 
     // Refund Management Routes
     Route::get('refunds', [\App\Http\Controllers\Admin\RefundController::class, 'index'])->name('admin.refunds.index');

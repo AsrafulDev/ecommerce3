@@ -27,9 +27,6 @@ use App\Models\ProductVariantPrice;
 use App\Models\Coupon;
 use Carbon\Carbon;
 use App\Models\FundTransaction;
-use App\Models\Vendor;
-use App\Models\VendorWallet;
-use App\Models\VendorWalletTransaction;
 use App\Helpers\FundHelper;
 use App\Models\Expense;
 use App\Services\RedXService;
@@ -264,9 +261,12 @@ class OrderController extends Controller
             return response()->json(['status' => 'failed', 'message' => 'Mobile number missing']);
         }
 
-        // সেটিংস থেকে Duplicate Order API Key নেওয়া
+        // সেটিংস থেকে Duplicate Order API কনফিগারেশন নেওয়া
         $generalSetting = GeneralSetting::where('status', 1)->first();
-        $apiKey = isset($generalSetting->duplicate_order_api_key) ? $generalSetting->duplicate_order_api_key : null;
+        $apiKey     = $generalSetting->duplicate_order_api_key ?? null;
+        $apiUrl     = $generalSetting->duplicate_order_api_url ?? 'https://www.creativedesign.com.bd/api/v1/check-duplicate-order';
+        $apiMethod  = strtoupper($generalSetting->duplicate_order_method ?? 'POST');
+        $phoneKey   = $generalSetting->duplicate_order_phone_key ?? 'phone';
 
         if (!$apiKey) {
             return response()->json(['status' => 'failed', 'message' => 'Duplicate Order API Key missing']);
@@ -274,12 +274,16 @@ class OrderController extends Controller
 
         try {
             // API কল করা (Duplicate Order API)
-            $response = Http::withHeaders([
+            $headers = [
                 'x-api-key'    => $apiKey,
                 'Content-Type' => 'application/json'
-            ])->post("https://www.creativedesign.com.bd/api/v1/check-duplicate-order", [
-                'phone' => $mobile,
-            ]);
+            ];
+
+            if ($apiMethod === 'GET') {
+                $response = Http::withHeaders($headers)->get($apiUrl, [$phoneKey => $mobile]);
+            } else {
+                $response = Http::withHeaders($headers)->post($apiUrl, [$phoneKey => $mobile]);
+            }
 
             $res = $response->json();
 
@@ -342,21 +346,26 @@ class OrderController extends Controller
 
         // 1. ডাটাবেস থেকে সেটিংস আনা
         $generalSetting = GeneralSetting::where('status', 1)->first();
-        $apiKey = isset($generalSetting->duplicate_order_api_key) ? $generalSetting->duplicate_order_api_key : null;
+        $apiKey     = $generalSetting->duplicate_order_api_key ?? null;
+        $apiUrl     = $generalSetting->duplicate_order_api_url ?? 'https://www.creativedesign.com.bd/api/v1/check-duplicate-order';
+        $apiMethod  = strtoupper($generalSetting->duplicate_order_method ?? 'POST');
+        $phoneKey   = $generalSetting->duplicate_order_phone_key ?? 'phone';
 
         if (!$apiKey) {
             return back()->with('error', 'Duplicate Order API Key সেটিংস প্যানেলে সেট করা নেই');
         }
 
-        $apiUrl = "https://www.creativedesign.com.bd/api/v1/check-duplicate-order";
-
         try {
-            $response = Http::withHeaders([
+            $headers = [
                 'x-api-key'    => $apiKey,
                 'Content-Type' => 'application/json'
-            ])->post($apiUrl, [
-                'phone' => $mobile,
-            ]);
+            ];
+
+            if ($apiMethod === 'GET') {
+                $response = Http::withHeaders($headers)->get($apiUrl, [$phoneKey => $mobile]);
+            } else {
+                $response = Http::withHeaders($headers)->post($apiUrl, [$phoneKey => $mobile]);
+            }
 
             $res = $response->json();
 
@@ -407,8 +416,7 @@ class OrderController extends Controller
                     'status:id,name,slug',
                     'customer:id,name,phone,email',
                     'user:id,name,email',
-                    'orderdetails:id,order_id,product_id,vendor_id,product_name,qty,sale_price',
-                    'orderdetails.vendor:id,shop_name,owner_name'
+                    'orderdetails:id,order_id,product_id,product_name,qty,sale_price',
                 ]);
 
             if ($request->keyword) {
@@ -433,8 +441,7 @@ class OrderController extends Controller
                     'status:id,name,slug',
                     'customer:id,name,phone,email',
                     'user:id,name,email',
-                    'orderdetails:id,order_id,product_id,vendor_id,product_name,qty,sale_price',
-                    'orderdetails.vendor:id,shop_name,owner_name'
+                    'orderdetails:id,order_id,product_id,product_name,qty,sale_price',
                 ])
                 ->paginate(10);
         }
@@ -934,19 +941,10 @@ class OrderController extends Controller
                 'created_by' => auth()->id(),
             ]);
 
-            // Credit vendors for their items
-            $this->distributeVendorEarnings($order);
-            
-            // Credit reseller wallet if this is a reseller order
-            $this->creditResellerWallet($order);
         }
 
         // Handle stock change
         $this->handleStockChange($order, $oldStatus, $newStatus);
-
-        if ($newStatus == 11) {
-            \App\Helpers\ResellerOrderHelper::deductDeliveryChargeOnCancel($order);
-        }
 
         \Log::info('Order status manually updated', [
             'order_id' => $order->id,
@@ -985,21 +983,12 @@ class OrderController extends Controller
                 'created_by' => auth()->id(),
             ]);
 
-            // Credit vendors for their items
-            $this->distributeVendorEarnings($order);
-            
-            // Credit reseller wallet if this is a reseller order
-            $this->creditResellerWallet($order);
         }
 
         $order->save();
 
         // স্টক হ্যান্ডেল
         $this->handleStockChange($order, $oldStatus, $newStatus);
-
-        if ($newStatus == 11) {
-            \App\Helpers\ResellerOrderHelper::deductDeliveryChargeOnCancel($order);
-        }
 
         $shipping_update = Shipping::where('order_id', $order->id)->first();
         $shippingfee     = ShippingCharge::find($request->area);
@@ -1022,8 +1011,6 @@ class OrderController extends Controller
         if ($newStatus == 5 && $oldStatus != 5) {
             $courier_info = Courierapi::where(['status' => 1, 'type' => 'steadfast'])->first();
             if ($courier_info) {
-                // For reseller orders: use customer_payable_amount (reseller selling price + shipping)
-                // For normal orders: use amount (main price + shipping)
                 $codAmount = !empty($order->customer_payable_amount) 
                     ? $order->customer_payable_amount 
                     : $order->amount;
@@ -1211,19 +1198,10 @@ class OrderController extends Controller
                     'created_by' => auth()->id(),
                 ]);
 
-                // Credit vendors for their items
-                $this->distributeVendorEarnings($order);
-                
-                // Credit reseller wallet if this is a reseller order
-                $this->creditResellerWallet($order);
             }
 
             // স্টক হ্যান্ডেল
             $this->handleStockChange($order, $oldStatus, $targetStatus);
-
-            if ($targetStatus == 11) {
-                \App\Helpers\ResellerOrderHelper::deductDeliveryChargeOnCancel($order);
-            }
 
             // ✅ Use eager loaded customer instead of find()
             if ($sms_gateway && $order->customer) {
@@ -1383,8 +1361,6 @@ class OrderController extends Controller
                         continue;
                     }
                     
-                    // For reseller orders: use customer_payable_amount (reseller selling price + shipping)
-                    // For normal orders: use amount (main price + shipping)
                     $codAmount = !empty($order->customer_payable_amount) 
                         ? $order->customer_payable_amount 
                         : $order->amount;
@@ -1470,8 +1446,6 @@ class OrderController extends Controller
                 }
                 
                 // For other couriers (Steadfast, etc.)
-                // For reseller orders: use customer_payable_amount (reseller selling price + shipping)
-                // For normal orders: use amount (main price + shipping)
                 $codAmount = !empty($order->customer_payable_amount) 
                     ? $order->customer_payable_amount 
                     : $order->amount;
@@ -2407,149 +2381,4 @@ class OrderController extends Controller
         ]);
     }
 
-    /**
-     * Distribute vendor earnings and admin commission for completed orders.
-     */
-    private function distributeVendorEarnings(Order $order): void
-    {
-        $details = $order->orderdetails()
-            ->with([
-                'product:id,vendor_id,name',
-                'product.vendor:id,commission_rate'
-            ])
-            ->get();
-
-        foreach ($details as $item) {
-            $product = $item->product;
-            if (!$product || !$product->vendor_id) {
-                continue;
-            }
-
-            // Skip if already processed
-            if ($item->vendor_paid_at) {
-                continue;
-            }
-
-            $vendorId = $product->vendor_id;
-            $vendor   = $product->vendor;
-
-            // Vendor must be loaded; if missing skip to avoid extra query/N+1
-            if (!$vendor) {
-                \Log::warning('Vendor not loaded for product: ' . $product->id);
-                continue;
-            }
-
-            $commissionRate = isset($vendor->commission_rate) ? $vendor->commission_rate : config('app.vendor_commission', 10);
-            $lineTotal      = (float) (isset($item->sale_price) ? $item->sale_price : 0) * (float) (isset($item->qty) ? $item->qty : 0);
-
-            $adminCommission = round($lineTotal * ($commissionRate / 100), 2);
-            $vendorEarning   = max(0, round($lineTotal - $adminCommission, 2));
-
-            // Update order detail record
-            $item->update([
-                'vendor_id'        => $vendorId,
-                'commission_rate'  => $commissionRate,
-                'admin_commission' => $adminCommission,
-                'vendor_earning'   => $vendorEarning,
-                'vendor_paid_at'   => now(),
-            ]);
-
-            // Update wallet
-            $wallet = VendorWallet::firstOrCreate(['vendor_id' => $vendorId]);
-            $wallet->balance       += $vendorEarning;
-            $wallet->total_earned  += $vendorEarning;
-            $wallet->save();
-
-            VendorWalletTransaction::create([
-                'vendor_id'   => $vendorId,
-                'type'        => 'earning',
-                'status'      => 'completed',
-                'amount'      => $vendorEarning,
-                'source_type' => 'order',
-                'source_id'   => $item->id,
-                'note'        => 'Order #' . $order->invoice_id . ' item earning',
-            ]);
-
-            // Add admin commission to fund transaction
-            if ($adminCommission > 0) {
-                \App\Models\FundTransaction::create([
-                    'direction'  => 'in',
-                    'source'     => 'vendor_commission',
-                    'source_id'  => $order->id,
-                    'amount'     => $adminCommission,
-                    'note'       => 'Vendor commission from Order #' . $order->invoice_id . ' - Product: ' . $item->product_name,
-                    'created_by' => auth()->id(),
-                ]);
-            }
-        }
-    }
-
-    /**
-     * Credit reseller wallet when order is delivered.
-     * Only credits if order has reseller_profit and hasn't been credited before.
-     */
-    private function creditResellerWallet(Order $order): void
-    {
-        // Check if this is a reseller order
-        if (!$order->reseller_profit || $order->reseller_profit <= 0) {
-            return;
-        }
-
-        // Get reseller user from order
-        // First check user_id (if reseller placed order directly)
-        $resellerUser = null;
-        if ($order->user_id) {
-            $resellerUser = User::find($order->user_id);
-            // Verify it's a reseller
-            if ($resellerUser && 
-                ($resellerUser->hasRole('reseller') || 
-                 (isset($resellerUser->role) && strtolower($resellerUser->role) === 'reseller'))) {
-                // Reseller found via user_id
-            } else {
-                $resellerUser = null;
-            }
-        }
-
-        // Fallback: Check customer email (for old orders)
-        if (!$resellerUser && $order->customer && $order->customer->email) {
-            $resellerUser = User::where('email', $order->customer->email)
-                ->where(function($query) {
-                    $query->where('role', 'reseller')
-                          ->orWhereHas('roles', function($q) {
-                              $q->where('name', 'reseller');
-                          });
-                })
-                ->first();
-        }
-
-        if (!$resellerUser) {
-            return;
-        }
-
-        // Check if already credited (to avoid double credit)
-        if ($order->reseller_wallet_credited) {
-            return;
-        }
-
-        $resellerProfit = (float) $order->reseller_profit;
-        
-        if ($resellerProfit > 0) {
-            // Update reseller wallet balance
-            $resellerUser->wallet_balance = (isset($resellerUser->wallet_balance) ? $resellerUser->wallet_balance : 0) + $resellerProfit;
-            $resellerUser->save();
-
-            \App\Models\ResellerWalletTransaction::log(
-                $resellerUser->id, 'order_profit', $resellerProfit,
-                'Order', $order->id,
-                'অর্ডার #' . ($order->invoice_id ?? $order->id) . ' প্রফিট'
-            );
-
-            // Mark order as credited to avoid double credit
-            $order->reseller_wallet_credited = true;
-            $order->save();
-
-            // Optional: Log the transaction (if you have a reseller wallet transaction table)
-            // You can create a similar table like VendorWalletTransaction for resellers
-        }
-    }
 }

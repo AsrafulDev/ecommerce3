@@ -103,17 +103,9 @@ class RefundController extends Controller
             return back();
         }
 
-        // Check if order contains vendor products
-        $orderDetails = \App\Models\OrderDetails::where('order_id', $order->id)
-            ->whereNotNull('vendor_id')
-            ->first();
-        
-        $vendorId = $orderDetails ? $orderDetails->vendor_id : null;
-
         $refund = Refund::create([
             'order_id' => $order->id,
             'customer_id' => $customer->id,
-            'vendor_id' => $vendorId,
             'refund_id' => Refund::generateRefundId(),
             'amount' => $request->amount,
             'shipping_charge' => $request->shipping_charge ?? 0,

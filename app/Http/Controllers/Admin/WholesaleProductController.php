@@ -9,7 +9,6 @@ use App\Models\Category;
 use App\Models\Subcategory;
 use App\Models\Childcategory;
 use App\Models\Brand;
-use App\Models\Vendor;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
@@ -20,7 +19,7 @@ class WholesaleProductController extends Controller
 {
     public function index(Request $request)
     {
-        $query = WholesaleProduct::with(['category', 'vendor', 'image'])
+        $query = WholesaleProduct::with(['category', 'image'])
             ->orderBy('id', 'DESC');
 
         if ($request->keyword) {
@@ -44,7 +43,6 @@ class WholesaleProductController extends Controller
         return view('backEnd.wholesale_products.create', [
             'categories' => Category::where('parent_id', 0)->where('status', 1)->select('id', 'name')->with('childrenCategories')->get(),
             'brands' => Brand::where('status', 1)->select('id', 'name')->get(),
-            'vendors' => Vendor::where('status', 'active')->select('id', 'shop_name')->get(),
         ]);
     }
 
@@ -122,7 +120,7 @@ class WholesaleProductController extends Controller
 
     public function show($id)
     {
-        $product = WholesaleProduct::with(['category', 'subcategory', 'childcategory', 'brand', 'vendor', 'images', 'creator'])
+        $product = WholesaleProduct::with(['category', 'subcategory', 'childcategory', 'brand', 'images', 'creator'])
             ->findOrFail($id);
         return view('backEnd.wholesale_products.show', compact('product'));
     }
@@ -134,7 +132,6 @@ class WholesaleProductController extends Controller
             'product' => $product,
             'categories' => Category::where('parent_id', 0)->where('status', 1)->select('id', 'name')->with('childrenCategories')->get(),
             'brands' => Brand::where('status', 1)->select('id', 'name')->get(),
-            'vendors' => Vendor::where('status', 'active')->select('id', 'shop_name')->get(),
         ]);
     }
 

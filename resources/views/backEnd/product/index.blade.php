@@ -81,7 +81,7 @@
                             </ul>
                         </div>
                         <div class="col-lg-4 col-md-5 mt-2 mt-md-0">
-                            <form method="GET" action="{{ route('products.index') }}">
+                            <form method="GET" action="{{ route('inhouse.products.index') }}">
                                 <div class="input-group">
                                     <input type="text" name="keyword" class="form-control form-control-sm border-end-0" placeholder="Search by name..." value="{{ request('keyword') }}">
                                     <button class="btn btn-sm btn-info border-start-0 px-3" type="submit">
@@ -137,7 +137,7 @@
                                     <td>
                                         <p class="m-0 fw-bold text-muted font-size-12">{{$value->category ? $value->category->name : 'No Category'}}</p>
                                         <small class="text-primary font-size-11">
-                                            <i class="fe-user me-1"></i>{{ $value->vendor ? $value->vendor->shop_name : 'Admin' }}
+                                            <i class="fe-user me-1"></i>Admin
                                         </small>
                                     </td>
                                     <td>

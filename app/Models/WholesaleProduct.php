@@ -26,7 +26,6 @@ class WholesaleProduct extends Model
         'stock',
         'status',
         'approval_status',
-        'vendor_id',
         'created_by',
         'meta_title',
         'meta_description',
@@ -85,11 +84,6 @@ class WholesaleProduct extends Model
         return $this->belongsTo(Brand::class, 'brand_id');
     }
 
-    public function vendor()
-    {
-        return $this->belongsTo(Vendor::class, 'vendor_id');
-    }
-
     public function creator()
     {
         return $this->belongsTo(User::class, 'created_by');
@@ -119,11 +113,6 @@ class WholesaleProduct extends Model
     public function scopePending($query)
     {
         return $query->where('approval_status', 'pending');
-    }
-
-    public function scopeByVendor($query, $vendorId)
-    {
-        return $query->where('vendor_id', $vendorId);
     }
 
     // Helper methods

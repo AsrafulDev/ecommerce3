@@ -82,10 +82,6 @@ class CheckCourierOrderStatus extends Command
                 $order->order_status = $status;
                 $order->save();
 
-                if ($status == 11) {
-                    \App\Helpers\ResellerOrderHelper::deductDeliveryChargeOnCancel($order);
-                }
-
                 $updated++;
                 $this->info("Order #{$order->invoice_id} ({$order->courier_type}): {$oldStatus} → {$status}");
 

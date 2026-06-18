@@ -119,7 +119,7 @@
     <div class="row mb-3 mt-3">
         <div class="col-12 d-flex justify-content-between align-items-center">
             <h4 class="page-title mb-0" style="font-weight: 700; color: #2d3436;">Pending Approvals</h4>
-            <a href="{{route('products.index')}}" class="btn btn-secondary rounded-pill shadow-sm px-4">
+            <a href="{{route('inhouse.products.index')}}" class="btn btn-secondary rounded-pill shadow-sm px-4">
                 <i class="fe-arrow-left me-1"></i> Back to Products
             </a>
         </div>
@@ -177,18 +177,7 @@
                                 </td>
 
                                 <td>
-                                    @if($value->vendor)
-                                        <div class="d-flex align-items-center">
-                                            <div class="avatar-xs me-2">
-                                                <span class="avatar-title rounded-circle bg-soft-info text-info font-size-12">
-                                                    {{ substr($value->vendor->shop_name, 0, 1) }}
-                                                </span>
-                                            </div>
-                                            <span class="font-size-13 fw-medium">{{ $value->vendor->shop_name }}</span>
-                                        </div>
-                                    @else
-                                        <span class="badge badge-soft-secondary">Admin Product</span>
-                                    @endif
+                                    <span class="badge badge-soft-secondary">Admin Product</span>
                                 </td>
 
                                 <td>{{$value->category ? $value->category->name : 'N/A'}}</td>

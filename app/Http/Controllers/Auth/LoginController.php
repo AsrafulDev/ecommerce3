@@ -6,7 +6,6 @@ use App\Http\Controllers\Controller;
 use App\Providers\RouteServiceProvider;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Illuminate\Support\Facades\Auth;
-use App\Models\Vendor;
 
 class LoginController extends Controller
 {
@@ -33,15 +32,6 @@ class LoginController extends Controller
             return redirect()->intended($this->redirectPath());
         }
         
-        // ✅ Fast role checks (cached by Spatie)
-        if ($user->hasRole('reseller') || (isset($user->role) && strtolower($user->role) === 'reseller')) {
-            return redirect()->route('reseller.dashboard');
-        }
-
-        if ($user->hasRole('vendor')) {
-            return redirect()->route('vendor.dashboard');
-        }
-        
         if ($user->hasRole('Admin') || $user->hasRole('admin')) {
             return redirect()->intended($this->redirectPath());
         }
@@ -49,25 +39,9 @@ class LoginController extends Controller
         // ✅ Get Spatie roles once (cached)
         $spatieRoles = $user->getRoleNames()->map(fn($role) => strtolower($role))->toArray();
         
-        // ✅ Blocklist: শুধু vendor এবং reseller
-        $blockedSpatieRoles = ['vendor', 'reseller'];
-        $hasBlockedRole = !empty(array_intersect($spatieRoles, $blockedSpatieRoles));
-        
-        if ($hasBlockedRole) {
-            Auth::guard('admin')->logout();
-            return redirect()->back()->with('error', 'You do not have permission to access this system.');
-        }
-        
-        // ✅ If user has any Spatie role (not blocked), allow access
+        // ✅ If user has any Spatie role, allow access
         if (count($spatieRoles) > 0) {
             return redirect()->intended($this->redirectPath());
-        }
-        
-        // ✅ Check role column - শুধু vendor এবং reseller block
-        $roleColumn = isset($user->role) ? strtolower($user->role) : null;
-        if ($roleColumn && in_array($roleColumn, ['vendor', 'reseller'])) {
-            Auth::guard('admin')->logout();
-            return redirect()->back()->with('error', 'You do not have permission to access this system.');
         }
 
         // ✅ Allowed - proceed to admin dashboard
@@ -81,7 +55,7 @@ class LoginController extends Controller
      */
     public function __construct()
     {
-        // Allow access to login page if not authenticated OR if current user is vendor/reseller (so admin can login)
+        // Allow access to login page if not authenticated
         $this->middleware(function ($request, $next) {
             if (Auth::guard('admin')->check()) {
                 $user = Auth::guard('admin')->user();
@@ -91,21 +65,12 @@ class LoginController extends Controller
                     return redirect()->route('admin.dashboard');
                 }
                 
-                // If reseller is logged in, redirect to reseller dashboard
-                if ($user->hasRole('reseller') || $user->role === 'reseller') {
-                    return redirect()->route('reseller.dashboard');
-                }
-                // If vendor is logged in, allow admin to login (will logout vendor on login attempt)
-                if ($user->hasRole('vendor')) {
-                    return $next($request);
-                }
-                
-                // ✅ If user has any other Spatie role (Staff, Salesman, etc.), redirect to dashboard
+                // ✅ If user has any Spatie role, redirect to dashboard
                 $spatieRoles = $user->getRoleNames()->map(function($role) {
                     return strtolower($role);
                 })->toArray();
                 
-                if (count($spatieRoles) > 0 && !in_array('vendor', $spatieRoles) && !in_array('reseller', $spatieRoles)) {
+                if (count($spatieRoles) > 0) {
                     return redirect()->route('admin.dashboard');
                 }
             }
@@ -118,16 +83,6 @@ class LoginController extends Controller
      */
     protected function attemptLogin(\Illuminate\Http\Request $request)
     {
-        // If vendor or reseller is logged in, logout first to allow admin login
-        if (Auth::guard('admin')->check()) {
-            $user = Auth::guard('admin')->user();
-            if ($user->hasRole('vendor') || $user->hasRole('reseller') || $user->role === 'reseller') {
-                Auth::guard('admin')->logout();
-                $request->session()->invalidate();
-                $request->session()->regenerateToken();
-            }
-        }
-        
         // Call parent attemptLogin method
         $attempt = $this->guard()->attempt(
             $this->credentials($request), 
@@ -203,16 +158,6 @@ class LoginController extends Controller
      */
     public function showLoginForm()
     {
-        // If vendor or reseller is logged in, logout first to allow admin login
-        if (Auth::guard('admin')->check()) {
-            $user = Auth::guard('admin')->user();
-            if ($user->hasRole('vendor') || $user->hasRole('reseller') || $user->role === 'reseller') {
-                Auth::guard('admin')->logout();
-                request()->session()->invalidate();
-                request()->session()->regenerateToken();
-            }
-        }
-        
         // Check which login view exists
         if (view()->exists('backEnd.auth.login')) {
             return view('backEnd.auth.login');

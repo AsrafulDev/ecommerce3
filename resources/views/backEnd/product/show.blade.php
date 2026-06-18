@@ -116,7 +116,7 @@
                     <a href="{{route('products.edit', $product->id)}}" class="btn btn-info rounded-pill shadow-sm">
                         <i class="fe-edit me-1"></i> Edit Product
                     </a>
-                    <a href="{{route('products.index')}}" class="btn btn-secondary rounded-pill shadow-sm">
+                    <a href="{{route('inhouse.products.index')}}" class="btn btn-secondary rounded-pill shadow-sm">
                         <i class="fe-arrow-left me-1"></i> Back to List
                     </a>
                 </div>
@@ -159,18 +159,6 @@
                         </div>
                     </div>
                     <hr>
-                    <div class="d-flex align-items-center mb-3">
-                        <div class="flex-grow-1">
-                            <h5 class="mt-0 mb-1">Vendor</h5>
-                            <p class="text-muted mb-0">
-                                @if($product->vendor)
-                                    <span class="badge badge-soft-primary"><i class="fe-user me-1"></i>{{ $product->vendor->shop_name ?? 'Vendor #' . $product->vendor_id }}</span>
-                                @else
-                                    <span class="badge badge-soft-info"><i class="fe-home me-1"></i>Inhouse Product</span>
-                                @endif
-                            </p>
-                        </div>
-                    </div>
                     <hr>
                     <div class="d-flex align-items-center">
                         <div class="flex-grow-1">

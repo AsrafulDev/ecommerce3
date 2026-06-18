@@ -84,14 +84,6 @@ class Product extends Model
                     ->select('id', 'name', 'slug');
     }
 
-    /**
-     * Vendor that owns the product.
-     */
-    public function vendor()
-    {
-        return $this->belongsTo(Vendor::class, 'vendor_id');
-    }
-
     public function sizes()
     {
         return $this->belongsToMany(Size::class, 'productsizes')->withTimestamps();

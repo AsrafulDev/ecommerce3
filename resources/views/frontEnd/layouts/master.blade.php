@@ -671,7 +671,7 @@
                                 <ul>
                                     <li class="title"><a>Useful Link</a></li>
                                     <li>
-                                        <a href="{{route('sellers')}}"> All Sellers</a>
+                                        <a href="{{route('shop')}}"> All Products</a>
                                     </li>
 									     <li>
                                         <a href="{{route('complaint')}}"> Complaints</a>
@@ -1134,20 +1134,6 @@
                     <i class="fa-solid fa-user"></i>
                 </div>
                 <span class="nav_text">Account</span>
-            </a>
-        @elseif(Auth::guard('admin')->check() && Auth::guard('admin')->user()->hasRole('vendor'))
-            <a href="{{route('vendor.dashboard')}}" class="nav_item">
-                <div class="icon_box">
-                    <i class="fa-solid fa-store"></i>
-                </div>
-                <span class="nav_text">Vendor</span>
-            </a>
-        @elseif(Auth::guard('admin')->check() && (Auth::guard('admin')->user()->hasRole('reseller') || (isset(Auth::guard('admin')->user()->role) && strtolower(Auth::guard('admin')->user()->role) === 'reseller')))
-            <a href="{{route('reseller.dashboard')}}" class="nav_item">
-                <div class="icon_box">
-                    <i class="fa-solid fa-handshake"></i>
-                </div>
-                <span class="nav_text">Reseller</span>
             </a>
         @else
             <a href="{{route('customer.login')}}" class="nav_item {{ Route::is('customer.login') ? 'active' : '' }}">

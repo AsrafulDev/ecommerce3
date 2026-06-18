@@ -11,8 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('vendors', function (Blueprint $table) {
-            $table->string('self_image')->nullable()->after('voter_id_back');
+        Schema::table('sms_gateways', function (Blueprint $table) {
+            if (!Schema::hasColumn('sms_gateways', 'message_key')) {
+                $table->string('message_key', 50)->default('message')->after('phone_key');
+            }
         });
     }
 
@@ -21,8 +23,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('vendors', function (Blueprint $table) {
-            $table->dropColumn('self_image');
+        Schema::table('sms_gateways', function (Blueprint $table) {
+            $table->dropColumn(['message_key']);
         });
     }
 };

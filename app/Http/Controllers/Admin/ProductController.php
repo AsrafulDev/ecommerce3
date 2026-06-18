@@ -62,10 +62,8 @@ class ProductController extends Controller
     // ================================
     public function index(Request $request)
     {
-        // Show only vendor products (all vendor products)
-        $query = Product::whereNotNull('vendor_id')
-            ->orderBy('id','DESC')
-            ->with('image','category','vendor');
+        $query = Product::orderBy('id','DESC')
+            ->with('image','category');
 
         if ($request->keyword) {
             $query->where('name', 'LIKE', '%' . $request->keyword . "%");
@@ -83,7 +81,7 @@ class ProductController extends Controller
         // Show only wholesale products (is_wholesale = 1)
         $query = Product::where('is_wholesale', 1)
             ->orderBy('id','DESC')
-            ->with('image','category','vendor','wholesalePrices');
+            ->with('image','category','wholesalePrices');
 
         if ($request->keyword) {
             $query->where('name', 'LIKE', '%' . $request->keyword . "%");
@@ -340,7 +338,7 @@ class ProductController extends Controller
         }
 
         Toastr::success('Product created successfully!');
-        return redirect()->route('products.index');
+        return redirect()->route('inhouse.products.index');
     }
 
     // ================================
@@ -355,7 +353,6 @@ class ProductController extends Controller
             'subcategory',
             'childcategory',
             'brand',
-            'vendor',
             'colors',
             'sizes',
             'variantPrices',
@@ -606,7 +603,7 @@ class ProductController extends Controller
         }
 
         Toastr::success('Product updated successfully!');
-        return redirect()->route('products.index');
+        return redirect()->route('inhouse.products.index');
     }
 
     // ================================
@@ -699,7 +696,7 @@ class ProductController extends Controller
     {
         $query = Product::where('approval_status', 'pending')
             ->orderBy('id','DESC')
-            ->with('image','category','vendor');
+            ->with('image','category');
 
         if ($request->keyword) {
             $query->where('name', 'LIKE', '%' . $request->keyword . "%");

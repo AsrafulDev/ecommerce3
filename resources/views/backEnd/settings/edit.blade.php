@@ -227,45 +227,7 @@
                                 </select>
                             </div>
                         </div>
-                        <div class="mb-4">
-                            <label class="form-label-pro">System Modules</label>
-                            <div class="d-grid gap-2">
-                                <div class="form-check form-switch">
-                                    <input class="form-check-input" type="checkbox" name="vendor_enabled" value="1" id="vendorEnabled" {{ ($edit_data->vendor_enabled ?? 1) == 1 ? 'checked' : '' }}>
-                                    <label class="form-check-label" for="vendorEnabled">
-                                        <strong>Vendor System</strong> - Enable/Disable vendor functionality
-                                    </label>
-                                </div>
-                                <div class="form-check form-switch">
-                                    <input class="form-check-input" type="checkbox" name="reseller_enabled" value="1" id="resellerEnabled" {{ ($edit_data->reseller_enabled ?? 1) == 1 ? 'checked' : '' }}>
-                                    <label class="form-check-label" for="resellerEnabled">
-                                        <strong>Reseller System</strong> - Enable/Disable reseller functionality
-                                    </label>
-                                </div>
-                            </div>
-                            <small class="text-muted">When disabled, these features will be hidden from the system</small>
-                        </div>
-                        <div class="mb-4">
-                            <label class="form-label-pro">রিসেলার ডিপোজিট সীমা (৳)</label>
-                            <div class="row g-2">
-                                <div class="col-6">
-                                    <input type="number" name="reseller_deposit_min" class="form-control custom-input" 
-                                           value="{{ $edit_data->reseller_deposit_min ?? 100 }}" min="1" step="1" placeholder="ন্যূনতম">
-                                    <small class="text-muted">ন্যূনতম ডিপোজিট</small>
-                                </div>
-                                <div class="col-6">
-                                    <input type="number" name="reseller_deposit_max" class="form-control custom-input" 
-                                           value="{{ $edit_data->reseller_deposit_max ?? 1000000 }}" min="100" step="1" placeholder="সর্বোচ্চ">
-                                    <small class="text-muted">সর্বোচ্চ ডিপোজিট</small>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="mb-4">
-                            <label class="form-label-pro">রিসেলার ওয়ালেট সর্বনিম্ন ব্যালেন্স (৳)</label>
-                            <input type="number" name="reseller_wallet_min_balance" class="form-control custom-input" 
-                                   value="{{ $edit_data->reseller_wallet_min_balance ?? 0 }}" min="0" step="1" placeholder="0">
-                            <small class="text-muted">এমন পরিমাণ যা রিসেলার কখনো উত্তোলন করতে পারবে না। উত্তোলনের পর ব্যালেন্স এই অংকের কম হতে পারবে না।</small>
-                        </div>
+
                     </div>
                 </div>
             </div>
