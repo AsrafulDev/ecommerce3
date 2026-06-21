@@ -1,0 +1,35 @@
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+
+    # -------------------------------------------------------
+    # LOCAL DEVELOPMENT
+    # -------------------------------------------------------
+    # Method 1: php -S (PHP built-in server from project root)
+    #   cd /path/to/project && php -S localhost:8000 server.php
+    #   Then visit http://localhost:8000
+    #
+    # Method 2: Apache (document root = project root, same as live)
+    #   Point your Apache DocumentRoot to this folder.
+    #   The rules below will handle rewriting.
+    #
+    # Method 3: Subfolder setup (e.g. http://localhost/ecommerce3/)
+    #   Uncomment the RewriteBase line below and set the correct path.
+    # -------------------------------------------------------
+
+    # Uncomment and adjust this if running in a subfolder:
+    # RewriteBase /ecommerce3/
+
+    # Handle Authorization Header
+    RewriteCond %{HTTP:Authorization} .
+    RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+
+    # Redirect Trailing Slashes If Not A Folder...
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteCond %{REQUEST_URI} (.+)/$
+    RewriteRule ^ %1 [L,R=301]
+
+    # Handle Front Controller...
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteRule ^ index.php [L]
+</IfModule>
