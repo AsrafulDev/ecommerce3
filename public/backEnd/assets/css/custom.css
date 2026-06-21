@@ -222,3 +222,545 @@ ul#side-menu li {
         padding: 3px 12px;
     }
 }
+
+/* ============================================================
+   MODERN UI - Ads Analytics Settings
+   ============================================================ */
+
+/* --- Modern Cards --- */
+.modern-card {
+    border: none !important;
+    border-radius: 16px !important;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06), 0 1px 3px rgba(0, 0, 0, 0.04) !important;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    overflow: hidden !important;
+    background: #fff !important;
+}
+.modern-card:hover {
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1), 0 2px 8px rgba(0, 0, 0, 0.04) !important;
+    transform: translateY(-2px);
+}
+.modern-card .card-body {
+    padding: 1.75rem 2rem !important;
+}
+
+/* --- Modern Card Headers --- */
+.modern-card-header {
+    padding: 1.25rem 1.5rem !important;
+    border-bottom: none !important;
+}
+.fb-gradient {
+    background: linear-gradient(135deg, #1877F2 0%, #0C63D4 100%) !important;
+}
+.google-gradient {
+    background: linear-gradient(135deg, #4285F4 0%, #34A853 50%, #FBBC05 100%) !important;
+}
+.tiktok-gradient {
+    background: linear-gradient(135deg, #010101 0%, #161616 50%, #25F4EE 100%) !important;
+}
+
+/* --- Platform Icon Circle --- */
+.platform-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    color: #fff;
+    background: rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(4px);
+    flex-shrink: 0;
+}
+
+/* --- Modern Toggle Switch --- */
+.modern-switch .form-check-input {
+    width: 3em !important;
+    height: 1.5em !important;
+    cursor: pointer !important;
+    border-color: rgba(255,255,255,0.4) !important;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='%23fff'/%3e%3c/svg%3e") !important;
+    transition: all 0.3s ease !important;
+}
+.modern-switch .form-check-input:checked {
+    background-color: rgba(255,255,255,0.9) !important;
+    border-color: rgba(255,255,255,0.9) !important;
+}
+.modern-switch .form-check-label {
+    font-size: 0.85rem !important;
+    font-weight: 500 !important;
+}
+
+/* --- Modern Form Inputs --- */
+.modern-label {
+    font-size: 0.8rem !important;
+    font-weight: 600 !important;
+    color: #495057 !important;
+    margin-bottom: 0.35rem !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.5px !important;
+}
+.modern-input-group {
+    border-radius: 10px !important;
+    overflow: hidden !important;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04) !important;
+}
+.modern-input-group .input-group-text {
+    background: #f8f9fa !important;
+    border: 2px solid #e9ecef !important;
+    border-right: none !important;
+    color: #6c757d !important;
+    font-size: 0.9rem !important;
+    padding: 0.5rem 0.85rem !important;
+    transition: all 0.2s ease !important;
+}
+.modern-input {
+    border: 2px solid #e9ecef !important;
+    border-radius: 10px !important;
+    padding: 0.55rem 1rem !important;
+    font-size: 0.875rem !important;
+    transition: all 0.3s ease !important;
+    background: #fff !important;
+    height: auto !important;
+}
+.modern-input:focus {
+    border-color: #1877F2 !important;
+    box-shadow: 0 0 0 4px rgba(24, 119, 242, 0.1) !important;
+    outline: none !important;
+}
+.modern-input-group .modern-input {
+    border-left: none !important;
+    border-radius: 0 10px 10px 0 !important;
+}
+.modern-input-group:focus-within .input-group-text {
+    border-color: #1877F2 !important;
+    background: #f0f5ff !important;
+}
+.modern-input-group:focus-within .modern-input {
+    border-color: #1877F2 !important;
+}
+
+/* --- Help Text Block --- */
+.help-block {
+    background: linear-gradient(135deg, #f8f9fa 0%, #f1f3f5 100%) !important;
+    border-radius: 10px !important;
+    padding: 0.85rem 1rem !important;
+    border-left: 3px solid #dee2e6 !important;
+    font-size: 0.8rem !important;
+    margin-top: 1rem !important;
+}
+
+/* --- Modern Save Button --- */
+.btn-modern-save {
+    padding: 0.7rem 2.5rem !important;
+    border-radius: 12px !important;
+    font-weight: 600 !important;
+    font-size: 0.95rem !important;
+    background: linear-gradient(135deg, #1877F2 0%, #0C63D4 100%) !important;
+    border: none !important;
+    color: #fff !important;
+    box-shadow: 0 4px 15px rgba(24, 119, 242, 0.3) !important;
+    transition: all 0.3s ease !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 0.5rem !important;
+}
+.btn-modern-save:hover {
+    transform: translateY(-2px) !important;
+    box-shadow: 0 6px 25px rgba(24, 119, 242, 0.4) !important;
+    color: #fff !important;
+}
+.btn-modern-save:active {
+    transform: translateY(0) !important;
+}
+
+/* --- Sticky Save Bar --- */
+.sticky-save-bar {
+    position: sticky !important;
+    bottom: 0 !important;
+    z-index: 100 !important;
+    background: rgba(255, 255, 255, 0.95) !important;
+    backdrop-filter: blur(12px) !important;
+    border-top: 1px solid #e9ecef !important;
+    padding: 1rem 0 !important;
+    margin-top: 1.5rem !important;
+    border-radius: 16px 16px 0 0 !important;
+    box-shadow: 0 -4px 20px rgba(0,0,0,0.05) !important;
+}
+
+/* --- Page Header --- */
+.page-header-modern h4 {
+    font-size: 1.5rem !important;
+    font-weight: 700 !important;
+    color: #1a1a2e !important;
+    letter-spacing: -0.3px !important;
+}
+.page-header-modern p {
+    font-size: 0.875rem !important;
+    color: #6c757d !important;
+}
+
+/* --- Platform Badge Colors --- */
+.badge-fb { background: #1877F2 !important; color: #fff !important; }
+.badge-google { background: #4285F4 !important; color: #fff !important; }
+.badge-tiktok { background: #010101 !important; color: #fff !important; }
+
+/* --- Connection Status Indicator --- */
+.connection-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    display: inline-block;
+    margin-right: 6px;
+}
+.connection-dot.active { background: #34A853; box-shadow: 0 0 6px rgba(52, 168, 83, 0.4); }
+.connection-dot.inactive { background: #ccc; }
+
+/* ============================================================
+   MODERN UI - Ads Analytics Dashboard
+   ============================================================ */
+
+/* --- Dashboard Hero Header --- */
+.dashboard-hero {
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%) !important;
+    border-radius: 16px !important;
+    padding: 1.75rem 2rem !important;
+    position: relative !important;
+    overflow: hidden !important;
+}
+.dashboard-hero::before {
+    content: '' !important;
+    position: absolute !important;
+    top: -50% !important;
+    right: -50% !important;
+    width: 200% !important;
+    height: 200% !important;
+    background: radial-gradient(circle, rgba(255,255,255,0.03) 0%, transparent 70%) !important;
+    pointer-events: none !important;
+}
+.dashboard-hero h4 {
+    color: #fff !important;
+    font-weight: 700 !important;
+    font-size: 1.4rem !important;
+}
+.dashboard-hero .text-light-emphasis {
+    color: rgba(255,255,255,0.65) !important;
+    font-size: 0.85rem !important;
+}
+
+/* --- Live Badge Pulse --- */
+.live-pulse {
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 6px !important;
+    background: rgba(52, 168, 83, 0.15) !important;
+    border: 1px solid rgba(52, 168, 83, 0.3) !important;
+    padding: 0.25rem 0.75rem !important;
+    border-radius: 50px !important;
+    color: #34A853 !important;
+    font-size: 0.75rem !important;
+    font-weight: 600 !important;
+}
+.live-pulse .pulse-dot {
+    width: 8px !important;
+    height: 8px !important;
+    border-radius: 50% !important;
+    background: #34A853 !important;
+    animation: pulse-dot 1.5s ease-in-out infinite !important;
+}
+@keyframes pulse-dot {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(0.8); }
+}
+
+/* --- Dashboard Stat Cards --- */
+.dashboard-stat-card {
+    background: #fff !important;
+    border: none !important;
+    border-radius: 16px !important;
+    padding: 1.25rem 1.5rem !important;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.05), 0 1px 3px rgba(0,0,0,0.03) !important;
+    transition: all 0.3s ease !important;
+    position: relative !important;
+    overflow: hidden !important;
+}
+.dashboard-stat-card:hover {
+    transform: translateY(-2px) !important;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.08) !important;
+}
+.dashboard-stat-card .stat-icon {
+    width: 48px !important;
+    height: 48px !important;
+    border-radius: 14px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    font-size: 22px !important;
+    flex-shrink: 0 !important;
+}
+.dashboard-stat-card .stat-icon.messages { background: #dcfce7 !important; color: #16a34a !important; }
+.dashboard-stat-card .stat-icon.spend { background: #fef3c7 !important; color: #d97706 !important; }
+.dashboard-stat-card .stat-icon.expenses { background: #fce4ec !important; color: #dc2626 !important; }
+.dashboard-stat-card .stat-value {
+    font-size: 1.6rem !important;
+    font-weight: 800 !important;
+    color: #1a1a2e !important;
+    line-height: 1.2 !important;
+}
+.dashboard-stat-card .stat-label {
+    font-size: 0.8rem !important;
+    color: #6c757d !important;
+    font-weight: 500 !important;
+}
+.dashboard-stat-card .stat-sub {
+    font-size: 0.7rem !important;
+    color: #adb5bd !important;
+}
+
+/* --- Platform Result Card --- */
+.platform-card {
+    border: none !important;
+    border-radius: 16px !important;
+    overflow: hidden !important;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.05), 0 1px 3px rgba(0,0,0,0.03) !important;
+    transition: all 0.3s ease !important;
+    background: #fff !important;
+}
+.platform-card:hover {
+    box-shadow: 0 8px 30px rgba(0,0,0,0.08) !important;
+    transform: translateY(-2px) !important;
+}
+.platform-card .platform-card-header {
+    padding: 1.1rem 1.5rem !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 12px !important;
+}
+.platform-card .platform-card-header .mini-icon {
+    width: 36px !important;
+    height: 36px !important;
+    border-radius: 10px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    font-size: 16px !important;
+    color: #fff !important;
+    background: rgba(255,255,255,0.2) !important;
+    flex-shrink: 0 !important;
+}
+.platform-card .platform-card-header h6 {
+    color: #fff !important;
+    font-weight: 600 !important;
+    font-size: 0.95rem !important;
+    margin: 0 !important;
+}
+.platform-card .platform-card-body {
+    padding: 1.25rem 1.5rem !important;
+}
+
+/* --- Dashboard Metrics Grid --- */
+.metrics-grid {
+    display: grid !important;
+    grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)) !important;
+    gap: 10px !important;
+}
+.metrics-grid .metric-cell {
+    background: #f8fafc !important;
+    border-radius: 10px !important;
+    padding: 0.85rem 0.75rem !important;
+    text-align: center !important;
+    transition: all 0.2s ease !important;
+}
+.metrics-grid .metric-cell:hover {
+    background: #f1f5f9 !important;
+}
+.metrics-grid .metric-cell .m-value {
+    font-size: 1.15rem !important;
+    font-weight: 700 !important;
+    color: #1a1a2e !important;
+}
+.metrics-grid .metric-cell .m-label {
+    font-size: 0.7rem !important;
+    color: #94a3b8 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.4px !important;
+    font-weight: 500 !important;
+}
+
+/* --- Quick Nav Buttons --- */
+.quick-nav {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    gap: 8px !important;
+}
+.quick-nav .btn {
+    border-radius: 10px !important;
+    padding: 0.45rem 1rem !important;
+    font-size: 0.8rem !important;
+    font-weight: 600 !important;
+    transition: all 0.2s ease !important;
+}
+.quick-nav .btn:hover {
+    transform: translateY(-1px) !important;
+}
+
+/* --- Dashboard Info Footer --- */
+.dashboard-footer {
+    background: #f8f9fa !important;
+    border-radius: 12px !important;
+    padding: 0.85rem 1.25rem !important;
+    font-size: 0.8rem !important;
+    color: #6c757d !important;
+    border: 1px solid #e9ecef !important;
+}
+
+/* ============================================================
+   SETTINGS PAGE ENHANCEMENTS
+   ============================================================ */
+
+/* --- Password Toggle Button --- */
+.password-toggle {
+    background: #f8f9fa !important;
+    border: 2px solid #e9ecef !important;
+    border-left: none !important;
+    color: #6c757d !important;
+    cursor: pointer !important;
+    padding: 0.5rem 0.85rem !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    font-size: 0.9rem !important;
+    transition: all 0.2s ease !important;
+    border-radius: 0 10px 10px 0 !important;
+}
+.password-toggle:hover {
+    background: #e9ecef !important;
+    color: #495057 !important;
+}
+.modern-input-group:focus-within .password-toggle {
+    border-color: #1877F2 !important;
+    background: #f0f5ff !important;
+}
+
+/* --- Collapsible Card Header --- */
+.modern-card-header {
+    cursor: pointer !important;
+    user-select: none !important;
+}
+.modern-card-header .collapse-chevron {
+    transition: transform 0.3s ease !important;
+    font-size: 0.8rem !important;
+    color: rgba(255,255,255,0.6) !important;
+}
+.modern-card-header .collapse-chevron.collapsed {
+    transform: rotate(-90deg) !important;
+}
+.modern-card-body-wrap {
+    transition: all 0.3s ease !important;
+    overflow: hidden !important;
+}
+
+/* --- Save Button Loading Spinner --- */
+.btn-modern-save.loading {
+    pointer-events: none !important;
+    opacity: 0.85 !important;
+}
+.btn-modern-save .spinner {
+    display: none !important;
+    width: 18px !important;
+    height: 18px !important;
+    border: 2px solid rgba(255,255,255,0.3) !important;
+    border-top-color: #fff !important;
+    border-radius: 50% !important;
+    animation: spin 0.6s linear infinite !important;
+}
+.btn-modern-save.loading .spinner {
+    display: inline-block !important;
+}
+.btn-modern-save.loading .btn-text {
+    display: none !important;
+}
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* --- Setup Progress Badge --- */
+.setup-progress {
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+    font-size: 0.75rem !important;
+    color: rgba(255,255,255,0.8) !important;
+}
+.setup-progress .progress-track {
+    width: 80px !important;
+    height: 4px !important;
+    background: rgba(255,255,255,0.2) !important;
+    border-radius: 4px !important;
+    overflow: hidden !important;
+}
+.setup-progress .progress-fill {
+    height: 100% !important;
+    background: #34A853 !important;
+    border-radius: 4px !important;
+    transition: width 0.5s ease !important;
+}
+
+/* --- Input Tooltip Icon --- */
+.field-tooltip {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 18px !important;
+    height: 18px !important;
+    border-radius: 50% !important;
+    background: #e9ecef !important;
+    color: #6c757d !important;
+    font-size: 0.6rem !important;
+    font-weight: 700 !important;
+    cursor: help !important;
+    margin-left: 4px !important;
+    transition: all 0.2s ease !important;
+    vertical-align: middle !important;
+}
+.field-tooltip:hover {
+    background: #1877F2 !important;
+    color: #fff !important;
+}
+
+/* --- Copy Button --- */
+.copy-btn {
+    background: transparent !important;
+    border: none !important;
+    color: #6c757d !important;
+    cursor: pointer !important;
+    padding: 0 8px !important;
+    font-size: 0.85rem !important;
+    transition: all 0.2s ease !important;
+}
+.copy-btn:hover {
+    color: #1877F2 !important;
+}
+.copy-btn.copied {
+    color: #34A853 !important;
+}
+
+/* --- Status Badge in Sticky Bar --- */
+.status-badge {
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 4px !important;
+    padding: 2px 10px !important;
+    border-radius: 50px !important;
+    font-size: 0.7rem !important;
+    font-weight: 600 !important;
+}
+.status-badge.active {
+    background: #dcfce7 !important;
+    color: #16a34a !important;
+}
+.status-badge.inactive {
+    background: #f1f3f5 !important;
+    color: #868e96 !important;
+}
