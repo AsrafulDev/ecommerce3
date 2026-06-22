@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers\Frontend;
 
-use shurjopayv2\ShurjopayLaravelPackage8\Http\Controllers\ShurjopayController;
+// use shurjopayv2\ShurjopayLaravelPackage8\Http\Controllers\ShurjopayController; // Removed: package deleted from GitHub
 use App\Mail\OrderPlace;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
@@ -1099,6 +1099,10 @@ public function order_save(Request $request)
             return redirect('/bkash/checkout-url/create?order_id='.$order->id);
 
         } elseif($request->payment_method == 'shurjopay'){
+            // Shurjopay package was removed (repo deleted from GitHub)
+            // Use alternative payment method
+            Toastr::error('Shurjopay is temporarily unavailable. Please use another payment method.', 'Error');
+            return redirect()->back();
 
             $info = [
                 'currency'        => "BDT",
@@ -1117,7 +1121,7 @@ public function order_save(Request $request)
             Session::forget('coupon_code');
             Session::forget('discount');
 
-            $sp = new ShurjopayController();
+            $sp = new ShurjopayController(); // Package removed - Shurjopay temporarily unavailable
             return $sp->checkout($info);
 
         } elseif($request->payment_method == 'uddoktapay'){
@@ -1235,6 +1239,10 @@ public function order_save(Request $request)
         $profile_edit = Customer::where(['id'=>Auth::guard('customer')->user()->id])->firstOrFail();
         $districts = District::distinct()->select('district')->get();
         $areas = District::where(['district'=>$profile_edit->district])->select('area_name','id')->get();
+        // If no district selected yet (new users), show all areas
+        if ($areas->isEmpty() && !$profile_edit->district) {
+            $areas = District::select('area_name','id')->orderBy('area_name')->get();
+        }
         
         // Refresh the model to get latest data
         $profile_edit->refresh();

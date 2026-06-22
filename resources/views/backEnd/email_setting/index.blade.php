@@ -198,8 +198,11 @@
                                 <label class="form-label">SMTP Password <span class="text-danger">*</span></label>
                                 <div class="input-group">
                                     <span class="input-group-text bg-light border-end-0 text-muted"><i class="fas fa-key"></i></span>
-                                    <input type="password" name="MAIL_PASSWORD" class="form-control border-start-0" 
+                                    <input type="password" name="MAIL_PASSWORD" id="MAIL_PASSWORD" class="form-control border-start-0" 
                                            value="{{ $mail['MAIL_PASSWORD'] ?? '' }}" required>
+                                    <span class="input-group-text bg-light border-start-0" style="cursor:pointer;" onclick="togglePassword('MAIL_PASSWORD', this)">
+                                        <i class="fa fa-eye"></i>
+                                    </span>
                                 </div>
                             </div>
 
@@ -234,4 +237,22 @@
         </div>
     </div>
 </div>
+@endsection
+
+@section('script')
+<script>
+function togglePassword(fieldId, icon) {
+    var field = document.getElementById(fieldId);
+    var iconEl = icon.querySelector('i');
+    if (field.type === 'password') {
+        field.type = 'text';
+        iconEl.classList.remove('fa-eye');
+        iconEl.classList.add('fa-eye-slash');
+    } else {
+        field.type = 'password';
+        iconEl.classList.remove('fa-eye-slash');
+        iconEl.classList.add('fa-eye');
+    }
+}
+</script>
 @endsection

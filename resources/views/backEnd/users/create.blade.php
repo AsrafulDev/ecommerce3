@@ -52,9 +52,14 @@
                     <div class="col-sm-6">
                         <div class="form-group mb-3">
                             <label for="password" class="form-label">Password *</label>
-                            <input type="password" class="form-control @error('password') is-invalid @enderror" name="password" value="{{ old('password') }}" id="password" required="">
+                            <div class="input-group">
+                                <input type="password" class="form-control @error('password') is-invalid @enderror" name="password" value="{{ old('password') }}" id="password" required="">
+                                <span class="input-group-text" style="cursor:pointer;" onclick="togglePassword('password', this)">
+                                    <i class="fa fa-eye"></i>
+                                </span>
+                            </div>
                             @error('password')
-                                <span class="invalid-feedback" role="alert">
+                                <span class="invalid-feedback d-block" role="alert">
                                     <strong>{{ $message }}</strong>
                                 </span>
                             @enderror
@@ -64,9 +69,14 @@
                     <div class="col-sm-6">
                         <div class="form-group mb-3">
                             <label for="confirm-password" class="form-label">Confirm Password *</label>
-                            <input type="password" class="form-control @error('confirm-password') is-invalid @enderror" name="confirm-password" value="{{ old('confirm-password') }}"  id="confirm-password" required="">
+                            <div class="input-group">
+                                <input type="password" class="form-control @error('confirm-password') is-invalid @enderror" name="confirm-password" value="{{ old('confirm-password') }}"  id="confirm-password" required="">
+                                <span class="input-group-text" style="cursor:pointer;" onclick="togglePassword('confirm-password', this)">
+                                    <i class="fa fa-eye"></i>
+                                </span>
+                            </div>
                             @error('confirm-password')
-                                <span class="invalid-feedback" role="alert">
+                                <span class="invalid-feedback d-block" role="alert">
                                     <strong>{{ $message }}</strong>
                                 </span>
                             @enderror
@@ -139,6 +149,19 @@
 <script src="{{asset('public/backEnd/')}}/assets/js/pages/form-advanced.init.js"></script>
 <script src="{{asset('public/backEnd/')}}/assets/js/switchery.min.js"></script>
 <script>
+    function togglePassword(fieldId, icon) {
+        var field = document.getElementById(fieldId);
+        var iconEl = icon.querySelector('i');
+        if (field.type === 'password') {
+            field.type = 'text';
+            iconEl.classList.remove('fa-eye');
+            iconEl.classList.add('fa-eye-slash');
+        } else {
+            field.type = 'password';
+            iconEl.classList.remove('fa-eye-slash');
+            iconEl.classList.add('fa-eye');
+        }
+    }
     $(document).ready(function(){
         var elem = document.querySelector('.js-switch');
         var init = new Switchery(elem);

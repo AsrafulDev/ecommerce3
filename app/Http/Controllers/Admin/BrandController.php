@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Http\Request;
 use App\Models\Brand;
 use Image;
@@ -103,6 +104,9 @@ class BrandController extends Controller
         $inactive = Brand::find($request->hidden_id);
         $inactive->status = 0;
         $inactive->save();
+        // Clear frontend cache so changes reflect immediately
+        Cache::forget('frontend_homepage_v1');
+        Cache::forget('brands_list');
         Toastr::success('Success','Data inactive successfully');
         return redirect()->back();
     }
@@ -111,6 +115,9 @@ class BrandController extends Controller
         $active = Brand::find($request->hidden_id);
         $active->status = 1;
         $active->save();
+        // Clear frontend cache so changes reflect immediately
+        Cache::forget('frontend_homepage_v1');
+        Cache::forget('brands_list');
         Toastr::success('Success','Data active successfully');
         return redirect()->back();
     }

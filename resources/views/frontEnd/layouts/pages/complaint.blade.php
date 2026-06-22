@@ -213,7 +213,7 @@
 
                                         <div class="col-12">
                                             <label class="form-label">অর্ডার আইডি (যদি থাকে)</label>
-                                            <input type="number" name="order_id" class="form-control" placeholder="Order ID লিখুন" min="1" oninput="this.value = this.value.replace(/[^0-9]/g,'')">
+                                            <input type="text" name="order_id" class="form-control" placeholder="Order ID লিখুন (যদি থাকে)">
                                         </div>
 
                                         <div class="col-12">

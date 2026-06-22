@@ -15,7 +15,6 @@
         "laravel/sanctum": "^4.0",
         "laravel/tinker": "^2.7",
         "laravel/ui": "^4.2",
-        "shurjopayv2/laravel8": "dev-master",
         "spatie/laravel-permission": "^6.4",
         "spatie/laravel-sitemap": "^7.0",
         "uddoktapay/laravel-sdk": "^2.1"
