@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers\Frontend;
 
-use shurjopayv2\ShurjopayLaravelPackage8\Http\Controllers\ShurjopayController;
+// use shurjopayv2\ShurjopayLaravelPackage8\Http\Controllers\ShurjopayController;
 use App\Mail\OrderPlace;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
@@ -716,6 +716,9 @@ public function order_save(Request $request)
         $profile_edit = Customer::where(['id'=>Auth::guard('customer')->user()->id])->firstOrFail();
         $districts = District::distinct()->select('district')->get();
         $areas = District::where(['district'=>$profile_edit->district])->select('area_name','id')->get();
+        if ($areas->isEmpty() && !$profile_edit->district) {
+            $areas = District::select('area_name','id')->orderBy('area_name')->get();
+        }
         
         // Refresh the model to get latest data
         $profile_edit->refresh();

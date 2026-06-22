@@ -157,6 +157,8 @@ class ProductController extends Controller
             'proColor',
             'pro_video_source',
             'pro_video_file',
+            'is_digital_check',
+            'product_type',
         ]);
 
         foreach ($input as $key => $val) {
@@ -172,7 +174,7 @@ class ProductController extends Controller
         }
 
         // PRODUCT TYPE
-        $isDigital = $request->product_type === 'digital';
+        $isDigital = $request->product_type === 'digital' || $request->is_digital == 1;
         $input['is_digital'] = $isDigital ? 1 : 0;
 
         if ($isDigital) {
@@ -274,21 +276,28 @@ class ProductController extends Controller
             }
         }
 
-        // VARIANT PRICES
+        // VARIANT PRICES - Single size per variant
         if ($request->variant_price && is_array($request->variant_price)) {
             foreach ($request->variant_price as $variant) {
-                // Skip if neither color nor size is selected
-                if (empty($variant['color_id']) && empty($variant['size_id'])) {
-                    continue;
+                $colorId = $variant['color_id'] ?? null;
+                $sizeId  = $variant['size_id'] ?? null;
+                $price   = $variant['price'] ?? 0;
+                $stock   = $variant['stock'] ?? 0;
+
+                // Handle if size_id is accidentally an array
+                if (is_array($sizeId)) {
+                    $sizeId = !empty($sizeId) ? $sizeId[0] : null;
                 }
-                
-                ProductVariantPrice::create([
-                    'product_id' => $product->id,
-                    'color_id'   => $variant['color_id'] ?? null,
-                    'size_id'    => $variant['size_id'] ?? null,
-                    'price'      => $variant['price'] ?? 0,
-                    'stock'      => $variant['stock'] ?? 0,
-                ]);
+
+                if (!empty($colorId) || !empty($sizeId)) {
+                    ProductVariantPrice::create([
+                        'product_id' => $product->id,
+                        'color_id'   => $colorId ?: null,
+                        'size_id'    => $sizeId ?: null,
+                        'price'      => $price,
+                        'stock'      => $stock,
+                    ]);
+                }
             }
         }
 
@@ -300,6 +309,9 @@ class ProductController extends Controller
                 $imageRow = $vp['image_row'] ?? $idx;
                 $colorId = $vp['color_id'] ?? null;
                 $sizeId = $vp['size_id'] ?? null;
+                if (is_array($sizeId)) {
+                    $sizeId = !empty($sizeId) ? $sizeId[0] : null;
+                }
                 if (!$colorId) continue;
                 $file = $request->file("variant_image.{$imageRow}.image");
                 if (!$file) continue;
@@ -425,6 +437,8 @@ class ProductController extends Controller
             'proColor',
             'pro_video_source',
             'pro_video_file',
+            'is_digital_check',
+            'product_type',
         ]);
 
         foreach ($input as $key => $val) {
@@ -439,7 +453,7 @@ class ProductController extends Controller
         }
 
         // PRODUCT TYPE
-        $isDigital = $request->product_type === 'digital';
+        $isDigital = $request->product_type === 'digital' || $request->is_digital == 1;
         $input['is_digital'] = $isDigital ? 1 : 0;
 
         if ($isDigital) {
@@ -546,6 +560,9 @@ class ProductController extends Controller
                 $imageRow = $vp['image_row'] ?? $idx;
                 $colorId = $vp['color_id'] ?? null;
                 $sizeId = $vp['size_id'] ?? null;
+                if (is_array($sizeId)) {
+                    $sizeId = !empty($sizeId) ? $sizeId[0] : null;
+                }
                 if (!$colorId) continue;
                 $file = $request->file("variant_image.{$imageRow}.image");
                 if (!$file) continue;
@@ -568,20 +585,30 @@ class ProductController extends Controller
             }
         }
 
-        // VARIANTS UPDATE
+        // VARIANTS UPDATE - Single size per variant
         ProductVariantPrice::where('product_id', $product->id)->delete();
 
         if ($request->variant_price && is_array($request->variant_price)) {
             foreach ($request->variant_price as $variant) {
-                if (empty($variant['color_id']) && empty($variant['size_id'])) continue;
+                $colorId = $variant['color_id'] ?? null;
+                $sizeId  = $variant['size_id'] ?? null;
+                $price   = $variant['price'] ?? 0;
+                $stock   = $variant['stock'] ?? 0;
 
-                ProductVariantPrice::create([
-                    'product_id' => $product->id,
-                    'color_id'   => $variant['color_id'] ?? null,
-                    'size_id'    => $variant['size_id'] ?? null,
-                    'price'      => $variant['price'] ?? 0,
-                    'stock'      => $variant['stock'] ?? 0,
-                ]);
+                // Handle if size_id is accidentally an array
+                if (is_array($sizeId)) {
+                    $sizeId = !empty($sizeId) ? $sizeId[0] : null;
+                }
+
+                if (!empty($colorId) || !empty($sizeId)) {
+                    ProductVariantPrice::create([
+                        'product_id' => $product->id,
+                        'color_id'   => $colorId ?: null,
+                        'size_id'    => $sizeId ?: null,
+                        'price'      => $price,
+                        'stock'      => $stock,
+                    ]);
+                }
             }
         }
 

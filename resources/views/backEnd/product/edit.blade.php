@@ -31,6 +31,12 @@
 @endsection
 
 @section('content')
+@php
+    $hasVariants = $edit_data->variantPrices && $edit_data->variantPrices->count() > 0;
+    $currentType = old('product_type', $edit_data->is_digital ? 'digital' : 'physical');
+    $isDigital   = $currentType === 'digital';
+    $isVariable  = $hasVariants;
+@endphp
 <div class="container-fluid">
     <div class="row">
         <div class="col-12">
@@ -230,11 +236,11 @@
                 </div>
 
                 {{-- VARIANT PRICE CARD --}}
-                <div class="card mb-4" id="variant_section">
+                <div class="card mb-4" id="variant_section" style="{{ $hasVariants ? '' : 'display:none;' }}">
                     <div class="card-body">
                         <div class="section-title d-flex justify-content-between align-items-center">
                             <span><i class="fe-layers me-1"></i> Product Variants (Color & Size)</span>
-                            <button type="button" class="btn btn-sm btn-success add-variant rounded-pill px-3"><i class="fa fa-plus me-1"></i> Add New Variant</button>
+                            <button type="button" class="btn btn-sm btn-success add-variant rounded-pill px-3"><i class="fa fa-plus me-1"></i> Add Variant</button>
                         </div>
 
                         <div id="variant-wrapper">
@@ -269,7 +275,8 @@
 
                                         <div class="col-md-2 mb-2">
                                             <label class="form-label">Size</label>
-                                            <select name="variant_price[{{ $variantIndex }}][size_id][]" class="form-control select2 variant-size-select" multiple>
+                                            <select name="variant_price[{{ $variantIndex }}][size_id]" class="form-control select2 variant-size-select">
+                                                <option value="">Select Size (Optional)</option>
                                                 @foreach($totalsizes as $size)
                                                     <option value="{{ $size->id }}" {{ in_array($size->id, $sizeIds) ? 'selected' : '' }}>
                                                         {{ $size->sizeName ?? $size->name }}
@@ -356,7 +363,8 @@
 
                                         <div class="col-md-3 mb-2">
                                             <label class="form-label">Size <small class="text-muted">(Optional)</small></label>
-                                            <select name="variant_price[0][size_id][]" class="form-control select2 variant-size-select" multiple>
+                                            <select name="variant_price[0][size_id]" class="form-control select2 variant-size-select">
+                                                <option value="">Select Size (Optional)</option>
                                                 @foreach($totalsizes as $size)
                                                     <option value="{{ $size->id }}">{{ $size->sizeName ?? $size->name }}</option>
                                                 @endforeach
@@ -679,17 +687,36 @@
                     <div class="card-body">
                         <div class="section-title"><i class="fe-settings me-1"></i> Product Settings</div>
 
-                        @php
-                            $currentType = old('product_type', $edit_data->is_digital ? 'digital' : 'physical');
-                            $isDigital   = $currentType === 'digital';
-                        @endphp
-
                         <div class="form-group mb-3">
                             <label for="product_type" class="form-label">Product Type</label>
                             <select class="form-control bg-light" id="product_type" name="product_type">
-                                <option value="physical" {{ $currentType === 'physical' ? 'selected' : '' }}>Physical Product</option>
-                                <option value="digital"  {{ $currentType === 'digital'  ? 'selected' : '' }}>Digital Product</option>
+                                <option value="simple" {{ !$isVariable ? 'selected' : '' }}>📦 Simple Product</option>
+                                <option value="variable" {{ $isVariable ? 'selected' : '' }}>🎨 Variable Product</option>
                             </select>
+                            <small class="text-muted d-block mt-1">
+                                <strong>Simple:</strong> Single price & stock | <strong>Variable:</strong> Multiple variants with different prices (Color, Size, etc.)
+                            </small>
+                        </div>
+
+                        {{-- VARIANT SECTION TOGGLE --}}
+                        <div class="form-group mb-3" id="variant_toggle_area">
+                            <label class="form-label d-flex align-items-center gap-2">
+                                <input type="checkbox" id="enable_variants" {{ $hasVariants ? 'checked' : '' }} 
+                                       onchange="toggleVariantSection()" style="width:18px;height:18px;">
+                                <span>Enable Product Variants (Color & Size)</span>
+                            </label>
+                            <small class="text-muted d-block">Check this to add multiple variations with different prices, stock & images per Color/Size combination.</small>
+                        </div>
+
+                        {{-- DIGITAL PRODUCT CHECKBOX --}}
+                        <div class="form-group mb-3">
+                            <input type="hidden" name="is_digital" id="is_digital_hidden" value="{{ $isDigital ? 1 : 0 }}">
+                            <label class="form-label d-flex align-items-center gap-2">
+                                <input type="checkbox" id="is_digital_check" name="is_digital_check" {{ $isDigital ? 'checked' : '' }} 
+                                       onchange="toggleDigitalSection()" style="width:18px;height:18px;">
+                                <span>Digital / Downloadable Product</span>
+                            </label>
+                            <small class="text-muted d-block">No shipping required. Customers can download the product after purchase.</small>
                         </div>
 
                         {{-- ADVANCE PAYMENT (PHYSICAL) --}}
@@ -871,80 +898,72 @@
 
 {{-- Variant add/remove with Multiple Size Select --}}
 <script>
-document.addEventListener('DOMContentLoaded', function () {
-    let variantIndex = {{ $edit_data->variantPrices->count() ?? 1 }};
+$(function() {
+    // Count existing variant groups (from PHP groupBy), not total rows
+    let variantIndex = {{ $groupedByColor->count() }};
     
-    // Initialize Select2 with multiple for size
-    $('.variant-size-select').select2({
-        multiple: true,
-        width: '100%'
-    });
-    
-    $('.variant-color-select').select2({
-        width: '100%'
-    });
+    // Initialize Select2 on existing variant selects
+    $('.variant-size-select').select2({ width: '100%' });
+    $('.variant-color-select').select2({ width: '100%' });
 
-    // Add new variant row
-    document.body.addEventListener('click', function (e) {
-        const target = e.target.closest('.add-variant, .remove-variant');
-        if (!target) return;
-
-        if (target.classList.contains('add-variant')) {
-            const wrapper = document.getElementById('variant-wrapper');
-            const firstRow = wrapper.querySelector('.variant-item');
-            if (!firstRow) return;
-
-            const newRow = $(firstRow.cloneNode(true));
-            newRow.find('.select2-container').remove();
-
-            newRow.find('.variant-existing-imgs').remove();
-            newRow.find('input, select').each(function () {
-                const oldName = $(this).attr('name');
-                if (oldName) {
-                    if (oldName.includes('[size_id][]')) {
-                        $(this).attr('name', 'variant_price[' + variantIndex + '][size_id][]');
-                    } else if (oldName.includes('variant_image')) {
-                        $(this).attr('name', 'variant_image[' + variantIndex + '][image]');
-                    } else {
-                        $(this).attr('name', oldName.replace(/\[\d+\]/, '[' + variantIndex + ']'));
-                    }
-                }
-                if ($(this).attr('type') === 'file') {
-                    $(this).val('');
-                    $(this).siblings('.variant-img-preview').hide().find('img').attr('src', '');
-                } else if ($(this).is('input')) $(this).val('');
-                else if ($(this).is('select')) $(this).val(null).trigger('change');
-            });
-
-            newRow.find('.add-variant')
-                .removeClass('btn-success add-variant')
-                .addClass('btn-danger remove-variant')
-                .html('<i class="fa fa-trash"></i>');
-
-            newRow.appendTo(wrapper);
-
-            // Reinitialize Select2 for new row
-            setTimeout(() => {
-                newRow.find('.variant-size-select').select2({
-                    multiple: true,
-                    width: '100%',
-                    dropdownParent: $('#variant-wrapper')
-                });
-                newRow.find('.variant-color-select').select2({
-                    width: '100%',
-                    dropdownParent: $('#variant-wrapper')
-                });
-            }, 100);
-
-            variantIndex++;
-        }
-
-        if (target.classList.contains('remove-variant')) {
-            target.closest('.variant-item').remove();
-        }
+    // Use jQuery event delegation for add/remove buttons
+    $(document).on('click', '.add-variant', function() {
+        var wrapper = $('#variant-wrapper');
+        var firstRow = wrapper.find('.variant-item').first();
+        if (!firstRow.length) return;
+        
+        // Clone the first row
+        var newRow = firstRow.clone();
+        
+        // Remove Select2 instances from clone
+        newRow.find('.select2-container').remove();
+        
+        // Remove existing variant images from clone
+        newRow.find('.variant-existing-imgs').remove();
+        
+        // Update all input/select names with new index
+        newRow.find('input, select').each(function() {
+            var oldName = $(this).attr('name');
+            if (!oldName) return;
+            
+            if (oldName.includes('variant_image')) {
+                $(this).attr('name', 'variant_image[' + variantIndex + '][image]');
+            } else {
+                $(this).attr('name', oldName.replace(/\[\d+\]/, '[' + variantIndex + ']'));
+            }
+            
+            // Clear values
+            if ($(this).attr('type') === 'file') {
+                $(this).val('');
+                $(this).siblings('.variant-img-preview').hide().find('img').attr('src', '');
+            } else if ($(this).is('input')) {
+                $(this).val('');
+            } else if ($(this).is('select')) {
+                $(this).val(null);
+            }
+        });
+        
+        // Change add button to remove button
+        newRow.find('.add-variant')
+            .removeClass('btn-success add-variant')
+            .addClass('btn-danger remove-variant')
+            .html('<i class="fa fa-trash"></i>');
+        
+        wrapper.append(newRow);
+        
+        // Reinitialize Select2 on new row
+        newRow.find('.variant-size-select').select2({ width: '100%' });
+        newRow.find('.variant-color-select').select2({ width: '100%' });
+        
+        variantIndex++;
     });
 
-    // Variant Image Preview & Clear
+    // Remove variant row
+    $(document).on('click', '.remove-variant', function() {
+        $(this).closest('.variant-item').remove();
+    });
+
+    // Variant image preview
     $(document).on('change', '.variant-img-input', function() {
         var $input = $(this);
         var $preview = $input.siblings('.variant-img-preview');
@@ -956,114 +975,139 @@ document.addEventListener('DOMContentLoaded', function () {
             reader.readAsDataURL(file);
         } else { $preview.hide(); $img.attr('src', ''); }
     });
+    
     $(document).on('click', '.variant-img-clear', function() {
         var $preview = $(this).closest('.variant-img-preview');
         $preview.siblings('.variant-img-input').val('');
         $preview.find('img').attr('src', '');
         $preview.hide();
     });
-    
-    // Handle form submission - expand multiple sizes into separate entries
-    $('form[name="editForm"]').on('submit', function(e) {
-        let formData = new FormData(this);
-        let variantData = [];
-        let variantIndex = 0;
-        let rowIndex = 0;
-        
-            $('#variant-wrapper .variant-item').each(function() {
-                let $row = $(this);
-                let colorId = $row.find('.variant-color-select').val() || null;
-                let selectedSizes = $row.find('.variant-size-select').val() || [];
-                let price = $row.find('input[name*="[price]"]').val() || 0;
-                let stock = $row.find('input[name*="[stock]"]').val() || 0;
-                
-                // Validate: At least color or size must be selected
-                if (!colorId && selectedSizes.length === 0) {
-                    // Skip if neither color nor size is selected
-                    return;
-                }
-                
-                // If sizes are selected, create separate entry for each size
-                if (selectedSizes.length > 0) {
-                    selectedSizes.forEach(function(sizeId) {
-                        variantData.push({ index: variantIndex++, color_id: colorId, size_id: sizeId, price: price, stock: stock, image_row: rowIndex });
-                    });
-                } else {
-                    variantData.push({ index: variantIndex++, color_id: colorId, size_id: null, price: price, stock: stock, image_row: rowIndex });
-                }
-                rowIndex++;
-            });
-        
-        $(this).find('input[name*="variant_price"]:not([type="file"]), select[name*="variant_price"]').remove();
-        
-        // Add new hidden inputs for each variant
-        variantData.forEach(function(variant) {
-            $('<input>').attr({
-                type: 'hidden',
-                name: 'variant_price[' + variant.index + '][color_id]',
-                value: variant.color_id
-            }).appendTo($('form[name="editForm"]'));
-            
-            $('<input>').attr({
-                type: 'hidden',
-                name: 'variant_price[' + variant.index + '][size_id]',
-                value: variant.size_id
-            }).appendTo($('form[name="editForm"]'));
-            
-            $('<input>').attr({
-                type: 'hidden',
-                name: 'variant_price[' + variant.index + '][price]',
-                value: variant.price
-            }).appendTo($('form[name="editForm"]'));
-            
-            $('<input>').attr({
-                type: 'hidden',
-                name: 'variant_price[' + variant.index + '][stock]',
-                value: variant.stock
-            }).appendTo($('form[name="editForm"]'));
-            
-            $('<input>').attr({
-                type: 'hidden',
-                name: 'variant_price[' + variant.index + '][image_row]',
-                value: variant.image_row
-            }).appendTo($('form[name="editForm"]'));
-        });
-    });
 });
 </script>
 
 {{-- Product type toggle --}}
 <script>
-document.addEventListener('DOMContentLoaded', function () {
-    function toggleFields() {
-        let type = document.getElementById('product_type').value;
-        if (type === 'digital') {
-            document.getElementById('digital_area').style.display = 'block';
-            document.getElementById('advance_area').style.display = 'none';
-        } else {
-            document.getElementById('digital_area').style.display = 'none';
-            document.getElementById('advance_area').style.display = 'block';
+// Global toggle functions (called from onchange attributes in HTML)
+function toggleVariantSection() {
+    var checked = document.getElementById('enable_variants').checked;
+    var variantSection = document.getElementById('variant_section');
+    if (variantSection) {
+        variantSection.style.display = checked ? '' : 'none';
+    }
+    // Sync product_type select
+    var productType = document.getElementById('product_type');
+    var digitalCheck = document.getElementById('is_digital_check');
+    if (productType && !digitalCheck.checked) {
+        productType.value = checked ? 'variable' : 'simple';
+    }
+    // Toggle pricing fields visibility
+    var newPriceField = document.getElementById('new_price');
+    var stockField = document.getElementById('stock');
+    if (newPriceField) {
+        newPriceField.closest('.col-md-6').style.opacity = checked ? '0.5' : '1';
+        newPriceField.readOnly = checked;
+    }
+    if (stockField) {
+        stockField.closest('.col-md-6').style.opacity = checked ? '0.5' : '1';
+        stockField.readOnly = checked;
+    }
+}
+
+function toggleDigitalSection() {
+    var checked = document.getElementById('is_digital_check').checked;
+    var digitalArea = document.getElementById('digital_area');
+    var advanceArea = document.getElementById('advance_area');
+    var productType = document.getElementById('product_type');
+    var variantToggleArea = document.getElementById('variant_toggle_area');
+    var variantSection = document.getElementById('variant_section');
+    var digitalHidden = document.getElementById('is_digital_hidden');
+    
+    if (digitalHidden) digitalHidden.value = checked ? 1 : 0;
+    if (digitalArea) digitalArea.style.display = checked ? 'block' : 'none';
+    if (advanceArea) advanceArea.style.display = checked ? 'none' : 'block';
+    
+    if (checked) {
+        // Digital product - hide variant options
+        if (variantToggleArea) variantToggleArea.style.display = 'none';
+        if (variantSection) variantSection.style.display = 'none';
+        if (productType) productType.value = 'digital';
+    } else {
+        // Physical product - show variant options
+        if (variantToggleArea) variantToggleArea.style.display = '';
+        // Restore variant section based on checkbox
+        var variantCheck = document.getElementById('enable_variants');
+        if (variantSection && variantCheck) {
+            variantSection.style.display = variantCheck.checked ? '' : 'none';
+        }
+        if (productType) {
+            var variantCheck2 = document.getElementById('enable_variants');
+            productType.value = variantCheck2 && variantCheck2.checked ? 'variable' : 'simple';
         }
     }
+}
 
-    document.getElementById('product_type').addEventListener('change', toggleFields);
+document.addEventListener('DOMContentLoaded', function () {
+    // Digital checkbox
+    var digitalCheck = document.getElementById('is_digital_check');
+    if (digitalCheck) {
+        digitalCheck.addEventListener('change', toggleDigitalSection);
+    }
+    
+    // Variant checkbox
+    var variantCheck = document.getElementById('enable_variants');
+    if (variantCheck) {
+        variantCheck.addEventListener('change', toggleVariantSection);
+    }
+
+    // Product type select change
+    var productTypeSelect = document.getElementById('product_type');
+    if (productTypeSelect) {
+        productTypeSelect.addEventListener('change', function() {
+            var isVariable = this.value === 'variable';
+            var variantCheck = document.getElementById('enable_variants');
+            var variantSection = document.getElementById('variant_section');
+            if (variantCheck) {
+                variantCheck.checked = isVariable;
+            }
+            if (variantSection) {
+                variantSection.style.display = isVariable ? '' : 'none';
+            }
+            // Toggle pricing fields
+            var newPriceField = document.getElementById('new_price');
+            var stockField = document.getElementById('stock');
+            if (newPriceField) {
+                newPriceField.closest('.col-md-6').style.opacity = isVariable ? '0.5' : '1';
+                newPriceField.readOnly = isVariable;
+            }
+            if (stockField) {
+                stockField.closest('.col-md-6').style.opacity = isVariable ? '0.5' : '1';
+                stockField.readOnly = isVariable;
+            }
+        });
+    }
+
+    // Initial state
+    toggleDigitalSection();
+    toggleVariantSection();
     
     // Wholesale toggle
-    document.getElementById('is_wholesale').addEventListener('change', function() {
-        var wholesaleArea = document.getElementById('wholesale_area');
-        if (this.checked) {
-            wholesaleArea.style.display = 'block';
-            wholesaleArea.querySelectorAll('input').forEach(function(input) {
-                input.setAttribute('required', 'required');
-            });
-        } else {
-            wholesaleArea.style.display = 'none';
-            wholesaleArea.querySelectorAll('input').forEach(function(input) {
-                input.removeAttribute('required');
-            });
-        }
-    });
-    toggleFields(); // initial
+    var wholesaleCheck = document.getElementById('is_wholesale');
+    if (wholesaleCheck) {
+        wholesaleCheck.addEventListener('change', function() {
+            var wholesaleArea = document.getElementById('wholesale_area');
+            if (this.checked) {
+                wholesaleArea.style.display = 'block';
+                wholesaleArea.querySelectorAll('input').forEach(function(input) {
+                    input.setAttribute('required', 'required');
+                });
+            } else {
+                wholesaleArea.style.display = 'none';
+                wholesaleArea.querySelectorAll('input').forEach(function(input) {
+                    input.removeAttribute('required');
+                });
+            }
+        });
+    }
     // Wholesale pricing tiers
     let wholesaleIndex = {{ ($wholesalePrices && $wholesalePrices->count() > 0) ? $wholesalePrices->count() : 1 }};
     $('.add-wholesale-tier').on('click', function() {

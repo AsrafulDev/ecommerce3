@@ -104,7 +104,7 @@
                 <div class="card-body p-4">
                     <form action="{{ isset($supplier) ? route('admin.suppliers.update', $supplier->id) : route('admin.suppliers.store') }}" method="POST">
                         @csrf
-                        @if(isset($supplier)) @method('PUT') @endif
+                        {{-- Route uses POST, not PUT --}}
 
                         <div class="mb-3">
                             <label class="form-label-modern">Full Name <span class="text-danger">*</span></label>

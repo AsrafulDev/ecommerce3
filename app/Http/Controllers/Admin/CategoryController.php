@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Http\Request;
 use App\Models\Category;
 use Toastr;
@@ -224,6 +225,9 @@ class CategoryController extends Controller
         }
         $inactive->status = 0;
         $inactive->save();
+        Cache::forget('frontend_homepage_v1');
+        Cache::forget('side_categories');
+        Cache::forget('menu_categories');
 
         Toastr::success('Success','Data inactive successfully');
         return redirect()->back();
@@ -238,6 +242,9 @@ class CategoryController extends Controller
         }
         $active->status = 1;
         $active->save();
+        Cache::forget('frontend_homepage_v1');
+        Cache::forget('side_categories');
+        Cache::forget('menu_categories');
 
         Toastr::success('Success','Data active successfully');
         return redirect()->back();

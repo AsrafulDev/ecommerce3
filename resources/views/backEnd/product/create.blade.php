@@ -153,7 +153,8 @@
                                     </div>
                                     <div class="col-md-2 mb-2">
                                         <label class="form-label">Size <small class="text-muted">(Optional)</small></label>
-                                        <select name="variant_price[0][size_id][]" class="form-control select2 variant-size-select" multiple>
+                                        <select name="variant_price[0][size_id]" class="form-control select2 variant-size-select">
+                                            <option value="">Select Size</option>
                                             @foreach($sizes as $size)
                                                 <option value="{{ $size->id }}">{{ $size->sizeName ?? $size->name }}</option>
                                             @endforeach
@@ -451,9 +452,8 @@
             }
         });
 
-        // Initialize Select2 with multiple for size
+        // Initialize Select2 for size (single select)
         $('.variant-size-select').select2({
-            multiple: true,
             width: '100%'
         });
         
@@ -473,10 +473,7 @@
             firstRow.find('select').each(function(){
                 let oldName = $(this).attr('name');
                 if (oldName) {
-                    // Handle size array name
-                    if (oldName.includes('[size_id][]')) {
-                        $(this).attr('name', 'variant_price[' + variantIndex + '][size_id][]');
-                    } else if (oldName.includes('variant_image')) {
+                    if (oldName.includes('variant_image')) {
                         $(this).attr('name', 'variant_image[' + variantIndex + '][image]');
                     } else {
                         $(this).attr('name', oldName.replace(/\[\d+\]/, '[' + variantIndex + ']'));
@@ -495,7 +492,6 @@
             // Reinitialize Select2 for new row
             setTimeout(() => {
                 firstRow.find('.variant-size-select').select2({
-                    multiple: true,
                     width: '100%',
                     dropdownParent: $('#variant-wrapper')
                 });
@@ -531,7 +527,7 @@
             $preview.hide();
         });
 
-        // Handle form submission - expand multiple sizes into separate entries (keep file inputs)
+        // Handle form submission - collect variant data (single size per variant)
         $('form[data-parsley-validate]').on('submit', function(e) {
             let variantData = [];
             let variantIndex = 0;
@@ -540,19 +536,13 @@
             $('#variant-wrapper .variant-item').each(function() {
                 let $row = $(this);
                 let colorId = $row.find('.variant-color-select').val() || null;
-                let selectedSizes = $row.find('.variant-size-select').val() || [];
+                let sizeId = $row.find('.variant-size-select').val() || null;
                 let price = $row.find('input[name*="[price]"]').val() || 0;
                 let stock = $row.find('input[name*="[stock]"]').val() || 0;
                 
-                if (!colorId && selectedSizes.length === 0) return;
+                if (!colorId && !sizeId) return;
                 
-                if (selectedSizes.length > 0) {
-                    selectedSizes.forEach(function(sizeId) {
-                        variantData.push({ index: variantIndex++, color_id: colorId, size_id: sizeId, price: price, stock: stock, image_row: rowIndex });
-                    });
-                } else {
-                    variantData.push({ index: variantIndex++, color_id: colorId, size_id: null, price: price, stock: stock, image_row: rowIndex });
-                }
+                variantData.push({ index: variantIndex++, color_id: colorId, size_id: sizeId, price: price, stock: stock, image_row: rowIndex });
                 rowIndex++;
             });
             

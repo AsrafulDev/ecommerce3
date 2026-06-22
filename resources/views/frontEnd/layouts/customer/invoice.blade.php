@@ -59,10 +59,13 @@
     .invoice_btn{ margin-bottom: 15px; }
     td{ font-size: 16px; }
 
-   @page { size: a4;  margin: 0mm; background:#F9F9F9 }
+   @page { size: a4;  margin: 0mm; background:#fff }
    @media print {
         td{ font-size: 18px; }
-        header,footer,.no-print { display: none !important; }
+        header,footer,nav,.no-print,.sidebar,#sidebar,.navbar,.main-nav,.top-header,.header-section,.footer-section,
+        .page-header,.main-footer,.site-header,.site-footer,.mobile-nav,.top-bar { display: none !important; }
+        body { background: #fff !important; }
+        .container { width: 100% !important; max-width: 100% !important; }
    }
 </style>
 

@@ -196,7 +196,7 @@ return [
         // App\Providers\BroadcastServiceProvider::class,
         App\Providers\EventServiceProvider::class,
         App\Providers\RouteServiceProvider::class,
-        shurjopayv2\ShurjopayLaravelPackage8\ShurjopayServiceProvider::class
+        // shurjopayv2\ShurjopayLaravelPackage8\ShurjopayServiceProvider::class  // Removed: GitHub repo deleted
 
     ],
 

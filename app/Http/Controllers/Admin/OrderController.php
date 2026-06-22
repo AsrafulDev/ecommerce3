@@ -420,10 +420,11 @@ class OrderController extends Controller
                 ]);
 
             if ($request->keyword) {
-                $show_data = $show_data->where(function ($query) use ($request) {
-                    $query->orWhere('invoice_id', 'LIKE', '%' . $request->keyword . '%')
-                        ->orWhereHas('shipping', function ($subQuery) use ($request) {
-                            $subQuery->where('phone', $request->keyword);
+                $keyword = $request->keyword;
+                $show_data = $show_data->where(function ($query) use ($keyword) {
+                    $query->where('invoice_id', 'LIKE', '%' . $keyword . '%')
+                        ->orWhereHas('shipping', function ($subQuery) use ($keyword) {
+                            $subQuery->where('phone', 'LIKE', '%' . $keyword . '%');
                         });
                 });
             }
