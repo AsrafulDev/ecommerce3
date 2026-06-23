@@ -127,8 +127,14 @@ class CustomerController extends Controller
         // Customer registration
         $this->validate($request, [
             'name'     => 'required',
-            'phone'    => 'required|unique:customers',
+            'phone'    => 'required|unique:customers|regex:/^01[3-9]\d{8}$/',
+            'email'    => 'nullable|email|unique:customers',
             'password' => 'required|min:6'
+        ], [
+            'phone.regex'  => 'একটি বৈধ বাংলাদেশী মোবাইল নাম্বার দিন (যেমন: 017xxxxxxxx)',
+            'phone.unique' => 'এই মোবাইল নাম্বারটি ইতিমধ্যে রেজিস্টার করা আছে',
+            'email.unique' => 'এই ইমেইলটি ইতিমধ্যে রেজিস্টার করা আছে',
+            'email.email'  => 'একটি বৈধ ইমেইল ঠিকানা দিন',
         ]);
 
         $last_id = Customer::orderBy('id', 'desc')->first();

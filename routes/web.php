@@ -168,6 +168,17 @@ Route::get('/dynamic-theme.css', function () {
         ->header('Content-Type', 'text/css');
 });
 
+// Serve sitemap.xml from public folder (for php artisan serve compatibility)
+Route::get('/sitemap.xml', function () {
+    $path = public_path('sitemap.xml');
+    if (!file_exists($path)) {
+        abort(404);
+    }
+    return response()->file($path, [
+        'Content-Type' => 'application/xml',
+    ]);
+})->name('sitemap.xml');
+
 Route::get('/digital-download/{token}', [DigitalDownloadController::class, 'download'])
     ->name('digital.download');
 /* Blog Frontend */

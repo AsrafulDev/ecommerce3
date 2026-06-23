@@ -179,6 +179,19 @@
                         @enderror
                     </div>
 
+                    {{-- Email Input (Optional) --}}
+                    <div class="custom-input-group">
+                        <label for="email">ইমেইল <small class="text-muted">(ঐচ্ছিক)</small></label>
+                        <i class="fas fa-envelope input-icon"></i>
+                        <input type="email" id="email"
+                               class="custom-input @error('email') is-invalid @enderror"
+                               name="email" value="{{ old('email') }}"
+                               placeholder="example@email.com">
+                        @error('email')
+                            <span class="text-danger small mt-1 d-block">{{ $message }}</span>
+                        @enderror
+                    </div>
+
                     {{-- Password Input --}}
                     <div class="custom-input-group">
                         <label for="password">পাসওয়ার্ড</label>
