@@ -39,7 +39,7 @@
                         <div class="col-sm-4">
                             <form class="custom_form" method="GET">
                                 <div class="form-group d-flex">
-                                    <input type="text" name="keyword" placeholder="Search" class="form-control me-2">
+                                    <input type="text" name="keyword" placeholder="Search" class="form-control me-2" value="{{ request('keyword') }}">
                                     <button class="btn rounded-pill btn-info">Search</button>
                                 </div>
                             </form>

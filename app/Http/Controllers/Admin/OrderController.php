@@ -424,7 +424,12 @@ class OrderController extends Controller
                 $show_data = $show_data->where(function ($query) use ($keyword) {
                     $query->where('invoice_id', 'LIKE', '%' . $keyword . '%')
                         ->orWhereHas('shipping', function ($subQuery) use ($keyword) {
-                            $subQuery->where('phone', 'LIKE', '%' . $keyword . '%');
+                            $subQuery->where('phone', 'LIKE', '%' . $keyword . '%')
+                                ->orWhere('name', 'LIKE', '%' . $keyword . '%');
+                        })
+                        ->orWhereHas('customer', function ($subQuery) use ($keyword) {
+                            $subQuery->where('name', 'LIKE', '%' . $keyword . '%')
+                                ->orWhere('phone', 'LIKE', '%' . $keyword . '%');
                         });
                 });
             }

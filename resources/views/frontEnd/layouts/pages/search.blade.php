@@ -26,7 +26,7 @@ if (typeof ttq !== 'undefined') ttq.track('Search', { query: '{{ addslashes($key
                     <div class="row">
                         <div class="col-sm-6">
                             <div class="showing-data">
-                                <span>Showing {{ $products->firstItem() }}-{{ $products->lastItem() }} of {{ $products->total() }} Results</span>
+                                <span>@if($products->total() > 0)Showing {{ $products->firstItem() }}-{{ $products->lastItem() }} of @endif{{ $products->total() }} Results</span>
                             </div>
                         </div>
                         <div class="col-sm-6">
@@ -43,8 +43,9 @@ if (typeof ttq !== 'undefined') ttq.track('Search', { query: '{{ addslashes($key
                                         <option value="5" @if(request()->get('sort')==5)selected @endif>Name: A-Z</option>
                                         <option value="6" @if(request()->get('sort')==6)selected @endif>Name: Z-A</option>
                                     </select>
-                                    <input type="hidden" name="min_price" value="{{request()->get('min_price')}}" />
-                                    <input type="hidden" name="max_price" value="{{request()->get('max_price')}}" />
+                                    <input type="hidden" name="keyword" value="{{ request()->get('keyword') }}" />
+                                    <input type="hidden" name="min_price" value="{{ request()->get('min_price') }}" />
+                                    <input type="hidden" name="max_price" value="{{ request()->get('max_price') }}" />
                                 </form>
                             </div>
                         </div>
