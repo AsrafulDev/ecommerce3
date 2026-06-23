@@ -349,8 +349,8 @@
                         <div class="form-group mb-3">
                             <label class="form-label">Product Type</label>
                             <select class="form-control bg-light" id="product_type" name="product_type">
-                                <option value="physical" selected>Physical Product</option>
-                                <option value="digital">Digital Product</option>
+                                <option value="simple" selected>📦 Simple Product</option>
+                                <option value="digital">💾 Digital Product</option>
                             </select>
                         </div>
 

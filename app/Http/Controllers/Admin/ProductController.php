@@ -129,7 +129,7 @@ class ProductController extends Controller
             'advance_amount' => 'nullable|numeric|min:0',
             'reseller_price' => 'nullable|numeric|min:0',
 
-            'product_type'        => 'required|in:physical,digital',
+            'product_type'        => 'required|in:simple,digital,physical',
             'digital_file'        => 'nullable|file|max:51200', // 50MB
             'download_limit'      => 'nullable|integer|min:1',
             'download_expire_days'=> 'nullable|integer|min:1',
@@ -158,7 +158,6 @@ class ProductController extends Controller
             'pro_video_source',
             'pro_video_file',
             'is_digital_check',
-            'product_type',
         ]);
 
         foreach ($input as $key => $val) {
@@ -173,9 +172,11 @@ class ProductController extends Controller
             }
         }
 
-        // PRODUCT TYPE
-        $isDigital = $request->product_type === 'digital' || $request->is_digital == 1;
+        // PRODUCT TYPE (WooCommerce-like: simple, digital)
+        $rawType = $request->product_type;
+        $isDigital = $rawType === 'digital' || $request->is_digital == 1;
         $input['is_digital'] = $isDigital ? 1 : 0;
+        $input['product_type'] = $isDigital ? 'digital' : 'simple';
 
         if ($isDigital) {
             $input['advance_amount'] = 0; // ডিজিটাল হলে advance লাগবে না
@@ -409,7 +410,8 @@ class ProductController extends Controller
             'description'    => 'required',
             'reseller_price' => 'nullable|numeric|min:0',
 
-            'product_type'        => 'required|in:physical,digital',
+            'product_type'        => 'required|in:simple,variable,digital,physical',
+            'is_variant'          => 'nullable|boolean',
             'digital_file'        => 'nullable|file|max:51200',
             'download_limit'      => 'nullable|integer|min:1',
             'download_expire_days'=> 'nullable|integer|min:1',
@@ -438,7 +440,6 @@ class ProductController extends Controller
             'pro_video_source',
             'pro_video_file',
             'is_digital_check',
-            'product_type',
         ]);
 
         foreach ($input as $key => $val) {
@@ -452,9 +453,11 @@ class ProductController extends Controller
             }
         }
 
-        // PRODUCT TYPE
-        $isDigital = $request->product_type === 'digital' || $request->is_digital == 1;
+        // PRODUCT TYPE (WooCommerce-like: simple, variable, digital)
+        $rawType = $request->product_type;
+        $isDigital = $rawType === 'digital' || $request->is_digital == 1;
         $input['is_digital'] = $isDigital ? 1 : 0;
+        $input['product_type'] = $isDigital ? 'digital' : ($rawType === 'variable' ? 'variable' : 'simple');
 
         if ($isDigital) {
             $input['advance_amount'] = 0;

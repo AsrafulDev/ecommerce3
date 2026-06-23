@@ -59,7 +59,7 @@
         ],
         "serve-local": [
             "Composer\\Config::disableProcessTimeout",
-            "@php -S localhost:8000 server.php"
+            "@php -S localhost:8080 server.php"
         ]
     },
     "extra": {

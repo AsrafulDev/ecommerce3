@@ -33,9 +33,11 @@
 @section('content')
 @php
     $hasVariants = $edit_data->variantPrices && $edit_data->variantPrices->count() > 0;
-    $currentType = old('product_type', $edit_data->is_digital ? 'digital' : 'physical');
-    $isDigital   = $currentType === 'digital';
-    $isVariable  = $hasVariants;
+    // WooCommerce-like product types: simple, variable, digital
+    $dbType   = $edit_data->product_type ?? ($edit_data->is_digital ? 'digital' : 'simple');
+    $currentType = old('product_type', $dbType);
+    $isDigital   = $currentType === 'digital' || $edit_data->is_digital;
+    $isVariable  = $currentType === 'variable' || $hasVariants;
 @endphp
 <div class="container-fluid">
     <div class="row">
@@ -245,19 +247,16 @@
 
                         <div id="variant-wrapper">
                             @php
-                                // Group variants by color_id, then by size_id
-                                // First, group by color_id (including null colors)
-                                $groupedByColor = $edit_data->variantPrices->groupBy(function($variant) {
-                                    return $variant->color_id ?? 'no_color';
-                                });
+                                // Each variant = its own row (WooCommerce-style)
+                                // No grouping by color — every color+size combo is a separate row
+                                $allVariants = $edit_data->variantPrices;
                                 $variantIndex = 0;
                             @endphp
                             
-                            @forelse($groupedByColor as $colorId => $variantsForColor)
+                            @forelse($allVariants as $vp)
                                 @php
-                                    // Get all size IDs for this color group
-                                    $sizeIds = $variantsForColor->pluck('size_id')->filter()->toArray();
-                                    $firstVariant = $variantsForColor->first();
+                                    $vpColorId = $vp->color_id ?? '';
+                                    $vpSizeId  = $vp->size_id ?? '';
                                 @endphp
                                 <div class="variant-card variant-item">
                                     <div class="row align-items-end">
@@ -266,7 +265,7 @@
                                             <select name="variant_price[{{ $variantIndex }}][color_id]" class="form-control select2 variant-color-select">
                                                 <option value="">Select Color (Optional)</option>
                                                 @foreach($totalcolors as $color)
-                                                    <option value="{{ $color->id }}" {{ $colorId == $color->id ? 'selected' : '' }}>
+                                                    <option value="{{ $color->id }}" {{ $vpColorId == $color->id ? 'selected' : '' }}>
                                                         {{ $color->colorName ?? $color->name }}
                                                     </option>
                                                 @endforeach
@@ -278,7 +277,7 @@
                                             <select name="variant_price[{{ $variantIndex }}][size_id]" class="form-control select2 variant-size-select">
                                                 <option value="">Select Size (Optional)</option>
                                                 @foreach($totalsizes as $size)
-                                                    <option value="{{ $size->id }}" {{ in_array($size->id, $sizeIds) ? 'selected' : '' }}>
+                                                    <option value="{{ $size->id }}" {{ $vpSizeId == $size->id ? 'selected' : '' }}>
                                                         {{ $size->sizeName ?? $size->name }}
                                                     </option>
                                                 @endforeach
@@ -288,28 +287,26 @@
                                         <div class="col-md-2 mb-2">
                                             <label class="form-label">Price</label>
                                             <input type="number" step="0.01" name="variant_price[{{ $variantIndex }}][price]"
-                                                   value="{{ $firstVariant->price }}" class="form-control" placeholder="Enter Price">
+                                                   value="{{ $vp->price }}" class="form-control" placeholder="Enter Price">
                                         </div>
 
                                         <div class="col-md-2 mb-2">
                                             <label class="form-label">Stock</label>
                                             <input type="number" name="variant_price[{{ $variantIndex }}][stock]"
-                                                   value="{{ $firstVariant->stock }}" class="form-control" placeholder="0">
+                                                   value="{{ $vp->stock }}" class="form-control" placeholder="0">
                                         </div>
 
                                         <div class="col-md-2 mb-2">
                                             <label class="form-label">Variant Image</label>
                                             @php
-                                                $variantColorId = ($colorId === 'no_color') ? null : $colorId;
-                                                $variantImages = $edit_data->images->filter(function($img) use ($variantColorId, $sizeIds) {
-                                                    $colorMatch = ($img->color_id == $variantColorId) || (empty($img->color_id) && empty($variantColorId));
-                                                    $sizeMatch = empty($sizeIds) ? empty($img->size_id) : in_array($img->size_id, $sizeIds);
-                                                    return $colorMatch && $sizeMatch;
+                                                $matchImg = $edit_data->images->filter(function($img) use ($vp) {
+                                                    return ($img->color_id == $vp->color_id || (empty($img->color_id) && empty($vp->color_id)))
+                                                        && ($img->size_id == $vp->size_id || (empty($img->size_id) && empty($vp->size_id)));
                                                 })->unique('image');
                                             @endphp
-                                            @if($variantImages->isNotEmpty())
+                                            @if($matchImg->isNotEmpty())
                                                 <div class="variant-existing-imgs d-flex flex-wrap gap-1 mb-2">
-                                                    @foreach($variantImages as $vImg)
+                                                    @foreach($matchImg as $vImg)
                                                         <div class="position-relative">
                                                             <img src="{{ asset($vImg->image) }}" class="rounded border" style="width:50px;height:50px;object-fit:cover;" alt="">
                                                             <a href="{{ route('products.image.destroy', ['id' => $vImg->id]) }}" class="btn btn-xs btn-danger position-absolute top-0 end-0 rounded-circle" style="padding:0 4px;top:-4px;right:-4px;" onclick="return confirm('Delete this image?')"><i class="mdi mdi-close"></i></a>
@@ -690,8 +687,9 @@
                         <div class="form-group mb-3">
                             <label for="product_type" class="form-label">Product Type</label>
                             <select class="form-control bg-light" id="product_type" name="product_type">
-                                <option value="simple" {{ !$isVariable ? 'selected' : '' }}>📦 Simple Product</option>
-                                <option value="variable" {{ $isVariable ? 'selected' : '' }}>🎨 Variable Product</option>
+                                <option value="simple" {{ $currentType === 'simple' ? 'selected' : '' }}>📦 Simple Product</option>
+                                <option value="variable" {{ $currentType === 'variable' ? 'selected' : '' }}>🎨 Variable Product</option>
+                                <option value="digital" {{ $currentType === 'digital' ? 'selected' : '' }}>💾 Digital Product</option>
                             </select>
                             <small class="text-muted d-block mt-1">
                                 <strong>Simple:</strong> Single price & stock | <strong>Variable:</strong> Multiple variants with different prices (Color, Size, etc.)
@@ -899,8 +897,8 @@
 {{-- Variant add/remove with Multiple Size Select --}}
 <script>
 $(function() {
-    // Count existing variant groups (from PHP groupBy), not total rows
-    let variantIndex = {{ $groupedByColor->count() }};
+    // Count existing variant rows
+    let variantIndex = {{ $allVariants ? $allVariants->count() : 0 }};
     
     // Initialize Select2 on existing variant selects
     $('.variant-size-select').select2({ width: '100%' });
@@ -994,10 +992,10 @@ function toggleVariantSection() {
     if (variantSection) {
         variantSection.style.display = checked ? '' : 'none';
     }
-    // Sync product_type select
+    // Sync product_type select (only if not digital)
     var productType = document.getElementById('product_type');
     var digitalCheck = document.getElementById('is_digital_check');
-    if (productType && !digitalCheck.checked) {
+    if (productType && !digitalCheck.checked && productType.value !== 'digital') {
         productType.value = checked ? 'variable' : 'simple';
     }
     // Toggle pricing fields visibility
@@ -1021,6 +1019,8 @@ function toggleDigitalSection() {
     var variantToggleArea = document.getElementById('variant_toggle_area');
     var variantSection = document.getElementById('variant_section');
     var digitalHidden = document.getElementById('is_digital_hidden');
+    var newPriceField = document.getElementById('new_price');
+    var stockField = document.getElementById('stock');
     
     if (digitalHidden) digitalHidden.value = checked ? 1 : 0;
     if (digitalArea) digitalArea.style.display = checked ? 'block' : 'none';
@@ -1031,6 +1031,15 @@ function toggleDigitalSection() {
         if (variantToggleArea) variantToggleArea.style.display = 'none';
         if (variantSection) variantSection.style.display = 'none';
         if (productType) productType.value = 'digital';
+        // Enable price/stock for digital products
+        if (newPriceField) {
+            newPriceField.closest('.col-md-6').style.opacity = '1';
+            newPriceField.readOnly = false;
+        }
+        if (stockField) {
+            stockField.closest('.col-md-6').style.opacity = '1';
+            stockField.readOnly = false;
+        }
     } else {
         // Physical product - show variant options
         if (variantToggleArea) variantToggleArea.style.display = '';
@@ -1042,6 +1051,54 @@ function toggleDigitalSection() {
         if (productType) {
             var variantCheck2 = document.getElementById('enable_variants');
             productType.value = variantCheck2 && variantCheck2.checked ? 'variable' : 'simple';
+        }
+    }
+}
+
+/** Sync all UI sections based on the selected product_type value */
+function syncProductTypeUI(productTypeValue) {
+    var isDigitalChecked = document.getElementById('is_digital_check');
+    var digitalHidden = document.getElementById('is_digital_hidden');
+    var digitalArea = document.getElementById('digital_area');
+    var advanceArea = document.getElementById('advance_area');
+    var variantToggleArea = document.getElementById('variant_toggle_area');
+    var variantSection = document.getElementById('variant_section');
+    var variantCheck = document.getElementById('enable_variants');
+    var newPriceField = document.getElementById('new_price');
+    var stockField = document.getElementById('stock');
+
+    if (productTypeValue === 'digital') {
+        // Digital: hide variants, show digital fields
+        if (isDigitalChecked) isDigitalChecked.checked = true;
+        if (digitalHidden) digitalHidden.value = 1;
+        if (digitalArea) digitalArea.style.display = 'block';
+        if (advanceArea) advanceArea.style.display = 'none';
+        if (variantToggleArea) variantToggleArea.style.display = 'none';
+        if (variantSection) variantSection.style.display = 'none';
+        if (variantCheck) variantCheck.checked = false;
+        // Enable price/stock
+        if (newPriceField) { newPriceField.closest('.col-md-6').style.opacity = '1'; newPriceField.readOnly = false; }
+        if (stockField) { stockField.closest('.col-md-6').style.opacity = '1'; stockField.readOnly = false; }
+    } else {
+        // Physical (simple or variable)
+        if (isDigitalChecked) isDigitalChecked.checked = false;
+        if (digitalHidden) digitalHidden.value = 0;
+        if (digitalArea) digitalArea.style.display = 'none';
+        if (advanceArea) advanceArea.style.display = 'block';
+        if (variantToggleArea) variantToggleArea.style.display = '';
+        
+        var isVariable = productTypeValue === 'variable';
+        if (variantCheck) variantCheck.checked = isVariable;
+        if (variantSection) variantSection.style.display = isVariable ? '' : 'none';
+        
+        // Toggle price/stock based on variable
+        if (newPriceField) {
+            newPriceField.closest('.col-md-6').style.opacity = isVariable ? '0.5' : '1';
+            newPriceField.readOnly = isVariable;
+        }
+        if (stockField) {
+            stockField.closest('.col-md-6').style.opacity = isVariable ? '0.5' : '1';
+            stockField.readOnly = isVariable;
         }
     }
 }
@@ -1059,37 +1116,23 @@ document.addEventListener('DOMContentLoaded', function () {
         variantCheck.addEventListener('change', toggleVariantSection);
     }
 
-    // Product type select change
+    // Product type select change (WooCommerce-like: simple, variable, digital)
     var productTypeSelect = document.getElementById('product_type');
     if (productTypeSelect) {
         productTypeSelect.addEventListener('change', function() {
-            var isVariable = this.value === 'variable';
-            var variantCheck = document.getElementById('enable_variants');
-            var variantSection = document.getElementById('variant_section');
-            if (variantCheck) {
-                variantCheck.checked = isVariable;
-            }
-            if (variantSection) {
-                variantSection.style.display = isVariable ? '' : 'none';
-            }
-            // Toggle pricing fields
-            var newPriceField = document.getElementById('new_price');
-            var stockField = document.getElementById('stock');
-            if (newPriceField) {
-                newPriceField.closest('.col-md-6').style.opacity = isVariable ? '0.5' : '1';
-                newPriceField.readOnly = isVariable;
-            }
-            if (stockField) {
-                stockField.closest('.col-md-6').style.opacity = isVariable ? '0.5' : '1';
-                stockField.readOnly = isVariable;
-            }
+            syncProductTypeUI(this.value);
         });
     }
 
-    // Initial state
-    toggleDigitalSection();
-    toggleVariantSection();
-    
+    // Initial state sync based on the currently selected product_type
+    if (productTypeSelect) {
+        syncProductTypeUI(productTypeSelect.value);
+    } else {
+        // Fallback to individual toggles
+        toggleDigitalSection();
+        toggleVariantSection();
+    }
+
     // Wholesale toggle
     var wholesaleCheck = document.getElementById('is_wholesale');
     if (wholesaleCheck) {
