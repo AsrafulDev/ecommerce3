@@ -129,7 +129,7 @@ class ProductController extends Controller
             'advance_amount' => 'nullable|numeric|min:0',
             'reseller_price' => 'nullable|numeric|min:0',
 
-            'product_type'        => 'required|in:simple,digital,physical',
+            'product_type'        => 'required|in:simple,variable,digital',
             'digital_file'        => 'nullable|file|max:51200', // 50MB
             'download_limit'      => 'nullable|integer|min:1',
             'download_expire_days'=> 'nullable|integer|min:1',
@@ -410,7 +410,7 @@ class ProductController extends Controller
             'description'    => 'required',
             'reseller_price' => 'nullable|numeric|min:0',
 
-            'product_type'        => 'required|in:simple,variable,digital,physical',
+            'product_type'        => 'required|in:simple,variable,digital',
             'is_variant'          => 'nullable|boolean',
             'digital_file'        => 'nullable|file|max:51200',
             'download_limit'      => 'nullable|integer|min:1',
