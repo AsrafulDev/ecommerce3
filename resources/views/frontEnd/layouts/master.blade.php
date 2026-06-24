@@ -27,6 +27,7 @@
 
         <link rel="stylesheet" href="{{asset('public/frontEnd/css/wsit-menu.css')}}" />
 <link rel="stylesheet" href="{{ url('/style.css') }}?v={{ time() }}">
+<link rel="stylesheet" href="{{ url('/dynamic-theme.css') }}?v={{ $activeTheme->updated_at->timestamp ?? time() }}">        
 <link rel="stylesheet" href="{{ url('/responsive.css') }}?v={{ time() }}">
         <link rel="stylesheet" href="{{asset('public/frontEnd/css/main.css')}}" />
 
@@ -46,9 +47,35 @@
             @stack('dataLayer')
         </script>
 		
-		<style> 
-
-</style> 
+		{{-- 🎨 Theme CSS Variables — injected from active theme --}}
+		<style>
+            :root {
+                --primary-color: {{ $activeTheme->primary_color ?? '#0d6efd' }};
+                --secondary-color: {{ $activeTheme->secondary_color ?? '#198754' }};
+                --accent-color: {{ $activeTheme->accent_color ?? '#ff6a00' }};
+                --text-color: {{ $activeTheme->text_color ?? '#212529' }};
+                --heading-color: {{ $activeTheme->heading_color ?? '#111111' }};
+                --body-bg: {{ $activeTheme->body_bg_color ?? '#ffffff' }};
+                --header-bg: {{ $activeTheme->header_bg_color ?? '#ffffff' }};
+                --header-text: {{ $activeTheme->header_text_color ?? '#212529' }};
+                --footer-bg: {{ $activeTheme->footer_bg_color ?? '#1a1a1a' }};
+                --footer-text: {{ $activeTheme->footer_text_color ?? $activeTheme->copyright_text_color ?? '#ffffff' }};
+                --copyright-bg: {{ $activeTheme->copyright_bg_color ?? '#000000' }};
+                --copyright-text: {{ $activeTheme->copyright_text_color ?? '#ffffff' }};
+                --button-bg: {{ $activeTheme->button_bg_color ?? '#0d6efd' }};
+                --button-text: {{ $activeTheme->button_text_color ?? '#ffffff' }};
+                --button-hover-bg: {{ $activeTheme->button_hover_bg_color ?? '#0b5ed7' }};
+                --border-color: {{ $activeTheme->border_color ?? '#dee2e6' }};
+                --sale-badge-bg: {{ $activeTheme->sale_badge_bg ?? '#dc3545' }};
+                --sale-badge-text: {{ $activeTheme->sale_badge_text ?? '#ffffff' }};
+                --font-family: {{ $activeTheme->font_family ?? "'Roboto', sans-serif" }};
+                --heading-font: {{ $activeTheme->heading_font ?? "'Jost', sans-serif" }};
+                --body-font-size: {{ $activeTheme->body_font_size ?? '14px' }};
+                --border-radius: {{ $activeTheme->border_radius ?? '8px' }};
+                --card-shadow: {{ $activeTheme->card_shadow ?? '0 2px 8px rgba(0,0,0,0.08)' }};
+                --layout-style: {{ $activeTheme->layout_style ?? 'contained' }};
+            }
+		</style> 
 		
 
         @php
@@ -302,7 +329,7 @@
             
             /* Newsletter Title Color - White */
             .footer-menu .title.stay_conn a {
-                color: #ffffff !important;
+                color: var(--footer-text) !important;
             }
             
             .footer-menu ul + ul {
@@ -427,7 +454,7 @@
         <div class="mobile-menu">
                 <div class="mobile-menu-logo">
                     <div class="logo-image">
-                        <img src="{{asset($generalsetting->dark_logo)}}" alt="" />
+                        <img src="{{ asset($generalsetting->dark_logo ?: 'public/assets/images/CurlBazar.png') }}" alt="" />
                     </div>
                     <div class="mobile-menu-close">
                         <i class="fa fa-times"></i>
@@ -465,7 +492,7 @@
                 </ul>
             </div>
         <header id="navbar_top">
-            <div class="top_header" style="background-color:{{$generalsetting->secodery_color}}">
+            <div class="top_header" style="background-color:var(--secondary-color)">
                     <div class="container d-flex align-items-center">
                         <!-- Hotline button on the left side -->
                         <a href="tel:{{ $contact->hotline }}" class="text-center bg-light px-2 d-none d-sm-block fw-bold fs-4" style="color:#13027D;min-width:270px;">
@@ -489,7 +516,7 @@
                         </a>
                     </div>
                     <div class="menu-logo">
-                        <a href="{{route('home')}}"><img src="{{asset($generalsetting->dark_logo)}}" alt="" /></a>
+                        <a href="{{route('home')}}"><img src="{{ asset($generalsetting->dark_logo ?: 'public/assets/images/CurlBazar.png') }}" alt="" /></a>
                     </div>
     <div class="menu-bag">
     <a href="{{ route('customer.checkout') }}" class="margin-shopping">
@@ -521,7 +548,7 @@
                             <div class="col-sm-12">
                                 <div class="logo-header">
                                     <div class="main-logo">
-                                        <a href="{{route('home')}}"><img src="{{asset($generalsetting->dark_logo)}}" alt="" /></a>
+                                        <a href="{{route('home')}}"><img src="{{ asset($generalsetting->dark_logo ?: 'public/assets/images/CurlBazar.png') }}" alt="" /></a>
                                     </div>
                                     <div class="main-search">
                                         <form action="{{route('search')}}">
@@ -642,14 +669,14 @@
             @yield('content')
         </div>
             <!-- content end -->
-        <footer style="background: {{$generalsetting->footer_color ?? '#1a1a1a'}} !important;">
-            <div class="footer-top" style="background: {{$generalsetting->footer_color ?? '#1a1a1a'}} !important;">
+        <footer style="background: var(--footer-bg) !important;">
+            <div class="footer-top" style="background: var(--footer-bg) !important;">
                 <div class="container">
                     <div class="row">
                         <div class="col-sm-4 mb-3 mb-sm-0">
                             <div class="footer-about">
                                 <a href="{{route('home')}}">
-                                    <img src="{{asset($generalsetting->dark_logo)}}" alt="" />
+                                    <img src="{{ asset($generalsetting->dark_logo ?: 'public/assets/images/CurlBazar.png') }}" alt="" />
                                 </a>
                                 <p>{{ optional($generalsetting)->footer_about_text ?? 'আপনার ব্যবসার ডিজিটাল পার্টনার। আমরা বিশ্বাস করি গুণগত মান এবং গ্রাহক সন্তুষ্টিতে। প্রযুক্তির সাথে এগিয়ে চলুন আমাদের সাথে।' }}</p>
                                 <a href="tel:{{$contact->hotline}}" class="footer-hotlint">{{$contact->hotline}}</a>
@@ -704,13 +731,13 @@
                             <div class="footer-menu">
                                 <!-- Newsletter Subscribe Section -->
                                 <ul>
-                                    <li class="title stay_conn"><a style="color: #000000 !important;">Newsletter Subscribe</a></li>
+                                    <li class="title stay_conn"><a>Newsletter Subscribe</a></li>
                                 </ul>
                                 <div class="footer-newsletter" style="background: transparent; background-color: transparent; padding: 0;">
                                     <form action="{{ route('frontend.newsletter.subscribe') }}" method="POST" class="modern-subscribe">
                                         @csrf
                                         <div class="input-group newsletter-input-group" style="background: transparent; background-color: transparent; border: none;">
-                                            <input type="email" name="email" class="form-control newsletter-input" placeholder="Enter your email..." required style="background: {{ optional($generalsetting)->primary_color ?? '#007bff' }}; background-color: {{ optional($generalsetting)->primary_color ?? '#007bff' }};">
+                                            <input type="email" name="email" class="form-control newsletter-input" placeholder="Enter your email..." required style="background: var(--primary-color); background-color: var(--primary-color);">
                                             <button class="btn btn-primary newsletter-btn" type="submit" style="background: #dc3545; background-color: #dc3545;">
                                                 <i class="fas fa-paper-plane"></i>
                                             </button>
@@ -735,7 +762,7 @@
                     </div>
                 </div>
             </div>
-                       <div class="footer-bottom" style="background: {{$generalsetting->copyright_color ?? '#000000'}} !important;">
+                       <div class="footer-bottom" style="background: var(--copyright-bg) !important;">
     <div class="container">
         <div class="row">
             <div class="col-sm-12">
@@ -747,8 +774,8 @@
                         
                         <span>Website Designed by:</span>
 
-                        <a href="https://www.curlware.com" target="_blank" style="display: inline-flex; align-items: center; text-decoration: none; color: white; margin-left: 5px;">
-                            <img src="{{ asset('public/uploads/curlware.png') }}" alt="Curlware" style="height: 24px; margin-right: 5px;">
+                        <a href="https://www.curlware.com" target="_blank" style="display: inline-flex; align-items: center; text-decoration: none; color: var(--copyright-text); margin-left: 5px;">
+                            <img src="{{ asset('public/assets/images/curlware.svg') }}" alt="Curlware" style="height: 24px; margin-right: 5px;">
                             <strong>Curlware</strong>
                         </a>
                     </p>
@@ -781,13 +808,13 @@
                 transform: translateY(-50%);
                 width: 52px;
                 height: 70px;
-                background: {{ $generalsetting->primary_color ?? '#007bff' }};
+                background: var(--primary-color);
                 color: #fff;
                 display: flex;
                 align-items: center;
                 justify-content: center;
                 border-radius: 12px 0 0 12px;
-                box-shadow: -3px 0 15px {{ ($generalsetting->primary_color ?? '#007bff') }}66;
+                box-shadow: -3px 0 15px color-mix(in srgb, var(--primary-color) 40%, transparent);
                 z-index: 9998;
                 text-decoration: none;
                 transition: all 0.3s ease;
@@ -795,7 +822,7 @@
             .floating-cart-widget:hover {
                 color: #fff;
                 width: 56px;
-                box-shadow: -4px 0 20px {{ ($generalsetting->primary_color ?? '#007bff') }}80;
+                box-shadow: -4px 0 20px color-mix(in srgb, var(--primary-color) 50%, transparent);
             }
             .floating-cart-widget i {
                 font-size: 24px;
@@ -808,11 +835,11 @@
                 min-width: 22px;
                 height: 22px;
                 background: #fff;
-                color: {{ $generalsetting->primary_color ?? '#007bff' }};
+                color: var(--primary-color);
                 font-size: 11px;
                 font-weight: bold;
                 border-radius: 50%;
-                border: 2px solid {{ $generalsetting->primary_color ?? '#007bff' }};
+                border: 2px solid var(--primary-color);
                 display: flex;
                 align-items: center;
                 justify-content: center;
@@ -930,7 +957,7 @@
                 font-size: 14px;
                 line-height: 1.3;
             }
-            .sidebar-cart-item-title:hover { color: {{ $generalsetting->primary_color ?? '#007bff' }}; }
+            .sidebar-cart-item-title:hover { color: var(--primary-color); }
             .sidebar-cart-item-price {
                 font-size: 13px;
                 color: #444;
@@ -948,7 +975,7 @@
                 right: 0;
                 background: none;
                 border: none;
-                color: {{ $generalsetting->primary_color ?? '#007bff' }};
+                color: var(--primary-color);
                 cursor: pointer;
                 padding: 4px;
                 font-size: 14px;
@@ -978,7 +1005,7 @@
                 transition: background 0.2s;
             }
             .sidebar-qty-btn:hover {
-                background: {{ $generalsetting->primary_color ?? '#007bff' }};
+                background: var(--primary-color);
                 color: #fff;
             }
             .sidebar-qty-num {
@@ -1216,7 +1243,7 @@
 .home_fab {
     width: 60px;
     height: 60px;
-    background: {{$generalsetting->primary_color}}; /* ব্র্যান্ড কালার */
+    background: var(--primary-color);
     border-radius: 50%;
     display: flex;
     justify-content: center;
@@ -1715,7 +1742,7 @@
 <script>
     document.addEventListener("DOMContentLoaded", function() {
         // ডাইনামিক হোয়াটসঅ্যাপ নাম্বার (ডাটাবেস থেকে)
-        var whatsappNumber = "{{ $contact->whatsapp ?? $contact->hotline ?? '8801700000000' }}"; 
+        var whatsappNumber = "{{ $contact->whatsapp ?? $contact->hotline ?? '8801519607646' }}"; 
         
         Swal.fire({
             title: '', 

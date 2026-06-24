@@ -105,7 +105,7 @@
     /* সাবমিট বাটন */
     .btn-auth-submit {
         width: 100%; height: 50px;
-        background: {{$generalsetting->secodery_color}};
+        background: var(--secondary-color);
         border: none; border-radius: 10px;
         color: #fff; font-weight: 600; font-size: 16px;
         cursor: pointer; transition: 0.3s;
@@ -122,7 +122,7 @@
     }
     .login-redirect p { margin-bottom: 5px; color: #666; font-size: 14px; }
     .login-link {
-        text-decoration: none; color: {{$generalsetting->primary_color}}; font-weight: 700; font-size: 15px;
+        text-decoration: none; color: var(--primary-color); font-weight: 700; font-size: 15px;
     }
     .login-link:hover { text-decoration: underline; }
 

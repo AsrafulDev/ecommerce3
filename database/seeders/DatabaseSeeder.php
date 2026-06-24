@@ -19,6 +19,16 @@ class DatabaseSeeder extends Seeder
             RoleSeeder::class,
         ]);
 
+        // Seed theme system data
+        $this->call([
+            ThemeSeeder::class,
+            HomepageSectionSeeder::class,
+            LayoutSeeder::class,
+            DemoDataSeeder::class,
+            GeneralSettingSeeder::class,
+            ContactSeeder::class,
+        ]);
+
         // \App\Models\User::factory(10)->create();
 
         // \App\Models\User::factory()->create([

@@ -23,6 +23,38 @@
     <link href="{{asset('public/backEnd/')}}/assets/css/custom.css" rel="stylesheet" type="text/css" />
     <!-- Head js -->
     @yield('css')
+    
+    {{-- 🎨 Dynamic Admin Theme from System Theme --}}
+    @if(isset($activeTheme) && $activeTheme)
+    <style>
+        :root {
+            --admin-primary: {{ $activeTheme->primary_color ?? '#6658dd' }};
+            --admin-secondary: {{ $activeTheme->secondary_color ?? '#04a31e' }};
+            --admin-accent: {{ $activeTheme->accent_color ?? '#eab308' }};
+            --admin-sidebar-bg: {{ $activeTheme->sidebar_bg_color ?? $activeTheme->header_bg_color ?? '#1e293b' }};
+            --admin-sidebar-text: {{ $activeTheme->sidebar_text_color ?? $activeTheme->header_text_color ?? '#fff' }};
+            --admin-topbar-bg: {{ $activeTheme->topbar_bg_color ?? $activeTheme->header_bg_color ?? '#0f172a' }};
+            --admin-footer-bg: {{ $activeTheme->footer_bg_color ?? '#f8fafc' }};
+            --admin-card-bg: {{ $activeTheme->admin_card_bg ?? '#ffffff' }};
+            --admin-card-shadow: 0 2px 12px rgba(0,0,0,0.06);
+            --admin-border-color: {{ $activeTheme->border_color ?? '#e2e8f0' }};
+        }
+        /* Sidebar active/hover colors */
+        #sidebar-menu .menuitem-active > a { color: var(--admin-secondary) !important; }
+        #sidebar-menu > ul > li > a:hover { color: var(--admin-secondary) !important; }
+        .left-side-menu { background-color: var(--admin-sidebar-bg) !important; }
+        #sidebar-menu > ul > li > a { color: var(--admin-sidebar-text) !important; }
+        .navbar-custom { background-color: var(--admin-topbar-bg) !important; }
+        .footer { background-color: var(--admin-footer-bg) !important; }
+        .btn-primary { background-color: var(--admin-primary) !important; border-color: var(--admin-primary) !important; }
+        .btn-success { background-color: var(--admin-secondary) !important; border-color: var(--admin-secondary) !important; }
+        .page-title-box .page-title { color: var(--admin-primary) !important; }
+        a { color: var(--admin-primary); }
+        .nav-second-level li a { color: var(--admin-sidebar-text) !important; opacity: 0.85; }
+        .nav-second-level li a:hover { color: var(--admin-secondary) !important; opacity: 1; }
+        .card { border-color: var(--admin-border-color) !important; }
+    </style>
+    @endif
     <style>.navbar-custom .dropdown-menu .noti-scroll{max-height:230px!important;overflow-y:auto!important}</style>
     <script src="{{asset('public/backEnd/')}}/assets/js/head.js"></script>
   </head>
@@ -118,6 +150,29 @@
                   <span>Dashboard</span>
                 </a>
 
+                {{-- Quick Theme Switcher --}}
+                @if(isset($activeTheme))
+                <div class="dropdown-divider"></div>
+                <div class="dropdown-header noti-title">
+                    <h6 class="text-overflow m-0">
+                        <i class="fe-feather me-1" style="color:var(--admin-secondary)"></i> 
+                        Theme: <span style="color:var(--admin-secondary)">{{ $activeTheme->name }}</span>
+                    </h6>
+                </div>
+                <div class="px-3 py-1" style="max-height:140px;overflow-y:auto;">
+                    @php $quickThemes = \App\Models\Theme::where('is_active', true)->orderBy('name')->limit(6)->get(); @endphp
+                    @foreach($quickThemes as $t)
+                    <a href="{{ route('themes.apply', $t->id) }}" class="dropdown-item notify-item py-1 px-2" style="font-size:12px;">
+                        <span class="d-inline-block rounded-circle me-2" style="width:12px;height:12px;background:{{ $t->primary_color }};border:1px solid rgba(0,0,0,0.1);"></span>
+                        {{ $t->name }} @if($activeTheme->id == $t->id)<i class="fe-check text-success ms-1"></i>@endif
+                    </a>
+                    @endforeach
+                    <a href="{{ route('themes.index') }}" class="dropdown-item notify-item py-1 px-2 text-primary" style="font-size:11px;">
+                        <i class="fe-settings me-1"></i> Manage Themes
+                    </a>
+                </div>
+                @endif
+
                 <!-- item-->
 
                 <div class="dropdown-divider"></div>
@@ -149,21 +204,21 @@
           <div class="logo-box">
             <a href="{{url('admin/dashboard')}}" class="logo logo-dark text-center">
               <span class="logo-sm">
-                <img src="{{asset(isset($generalsetting->white_logo) ? $generalsetting->white_logo : 'public/backEnd/assets/images/logo.png')}}" alt="" height="50" />
+                <img src="{{asset(isset($generalsetting->white_logo) ? $generalsetting->white_logo : 'public/assets/images/CurlBazar.png')}}" alt="" height="50" />
                 <!-- <span class="logo-lg-text-light">UBold</span> -->
               </span>
               <span class="logo-lg">
-                <img src="{{asset(isset($generalsetting->white_logo) ? $generalsetting->white_logo : 'public/backEnd/assets/images/logo.png')}}" alt="" height="50" />
+                <img src="{{asset(isset($generalsetting->white_logo) ? $generalsetting->white_logo : 'public/assets/images/CurlBazar.png')}}" alt="" height="50" />
                 <!-- <span class="logo-lg-text-light">U</span> -->
               </span>
             </a>
 
             <a href="{{url('admin/dashboard')}}" class="logo logo-light text-center">
               <span class="logo-sm">
-                <img src="{{asset(isset($generalsetting->white_logo) ? $generalsetting->white_logo : 'public/backEnd/assets/images/logo.png')}}" alt="" height="50" />
+                <img src="{{asset(isset($generalsetting->white_logo) ? $generalsetting->white_logo : 'public/assets/images/CurlBazar.png')}}" alt="" height="50" />
               </span>
               <span class="logo-lg">
-                <img src="{{asset(isset($generalsetting->white_logo) ? $generalsetting->white_logo : 'public/backEnd/assets/images/logo.png')}}" alt="" height="50" />
+                <img src="{{asset(isset($generalsetting->white_logo) ? $generalsetting->white_logo : 'public/assets/images/CurlBazar.png')}}" alt="" height="50" />
               </span>
             </a>
           </div>
@@ -267,7 +322,7 @@
   $pending_reviews = \App\Models\Review::where('status', 'pending')->count();
 @endphp
 
-{{-- ЁЯЫТ Orders --}}
+{{--  Orders --}}
 @canany(['order-list', 'order-edit', 'order-create'])
 <li>
   <a href="#sidebar-orders" data-bs-toggle="collapse">
@@ -318,7 +373,7 @@
 </li>
 @endcanany
 
-{{-- ЁЯУж Products --}}
+{{--  Products --}}
 @canany(['product-list', 'category-list', 'subcategory-list', 'childcategory-list'])
 <li>
   <a href="#siebar-product" data-bs-toggle="collapse">
@@ -360,7 +415,7 @@
 </li>
 @endcanany
 
-{{-- ЁЯУЭ Blog Management --}}
+{{-- Blog Management --}}
 @canany(['blog-list','blog-create','blog-edit','blog-delete'])
 <li>
     <a href="#sidebar-blog" data-bs-toggle="collapse">
@@ -607,7 +662,32 @@
 </li>
 @endcanany
 
-{{-- тЪЩя╕П Site Setting --}}
+{{-- 🎨 Theme System --}}
+@canany(['theme-list', 'theme-create', 'theme-edit'])
+<li>
+  <a href="#sidebar-theme" data-bs-toggle="collapse">
+    <i data-feather="feather"></i>
+    <span> Theme System </span>
+    <span class="menu-arrow"></span>
+  </a>
+  <div class="collapse" id="sidebar-theme">
+    <ul class="nav-second-level">
+      @can('theme-list')
+      <li><a href="{{ route('themes.index') }}"><i data-feather="file-plus"></i> Theme Manager</a></li>
+      @endcan
+      @can('theme-create')
+      <li><a href="{{ route('themes.create') }}"><i data-feather="file-plus"></i> Create Theme</a></li>
+      @endcan
+      @canany(['layout-list', 'layout-create'])
+      <li><a href="{{ route('layouts.index') }}"><i data-feather="file-plus"></i> Layout Builder</a></li>
+      @endcanany
+      <li><a href="{{ route('demo.index') }}"><i data-feather="upload"></i> Demo Import/Export</a></li>
+    </ul>
+  </div>
+</li>
+@endcanany
+
+{{-- ⚙️ Site Setting --}}
 @canany(['setting-list', 'social-list', 'contact-list'])
 <li>
   <a href="#siebar-sitesetting" data-bs-toggle="collapse">

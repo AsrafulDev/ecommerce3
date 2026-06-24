@@ -91,12 +91,12 @@
     
     .filter_sidebar.active::-webkit-scrollbar-thumb
     {
-    	background-color: {{$generalsetting->primary_color}};
+    	background-color: var(--primary-color);
     }
 
     .filter_btn {
         display: inline-block;
-        background: {{$generalsetting->primary_color}};
+        background: var(--primary-color);
         color: #fff;
         width: 55px;
         height: 33px;
@@ -108,7 +108,7 @@
         cursor: pointer;
     }
     .filter_close {
-        background: {{$generalsetting->primary_color}};
+        background: var(--primary-color);
         padding: 10px 15px;
         font-size: 18px;
         color: #fff;
@@ -123,7 +123,7 @@
       li.mobile_home {
         border: 2px solid #ddd;
         margin-top: -35px;
-        background: {{$generalsetting->primary_color}};
+        background: var(--primary-color);
         padding-top: 15px;
         border-radius: 50%;
         width: 75px;
@@ -241,7 +241,7 @@
 
 .mobile-menu::-webkit-scrollbar-thumb
 {
-	background-color: {{$generalsetting->primary_color}};
+	background-color: var(--primary-color);
 }
 
 .mobile-search {
@@ -253,7 +253,7 @@
     display: flex;
     border: 1px solid;
     border-radius: 5px;
-    background-color: {{$generalsetting->primary_color}};
+    background-color: var(--primary-color);
     height: 40px;
     overflow: hidden;
     position: relative;
@@ -271,7 +271,7 @@
 }
 
 .mobile-search form button {
-    background-color: {{$generalsetting->primary_color}};
+    background-color: var(--primary-color);
     flex: 0 0 60px;
     position: absolute;
     right: 0;
@@ -581,7 +581,7 @@ header .toggle {
 .menu-bag .margin-shopping span {
     position: absolute;
     display: inline-block;
-    background-color: {{$generalsetting->primary_color}};
+    background-color: var(--primary-color);
     height: 20px;
     border-radius: 50px;
     padding: 1px 7px;

@@ -20,6 +20,14 @@
                             <i class="fe-plus me-1"></i> লগ ফাইল তৈরি করুন
                         </button>
                     </form>
+                    @if($exists)
+                    <form id="deleteLogForm" action="{{ route('error-log.delete') }}" method="POST" class="d-inline">
+                        @csrf
+                        <button type="button" class="btn btn-danger btn-sm rounded-pill me-1" onclick="confirmDelete()">
+                            <i class="fe-trash-2 me-1"></i> লগ সাফ করুন
+                        </button>
+                    </form>
+                    @endif
                     <a href="{{ route('error-log.index') }}" class="btn btn-primary btn-sm rounded-pill">
                         <i class="fe-refresh-cw me-1"></i> রিফ্রেশ
                     </a>
@@ -78,4 +86,25 @@
         </div>
     </div>
 </div>
+@endsection
+
+@section('script')
+<script>
+function confirmDelete() {
+    Swal.fire({
+        title: 'লগ ফাইল সাফ করবেন?',
+        text: 'সমস্ত লগ এন্ট্রি মুছে যাবে!',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#ef4444',
+        cancelButtonColor: '#6b7280',
+        confirmButtonText: 'হ্যাঁ, সাফ করুন',
+        cancelButtonText: 'বাতিল'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            document.getElementById('deleteLogForm').submit();
+        }
+    });
+}
+</script>
 @endsection

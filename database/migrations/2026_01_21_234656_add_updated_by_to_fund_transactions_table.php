@@ -6,23 +6,21 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
-        Schema::table('fund_transactions', function (Blueprint $table) {
-            $table->unsignedBigInteger('updated_by')->nullable()->after('created_by');
-        });
+        if (Schema::hasTable('fund_transactions')) {
+            Schema::table('fund_transactions', function (Blueprint $table) {
+                $table->unsignedBigInteger('updated_by')->nullable()->after('created_by');
+            });
+        }
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
-        Schema::table('fund_transactions', function (Blueprint $table) {
-            $table->dropColumn('updated_by');
-        });
+        if (Schema::hasTable('fund_transactions')) {
+            Schema::table('fund_transactions', function (Blueprint $table) {
+                $table->dropColumn('updated_by');
+            });
+        }
     }
 };

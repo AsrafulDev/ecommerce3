@@ -21,7 +21,7 @@ return new class extends Migration
             $table->integer('shipping_charge');
             $table->integer('customer_id');
             $table->string('order_status')->length('55');
-			$table->decimal('fraud_success_rate', 5, 2)->nullable()->after('status_id');
+			$table->decimal('fraud_success_rate', 5, 2)->nullable();
 			$table->decimal('pathao_rate',5,2)->nullable();
             $table->decimal('redx_rate',5,2)->nullable();
             $table->decimal('steadfast_rate',5,2)->nullable();

@@ -127,7 +127,9 @@ class GeneralSettingController extends Controller
     public function edit($id)
     {
         $edit_data = GeneralSetting::find($id);
-        return view('backEnd.settings.edit',compact('edit_data'));
+        $themes = \App\Models\Theme::where('is_active', true)->orderBy('name')->get();
+        $layouts = \App\Models\HomepageLayout::orderBy('name')->get();
+        return view('backEnd.settings.edit', compact('edit_data', 'themes', 'layouts'));
     }
     
     public function update(Request $request)
@@ -229,6 +231,10 @@ class GeneralSettingController extends Controller
         // Handle vendor_enabled and reseller_enabled (checkbox returns '1' if checked, null if unchecked)
         $input['vendor_enabled'] = $request->has('vendor_enabled') ? 1 : 0;
         $input['reseller_enabled'] = $request->has('reseller_enabled') ? 1 : 0;
+
+        // Handle theme_id and active_layout_id
+        $input['theme_id'] = $request->filled('theme_id') ? $request->theme_id : $update_data->theme_id;
+        $input['active_layout_id'] = $request->filled('active_layout_id') ? $request->active_layout_id : $update_data->active_layout_id;
         
         $update_data->update($input);
 

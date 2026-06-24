@@ -351,7 +351,7 @@ body {
     .product_item .pro_btn button{
         width:100%;
         border-radius:4px;
-        background: {{$generalsetting->primary_color}};
+        background: var(--primary-color);
     }
 /*==== COMMON CSS START ====*/
 @font-face {
@@ -431,11 +431,11 @@ input:focus {
 }
 
 .parsley-errors-list {
-    color: {{$generalsetting->primary_color}};
+    color: var(--primary-color);
 }
 
 .parsley-error {
-    border: 1px solid {{$generalsetting->primary_color}} !important;
+    border: 1px solid var(--primary-color) !important;
 }
 
 img {
@@ -707,7 +707,7 @@ li.Newsletter i {
     border: 1px solid;
     height: 39px;
     background: #f7f7f7;
-    border-color: {{$generalsetting->primary_color}};
+    border-color: var(--primary-color);
     width: 100%;
     margin: 0 auto;
     border-radius: 5px;
@@ -727,7 +727,7 @@ li.Newsletter i {
 .main-search form button {
     height: 100%;
     outline: 0;
-    background: {{$generalsetting->primary_color}};
+    background: var(--primary-color);
     width: 11%;
     float: left;
 }
@@ -747,7 +747,7 @@ li.Newsletter i {
 
 .mobile-menu .nav li button.active {
     border-radius: 0;
-    color: {{$generalsetting->primary_color}};
+    color: var(--primary-color);
 }
 
 .main-search.mobile-search {
@@ -839,7 +839,7 @@ li.Newsletter i {
     position: absolute;
     top: -8px;
     right: -12px;
-    background: {{$generalsetting->primary_color}};
+    background: var(--primary-color);
     color: #fff;
     height: 18px;
     width: 18px;
@@ -919,7 +919,7 @@ li.Newsletter i {
 }
 
 .submit-btn {
-    background: {{$generalsetting->primary_color}} !important;
+    background: var(--primary-color) !important;
     display: block;
     width: 100%;
     border: 0;
@@ -941,7 +941,7 @@ li.Newsletter i {
 }
 
 .register-now a:hover {
-    background: {{$generalsetting->primary_color}};
+    background: var(--primary-color);
     color: #fff;
 }
 
@@ -967,7 +967,7 @@ li.Newsletter i {
 
 .go_cart,
 .go_cart:hover {
-    background: {{$generalsetting->primary_color}};
+    background: var(--primary-color);
     width: 100%;
     color: #fff;
     border-radius: 5px;
@@ -1028,14 +1028,14 @@ li.Newsletter i {
     right: 0;
     border: none !important;
     color: #fff !important;
-    background: {{$generalsetting->primary_color}} !important;
+    background: var(--primary-color) !important;
     z-index: 99999999;
     display: inline-block !important;
     height: auto !important;
 }
 
 .menu-area {
-    background: {{$generalsetting->primary_color}};
+    background: var(--primary-color);
     border-top: 1px solid #ddd;
     border-bottom: 1px solid #ddd;
 }
@@ -1051,7 +1051,7 @@ li.Newsletter i {
 
 .categories p {
     padding: 10px 10px;
-    background: {{$generalsetting->primary_color}};
+    background: var(--primary-color);
     font-weight: 600;
     text-transform: uppercase;
     color: #fff;
@@ -1104,7 +1104,7 @@ li.Newsletter i {
 }
 
 .categories ul li a:hover {
-    color: {{$generalsetting->primary_color}};
+    color: var(--primary-color);
 }
 
 .sub-category {
@@ -1174,7 +1174,7 @@ li.Newsletter i {
     left: 0;
     transition: 0.35s;
     bottom: 0;
-    background: {{$generalsetting->primary_color}};
+    background: var(--primary-color);
     position: absolute;
 }
 
@@ -1246,7 +1246,7 @@ section.slider-section {
     color: #555;
     padding: 5px 8px;
     display: inline-block;
-    border: 1px solid {{$generalsetting->primary_color}};
+    border: 1px solid var(--primary-color);
     border-radius: 5px;
     font-size: 13px;
     font-weight: 600;
@@ -1255,9 +1255,9 @@ section.slider-section {
 }
 
 .front-category ul li a:hover {
-    background: {{$generalsetting->primary_color}};
+    background: var(--primary-color);
     color: #fff;
-    border-color: {{$generalsetting->primary_color}};
+    border-color: var(--primary-color);
 }
 
 .feature-btn {
@@ -1273,7 +1273,7 @@ section.slider-section {
 }
 
 .feature-btn a:hover {
-    background: {{$generalsetting->primary_color}};
+    background: var(--primary-color);
     color: #fff;
 }
 
@@ -1282,7 +1282,7 @@ section.slider-section {
 }
 
 .sidebar_item h2.accordion-header button.accordion-button {
-    background-color: {{$generalsetting->primary_color}};
+    background-color: var(--primary-color);
     color: #fff;
     text-transform: uppercase;
     font-size: 14px;
@@ -1340,7 +1340,7 @@ section.slider-section {
 }
 
 .main-slider .owl-nav button:hover {
-    background: {{$generalsetting->primary_color}} !important;
+    background: var(--primary-color) !important;
     color: #fff;
 }
 
@@ -1493,7 +1493,7 @@ section.slider-section {
 }
 
 .footer-menu ul li a {
-    color: #959595;
+    color: var(--footer-text);
     margin: 8px 0;
     display: block;
     transition: 0.35s all;
@@ -1501,8 +1501,8 @@ section.slider-section {
 
 .footer-top {
     padding: 50px 0;
-    background: {{$generalsetting->footer_color ?? '#1a1a1a'}};
-    background-color: {{$generalsetting->footer_color ?? '#1a1a1a'}};
+    background: var(--footer-bg);
+    background-color: var(--footer-bg);
 }
 
 .footer-about {
@@ -1512,7 +1512,7 @@ section.slider-section {
 .footer-about p {
     text-align: center;
     margin: 5px 0;
-    color: #000000;
+    color: var(--footer-text);
     font-size: 16px;
 }
 
@@ -1535,7 +1535,7 @@ section.slider-section {
 }
 
 .footer-menu ul li a:hover {
-    color: {{$generalsetting->primary_color}};
+    color: var(--primary-color);
     margin-left: 2px !important;
 }
 
@@ -1550,7 +1550,7 @@ section.slider-section {
 
 .footer-about a {
     display: block;
-    color: #000;
+    color: var(--footer-text);
 }
 
 .footer-about a img {
@@ -1576,7 +1576,7 @@ section.slider-section {
 .footer-menu .title {
     text-transform: uppercase;
     font-weight: 600;
-    color: #000;
+    color: var(--footer-text);
     margin-bottom: 10px;
     font-size: 15px;
 }
@@ -1586,18 +1586,18 @@ section.slider-section {
 }
 
 .footer-menu ul li a {
-    color: #000;
+    color: var(--footer-text);
     margin: 8px 0 !important;
     display: block;
 }
 .footer-bottom {
-    background: {{$generalsetting->copyright_color ?? '#000000'}};
-    background-color: {{$generalsetting->copyright_color ?? '#000000'}};
+    background: var(--copyright-bg);
+    background-color: var(--copyright-bg);
     padding: 10px 0;
 }
 
 .footer-hotlint {
-    color: #f1ffe7;
+    color: var(--footer-text);
     font-size: 16px;
     font-weight: 600;
     margin-bottom: 8px;
@@ -1644,7 +1644,7 @@ section.slider-section {
     position: absolute;
     top: -5px;
     right: 25px;
-    background: {{$generalsetting->primary_color}};
+    background: var(--primary-color);
     width: 15px;
     height: 15px;
     font-size: 12px;
@@ -1678,7 +1678,7 @@ section.slider-section {
 
 .product-code p {
     display: inline-block;
-    background: {{$generalsetting->primary_color}};
+    background: var(--primary-color);
     color: #fff;
     padding: 0px 10px;
     border-top: 15px solid transparent;
@@ -1781,8 +1781,8 @@ section.slider-section {
 
 .add_cart_btn {
     color: #fff;
-    background-color: {{$generalsetting->primary_color}};
-    border: 1px solid {{$generalsetting->primary_color}};
+    background-color: var(--primary-color);
+    border: 1px solid var(--primary-color);
     border-radius: 0;
     width: 50%;
     height: 45px;
@@ -1938,12 +1938,12 @@ section.slider-section {
 .details-action-box .section-head .action .details-action-btn {
     padding: 5px 20px;
     background-color: #fff;
-    border: 2px solid {{$generalsetting->primary_color}};
+    border: 2px solid var(--primary-color);
     border-radius: 5px;
     color: #fff;
     font-size: 1rem;
     transition: all 0.3s ease;
-    background: {{$generalsetting->primary_color}};
+    background: var(--primary-color);
     cursor: pointer;
 }
 
@@ -1971,9 +1971,9 @@ section.slider-section {
     width: 80px;
     text-align: center;
     line-height: 80px;
-    background-color: {{$generalsetting->primary_color}}33;
+    background-color: var(--primary-color)33;
     border-radius: 50%;
-    color: {{$generalsetting->primary_color}};
+    color: var(--primary-color);
 }
 
 p.empty-text {
@@ -2065,7 +2065,7 @@ button.details-review-button {
 }
 
 .cust_according_body ul li:hover a {
-    background-color: {{$generalsetting->primary_color}}38;
+    background-color: var(--primary-color)38;
 }
 
 .subcategory-filter-label {
@@ -2081,12 +2081,12 @@ button.details-review-button {
     color: #555;
 }
 .subcategory-filter-label:hover {
-    background-color: {{$generalsetting->primary_color}}38;
+    background-color: var(--primary-color)38;
 }
 
 .subcategory-filter-label input {
     position: relative;
-    border: 2px solid {{$generalsetting->primary_color}};
+    border: 2px solid var(--primary-color);
     border-radius: 2px;
     background: none;
     cursor: pointer;
@@ -2103,7 +2103,7 @@ button.details-review-button {
 }
 
 .subcategory-filter-label input[type=checkbox]:checked {
-    background-color: {{$generalsetting->primary_color}};
+    background-color: var(--primary-color);
     opacity: 1;
 }
 
@@ -2135,7 +2135,7 @@ p.max-price input {
 }
 
 .ui-slider-horizontal .ui-slider-range {
-    background-color: {{$generalsetting->primary_color}};
+    background-color: var(--primary-color);
 }
 
 .ui-state-default,
@@ -2270,7 +2270,7 @@ li.recent_pro {
 .custom-loader {
     width: 50px;
     height: 50px;
-    --c: radial-gradient(farthest-side, {{$generalsetting->primary_color}} 92%, #0000);
+    --c: radial-gradient(farthest-side, var(--primary-color) 92%, #0000);
     background: var(--c) 50% 0, var(--c) 50% 100%, var(--c) 100% 50%, var(--c) 0 50%;
     background-size: 12px 12px;
     background-repeat: no-repeat;
@@ -2314,7 +2314,7 @@ li.recent_pro {
 }
 
 .wishlist-modal .price {
-    color: {{$generalsetting->primary_color}};
+    color: var(--primary-color);
     font-size: 26px;
     font-weight: 600;
     margin: 12px 0;
@@ -2338,7 +2338,7 @@ li.recent_pro {
 }
 
 .confirm-btn {
-    background: {{$generalsetting->primary_color}};
+    background: var(--primary-color);
     border-radius: 5px;
     padding: 10px 0px;
     text-transform: uppercase;
@@ -2352,7 +2352,7 @@ li.recent_pro {
 
 .continue-btn:hover,
 .confirm-btn:hover {
-    background: {{$generalsetting->primary_color}};
+    background: var(--primary-color);
     color: #fff;
 }
 
@@ -2407,7 +2407,7 @@ li.recent_pro {
 
 .wcart-btn,
 .wcart-btn:focus {
-    background: {{$generalsetting->primary_color}};
+    background: var(--primary-color);
     color: #fff;
     height: 30px;
     width: 30px;
@@ -2499,7 +2499,7 @@ li.recent_pro {
 
 .coupon-form form button {
     width: 20%;
-    background: {{$generalsetting->primary_color}};
+    background: var(--primary-color);
     color: #fff;
     height: 38px;
     border-radius: 0px 5px 5px 0px;
@@ -2599,7 +2599,7 @@ li.recent_pro {
 }
 
 .brand-slider .owl-nav button:hover {
-    background: {{$generalsetting->primary_color}} !important;
+    background: var(--primary-color) !important;
     color: #fff;
 }
 
@@ -2678,7 +2678,7 @@ li.recent_pro {
 
 .invoice_btn,
 .invoice_btn:focus {
-    background: {{$generalsetting->primary_color}};
+    background: var(--primary-color);
     color: #fff;
     font-size: 12px;
     padding: 5px 10px;
@@ -2686,7 +2686,7 @@ li.recent_pro {
 }
 
 .sidebar-menu li a.active {
-    color: {{$generalsetting->primary_color}};
+    color: var(--primary-color);
 }
 
 /*====  PROFILE CSS END ====  */
@@ -2737,7 +2737,7 @@ li.recent_pro {
     text-align: center;
 }
 .checkout-shipping h6 a{
-   color: {{$generalsetting->primary_color}}; 
+   color: var(--primary-color); 
 }
 .checkout-shipping select {
     font-size: 14px;
@@ -2784,7 +2784,7 @@ li.recent_pro {
 }
 
 .order_place {
-    background: {{$generalsetting->primary_color}};
+    background: var(--primary-color);
     display: block;
     width: 100%;
     border-radius: 5px;
@@ -2798,7 +2798,7 @@ li.recent_pro {
 }
 
 .order_place:hover {
-    background: {{$generalsetting->primary_color}};
+    background: var(--primary-color);
 }
 
 /*====  CHECKOUT CSS END ====  */
@@ -2869,12 +2869,12 @@ li.recent_pro {
 }
 
 .menu-more {
-    color: {{$generalsetting->primary_color}} !important;
+    color: var(--primary-color) !important;
     font-weight: 600;
 }
 
 .menu-more i {
-    color: {{$generalsetting->primary_color}} !important;
+    color: var(--primary-color) !important;
     font-weight: 600;
 }
 
@@ -3039,7 +3039,7 @@ a.custom-button {
 .related-product-section button.owl-prev:hover i,
 .product-inner button.owl-next:hover i,
 .related-product-section button.owl-next:hover i {
-    background-color: {{$generalsetting->primary_color}};
+    background-color: var(--primary-color);
     border-radius: 50%;
     line-height: 35px;
     text-align: center;
@@ -3277,7 +3277,7 @@ section.product-inner {
 }
 
 .product_item:hover .product_item_inner {
-    border-color: {{$generalsetting->primary_color}};
+    border-color: var(--primary-color);
 }
 
 .product_item {
@@ -3363,7 +3363,7 @@ section.product-inner {
     transform: scale(1.1);
 }
 .product_item:hover {
-    border-color: {{$generalsetting->primary_color}} !important;
+    border-color: var(--primary-color) !important;
 }
 
 .pro_des {
@@ -3375,7 +3375,7 @@ section.product-inner {
 }
 
 .pro_price p {
-    color: {{$generalsetting->primary_color}};
+    color: var(--primary-color);
     font-weight: 500;
     margin-top: 5px;
     text-align: center;
@@ -3390,7 +3390,7 @@ section.product-inner {
     grid-gap: 4px;
 }
 .pro_btn button {
-    background: {{$generalsetting->primary_color}};
+    background: var(--primary-color);
     color: #fff;
     width: 60%;
     padding: 6px 0px;
@@ -3403,7 +3403,7 @@ section.product-inner {
 }
 
 .cart_btn a {
-    background: {{$generalsetting->primary_color}};
+    background: var(--primary-color);
     width: 100%;
     display: block;
     height: 100%;
@@ -3437,7 +3437,7 @@ section.product-inner {
 .discount {
     position: absolute;
     top: 5px;
-    background: {{$generalsetting->primary_color}};
+    background: var(--primary-color);
     padding: 2px 7px;
     border-radius: 20px;
     right: 6px;
@@ -3542,7 +3542,7 @@ li.cat_bar>a {
     width: 100%;
     height: 50px;
     font-size: 15px;
-    background-color: {{$generalsetting->primary_color}};
+    background-color: var(--primary-color);
     margin-left: 0 !important;
     justify-content: space-between;
     align-items: center;
@@ -3929,7 +3929,7 @@ form.sort-form .form-select:focus {
 a.view_more_btn {
     text-align: right;
     float: right;
-    background: {{$generalsetting->primary_color}};
+    background: var(--primary-color);
     text-transform: capitalize;
     font-size: 15px;
     padding: 10px 15px;
@@ -4022,7 +4022,7 @@ ul.social_link {
 }
 
 .cmn_menu ul li a:hover {
-    color: {{$generalsetting->primary_color}};
+    color: var(--primary-color);
 }
 
 .contact-form {
@@ -4150,7 +4150,7 @@ ul.social_link {
 .timer_inner .syotimer-cell {
     width: 38px;
     text-align: center;
-    background: {{$generalsetting->primary_color}};
+    background: var(--primary-color);
     color: #fff;
     border-radius: 5px;
     font-size: 15px;
@@ -4289,7 +4289,7 @@ a.forget-link {
 }
 
 .cart_btn.order_button a {
-    background: {{$generalsetting->primary_color}};
+    background: var(--primary-color);
     color: #fff;
     width: 60%;
     padding: 6px 0px;
@@ -4376,7 +4376,7 @@ ul.child-category {
     border-radius: 10px;
 }
 .cat_item:hover {
-    border-color: {{$generalsetting->primary_color}};
+    border-color: var(--primary-color);
 }
 
 .footertop_ads_inner {
@@ -4396,7 +4396,7 @@ ul.child-category {
     right: 34px !important;
     bottom: 10px !important;
     width: 40px !important;
-    background: {{$generalsetting->primary_color}} !important;
+    background: var(--primary-color) !important;
     height: 40px !important;
     line-height: 40px !important;
     border-radius: 50% !important;
@@ -4564,7 +4564,7 @@ table.table.table-bordered.tracktable {
 }
 
 .tracktable thead {
-    background: {{$generalsetting->primary_color}};
+    background: var(--primary-color);
     color: #fff;
 }
 

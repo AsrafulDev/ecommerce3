@@ -33,6 +33,9 @@ use App\Http\Controllers\Admin\BannerCategoryController;
 use App\Http\Controllers\Admin\BannerController;
 use App\Http\Controllers\Admin\CreatePageController;
 use App\Http\Controllers\Admin\CampaignController;
+use App\Http\Controllers\Admin\ThemeController;
+use App\Http\Controllers\Admin\LayoutController;
+use App\Http\Controllers\Admin\DemoController;
 use App\Http\Controllers\Admin\ErrorLogController;
 use App\Http\Controllers\Admin\ReviewController;
 use App\Http\Controllers\Admin\CustomerManageController;
@@ -839,10 +842,48 @@ Route::get('dashboard', [DashboardController::class, 'dashboard'])->name('admin.
     Route::get('campaign/image/destroy', [CampaignController::class,'imgdestroy'])->name('campaign.image.destroy');
     Route::post('campaign/builder/upload-image', [CampaignController::class,'uploadBuilderImage'])->name('campaign.builder.upload');
 
+    // Theme Management Routes
+    Route::get('themes', [ThemeController::class, 'index'])->name('themes.index');
+    Route::get('theme/create', [ThemeController::class, 'create'])->name('themes.create');
+    Route::post('theme/save', [ThemeController::class, 'store'])->name('themes.store');
+    Route::get('theme/{id}/edit', [ThemeController::class, 'edit'])->name('themes.edit');
+    Route::post('theme/update', [ThemeController::class, 'update'])->name('themes.update');
+    Route::get('theme/{id}/apply', [ThemeController::class, 'apply'])->name('themes.apply');
+    Route::get('theme/{id}/duplicate', [ThemeController::class, 'duplicate'])->name('themes.duplicate');
+    Route::post('theme/inactive', [ThemeController::class, 'inactive'])->name('themes.inactive');
+    Route::post('theme/active', [ThemeController::class, 'active'])->name('themes.active');
+    Route::post('theme/destroy', [ThemeController::class, 'destroy'])->name('themes.destroy');
+
+    // Layout Management Routes
+    Route::get('layouts', [LayoutController::class, 'index'])->name('layouts.index');
+    Route::get('layout/create', [LayoutController::class, 'create'])->name('layouts.create');
+    Route::post('layout/save', [LayoutController::class, 'store'])->name('layouts.store');
+    Route::get('layout/{id}/edit', [LayoutController::class, 'edit'])->name('layouts.edit');
+    Route::post('layout/update', [LayoutController::class, 'update'])->name('layouts.update');
+    Route::get('layout/{id}/builder', [LayoutController::class, 'builder'])->name('layouts.builder');
+    Route::get('layout/{id}/apply', [LayoutController::class, 'apply'])->name('layouts.apply');
+    Route::post('layout/add-section', [LayoutController::class, 'addSection'])->name('layouts.sections.add');
+    Route::post('layout/reorder-sections', [LayoutController::class, 'reorderSections'])->name('layouts.sections.reorder');
+    Route::post('layout/toggle-section', [LayoutController::class, 'toggleSection'])->name('layouts.sections.toggle');
+    Route::post('layout/update-section-settings', [LayoutController::class, 'updateSectionSettings'])->name('layouts.sections.update-settings');
+    Route::post('layout/remove-section', [LayoutController::class, 'removeSection'])->name('layouts.sections.remove');
+    Route::get('layout/section/{slug}/preview', [LayoutController::class, 'previewSection'])->name('layouts.sections.preview');
+    Route::post('layout/capture-screenshot', [LayoutController::class, 'captureScreenshot'])->name('layouts.sections.capture-screenshot');
+    Route::post('layout/inactive', [LayoutController::class, 'inactive'])->name('layouts.inactive');
+    Route::post('layout/active', [LayoutController::class, 'active'])->name('layouts.active');
+    Route::post('layout/destroy', [LayoutController::class, 'destroy'])->name('layouts.destroy');
+
+    // Demo Import/Export
+    Route::get('demo', [DemoController::class, 'index'])->name('demo.index');
+    Route::get('demo/export', [DemoController::class, 'exportDemo'])->name('demo.export');
+    Route::post('demo/import', [DemoController::class, 'importDemo'])->name('demo.import');
+    Route::get('demo/delete-preset/{name}', [DemoController::class, 'deletePreset'])->name('demo.delete-preset');
+
     // Error Log (Laravel log viewer)
     Route::get('error-log', [ErrorLogController::class,'index'])->name('error-log.index');
     Route::post('error-log/create', [ErrorLogController::class,'create'])->name('error-log.create');
     Route::post('error-log/test', [ErrorLogController::class,'testLog'])->name('error-log.test');
+    Route::post('error-log/delete', [ErrorLogController::class,'delete'])->name('error-log.delete');
 
     // settings route 
     Route::get('settings/manage', [GeneralSettingController::class,'index'])->name('settings.index');

@@ -33,7 +33,7 @@
     /* বাম পাশের ডিজাইন (ইমেজ) */
     .login-image-area {
         width: 50%;
-        background: {{$generalsetting->primary_color}};
+        background: var(--primary-color);
         display: flex;
         flex-direction: column;
         justify-content: center;
@@ -137,7 +137,7 @@
     .btn-modern-submit {
         width: 100%;
         height: 50px;
-        background: {{$generalsetting->secodery_color}};
+        background: var(--secondary-color);
         border: none;
         border-radius: 10px;
         color: #fff;
@@ -172,7 +172,7 @@
         border-top: 1px dashed #ddd;
     }
     .register-link {
-        color: {{$generalsetting->primary_color}};
+        color: var(--primary-color);
         font-weight: 700;
         text-decoration: none;
     }

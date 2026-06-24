@@ -168,6 +168,19 @@ class AppServiceProvider extends ServiceProvider
             view()->share('generalsetting', $generalsetting);
             view()->share('demoMode', filter_var(env('DEMO_MODE', false), FILTER_VALIDATE_BOOLEAN));
             
+            // 🎨 Active Theme (cached 30 min) — for frontend CSS variable injection
+            $activeTheme = Cache::remember('active_theme', 1800, function () use ($generalsetting) {
+                $theme = null;
+                if ($generalsetting && $generalsetting->theme_id) {
+                    $theme = \App\Models\Theme::find($generalsetting->theme_id);
+                }
+                if (!$theme) {
+                    $theme = \App\Models\Theme::where('is_default', true)->first();
+                }
+                return $theme;
+            });
+            view()->share('activeTheme', $activeTheme);
+            
             // Cache categories (30 minutes)
             $sidecategories = Cache::remember('side_categories', 1800, function () {
                 return Category::where('parent_id', 0)->where('status', 1)->select('id', 'name', 'slug', 'status', 'image')->get();

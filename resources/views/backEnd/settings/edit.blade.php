@@ -151,6 +151,52 @@
                         <i class="mdi mdi-palette text-success"></i> Theme Appearance
                     </div>
                     <div class="p-4">
+                        {{-- Active Theme Dropdown --}}
+                        <div class="row mb-4 g-3">
+                            <div class="col-md-6">
+                                <label class="form-label-pro">Active Theme</label>
+                                <select name="theme_id" class="form-control custom-input select2">
+                                    <option value="">— Select Theme —</option>
+                                    @foreach($themes as $theme)
+                                    <option value="{{ $theme->id }}" 
+                                        data-primary="{{ $theme->primary_color }}"
+                                        data-secondary="{{ $theme->secondary_color }}"
+                                        data-accent="{{ $theme->accent_color }}"
+                                        data-footer="{{ $theme->footer_bg_color }}"
+                                        {{ $edit_data->theme_id == $theme->id ? 'selected' : '' }}>
+                                        {{ $theme->name }} @if($theme->is_default)(Default)@endif
+                                    </option>
+                                    @endforeach
+                                </select>
+                                <small class="text-muted">
+                                    <a href="{{ route('themes.index') }}">Manage Themes →</a>
+                                </small>
+                                {{-- Live color swatches --}}
+                                @php $activeTheme = $edit_data->activeTheme; @endphp
+                                <div class="theme-swatches mt-2 d-flex gap-1" id="themeSwatches">
+                                    <span class="swatch d-inline-block rounded-circle" style="width:20px;height:20px;background:{{ optional($activeTheme)->primary_color ?? '#0d6efd' }};border:2px solid #fff;box-shadow:0 1px 3px rgba(0,0,0,0.2);"></span>
+                                    <span class="swatch d-inline-block rounded-circle" style="width:20px;height:20px;background:{{ optional($activeTheme)->secondary_color ?? '#198754' }};border:2px solid #fff;box-shadow:0 1px 3px rgba(0,0,0,0.2);"></span>
+                                    <span class="swatch d-inline-block rounded-circle" style="width:20px;height:20px;background:{{ optional($activeTheme)->accent_color ?? '#ff6a00' }};border:2px solid #fff;box-shadow:0 1px 3px rgba(0,0,0,0.2);"></span>
+                                    <span class="swatch d-inline-block rounded-circle" style="width:20px;height:20px;background:{{ optional($activeTheme)->footer_bg_color ?? '#1a1a1a' }};border:2px solid #fff;box-shadow:0 1px 3px rgba(0,0,0,0.2);"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label-pro">Active Layout</label>
+                                <select name="active_layout_id" class="form-control custom-input select2">
+                                    <option value="">— Default Order —</option>
+                                    @foreach($layouts as $layout)
+                                    <option value="{{ $layout->id }}" 
+                                        {{ $edit_data->active_layout_id == $layout->id ? 'selected' : '' }}>
+                                        {{ $layout->name }} @if($layout->is_default)(Default)@endif
+                                    </option>
+                                    @endforeach
+                                </select>
+                                <small class="text-muted">
+                                    <a href="{{ route('layouts.index') }}">Manage Layouts →</a>
+                                </small>
+                            </div>
+                        </div>
+
                         <div class="row g-3">
                             @php
                                 $colors = [
@@ -280,6 +326,21 @@
                 ['insert', ['link', 'picture']],
                 ['view', ['fullscreen', 'codeview']]
             ]
+        });
+
+        // Theme selection → update swatches
+        $('select[name="theme_id"]').on('change', function() {
+            const selected = $(this).find('option:selected');
+            const swatches = $('#themeSwatches .swatch');
+            const colors = [
+                selected.data('primary') || '#0d6efd',
+                selected.data('secondary') || '#198754',
+                selected.data('accent') || '#ff6a00',
+                selected.data('footer') || '#1a1a1a'
+            ];
+            swatches.each(function(i) {
+                $(this).css('background', colors[i] || '#ccc');
+            });
         });
     });
 </script>

@@ -10,7 +10,7 @@ return new class extends Migration
     {
         Schema::table('products', function (Blueprint $table) {
             // 'youtube' = YouTube embed | 'upload' = local file
-            $table->string('pro_video_type', 20)->nullable()->after('pro_video');
+            $table->string('pro_video_type', 20)->nullable();
             // Path to locally uploaded video file
             $table->string('pro_video_path', 300)->nullable()->after('pro_video_type');
         });

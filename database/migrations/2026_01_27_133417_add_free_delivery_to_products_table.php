@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('products', function (Blueprint $table) {
-            $table->tinyInteger('free_delivery')->default(0)->after('is_digital')->comment('0=No, 1=Yes');
+            $table->tinyInteger('free_delivery')->default(0)->comment('0=No, 1=Yes');
         });
     }
 

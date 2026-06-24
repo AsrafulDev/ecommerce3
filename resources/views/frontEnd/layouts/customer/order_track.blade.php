@@ -32,7 +32,7 @@
 
     /* ৩. বাম পাশ (ইলাস্ট্রেশন এরিয়া) */
     .track-left {
-        background: {{$generalsetting->primary_color}};
+        background: var(--primary-color);
         width: 45%;
         padding: 50px 30px;
         display: flex;
@@ -164,7 +164,7 @@
     .modern-btn {
         width: 100%;
         padding: 16px;
-        background: {{$generalsetting->secodery_color}};
+        background: var(--secondary-color);
         color: #fff;
         border: none;
         border-radius: 12px;

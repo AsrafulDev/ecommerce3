@@ -25,7 +25,7 @@
 
     /* ৩. হেডার সেকশন (রয়্যাল ব্লু গ্র্যাডিয়েন্ট - প্রফেশনাল লুক) */
     .invoice-header {
-        background: {{$generalsetting->primary_color}}; /* ডিপ ব্লু */
+        background: var(--primary-color); /* ডিপ ব্লু */
         padding: 20px 30px;
         display: flex;
         justify-content: space-between;
@@ -43,7 +43,7 @@
         margin-top: 2px;
     }
     .status-badge {
-        background: {{$generalsetting->secodery_color}};
+        background: var(--secondary-color);
         backdrop-filter: blur(5px);
         padding: 6px 16px;
         border-radius: 4px;
@@ -72,7 +72,7 @@
     .info-icon {
         width: 42px;
         height: 42px;
-        background: {{$generalsetting->primary_color}}; /* খুব হালকা নীল-গ্রে */
+        background: var(--primary-color); /* খুব হালকা নীল-গ্রে */
         border-radius: 8px;
         display: flex;
         align-items: center;

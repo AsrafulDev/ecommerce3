@@ -28,6 +28,7 @@ use App\Models\Review;
 use App\Models\Contact;
 use App\Models\GeneralSetting;
 use App\Models\IncompleteOrder;
+use App\Models\HomepageLayout;
 use Session;
 use Cart;
 use Auth;
@@ -70,14 +71,14 @@ class FrontendController extends Controller
         // Main menu categories (for header/sidebar)
         $menucategories = Category::where('status', 1)
             ->where('parent_id', 0)
-            ->select('id', 'name', 'slug', 'icon', 'image')
+            ->select('id', 'name', 'slug', 'image')
             ->with(['subcategories.childcategories'])
             ->orderBy('id', 'ASC')
             ->get();
 
         // Front categories (যদি অন্য কোথাও ব্যবহার হয়)
         $frontcategory = Category::where(['status' => 1])
-            ->select('id', 'name', 'image', 'icon', 'slug', 'status')
+            ->select('id', 'name', 'image', 'slug', 'status')
             ->get();
 
         // Banners
@@ -125,7 +126,7 @@ $brands = Brand::where('status', 1)
         // Flash sale – image + reviews eager load
         $flas_sales = Product::where(['status' => 1, 'approval_status' => 'approved', 'flashsale' => 1])
             ->orderBy('id', 'DESC')
-            ->select('id', 'name', 'slug', 'new_price', 'old_price', 'sold', 'stock')
+            ->select('id', 'name', 'slug', 'new_price', 'old_price', 'stock')
             ->with(['prosizes', 'procolors', 'image', 'reviews'])
             ->limit(12)
             ->get();
@@ -147,7 +148,7 @@ $brands = Brand::where('status', 1)
 
         // Category wise home products – products এর image + reviews eager load
         if ($generalsetting && $generalsetting->show_category_wise_products) {
-            $homeproducts = Category::where(['front_view' => 1, 'status' => 1])
+            $homeproducts = Category::where('status', 1)
                 ->orderBy('id', 'ASC')
                 ->with([
                     'products' => function ($q) {
@@ -177,12 +178,25 @@ $brands = Brand::where('status', 1)
         if ($generalsetting && $generalsetting->show_all_products) {
             $all_products = Product::where(['status' => 1, 'approval_status' => 'approved'])
                 ->inRandomOrder()
-                ->select('id', 'name', 'slug', 'new_price', 'old_price', 'sold', 'stock')
+                ->select('id', 'name', 'slug', 'new_price', 'old_price', 'stock')
                 ->with(['prosizes', 'procolors', 'image', 'reviews'])
                 ->limit(14)
                 ->get();
         } else {
             $all_products = null;
+        }
+
+        // Active homepage layout (for drag-drop section builder)
+        $activeLayout = HomepageLayout::getActive();
+
+        // Determine if flash sale / hot deal are still active based on end dates
+        $isHotDealActive = false;
+        $isFlashSaleActive = false;
+        if ($generalsetting) {
+            $hotDealEndDate = $generalsetting->hot_deal_end_date . 'T23:59:59';
+            $flashSaleEndDate = $generalsetting->flash_sale_end_date . 'T23:59:59';
+            $isHotDealActive = $hotDealEndDate && \Carbon\Carbon::parse($hotDealEndDate)->isFuture();
+            $isFlashSaleActive = $flashSaleEndDate && \Carbon\Carbon::parse($flashSaleEndDate)->isFuture();
         }
 
         return compact(
@@ -204,7 +218,10 @@ $brands = Brand::where('status', 1)
             'flas_sales',
             'campaognads',
             'reviews',
-            'all_products'
+            'all_products',
+            'activeLayout',
+            'isHotDealActive',
+            'isFlashSaleActive'
         );
     }
 
@@ -642,7 +659,7 @@ $brands = Brand::where('status', 1)
         $category = Category::where(['slug' => $slug, 'status' => 1])->first();
 
         $products = Product::where(['status' => 1, 'approval_status' => 'approved', 'category_id' => $category->id])
-            ->select('id', 'name', 'slug', 'new_price', 'old_price', 'category_id','sold','stock');
+            ->select('id', 'name', 'slug', 'new_price', 'old_price', 'category_id', 'stock');
         $subcategories = Subcategory::where('category_id', $category->id)->get();
 
         if ($request->sort == 1) {
@@ -717,7 +734,7 @@ $brands = Brand::where('status', 1)
         $soldShow = $request->sold=='show'?true:false;
         $subcategory = Subcategory::where(['slug' => $slug, 'status' => 1])->first();
         $products = Product::where(['status' => 1, 'approval_status' => 'approved', 'subcategory_id' => $subcategory->id])
-            ->select('id', 'name', 'slug', 'new_price', 'old_price', 'category_id', 'subcategory_id','sold','stock');
+            ->select('id', 'name', 'slug', 'new_price', 'old_price', 'category_id', 'subcategory_id', 'stock');
         $childcategories = Childcategory::where('subcategory_id', $subcategory->id)->get();
 
         if ($request->sort == 1) {
@@ -766,7 +783,7 @@ $brands = Brand::where('status', 1)
         $childcategory = Childcategory::where(['slug' => $slug, 'status' => 1])->first();
         $childcategories = Childcategory::where('subcategory_id', $childcategory->subcategory_id)->get();
         $products = Product::where(['status' => 1, 'approval_status' => 'approved', 'childcategory_id' => $childcategory->id])->with('category')
-            ->select('id', 'name', 'slug', 'new_price', 'old_price', 'category_id', 'subcategory_id', 'childcategory_id','sold','stock');
+            ->select('id', 'name', 'slug', 'new_price', 'old_price', 'category_id', 'subcategory_id', 'childcategory_id', 'stock');
 
         if ($request->sort == 1) {
             $products = $products->orderBy('created_at', 'desc');

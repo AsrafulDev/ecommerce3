@@ -88,4 +88,22 @@ class ErrorLogController extends Controller
             return redirect()->route('error-log.index')->with('error', 'লগ লেখা যায়নি: ' . $e->getMessage());
         }
     }
+
+    /**
+     * Clear / delete the log file
+     */
+    public function delete()
+    {
+        $logPath = storage_path('logs/laravel.log');
+
+        if (File::exists($logPath)) {
+            if (File::put($logPath, '[' . now()->format('Y-m-d H:i:s') . "] Log file cleared.\n") !== false) {
+                return redirect()->route('error-log.index')->with('success', 'লগ ফাইল সাফ করা হয়েছে।');
+            } else {
+                return redirect()->route('error-log.index')->with('error', 'লগ ফাইল সাফ করা যায়নি। পারমিশন চেক করুন।');
+            }
+        } else {
+            return redirect()->route('error-log.index')->with('error', 'লগ ফাইল নেই।');
+        }
+    }
 }
