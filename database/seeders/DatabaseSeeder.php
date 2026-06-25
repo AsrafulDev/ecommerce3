@@ -21,19 +21,14 @@ class DatabaseSeeder extends Seeder
 
         // Seed theme system data
         $this->call([
-            ThemeSeeder::class,
-            HomepageSectionSeeder::class,
-            LayoutSeeder::class,
-            DemoDataSeeder::class,
+            PermissionTableSeeder::class,
             GeneralSettingSeeder::class,
+            ThemeSeeder::class,
+            LayoutSeeder::class,
+            CreateAdminUserSeeder::class,
             ContactSeeder::class,
+            HomepageSectionSeeder::class,
+            DemoDataSeeder::class,
         ]);
-
-        // \App\Models\User::factory(10)->create();
-
-        // \App\Models\User::factory()->create([
-        //     'name' => 'Test User',
-        //     'email' => 'test@example.com',
-        // ]);
     }
 }

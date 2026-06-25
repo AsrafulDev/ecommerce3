@@ -108,19 +108,52 @@ class DemoDataSeeder extends Seeder
             $this->command->info('- Categories created');
         }
 
-        // ========== SUBCATEGORIES ==========
+        // ========== SUBCATEGORIES (all categories) ==========
         if (DB::table('subcategories')->count() == 0) {
             $catIds = DB::table('categories')->pluck('id', 'slug');
             $subs = [
+                // Electronics
                 ['cat' => 'electronics', 'name' => 'Mobile Phones', 'slug' => 'mobile-phones'],
                 ['cat' => 'electronics', 'name' => 'Laptops', 'slug' => 'laptops'],
                 ['cat' => 'electronics', 'name' => 'Headphones', 'slug' => 'headphones'],
+                ['cat' => 'electronics', 'name' => 'Tablets', 'slug' => 'tablets'],
+                ['cat' => 'electronics', 'name' => 'Cameras', 'slug' => 'cameras'],
+                // Fashion
                 ['cat' => 'fashion', 'name' => 'Men\'s Clothing', 'slug' => 'mens-clothing'],
                 ['cat' => 'fashion', 'name' => 'Women\'s Clothing', 'slug' => 'womens-clothing'],
+                ['cat' => 'fashion', 'name' => 'Kid\'s Fashion', 'slug' => 'kids-fashion'],
+                ['cat' => 'fashion', 'name' => 'Accessories', 'slug' => 'accessories'],
+                ['cat' => 'fashion', 'name' => 'Bags & Luggage', 'slug' => 'bags-luggage'],
+                // Home & Kitchen
                 ['cat' => 'home-kitchen', 'name' => 'Kitchen Appliances', 'slug' => 'kitchen-appliances'],
                 ['cat' => 'home-kitchen', 'name' => 'Home Decor', 'slug' => 'home-decor'],
+                ['cat' => 'home-kitchen', 'name' => 'Furniture', 'slug' => 'furniture'],
+                ['cat' => 'home-kitchen', 'name' => 'Cookware', 'slug' => 'cookware'],
+                // Beauty & Health
                 ['cat' => 'beauty-health', 'name' => 'Skincare', 'slug' => 'skincare'],
                 ['cat' => 'beauty-health', 'name' => 'Makeup', 'slug' => 'makeup'],
+                ['cat' => 'beauty-health', 'name' => 'Hair Care', 'slug' => 'hair-care'],
+                ['cat' => 'beauty-health', 'name' => 'Health Supplements', 'slug' => 'health-supplements'],
+                // Sports & Outdoor
+                ['cat' => 'sports-outdoor', 'name' => 'Fitness Equipment', 'slug' => 'fitness-equipment'],
+                ['cat' => 'sports-outdoor', 'name' => 'Outdoor Gear', 'slug' => 'outdoor-gear'],
+                ['cat' => 'sports-outdoor', 'name' => 'Sportswear', 'slug' => 'sportswear'],
+                ['cat' => 'sports-outdoor', 'name' => 'Cycling', 'slug' => 'cycling'],
+                // Books & Stationery
+                ['cat' => 'books-stationery', 'name' => 'Academic Books', 'slug' => 'academic-books'],
+                ['cat' => 'books-stationery', 'name' => 'Fiction & Literature', 'slug' => 'fiction-literature'],
+                ['cat' => 'books-stationery', 'name' => 'Office Stationery', 'slug' => 'office-stationery'],
+                ['cat' => 'books-stationery', 'name' => 'Art Supplies', 'slug' => 'art-supplies'],
+                // Baby & Toys
+                ['cat' => 'baby-toys', 'name' => 'Baby Gear', 'slug' => 'baby-gear'],
+                ['cat' => 'baby-toys', 'name' => 'Toys & Games', 'slug' => 'toys-games'],
+                ['cat' => 'baby-toys', 'name' => 'Nursery', 'slug' => 'nursery'],
+                ['cat' => 'baby-toys', 'name' => 'Learning & Education', 'slug' => 'learning-education'],
+                // Automotive
+                ['cat' => 'automotive', 'name' => 'Car Accessories', 'slug' => 'car-accessories'],
+                ['cat' => 'automotive', 'name' => 'Car Care', 'slug' => 'car-care'],
+                ['cat' => 'automotive', 'name' => 'Motorcycle Gear', 'slug' => 'motorcycle-gear'],
+                ['cat' => 'automotive', 'name' => 'Spare Parts', 'slug' => 'spare-parts'],
             ];
             foreach ($subs as $s) {
                 DB::table('subcategories')->insert([
@@ -132,12 +165,14 @@ class DemoDataSeeder extends Seeder
                     'updated_at' => now(),
                 ]);
             }
-            $this->command->info('- Subcategories created');
+            $this->command->info('- Subcategories created (' . count($subs) . ' total)');
         }
 
         // ========== BRANDS ==========
         if (DB::table('brands')->count() == 0) {
-            $brands = ['Samsung', 'Apple', 'Sony', 'LG', 'HP', 'Dell', 'Nike', 'Adidas', 'Zara', 'H&M'];
+            $brands = ['Samsung', 'Apple', 'Sony', 'LG', 'HP', 'Dell', 'Nike', 'Adidas', 'Zara', 'H&M',
+                       'Canon', 'Nikon', 'Bosch', 'Puma', 'LEGO', 'Fisher-Price', 'Toyota', 'Honda',
+                       'L\'Oreal', 'Maybelline', 'Dove', 'Yamaha', 'Garmin'];
             foreach ($brands as $b) {
                 DB::table('brands')->insert([
                     'name' => $b,
@@ -149,25 +184,61 @@ class DemoDataSeeder extends Seeder
                     'updated_at' => now(),
                 ]);
             }
-            $this->command->info('- Brands created');
+            $this->command->info('- Brands created (' . count($brands) . ' total)');
         }
 
-        // ========== PRODUCTS ==========
+        // ========== PRODUCTS (all categories) ==========
         if (DB::table('products')->count() == 0) {
             $catIds = DB::table('categories')->pluck('id', 'slug');
             $brandIds = DB::table('brands')->pluck('id', 'name');
 
             $products = [
+                // Electronics (5)
                 ['name' => 'Samsung Galaxy S24 Ultra', 'cat' => 'electronics', 'brand' => 'Samsung', 'price' => 129999, 'old' => 139999, 'stock' => 50, 'topsale' => 1, 'flashsale' => 1],
                 ['name' => 'iPhone 15 Pro Max', 'cat' => 'electronics', 'brand' => 'Apple', 'price' => 149999, 'old' => 159999, 'stock' => 30, 'topsale' => 1, 'flashsale' => 0],
                 ['name' => 'Sony WH-1000XM5 Headphones', 'cat' => 'electronics', 'brand' => 'Sony', 'price' => 29999, 'old' => 35000, 'stock' => 100, 'topsale' => 0, 'flashsale' => 1],
                 ['name' => 'HP Pavilion Laptop 15', 'cat' => 'electronics', 'brand' => 'HP', 'price' => 65000, 'old' => 72000, 'stock' => 25, 'topsale' => 0, 'flashsale' => 0],
                 ['name' => 'Dell XPS 13', 'cat' => 'electronics', 'brand' => 'Dell', 'price' => 115000, 'old' => 125000, 'stock' => 15, 'topsale' => 1, 'flashsale' => 0],
+                ['name' => 'Apple iPad Air M2', 'cat' => 'electronics', 'brand' => 'Apple', 'price' => 74999, 'old' => 79999, 'stock' => 40, 'topsale' => 0, 'flashsale' => 1],
+                ['name' => 'Canon EOS R50 Camera', 'cat' => 'electronics', 'brand' => 'Canon', 'price' => 85000, 'old' => 92000, 'stock' => 20, 'topsale' => 0, 'flashsale' => 0],
+                ['name' => 'LG 65" OLED TV', 'cat' => 'electronics', 'brand' => 'LG', 'price' => 185000, 'old' => 210000, 'stock' => 10, 'topsale' => 0, 'flashsale' => 0],
+                // Fashion (6)
                 ['name' => 'Nike Air Max 270', 'cat' => 'fashion', 'brand' => 'Nike', 'price' => 15999, 'old' => 18999, 'stock' => 200, 'topsale' => 1, 'flashsale' => 0],
                 ['name' => 'Adidas Ultraboost 23', 'cat' => 'fashion', 'brand' => 'Adidas', 'price' => 18999, 'old' => 22000, 'stock' => 150, 'topsale' => 0, 'flashsale' => 1],
                 ['name' => 'Zara Slim Fit Blazer', 'cat' => 'fashion', 'brand' => 'Zara', 'price' => 8999, 'old' => 12000, 'stock' => 80, 'topsale' => 0, 'flashsale' => 0],
-                ['name' => 'LG 65" OLED TV', 'cat' => 'electronics', 'brand' => 'LG', 'price' => 185000, 'old' => 210000, 'stock' => 10, 'topsale' => 0, 'flashsale' => 0],
-                ['name' => 'Kitchen Blender Pro', 'cat' => 'home-kitchen', 'brand' => 'Samsung', 'price' => 5499, 'old' => 6999, 'stock' => 300, 'topsale' => 0, 'flashsale' => 1],
+                ['name' => 'Puma Running Shoes', 'cat' => 'fashion', 'brand' => 'Puma', 'price' => 12999, 'old' => 15999, 'stock' => 180, 'topsale' => 0, 'flashsale' => 1],
+                ['name' => 'H&M Cotton T-Shirt', 'cat' => 'fashion', 'brand' => 'H&M', 'price' => 1499, 'old' => 1999, 'stock' => 500, 'topsale' => 0, 'flashsale' => 0],
+                ['name' => 'Nike Backpack 40L', 'cat' => 'fashion', 'brand' => 'Nike', 'price' => 4999, 'old' => 5999, 'stock' => 120, 'topsale' => 0, 'flashsale' => 0],
+                // Home & Kitchen (4)
+                ['name' => 'Kitchen Blender Pro', 'cat' => 'home-kitchen', 'brand' => 'Bosch', 'price' => 5499, 'old' => 6999, 'stock' => 300, 'topsale' => 0, 'flashsale' => 1],
+                ['name' => 'Samsung Microwave Oven', 'cat' => 'home-kitchen', 'brand' => 'Samsung', 'price' => 15999, 'old' => 18999, 'stock' => 60, 'topsale' => 0, 'flashsale' => 0],
+                ['name' => 'Modern Sofa Set 3-Seater', 'cat' => 'home-kitchen', 'brand' => 'H&M', 'price' => 45000, 'old' => 55000, 'stock' => 15, 'topsale' => 1, 'flashsale' => 0],
+                ['name' => 'Non-Stick Cookware Set', 'cat' => 'home-kitchen', 'brand' => 'Bosch', 'price' => 3999, 'old' => 5500, 'stock' => 250, 'topsale' => 0, 'flashsale' => 0],
+                // Beauty & Health (4)
+                ['name' => 'L\'Oreal Vitamin C Serum', 'cat' => 'beauty-health', 'brand' => 'L\'Oreal', 'price' => 2499, 'old' => 3200, 'stock' => 400, 'topsale' => 1, 'flashsale' => 1],
+                ['name' => 'Maybelline Foundation', 'cat' => 'beauty-health', 'brand' => 'Maybelline', 'price' => 1899, 'old' => 2400, 'stock' => 350, 'topsale' => 0, 'flashsale' => 0],
+                ['name' => 'Dove Hair Fall Rescue', 'cat' => 'beauty-health', 'brand' => 'Dove', 'price' => 899, 'old' => 1200, 'stock' => 600, 'topsale' => 0, 'flashsale' => 0],
+                ['name' => 'Omega-3 Fish Oil Capsules', 'cat' => 'beauty-health', 'brand' => 'Sony', 'price' => 1499, 'old' => 1800, 'stock' => 200, 'topsale' => 0, 'flashsale' => 0],
+                // Sports & Outdoor (4)
+                ['name' => 'Home Gym Set 20kg', 'cat' => 'sports-outdoor', 'brand' => 'Nike', 'price' => 8999, 'old' => 11000, 'stock' => 40, 'topsale' => 1, 'flashsale' => 0],
+                ['name' => 'Camping Tent 4-Person', 'cat' => 'sports-outdoor', 'brand' => 'Adidas', 'price' => 12999, 'old' => 15999, 'stock' => 30, 'topsale' => 0, 'flashsale' => 1],
+                ['name' => 'Yoga Mat Premium', 'cat' => 'sports-outdoor', 'brand' => 'Puma', 'price' => 2499, 'old' => 3200, 'stock' => 500, 'topsale' => 0, 'flashsale' => 0],
+                ['name' => 'Mountain Bike 26"', 'cat' => 'sports-outdoor', 'brand' => 'Yamaha', 'price' => 35000, 'old' => 42000, 'stock' => 20, 'topsale' => 0, 'flashsale' => 0],
+                // Books & Stationery (4)
+                ['name' => 'Physics Textbook - HSC', 'cat' => 'books-stationery', 'brand' => 'HP', 'price' => 850, 'old' => 1200, 'stock' => 1000, 'topsale' => 0, 'flashsale' => 0],
+                ['name' => 'The Great Gatsby', 'cat' => 'books-stationery', 'brand' => 'H&M', 'price' => 650, 'old' => 899, 'stock' => 800, 'topsale' => 0, 'flashsale' => 0],
+                ['name' => 'Executive Desk Organizer', 'cat' => 'books-stationery', 'brand' => 'Dell', 'price' => 1299, 'old' => 1699, 'stock' => 150, 'topsale' => 0, 'flashsale' => 0],
+                ['name' => 'Watercolor Paint Set 24', 'cat' => 'books-stationery', 'brand' => 'Canon', 'price' => 1499, 'old' => 1899, 'stock' => 200, 'topsale' => 0, 'flashsale' => 0],
+                // Baby & Toys (4)
+                ['name' => 'Baby Stroller X100', 'cat' => 'baby-toys', 'brand' => 'Fisher-Price', 'price' => 15999, 'old' => 18999, 'stock' => 35, 'topsale' => 1, 'flashsale' => 0],
+                ['name' => 'LEGO City Police Set', 'cat' => 'baby-toys', 'brand' => 'LEGO', 'price' => 4999, 'old' => 5999, 'stock' => 90, 'topsale' => 0, 'flashsale' => 1],
+                ['name' => 'Baby Cot with Mattress', 'cat' => 'baby-toys', 'brand' => 'Fisher-Price', 'price' => 22000, 'old' => 26000, 'stock' => 20, 'topsale' => 0, 'flashsale' => 0],
+                ['name' => 'Educational Puzzle Set', 'cat' => 'baby-toys', 'brand' => 'LEGO', 'price' => 2499, 'old' => 3200, 'stock' => 300, 'topsale' => 0, 'flashsale' => 0],
+                // Automotive (4)
+                ['name' => 'Car Dash Camera HD', 'cat' => 'automotive', 'brand' => 'Sony', 'price' => 4999, 'old' => 6500, 'stock' => 100, 'topsale' => 0, 'flashsale' => 1],
+                ['name' => 'Car Wax Polish Kit', 'cat' => 'automotive', 'brand' => 'Bosch', 'price' => 1999, 'old' => 2800, 'stock' => 200, 'topsale' => 0, 'flashsale' => 0],
+                ['name' => 'Motorcycle Helmet Full Face', 'cat' => 'automotive', 'brand' => 'Yamaha', 'price' => 8999, 'old' => 11000, 'stock' => 60, 'topsale' => 1, 'flashsale' => 0],
+                ['name' => 'Car Floor Mats Set', 'cat' => 'automotive', 'brand' => 'Toyota', 'price' => 3499, 'old' => 4500, 'stock' => 150, 'topsale' => 0, 'flashsale' => 0],
             ];
 
             foreach ($products as $i => $p) {
@@ -223,6 +294,56 @@ class DemoDataSeeder extends Seeder
                 ]);
             }
             $this->command->info('- Blog posts created');
+        }
+
+        // ========== SHIPPING CHARGES ==========
+        if (DB::table('shipping_charges')->count() == 0) {
+            DB::table('shipping_charges')->insert([
+                [
+                    'name'       => 'Inside Dhaka',
+                    'amount'     => 70,
+                    'status'     => 1,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ],
+                [
+                    'name'       => 'Outside Dhaka',
+                    'amount'     => 120,
+                    'status'     => 1,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ],
+            ]);
+            $this->command->info('- Shipping charges seeded: Inside Dhaka 70TK, Outside Dhaka 120TK');
+        }
+
+        // ========== EXTRA SUBCATEGORIES (from SubcategorySeeder) ==========
+        if (DB::table('subcategories')->count() == 0) {
+            $slugMap = [
+                'home-gadgets', 'health-beauty', 'hot-offer', 'kitchen-gadgets',
+                'security', 'all-kinds-of-rack', 'footwear', 'cream',
+            ];
+            $catIds = DB::table('categories')->whereIn('slug', $slugMap)->pluck('id', 'slug');
+
+            $allSubs = [];
+            foreach ($slugMap as $slug) {
+                if (isset($catIds[$slug])) {
+                    for ($i = 1; $i <= 7; $i++) {
+                        $allSubs[] = [
+                            'subcategoryName' => 'Subcategory ' . $i,
+                            'slug'            => 'subcategory-' . $i,
+                            'category_id'     => $catIds[$slug],
+                            'status'          => 1,
+                            'created_at'      => now(),
+                            'updated_at'      => now(),
+                        ];
+                    }
+                }
+            }
+            if (!empty($allSubs)) {
+                DB::table('subcategories')->insert($allSubs);
+                $this->command->info('- Extra subcategories created for ' . count($catIds) . ' categories');
+            }
         }
 
         $this->command->info('✅ Demo data seeding complete!');
