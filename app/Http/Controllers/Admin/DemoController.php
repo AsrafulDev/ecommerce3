@@ -9,8 +9,19 @@ use App\Models\HomepageLayout;
 use App\Models\HomepageSection;
 use App\Models\HomepageLayoutSection;
 use App\Models\GeneralSetting;
+use App\Models\Brand;
+use App\Models\Category;
+use App\Models\Subcategory;
+use App\Models\Banner;
+use App\Models\BannerCategory;
+use App\Models\Blog;
+use App\Models\Product;
+use App\Models\Productimage;
+use App\Models\ShippingCharge;
+use App\Helpers\PresetData;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 use ZipArchive;
 use Toastr;
 
@@ -44,8 +55,11 @@ class DemoController extends Controller
                 ];
             }
         }
+
+        // Get predefined shop presets from PresetData helper
+        $shopPresets = PresetData::all();
         
-        return view('backEnd.demo.index', compact('themes', 'layouts', 'activeLayout', 'activeTheme', 'presets'));
+        return view('backEnd.demo.index', compact('themes', 'layouts', 'activeLayout', 'activeTheme', 'presets', 'shopPresets'));
     }
 
     /**
@@ -264,6 +278,105 @@ class DemoController extends Controller
     }
 
     /**
+     * Upload and import a preset zip file.
+     * Zip must contain: data.json + images/ folder
+     */
+    public function importPresetZip(Request $request)
+    {
+        $request->validate([
+            'preset_zip' => 'required|file|mimes:zip|max:512000',
+        ]);
+
+        $file = $request->file('preset_zip');
+        $tempDir = storage_path('app/demo-import-' . time());
+        if (!is_dir($tempDir)) {
+            mkdir($tempDir, 0755, true);
+        }
+
+        $zip = new ZipArchive();
+        if ($zip->open($file->getRealPath()) !== true) {
+            Toastr::error('Invalid zip file!', 'Error');
+            return redirect()->back();
+        }
+        $zip->extractTo($tempDir);
+        $zip->close();
+
+        $jsonPath = $tempDir . '/data.json';
+        if (!file_exists($jsonPath)) {
+            self::cleanTempDir($tempDir);
+            Toastr::error('Zip must contain a data.json file!', 'Error');
+            return redirect()->back();
+        }
+
+        $data = json_decode(file_get_contents($jsonPath), true);
+        if (!$data || !isset($data['meta'])) {
+            self::cleanTempDir($tempDir);
+            Toastr::error('Invalid data.json format!', 'Error');
+            return redirect()->back();
+        }
+
+        $slug = $data['meta']['slug'] ?? pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
+        $slug = preg_replace('/[^a-z0-9-]/', '', strtolower(str_replace(' ', '-', $slug)));
+
+        try {
+            $publicPresetDir = public_path("uploads/{$slug}");
+            $publicImagesDir = $publicPresetDir . '/images';
+            if (!is_dir($publicImagesDir)) mkdir($publicImagesDir, 0755, true);
+            copy($jsonPath, $publicPresetDir . '/data.json');
+
+            $copyCount = 0;
+            $zipImageDir = $tempDir . '/images';
+            if (is_dir($zipImageDir)) {
+                $iterator = new \RecursiveIteratorIterator(
+                    new \RecursiveDirectoryIterator($zipImageDir, \RecursiveDirectoryIterator::SKIP_DOTS),
+                    \RecursiveIteratorIterator::SELF_FIRST
+                );
+                foreach ($iterator as $item) {
+                    $relativePath = \Illuminate\Support\Str::after($item->getPathname(), $zipImageDir . '/');
+                    $destPath = $publicImagesDir . '/' . $relativePath;
+                    if ($item->isDir()) {
+                        if (!is_dir($destPath)) mkdir($destPath, 0755, true);
+                    } elseif ($item->isFile()) {
+                        $parentDir = dirname($destPath);
+                        if (!is_dir($parentDir)) mkdir($parentDir, 0755, true);
+                        copy($item->getPathname(), $destPath);
+                        $copyCount++;
+                    }
+                }
+            }
+
+            $basePrefix = 'public/uploads/' . $slug . '/';
+            $fixImagePath = function (&$path) use ($basePrefix) {
+                if (empty($path)) return;
+                if (preg_match('#^(images|assets)/#', $path)) {
+                    $path = $basePrefix . $path;
+                }
+            };
+
+            foreach ($data['categories'] ?? [] as &$c) { if (!empty($c['image'])) $fixImagePath($c['image']); } unset($c);
+            foreach ($data['products'] ?? [] as &$p) {
+                if (!empty($p['image'])) $fixImagePath($p['image']);
+                if (!empty($p['gallery_images'])) {
+                    foreach ($p['gallery_images'] as &$gi) { if (!empty($gi)) $fixImagePath($gi); } unset($gi);
+                }
+            } unset($p);
+            foreach ($data['banners'] ?? [] as &$b) { if (!empty($b['image'])) $fixImagePath($b['image']); } unset($b);
+            foreach ($data['blogs'] ?? [] as &$b) { if (!empty($b['image'])) $fixImagePath($b['image']); } unset($b);
+
+            self::seedPresetData($data, $slug);
+            \Illuminate\Support\Facades\Cache::flush();
+
+            $name = $data['meta']['name'] ?? $slug;
+            Toastr::success("「{$name}」 imported successfully! {$copyCount} images copied.", 'Success');
+        } catch (\Exception $e) {
+            Toastr::error('Import failed: ' . $e->getMessage(), 'Error');
+        }
+
+        self::cleanTempDir($tempDir);
+        return redirect()->route('demo.index');
+    }
+
+    /**
      * Delete a demo preset zip
      */
     public function deletePreset($name)
@@ -276,5 +389,444 @@ class DemoController extends Controller
             Toastr::error('Preset not found!', 'Error');
         }
         return redirect()->route('demo.index');
+    }
+
+    /**
+     * Import a predefined shop preset (one-click)
+     * Note: TRUNCATE is DDL in MySQL and commits implicitly, so we cannot use DB transactions here.
+     */
+    public function importPreset($slug)
+    {
+        $data = PresetData::get($slug);
+        if (!$data) {
+            Toastr::error('Invalid preset: ' . $slug, 'Error');
+            return redirect()->route('demo.index');
+        }
+
+        try {
+            // ── Copy the entire preset folder to public/uploads/{slug}/ ──
+            // Preserves subdirectory structure (e.g. assets/category/, assets/product/sub/)
+            // Works with: images/*, assets/*, or any prefix used in data.json
+            $presetDir = storage_path("app/demo-presets/{$slug}");
+            $publicPresetDir = public_path("uploads/{$slug}");
+            $publicImagesDir = $publicPresetDir . '/images';
+
+            // Copy data.json
+            $presetJson = $presetDir . '/data.json';
+            if (file_exists($presetJson)) {
+                if (!is_dir($publicPresetDir)) mkdir($publicPresetDir, 0755, true);
+                copy($presetJson, $publicPresetDir . '/data.json');
+            }
+
+            // Recursively copy the entire images/ folder (preserving subdirectory structure)
+            $copyCount = 0;
+            $presetImageDir = $presetDir . '/images';
+            if (is_dir($presetImageDir)) {
+                $iterator = new \RecursiveIteratorIterator(
+                    new \RecursiveDirectoryIterator($presetImageDir, \RecursiveDirectoryIterator::SKIP_DOTS),
+                    \RecursiveIteratorIterator::SELF_FIRST
+                );
+                foreach ($iterator as $item) {
+                    $relativePath = \Illuminate\Support\Str::after($item->getPathname(), $presetImageDir . '/');
+                    $destPath = $publicImagesDir . '/' . $relativePath;
+                    if ($item->isDir()) {
+                        if (!is_dir($destPath)) mkdir($destPath, 0755, true);
+                    } elseif ($item->isFile()) {
+                        $parentDir = dirname($destPath);
+                        if (!is_dir($parentDir)) mkdir($parentDir, 0755, true);
+                        copy($item->getPathname(), $destPath);
+                        $copyCount++;
+                    }
+                }
+            }
+
+            // Helper: replace any leading prefix (images/, assets/, etc.)
+            // with public/uploads/{slug}/ — preserves whatever subdirectory nesting follows
+            $basePrefix = 'public/uploads/' . $slug . '/';
+            $fixImagePath = function (&$path) use ($basePrefix) {
+                if (empty($path)) return;
+                // If it starts with images/ or assets/ (or any single-word dir followed by /),
+                // replace that leading directory with the base public path
+                if (preg_match('#^(images|assets)/#', $path)) {
+                    $path = $basePrefix . $path;
+                }
+            };
+
+            // Apply fix to all image fields
+            foreach ($data['categories'] ?? [] as &$c) {
+                if (!empty($c['image'])) $fixImagePath($c['image']);
+            }
+            unset($c);
+            foreach ($data['products'] ?? [] as &$p) {
+                if (!empty($p['image'])) $fixImagePath($p['image']);
+                if (!empty($p['gallery_images'])) {
+                    foreach ($p['gallery_images'] as &$gi) {
+                        if (!empty($gi)) $fixImagePath($gi);
+                    }
+                    unset($gi);
+                }
+            }
+            unset($p);
+            foreach ($data['banners'] ?? [] as &$b) {
+                if (!empty($b['image'])) $fixImagePath($b['image']);
+            }
+            unset($b);
+            foreach ($data['blogs'] ?? [] as &$b) {
+                if (!empty($b['image'])) $fixImagePath($b['image']);
+            }
+            unset($b);
+
+            // ── Seed data ──
+            self::seedPresetData($data, $slug);
+            \Illuminate\Support\Facades\Cache::flush();
+
+            $name = $data['meta']['name'] ?? $slug;
+            Toastr::success("「{$name}」 imported successfully! {$copyCount} images copied.", 'Success');
+        } catch (\Exception $e) {
+            Toastr::error('Import failed: ' . $e->getMessage(), 'Error');
+        }
+
+        return redirect()->route('demo.index');
+    }
+
+    /**
+     * Reset site — truncate all data tables and reseed with default DemoDataSeeder
+     * Note: TRUNCATE is DDL in MySQL and commits implicitly, so we cannot use DB transactions here.
+     */
+    public function resetSite()
+    {
+        try {
+            self::truncateAllTables();
+            self::deleteUploadedFiles();
+
+            // Run the DemoDataSeeder for fresh default data
+            \Illuminate\Support\Facades\Artisan::call('db:seed', [
+                '--class' => 'Database\\Seeders\\DemoDataSeeder',
+                '--force' => true,
+            ]);
+
+            \Illuminate\Support\Facades\Cache::flush();
+
+            Toastr::success('Site has been reset with default demo data!', 'Success');
+        } catch (\Exception $e) {
+            Toastr::error('Reset failed: ' . $e->getMessage(), 'Error');
+        }
+
+        return redirect()->route('demo.index');
+    }
+
+    /**
+     * Clean site — truncate ALL data tables without re-seeding.
+     * Also deletes uploaded files (uploads folder).
+     * Leaves the site completely empty (only admins/users remain).
+     */
+    public function cleanSite()
+    {
+        try {
+            self::truncateAllTables();
+            self::deleteUploadedFiles();
+            \Illuminate\Support\Facades\Cache::flush();
+
+            Toastr::success('All data has been wiped clean! The site is now empty.', 'Success');
+        } catch (\Exception $e) {
+            Toastr::error('Clean failed: ' . $e->getMessage(), 'Error');
+        }
+
+        return redirect()->route('demo.index');
+    }
+
+    /**
+     * Delete uploaded files from public/uploads/ (except essential system files)
+     */
+    /**
+     * Recursively delete a temp directory
+     */
+    private static function cleanTempDir(string $dir): void
+    {
+        if (!is_dir($dir)) return;
+        $it = new \RecursiveDirectoryIterator($dir, \RecursiveDirectoryIterator::SKIP_DOTS);
+        $files = new \RecursiveIteratorIterator($it, \RecursiveIteratorIterator::CHILD_FIRST);
+        foreach ($files as $f) {
+            if ($f->isDir()) @rmdir($f->getRealPath());
+            else @unlink($f->getRealPath());
+        }
+        @rmdir($dir);
+    }
+
+    private static function deleteUploadedFiles(): void
+    {
+        $uploadDir = public_path('uploads');
+        if (!is_dir($uploadDir)) return;
+
+        // Subdirectories to clean (files inside these will be deleted)
+        $cleanDirs = [
+            'category', 'brand', 'product', 'banner', 'campaign',
+            'blogs', 'subcategory', 'settings', 'popup', 'customer',
+            'user', 'users', 'vendor', 'demo', 'reseller', 'videos',
+        ];
+
+        // Also clean preset folders (gadget-fashion-grocery, electronics, etc.)
+        $presetSlugs = array_keys(\App\Helpers\PresetData::all());
+
+        foreach ($cleanDirs as $dir) {
+            $path = $uploadDir . '/' . $dir;
+            if (is_dir($path)) {
+                $files = array_diff(scandir($path), ['.', '..']);
+                foreach ($files as $file) {
+                    $filePath = $path . '/' . $file;
+                    if (is_file($filePath)) {
+                        @unlink($filePath);
+                    }
+                }
+            }
+        }
+
+        // Delete entire preset folders under public/uploads/ (recursively)
+        foreach ($presetSlugs as $slug) {
+            $presetPath = $uploadDir . '/' . $slug;
+            if (is_dir($presetPath)) {
+                // Recursively delete all files and subdirectories
+                $it = new \RecursiveDirectoryIterator($presetPath, \RecursiveDirectoryIterator::SKIP_DOTS);
+                $files = new \RecursiveIteratorIterator($it, \RecursiveIteratorIterator::CHILD_FIRST);
+                foreach ($files as $file) {
+                    if ($file->isDir()) @rmdir($file->getRealPath());
+                    else @unlink($file->getRealPath());
+                }
+                @rmdir($presetPath);
+            }
+        }
+    }
+
+    /**
+     * Truncate all data tables (shared between resetSite and cleanSite)
+     */
+    private static function truncateAllTables(): void
+    {
+        $tables = [
+            'categories', 'subcategories', 'childcategories', 'brands',
+            'products', 'productimages', 'productcolors', 'productsizes',
+            'product_variant_prices', 'product_wholesale_prices',
+            'banners', 'banner_categories', 'blogs',
+            'shipping_charges', 'reviews', 'orders', 'order_details',
+            'payments', 'shippings', 'carts',
+            'campaigns', 'campaign_product', 'campaign_reviews', 'coupons',
+            'courierapis', 'incomplete_orders',
+            'expenses', 'purchases', 'purchase_items', 'purchase_logs', 'expense_logs',
+            'vendors', 'vendor_wallets', 'vendor_wallet_transactions', 'vendor_withdrawals',
+            'suppliers', 'supplier_payments', 'complaints', 'contact_messages',
+            'fund_transactions', 'fund_transaction_logs',
+            'employees', 'employee_attendances', 'employee_leaves',
+            'employee_salaries', 'employee_bonuses', 'employee_salary_payments',
+            'refunds', 'newsletter_subscribers',
+            'districts', 'ip_blocks', 'ecom_pixels', 'tiktok_pixels',
+            'social_media', 'create_pages', 'order_statuses',
+            'payment_gateways', 'sms_gateways', 'google_tag_managers',
+            'seo_settings', 'ads_analytics_settings',
+            'popups', 'cron_job_settings',
+            'contact', 'contacts', 'colors', 'sizes',
+            'digital_downloads', 'password_resets',
+            'reseller_deposits', 'reseller_wallet_transactions', 'reseller_withdrawals',
+            'reseller_landing_pages', 'reseller_landing_products',
+            'reseller_landing_contact_messages', 'reseller_landing_newsletter_subscribers',
+            'stolen_reports', 'facebook_capi_settings', 'facebook_page_settings',
+            'wholesale_products', 'wholesale_product_images',
+        ];
+
+        DB::statement('SET FOREIGN_KEY_CHECKS = 0');
+        foreach ($tables as $table) {
+            if (\Illuminate\Support\Facades\Schema::hasTable($table)) {
+                DB::table($table)->truncate();
+            }
+        }
+        DB::statement('SET FOREIGN_KEY_CHECKS = 1');
+    }
+
+    /**
+     * Seed preset data into the database
+     * Image paths should already be fixed to public/uploads/{slug}/... by importPreset()
+     */
+    private static function seedPresetData(array $data, string $slug = 'default'): void
+    {
+        // Disable foreign key checks
+        DB::statement('SET FOREIGN_KEY_CHECKS = 0');
+
+        // Truncate existing data
+        $tables = ['categories','subcategories','brands','products','productimages',
+                    'banners','banner_categories','blogs','shipping_charges',
+                    'reviews','campaigns','campaign_reviews','coupons',
+                    'orders','order_details','payments','shippings','carts',
+                    'carts','incomplete_orders'];
+        foreach ($tables as $table) {
+            if (\Illuminate\Support\Facades\Schema::hasTable($table)) {
+                DB::table($table)->truncate();
+            }
+        }
+
+        // 1. General Settings
+        $gs = $data['general_settings'] ?? [];
+        $setting = GeneralSetting::first();
+        if ($setting && !empty($gs)) {
+            foreach ($gs as $key => $val) {
+                if ($key !== 'id' && \Illuminate\Support\Facades\Schema::hasColumn('general_settings', $key)) {
+                    $setting->$key = $val;
+                }
+            }
+            $setting->save();
+        }
+
+        // 2. Categories
+        $catMap = [];
+        foreach ($data['categories'] ?? [] as $c) {
+            $id = DB::table('categories')->insertGetId([
+                'name'       => $c['name'],
+                'slug'       => $c['slug'],
+                'parent_id'  => $c['parent_id'] ?? 0,
+                'image'      => $c['image'] ?? 'public/uploads/category/default.png',
+                'status'     => 1,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+            $catMap[$c['slug']] = $id;
+        }
+
+        // 3. Subcategories
+        foreach ($data['subcategories'] ?? [] as $s) {
+            $catId = $catMap[$s['cat']] ?? null;
+            if ($catId) {
+                DB::table('subcategories')->insert([
+                    'category_id'      => $catId,
+                    'subcategoryName'  => $s['name'],
+                    'slug'             => $s['slug'],
+                    'status'           => 1,
+                    'created_at'       => now(),
+                    'updated_at'       => now(),
+                ]);
+            }
+        }
+
+        // 4. Brands
+        $brandMap = [];
+        foreach ($data['brands'] ?? [] as $b) {
+            // Support both string names and objects with 'name' key
+            $brandName = is_string($b) ? $b : ($b['name'] ?? 'Brand');
+            $brandImage = is_array($b) ? ($b['image'] ?? null) : null;
+            $brandSlug = Str::slug($brandName);
+            $id = DB::table('brands')->insertGetId([
+                'name'       => $brandName,
+                'name_bn'    => $brandName,
+                'slug'       => $brandSlug,
+                'image'      => $brandImage ?? ('public/uploads/' . $slug . '/images/brands/brand-' . $brandSlug . '.jpg'),
+                'status'     => 1,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+            $brandMap[$brandName] = $id;
+        }
+
+        // 5. Products
+        foreach ($data['products'] ?? [] as $i => $p) {
+            $catId = $catMap[$p['cat']] ?? 1;
+            $brandId = $brandMap[$p['brand']] ?? 1;
+            $productImage = $p['image'] ?? ('public/uploads/' . $slug . '/images/product-' . ($i + 1) . '.jpg');
+            $pid = DB::table('products')->insertGetId([
+                'name'           => $p['name'],
+                'slug'           => Str::slug($p['name']) . '-' . ($i + 1),
+                'category_id'    => $catId,
+                'brand_id'       => $brandId,
+                'product_code'   => 'PRD-' . str_pad($i + 1, 4, '0', STR_PAD_LEFT),
+                'purchase_price' => round($p['price'] * 0.7),
+                'old_price'      => $p['old'] ?? null,
+                'new_price'      => $p['price'],
+                'stock'          => $p['stock'] ?? 100,
+                'status'         => 1,
+                'approval_status' => 'approved',
+                'topsale'        => $i < 3 ? 1 : 0,
+                'flashsale'      => $i > 0 && $i % 3 == 0 ? 1 : 0,
+                'description'    => 'High-quality ' . $p['name'] . ' at the best price in Bangladesh.',
+                'meta_description' => 'Buy ' . $p['name'] . ' online at best price in Bangladesh.',
+                'created_at'     => now(),
+                'updated_at'     => now(),
+            ]);
+
+            // Product gallery images (stored in productimages table)
+            $galleryImages = $p['gallery_images'] ?? [];
+            if (empty($galleryImages)) {
+                $galleryImages = [$productImage];
+            }
+            foreach ($galleryImages as $gi) {
+                DB::table('productimages')->insert([
+                    'product_id' => $pid,
+                    'image'      => $gi,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+            }
+        }
+
+        // 6. Banners
+        if (DB::table('banner_categories')->count() == 0) {
+            $bcNames = [
+                1 => 'Sliders', 5 => 'Slider Bottom Ads', 6 => 'Footer Top Ads',
+                7 => 'Campaign Ads', 8 => 'Customer Reviews',
+                9 => 'Hot Deal Banners', 10 => 'Homepage Ads', 11 => 'Homepage Ads 2',
+            ];
+            foreach ($bcNames as $id => $name) {
+                DB::table('banner_categories')->insert([
+                    'id' => $id, 'name' => $name, 'status' => 1,
+                    'created_at' => now(), 'updated_at' => now(),
+                ]);
+            }
+        }
+
+        if (DB::table('banners')->count() == 0) {
+            // Try to use banners from preset data, otherwise fallback to defaults
+            $bannerData = $data['banners'] ?? [
+                ['category_id' => 1, 'image' => 'public/uploads/' . $slug . '/images/slider-1.webp', 'link' => '#'],
+                ['category_id' => 1, 'image' => 'public/uploads/' . $slug . '/images/slider-2.webp', 'link' => '#'],
+                ['category_id' => 5, 'image' => 'public/uploads/' . $slug . '/images/bottom-ad-1.webp', 'link' => '#'],
+                ['category_id' => 6, 'image' => 'public/uploads/' . $slug . '/images/footer-ad-1.jpg', 'link' => '#'],
+                ['category_id' => 8, 'image' => 'public/uploads/' . $slug . '/images/review-1.jpg', 'link' => '#'],
+                ['category_id' => 10, 'image' => 'public/uploads/' . $slug . '/images/home-ad-1.jpg', 'link' => '#'],
+            ];
+            foreach ($bannerData as $b) {
+                DB::table('banners')->insert([
+                    'category_id' => $b['category_id'],
+                    'image'       => $b['image'] ?? ('public/uploads/' . $slug . '/images/default-banner.jpg'),
+                    'link'        => $b['link'] ?? '#',
+                    'status'      => 1,
+                    'created_at'  => now(),
+                    'updated_at'  => now(),
+                ]);
+            }
+        }
+
+        // 7. Blogs
+        foreach ($data['blogs'] ?? [] as $b) {
+            DB::table('blogs')->insert([
+                'title'            => $b['title'],
+                'slug'             => Str::slug($b['title']),
+                'short_description' => $b['short_desc'] ?? '',
+                'description'      => '<p>' . ($b['short_desc'] ?? '') . '</p>',
+                'image'            => $b['image'] ?? ('public/uploads/' . $slug . '/images/blog-default.jpg'),
+                'views'            => $b['views'] ?? 0,
+                'status'           => 1,
+                'created_at'       => now(),
+                'updated_at'       => now(),
+            ]);
+        }
+
+        // 8. Shipping Charges
+        foreach ($data['shipping_charges'] ?? [] as $sc) {
+            DB::table('shipping_charges')->insert([
+                'name'       => $sc['name'],
+                'amount'     => $sc['amount'],
+                'status'     => 1,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+        }
+
+        // Re-enable foreign key checks
+        DB::statement('SET FOREIGN_KEY_CHECKS = 1');
     }
 }

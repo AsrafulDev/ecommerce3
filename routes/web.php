@@ -877,6 +877,10 @@ Route::get('dashboard', [DashboardController::class, 'dashboard'])->name('admin.
     Route::get('demo', [DemoController::class, 'index'])->name('demo.index');
     Route::get('demo/export', [DemoController::class, 'exportDemo'])->name('demo.export');
     Route::post('demo/import', [DemoController::class, 'importDemo'])->name('demo.import');
+    Route::post('demo/import-preset/{slug}', [DemoController::class, 'importPreset'])->name('demo.import-preset');
+    Route::post('demo/import-zip', [DemoController::class, 'importPresetZip'])->name('demo.import-zip');
+    Route::post('demo/reset', [DemoController::class, 'resetSite'])->name('demo.reset');
+    Route::post('demo/clean', [DemoController::class, 'cleanSite'])->name('demo.clean');
     Route::get('demo/delete-preset/{name}', [DemoController::class, 'deletePreset'])->name('demo.delete-preset');
 
     // Error Log (Laravel log viewer)

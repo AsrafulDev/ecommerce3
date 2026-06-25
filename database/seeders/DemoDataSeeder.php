@@ -178,7 +178,7 @@ class DemoDataSeeder extends Seeder
                     'name' => $b,
                     'name_bn' => $b,
                     'slug' => Str::slug($b),
-                    'image' => 'public/demo/brand-' . Str::slug($b) . '.jpg',
+                    'image' => 'public/demo/brands/brand-' . Str::slug($b) . '.jpg',
                     'status' => 1,
                     'created_at' => now(),
                     'updated_at' => now(),

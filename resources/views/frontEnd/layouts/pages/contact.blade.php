@@ -150,7 +150,7 @@
                                         </div>
                                         <div class="sidebar-info-item">
                                             <i data-feather="phone-call"></i>
-                                            <span>{{ $contact->hotline }}</span>
+                                            <span>{{ $contact->hotline ?? '01XXX-XXXXXX' }}</span>
                                         </div>
                                         <div class="sidebar-info-item">
                                             <i data-feather="mail"></i>

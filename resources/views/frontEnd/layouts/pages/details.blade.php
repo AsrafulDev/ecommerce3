@@ -439,16 +439,16 @@ if (typeof ttq !== 'undefined') {
                                                         <div class="mt-md-2 mt-2">
                                                             <h4 class="font-weight-bold">
                                                                 <a class="btn btn-success w-100 call_now_btn"
-                                                                    href="tel: {{ $contact->hotline }}">
+                                                                    href="tel: {{ $contact->hotline ?? '01XXX-XXXXXX' }}">
                                                                     <i class="fa fa-phone-square"></i>
-                                                                    {{ $contact->hotline }}
+                                                                    {{ $contact->hotline ?? '01XXX-XXXXXX' }}
                                                                 </a>
                                                             </h4>
                                                         </div>
                                                        <div class="mt-md-2 mt-2">
                                                         <h4 class="font-weight-bold">
                                                             <a class="btn btn-success w-100 call_now_btn"
-                                                                href="https://api.whatsapp.com/send?phone={{ $contact->whatsapp }}&text=হ্যালো, আমি এই পণ্যটির ব্যাপারে জানতে চাই: {{ urlencode(Request::url()) }}"
+                                                                href="https://api.whatsapp.com/send?phone={{ $contact->whatsapp ?? '8801519607646' }}&text=হ্যালো, আমি এই পণ্যটির ব্যাপারে জানতে চাই: {{ urlencode(Request::url()) }}"
                                                                 target="_blank">
                                                                 <i class="fa fa-whatsapp"></i>
                                                                 এই পণ্যটি সম্পর্কে জিজ্ঞাসা করুন

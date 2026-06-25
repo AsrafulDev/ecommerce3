@@ -474,7 +474,7 @@
                             </div>
                             <div class="col-md-6">
                             <div class="shadow-lg">
-                                <a href="https://wa.me/{{$contact->whatsapp}}" 
+                                <a href="https://wa.me/{{ $contact->whatsapp ?? '8801519607646' }}" 
                                 class="btn btn-success btn-lg d-block py-md-3 fs-2 text-light fw-bolder button-3d button-animated-border">
                                     <i class="fa-brands fa-whatsapp"></i> হোয়াটসঅ্যাপ  
                                     </a>

@@ -495,8 +495,8 @@
             <div class="top_header" style="background-color:var(--secondary-color)">
                     <div class="container d-flex align-items-center">
                         <!-- Hotline button on the left side -->
-                        <a href="tel:{{ $contact->hotline }}" class="text-center bg-light px-2 d-none d-sm-block fw-bold fs-4" style="color:#13027D;min-width:270px;">
-                            <i class="fa-solid fa-headset"></i> {{ $contact->hotline }}
+                        <a href="tel:{{ $contact->hotline ?? '01XXX-XXXXXX' }}" class="text-center bg-light px-2 d-none d-sm-block fw-bold fs-4" style="color:#13027D;min-width:270px;">
+                            <i class="fa-solid fa-headset"></i> {{ $contact->hotline ?? '01XXX-XXXXXX' }}
                         </a>
                         
                         <!-- Marquee headline - CSS animation (marquee deprecated) -->
@@ -679,7 +679,7 @@
                                     <img src="{{ asset($generalsetting->dark_logo ?: 'public/assets/images/CurlBazar.png') }}" alt="" />
                                 </a>
                                 <p>{{ optional($generalsetting)->footer_about_text ?? 'আপনার ব্যবসার ডিজিটাল পার্টনার। আমরা বিশ্বাস করি গুণগত মান এবং গ্রাহক সন্তুষ্টিতে। প্রযুক্তির সাথে এগিয়ে চলুন আমাদের সাথে।' }}</p>
-                                <a href="tel:{{$contact->hotline}}" class="footer-hotlint">{{$contact->hotline}}</a>
+                                <a href="tel:{{ $contact->hotline ?? '01XXX-XXXXXX' }}" class="footer-hotlint">{{ $contact->hotline ?? '01XXX-XXXXXX' }}</a>
                                 
                                 <!-- App Store Buttons -->
                                 <div class="app-badges mt-3">
@@ -1291,10 +1291,10 @@
           <a href="https://m.me/{{$generalsetting->facebook_page_username}}" target="_blank" class="chat-btn messenger" title="Messenger">
       <i class="fab fa-facebook-messenger"></i>
     </a>
-          <a href="https://wa.me/{{ $contact->whatsapp }}" target="_blank" class="chat-btn whatsapp" title="WhatsApp">
+          <a href="https://wa.me/{{ $contact->whatsapp ?? '8801519607646' }}" target="_blank" class="chat-btn whatsapp" title="WhatsApp">
       <i class="fab fa-whatsapp"></i>
     </a>
-    <a href="tel:{{$contact->hotline}}" class="chat-btn hotline" title="Hotline">
+    <a href="tel:{{ $contact->hotline ?? '01XXX-XXXXXX' }}" class="chat-btn hotline" title="Hotline">
       <i class="fas fa-phone"></i>
     </a>
 
