@@ -9,19 +9,34 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('homepage_layout_sections', function (Blueprint $table) {
-            // Drop the wrong unique constraint on layout_id alone
-            $table->dropUnique('homepage_layout_sections_layout_id_unique');
+            // Safely drop old unique on layout_id alone (if exists)
+            $sm = Schema::getConnection()->getDoctrineSchemaManager();
+            $indexes = $sm->listTableIndexes('homepage_layout_sections');
             
-            // Add correct composite unique: one section per layout (no duplicate sections in same layout)
-            $table->unique(['layout_id', 'section_id'], 'homepage_layout_sections_layout_section_unique');
+            if (array_key_exists('homepage_layout_sections_layout_id_unique', $indexes)) {
+                $table->dropUnique('homepage_layout_sections_layout_id_unique');
+            }
+            
+            // Add correct composite unique (if not already exists)
+            if (!array_key_exists('homepage_layout_sections_layout_section_unique', $indexes)) {
+                $table->unique(['layout_id', 'section_id'], 'homepage_layout_sections_layout_section_unique');
+            }
         });
     }
 
     public function down(): void
     {
         Schema::table('homepage_layout_sections', function (Blueprint $table) {
-            $table->dropUnique('homepage_layout_sections_layout_section_unique');
-            $table->unique('layout_id');
+            $sm = Schema::getConnection()->getDoctrineSchemaManager();
+            $indexes = $sm->listTableIndexes('homepage_layout_sections');
+            
+            if (array_key_exists('homepage_layout_sections_layout_section_unique', $indexes)) {
+                $table->dropUnique('homepage_layout_sections_layout_section_unique');
+            }
+            
+            if (!array_key_exists('homepage_layout_sections_layout_id_unique', $indexes)) {
+                $table->unique('layout_id');
+            }
         });
     }
 };
