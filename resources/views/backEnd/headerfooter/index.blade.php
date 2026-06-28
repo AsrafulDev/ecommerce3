@@ -36,15 +36,15 @@
                 <h5 class="mb-0"><i class="mdi mdi-page-layout-header me-2"></i>Header Style</h5>
             </div>
             <div class="card-body">
+                @php $hIcons = ['classic'=>'mdi-page-layout-header','modern'=>'mdi-view-dashboard','minimal'=>'mdi-page-layout-body','centered'=>'mdi-align-horizontal-center','mega'=>'mdi-menu-open','custom'=>'mdi-cog']; @endphp
                 <div class="row g-3">
-                    @foreach($headerStyles as $key => $style)
+                    @foreach($headerStyles as $key => $name)
                     <div class="col-lg-2 col-md-3 col-sm-4 col-6">
                         <label class="style-card {{ ($setting->header_style ?? 'classic') == $key ? 'active' : '' }} d-block" onclick="previewStyle('header','{{ $key }}')">
                             <input type="radio" name="header_style" value="{{ $key }}" {{ ($setting->header_style ?? 'classic') == $key ? 'checked' : '' }} class="d-none">
                             <div class="text-center">
-                                <i class="mdi {{ $style['icon'] }} style-icon"></i>
-                                <h6 class="mt-2 mb-1">{{ $style['name'] }}</h6>
-                                <small class="text-muted">{{ $style['desc'] }}</small>
+                                <i class="mdi {{ $hIcons[$key] ?? 'mdi-page-layout-header' }} style-icon"></i>
+                                <h6 class="mt-2 mb-1">{{ $name }}</h6>
                             </div>
                         </label>
                     </div>
@@ -89,15 +89,15 @@
                 <h5 class="mb-0"><i class="mdi mdi-page-layout-footer me-2"></i>Footer Style</h5>
             </div>
             <div class="card-body">
+                @php $fIcons = ['classic'=>'mdi-page-layout-footer','modern'=>'mdi-view-dashboard','dark'=>'mdi-invert-colors','minimal'=>'mdi-minimize','columns'=>'mdi-view-column','custom'=>'mdi-cog']; @endphp
                 <div class="row g-3">
-                    @foreach($footerStyles as $key => $style)
+                    @foreach($footerStyles as $key => $name)
                     <div class="col-lg-2 col-md-3 col-sm-4 col-6">
                         <label class="style-card {{ ($setting->footer_style ?? 'classic') == $key ? 'active' : '' }} d-block" onclick="previewStyle('footer','{{ $key }}')">
                             <input type="radio" name="footer_style" value="{{ $key }}" {{ ($setting->footer_style ?? 'classic') == $key ? 'checked' : '' }} class="d-none">
                             <div class="text-center">
-                                <i class="mdi {{ $style['icon'] }} style-icon"></i>
-                                <h6 class="mt-2 mb-1">{{ $style['name'] }}</h6>
-                                <small class="text-muted">{{ $style['desc'] }}</small>
+                                <i class="mdi {{ $fIcons[$key] ?? 'mdi-page-layout-footer' }} style-icon"></i>
+                                <h6 class="mt-2 mb-1">{{ $name }}</h6>
                             </div>
                         </label>
                     </div>
