@@ -17,7 +17,7 @@
                     <a href="{{ route('customer.register') }}" class="text-white small text-decoration-none">Register</a>
                 @endguest
                 @auth('customer')
-                    <a href="{{ route('customer.dashboard') }}" class="text-white small text-decoration-none">
+                    <a href="{{ route('customer.account') }}" class="text-white small text-decoration-none">
                         <i class="fa-solid fa-user"></i> My Account
                     </a>
                 @endauth
@@ -55,7 +55,7 @@
                 {{-- Cart & Wishlist --}}
                 <div class="col-lg-5 col-md-3 col-6 text-end">
                     <div class="d-flex justify-content-end align-items-center gap-3">
-                        <a href="{{ route('customer.dashboard') }}" class="text-dark position-relative" title="Account/Wishlist">
+                        <a href="{{ route('customer.account') }}" class="text-dark position-relative" title="Account/Wishlist">
                             <i class="fa-regular fa-heart fs-5"></i>
                         </a>
                         <a href="{{ route('customer.checkout') }}" class="text-dark position-relative" title="Cart">

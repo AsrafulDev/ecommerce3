@@ -10,7 +10,7 @@
                     <a href="{{ $generalsetting->app_store_link ?? '#' }}" target="_blank"><img src="{{ asset('public/assets/images/app.png') }}" alt="App Store" style="height:35px;"></a>
                 </div>
             </div>
-            @foreach([['Shop','shop','hotdeals','flashsales'],['Help','contact','faq','shipping'],['Account','customer.dashboard','orders','customer.dashboard'],['Connect','facebook','instagram','youtube']] as $col)
+            @foreach([['Shop','shop','hotdeals','flashsales'],['Help','contact','faq','shipping'],['Account','customer.account','orders','customer.account'],['Connect','facebook','instagram','youtube']] as $col)
             <div class="col-lg-2 col-md-3 col-6">
                 <h6 class="fw-bold small mb-3">{{ $col[0] }}</h6>
                 <ul class="list-unstyled small text-secondary">
