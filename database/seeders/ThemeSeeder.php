@@ -362,7 +362,10 @@ class ThemeSeeder extends Seeder
             $theme['sidebar_text_color'] = $theme['sidebar_text_color'] ?? '#ffffff';
             $theme['topbar_bg_color'] = $theme['topbar_bg_color'] ?? '#0f172a';
             $theme['admin_card_bg'] = $theme['admin_card_bg'] ?? '#ffffff';
-            Theme::create($theme);
+            Theme::firstOrCreate(
+                ['slug' => $theme['slug']],
+                $theme
+            );
         }
     }
 }
