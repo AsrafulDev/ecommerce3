@@ -36,6 +36,7 @@ use App\Http\Controllers\Admin\CampaignController;
 use App\Http\Controllers\Admin\ThemeController;
 use App\Http\Controllers\Admin\LayoutController;
 use App\Http\Controllers\Admin\DemoController;
+use App\Http\Controllers\Admin\BackupController;
 use App\Http\Controllers\Admin\ErrorLogController;
 use App\Http\Controllers\Admin\ReviewController;
 use App\Http\Controllers\Admin\CustomerManageController;
@@ -883,6 +884,24 @@ Route::get('dashboard', [DashboardController::class, 'dashboard'])->name('admin.
     Route::post('demo/reset', [DemoController::class, 'resetSite'])->name('demo.reset');
     Route::post('demo/clean', [DemoController::class, 'cleanSite'])->name('demo.clean');
     Route::get('demo/delete-preset/{name}', [DemoController::class, 'deletePreset'])->name('demo.delete-preset');
+
+    // Backup & Restore
+    Route::get('backup', [BackupController::class, 'index'])->name('backup.index');
+    Route::post('backup/create', [BackupController::class, 'createBackup'])->name('backup.create');
+    Route::get('backup/download', [BackupController::class, 'downloadBackup'])->name('backup.download');
+    Route::post('backup/restore', [BackupController::class, 'restoreBackup'])->name('backup.restore');
+    Route::get('backup/delete/{filename}', [BackupController::class, 'deleteBackup'])->name('backup.delete');
+
+    // Theme Export/Import
+    Route::get('theme/export', [BackupController::class, 'exportTheme'])->name('theme.export');
+    Route::post('theme/import', [BackupController::class, 'importTheme'])->name('theme.import');
+
+    // Layout Export/Import
+    Route::post('layout/export', [BackupController::class, 'exportLayout'])->name('layout.export');
+    Route::post('layout/import', [BackupController::class, 'importLayout'])->name('layout.import');
+
+    // Preset Download
+    Route::get('preset/download/{slug}', [BackupController::class, 'downloadPreset'])->name('preset.download');
 
     // Error Log (Laravel log viewer)
     Route::get('error-log', [ErrorLogController::class,'index'])->name('error-log.index');
