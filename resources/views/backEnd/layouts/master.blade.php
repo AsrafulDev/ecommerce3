@@ -681,6 +681,7 @@
       @canany(['layout-list', 'layout-create'])
       <li><a href="{{ route('layouts.index') }}"><i data-feather="file-plus"></i> Layout Builder</a></li>
       @endcanany
+      <li><a href="{{ route('headerfooter.index') }}"><i data-feather="layout"></i> Header & Footer</a></li>
       <li><a href="{{ route('demo.index') }}"><i data-feather="upload"></i> Demo Import/Export</a></li>
     </ul>
   </div>
