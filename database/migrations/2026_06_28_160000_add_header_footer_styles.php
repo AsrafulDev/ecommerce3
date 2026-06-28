@@ -16,6 +16,8 @@ return new class extends Migration
             'header_top_bar' => "ALTER TABLE general_settings ADD header_top_bar TINYINT DEFAULT 1",
             'header_sticky' => "ALTER TABLE general_settings ADD header_sticky TINYINT DEFAULT 1",
             'footer_columns' => "ALTER TABLE general_settings ADD footer_columns INT DEFAULT 4",
+            'header_components' => "ALTER TABLE general_settings ADD header_components JSON NULL",
+            'footer_components' => "ALTER TABLE general_settings ADD footer_components JSON NULL",
         ];
 
         foreach ($cols as $col => $sql) {

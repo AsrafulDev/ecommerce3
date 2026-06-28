@@ -5,29 +5,52 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\GeneralSetting;
+use Illuminate\Support\Facades\Cache;
 use Toastr;
 
 class HeaderFooterController extends Controller
 {
+    // Component definitions
+    public static function headerComponents() {
+        return [
+            'topbar' => ['name' => 'Top Bar', 'icon' => 'mdi-page-layout-header'],
+            'logo'   => ['name' => 'Logo Area', 'icon' => 'mdi-image'],
+            'search' => ['name' => 'Search Bar', 'icon' => 'mdi-magnify'],
+            'nav'    => ['name' => 'Navigation Menu', 'icon' => 'mdi-menu'],
+            'cart'   => ['name' => 'Cart & Icons', 'icon' => 'mdi-cart'],
+        ];
+    }
+    public static function footerComponents() {
+        return [
+            'about'      => ['name' => 'About Section', 'icon' => 'mdi-information'],
+            'links'      => ['name' => 'Quick Links', 'icon' => 'mdi-link-variant'],
+            'support'    => ['name' => 'Support Links', 'icon' => 'mdi-headset'],
+            'newsletter' => ['name' => 'Newsletter', 'icon' => 'mdi-email'],
+            'social'     => ['name' => 'Social Icons', 'icon' => 'mdi-share-variant'],
+            'copyright'  => ['name' => 'Copyright Bar', 'icon' => 'mdi-copyright'],
+        ];
+    }
     public function index()
     {
         $setting = GeneralSetting::first();
-        $headerStyles = [
-            'classic'  => ['name' => 'Classic', 'desc' => 'Traditional top bar + nav with search', 'icon' => 'mdi-page-layout-header'],
-            'modern'   => ['name' => 'Modern', 'desc' => 'Clean search-focused with rounded elements', 'icon' => 'mdi-page-layout-header-footer'],
-            'minimal'  => ['name' => 'Minimal', 'desc' => 'Simple logo + nav, minimal chrome', 'icon' => 'mdi-page-layout-body'],
-            'centered' => ['name' => 'Centered', 'desc' => 'Logo centered, nav below', 'icon' => 'mdi-align-horizontal-center'],
-            'mega'     => ['name' => 'Mega Menu', 'desc' => 'Dark nav with category mega dropdown', 'icon' => 'mdi-menu-open'],
-        ];
-        $footerStyles = [
-            'classic'  => ['name' => 'Classic', 'desc' => '4-column dark footer with social icons', 'icon' => 'mdi-page-layout-footer'],
-            'modern'   => ['name' => 'Modern', 'desc' => 'Light footer with organized link columns', 'icon' => 'mdi-view-dashboard'],
-            'dark'     => ['name' => 'Dark', 'desc' => 'Full-width dark footer with newsletter', 'icon' => 'mdi-invert-colors'],
-            'minimal'  => ['name' => 'Minimal', 'desc' => 'Simple centered text with privacy links', 'icon' => 'mdi-minimize'],
-            'columns'  => ['name' => 'Columns', 'desc' => '5-column layout with app store badges', 'icon' => 'mdi-view-column'],
-        ];
+        $hComps = self::headerComponents();
+        $fComps = self::footerComponents();
+        
+        $defaultH = ['topbar','logo','search','nav','cart'];
+        $defaultF = ['about','links','support','newsletter','social','copyright'];
+        
+        $activeHeader = json_decode($setting->header_components ?? '', true) ?: $defaultH;
+        $activeFooter = json_decode($setting->footer_components ?? '', true) ?: $defaultF;
+        
+        $availableHeader = array_values(array_diff(array_keys($hComps), $activeHeader));
+        $availableFooter = array_values(array_diff(array_keys($fComps), $activeFooter));
 
-        return view('backEnd.headerfooter.index', compact('setting', 'headerStyles', 'footerStyles'));
+        $headerStyles = ['classic'=>'Classic','modern'=>'Modern','minimal'=>'Minimal','centered'=>'Centered','mega'=>'Mega Menu','custom'=>'Custom'];
+        $footerStyles = ['classic'=>'Classic','modern'=>'Modern','dark'=>'Dark','minimal'=>'Minimal','columns'=>'Columns','custom'=>'Custom'];
+
+        return view('backEnd.headerfooter.index', compact(
+            'setting','activeHeader','activeFooter','availableHeader','availableFooter','headerStyles','footerStyles','hComps','fComps'
+        ));
     }
 
     public function update(Request $request)
@@ -49,30 +72,104 @@ class HeaderFooterController extends Controller
     }
 
     /**
-     * AJAX: Preview a header/footer style in iframe
-     */
+    public function update(Request $request)
+    {
+        $setting = GeneralSetting::first();
+        if (!$setting) {
+            Toastr::error('Settings not found!', 'Error');
+            return redirect()->back();
+        }
+        $setting->header_style = $request->header_style ?? 'custom';
+        $setting->footer_style = $request->footer_style ?? 'custom';
+        $setting->header_top_bar = $request->boolean('header_top_bar');
+        $setting->header_sticky = $request->boolean('header_sticky');
+        $setting->header_components = $request->header_components;
+        $setting->footer_components = $request->footer_components;
+        $setting->save();
+        Cache::forget('frontend_homepage_v1');
+        Toastr::success('Header & Footer saved!', 'Success');
+        return redirect()->back();
+    }
+
+    /** AJAX: Add component */
+    public function addComponent(Request $request)
+    {
+        $type = $request->type; $comp = $request->component;
+        $all = $type === 'header' ? self::headerComponents() : self::footerComponents();
+        if (!isset($all[$comp])) return response()->json(['error'=>'Invalid'],400);
+        $setting = GeneralSetting::first();
+        $col = $type . '_components';
+        $current = json_decode($setting->$col ?? '[]', true) ?: [];
+        if (!in_array($comp, $current)) { $current[] = $comp; }
+        $setting->$col = json_encode($current); $setting->save();
+        return response()->json(['success'=>true, 'components'=>$current]);
+    }
+
+    /** AJAX: Remove component */
+    public function removeComponent(Request $request)
+    {
+        $type = $request->type; $comp = $request->component;
+        $setting = GeneralSetting::first();
+        $col = $type . '_components';
+        $current = json_decode($setting->$col ?? '[]', true) ?: [];
+        $current = array_values(array_diff($current, [$comp]));
+        $setting->$col = json_encode($current); $setting->save();
+        return response()->json(['success'=>true, 'components'=>$current]);
+    }
+
+    /** AJAX: Reorder components */
+    public function reorderComponents(Request $request)
+    {
+        $type = $request->type; $order = $request->order;
+        $setting = GeneralSetting::first();
+        $col = $type . '_components';
+        $setting->$col = json_encode($order); $setting->save();
+        return response()->json(['success'=>true]);
+    }
+
+    /** AJAX: Preview header/footer */
     public function preview(Request $request)
     {
-        $type = $request->type; // 'header' or 'footer'
-        $style = $request->style;
-
-        $validStyles = ['classic','modern','minimal','centered','mega'];
-        if (!in_array($style, $validStyles)) {
-            return response()->json(['error' => 'Invalid style'], 400);
-        }
-
+        $type = $request->type; $style = $request->style ?? null;
         $setting = GeneralSetting::first();
         $contact = \App\Models\Contact::first();
         $menucategories = \App\Models\Category::where('status',1)->where('parent_id',0)
             ->with(['subcategories.childcategories'])->get();
         $socials = \App\Models\SocialMedia::where('status',1)->get();
+        $brands = \App\Models\Brand::where('status',1)->limit(12)->get();
 
-        if ($type === 'header') {
-            $html = view('frontEnd.layouts.headers.' . $style, compact('setting', 'contact', 'menucategories', 'socials'))->render();
+        // Preset style
+        $validStyles = ['classic','modern','minimal','centered','mega'];
+        if ($style && in_array($style, $validStyles)) {
+            $view = 'frontEnd.layouts.headers.' . $style;
+        } elseif ($style && in_array($style, ['classic','modern','dark','minimal','columns'])) {
+            $view = 'frontEnd.layouts.footers.' . $style;
         } else {
-            $html = view('frontEnd.layouts.footers.' . $style, compact('setting', 'contact', 'menucategories', 'socials'))->render();
+            $view = null;
+        }
+        if ($view && view()->exists($view)) {
+            return response()->json(['html' => view($view, compact('setting','contact','menucategories','socials','brands'))->render()]);
         }
 
+        // Custom components
+        $col = $type . '_components';
+        $components = json_decode($setting->$col ?? '[]', true) ?: [];
+        $allComponents = $type === 'header' ? self::headerComponents() : self::footerComponents();
+        $html = '<div style="font-family:sans-serif;">';
+        foreach ($components as $comp) {
+            if (isset($allComponents[$comp])) {
+                $view = 'frontEnd.layouts.' . $type . 's.parts.' . $comp;
+                if (view()->exists($view)) {
+                    $html .= view($view, compact('setting','contact','menucategories','socials','brands'))->render();
+                } else {
+                    $html .= '<div style="padding:8px;border:1px dashed #ccc;margin:4px;border-radius:4px;">'
+                          . '<strong>' . $allComponents[$comp]['name'] . '</strong>'
+                          . '<br><small class="text-muted">Create: resources/views/frontEnd/layouts/' . $type . 's/parts/' . $comp . '.blade.php</small>'
+                          . '</div>';
+                }
+            }
+        }
+        $html .= '</div>';
         return response()->json(['html' => $html]);
     }
 }
