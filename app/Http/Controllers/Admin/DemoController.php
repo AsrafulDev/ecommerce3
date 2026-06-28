@@ -660,6 +660,7 @@ class DemoController extends Controller
 
         // 4. Brands
         $brandMap = [];
+        $hasNameBn = \Illuminate\Support\Facades\Schema::hasColumn('brands', 'name_bn');
         foreach ($data['brands'] ?? [] as $b) {
             // Support both string names and objects with 'name' key
             $brandName = is_string($b) ? $b : ($b['name'] ?? 'Brand');
@@ -669,15 +670,18 @@ class DemoController extends Controller
             }
             $normalizePath($brandImage);
             $brandSlug = Str::slug($brandName);
-            $id = DB::table('brands')->insertGetId([
+            $brandRow = [
                 'name'       => $brandName,
-                'name_bn'    => $brandName,
                 'slug'       => $brandSlug,
                 'image'      => $brandImage,
                 'status'     => 1,
                 'created_at' => now(),
                 'updated_at' => now(),
-            ]);
+            ];
+            if ($hasNameBn) {
+                $brandRow['name_bn'] = $brandName;
+            }
+            $id = DB::table('brands')->insertGetId($brandRow);
             $brandMap[$brandName] = $id;
         }
 
