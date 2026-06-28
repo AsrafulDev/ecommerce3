@@ -37,6 +37,7 @@ use App\Http\Controllers\Admin\ThemeController;
 use App\Http\Controllers\Admin\LayoutController;
 use App\Http\Controllers\Admin\DemoController;
 use App\Http\Controllers\Admin\BackupController;
+use App\Http\Controllers\Admin\HeaderFooterController;
 use App\Http\Controllers\Admin\ErrorLogController;
 use App\Http\Controllers\Admin\ReviewController;
 use App\Http\Controllers\Admin\CustomerManageController;
@@ -904,6 +905,11 @@ Route::get('dashboard', [DashboardController::class, 'dashboard'])->name('admin.
     Route::get('preset/download/{slug}', [BackupController::class, 'downloadPreset'])->name('preset.download');
     Route::get('preset/theme/{slug}', [BackupController::class, 'restorePresetTheme'])->name('preset.restore-theme');
     Route::get('preset/layout/{slug}', [BackupController::class, 'restorePresetLayout'])->name('preset.restore-layout');
+
+    // Header & Footer Builder
+    Route::get('headerfooter', [HeaderFooterController::class, 'index'])->name('headerfooter.index');
+    Route::post('headerfooter/update', [HeaderFooterController::class, 'update'])->name('headerfooter.update');
+    Route::post('headerfooter/preview', [HeaderFooterController::class, 'preview'])->name('headerfooter.preview');
 
     // Error Log (Laravel log viewer)
     Route::get('error-log', [ErrorLogController::class,'index'])->name('error-log.index');
