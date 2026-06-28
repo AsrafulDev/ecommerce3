@@ -55,7 +55,7 @@
                 {{-- Cart & Wishlist --}}
                 <div class="col-lg-5 col-md-3 col-6 text-end">
                     <div class="d-flex justify-content-end align-items-center gap-3">
-                        <a href="{{ route('customer.wishlist') }}" class="text-dark position-relative" title="Wishlist">
+                        <a href="{{ route('customer.dashboard') }}" class="text-dark position-relative" title="Account/Wishlist">
                             <i class="fa-regular fa-heart fs-5"></i>
                         </a>
                         <a href="{{ route('customer.checkout') }}" class="text-dark position-relative" title="Cart">
