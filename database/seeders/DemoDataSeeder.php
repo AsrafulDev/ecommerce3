@@ -173,16 +173,20 @@ class DemoDataSeeder extends Seeder
             $brands = ['Samsung', 'Apple', 'Sony', 'LG', 'HP', 'Dell', 'Nike', 'Adidas', 'Zara', 'H&M',
                        'Canon', 'Nikon', 'Bosch', 'Puma', 'LEGO', 'Fisher-Price', 'Toyota', 'Honda',
                        'L\'Oreal', 'Maybelline', 'Dove', 'Yamaha', 'Garmin'];
+            $hasNameBn = Schema::hasColumn('brands', 'name_bn');
             foreach ($brands as $b) {
-                DB::table('brands')->insert([
+                $brandRow = [
                     'name' => $b,
-                    'name_bn' => $b,
                     'slug' => Str::slug($b),
                     'image' => 'public/demo/brands/brand-' . Str::slug($b) . '.jpg',
                     'status' => 1,
                     'created_at' => now(),
                     'updated_at' => now(),
-                ]);
+                ];
+                if ($hasNameBn) {
+                    $brandRow['name_bn'] = $b;
+                }
+                DB::table('brands')->insert($brandRow);
             }
             $this->command->info('- Brands created (' . count($brands) . ' total)');
         }
