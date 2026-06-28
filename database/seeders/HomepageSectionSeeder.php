@@ -15,13 +15,29 @@ class HomepageSectionSeeder extends Seeder
     {
         $sections = [
             [
-                'name' => 'Main Slider',
-                'slug' => 'main-slider',
-                'description' => 'Hero/banner carousel for the homepage top.',
-                'icon' => 'mdi mdi-image-multiple',
+                'name' => 'Full-Width Hero Slider',
+                'slug' => 'fullwidth-slider',
+                'description' => 'Full container-width hero slider with fade transitions and dot navigation.',
+                'icon' => 'mdi-panorama-wide',
                 'is_system' => true, 'is_active' => true,
                 'default_columns' => 'col-sm-12', 'default_order' => 1,
+            ],
+            [
+                'name' => 'Main Slider',
+                'slug' => 'main-slider',
+                'description' => 'Hero/banner carousel with left sidebar categories.',
+                'icon' => 'mdi mdi-image-multiple',
+                'is_system' => true, 'is_active' => true,
+                'default_columns' => 'col-sm-12', 'default_order' => 2,
                 'settings_schema' => json_encode(['autoplay' => true, 'autoplay_speed' => 3000, 'slider_count' => 5]),
+            ],
+            [
+                'name' => 'Hero Slider',
+                'slug' => 'hero-slider',
+                'description' => 'Simple container-width hero slider with rounded corners.',
+                'icon' => 'mdi-image-multiple',
+                'is_system' => true, 'is_active' => true,
+                'default_columns' => 'col-sm-12', 'default_order' => 3,
             ],
             [
                 'name' => 'Sidebar Categories',
@@ -269,7 +285,11 @@ class HomepageSectionSeeder extends Seeder
         ];
 
         foreach ($sections as $section) {
-            HomepageSection::create($section);
+            HomepageSection::firstOrCreate(
+                ['slug' => $section['slug']],
+                $section
+            );
         }
+        $this->command->info('Homepage sections seeded: ' . count($sections) . ' total.');
     }
 }
