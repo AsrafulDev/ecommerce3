@@ -130,7 +130,7 @@
     </form>
 </div>
 
-@push('script')
+@section('script')
 <script>
     function previewStyle(type, style) {
         var container = document.getElementById(type + '-preview');
@@ -166,5 +166,5 @@
         if (fStyle) previewStyle('footer', fStyle.value);
     });
 </script>
-@endpush
+@endsection
 @endsection
