@@ -14,7 +14,7 @@
 <meta property="og:title" content="{{ $seo->meta_title ?? '' }}" />
 <meta property="og:type" content="website" />
 <meta property="og:url" content="{{ url()->current() }}" />
-<meta property="og:image" content="{{ asset($generalsetting->og_baner ?? 'public/assets/images/CurlBazar.png') }}" />
+<meta property="og:image" content="{{ asset($generalsetting->og_baner ?? 'public/assets/images/CurlBazar.svg') }}" />
 <meta property="og:description" content="{{ $seo->meta_description ?? '' }}" />
 
 @if(!empty($seo->search_console_verification))
@@ -47,6 +47,7 @@
     @endforeach
 @else
     {{-- Fallback: default section order (no layout selected) --}}
+    @include('frontEnd.layouts.sections.fullwidth-slider')
     @include('frontEnd.layouts.sections.main-slider')
     @include('frontEnd.layouts.sections.top-categories')
     @includeIf('frontEnd.layouts.sections.flash-sales')
@@ -68,7 +69,27 @@
 
 <script>
     $(document).ready(function() {
-        $(".main_slider").owlCarousel({
+        // Full-Width Slider
+        $(".fullwidth-slider").owlCarousel({
+            items: 1,
+            loop: true,
+            dots: true,
+            autoplay: true,
+            nav: true,
+            autoplayHoverPause: true,
+            margin: 0,
+            mouseDrag: true,
+            smartSpeed: 800,
+            autoplayTimeout: 4000,
+            animateOut: "fadeOut",
+            animateIn: "fadeIn",
+            navText: ["<i class='fa-solid fa-angle-left'></i>",
+                "<i class='fa-solid fa-angle-right'></i>"
+            ],
+        });
+
+        // Left Category Hero Slider
+        $(".hero-slider").owlCarousel({
             items: 1,
             loop: true,
             dots: false,
@@ -77,11 +98,29 @@
             autoplayHoverPause: true,
             margin: 0,
             mouseDrag: true,
-            smartSpeed: 8000,
-            autoplayTimeout: 3000,
+            smartSpeed: 800,
+            autoplayTimeout: 3500,
             animateOut: "fadeOutRight",
             animateIn: "slideInLeft",
+            navText: ["<i class='fa-solid fa-angle-left'></i>",
+                "<i class='fa-solid fa-angle-right'></i>"
+            ],
+        });
 
+        // Hero Slider (Inner Container)
+        $(".hero-inner-slider").owlCarousel({
+            items: 1,
+            loop: true,
+            dots: false,
+            autoplay: true,
+            nav: true,
+            autoplayHoverPause: true,
+            margin: 0,
+            mouseDrag: true,
+            smartSpeed: 800,
+            autoplayTimeout: 3500,
+            animateOut: "fadeOut",
+            animateIn: "fadeIn",
             navText: ["<i class='fa-solid fa-angle-left'></i>",
                 "<i class='fa-solid fa-angle-right'></i>"
             ],

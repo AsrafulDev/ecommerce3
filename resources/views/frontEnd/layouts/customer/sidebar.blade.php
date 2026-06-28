@@ -15,7 +15,7 @@
             $logo = $gs->dark_logo;
         }
     }
-    if(!$logo) $logo = 'public/assets/images/CurlBazar.png';
+    if(!$logo) $logo = 'public/assets/images/CurlBazar.svg';
 @endphp
 
 <aside id="sidebar" class="fixed inset-y-0 left-0 z-40 w-64 bg-white border-r transform -translate-x-full lg:translate-x-0 lg:static lg:inset-auto lg:flex flex-col shrink-0 h-screen transition-transform duration-300">

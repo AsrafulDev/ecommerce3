@@ -78,11 +78,11 @@
 
                 {{-- Blog Image --}}
                 @if($blog->image)
-                    <img src="{{ url('public/'.$blog->image) }}"
+                    <img src="{{ asset($blog->image) }}"
                          class="img-fluid mb-4"
                          alt="{{ $blog->title }}">
                 @else
-                    <img src="{{ url('public/no-image.png') }}"
+                    <img src="{{ asset('public/backEnd/assets/images/image-placeholder.png') }}"
                          class="img-fluid mb-4"
                          alt="No Image">
                 @endif
@@ -112,10 +112,10 @@
                                 {{-- Sidebar Image --}}
                                 <div class="me-2">
                                     @if($rblog->image)
-                                        <img src="{{ url('public/'.$rblog->image) }}"
+                                        <img src="{{ asset($rblog->image) }}"
                                              alt="{{ $rblog->title }}">
                                     @else
-                                        <img src="{{ url('public/no-image.png') }}"
+                                        <img src="{{ asset('public/backEnd/assets/images/image-placeholder.png') }}"
                                              alt="No Image">
                                     @endif
                                 </div>

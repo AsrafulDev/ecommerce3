@@ -319,50 +319,32 @@ class DemoController extends Controller
         $slug = preg_replace('/[^a-z0-9-]/', '', strtolower(str_replace(' ', '-', $slug)));
 
         try {
-            $publicPresetDir = public_path("uploads/{$slug}");
-            $publicImagesDir = $publicPresetDir . '/images';
+            // ── Copy all images flat → public/uploads/images/ ──
+            $publicImagesDir = public_path('uploads/images');
             if (!is_dir($publicImagesDir)) mkdir($publicImagesDir, 0755, true);
-            copy($jsonPath, $publicPresetDir . '/data.json');
+
+            // Save data.json alongside images (reference)
+            copy($jsonPath, $publicImagesDir . '/data.json');
 
             $copyCount = 0;
             $zipImageDir = $tempDir . '/images';
             if (is_dir($zipImageDir)) {
                 $iterator = new \RecursiveIteratorIterator(
                     new \RecursiveDirectoryIterator($zipImageDir, \RecursiveDirectoryIterator::SKIP_DOTS),
-                    \RecursiveIteratorIterator::SELF_FIRST
+                    \RecursiveIteratorIterator::LEAVES_ONLY
                 );
                 foreach ($iterator as $item) {
-                    $relativePath = \Illuminate\Support\Str::after($item->getPathname(), $zipImageDir . '/');
-                    $destPath = $publicImagesDir . '/' . $relativePath;
-                    if ($item->isDir()) {
-                        if (!is_dir($destPath)) mkdir($destPath, 0755, true);
-                    } elseif ($item->isFile()) {
-                        $parentDir = dirname($destPath);
-                        if (!is_dir($parentDir)) mkdir($parentDir, 0755, true);
-                        copy($item->getPathname(), $destPath);
-                        $copyCount++;
+                    $dest = $publicImagesDir . '/' . $item->getFilename();
+                    // avoid overwriting — append timestamp if conflict
+                    if (file_exists($dest)) {
+                        $dest = $publicImagesDir . '/' . time() . '-' . $item->getFilename();
                     }
+                    copy($item->getPathname(), $dest);
+                    $copyCount++;
                 }
             }
 
-            $basePrefix = 'public/uploads/' . $slug . '/';
-            $fixImagePath = function (&$path) use ($basePrefix) {
-                if (empty($path)) return;
-                if (preg_match('#^(images|assets)/#', $path)) {
-                    $path = $basePrefix . $path;
-                }
-            };
-
-            foreach ($data['categories'] ?? [] as &$c) { if (!empty($c['image'])) $fixImagePath($c['image']); } unset($c);
-            foreach ($data['products'] ?? [] as &$p) {
-                if (!empty($p['image'])) $fixImagePath($p['image']);
-                if (!empty($p['gallery_images'])) {
-                    foreach ($p['gallery_images'] as &$gi) { if (!empty($gi)) $fixImagePath($gi); } unset($gi);
-                }
-            } unset($p);
-            foreach ($data['banners'] ?? [] as &$b) { if (!empty($b['image'])) $fixImagePath($b['image']); } unset($b);
-            foreach ($data['blogs'] ?? [] as &$b) { if (!empty($b['image'])) $fixImagePath($b['image']); } unset($b);
-
+            // ── Seed data ──
             self::seedPresetData($data, $slug);
             \Illuminate\Support\Facades\Cache::flush();
 
@@ -404,77 +386,34 @@ class DemoController extends Controller
         }
 
         try {
-            // ── Copy the entire preset folder to public/uploads/{slug}/ ──
-            // Preserves subdirectory structure (e.g. assets/category/, assets/product/sub/)
-            // Works with: images/*, assets/*, or any prefix used in data.json
+            // ── Copy all images flat → public/uploads/images/ ──
             $presetDir = storage_path("app/demo-presets/{$slug}");
-            $publicPresetDir = public_path("uploads/{$slug}");
-            $publicImagesDir = $publicPresetDir . '/images';
+            $publicImagesDir = public_path('uploads/images');
+            if (!is_dir($publicImagesDir)) mkdir($publicImagesDir, 0755, true);
 
-            // Copy data.json
+            // Save data.json alongside images (reference)
             $presetJson = $presetDir . '/data.json';
             if (file_exists($presetJson)) {
-                if (!is_dir($publicPresetDir)) mkdir($publicPresetDir, 0755, true);
-                copy($presetJson, $publicPresetDir . '/data.json');
+                copy($presetJson, $publicImagesDir . '/data.json');
             }
 
-            // Recursively copy the entire images/ folder (preserving subdirectory structure)
+            // Flatten-copy all images (no subdirectory nesting)
             $copyCount = 0;
             $presetImageDir = $presetDir . '/images';
             if (is_dir($presetImageDir)) {
                 $iterator = new \RecursiveIteratorIterator(
                     new \RecursiveDirectoryIterator($presetImageDir, \RecursiveDirectoryIterator::SKIP_DOTS),
-                    \RecursiveIteratorIterator::SELF_FIRST
+                    \RecursiveIteratorIterator::LEAVES_ONLY
                 );
                 foreach ($iterator as $item) {
-                    $relativePath = \Illuminate\Support\Str::after($item->getPathname(), $presetImageDir . '/');
-                    $destPath = $publicImagesDir . '/' . $relativePath;
-                    if ($item->isDir()) {
-                        if (!is_dir($destPath)) mkdir($destPath, 0755, true);
-                    } elseif ($item->isFile()) {
-                        $parentDir = dirname($destPath);
-                        if (!is_dir($parentDir)) mkdir($parentDir, 0755, true);
-                        copy($item->getPathname(), $destPath);
-                        $copyCount++;
+                    $dest = $publicImagesDir . '/' . $item->getFilename();
+                    if (file_exists($dest)) {
+                        $dest = $publicImagesDir . '/' . time() . '-' . $item->getFilename();
                     }
+                    copy($item->getPathname(), $dest);
+                    $copyCount++;
                 }
             }
-
-            // Helper: replace any leading prefix (images/, assets/, etc.)
-            // with public/uploads/{slug}/ — preserves whatever subdirectory nesting follows
-            $basePrefix = 'public/uploads/' . $slug . '/';
-            $fixImagePath = function (&$path) use ($basePrefix) {
-                if (empty($path)) return;
-                // If it starts with images/ or assets/ (or any single-word dir followed by /),
-                // replace that leading directory with the base public path
-                if (preg_match('#^(images|assets)/#', $path)) {
-                    $path = $basePrefix . $path;
-                }
-            };
-
-            // Apply fix to all image fields
-            foreach ($data['categories'] ?? [] as &$c) {
-                if (!empty($c['image'])) $fixImagePath($c['image']);
-            }
-            unset($c);
-            foreach ($data['products'] ?? [] as &$p) {
-                if (!empty($p['image'])) $fixImagePath($p['image']);
-                if (!empty($p['gallery_images'])) {
-                    foreach ($p['gallery_images'] as &$gi) {
-                        if (!empty($gi)) $fixImagePath($gi);
-                    }
-                    unset($gi);
-                }
-            }
-            unset($p);
-            foreach ($data['banners'] ?? [] as &$b) {
-                if (!empty($b['image'])) $fixImagePath($b['image']);
-            }
-            unset($b);
-            foreach ($data['blogs'] ?? [] as &$b) {
-                if (!empty($b['image'])) $fixImagePath($b['image']);
-            }
-            unset($b);
 
             // ── Seed data ──
             self::seedPresetData($data, $slug);
@@ -563,6 +502,7 @@ class DemoController extends Controller
             'category', 'brand', 'product', 'banner', 'campaign',
             'blogs', 'subcategory', 'settings', 'popup', 'customer',
             'user', 'users', 'vendor', 'demo', 'reseller', 'videos',
+            'images',
         ];
 
         // Also clean preset folders (gadget-fashion-grocery, electronics, etc.)
@@ -642,8 +582,8 @@ class DemoController extends Controller
     }
 
     /**
-     * Seed preset data into the database
-     * Image paths should already be fixed to public/uploads/{slug}/... by importPreset()
+     * Seed preset data into the database.
+     * All image paths are normalised to public/uploads/images/{basename} here.
      */
     private static function seedPresetData(array $data, string $slug = 'default'): void
     {
@@ -662,6 +602,18 @@ class DemoController extends Controller
             }
         }
 
+        // ── Image path normaliser ──────────────────────────────────
+        // Every image path is stored as: public/uploads/images/{basename}
+        // No matter what format the JSON uses — we just pull the filename.
+        $imgBase = 'public/uploads/images/';
+        $normalizePath = static function (?string &$path) use ($imgBase): void {
+            if (empty($path)) return;
+            // Already in our flat format — skip
+            if (str_starts_with($path, $imgBase)) return;
+            // Just use the basename
+            $path = $imgBase . basename($path);
+        };
+
         // 1. General Settings
         $gs = $data['general_settings'] ?? [];
         $setting = GeneralSetting::first();
@@ -677,11 +629,13 @@ class DemoController extends Controller
         // 2. Categories
         $catMap = [];
         foreach ($data['categories'] ?? [] as $c) {
+            $catImage = $c['image'] ?? 'public/uploads/images/_placeholder.jpg';
+            $normalizePath($catImage);
             $id = DB::table('categories')->insertGetId([
                 'name'       => $c['name'],
                 'slug'       => $c['slug'],
                 'parent_id'  => $c['parent_id'] ?? 0,
-                'image'      => $c['image'] ?? 'public/uploads/category/default.png',
+                'image'      => $catImage,
                 'status'     => 1,
                 'created_at' => now(),
                 'updated_at' => now(),
@@ -710,12 +664,16 @@ class DemoController extends Controller
             // Support both string names and objects with 'name' key
             $brandName = is_string($b) ? $b : ($b['name'] ?? 'Brand');
             $brandImage = is_array($b) ? ($b['image'] ?? null) : null;
+            if (empty($brandImage)) {
+                $brandImage = 'public/uploads/images/_placeholder.jpg';
+            }
+            $normalizePath($brandImage);
             $brandSlug = Str::slug($brandName);
             $id = DB::table('brands')->insertGetId([
                 'name'       => $brandName,
                 'name_bn'    => $brandName,
                 'slug'       => $brandSlug,
-                'image'      => $brandImage ?? ('public/uploads/' . $slug . '/images/brands/brand-' . $brandSlug . '.jpg'),
+                'image'      => $brandImage,
                 'status'     => 1,
                 'created_at' => now(),
                 'updated_at' => now(),
@@ -727,7 +685,8 @@ class DemoController extends Controller
         foreach ($data['products'] ?? [] as $i => $p) {
             $catId = $catMap[$p['cat']] ?? 1;
             $brandId = $brandMap[$p['brand']] ?? 1;
-            $productImage = $p['image'] ?? ('public/uploads/' . $slug . '/images/product-' . ($i + 1) . '.jpg');
+            $productImage = $p['image'] ?? ('public/uploads/images/product-' . ($i + 1) . '.jpg');
+            $normalizePath($productImage);
             $pid = DB::table('products')->insertGetId([
                 'name'           => $p['name'],
                 'slug'           => Str::slug($p['name']) . '-' . ($i + 1),
@@ -754,9 +713,11 @@ class DemoController extends Controller
                 $galleryImages = [$productImage];
             }
             foreach ($galleryImages as $gi) {
+                $img = $gi;
+                $normalizePath($img);
                 DB::table('productimages')->insert([
                     'product_id' => $pid,
-                    'image'      => $gi,
+                    'image'      => $img,
                     'created_at' => now(),
                     'updated_at' => now(),
                 ]);
@@ -781,17 +742,19 @@ class DemoController extends Controller
         if (DB::table('banners')->count() == 0) {
             // Try to use banners from preset data, otherwise fallback to defaults
             $bannerData = $data['banners'] ?? [
-                ['category_id' => 1, 'image' => 'public/uploads/' . $slug . '/images/slider-1.webp', 'link' => '#'],
-                ['category_id' => 1, 'image' => 'public/uploads/' . $slug . '/images/slider-2.webp', 'link' => '#'],
-                ['category_id' => 5, 'image' => 'public/uploads/' . $slug . '/images/bottom-ad-1.webp', 'link' => '#'],
-                ['category_id' => 6, 'image' => 'public/uploads/' . $slug . '/images/footer-ad-1.jpg', 'link' => '#'],
-                ['category_id' => 8, 'image' => 'public/uploads/' . $slug . '/images/review-1.jpg', 'link' => '#'],
-                ['category_id' => 10, 'image' => 'public/uploads/' . $slug . '/images/home-ad-1.jpg', 'link' => '#'],
+                ['category_id' => 1, 'image' => 'public/uploads/images/_placeholder.jpg', 'link' => '#'],
+                ['category_id' => 1, 'image' => 'public/uploads/images/_placeholder.jpg', 'link' => '#'],
+                ['category_id' => 5, 'image' => 'public/uploads/images/_placeholder.jpg', 'link' => '#'],
+                ['category_id' => 6, 'image' => 'public/uploads/images/_placeholder.jpg', 'link' => '#'],
+                ['category_id' => 8, 'image' => 'public/uploads/images/_placeholder.jpg', 'link' => '#'],
+                ['category_id' => 10, 'image' => 'public/uploads/images/_placeholder.jpg', 'link' => '#'],
             ];
             foreach ($bannerData as $b) {
+                $bannerImage = $b['image'] ?? ('public/uploads/images/_placeholder.jpg');
+                $normalizePath($bannerImage);
                 DB::table('banners')->insert([
                     'category_id' => $b['category_id'],
-                    'image'       => $b['image'] ?? ('public/uploads/' . $slug . '/images/default-banner.jpg'),
+                    'image'       => $bannerImage,
                     'link'        => $b['link'] ?? '#',
                     'status'      => 1,
                     'created_at'  => now(),
@@ -802,12 +765,14 @@ class DemoController extends Controller
 
         // 7. Blogs
         foreach ($data['blogs'] ?? [] as $b) {
+            $blogImage = $b['image'] ?? ('public/uploads/images/_placeholder.jpg');
+            $normalizePath($blogImage);
             DB::table('blogs')->insert([
                 'title'            => $b['title'],
                 'slug'             => Str::slug($b['title']),
                 'short_description' => $b['short_desc'] ?? '',
                 'description'      => '<p>' . ($b['short_desc'] ?? '') . '</p>',
-                'image'            => $b['image'] ?? ('public/uploads/' . $slug . '/images/blog-default.jpg'),
+                'image'            => $blogImage,
                 'views'            => $b['views'] ?? 0,
                 'status'           => 1,
                 'created_at'       => now(),

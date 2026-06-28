@@ -230,7 +230,7 @@
                             <input type="file" name="image" id="image" class="d-none" accept="image/*" onchange="readURL(this)">
                             
                             @if($blog->image)
-                                <img id="preview_image" class="preview-img" src="{{ url('public/'.$blog->image) }}" alt="Blog Image" style="display: block;">
+                                <img id="preview_image" class="preview-img" src="{{ asset($blog->image) }}" alt="Blog Image" style="display: block;">
                                 <div id="upload_placeholder" class="upload-placeholder" style="display: none;">
                             @else
                                 <img id="preview_image" class="preview-img" src="#" alt="Preview" style="display: none;">

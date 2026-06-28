@@ -9,6 +9,7 @@ use App\Models\HomepageSection;
 use App\Models\HomepageLayoutSection;
 use App\Models\GeneralSetting;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Cache;
 use Toastr;
 
 class LayoutController extends Controller
@@ -56,6 +57,8 @@ class LayoutController extends Controller
 
         HomepageLayout::create($input);
 
+        Cache::forget('frontend_homepage_v1');
+
         Toastr::success('Layout created successfully!', 'Success');
         return redirect()->route('layouts.index');
     }
@@ -82,6 +85,8 @@ class LayoutController extends Controller
         }
 
         $layout->update($input);
+
+        Cache::forget('frontend_homepage_v1');
 
         Toastr::success('Layout updated successfully!', 'Success');
         return redirect()->route('layouts.index');
@@ -123,6 +128,8 @@ class LayoutController extends Controller
 
         $layoutSection->load('section');
 
+        Cache::forget('frontend_homepage_v1');
+
         return response()->json([
             'success' => true,
             'section' => $layoutSection,
@@ -148,6 +155,8 @@ class LayoutController extends Controller
                 ->update(['sort_order' => $item['sort_order']]);
         }
 
+        Cache::forget('frontend_homepage_v1');
+
         return response()->json(['success' => true]);
     }
 
@@ -164,6 +173,8 @@ class LayoutController extends Controller
         $ls = HomepageLayoutSection::findOrFail($request->id);
         $ls->is_visible = $request->is_visible;
         $ls->save();
+
+        Cache::forget('frontend_homepage_v1');
 
         return response()->json(['success' => true, 'is_visible' => $ls->is_visible]);
     }
@@ -190,6 +201,8 @@ class LayoutController extends Controller
 
         $ls->save();
 
+        Cache::forget('frontend_homepage_v1');
+
         Toastr::success('Section settings updated!', 'Success');
         return redirect()->back();
     }
@@ -205,6 +218,8 @@ class LayoutController extends Controller
 
         HomepageLayoutSection::destroy($request->id);
 
+        Cache::forget('frontend_homepage_v1');
+
         return response()->json(['success' => true]);
     }
 
@@ -218,6 +233,9 @@ class LayoutController extends Controller
         HomepageLayout::where('id', '!=', $id)->update(['is_active' => false]);
         $layout->is_active = true;
         $layout->save();
+
+        // Clear homepage cache so changes reflect immediately
+        Cache::forget('frontend_homepage_v1');
 
         // Also update general_settings
         $setting = GeneralSetting::first();
@@ -241,6 +259,8 @@ class LayoutController extends Controller
 
         GeneralSetting::where('active_layout_id', $layout->id)->update(['active_layout_id' => null]);
         $layout->delete();
+
+        Cache::forget('frontend_homepage_v1');
 
         Toastr::success('Layout deleted successfully!', 'Success');
         return redirect()->route('layouts.index');

@@ -1,4 +1,55 @@
 {{-- Latest Blogs Section --}}
+@push('css')
+<style>
+.blog-card {
+    border: 1px solid #eee;
+    border-radius: 10px;
+    overflow: hidden;
+    transition: all .3s ease;
+    background: #fff;
+    height: 100%;
+}
+
+.blog-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(0,0,0,.08);
+}
+
+.blog-img img {
+    width: 100%;
+    height: 220px;
+    object-fit: cover;
+}
+
+.blog-content {
+    padding: 15px;
+}
+
+.blog-title a {
+    font-size: 18px;
+    font-weight: 600;
+    color: #222;
+    text-decoration: none;
+}
+
+.blog-title a:hover {
+    color: #0d6efd;
+}
+
+.blog-meta {
+    font-size: 13px;
+    color: #777;
+    margin-bottom: 10px;
+}
+
+.read-more-btn {
+    border-radius: 20px;
+    padding: 6px 22px;
+    font-size: 14px;
+}
+</style>
+@endpush
+
 @if(isset($blogs) && $blogs->count() > 0)
 <section class="homeproduct blog-home-section">
     <div class="container">
@@ -14,41 +65,49 @@
         </div>
         <div class="row">
             @foreach($blogs as $blog)
-            <div class="col-lg-4 col-md-6 mb-4">
-                <div class="blog-home-card">
-                    <div class="blog-home-img">
-                        <a href="{{ route('blog.details', $blog->slug) }}">
+           <div class="col-md-4 mb-4 d-flex">
+
+                <div class="blog-card w-100">
+
+                    {{-- Image --}}
+                    <div class="blog-img">
+                        <a href="{{ route('blog.details',$blog->slug) }}">
                             @if($blog->image)
-                                <img src="{{ url('public/'.$blog->image) }}"
-                                     alt="{{ $blog->title }}"
-                                     loading="lazy"
-                                     width="100%"
-                                     height="220">
+                                <img src="{{ asset($blog->image) }}" alt="{{ $blog->title }}">
                             @else
-                                <img src="{{ url('public/no-image.png') }}"
-                                     alt="No Image"
-                                     loading="lazy"
-                                     width="100%"
-                                     height="220">
+                                <img src="{{ asset('public/backEnd/assets/images/image-placeholder.png') }}" alt="No Image">
                             @endif
                         </a>
                     </div>
-                    <div class="blog-home-content">
-                        <div class="blog-home-meta">
-                            {{ $blog->created_at->format('d M Y') }}
-                            | {{ $blog->views }}
-                        </div>
-                        <h5 class="blog-home-title">
-                            <a href="{{ route('blog.details', $blog->slug) }}">
-                                {{ Str::limit($blog->title, 55) }}
+
+                    {{-- Content --}}
+                    <div class="blog-content">
+
+                        <div class="blog-title mb-1">
+                            <a href="{{ route('blog.details',$blog->slug) }}">
+                                {{ Str::limit($blog->title,50) }}
                             </a>
-                        </h5>
-                        <p>{{ Str::limit($blog->short_description, 110) }}</p>
-                        <a href="{{ route('blog.details', $blog->slug) }}" class="read-more-link">
-                            Read More →
-                        </a>
+                        </div>
+
+                        <div class="blog-meta">
+                            {{ $blog->created_at->format('d M Y') }} |
+                            👁 {{ $blog->views }}
+                        </div>
+
+                        <p>
+                            {{ Str::limit($blog->short_description,120) }}
+                        </p>
+
+                        <div class="text-center mt-3">
+                            <a href="{{ route('blog.details', $blog->slug) }}"
+                               class="btn btn-sm btn-outline-primary read-more-btn">
+                                Read More
+                            </a>
+                        </div>
+
                     </div>
                 </div>
+
             </div>
             @endforeach
         </div>

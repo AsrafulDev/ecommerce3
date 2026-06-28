@@ -80,9 +80,9 @@
                     <div class="blog-img">
                         <a href="{{ route('blog.details',$blog->slug) }}">
                             @if($blog->image)
-                                <img src="{{ url('public/'.$blog->image) }}" alt="{{ $blog->title }}">
+                                <img src="{{ asset($blog->image) }}" alt="{{ $blog->title }}">
                             @else
-                                <img src="{{ url('public/no-image.png') }}" alt="No Image">
+                                <img src="{{ asset('public/backEnd/assets/images/image-placeholder.png') }}" alt="No Image">
                             @endif
                         </a>
                     </div>

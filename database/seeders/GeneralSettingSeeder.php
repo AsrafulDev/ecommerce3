@@ -12,8 +12,8 @@ class GeneralSettingSeeder extends Seeder
         if (DB::table('general_settings')->count() === 0) {
             DB::table('general_settings')->insert([
                 'name' => 'Ecommerce3',
-                'white_logo' => 'public/assets/images/CurlBazar.png',
-                'dark_logo' => 'public/assets/images/CurlBazar.png',
+                'white_logo' => 'public/assets/images/CurlBazar.svg',
+                'dark_logo' => 'public/assets/images/CurlBazar.svg',
                 'favicon' => 'public/favicon.ico',
                 'copyright' => '© 2026 Ecommerce3. All rights reserved.',
                 'status' => 1,

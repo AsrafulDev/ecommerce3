@@ -204,21 +204,21 @@
           <div class="logo-box">
             <a href="{{url('admin/dashboard')}}" class="logo logo-dark text-center">
               <span class="logo-sm">
-                <img src="{{asset(isset($generalsetting->white_logo) ? $generalsetting->white_logo : 'public/assets/images/CurlBazar.png')}}" alt="" height="50" />
+                <img src="{{asset(isset($generalsetting->white_logo) ? $generalsetting->white_logo : 'public/assets/images/CurlBazar.svg')}}" alt="" height="50" />
                 <!-- <span class="logo-lg-text-light">UBold</span> -->
               </span>
               <span class="logo-lg">
-                <img src="{{asset(isset($generalsetting->white_logo) ? $generalsetting->white_logo : 'public/assets/images/CurlBazar.png')}}" alt="" height="50" />
+                <img src="{{asset(isset($generalsetting->white_logo) ? $generalsetting->white_logo : 'public/assets/images/CurlBazar.svg')}}" alt="" height="50" />
                 <!-- <span class="logo-lg-text-light">U</span> -->
               </span>
             </a>
 
             <a href="{{url('admin/dashboard')}}" class="logo logo-light text-center">
               <span class="logo-sm">
-                <img src="{{asset(isset($generalsetting->white_logo) ? $generalsetting->white_logo : 'public/assets/images/CurlBazar.png')}}" alt="" height="50" />
+                <img src="{{asset(isset($generalsetting->white_logo) ? $generalsetting->white_logo : 'public/assets/images/CurlBazar.svg')}}" alt="" height="50" />
               </span>
               <span class="logo-lg">
-                <img src="{{asset(isset($generalsetting->white_logo) ? $generalsetting->white_logo : 'public/assets/images/CurlBazar.png')}}" alt="" height="50" />
+                <img src="{{asset(isset($generalsetting->white_logo) ? $generalsetting->white_logo : 'public/assets/images/CurlBazar.svg')}}" alt="" height="50" />
               </span>
             </a>
           </div>

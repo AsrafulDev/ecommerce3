@@ -454,7 +454,7 @@
         <div class="mobile-menu">
                 <div class="mobile-menu-logo">
                     <div class="logo-image">
-                        <img src="{{ asset($generalsetting->dark_logo ?: 'public/assets/images/CurlBazar.png') }}" alt="" />
+                        <img src="{{ asset($generalsetting->dark_logo ?: 'public/assets/images/CurlBazar.svg') }}" alt="" />
                     </div>
                     <div class="mobile-menu-close">
                         <i class="fa fa-times"></i>
@@ -495,7 +495,7 @@
             <div class="top_header" style="background-color:var(--secondary-color)">
                     <div class="container d-flex align-items-center">
                         <!-- Hotline button on the left side -->
-                        <a href="tel:{{ $contact->hotline ?? '01XXX-XXXXXX' }}" class="text-center bg-light px-2 d-none d-sm-block fw-bold fs-4" style="color:#13027D;min-width:270px;">
+                        <a href="tel:{{ $contact->hotline ?? '01XXX-XXXXXX' }}" class="text-center bg-light px-2 d-none d-sm-block fw-bold fs-4" style="color:var(--primary-color,#13027D);min-width:270px;">
                             <i class="fa-solid fa-headset"></i> {{ $contact->hotline ?? '01XXX-XXXXXX' }}
                         </a>
                         
@@ -516,7 +516,7 @@
                         </a>
                     </div>
                     <div class="menu-logo">
-                        <a href="{{route('home')}}"><img src="{{ asset($generalsetting->dark_logo ?: 'public/assets/images/CurlBazar.png') }}" alt="" /></a>
+                        <a href="{{route('home')}}"><img src="{{ asset($generalsetting->dark_logo ?: 'public/assets/images/CurlBazar.svg') }}" alt="" /></a>
                     </div>
     <div class="menu-bag">
     <a href="{{ route('customer.checkout') }}" class="margin-shopping">
@@ -548,7 +548,7 @@
                             <div class="col-sm-12">
                                 <div class="logo-header">
                                     <div class="main-logo">
-                                        <a href="{{route('home')}}"><img src="{{ asset($generalsetting->dark_logo ?: 'public/assets/images/CurlBazar.png') }}" alt="" /></a>
+                                        <a href="{{route('home')}}"><img src="{{ asset($generalsetting->dark_logo ?: 'public/assets/images/CurlBazar.svg') }}" alt="" /></a>
                                     </div>
                                     <div class="main-search">
                                         <form action="{{route('search')}}">
@@ -676,7 +676,7 @@
                         <div class="col-sm-4 mb-3 mb-sm-0">
                             <div class="footer-about">
                                 <a href="{{route('home')}}">
-                                    <img src="{{ asset($generalsetting->dark_logo ?: 'public/assets/images/CurlBazar.png') }}" alt="" />
+                                    <img src="{{ asset($generalsetting->dark_logo ?: 'public/assets/images/CurlBazar.svg') }}" alt="" />
                                 </a>
                                 <p>{{ optional($generalsetting)->footer_about_text ?? 'আপনার ব্যবসার ডিজিটাল পার্টনার। আমরা বিশ্বাস করি গুণগত মান এবং গ্রাহক সন্তুষ্টিতে। প্রযুক্তির সাথে এগিয়ে চলুন আমাদের সাথে।' }}</p>
                                 <a href="tel:{{ $contact->hotline ?? '01XXX-XXXXXX' }}" class="footer-hotlint">{{ $contact->hotline ?? '01XXX-XXXXXX' }}</a>
@@ -684,10 +684,10 @@
                                 <!-- App Store Buttons -->
                                 <div class="app-badges mt-3">
                                     <a href="{{ optional($generalsetting)->google_play_link ?? '#' }}" class="app-badge-btn" target="_blank" rel="noopener">
-                                        <img src="/public/uploads/play.svg" alt="Get it on Google Play" style="height: 35px !important; max-height: 35px !important; width: auto !important; max-width: 140px !important;">
+                                        <img src="/public/assets/images/play.svg" alt="Get it on Google Play" style="height: 35px !important; max-height: 35px !important; width: auto !important; max-width: 140px !important;">
                                     </a>
                                     <a href="{{ optional($generalsetting)->app_store_link ?? '#' }}" class="app-badge-btn" target="_blank" rel="noopener">
-                                        <img src="/public/uploads/app.png" alt="Download on the App Store" style="height: 35px !important; max-height: 35px !important; width: auto !important; max-width: 140px !important;">
+                                        <img src="/public/assets/images/app.png" alt="Download on the App Store" style="height: 35px !important; max-height: 35px !important; width: auto !important; max-width: 140px !important;">
                                     </a>
                                 </div>
                             </div>

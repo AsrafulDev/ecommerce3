@@ -115,7 +115,7 @@
                                 
                                 <td>
                                     @if($blog->image)
-                                        <img src="{{ url('public/'.$blog->image) }}" class="blog-img" alt="Blog Image">
+                                        <img src="{{ asset($blog->image) }}" class="blog-img" alt="Blog Image">
                                     @else
                                         <img src="{{ asset('public/backEnd/assets/images/image-placeholder.png') }}" class="blog-img" alt="No Image">
                                     @endif

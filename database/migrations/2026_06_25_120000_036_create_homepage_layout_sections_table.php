@@ -20,7 +20,7 @@ return new class extends Migration
             $table->longText('breakpoints')->nullable();
             $table->timestamp('created_at')->nullable();
             $table->timestamp('updated_at')->nullable();
-            $table->unique('layout_id');
+            $table->unique(['layout_id', 'section_id'], 'homepage_layout_sections_layout_section_unique');
             $table->index('section_id');
             // CONSTRAINT `homepage_layout_sections_layout_id_foreign` FOREIGN KEY (`layout_id`) REFERENCES `homepage_layouts` (`id`) ON DELETE CASCADE
             // CONSTRAINT `homepage_layout_sections_section_id_foreign` FOREIGN KEY (`section_id`) REFERENCES `homepage_sections` (`id`) ON DELETE CASCADE

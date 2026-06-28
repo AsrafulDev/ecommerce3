@@ -14,7 +14,7 @@
 <meta property="og:title" content="{{ $seo->meta_title ?? '' }}" />
 <meta property="og:type" content="website" />
 <meta property="og:url" content="{{ url()->current() }}" />
-<meta property="og:image" content="{{ asset($generalsetting->og_baner ?? 'public/assets/images/CurlBazar.png') }}" />
+<meta property="og:image" content="{{ asset($generalsetting->og_baner ?? 'public/assets/images/CurlBazar.svg') }}" />
 <meta property="og:description" content="{{ $seo->meta_description ?? '' }}" />
 
 @if(!empty($seo->search_console_verification))

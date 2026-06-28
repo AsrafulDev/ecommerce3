@@ -424,6 +424,16 @@ $brands = Brand::where('status', 1)
 	
 	
 	
+	public function brands()
+    {
+        $brands = Brand::where('status', 1)
+            ->select('id', 'name', 'slug', 'image')
+            ->orderBy('name', 'asc')
+            ->paginate(24);
+
+        return view('frontEnd.layouts.pages.brands', compact('brands'));
+    }
+
 	public function brand($slug, Request $request)
 {
     $brand = Brand::where('slug', $slug)
