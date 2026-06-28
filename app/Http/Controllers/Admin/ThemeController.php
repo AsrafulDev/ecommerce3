@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Theme;
 use App\Models\GeneralSetting;
+use Illuminate\Support\Facades\Schema;
 use Toastr;
 use File;
 use Image;
@@ -124,7 +125,7 @@ class ThemeController extends Controller
 
         // Also update general_settings if exists
         $setting = GeneralSetting::first();
-        if ($setting) {
+        if ($setting && Schema::hasColumn('general_settings', 'theme_id')) {
             $setting->theme_id = $theme->id;
             $setting->save();
         }
