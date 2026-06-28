@@ -6,7 +6,7 @@
             <a href="{{ route('home') }}" class="text-muted text-decoration-none">Home</a>
             <a href="{{ route('shop') }}" class="text-muted text-decoration-none">Shop</a>
             <a href="{{ route('brands') }}" class="text-muted text-decoration-none">Brands</a>
-            <a href="{{ route('blog') }}" class="text-muted text-decoration-none">Blog</a>
+            <a href="{{ route('blog.details') }}" class="text-muted text-decoration-none">Blog</a>
             <a href="{{ route('contact') }}" class="text-muted text-decoration-none">Contact</a>
             <a href="#" class="text-muted text-decoration-none">Privacy</a>
             <a href="#" class="text-muted text-decoration-none">Terms</a>

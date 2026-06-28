@@ -76,7 +76,7 @@
                     <li><a href="{{ route('hotdeals') }}" class="text-white px-3 py-2 d-block">Hot Deals</a></li>
                     <li><a href="{{ route('flashsales') }}" class="text-white px-3 py-2 d-block">Flash Sale</a></li>
                     <li><a href="{{ route('brands') }}" class="text-white px-3 py-2 d-block">Brands</a></li>
-                    <li><a href="{{ route('blog') }}" class="text-white px-3 py-2 d-block">Blog</a></li>
+                    <li><a href="{{ route('blog.details') }}" class="text-white px-3 py-2 d-block">Blog</a></li>
                     <li><a href="{{ route('contact') }}" class="text-white px-3 py-2 d-block">Contact</a></li>
                 </ul>
             </div>

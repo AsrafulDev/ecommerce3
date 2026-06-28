@@ -13,7 +13,7 @@
             <a href="{{ route('shop') }}" class="text-decoration-none">Shop</a>
             <a href="{{ route('hotdeals') }}" class="text-decoration-none">Deals</a>
             <a href="{{ route('brands') }}" class="text-decoration-none">Brands</a>
-            <a href="{{ route('blog') }}" class="text-decoration-none">Blog</a>
+            <a href="{{ route('blog.details') }}" class="text-decoration-none">Blog</a>
         </nav>
         <div class="d-flex gap-3 align-items-center">
             <button class="btn btn-link text-dark p-0 d-md-none" onclick="document.querySelector('.minimal-nav').classList.toggle('d-none')">
