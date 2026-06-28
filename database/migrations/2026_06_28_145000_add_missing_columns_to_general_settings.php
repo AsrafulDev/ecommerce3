@@ -29,6 +29,7 @@ return new class extends Migration
         $missingColumns = [
             'flash_sale_end_date' => "ALTER TABLE general_settings ADD flash_sale_end_date DATETIME NULL",
             'hot_deal_end_date' => "ALTER TABLE general_settings ADD hot_deal_end_date DATETIME NULL",
+            'top_headline' => "ALTER TABLE general_settings ADD top_headline VARCHAR(500) NULL",
             'og_baner' => "ALTER TABLE general_settings ADD og_baner VARCHAR(255) NULL",
             'vendor_enabled' => "ALTER TABLE general_settings ADD vendor_enabled TINYINT DEFAULT 0",
             'reseller_enabled' => "ALTER TABLE general_settings ADD reseller_enabled TINYINT DEFAULT 0",
