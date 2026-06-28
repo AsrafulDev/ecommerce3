@@ -900,8 +900,10 @@ Route::get('dashboard', [DashboardController::class, 'dashboard'])->name('admin.
     Route::post('layout/export', [BackupController::class, 'exportLayout'])->name('layout.export');
     Route::post('layout/import', [BackupController::class, 'importLayout'])->name('layout.import');
 
-    // Preset Download
+    // Preset Download + Theme/Layout Restore
     Route::get('preset/download/{slug}', [BackupController::class, 'downloadPreset'])->name('preset.download');
+    Route::get('preset/theme/{slug}', [BackupController::class, 'restorePresetTheme'])->name('preset.restore-theme');
+    Route::get('preset/layout/{slug}', [BackupController::class, 'restorePresetLayout'])->name('preset.restore-layout');
 
     // Error Log (Laravel log viewer)
     Route::get('error-log', [ErrorLogController::class,'index'])->name('error-log.index');

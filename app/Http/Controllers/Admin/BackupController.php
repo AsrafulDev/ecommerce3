@@ -426,8 +426,153 @@ class BackupController extends Controller
     }
     
     // ============================================================
-    // HELPERS
+    // 6. PRESET THEME RESTORE (apply preset color/logos to current site)
     // ============================================================
+    public function restorePresetTheme($slug)
+    {
+        $presets = PresetData::all();
+        if (!isset($presets[$slug])) {
+            Toastr::error('Invalid preset!', 'Error');
+            return redirect()->back();
+        }
+        
+        $meta = $presets[$slug];
+        $presetJson = storage_path("app/demo-presets/{$slug}/data.json");
+        
+        if (!file_exists($presetJson)) {
+            Toastr::error('Preset data not found!', 'Error');
+            return redirect()->back();
+        }
+        
+        $data = json_decode(file_get_contents($presetJson), true);
+        $theme = $data['theme'] ?? [];
+        $gs = $data['general_settings'] ?? [];
+        
+        // Apply theme colors (don't remove existing, just update)
+        if (!empty($theme['primary_color'])) {
+            DB::table('themes')->update(['is_active' => false]);
+            
+            $themeRow = [
+                'name' => $meta['name'],
+                'slug' => $meta['slug'],
+                'primary_color' => $theme['primary_color'] ?? '#6366f1',
+                'secondary_color' => $theme['secondary_color'] ?? '#4f46e5',
+                'accent_color' => $theme['accent_color'] ?? '#ff6a00',
+                'text_color' => $theme['text_color'] ?? '#212529',
+                'heading_color' => $theme['heading_color'] ?? '#111111',
+                'body_bg_color' => $theme['body_bg_color'] ?? '#ffffff',
+                'header_bg_color' => $theme['header_bg_color'] ?? '#ffffff',
+                'header_text_color' => $theme['header_text_color'] ?? '#212529',
+                'footer_bg_color' => $theme['footer_bg_color'] ?? '#1a1a1a',
+                'footer_text_color' => $theme['footer_text_color'] ?? '#cccccc',
+                'is_default' => true,
+                'is_active' => true,
+            ];
+            
+            DB::table('themes')->insert($themeRow);
+        }
+        
+        // Update general settings (merge, don't replace)
+        $gsUpdate = [];
+        if (!empty($gs['white_logo'])) $gsUpdate['white_logo'] = $gs['white_logo'];
+        if (!empty($gs['dark_logo'])) $gsUpdate['dark_logo'] = $gs['dark_logo'];
+        if (!empty($gs['favicon'])) $gsUpdate['favicon'] = $gs['favicon'];
+        if (!empty($gs['copyright'])) $gsUpdate['copyright'] = $gs['copyright'];
+        
+        if (!empty($gsUpdate)) {
+            DB::table('general_settings')->update($gsUpdate);
+        }
+        
+        Cache::flush();
+        Toastr::success("「{$meta['name']}」theme applied!", 'Success');
+        return redirect()->back();
+    }
+    
+    // ============================================================
+    // 7. PRESET LAYOUT RESTORE (add preset sections as a new layout)
+    // ============================================================
+    public function restorePresetLayout($slug)
+    {
+        $presets = PresetData::all();
+        if (!isset($presets[$slug])) {
+            Toastr::error('Invalid preset!', 'Error');
+            return redirect()->back();
+        }
+        
+        $meta = $presets[$slug];
+        $presetJson = storage_path("app/demo-presets/{$slug}/data.json");
+        
+        if (!file_exists($presetJson)) {
+            Toastr::error('Preset data not found!', 'Error');
+            return redirect()->back();
+        }
+        
+        $data = json_decode(file_get_contents($presetJson), true);
+        
+        // Get all available section slugs from the preset's data
+        $presetSections = [];
+        $order = 0;
+        
+        // Detect what data the preset has and map to sections
+        $sectionChecks = [
+            'banners'   => 'fullwidth-slider',  // banners → hero sliders
+            'categories'=> 'main-slider',         // categories → left category slider
+            'products'  => 'all-products',
+            'brands'    => 'brands',
+            'blogs'     => 'latest-blogs',
+        ];
+        
+        foreach ($sectionChecks as $dataKey => $sectionSlug) {
+            if (!empty($data[$dataKey])) {
+                $section = HomepageSection::where('slug', $sectionSlug)->first();
+                if ($section) {
+                    $presetSections[] = [
+                        'section' => $section,
+                        'slug' => $sectionSlug,
+                        'sort_order' => ++$order,
+                    ];
+                }
+            }
+        }
+        
+        // Always add hero-slider in the middle
+        $heroInner = HomepageSection::where('slug', 'hero-slider')->first();
+        if ($heroInner) {
+            $presetSections[] = [
+                'section' => $heroInner,
+                'slug' => 'hero-slider',
+                'sort_order' => ++$order,
+            ];
+        }
+        
+        if (empty($presetSections)) {
+            Toastr::error('No sections found in preset data!', 'Error');
+            return redirect()->back();
+        }
+        
+        // Create new layout (don't touch existing layouts)
+        $layout = HomepageLayout::create([
+            'name' => $meta['name'] . ' Layout',
+            'description' => 'Layout from ' . $meta['name'] . ' preset.',
+            'is_active' => false,
+            'is_default' => false,
+            'created_by' => auth()->guard('admin')->id(),
+        ]);
+        
+        foreach ($presetSections as $ps) {
+            HomepageLayoutSection::create([
+                'layout_id' => $layout->id,
+                'section_id' => $ps['section']->id,
+                'sort_order' => $ps['sort_order'],
+                'is_visible' => true,
+                'columns_config' => $ps['section']->default_columns ?? 'col-sm-12',
+            ]);
+        }
+        
+        Cache::forget('frontend_homepage_v1');
+        Toastr::success("「{$meta['name']}」layout created with " . count($presetSections) . " sections! Go to Layouts to activate it.", 'Success');
+        return redirect()->route('layouts.index');
+    }
     private function addDirToZip(ZipArchive $zip, string $dir, string $prefix): void
     {
         if (!is_dir($dir)) return;

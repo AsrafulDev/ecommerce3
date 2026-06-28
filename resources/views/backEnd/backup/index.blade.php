@@ -146,7 +146,7 @@
         <div class="col-sm-12">
             <div class="card backup-card">
                 <div class="card-body">
-                    <h5 class="mb-3">📦 Demo Presets — Download</h5>
+                    <h5 class="mb-3">📦 Demo Presets — Download / Restore</h5>
                     <div class="row g-3">
                         @foreach($presets as $slug => $meta)
                         <div class="col-lg-2 col-md-3 col-sm-4 col-6">
@@ -155,9 +155,17 @@
                                     <i class="mdi {{ $meta['icon'] ?? 'mdi-package-variant' }}"></i>
                                 </span>
                                 <strong class="d-block small mt-1">{{ $meta['name'] }}</strong>
-                                <a href="{{ route('preset.download', $slug) }}" class="btn btn-sm btn-outline-primary mt-2 w-100">
-                                    <i class="mdi mdi-download"></i> Download
-                                </a>
+                                <div class="d-grid gap-1 mt-2">
+                                    <a href="{{ route('preset.download', $slug) }}" class="btn btn-sm btn-outline-primary w-100" title="Download preset ZIP">
+                                        <i class="mdi mdi-download"></i> Download
+                                    </a>
+                                    <a href="{{ route('preset.restore-theme', $slug) }}" class="btn btn-sm btn-outline-warning w-100" title="Apply colors & logos">
+                                        <i class="mdi mdi-palette"></i> Theme
+                                    </a>
+                                    <a href="{{ route('preset.restore-layout', $slug) }}" class="btn btn-sm btn-outline-success w-100" title="Create layout from preset">
+                                        <i class="mdi mdi-view-dashboard"></i> Layout
+                                    </a>
+                                </div>
                             </div>
                         </div>
                         @endforeach
