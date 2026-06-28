@@ -666,7 +666,7 @@ $brands = Brand::where('status', 1)
     public function category($slug, Request $request)
     {
         $soldShow = $request->sold=='show'?true:false;
-        $category = Category::where(['slug' => $slug, 'status' => 1])->first();
+        $category = Category::where(['slug' => $slug, 'status' => 1])->firstOrFail();
 
         $products = Product::where(['status' => 1, 'approval_status' => 'approved', 'category_id' => $category->id])
             ->select('id', 'name', 'slug', 'new_price', 'old_price', 'category_id', 'stock');
@@ -742,7 +742,7 @@ $brands = Brand::where('status', 1)
     public function subcategory($slug, Request $request)
     {
         $soldShow = $request->sold=='show'?true:false;
-        $subcategory = Subcategory::where(['slug' => $slug, 'status' => 1])->first();
+        $subcategory = Subcategory::where(['slug' => $slug, 'status' => 1])->firstOrFail();
         $products = Product::where(['status' => 1, 'approval_status' => 'approved', 'category_id' => $subcategory->category_id])
             ->select('id', 'name', 'slug', 'new_price', 'old_price', 'category_id', 'stock');
         $childcategories = Childcategory::where('subcategory_id', $subcategory->id)->get();
@@ -790,7 +790,7 @@ $brands = Brand::where('status', 1)
     public function products($slug, Request $request)
     {
         $soldShow = $request->sold=='show'?true:false;
-        $childcategory = Childcategory::where(['slug' => $slug, 'status' => 1])->first();
+        $childcategory = Childcategory::where(['slug' => $slug, 'status' => 1])->firstOrFail();
         $childcategories = Childcategory::where('subcategory_id', $childcategory->subcategory_id)->get();
         $products = Product::where(['status' => 1, 'approval_status' => 'approved', 'category_id' => $childcategory->subcategory->category_id ?? 1])->with('category')
             ->select('id', 'name', 'slug', 'new_price', 'old_price', 'category_id', 'stock');
