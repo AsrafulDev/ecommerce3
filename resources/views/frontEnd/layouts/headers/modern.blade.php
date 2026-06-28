@@ -4,7 +4,7 @@
         <div class="row align-items-center py-2">
             <div class="col-lg-2 col-6">
                 <a href="{{ route('home') }}">
-                    <img src="{{ asset($generalsetting->dark_logo ?? 'public/assets/images/CurlBazar.png') }}" 
+                    <img src="{{ asset($generalsetting->dark_logo ?: 'public/assets/images/CurlBazar.png' ?? 'public/assets/images/CurlBazar.png') }}" 
                          alt="Logo" style="max-height:40px;">
                 </a>
             </div>

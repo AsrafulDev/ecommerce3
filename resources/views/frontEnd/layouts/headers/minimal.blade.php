@@ -6,7 +6,7 @@
 <header class="header-minimal py-3 bg-white border-bottom" id="mainHeader">
     <div class="container d-flex justify-content-between align-items-center">
         <a href="{{ route('home') }}">
-            <img src="{{ asset($generalsetting->dark_logo ?? 'public/assets/images/CurlBazar.png') }}" alt="Logo" style="max-height:35px;">
+            <img src="{{ asset($generalsetting->dark_logo ?: 'public/assets/images/CurlBazar.png' ?? 'public/assets/images/CurlBazar.png') }}" alt="Logo" style="max-height:35px;">
         </a>
         <nav class="minimal-nav d-none d-md-flex gap-4">
             <a href="{{ route('home') }}" class="text-decoration-none fw-bold">Home</a>

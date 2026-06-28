@@ -14,6 +14,8 @@ class GeneralSetting extends Model
         'status' => 'boolean',
         'show_all_products' => 'boolean',
         'show_category_wise_products' => 'boolean',
+        'header_components' => 'array',
+        'footer_components' => 'array',
     ];
 
     public function activeTheme()

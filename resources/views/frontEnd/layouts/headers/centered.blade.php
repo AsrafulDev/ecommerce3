@@ -2,7 +2,7 @@
 <header class="header-centered" id="mainHeader">
     <div class="container text-center py-3">
         <a href="{{ route('home') }}">
-            <img src="{{ asset($generalsetting->dark_logo ?? 'public/assets/images/CurlBazar.png') }}" alt="Logo" style="max-height:50px;">
+            <img src="{{ asset($generalsetting->dark_logo ?: 'public/assets/images/CurlBazar.png' ?? 'public/assets/images/CurlBazar.png') }}" alt="Logo" style="max-height:50px;">
         </a>
         <div class="mt-2 d-none d-md-flex justify-content-center">
             <form action="{{ route('search') }}" method="GET" style="width:500px;">

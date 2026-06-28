@@ -33,7 +33,7 @@
                 {{-- Logo --}}
                 <div class="col-lg-2 col-md-3 col-6">
                     <a href="{{ route('home') }}">
-                        <img src="{{ asset($generalsetting->dark_logo ?? 'public/assets/images/CurlBazar.png') }}" 
+                        <img src="{{ asset($generalsetting->dark_logo ?: 'public/assets/images/CurlBazar.png' ?? 'public/assets/images/CurlBazar.png') }}" 
                              alt="Logo" style="max-height:45px;">
                     </a>
                 </div>

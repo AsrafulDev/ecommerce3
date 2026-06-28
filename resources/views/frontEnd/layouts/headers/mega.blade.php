@@ -3,7 +3,7 @@
     <div class="bg-white border-bottom">
         <div class="container d-flex align-items-center py-2">
             <a href="{{ route('home') }}" class="me-4">
-                <img src="{{ asset($generalsetting->dark_logo ?? 'public/assets/images/CurlBazar.png') }}" alt="Logo" style="max-height:40px;">
+                <img src="{{ asset($generalsetting->dark_logo ?: 'public/assets/images/CurlBazar.png' ?? 'public/assets/images/CurlBazar.png') }}" alt="Logo" style="max-height:40px;">
             </a>
             <form action="{{ route('search') }}" method="GET" class="flex-grow-1 me-3 d-none d-md-block">
                 <div class="input-group"><input type="text" name="q" class="form-control bg-light border-0" placeholder="Search..."><button class="btn btn-dark" type="submit"><i class="fa-solid fa-search"></i></button></div>

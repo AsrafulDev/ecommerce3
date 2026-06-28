@@ -39,8 +39,8 @@ class HeaderFooterController extends Controller
         $defaultH = ['topbar','logo','search','nav','cart'];
         $defaultF = ['about','links','support','newsletter','social','copyright'];
         
-        $activeHeader = json_decode($setting->header_components ?? '', true) ?: $defaultH;
-        $activeFooter = json_decode($setting->footer_components ?? '', true) ?: $defaultF;
+        $activeHeader = $setting->header_components ?: $defaultH;
+        $activeFooter = $setting->footer_components ?: $defaultF;
         
         $availableHeader = array_values(array_diff(array_keys($hComps), $activeHeader));
         $availableFooter = array_values(array_diff(array_keys($fComps), $activeFooter));
@@ -99,9 +99,9 @@ class HeaderFooterController extends Controller
         if (!isset($all[$comp])) return response()->json(['error'=>'Invalid'],400);
         $setting = GeneralSetting::first();
         $col = $type . '_components';
-        $current = json_decode($setting->$col ?? '[]', true) ?: [];
+        $current = $setting->$col ?: [];
         if (!in_array($comp, $current)) { $current[] = $comp; }
-        $setting->$col = json_encode($current); $setting->save();
+        $setting->$col = $current; $setting->save();
         return response()->json(['success'=>true, 'components'=>$current]);
     }
 
@@ -111,9 +111,9 @@ class HeaderFooterController extends Controller
         $type = $request->type; $comp = $request->component;
         $setting = GeneralSetting::first();
         $col = $type . '_components';
-        $current = json_decode($setting->$col ?? '[]', true) ?: [];
+        $current = $setting->$col ?: [];
         $current = array_values(array_diff($current, [$comp]));
-        $setting->$col = json_encode($current); $setting->save();
+        $setting->$col = $current; $setting->save();
         return response()->json(['success'=>true, 'components'=>$current]);
     }
 
@@ -123,7 +123,7 @@ class HeaderFooterController extends Controller
         $type = $request->type; $order = $request->order;
         $setting = GeneralSetting::first();
         $col = $type . '_components';
-        $setting->$col = json_encode($order); $setting->save();
+        $setting->$col = $order; $setting->save();
         return response()->json(['success'=>true]);
     }
 
@@ -153,7 +153,7 @@ class HeaderFooterController extends Controller
 
         // Custom components
         $col = $type . '_components';
-        $components = json_decode($setting->$col ?? '[]', true) ?: [];
+        $components = $setting->$col ?: [];
         $allComponents = $type === 'header' ? self::headerComponents() : self::footerComponents();
         $html = '<div style="font-family:sans-serif;">';
         foreach ($components as $comp) {
