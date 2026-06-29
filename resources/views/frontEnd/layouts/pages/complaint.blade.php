@@ -175,10 +175,10 @@
                                     
                                     <div class="mt-4">
                                         <div class="d-flex align-items-center gap-3 mb-2">
-                                            <i data-feather="phone-call"></i> <span>{{ $contact->hotline ?? '01XXX-XXXXXX' }}</span>
+                                            <i data-feather="phone-call"></i> <span>{{ $contact?->hotline ?? '01XXX-XXXXXX' }}</span>
                                         </div>
                                         <div class="d-flex align-items-center gap-3">
-                                            <i data-feather="mail"></i> <span>{{ $contact->email }}</span>
+                                            <i data-feather="mail"></i> <span>{{ $contact?->email ?? 'support@example.com' }}</span>
                                         </div>
                                     </div>
                                 </div>

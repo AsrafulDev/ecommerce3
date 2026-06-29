@@ -1,7 +1,4 @@
-@php
-    $primaryColor = optional($generalsetting)->primary_color ?? '#007bff';
-@endphp
-<div class="sidebar-cart-header" style="background: {{ $primaryColor }};">
+<div class="sidebar-cart-header" style="background: var(--primary-color);">
     <button type="button" class="sidebar-cart-close" onclick="closeSidebarCart()" aria-label="বন্ধ করুন">
         <i class="fa-solid fa-times"></i>
     </button>
@@ -12,7 +9,7 @@
         <div class="sidebar-cart-empty">
             <i class="fa-solid fa-cart-shopping"></i>
             <p>আপনার কার্ট খালি</p>
-            <a href="{{ route('shop') }}" class="sidebar-cart-checkout-btn" style="background: {{ $primaryColor }};">শপিং করুন</a>
+            <a href="{{ route('shop') }}" class="sidebar-cart-checkout-btn" style="background: var(--primary-color);">শপিং করুন</a>
         </div>
     @else
         @foreach($cartContent as $item)
@@ -48,6 +45,6 @@
         <span class="sidebar-cart-total-label">সর্বমোট</span>
         <span class="sidebar-cart-total-amount">৳ {{ number_format($subtotal, 0) }}</span>
     </div>
-    <a href="{{ route('customer.checkout') }}" class="sidebar-cart-checkout-btn" style="background: {{ $primaryColor }};">অর্ডার করুন</a>
+    <a href="{{ route('customer.checkout') }}" class="sidebar-cart-checkout-btn" style="background: var(--primary-color);">অর্ডার করুন</a>
 </div>
 @endif
