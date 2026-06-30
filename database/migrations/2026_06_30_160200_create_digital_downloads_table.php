@@ -12,9 +12,12 @@ return new class extends Migration
             Schema::create('digital_downloads', function (Blueprint $table) {
                 $table->id();
                 $table->unsignedBigInteger('order_id');
+                $table->unsignedBigInteger('customer_id')->nullable();
                 $table->unsignedBigInteger('product_id');
                 $table->string('token', 100)->unique();
+                $table->string('file_path')->nullable();
                 $table->integer('download_count')->default(0);
+                $table->integer('remaining_downloads')->default(9999);
                 $table->integer('max_downloads')->nullable();
                 $table->timestamp('expires_at')->nullable();
                 $table->timestamps();
