@@ -1,4 +1,4 @@
-{{-- Full-{{ __('Width') }} Hero Slider --}}
+{{-- Full-Width Hero Slider --}}
 <section class="fullwidth-slider-section">
     <div class="fullwidth-slider owl-carousel">
         @foreach ($sliders as $key => $value)

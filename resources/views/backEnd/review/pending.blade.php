@@ -1,5 +1,5 @@
 @extends('backEnd.layouts.master')
-@section('title','{{ __('Pending {{ __('{{ __('Review') }}s') }}') }}')
+@section('title','Pending Reviews')
 
 @section('css')
 <link href="{{asset('/public/backEnd/')}}/assets/libs/datatables.net-bs5/css/dataTables.bootstrap5.min.css" rel="stylesheet" type="text/css" />
@@ -33,13 +33,13 @@
         padding: 15px;
         border-bottom: 1px solid #f1f5f7;
         color: #313b5e;
-        font-size: {{ __('14px') }};
+        font-size: 14px;
     }
 
-    /* {{ __('{{ __('Customer') }} Info') }} Styling */
+    /* Customer Info Styling */
     .customer-info h6 {
         margin: 0;
-        font-size: {{ __('14px') }};
+        font-size: 14px;
         font-weight: 600;
         color: #343a40;
     }
@@ -50,7 +50,7 @@
     .avatar-box {
         width: 35px;
         height: 35px;
-        background-color: rgba(255, 188, 0, 0.1); /* {{ __('Warning') }} color for pending */
+        background-color: rgba(255, 188, 0, 0.1); /* Warning color for pending */
         color: #ffbc00;
         border-radius: 50%;
         display: flex;
@@ -60,7 +60,7 @@
         margin-right: 10px;
     }
 
-    /* {{ __('Rating') }} Stars */
+    /* Rating Stars */
     .star-rating i {
         font-size: 12px;
         color: #e3e6ea;
@@ -98,9 +98,9 @@
     
     <div class="row mb-3 mt-3">
         <div class="col-12 d-flex justify-content-between align-items-center">
-            <h4 class="page-title mb-0" style="font-weight: 700; color: #2d3436;">{{ __('Pending {{ __('{{ __('Review') }}s') }}') }}</h4>
+            <h4 class="page-title mb-0" style="font-weight: 700; color: #2d3436;">Pending Reviews</h4>
             <a href="{{route('reviews.create')}}" class="btn btn-primary rounded-pill shadow-sm px-4">
-                <i class="fe-plus me-1"></i> Add {{ __('Review') }}
+                <i class="fe-plus me-1"></i> Add Review
             </a>
         </div>
     </div>
@@ -113,9 +113,9 @@
                         <thead>
                             <tr>
                                 <th style="width: 50px;">{{ __('SL') }}</th>
-                                <th>{{ __('{{ __('Customer') }} Info') }}</th>
-                                <th style="width: 30%;">{{ __('Review') }}</th>
-                                <th>{{ __('Rating') }}</th>
+                                <th>Customer Info</th>
+                                <th style="width: 30%;">Review</th>
+                                <th>Rating</th>
                                 <th>{{ __('Status') }}</th>
                                 <th class="text-end" style="width: 120px;">{{ __('Action') }}</th>
                             </tr>
@@ -159,17 +159,17 @@
                                 <td class="text-end">
                                     <div class="d-inline-flex gap-2">
                                         
-                                        {{-- {{ __('Approve') }} Button (Since it's pending, primary action is to approve) --}}
+                                        {{-- Approve Button (Since it's pending, primary action is to approve) --}}
                                         <form method="post" action="{{route('reviews.active')}}" class="d-inline">
                                             @csrf
                                             <input type="hidden" value="{{$value->id}}" name="hidden_id">        
-                                            <button type="{{ __('submit') }}" class="action-btn btn-approve" title="{{ __('Approve') }} & {{ __('Publish') }}">
+                                            <button type="submit" class="action-btn btn-approve" title="Approve & Publish">
                                                 <i class="fe-check-circle"></i>
                                             </button>
                                         </form>
 
                                         {{-- Edit --}}
-                                        <a href="{{route('reviews.edit',$value->{{ __('id)') }}}}" class="action-btn btn-edit" title="{{ __('Edit') }}">
+                                        <a href="{{route('reviews.edit',$value->id)}}" class="action-btn btn-edit" title="{{ __('Edit') }}">
                                             <i class="fe-edit"></i>
                                         </a>
 
@@ -177,7 +177,7 @@
                                         <form method="post" action="{{ route('reviews.destroy') }}" class="d-inline">
                                             @csrf
                                             <input type="hidden" name="hidden_id" value="{{ $value->id }}">
-                                            <button type="{{ __('submit') }}" class="action-btn btn-delete delete-confirm" title="{{ __('Delete') }}">
+                                            <button type="submit" class="action-btn btn-delete delete-confirm" title="{{ __('Delete') }}">
                                                 <i class="fe-trash-2"></i>
                                             </button>
                                         </form>

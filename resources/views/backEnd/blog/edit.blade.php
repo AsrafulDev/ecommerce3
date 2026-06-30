@@ -52,7 +52,7 @@
         border: 1px solid #eef2f7;
         padding: 12px 15px;
         border-radius: 8px;
-        font-size: {{ __('14px') }};
+        font-size: 14px;
         color: #2d3436;
         transition: all 0.3s;
     }
@@ -126,7 +126,7 @@
     input:checked + .slider:before { transform: translateX(22px); }
 
     /* Button Style */
-    .btn-{{ __('submit') }} {
+    .btn-submit {
         background: linear-gradient(45deg, #0acf97, #06b6d4);
         border: none;
         color: white;
@@ -136,7 +136,7 @@
         box-shadow: 0 4px 15px rgba(10, 207, 151, 0.3);
         transition: 0.3s;
     }
-    .btn-{{ __('submit') }}:hover {
+    .btn-submit:hover {
         transform: translateY(-2px);
         box-shadow: 0 6px 20px rgba(10, 207, 151, 0.4);
     }
@@ -151,7 +151,7 @@
             <div class="page-title-box d-flex align-items-center justify-content-between py-4">
                 <div>
                     <h4 class="page-title mb-1 text-dark fw-bold">Edit Blog: {{ Str::limit($blog->title, 30) }}</h4>
-                    <p class="text-muted font-size-13 mb-0">{{ __('Update blog content and media.') }}</p>
+                    <p class="text-muted font-size-13 mb-0">Update blog content and media.</p>
                 </div>
                 <div class="page-title-right">
                     <a href="{{ route('admin.blog.index') }}" class="btn btn-light rounded-pill border shadow-sm px-4">
@@ -162,7 +162,7 @@
         </div>
     </div>
 
-    <form action="{{ route('admin.blog.update', $blog->{{ __('id)') }} }}" method={{ __('"{{ __('POST') }}"') }} enctype="multipart/form-data">
+    <form action="{{ route('admin.blog.update', $blog->id) }}" method="POST" enctype="multipart/form-data">
         @csrf
         <div class="row">
             
@@ -171,23 +171,23 @@
                 <div class="card">
                     <div class="card-header">
                         <div class="header-icon"><i class="fe-edit-3"></i></div>
-                        <h5 class="card-title">{{ __('Blog Content') }}</h5>
+                        <h5 class="card-title">Blog Content</h5>
                     </div>
                     <div class="card-body">
                         
                         <div class="form-group mb-4">
-                            <label class="form-label">{{ __('Blog {{ __('Title') }}') }} <span class="text-danger">*</span></label>
+                            <label class="form-label">Blog Title <span class="text-danger">*</span></label>
                             <input type="text" name="title" class="form-control" 
                                    value="{{ $blog->title }}" required>
                         </div>
 
                         <div class="form-group mb-4">
-                            <label class="form-label">{{ __('Short Description') }}</label>
+                            <label class="form-label">Short Description</label>
                             <textarea name="short_description" class="form-control" rows="3">{{ $blog->short_description }}</textarea>
                         </div>
 
                         <div class="form-group mb-0">
-                            <label class="form-label">{{ __('Full Content') }} <span class="text-danger">*</span></label>
+                            <label class="form-label">Full Content <span class="text-danger">*</span></label>
                             <textarea name="description" class="summernote form-control" required>{!! $blog->description !!}</textarea>
                         </div>
 
@@ -200,12 +200,12 @@
                 <div class="card mb-4">
                     <div class="card-header">
                         <div class="header-icon"><i class="fe-settings"></i></div>
-                        <h5 class="card-title">{{ __('Publish') }}</h5>
+                        <h5 class="card-title">Publish</h5>
                     </div>
                     <div class="card-body">
                         <div class="d-flex justify-content-between align-items-center mb-4 p-3 bg-light rounded border border-light">
                             <div>
-                                <h6 class="mb-1 text-dark fw-bold">{{ __('Active {{ __('Status') }}') }}</h6>
+                                <h6 class="mb-1 text-dark fw-bold">Active Status</h6>
                                 <p class="text-muted font-size-12 mb-0">Is this post visible?</p>
                             </div>
                             <label class="switch">
@@ -214,7 +214,7 @@
                             </label>
                         </div>
 
-                        <button type="{{ __('submit') }}" class="btn btn-{{ __('submit') }} w-100 rounded-pill">
+                        <button type="submit" class="btn btn-submit w-100 rounded-pill">
                             <i class="fe-check-circle me-1"></i> Update Blog
                         </button>
                     </div>
@@ -223,7 +223,7 @@
                 <div class="card">
                     <div class="card-header">
                         <div class="header-icon"><i class="fe-image"></i></div>
-                        <h5 class="card-title">{{ __('{{ __('Featured') }} Image') }}</h5>
+                        <h5 class="card-title">Featured Image</h5>
                     </div>
                     <div class="card-body">
                         <div class="image-upload-box" onclick="document.getElementById('image').click()">
@@ -233,12 +233,12 @@
                                 <img id="preview_image" class="preview-img" src="{{ asset($blog->image) }}" alt="Blog Image" style="display: block;">
                                 <div id="upload_placeholder" class="upload-placeholder" style="display: none;">
                             @else
-                                <img id="preview_image" class="preview-img" src="#" alt="{{ __('Prev') }}iew" style="display: none;">
+                                <img id="preview_image" class="preview-img" src="#" alt="Preview" style="display: none;">
                                 <div id="upload_placeholder" class="upload-placeholder" style="display: flex; flex-direction: column; align-items: center;">
                             @endif
                                     <i class="fe-upload-cloud"></i>
-                                    <p>{{ __('{{ __('Click to change') }} image') }}</p>
-                                    <small class="text-muted d-block mt-2">{{ __('JPG, PNG, WEBP (Max 2MB)') }}</small>
+                                    <p>Click to change image</p>
+                                    <small class="text-muted d-block mt-2">JPG, PNG, WEBP (Max 2MB)</small>
                                 </div>
                         </div>
                     </div>
@@ -258,7 +258,7 @@
     $(document).ready(function() {
         // Initialize Summernote
         $(".summernote").summernote({
-            placeholder: "Write your blog content {{ __('here') }}...",
+            placeholder: "Write your blog content here...",
             tabsize: 2,
             height: 300,
             toolbar: [
@@ -273,7 +273,7 @@
         });
     });
 
-    // Image Upload {{ __('Prev') }}iew Function
+    // Image Upload Preview Function
     function readURL(input) {
         if (input.files && input.files[0]) {
             var reader = new FileReader();

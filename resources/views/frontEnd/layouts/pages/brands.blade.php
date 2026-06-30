@@ -1,5 +1,5 @@
 @extends('frontEnd.layouts.master')
-@section('title', '{{ __('All Brands') }}')
+@section('title', 'All Brands')
 
 @push('css')
 <style>
@@ -45,7 +45,7 @@
         object-fit: contain;
     }
     .brand-card .brand-title {
-        font-size: {{ __('14px') }};
+        font-size: 14px;
         font-weight: 600;
         color: #555;
         margin: 0;
@@ -65,10 +65,10 @@
                 <div class="category-breadcrumb d-flex align-items-center justify-content-center mb-2">
                     <a href="{{ route('home') }}">{{ __('Home') }}</a>
                     <span class="mx-2">/</span>
-                    <strong>{{ __('All Brands') }}</strong>
+                    <strong>All Brands</strong>
                 </div>
-                <h2>{{ __('Our Brands') }}</h2>
-                <p class="text-muted mt-2 mb-0">{{ __('Discover products from your favorite brands') }}</p>
+                <h2>Our Brands</h2>
+                <p class="text-muted mt-2 mb-0">Discover products from your favorite brands</p>
             </div>
         </div>
     </div>
@@ -97,8 +97,8 @@
                 </div>
             @empty
                 <div class="col-sm-12 text-center py-5">
-                    <h4>{{ __('No brands found') }}</h4>
-                    <p class="text-muted">{{ __('Please check back later.') }}</p>
+                    <h4>No brands found</h4>
+                    <p class="text-muted">Please check back later.</p>
                 </div>
             @endforelse
         </div>

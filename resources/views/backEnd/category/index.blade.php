@@ -1,5 +1,5 @@
 @extends('backEnd.layouts.master')
-@section('title','{{ __('Category') }} {{ __('Manage') }}')
+@section('title','Category Manage')
 
 @section('css')
 <link href="{{asset('/public/backEnd/')}}/assets/libs/datatables.net-bs5/css/dataTables.bootstrap5.min.css" rel="stylesheet" type="text/css" />
@@ -33,10 +33,10 @@
         padding: 15px;
         border-bottom: 1px solid #f1f5f7;
         color: #313b5e;
-        font-size: {{ __('14px') }};
+        font-size: 14px;
     }
     
-    /* {{ __('Category') }} {{ __('Image *') }}/
+    /* Category Image */
     .cat-img {
         width: 45px;
         height: 45px;
@@ -46,8 +46,8 @@
         border: 1px solid #f1f5f7;
     }
 
-    /* {{ __('{{ __('Category') }} {{ __('Name') }}') }} */
-    .cat-name { font-weight: 600; color: #343a40; font-size: {{ __('14px') }}; }
+    /* Category Name */
+    .cat-name { font-weight: 600; color: #343a40; font-size: 14px; }
     
     /* Soft Badges */
     .badge-soft-success { background-color: rgba(10, 207, 151, 0.18); color: #0acf97; }
@@ -85,7 +85,7 @@
         <div class="col-12 d-flex justify-content-between align-items-center">
             <h4 class="page-title mb-0" style="font-weight: 700; color: #2d3436;">{{ __('Categories') }}</h4>
             <a href="{{route('categories.create')}}" class="btn btn-primary rounded-pill shadow-sm px-4">
-                <i class="fe-plus me-1"></i>{{ __('Add {{ __('Category') }}') }}</a>
+                <i class="fe-plus me-1"></i>{{ __('Add Category') }}</a>
         </div>
     </div>
 
@@ -98,8 +98,8 @@
                             <tr>
                                 <th style="width: 50px;">{{ __('SL') }}</th>
                                 <th>{{ __('Image') }}</th>
-                                <th>{{ __('{{ __('Category') }} {{ __('Name') }}') }}</th>
-                                <th>{{ __('{{ __('Status') }}') }}</th>
+                                <th>Category Name</th>
+                                <th>{{ __('Status') }}</th>
                                 <th class="text-end" style="width: 150px;">{{ __('Action') }}</th>
                             </tr>
                         </thead>                
@@ -109,7 +109,7 @@
                                 <td>{{$loop->iteration}}</td>
                                 
                                 <td>
-                                    <img src="{{asset($value->image)}}" class="cat-img" alt="{{ __('Category') }}">
+                                    <img src="{{asset($value->image)}}" class="cat-img" alt="Category">
                                 </td>
 
                                 <td>
@@ -131,12 +131,12 @@
 
                                 <td class="text-end">
                                     <div class="d-inline-flex gap-2">
-                                        {{-- {{ __('Status') }} Toggle --}}
+                                        {{-- Status Toggle --}}
                                         @if($value->status == 1)
                                             <form method="post" action="{{route('categories.inactive')}}" class="d-inline"> 
                                                 @csrf
                                                 <input type="hidden" value="{{$value->id}}" name="hidden_id">        
-                                                <button type="{{ __('submit') }}" class="action-btn btn-inactive" title="Deactivate">
+                                                <button type="submit" class="action-btn btn-inactive" title="Deactivate">
                                                     <i class="fe-eye-off"></i>
                                                 </button>
                                             </form>
@@ -144,14 +144,14 @@
                                             <form method="post" action="{{route('categories.active')}}" class="d-inline">
                                                 @csrf
                                                 <input type="hidden" value="{{$value->id}}" name="hidden_id">        
-                                                <button type="{{ __('submit') }}" class="action-btn btn-active" title="Activate">
+                                                <button type="submit" class="action-btn btn-active" title="Activate">
                                                     <i class="fe-eye"></i>
                                                 </button>
                                             </form>
                                         @endif
 
                                         {{-- Edit --}}
-                                        <a href="{{route('categories.edit',$value->{{ __('id)') }}}}" class="action-btn btn-edit" title="{{ __('Edit') }}">
+                                        <a href="{{route('categories.edit',$value->id)}}" class="action-btn btn-edit" title="{{ __('Edit') }}">
                                             <i class="fe-edit"></i>
                                         </a>
 
@@ -160,7 +160,7 @@
                                         <form method="post" action="{{route('categories.destroy')}}" class="d-inline">        
                                             @csrf
                                             <input type="hidden" value="{{$value->id}}" name="hidden_id">
-                                            <button type="{{ __('submit') }}" class="action-btn btn-delete delete-confirm" title="{{ __('Delete') }}">
+                                            <button type="submit" class="action-btn btn-delete delete-confirm" title="{{ __('Delete') }}">
                                                 <i class="fe-trash-2"></i>
                                             </button>
                                         </form>

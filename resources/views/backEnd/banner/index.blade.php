@@ -1,15 +1,15 @@
 @extends('backEnd.layouts.master')
-@section('title','{{ __('Banner {{ __('Manage') }}ment') }}')
+@section('title','Banner Management')
 
 @section('css')
 <link href="{{asset('/public/backEnd/')}}/assets/libs/datatables.net-bs5/css/dataTables.bootstrap5.min.css" rel="stylesheet" type="text/css" />
 <link href="{{asset('/public/backEnd/')}}/assets/libs/datatables.net-responsive-bs5/css/responsive.bootstrap5.min.css" rel="stylesheet" type="text/css" />
 <link href="{{asset('/public/backEnd/')}}/assets/libs/datatables.net-buttons-bs5/css/buttons.bootstrap5.min.css" rel="stylesheet" type="text/css" />
 
-<link href="{{ __('https://') }}cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
 
 <style>
-    /* {{ __('Custom CSS') }} for Professional Look */
+    /* Custom CSS for Professional Look */
     .table thead th {
         background-color: #f8f9fa;
         color: #555;
@@ -22,7 +22,7 @@
     .table tbody td {
         vertical-align: middle;
         color: #444;
-        font-size: {{ __('14px') }};
+        font-size: 14px;
     }
     .banner-thumb {
         width: 80px;
@@ -70,9 +70,9 @@
     
     <div class="row mb-3 mt-3">
         <div class="col-12 d-flex justify-content-between align-items-center">
-            <h4 class="page-title mb-0" style="font-weight: 700; color: #333;">{{ __('Banner {{ __('Manage') }}ment') }}</h4>
+            <h4 class="page-title mb-0" style="font-weight: 700; color: #333;">Banner Management</h4>
             <a href="{{route('banners.create')}}" class="btn btn-primary rounded-pill px-4 shadow-sm">
-                <i class="fe-plus me-1"></i>{{ __('Create {{ __('New') }}') }}</a>
+                <i class="fe-plus me-1"></i>{{ __('Create New') }}</a>
         </div>
     </div>
     
@@ -95,10 +95,10 @@
                             <tr>
                                 <td>{{$loop->iteration}}</td>
                                 <td>
-                                    <img src="{{asset($value->image)}}" class="banner-thumb" alt="{{ __('Banner Image') }}">
+                                    <img src="{{asset($value->image)}}" class="banner-thumb" alt="Banner Image">
                                 </td>
                                 <td>
-                                    <span class="fw-bold">{{$value->category ? $value->category->name : '{{ __('N/A') }}'}}</span>
+                                    <span class="fw-bold">{{$value->category ? $value->category->name : 'N/A'}}</span>
                                 </td>
                                 <td>
                                     @if($value->status==1)
@@ -111,14 +111,14 @@
                                 </td>
                                 <td class="text-end">
                                     <div class="d-flex justify-content-end">
-                                        <a href="{{route('banners.edit',$value->{{ __('id)') }}}}" class="action-btn text-primary" title="{{ __('Edit') }}">
+                                        <a href="{{route('banners.edit',$value->id)}}" class="action-btn text-primary" title="{{ __('Edit') }}">
                                             <i class="fe-edit-1" style="font-size: 18px;"></i>
                                         </a>
 
                                         <form method="post" action="{{route('banners.destroy')}}" class="delete-form">        
                                             @csrf
                                             <input type="hidden" value="{{$value->id}}" name="hidden_id">
-                                            <button type="{{ __('submit') }}" class="action-btn text-danger" title="{{ __('Delete') }}">
+                                            <button type="submit" class="action-btn text-danger" title="{{ __('Delete') }}">
                                                 <i class="fe-trash-2" style="font-size: 18px;"></i>
                                             </button>
                                         </form>
@@ -144,13 +144,13 @@
 <script src="{{asset('/public/backEnd/')}}/assets/libs/datatables.net-buttons/js/buttons.print.min.js"></script>
 <script src="{{asset('/public/backEnd/')}}/assets/js/pages/datatables.init.js"></script>
 
-<script src="{{ __('https://') }}cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <script>
     $(document).ready(function() {
         
         // 1. Toast Notification Logic (For Create/Edit Success)
-        // কন্ট্রোলার থেকে অবশ্যই return redirect(...)->with('success', '{{ __('Message') }} {{ __('here') }}'); পাঠাতে হবে
+        // কন্ট্রোলার থেকে অবশ্যই return redirect(...)->with('success', 'Message here'); পাঠাতে হবে
         var Toast = Swal.mixin({
             toast: true,
             position: 'top-end',
@@ -163,24 +163,24 @@
             }
         });
 
-        @if({{ __('Session') }}::has('success'))
+        @if(Session::has('success'))
             Toast.fire({
                 icon: 'success',
-                title: "{{ {{ __('Session') }}::get('success') }}"
+                title: "{{ Session::get('success') }}"
             });
         @endif
 
-        @if({{ __('Session') }}::has('error'))
+        @if(Session::has('error'))
             Toast.fire({
                 icon: 'error',
-                title: "{{ {{ __('Session') }}::get('error') }}"
+                title: "{{ Session::get('error') }}"
             });
         @endif
 
 
         // 2. Delete Confirmation Logic
-        $('.delete-form').on('{{ __('submit') }}', function(e) {
-            e.preventDefault(); // ফর্ম সাবমিট {{ __('Close') }} করা
+        $('.delete-form').on('submit', function(e) {
+            e.preventDefault(); // ফর্ম সাবমিট বন্ধ করা
             var form = this;
 
             Swal.fire({
@@ -188,13 +188,13 @@
                 text: "You won't be able to revert this!",
                 icon: 'warning',
                 showCancelButton: true,
-                confirmButton{{ __('Color') }}: '#3085d6',
-                cancelButton{{ __('Color') }}: '#d33',
-                confirmButton{{ __('Text') }}: 'Yes, delete it!',
-                cancelButton{{ __('Text') }}: 'Cancel'
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Yes, delete it!',
+                cancelButtonText: 'Cancel'
             }).then((result) => {
                 if (result.isConfirmed) {
-                    form.{{ __('submit') }}(); // ইউজার Yes দিলে ফর্ম সাবমিট হবে
+                    form.submit(); // ইউজার Yes দিলে ফর্ম সাবমিট হবে
                 }
             });
         });

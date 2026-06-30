@@ -20,7 +20,7 @@
         gap: 10px;
     }
     
-    /* Role {{ __('Title') }} Styling */
+    /* Role Title Styling */
     .role-title {
         font-size: 24px;
         font-weight: 700;
@@ -63,7 +63,7 @@
         background-color: rgba(250, 92, 124, 0.1);
         padding: 10px 20px;
         border-radius: 8px;
-        font-size: {{ __('14px') }};
+        font-size: 14px;
         display: inline-block;
     }
 </style>
@@ -75,11 +75,11 @@
     <div class="row mb-3 mt-3">
         <div class="col-12 d-flex justify-content-between align-items-center">
             <div>
-                <h4 class="page-title mb-0" style="font-weight: 700; color: #2d3436;">{{ __('Role Details') }}</h4>
-                <p class="text-muted font-size-13 mb-0">{{ __('View role information and permissions.') }}</p>
+                <h4 class="page-title mb-0" style="font-weight: 700; color: #2d3436;">Role Details</h4>
+                <p class="text-muted font-size-13 mb-0">View role information and permissions.</p>
             </div>
             <a href="{{ route('roles.index') }}" class="btn btn-light rounded-pill border shadow-sm px-4">
-                <i class="fe-arrow-left me-1"></i> Back to {{ __('Roles') }}
+                <i class="fe-arrow-left me-1"></i> Back to Roles
             </a>
         </div>
     </div>
@@ -103,11 +103,11 @@
 
                     <div class="row justify-content-center">
                         <div class="col-lg-10">
-                            <span class="role-label text-center">{{ __('{{ __('Assign') }}ed {{ __('Permissions') }}') }}</span>
+                            <span class="role-label text-center">Assigned Permissions</span>
                             
                             <div class="text-center mt-3">
-                                @if(!empty($role{{ __('Permissions') }}) && count($role{{ __('Permissions') }}) > 0)
-                                    @foreach($role{{ __('Permissions') }} as $v)
+                                @if(!empty($rolePermissions) && count($rolePermissions) > 0)
+                                    @foreach($rolePermissions as $v)
                                         <span class="permission-badge">
                                             <i class="fe-check-circle me-1"></i> {{ $v->name }}
                                         </span>

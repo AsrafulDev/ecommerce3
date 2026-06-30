@@ -42,24 +42,24 @@
                         <div class="row">
                             <div class="col-sm-6">
                                 <div class="showing-data">
-                                    <span>Showing {{ $products->first{{ __('Item') }}() }}-{{ $products->last{{ __('Item') }}() }} of
-                                        {{ $products->{{ __('total') }}() }} Results</span>
+                                    <span>Showing {{ $products->firstItem() }}-{{ $products->lastItem() }} of
+                                        {{ $products->total() }} Results</span>
                                 </div>
                             </div>
                             <div class="col-sm-6">
-                                <div class="{{ __('filter') }}_sort">
-                                    <div class="{{ __('filter') }}_btn">
+                                <div class="filter_sort">
+                                    <div class="filter_btn">
                                         <i class="fa fa-list-ul"></i>
                                     </div>
                                     <div class="page-sort">
                                         <form action="" class="sort-form">
                                             <select name="sort" class="form-control form-select sort">
-                                                <option value="1" @if(request()->get('sort')==1)selected @endif>{{ __('{{ __('Product') }}: {{ __('Late') }}st') }}</option>
-                                                <option value="2" @if(request()->get('sort')==2)selected @endif>{{ __('{{ __('Product') }}: Oldest') }}</option>
-                                                <option value="3" @if(request()->get('sort')==3)selected @endif>{{ __('Price: High To Low') }}</option>
-                                                <option value="4" @if(request()->get('sort')==4)selected @endif>{{ __('Price: Low To High') }}</option>
-                                                <option value="5" @if(request()->get('sort')==5)selected @endif>{{ __('{{ __('Name') }}: A-Z') }}</option>
-                                                <option value="6" @if(request()->get('sort')==6)selected @endif>{{ __('{{ __('Name') }}: Z-A') }}</option>
+                                                <option value="1" @if(request()->get('sort')==1)selected @endif>Product: Latest</option>
+                                                <option value="2" @if(request()->get('sort')==2)selected @endif>Product: Oldest</option>
+                                                <option value="3" @if(request()->get('sort')==3)selected @endif>Price: High To Low</option>
+                                                <option value="4" @if(request()->get('sort')==4)selected @endif>Price: Low To High</option>
+                                                <option value="5" @if(request()->get('sort')==5)selected @endif>Name: A-Z</option>
+                                                <option value="6" @if(request()->get('sort')==6)selected @endif>Name: Z-A</option>
                                             </select>
                                             <input type="hidden" name="min_price" value="{{request()->get('min_price')}}" />
                                             <input type="hidden" name="max_price" value="{{request()->get('max_price')}}" />
@@ -74,9 +74,9 @@
 
             <div class="row">
 
-                <div class="col-sm-3 {{ __('filter') }}_sidebar">
-                    <div class="{{ __('filter') }}_close"><i class="fa fa-long-arrow-left"></i>{{ __('Filter') }}</div>
-                    <form action="" class="attribute-{{ __('submit') }}">
+                <div class="col-sm-3 filter_sidebar">
+                    <div class="filter_close"><i class="fa fa-long-arrow-left"></i>{{ __('Filter') }}</div>
+                    <form action="" class="attribute-submit">
                         <div class="sidebar_item wraper__item">
                             <div class="accordion" id="category_sidebar">
                                 <div class="accordion-item">
@@ -93,7 +93,7 @@
                                                 @foreach ($category->subcategories as $key => $subcat)
                                                     <li>
                                                         <a
-                                                            href="{{ url('subcategory/' . $subcat->slug) }}">{{ $subcat->subcategory{{ __('Name') }} }}</a>
+                                                            href="{{ url('subcategory/' . $subcat->slug) }}">{{ $subcat->subcategoryName }}</a>
                                                     </li>
                                                 @endforeach
                                             </ul>
@@ -113,11 +113,11 @@
                                     <div id="collapsePrice" class="accordion-collapse collapse show"
                                         data-bs-parent="#price_sidebar">
                                         <div class="accordion-body cust_according_body">
-                                            <div class="category-{{ __('filter') }}-box category__wraper" id="categoryFilterBox">
-                                                <div class="category-{{ __('filter') }}-item">
-                                                    <div class="{{ __('filter') }}-body">
+                                            <div class="category-filter-box category__wraper" id="categoryFilterBox">
+                                                <div class="category-filter-item">
+                                                    <div class="filter-body">
                                                         <div class="slider-box">
-                                                            <div class="{{ __('filter') }}-price-inputs">
+                                                            <div class="filter-price-inputs">
                                                                 <p class="min-price">৳<input type="text"
                                                                         name="min_price" id="min_price" readonly="" />
                                                                 </p>
@@ -137,31 +137,31 @@
                         </div>
                         <!--sidebar item end-->
                         <div class="sidebar_item wraper__item">
-                            <div class="accordion" id="{{ __('filter') }}_sidebar">
+                            <div class="accordion" id="filter_sidebar">
                                 <div class="accordion-item">
                                     <h2 class="accordion-header">
                                         <button class="accordion-button" type="button" data-bs-toggle="collapse"
                                             data-bs-target="#collapseFilter" aria-expanded="true"
                                             aria-controls="collapseOne">
-                                            {{ __('Subcategory') }}
+                                            Subcategory
                                         </button>
                                     </h2>
                                     <div id="collapseFilter" class="accordion-collapse collapse show"
-                                        data-bs-parent="#{{ __('filter') }}_sidebar">
+                                        data-bs-parent="#filter_sidebar">
                                         <div class="accordion-body cust_according_body">
-                                            <div class="{{ __('filter') }}-body">
+                                            <div class="filter-body">
                                                 <ul class="space-y-3">
                                                     @foreach ($subcategories as $subcategory)
-                                                        <li class="subcategory-{{ __('filter') }}-list">
+                                                        <li class="subcategory-filter-list">
                                                             <label for="{{ $subcategory->slug . '-' . $subcategory->id }}"
-                                                                class="subcategory-{{ __('filter') }}-label">
+                                                                class="subcategory-filter-label">
                                                                 <input class="form-checkbox form-attribute"
                                                                     id="{{ $subcategory->slug . '-' . $subcategory->id }}"
                                                                     name="subcategory[]" value="{{ $subcategory->id }}"
                                                                     type="checkbox"
                                                                     @if (is_array(request()->get('subcategory')) && in_array($subcategory->id, request()->get('subcategory'))) checked @endif />
-                                                                <p class="subcategory-{{ __('filter') }}-name">
-                                                                    {{ $subcategory->subcategory{{ __('Name') }} }}</p>
+                                                                <p class="subcategory-filter-name">
+                                                                    {{ $subcategory->subcategoryName }}</p>
                                                             </label>
                                                         </li>
                                                     @endforeach
@@ -188,13 +188,13 @@
                                         <div class="accordion-body cust_according_body">
                                             <ul class="space-y-3">
                                                 @foreach ($brands as $brand)
-                                                    <li class="subcategory-{{ __('filter') }}-list">
-                                                        <label for="brand-{{ $brand->slug }}-{{ $brand->id }}" class="subcategory-{{ __('filter') }}-label">
+                                                    <li class="subcategory-filter-list">
+                                                        <label for="brand-{{ $brand->slug }}-{{ $brand->id }}" class="subcategory-filter-label">
                                                             <input class="form-checkbox form-attribute" type="checkbox"
                                                                 id="brand-{{ $brand->slug }}-{{ $brand->id }}"
                                                                 name="brand[]" value="{{ $brand->id }}"
                                                                 @if (is_array(request()->get('brand')) && in_array($brand->id, request()->get('brand'))) checked @endif />
-                                                            <p class="subcategory-{{ __('filter') }}-name">{{ $brand->name }}</p>
+                                                            <p class="subcategory-filter-name">{{ $brand->name }}</p>
                                                         </label>
                                                     </li>
                                                 @endforeach
@@ -221,13 +221,13 @@
                                         <div class="accordion-body cust_according_body">
                                             <ul class="space-y-3">
                                                 @foreach ($sizes as $size)
-                                                    <li class="subcategory-{{ __('filter') }}-list">
-                                                        <label for="size-{{ $size->id }}" class="subcategory-{{ __('filter') }}-label">
+                                                    <li class="subcategory-filter-list">
+                                                        <label for="size-{{ $size->id }}" class="subcategory-filter-label">
                                                             <input class="form-checkbox form-attribute" type="checkbox"
                                                                 id="size-{{ $size->id }}"
                                                                 name="size[]" value="{{ $size->id }}"
                                                                 @if (is_array(request()->get('size')) && in_array($size->id, request()->get('size'))) checked @endif />
-                                                            <p class="subcategory-{{ __('filter') }}-name">{{ $size->size{{ __('Name') }} }}</p>
+                                                            <p class="subcategory-filter-name">{{ $size->sizeName }}</p>
                                                         </label>
                                                     </li>
                                                 @endforeach
@@ -240,28 +240,28 @@
                         @endif
                         <!--sidebar item end-->
 
-                        <!-- {{ __('Color') }} Filter -->
+                        <!-- Color Filter -->
                         @if(isset($colors) && $colors->count() > 0)
                         <div class="sidebar_item wraper__item">
                             <div class="accordion" id="color_sidebar">
                                 <div class="accordion-item">
                                     <h2 class="accordion-header">
                                         <button class="accordion-button" type="button" data-bs-toggle="collapse"
-                                            data-bs-target="#collapse{{ __('Color') }}" aria-expanded="true" aria-controls="collapseOne">{{ __('{{ __('Color') }}') }}</button>
+                                            data-bs-target="#collapseColor" aria-expanded="true" aria-controls="collapseOne">{{ __('Color') }}</button>
                                     </h2>
-                                    <div id="collapse{{ __('Color') }}" class="accordion-collapse collapse show"
+                                    <div id="collapseColor" class="accordion-collapse collapse show"
                                         data-bs-parent="#color_sidebar">
                                         <div class="accordion-body cust_according_body">
                                             <ul class="space-y-3">
                                                 @foreach ($colors as $col)
-                                                    <li class="subcategory-{{ __('filter') }}-list">
-                                                        <label for="color-{{ $col->id }}" class="subcategory-{{ __('filter') }}-label">
+                                                    <li class="subcategory-filter-list">
+                                                        <label for="color-{{ $col->id }}" class="subcategory-filter-label">
                                                             <input class="form-checkbox form-attribute" type="checkbox"
                                                                 id="color-{{ $col->id }}"
                                                                 name="color[]" value="{{ $col->id }}"
                                                                 @if (is_array(request()->get('color')) && in_array($col->id, request()->get('color'))) checked @endif />
                                                             <span class="color-swatch" style="display:inline-block;width:16px;height:16px;background:{{ $col->color }};border:1px solid #ddd;border-radius:3px;vertical-align:middle;margin-right:5px;"></span>
-                                                            <p class="subcategory-{{ __('filter') }}-name" style="display:inline;">{{ $col->color{{ __('Name') }} }}</p>
+                                                            <p class="subcategory-filter-name" style="display:inline;">{{ $col->colorName }}</p>
                                                         </label>
                                                     </li>
                                                 @endforeach
@@ -314,13 +314,13 @@
                                 </div>
 
                                 @php
-                                    $average{{ __('Rating') }} = $value->reviews->avg('ratting');
-                                    $filledStars   = floor($average{{ __('Rating') }});
-                                    $hasHalfStar   = $average{{ __('Rating') }} - $filledStars >= 0.5;
+                                    $averageRating = $value->reviews->avg('ratting');
+                                    $filledStars   = floor($averageRating);
+                                    $hasHalfStar   = $averageRating - $filledStars >= 0.5;
                                     $emptyStars    = 5 - $filledStars - ($hasHalfStar ? 1 : 0);
                                 @endphp
 
-                                @if ($average{{ __('Rating') }} >= 0 && $average{{ __('Rating') }} <= 5)
+                                @if ($averageRating >= 0 && $averageRating <= 5)
                                     @for ($i = 0; $i < $filledStars; $i++)
                                         <i class="fas fa-star"></i>
                                     @endfor
@@ -333,7 +333,7 @@
                                         <i class="far fa-star"></i>
                                     @endfor
                                 @else
-                                    <span>{{ __('{{ __('Inv') }}alid rating range') }}</span>
+                                    <span>Invalid rating range</span>
                                 @endif
 
                                 <div class="pro_price">
@@ -350,7 +350,7 @@
                                         {{-- বড় অর্ডার বাটন --}}
                                         <a href="{{ route('product', $value->slug) }}"
                                            class="order-btn-link order-btn">
-                                            {{ __('Order Now') }}
+                                            অর্ডার করুন
                                         </a>
 
                                         {{-- ছোট কার্ট আইকন বাটন --}}
@@ -364,22 +364,22 @@
                                     <div class="pro_btn">
 
                                         {{-- Order Now --}}
-                                        <form action="{{ route('cart.store') }}" method={{ __('"{{ __('POST') }}"') }} class="ajax-cart-form">
+                                        <form action="{{ route('cart.store') }}" method="POST" class="ajax-cart-form">
                                             @csrf
                                             <input type="hidden" name="id" value="{{ $value->id }}">
                                             <input type="hidden" name="qty" value="1">
                                             <input type="hidden" name="order_now" value="1">
-                                            <button type="{{ __('submit') }}" class="order-btn">
-                                                {{ __('Order Now') }}
+                                            <button type="submit" class="order-btn">
+                                                অর্ডার করুন
                                             </button>
                                         </form>
 
-                                        {{-- Add to {{ __('Cart') }} --}}
-                                        <form action="{{ route('cart.store') }}" method={{ __('"{{ __('POST') }}"') }} class="ajax-cart-form">
+                                        {{-- Add to Cart --}}
+                                        <form action="{{ route('cart.store') }}" method="POST" class="ajax-cart-form">
                                             @csrf
                                             <input type="hidden" name="id" value="{{ $value->id }}">
                                             <input type="hidden" name="qty" value="1">
-                                            <button type="{{ __('submit') }}" class="cart-icon-btn">
+                                            <button type="submit" class="cart-icon-btn">
                                                 <i class="fa-solid fa-cart-shopping"></i>
                                             </button>
                                         </form>
@@ -414,20 +414,20 @@
 
 @endsection
 @push('script')
-    <script src="{{ __('https://') }}cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
-    <script src="{{ __('https://') }}ajax.googleapis.com/ajax/libs/jqueryui/1.11.2/jquery-ui.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.2/jquery-ui.min.js"></script>
     <script>
         $("#price-range").click(function() {
-            $(".price-{{ __('submit') }}").{{ __('submit') }}();
+            $(".price-submit").submit();
         })
         $(".form-attribute").on('change click',function(){
-            $(".attribute-{{ __('submit') }}").{{ __('submit') }}();
+            $(".attribute-submit").submit();
         })
         $(".sort").change(function() {
-            $(".sort-form").{{ __('submit') }}();
+            $(".sort-form").submit();
         })
         $(".form-checkbox").change(function() {
-            $(".subcategory-{{ __('submit') }}").{{ __('submit') }}();
+            $(".subcategory-submit").submit();
         })
     </script>
     <script>
@@ -473,15 +473,15 @@
         });
     </script>
 
-    {{-- 🔹 GA4 DataLayer + Facebook Pixel for {{ __('Category') }} Page --}}
+    {{-- 🔹 GA4 DataLayer + Facebook Pixel for Category Page --}}
     <script type="text/javascript">
         window.dataLayer = window.dataLayer || [];
 
         (function () {
-            var category{{ __('Name') }} = @json($category->name);
+            var categoryName = @json($category->name);
             var categorySlug = @json($category->slug);
 
-            var category{{ __('{{ __('Item') }}s') }} = [
+            var categoryItems = [
                 @foreach($products as $index => $value)
                 {
                     item_id: "{{ $value->id }}",
@@ -490,7 +490,7 @@
                     item_brand: @json(optional($value->brand)->name),
                     item_category: @json(optional($value->category)->name ?? $category->name),
                     item_list_id: categorySlug,
-                    item_list_name: category{{ __('Name') }},
+                    item_list_name: categoryName,
                     index: {{ $loop->iteration }},
                     slug: @json($value->slug),
                     currency: "BDT"
@@ -498,14 +498,14 @@
                 @endforeach
             ];
 
-            if (category{{ __('{{ __('Item') }}s') }}.length) {
+            if (categoryItems.length) {
                 window.dataLayer.push({ ecommerce: null });
                 window.dataLayer.push({
                     event: "view_item_list",
                     ecommerce: {
                         item_list_id: categorySlug,
-                        item_list_name: category{{ __('Name') }},
-                        items: category{{ __('{{ __('Item') }}s') }}.map(function (item) {
+                        item_list_name: categoryName,
+                        items: categoryItems.map(function (item) {
                             return {
                                 item_id: item.item_id,
                                 item_name: item.item_name,
@@ -523,19 +523,19 @@
             }
 
             if (typeof fbq === "function") {
-                fbq("trackCustom", "View{{ __('Category') }}", {
-                    content_category: category{{ __('Name') }},
-                    content_ids: category{{ __('{{ __('Item') }}s') }}.map(function (i) { return i.item_id; }),
+                fbq("trackCustom", "ViewCategory", {
+                    content_category: categoryName,
+                    content_ids: categoryItems.map(function (i) { return i.item_id; }),
                     currency: "BDT"
                 });
             }
 
-            function find{{ __('Item') }}ByHref(href) {
+            function findItemByHref(href) {
                 if (!href) return null;
                 try {
                     var parts = href.split("/");
                     var last = parts[parts.length - 1].split("?")[0];
-                    return category{{ __('{{ __('Item') }}s') }}.find(function (i) { return i.slug === last; }) || null;
+                    return categoryItems.find(function (i) { return i.slug === last; }) || null;
                 } catch (e) {
                     return null;
                 }
@@ -543,7 +543,7 @@
 
             $(document).on("click", ".category-product .product_item a", function () {
                 var href = $(this).attr("href") || "";
-                var item = find{{ __('Item') }}ByHref(href);
+                var item = findItemByHref(href);
                 if (!item) return;
 
                 window.dataLayer.push({ ecommerce: null });
@@ -551,7 +551,7 @@
                     event: "select_item",
                     ecommerce: {
                         item_list_id: categorySlug,
-                        item_list_name: category{{ __('Name') }},
+                        item_list_name: categoryName,
                         items: [{
                             item_id: item.item_id,
                             item_name: item.item_name,
@@ -567,7 +567,7 @@
                 });
 
                 if (typeof fbq === "function") {
-                    fbq("trackCustom", "{{ __('Category') }}{{ __('Product') }}Click", {
+                    fbq("trackCustom", "CategoryProductClick", {
                         content_ids: [item.item_id],
                         content_name: item.item_name,
                         content_category: item.item_category,

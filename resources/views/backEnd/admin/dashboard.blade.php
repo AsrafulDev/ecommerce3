@@ -1,8 +1,8 @@
 @extends('backEnd.layouts.master')
-@section('title','{{ __('Sales') }} Dashboard')
+@section('title','Sales Dashboard')
 
 @section('css')
-<link href="{{ __('https://') }}cdn.jsdelivr.net/npm/apexcharts@3.35.5/dist/apexcharts.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/apexcharts@3.35.5/dist/apexcharts.css" rel="stylesheet">
 <style>
 /* ── Dashboard Hero Banner ── */
 .dash-hero {
@@ -69,7 +69,7 @@
 }
 .dash-card .card-icon {
     width: 52px; height: 52px;
-    border-radius: {{ __('14px') }};
+    border-radius: 14px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -140,7 +140,7 @@
     background: #f8fafc;
 }
 
-/* ── {{ __('{{ __('Customer') }} List') }} ── */
+/* ── Customer List ── */
 .customer-list { margin: 0; }
 .customer-list .customer-item {
     padding: 0.7rem 0;
@@ -154,7 +154,7 @@
 .customer-list .customer-item .cust-name {
     font-weight: 600; color: #1a1a2e; font-size: 0.9rem;
 }
-.customer-list .customer-item .cust-{{ __('phone') }} {
+.customer-list .customer-item .cust-phone {
     font-size: 0.8rem; color: #94a3b8;
 }
 
@@ -173,19 +173,19 @@
 
   {{-- Header --}}
   <div class="page-header-modern mb-3">
-    <h4 class="fw-bold">{{ __('Hi! Welcome To Dashboard') }}</h4>
-    <p class="text-muted">Home → {{ __('Sales') }} Dashboard</p>
+    <h4 class="fw-bold">Hi! Welcome To Dashboard</h4>
+    <p class="text-muted">Home → Sales Dashboard</p>
   </div>
 
   {{-- Hero Banner --}}
   <div class="dash-hero mb-4">
     <div>
       <h3>Congratulations {{ Auth::user()->name ?? 'Admin' }} 🎉</h3>
-      <p>You have reached your sales milestone! {{ __('Keep') }} going strong 💪</p>
+      <p>You have reached your sales milestone! Keep going strong 💪</p>
     </div>
     <div class="hero-profit">
       <div class="profit-value">TK {{ number_format($today_profit ?? 0,2) }}</div>
-      <div class="profit-label">{{ __("{{ __('Today') }}'s Profit") }}</div>
+      <div class="profit-label">Today's Profit</div>
     </div>
   </div>
 
@@ -195,7 +195,7 @@
       <div class="dash-card">
         <div class="card-icon orders" data-feather="shopping-cart"></div>
         <div class="card-info">
-          <div class="card-label">{{ __('{{ __('Total') }} Orders') }}</div>
+          <div class="card-label">Total Orders</div>
           <div class="card-value">{{ number_format($total_order ?? 0) }}</div>
         </div>
       </div>
@@ -204,7 +204,7 @@
       <div class="dash-card">
         <div class="card-icon fund" data-feather="dollar-sign"></div>
         <div class="card-info">
-          <div class="card-label">{{ __('Fund {{ __('Balance') }}') }}</div>
+          <div class="card-label">Fund Balance</div>
           <div class="card-value">TK {{ number_format($fund_balance ?? 0,2) }}</div>
         </div>
       </div>
@@ -213,7 +213,7 @@
       <div class="dash-card">
         <div class="card-icon expenses" data-feather="trending-down"></div>
         <div class="card-info">
-          <div class="card-label">{{ __('{{ __('Total') }} {{ __('{{ __('Expense') }}s') }}') }}</div>
+          <div class="card-label">Total Expenses</div>
           <div class="card-value">TK {{ number_format($total_expenses ?? 0,2) }}</div>
         </div>
       </div>
@@ -222,7 +222,7 @@
       <div class="dash-card">
         <div class="card-icon delivery" data-feather="truck"></div>
         <div class="card-info">
-          <div class="card-label">{{ __('{{ __('Delivered') }} Orders') }}</div>
+          <div class="card-label">Delivered Orders</div>
           <div class="card-value">{{ number_format($total_delivery ?? 0) }}</div>
         </div>
       </div>
@@ -235,7 +235,7 @@
       <div class="chart-modern">
         <div class="chart-title">
           <span class="title-dot purple"></span>
-          {{ __('Sales') }} By {{ __('Category') }}
+          Sales By Category
         </div>
         <div id="categoryChart"></div>
       </div>
@@ -244,14 +244,14 @@
       <div class="chart-modern">
         <div class="chart-title">
           <span class="title-dot blue"></span>
-          {{ __('Monthly') }} {{ __('Sales') }} Statistics
+          Monthly Sales Statistics
         </div>
         <div id="salesChart"></div>
       </div>
     </div>
   </div>
 
-  {{-- Recent Orders & {{ __('Customer') }}s --}}
+  {{-- Recent Orders & Customers --}}
   <div class="row g-3 mt-3">
     <div class="col-lg-8">
       <div class="chart-modern">
@@ -263,8 +263,8 @@
           <table class="table table-modern">
             <thead>
               <tr>
-                <th>{{ __('Customer') }}</th>
-                <th>{{ __('{{ __('Inv') }}oice') }}</th>
+                <th>Customer</th>
+                <th>{{ __('Invoice') }}</th>
                 <th>{{ __('Status') }}</th>
                 <th>{{ __('Date') }}</th>
               </tr>
@@ -276,7 +276,7 @@
                 <td>#{{ $order->invoice_id ?? '-' }}</td>
                 <td>
                   @if(($order->order_status ?? 0) == 5)
-                    <span class="badge bg-success badge-dash">{{ __('Delivered') }}</span>
+                    <span class="badge bg-success badge-dash">Delivered</span>
                   @elseif(($order->order_status ?? 0) == 1)
                     <span class="badge bg-info badge-dash">{{ __('Pending') }}</span>
                   @else
@@ -287,7 +287,7 @@
               </tr>
             @empty
               <tr>
-                <td colspan="4" class="text-center text-muted py-3">{{ __('No recent orders found') }}</td>
+                <td colspan="4" class="text-center text-muted py-3">No recent orders found</td>
               </tr>
             @endforelse
             </tbody>
@@ -299,16 +299,16 @@
       <div class="chart-modern">
         <div class="chart-title">
           <span class="title-dot purple"></span>
-          Recent {{ __('Customer') }}s
+          Recent Customers
         </div>
         <ul class="customer-list">
           @forelse($latest_customer ?? [] as $cust)
             <li class="customer-item">
               <div class="cust-name">{{ $cust->name }}</div>
-              <div class="cust-{{ __('phone') }}">{{ $cust->{{ __('phone') }} ?? '{{ __('N/A') }}' }}</div>
+              <div class="cust-phone">{{ $cust->phone ?? 'N/A' }}</div>
             </li>
           @empty
-            <li class="text-muted text-center py-3">{{ __('No customers found') }}</li>
+            <li class="text-muted text-center py-3">No customers found</li>
           @endforelse
         </ul>
       </div>
@@ -319,20 +319,20 @@
 @endsection
 
 @section('script')
-<script src="{{ __('https://') }}cdn.jsdelivr.net/npm/apexcharts@3.35.5"></script>
+<script src="https://cdn.jsdelivr.net/npm/apexcharts@3.35.5"></script>
 <script>
-// ── {{ __('Category') }} Chart (Donut) ──
+// ── Category Chart (Donut) ──
 new ApexCharts(document.querySelector("#categoryChart"),{
   chart:{type:'donut',height:280},
-  labels:@json($category{{ __('Label') }}s ?? ['No {{ __('Sales') }}']),
+  labels:@json($categoryLabels ?? ['No Sales']),
   series:@json($categorySeries ?? [0]),
   legend:{position:'bottom',fontSize:'13px',fontFamily:'inherit'},
   colors:['#7c3aed','#2563eb','#16a34a','#d97706','#dc2626','#0891b2'],
-  data{{ __('Label') }}s:{enabled:false},
+  dataLabels:{enabled:false},
   tooltip:{
     y:{
       formatter:function(val){
-        return '৳ ' + val.toLocale{{ __('String') }}('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
+        return '৳ ' + val.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
       }
     }
   },
@@ -343,20 +343,20 @@ new ApexCharts(document.querySelector("#categoryChart"),{
         labels:{
           show:true,
           name:{show:true,fontSize:'13px',fontWeight:600,color:'#1a1a2e'},
-          value:{show:true,fontSize:'{{ __('14px') }}',fontWeight:700,color:'#273444',
+          value:{show:true,fontSize:'14px',fontWeight:700,color:'#273444',
             formatter:function(val){
-              return '৳ ' + Number(val).toLocale{{ __('String') }}('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
+              return '৳ ' + Number(val).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
             }
           },
-          {{ __('total') }}:{
+          total:{
             show:true,
-            label:'{{ __('{{ __('Total') }} {{ __('Sales') }}') }}',
+            label:'Total Sales',
             fontSize:'12px',
             fontWeight:600,
             color:'#94a3b8',
             formatter:function(){
-              var {{ __('total') }} = @json(array_sum($categorySeries ?? [0]));
-              return '৳ ' + {{ __('total') }}.toLocale{{ __('String') }}('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
+              var total = @json(array_sum($categorySeries ?? [0]));
+              return '৳ ' + total.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
             }
           }
         }
@@ -365,11 +365,11 @@ new ApexCharts(document.querySelector("#categoryChart"),{
   }
 }).render();
 
-// ── {{ __('Monthly') }} {{ __('Sales') }} Chart ({{ __('Area') }}) ──
+// ── Monthly Sales Chart (Area) ──
 new ApexCharts(document.querySelector("#salesChart"),{
   chart:{type:'area',height:300,toolbar:{show:false},fontFamily:'inherit'},
   series:[{
-    name:'{{ __('Sales') }}',
+    name:'Sales',
     data:@json(($monthly_sale ?? collect())->pluck('amount'))
   }],
   xaxis:{
@@ -379,7 +379,7 @@ new ApexCharts(document.querySelector("#salesChart"),{
   yaxis:{
     labels:{
       style:{fontSize:'12px',fontWeight:500,colors:'#94a3b8'},
-      formatter:function(val){ return '৳ ' + val.toLocale{{ __('String') }}('en-US'); }
+      formatter:function(val){ return '৳ ' + val.toLocaleString('en-US'); }
     }
   },
   stroke:{curve:'smooth',width:3,colors:['#2563eb']},
@@ -387,7 +387,7 @@ new ApexCharts(document.querySelector("#salesChart"),{
     type:'gradient',
     gradient:{
       shadeIntensity:1,
-      opacity{{ __('From') }}:0.4,
+      opacityFrom:0.4,
       opacityTo:0.1,
       colorStops:[{
         offset:0,color:'#2563eb',opacity:0.4
@@ -396,14 +396,14 @@ new ApexCharts(document.querySelector("#salesChart"),{
       }]
     }
   },
-  data{{ __('Label') }}s:{enabled:false},
+  dataLabels:{enabled:false},
   markers:{size:0},
   tooltip:{
     y:{
-      formatter:function(val){ return '৳ ' + val.toLocale{{ __('String') }}('en-US',{minimumFractionDigits:2}); }
+      formatter:function(val){ return '৳ ' + val.toLocaleString('en-US',{minimumFractionDigits:2}); }
     }
   },
-  grid:{border{{ __('Color') }}:'#f1f5f9'}
+  grid:{borderColor:'#f1f5f9'}
 }).render();
 
 // ── Feather Icons ──

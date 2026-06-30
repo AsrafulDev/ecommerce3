@@ -1,5 +1,5 @@
 @extends('backEnd.layouts.master')
-@section('title','{{ __('{{ __('Manage') }} Role') }}s')
+@section('title','Manage Roles')
 
 @section('css')
 <link href="{{asset('/public/backEnd/')}}/assets/libs/datatables.net-bs5/css/dataTables.bootstrap5.min.css" rel="stylesheet" type="text/css" />
@@ -33,7 +33,7 @@
         padding: 15px;
         border-bottom: 1px solid #f1f5f7;
         color: #313b5e;
-        font-size: {{ __('14px') }};
+        font-size: 14px;
     }
 
     /* Role Badge Styling */
@@ -76,11 +76,11 @@
     <div class="row mb-3 mt-3">
         <div class="col-12 d-flex justify-content-between align-items-center">
             <div>
-                <h4 class="page-title mb-0" style="font-weight: 700; color: #2d3436;">{{ __('{{ __('Roles') }} & {{ __('Permissions') }}') }}</h4>
-                <p class="text-muted font-size-13 mb-0">{{ __('{{ __('Manage') }} user roles and access control.') }}</p>
+                <h4 class="page-title mb-0" style="font-weight: 700; color: #2d3436;">Roles & Permissions</h4>
+                <p class="text-muted font-size-13 mb-0">Manage user roles and access control.</p>
             </div>
             <a href="{{route('roles.create')}}" class="btn btn-primary rounded-pill shadow-sm px-4">
-                <i class="fe-plus me-1"></i> {{ __('Create {{ __('New') }} Role') }}
+                <i class="fe-plus me-1"></i> Create New Role
             </a>
         </div>
     </div>
@@ -93,7 +93,7 @@
                         <thead>
                             <tr>
                                 <th style="width: 50px;">{{ __('SL') }}</th>
-                                <th>{{ __('Role {{ __('Name') }}') }}</th>
+                                <th>Role Name</th>
                                 <th class="text-end" style="width: 150px;">{{ __('Action') }}</th>
                             </tr>
                         </thead>                
@@ -132,12 +132,12 @@
                                         <div class="d-inline-flex gap-2">
                                             
                                             {{-- Show/View --}}
-                                            <a href="{{ route('roles.show', $value->{{ __('id)') }} }}" class="action-btn btn-view" title="View {{ __('Permissions') }}">
+                                            <a href="{{ route('roles.show', $value->id) }}" class="action-btn btn-view" title="View Permissions">
                                                 <i class="fe-eye"></i>
                                             </a>
 
                                             {{-- Edit --}}
-                                            <a href="{{ route('roles.edit', $value->{{ __('id)') }} }}" class="action-btn btn-edit" title="{{ __('Edit Role') }}">
+                                            <a href="{{ route('roles.edit', $value->id) }}" class="action-btn btn-edit" title="Edit Role">
                                                 <i class="fe-edit"></i>
                                             </a>
 
@@ -145,7 +145,7 @@
                                             <form method="post" action="{{ route('roles.destroy') }}" class="d-inline">
                                                 @csrf
                                                 <input type="hidden" value="{{ $value->id }}" name="hidden_id">
-                                                <button type="{{ __('submit') }}" class="action-btn btn-delete delete-confirm" title="{{ __('Delete') }}">
+                                                <button type="submit" class="action-btn btn-delete delete-confirm" title="{{ __('Delete') }}">
                                                     <i class="fe-trash-2"></i>
                                                 </button>
                                             </form>

@@ -13,7 +13,7 @@
 	<title>Admin Login | {{$generalsetting->name}}</title>
 
 	<!-- google font -->
-	<link rel="stylesheet" href="{{ __('https://') }}fonts.googleapis.com/css?family=Poppins:300,400,500,600,700">
+	<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Poppins:300,400,500,600,700">
 
 	<!-- aiz core css -->
 	<link rel="stylesheet" href="{{asset('public/backEnd/')}}/assets_login/css/vendors.css">
@@ -60,20 +60,20 @@
                         <div class="mb-5 text-center">
                                                             <img src="{{asset($generalsetting->dark_logo)}}" class="mw-100 mb-4" height="40">
                                                         <h1 class="h3 text-primary mb-0">Welcome to {{$generalsetting->name}}</h1>
-                            <p>{{ __('Login to your account.') }}</p>
+                            <p>Login to your account.</p>
                         </div>
                         
-                        {{-- Show error {{ __('message') }}s --}}
+                        {{-- Show error messages --}}
                         @if(session('error'))
                             <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                                <strong>{{ __('Error!') }}</strong> {{ session('error') }}
+                                <strong>Error!</strong> {{ session('error') }}
                                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="{{ __('Close') }}"></button>
                             </div>
                         @endif
                         
                         @if($errors->any())
                             <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                                <strong>{{ __('Error!') }}</strong>
+                                <strong>Error!</strong>
                                 <ul class="mb-0">
                                     @foreach($errors->all() as $error)
                                         <li>{{ $error }}</li>
@@ -83,7 +83,7 @@
                             </div>
                         @endif
 
-                          <form method={{ __('"{{ __('POST') }}"') }} action="{{route('login')}}" >
+                          <form method="POST" action="{{route('login')}}" >
                           @csrf
 							<div class="form-group">
                                 <input id="email" type="email" class="form-control @error('email') is-invalid @enderror" name="email" value="{{ old('email') }}" required autofocus placeholder="{{ __('Email') }}">
@@ -125,16 +125,16 @@
                                         </div>
                                     </div>
                                                             </div>
-                            <button type="{{ __('submit') }}" class="btn btn-primary btn-lg btn-block">{{ __('Login') }}</button>
+                            <button type="submit" class="btn btn-primary btn-lg btn-block">{{ __('Login') }}</button>
                         </form>
 
                         @if(isset($demoMode) && $demoMode)
                         <div class="mt-4 pt-3 border-top">
-                            <p class="text-muted small mb-2">{{ __('bn_3949f3db') }}</p>
+                            <p class="text-muted small mb-2">ডেমো একাউন্ট</p>
                             <div class="d-flex gap-2 align-items-center flex-wrap">
                                 <input type="text" class="form-control form-control-sm" id="demo-email" value="info@creativedesign.com.bd" readonly style="flex:1;min-width:0;">
                                 <input type="text" class="form-control form-control-sm" id="demo-password" value="12345678" readonly style="width:100px;">
-                                <button type="button" class="btn btn-outline-primary btn-sm" onclick="fillDemoCreds()">{{ __('Use') }}</button>
+                                <button type="button" class="btn btn-outline-primary btn-sm" onclick="fillDemoCreds()">Use</button>
                             </div>
                         </div>
                         @endif
@@ -177,7 +177,7 @@
         document.getElementById('email').value = email;
         document.getElementById('password').value = pass;
         var btn = document.querySelector('button[onclick="fillDemoCreds()"]');
-        if (btn) { btn.textContent = 'Filled!'; setTimeout(function(){ btn.textContent = '{{ __('Use') }}'; }, 1200); }
+        if (btn) { btn.textContent = 'Filled!'; setTimeout(function(){ btn.textContent = 'Use'; }, 1200); }
     }
     </script>
     @endif

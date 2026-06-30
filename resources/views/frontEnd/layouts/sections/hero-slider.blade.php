@@ -67,7 +67,7 @@
     .hero-inner-section .owl-next { right: 12px; }
     .hero-inner-section .owl-nav button:hover {
         background: #fff !important;
-        box-shadow: 0 4px {{ __('14px') }} rgba(0,0,0,0.18);
+        box-shadow: 0 4px 14px rgba(0,0,0,0.18);
     }
 
     @media (max-width: 767px) {

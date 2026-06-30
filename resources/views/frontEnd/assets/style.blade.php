@@ -1,19 +1,19 @@
 @php
     $generalsetting = \App\Models\GeneralSetting::first();
 @endphp
-@import url("{{ __('https://') }}fonts.googleapis.com/css2?family=Jost:wght@400;500;600;700;800;900&display=swap");
-@import url("{{ __('https://') }}fonts.googleapis.com/css2?family=Lato:ital,wght@0,100;0,300;0,400;0,700;0,900;1,100;1,300;1,400;1,700;1,900&display=swap");
-@import url('{{ __('https://') }}fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Jost:wght@400;500;600;700;800;900&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,100;0,300;0,400;0,700;0,900;1,100;1,300;1,400;1,700;1,900&display=swap");
+@import url('https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap');
 
 body {
     font-family: "Roboto", sans-serif;
-    font-size: {{ __('14px') }};
+    font-size: 14px;
     overflow-x: hidden;
     line-height: 1.5;
     background: #ffffff;
 }
 
-/* ===== {{ __('Customer') }} Account Card ===== */
+/* ===== Customer Account Card ===== */
 .account-card{
     background:#ffffff;
     padding:25px;
@@ -21,7 +21,7 @@ body {
     box-shadow:0 4px 18px rgba(0,0,0,0.06);
 }
 
-/* ===== Account {{ __('Title') }} ===== */
+/* ===== Account Title ===== */
 .account-title{
     color:#000;
     font-size:18px;
@@ -41,7 +41,7 @@ body {
 /* ===== Form ===== */
 .account-card label{
     font-weight:600;
-    font-size:{{ __('14px') }};
+    font-size:14px;
     color:#333;
 }
 
@@ -59,17 +59,17 @@ body {
 }
 
 /* ===== Submit Button ===== */
-.account-card .{{ __('submit') }}-btn{
+.account-card .submit-btn{
     background:#0d6efd;
     border:none;
     padding:10px 28px;
     border-radius:25px;
     font-weight:600;
-    font-size:{{ __('14px') }};
+    font-size:14px;
     transition:.3s;
 }
 
-.account-card .{{ __('submit') }}-btn:hover{
+.account-card .submit-btn:hover{
     background:#084298;
 }
 
@@ -82,7 +82,7 @@ body {
         --card:#ffffff;
         --text:#1d1d1f;
         --muted:#7a7a7a;
-        --radius:{{ __('14px') }};
+        --radius:14px;
     }
     
     /* *{margin:0;padding:0;box-sizing:border-box;font-family:'Inter',sans-serif;}  <-- এই লাইনটি পুরনো CSS-কে ওভাররাইড করতে পারে, তাই এখানে সতর্ক থাকুন। */
@@ -114,8 +114,8 @@ body {
     
     .menu a{
         display:flex;align-items:center;gap:10px;
-        padding:10px {{ __('14px') }};
-        font-size:{{ __('14px') }};
+        padding:10px 14px;
+        font-size:14px;
         color:#444;
         text-decoration:none;
         border-radius:10px;
@@ -137,7 +137,7 @@ body {
         border-radius:22px;
         text-decoration:none;
         display:block;
-        font-size:{{ __('14px') }};
+        font-size:14px;
     }
     
     /* ===== Main ===== */
@@ -212,14 +212,14 @@ body {
         padding:20px;
     }
     .stat-item{
-        display:flex;align-items:center;gap:{{ __('14px') }};
+        display:flex;align-items:center;gap:14px;
         margin-bottom:16px;
     }
     .stat-item:last-child{margin-bottom:0;}
     .stat-icon{
         width:38px;height:38px;border-radius:50%;
         display:flex;align-items:center;justify-content:center;
-        color:#fff;font-size:{{ __('14px') }};
+        color:#fff;font-size:14px;
     }
     .red{background:#e74c3c;}
     .blue{background:#3498db;}
@@ -235,7 +235,7 @@ body {
     .card h5{font-size:15px;margin-bottom:8px;}
     .card p{font-size:13px;color:var(--muted);}
     .card button{
-        margin-top:{{ __('14px') }};
+        margin-top:14px;
         background:var(--blue);
         border:none;
         color:#fff;
@@ -253,7 +253,7 @@ body {
         text-align:center;
     }
     .wishlist img{max-width:220px;width:100%;}
-    .wishlist p{margin-top:12px;font-size:{{ __('14px') }};color:var(--muted);}
+    .wishlist p{margin-top:12px;font-size:14px;color:var(--muted);}
     
     /* ===== Responsive ===== */
     @media(max-width:1024px){
@@ -265,7 +265,7 @@ body {
         .sidebar{width:100%;border-right:none;border-bottom:1px solid #eee;}
         .main{padding:16px;}
     }
-    /* {{ __('{{ __('Product') }}s') }} কার্ডের বাটন কন্টেইনার */
+    /* প্রোডাক্ট কার্ডের বাটন কন্টেইনার */
     .product_item .pro_btn{
         display:flex;
         align-items:stretch;
@@ -280,7 +280,7 @@ body {
         margin:0;
     }
 
-    /* বাম দিকের বড় “{{ __('Order Now') }}” বাটন – পুরো জায়গা নেবে */
+    /* বাম দিকের বড় “অর্ডার করুন” বাটন – পুরো জায়গা নেবে */
     .product_item .pro_btn > form:first-child,
     .product_item .pro_btn > a.order-btn-link{
         flex:1 1 auto;
@@ -305,7 +305,7 @@ body {
         background:#d32f2f;
         color:#fff !important;
         border-radius:4px;
-        font-size:{{ __('14px') }};
+        font-size:14px;
         font-weight:600;
         cursor:pointer;
         font-family:"Potro Sans Bangla",sans-serif;
@@ -578,18 +578,18 @@ header {
     border: 1px solid blue;
 }
 
-.{{ __('New') }}sletter a {
+.Newsletter a {
     border: none;
     width: auto;
     margin-right: 8px;
 }
 
-.{{ __('New') }}sletter a:hover {
+.Newsletter a:hover {
     background: none;
     border: none;
 }
 
-li.{{ __('New') }}sletter i {
+li.Newsletter i {
     margin-right: 2px !important;
     font-size: 10px;
 }
@@ -918,7 +918,7 @@ li.{{ __('New') }}sletter i {
     text-align: center;
 }
 
-.{{ __('submit') }}-btn {
+.submit-btn {
     background: var(--primary-color) !important;
     display: block;
     width: 100%;
@@ -1285,7 +1285,7 @@ section.slider-section {
     background-color: var(--primary-color);
     color: #fff;
     text-transform: uppercase;
-    font-size: {{ __('14px') }};
+    font-size: 14px;
     font-weight: 600;
     border-radius: 0;
     padding: 10px 20px;
@@ -1428,7 +1428,7 @@ section.slider-section {
     top: 6px;
     left: 8px;
     color: white;
-    font-size: {{ __('14px') }};
+    font-size: 14px;
     font-weight: bold;
 }
 
@@ -1869,7 +1869,7 @@ section.slider-section {
 }
 
 .feature-products .title {
-    font-size: {{ __('14px') }};
+    font-size: 14px;
     padding-bottom: 5px;
 }
 
@@ -1878,7 +1878,7 @@ section.slider-section {
 }
 
 .delivery_details .potro_font {
-    font-size: {{ __('14px') }};
+    font-size: 14px;
     font-weight: 600;
     letter-spacing: 1px;
     padding-left: 0;
@@ -2009,7 +2009,7 @@ p.empty-text {
     cursor: pointer !important;
 }
 
-textarea#{{ __('message') }}-text {
+textarea#message-text {
     border: 2px solid;
     border-color: #009e60;
     max-width: 450px;
@@ -2034,7 +2034,7 @@ button.details-review-button {
     margin-top: 10px;
     padding: 7px;
     color: white;
-    font-size: {{ __('14px') }};
+    font-size: 14px;
     text-align: center;
     border-radius: 3px;
 }
@@ -2059,7 +2059,7 @@ button.details-review-button {
 .cust_according_body ul li a {
     display: block;
     padding: 5px 16px;
-    font-size: {{ __('14px') }};
+    font-size: 14px;
     font-weight: 600;
     color: #444;
 }
@@ -2068,23 +2068,23 @@ button.details-review-button {
     background-color: var(--primary-color)38;
 }
 
-.subcategory-{{ __('filter') }}-label {
+.subcategory-filter-label {
     display: flex;
     column-gap: 10px;
     padding: 5px 10px;
     cursor: pointer;
     padding: 5px 16px;
-    font-size: {{ __('14px') }};
+    font-size: 14px;
     font-weight: 600;
 }
-.subcategory-{{ __('filter') }}-list p {
+.subcategory-filter-list p {
     color: #555;
 }
-.subcategory-{{ __('filter') }}-label:hover {
+.subcategory-filter-label:hover {
     background-color: var(--primary-color)38;
 }
 
-.subcategory-{{ __('filter') }}-label input {
+.subcategory-filter-label input {
     position: relative;
     border: 2px solid var(--primary-color);
     border-radius: 2px;
@@ -2102,12 +2102,12 @@ button.details-review-button {
     margin-top: 3px;
 }
 
-.subcategory-{{ __('filter') }}-label input[type=checkbox]:checked {
+.subcategory-filter-label input[type=checkbox]:checked {
     background-color: var(--primary-color);
     opacity: 1;
 }
 
-.subcategory-{{ __('filter') }}-label input[type=checkbox]:before {
+.subcategory-filter-label input[type=checkbox]:before {
     content: '';
     position: absolute;
     right: 50%;
@@ -2121,7 +2121,7 @@ button.details-review-button {
     z-index: 2;
 }
 
-.{{ __('filter') }}-price-inputs {
+.filter-price-inputs {
     display: flex;
     justify-content: space-between;
 }
@@ -2524,7 +2524,7 @@ li.recent_pro {
 }
 
 .form-content form label {
-    font-size: {{ __('14px') }};
+    font-size: 14px;
     font-weight: 600;
     margin-bottom: 10px;
 }
@@ -2740,7 +2740,7 @@ li.recent_pro {
    color: var(--primary-color); 
 }
 .checkout-shipping select {
-    font-size: {{ __('14px') }};
+    font-size: 14px;
 }
 
 .checkout-shipping input,
@@ -2765,7 +2765,7 @@ li.recent_pro {
     display: block;
 }
 .checkout-shipping .form-check-input {
-    height: {{ __('14px') }} !important;
+    height: 14px !important;
 }
 .nagadform p,
 .bkashform p,
@@ -2842,7 +2842,7 @@ li.recent_pro {
 /*====  CONTACT CSS END ====  */
 
 /*====  ALL CATEGORY CSS START ====  */
-.{{ __('filter') }}_btn, .{{ __('filter') }}_close {
+.filter_btn, .filter_close {
     display: none;
 }
 .category-thumb {
@@ -3001,12 +3001,12 @@ a.custom-button {
 }
 
 .product-title-box h4 a {
-    font-size: {{ __('14px') }};
+    font-size: 14px;
 }
 
 .product-price-box h4 {
     font-weight: bold !important;
-    font-size: {{ __('14px') }};
+    font-size: 14px;
     color: #b70053;
     font-family: var(--font);
 }
@@ -3430,7 +3430,7 @@ section.product-inner {
 .pro_price del {
     color: blue;
     margin-right: 5px;
-    font-size: {{ __('14px') }};
+    font-size: 14px;
     font-weight: 400;
 }
 
@@ -3646,7 +3646,7 @@ ul.child_menu li a {
 }
 
 .child_main>a {
-    font-size: {{ __('14px') }};
+    font-size: 14px;
     color: #444 !important;
     text-transform: capitalize !important;
     position: relative;
@@ -3672,7 +3672,7 @@ ul.child_sub li a {
 }
 
 li.child_main>a {
-    font-size: {{ __('14px') }};
+    font-size: 14px;
     font-weight: 500;
     color: #000 !important;
     text-transform: uppercase;
@@ -4049,7 +4049,7 @@ ul.social_link {
     color: #000;
 }
 
-/* ===={{ __('Color') }} {{ __('Size Details') }} Css ====*/
+/* ====Color Size Details Css ====*/
 .selector {
     position: relative;
     width: 100%;
@@ -4122,7 +4122,7 @@ ul.social_link {
     cursor: pointer;
 }
 
-/* ===={{ __('Color') }} {{ __('Size Details') }} Css ====*/
+/* ====Color Size Details Css ====*/
 .color_size {
     display: flex;
     justify-content: center;
@@ -4280,7 +4280,7 @@ ul.social_link {
 }
 
 a.forget-link {
-    font-size: {{ __('14px') }};
+    font-size: 14px;
 }
 
 .cart_details .card-header {

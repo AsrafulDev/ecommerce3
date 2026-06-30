@@ -43,7 +43,7 @@
         border: 1px solid #d1d5db;
         border-radius: 8px;
         padding: 10px 12px;
-        font-size: {{ __('14px') }};
+        font-size: 14px;
         transition: all 0.2s;
     }
 
@@ -54,7 +54,7 @@
     }
 
     .table-modern {
-        font-size: {{ __('14px') }};
+        font-size: 14px;
     }
 
     .table-modern th {
@@ -131,28 +131,28 @@
                 <div class="card card-modern h-100">
                     <div class="card-header-modern">
                         <i data-feather="upload" class="me-2" style="width:18px;"></i>
-                        Release {{ __('New') }} Update
+                        Release New Update
                     </div>
                     <div class="card-body">
-                        <form action="{{ route('admin.update.release.store') }}" method={{ __('"{{ __('POST') }}"') }} enctype="multipart/form-data">
+                        <form action="{{ route('admin.update.release.store') }}" method="POST" enctype="multipart/form-data">
                             @csrf
 
                             <div class="mb-3">
-                                <label class="form-label-modern">{{ __('Version Number') }} <span class="text-danger">*</span></label>
+                                <label class="form-label-modern">Version Number <span class="text-danger">*</span></label>
                                 <input type="text" name="version" 
                                        class="form-control form-control-modern @error('version') is-invalid @enderror" 
                                        value="{{ old('version') }}" 
-                                       placeholder="{{ __('e.g., 1.1.0') }}" 
+                                       placeholder="e.g., 1.1.0" 
                                        pattern="^\d+\.\d+\.\d+$"
                                        required>
-                                <small class="text-muted">{{ __('Format: X.X.X ({{ __('e.g., 1.1.0') }})') }}</small>
+                                <small class="text-muted">Format: X.X.X (e.g., 1.1.0)</small>
                                 @error('version')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
                             </div>
 
                             <div class="mb-3">
-                                <label class="form-label-modern">{{ __('Release {{ __('Date') }}') }} <span class="text-danger">*</span></label>
+                                <label class="form-label-modern">Release Date <span class="text-danger">*</span></label>
                                 <input type="date" name="release_date" 
                                        class="form-control form-control-modern @error('release_date') is-invalid @enderror" 
                                        value="{{ old('release_date', date('Y-m-d')) }}" 
@@ -163,23 +163,23 @@
                             </div>
 
                             <div class="mb-3">
-                                <label class="form-label-modern">{{ __('{{ __('Change') }}log') }}</label>
+                                <label class="form-label-modern">{{ __('Changelog') }}</label>
                                 <textarea name="changelog" 
                                           class="form-control form-control-modern @error('changelog') is-invalid @enderror" 
                                           rows="4" 
-                                          placeholder="{{ __('Describe what') }}'s new in this update...">{{ old('changelog') }}</textarea>
+                                          placeholder="Describe what's new in this update...">{{ old('changelog') }}</textarea>
                                 @error('changelog')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
                             </div>
 
                             <div class="mb-3">
-                                <label class="form-label-modern">{{ __('Update File (ZIP)') }} <span class="text-danger">*</span></label>
+                                <label class="form-label-modern">Update File (ZIP) <span class="text-danger">*</span></label>
                                 <input type="file" name="update_file" 
                                        class="form-control form-control-modern @error('update_file') is-invalid @enderror" 
                                        accept=".zip"
                                        required>
-                                <small class="text-muted">{{ __('Maximum file size: 100MB') }}</small>
+                                <small class="text-muted">Maximum file size: 100MB</small>
                                 @error('update_file')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
@@ -189,13 +189,13 @@
                                 <div class="form-check">
                                     <input class="form-check-input" type="checkbox" name="requires_migration" id="requires_migration" value="1">
                                     <label class="form-check-label" for="requires_migration">
-                                        Requires Database {{ __('Migration') }}
+                                        Requires Database Migration
                                     </label>
                                 </div>
                             </div>
 
                             <div class="d-grid gap-2">
-                                <button type="{{ __('submit') }}" class="btn btn-primary py-2 fw-bold">
+                                <button type="submit" class="btn btn-primary py-2 fw-bold">
                                     <i class="fas fa-upload me-2"></i> Release Update
                                 </button>
                             </div>
@@ -208,7 +208,7 @@
             <div class="col-lg-8">
                 <div class="card card-modern h-100">
                     <div class="card-header-modern d-flex justify-content-between align-items-center">
-                        <span>{{ __('Released Versions') }}</span>
+                        <span>Released Versions</span>
                         <span class="badge bg-light text-dark border">{{ $versions->count() }} Versions</span>
                     </div>
                     
@@ -218,11 +218,11 @@
                                 <thead>
                                     <tr>
                                         <th width="15%">{{ __('Version') }}</th>
-                                        <th width="15%">{{ __('Release {{ __('Date') }}') }}</th>
-                                        <th width="30%">{{ __('{{ __('Change') }}log') }}</th>
-                                        <th width="10%">{{ __('File Size') }}</th>
+                                        <th width="15%">Release Date</th>
+                                        <th width="30%">{{ __('Changelog') }}</th>
+                                        <th width="10%">File Size</th>
                                         <th width="10%">{{ __('Status') }}</th>
-                                        <th width="20%" class="text-end">{{ __('Actions') }}</th>
+                                        <th width="20%" class="text-end">Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -231,7 +231,7 @@
                                             <td>
                                                 <span class="fw-bold text-primary">{{ $version->version }}</span>
                                                 @if($version->requires_migration)
-                                                    <br><small class="text-warning"><i class="fas fa-database"></i> {{ __('Migration') }}</small>
+                                                    <br><small class="text-warning"><i class="fas fa-database"></i> Migration</small>
                                                 @endif
                                             </td>
                                             <td>{{ $version->release_date->format('M d, Y') }}</td>
@@ -244,7 +244,7 @@
                                                 @if($version->file_size)
                                                     {{ number_format($version->file_size / 1024 / 1024, 2) }} MB
                                                 @else
-                                                    {{ __('N/A') }}
+                                                    N/A
                                                 @endif
                                             </td>
                                             <td>
@@ -255,18 +255,18 @@
                                                 @endif
                                             </td>
                                             <td class="text-end">
-                                                <form action="{{ route('admin.update.release.toggle', $version->{{ __('id)') }} }}" method={{ __('"{{ __('POST') }}"') }} class="d-inline">
+                                                <form action="{{ route('admin.update.release.toggle', $version->id) }}" method="POST" class="d-inline">
                                                     @csrf
-                                                    <button type="{{ __('submit') }}" class="btn-icon btn-toggle" 
+                                                    <button type="submit" class="btn-icon btn-toggle" 
                                                             title="{{ $version->is_active ? 'Deactivate' : 'Activate' }}">
                                                         <i class="fas fa-{{ $version->is_active ? 'toggle-on' : 'toggle-off' }}"></i>
                                                     </button>
                                                 </form>
-                                                <form action="{{ route('admin.update.release.destroy', $version->{{ __('id)') }} }}" method={{ __('"{{ __('POST') }}"') }} class="d-inline"
-                                                      on{{ __('submit') }}="return confirm('Are you sure you want to delete version {{ $version->version }}? This will also delete the update file.');">
+                                                <form action="{{ route('admin.update.release.destroy', $version->id) }}" method="POST" class="d-inline"
+                                                      onsubmit="return confirm('Are you sure you want to delete version {{ $version->version }}? This will also delete the update file.');">
                                                     @csrf
                                                     @method('DELETE')
-                                                    <button type="{{ __('submit') }}" class="btn-icon btn-delete" title="{{ __('Delete') }}">
+                                                    <button type="submit" class="btn-icon btn-delete" title="{{ __('Delete') }}">
                                                         <i class="fas fa-trash"></i>
                                                     </button>
                                                 </form>
@@ -276,7 +276,7 @@
                                         <tr>
                                             <td colspan="6" class="text-center text-muted py-4">
                                                 <i class="fas fa-inbox fa-2x mb-2"></i>
-                                                <p class="mb-0">{{ __('No versions released yet') }}</p>
+                                                <p class="mb-0">No versions released yet</p>
                                             </td>
                                         </tr>
                                     @endforelse

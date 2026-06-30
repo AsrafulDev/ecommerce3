@@ -4,14 +4,14 @@
     use Illuminate\Support\Str;
 @endphp
 
-@section('title','{{ __('{{ __('Contact') }} {{ __('Message') }}s') }}')
+@section('title','Contact Messages')
 
 @section('content')
 <meta name="csrf-token" content="{{ csrf_token() }}">
 
 <div class="card">
     <div class="card-header">
-        <h4>{{ __('{{ __('Contact') }} {{ __('Message') }}s') }}</h4>
+        <h4>Contact Messages</h4>
     </div>
 
     <div class="card-body">
@@ -21,18 +21,18 @@
                 <thead>
                     <tr>
                         <th>#</th>
-                        <th>{{ __('Full {{ __('Name') }}') }}</th>
-                        <th>{{ __('Mobile') }}</th>
+                        <th>Full Name</th>
+                        <th>Mobile</th>
                         <th>{{ __('Email') }}</th>
                         <th>{{ __('Subject') }}</th>
-                        <th>{{ __('Message') }}</th>
+                        <th>Message</th>
                         <th width="120">{{ __('Action') }}</th>
                     </tr>
                 </thead>
                 <tbody>
                     @forelse($messages as $key => $row)
                     <tr>
-                        <td>{{ $messages->first{{ __('Item') }}() + $key }}</td>
+                        <td>{{ $messages->firstItem() + $key }}</td>
                         <td>{{ $row->full_name }}</td>
                         <td>{{ $row->mobile }}</td>
                         <td>{{ $row->email }}</td>
@@ -40,8 +40,8 @@
                         <td>{{ Str::limit($row->details, 50) }}</td>
                         <td>
                             {{-- Delete --}}
-                            <form action="{{ route('admin.contact.{{ __('message') }}s.delete',$row->{{ __('id)') }} }}"
-                                  method={{ __('"{{ __('POST') }}"') }}
+                            <form action="{{ route('admin.contact.messages.delete',$row->id) }}"
+                                  method="POST"
                                   class="deleteForm"
                                   style="display:inline-block">
                                 @csrf
@@ -52,7 +52,7 @@
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="7" class="text-center">{{ __('No {{ __('message') }}s found') }}</td>
+                        <td colspan="7" class="text-center">No messages found</td>
                     </tr>
                     @endforelse
                 </tbody>
@@ -84,7 +84,7 @@ $(document).ready(function(){
     });
 
     // ================= Delete =================
-    $(document).on('{{ __('submit') }}','.deleteForm',function(e){
+    $(document).on('submit','.deleteForm',function(e){
         e.preventDefault();
 
         if(!confirm('Are you sure to delete?')) return;
@@ -93,7 +93,7 @@ $(document).ready(function(){
 
         $.ajax({
             url: form.attr('action'),
-            type: '{{ __('POST') }}',
+            type: 'POST',
             data: form.serialize(),
             success:function(){
                 // reload current page data

@@ -12,13 +12,13 @@
                     @foreach ($category->subcategories as $key => $subcategory)
                         <li>
                             <a href="{{ route('subcategory', $subcategory->slug) }}">
-                                {{ $subcategory->subcategory{{ __('Name') }} }} <i class="fa-solid fa-chevron-right"></i>
+                                {{ $subcategory->subcategoryName }} <i class="fa-solid fa-chevron-right"></i>
                             </a>
                             <ul class="sidebar-childmenu">
                                 @foreach ($subcategory->childcategories as $key => $childcat)
                                     <li>
                                         <a href="{{ route('products', $childcat->slug) }}">
-                                            {{ $childcat->childcategory{{ __('Name') }} }}
+                                            {{ $childcat->childcategoryName }}
                                         </a>
                                     </li>
                                 @endforeach

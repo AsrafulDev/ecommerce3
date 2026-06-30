@@ -50,7 +50,7 @@
         border: 1px solid #eef2f7;
         padding: 12px 15px;
         border-radius: 8px;
-        font-size: {{ __('14px') }};
+        font-size: 14px;
         color: #2d3436;
         transition: all 0.3s;
     }
@@ -69,7 +69,7 @@
     input:checked + .slider:before { transform: translateX(22px); }
 
     /* Button Style */
-    .btn-{{ __('submit') }} {
+    .btn-submit {
         background: linear-gradient(45deg, #0acf97, #06b6d4);
         border: none;
         color: white;
@@ -80,7 +80,7 @@
         transition: 0.3s;
         border-radius: 50rem;
     }
-    .btn-{{ __('submit') }}:hover {
+    .btn-submit:hover {
         transform: translateY(-2px);
         box-shadow: 0 6px 20px rgba(10, 207, 151, 0.4);
     }
@@ -93,8 +93,8 @@
     <div class="row mb-3 mt-3">
         <div class="col-12 d-flex justify-content-between align-items-center">
             <div>
-                <h4 class="page-title mb-0" style="font-weight: 700; color: #2d3436;">{{ __('Create {{ __('New') }} Pixel') }}</h4>
-                <p class="text-muted font-size-13 mb-0">{{ __('Add Facebook/Google tracking pixel.') }}</p>
+                <h4 class="page-title mb-0" style="font-weight: 700; color: #2d3436;">Create New Pixel</h4>
+                <p class="text-muted font-size-13 mb-0">Add Facebook/Google tracking pixel.</p>
             </div>
             <a href="{{route('pixels.index')}}" class="btn btn-light rounded-pill border shadow-sm px-4">
                 <i class="fe-arrow-left me-1"></i> Back to List
@@ -107,20 +107,20 @@
             <div class="card">
                 <div class="card-header">
                     <div class="header-icon"><i class="fe-code"></i></div>
-                    <h5 class="card-title">{{ __('Pixel {{ __('Configuration') }}') }}</h5>
+                    <h5 class="card-title">Pixel Configuration</h5>
                 </div>
                 <div class="card-body">
-                    <form action="{{route('pixels.store')}}" method={{ __('"{{ __('POST') }}"') }} data-parsley-validate>
+                    <form action="{{route('pixels.store')}}" method="POST" data-parsley-validate>
                         @csrf
                         
                         <div class="form-group mb-4">
-                            <label for="code" class="form-label">{{ __('Pixel ID / Code') }} <span class="text-danger">*</span></label>
+                            <label for="code" class="form-label">Pixel ID / Code <span class="text-danger">*</span></label>
                             <input type="text" class="form-control form-control-lg @error('code') is-invalid @enderror" 
                                    name="code" value="{{ old('code') }}" id="code" 
-                                   placeholder="{{ __('e.g. {{ __('1234567890') }}12345') }}" required>
+                                   placeholder="e.g. 123456789012345" required>
                             
                             <small class="text-muted d-block mt-2">
-                                <i class="fe-info"></i> Enter your Facebook Pixel ID or Google Tag ID {{ __('here') }}.
+                                <i class="fe-info"></i> Enter your Facebook Pixel ID or Google Tag ID here.
                             </small>
 
                             @error('code')
@@ -131,8 +131,8 @@
                         <div class="form-group mb-4">
                             <div class="d-flex justify-content-between align-items-center border p-3 rounded bg-light">
                                 <div>
-                                    <label class="form-label mb-0 text-dark">{{ __('Active {{ __('Status') }}') }}</label>
-                                    <small class="d-block text-muted">{{ __('Enable') }} tracking immediately?</small>
+                                    <label class="form-label mb-0 text-dark">Active Status</label>
+                                    <small class="d-block text-muted">Enable tracking immediately?</small>
                                 </div>
                                 <label class="switch">
                                     <input type="checkbox" name="status" value="1" checked>
@@ -145,7 +145,7 @@
                         </div>
 
                         <div class="text-end">
-                            <button type="{{ __('submit') }}" class="btn btn-{{ __('submit') }}">
+                            <button type="submit" class="btn btn-submit">
                                 <i class="fe-check-circle me-1"></i> Save Pixel
                             </button>
                         </div>

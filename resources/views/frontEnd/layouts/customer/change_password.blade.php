@@ -1,5 +1,5 @@
 @extends('frontEnd.layouts.master')
-@section('title','{{ __('Change') }} Password')
+@section('title','Change Password')
 
 @section('content')
 <section class="customer-section">
@@ -17,11 +17,11 @@
             <div class="col-sm-9">
                 <div class="customer-content checkout-shipping account-card">
 
-                    <h5 class="account-title">{{ __('{{ __('Change') }} Password') }}</h5>
+                    <h5 class="account-title">{{ __('Change Password') }}</h5>
                     <div class="account-divider"></div>
 
                     <form action="{{ route('customer.password_update') }}"
-                          method={{ __('"{{ __('POST') }}"') }}
+                          method="POST"
                           class="row"
                           data-parsley-validate>
                         @csrf
@@ -29,12 +29,12 @@
                         {{-- Old Password --}}
                         <div class="col-sm-12">
                             <div class="form-group mb-3">
-                                <label for="old_password">{{ __('Old {{ __('Password *') }}') }}</label>
+                                <label for="old_password">Old Password *</label>
                                 <input type="password"
                                        id="old_password"
                                        name="old_password"
                                        class="form-control @error('old_password') is-invalid @enderror"
-                                       placeholder="{{ __('Enter old password') }}"
+                                       placeholder="Enter old password"
                                        required>
                                 @error('old_password')
                                     <span class="invalid-feedback">
@@ -44,15 +44,15 @@
                             </div>
                         </div>
 
-                        {{-- {{ __('New') }} Password --}}
+                        {{-- New Password --}}
                         <div class="col-sm-12">
                             <div class="form-group mb-3">
-                                <label for="new_password">{{ __('{{ __('New') }} {{ __('Password *') }}') }}</label>
+                                <label for="new_password">New Password *</label>
                                 <input type="password"
                                        id="new_password"
                                        name="new_password"
                                        class="form-control @error('new_password') is-invalid @enderror"
-                                       placeholder="{{ __('Enter new password') }}"
+                                       placeholder="Enter new password"
                                        required>
                                 @error('new_password')
                                     <span class="invalid-feedback">
@@ -65,12 +65,12 @@
                         {{-- Confirm Password --}}
                         <div class="col-sm-12">
                             <div class="form-group mb-4">
-                                <label for="confirm_password">{{ __('Confirm {{ __('Password *') }}') }}</label>
+                                <label for="confirm_password">Confirm Password *</label>
                                 <input type="password"
                                        id="confirm_password"
                                        name="confirm_password"
                                        class="form-control @error('confirm_password') is-invalid @enderror"
-                                       placeholder="{{ __('Confirm new password') }}"
+                                       placeholder="Confirm new password"
                                        required>
                                 @error('confirm_password')
                                     <span class="invalid-feedback">
@@ -82,7 +82,7 @@
 
                         {{-- Submit --}}
                         <div class="col-sm-12 text-center">
-                            <button type="{{ __('submit') }}" class="{{ __('submit') }}-btn">
+                            <button type="submit" class="submit-btn">
                                 Update Password
                             </button>
                         </div>

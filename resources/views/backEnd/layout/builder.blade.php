@@ -1,9 +1,9 @@
 @extends('backEnd.layouts.master')
-@section('title', '{{ __('Layout Builder') }} - ' . $layout->name)
+@section('title', 'Layout Builder - ' . $layout->name)
 
 @section('css')
-<link href="{{ __('https://') }}cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
-<link href="{{ __('https://') }}cdn.jsdelivr.net/npm/sortablejs@1.15.0/sortable.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/sortable.css" rel="stylesheet">
 <style>
     .layout-builder {
         display: flex;
@@ -27,7 +27,7 @@
         background: #fff;
         border: 1px solid #e2e8f0;
         border-radius: 10px;
-        padding: 12px {{ __('14px') }};
+        padding: 12px 14px;
         margin-bottom: 8px;
         cursor: grab;
         transition: all 0.2s;
@@ -159,7 +159,7 @@
         color: #94a3b8;
     }
 
-    /* {{ __('Width') }} / visibility controls */
+    /* Width / visibility controls */
     .settings-panel {
         background: #f8fafc;
         border-radius: 10px;
@@ -185,7 +185,7 @@
         <div>
             <span class="badge bg-dark rounded-pill px-3 py-2 me-2" id="sectionCount">{{ $layout->sections->count() }} sections</span>
             <a href="{{ route('layouts.index') }}" class="btn btn-outline-secondary rounded-pill px-3 me-2">{{ __('Back') }}</a>
-            <a href="{{ route('layouts.edit', $layout->{{ __('id)') }} }}" class="btn btn-light rounded-pill px-3">{{ __('Edit {{ __('Name') }}') }}</a>
+            <a href="{{ route('layouts.edit', $layout->id) }}" class="btn btn-light rounded-pill px-3">Edit Name</a>
         </div>
     </div>
 
@@ -194,8 +194,8 @@
         <div class="available-sections">
             <div class="card shadow-none border rounded-4">
                 <div class="card-header bg-transparent border-bottom-0 pt-3">
-                    <h6 class="fw-bold m-0"><i class="mdi mdi-view-grid-plus me-1"></i> {{ __('Add Section') }}</h6>
-                    <p class="small text-muted m-0 mt-1">{{ __('Click or drag to canvas') }}</p>
+                    <h6 class="fw-bold m-0"><i class="mdi mdi-view-grid-plus me-1"></i> Add Section</h6>
+                    <p class="small text-muted m-0 mt-1">Click or drag to canvas</p>
                 </div>
                 <div class="card-body p-3" id="sectionPool">
                     @foreach($availableSections as $section)
@@ -245,8 +245,8 @@
                         @empty
                             <div class="empty-canvas" id="emptyCanvas">
                                 <i class="mdi mdi-drag-variant" style="font-size:36px;"></i>
-                                <h6 class="mt-2">{{ __('Your layout is empty') }}</h6>
-                                <p>{{ __('Drag sections from the left panel or click + to add them') }}</p>
+                                <h6 class="mt-2">Your layout is empty</h6>
+                                <p>Drag sections from the left panel or click + to add them</p>
                             </div>
                         @endforelse
                     </div>
@@ -258,9 +258,9 @@
 @endsection
 
 @section('script')
-<script src="{{ __('https://') }}cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
-<script src="{{ __('https://') }}cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.all.min.js"></script>
-<script src="{{ __('https://') }}cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.all.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 <script>
     const CSRF_TOKEN = '{{ csrf_token() }}';
     const LAYOUT_ID = {{ $layout->id }};
@@ -314,7 +314,7 @@
 
     function addSectionToLayout(sectionId) {
         fetch('{{ route('layouts.sections.add') }}', {
-            method: '{{ __('POST') }}',
+            method: 'POST',
             headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': CSRF_TOKEN },
             body: JSON.stringify({ layout_id: LAYOUT_ID, section_id: sectionId })
         })
@@ -348,7 +348,7 @@
         });
 
         fetch('{{ route('layouts.sections.reorder') }}', {
-            method: '{{ __('POST') }}',
+            method: 'POST',
             headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': CSRF_TOKEN },
             body: JSON.stringify({ layout_id: LAYOUT_ID, sections: orderData })
         })
@@ -356,9 +356,9 @@
         .catch(err => console.error(err));
     }
 
-    function toggle{{ __('Visibility') }}(id, isVisible) {
+    function toggleVisibility(id, isVisible) {
         fetch('{{ route('layouts.sections.toggle') }}', {
-            method: '{{ __('POST') }}',
+            method: 'POST',
             headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': CSRF_TOKEN },
             body: JSON.stringify({ id: id, is_visible: isVisible })
         })
@@ -367,26 +367,26 @@
             if (data.success) {
                 const badge = document.querySelector(`.sortable-item[data-ls-id="${id}"] .visibility-badge`);
                 if (badge) {
-                    badge.innerHTML = data.is_visible ? '<i class="fe-eye me-1"></i> {{ __("Visible' : '") }}<i class="fe-eye-off me-1"></i> Hidden';
-                    badge.class{{ __('Name') }} = 'badge ' + (data.is_visible ? 'bg-success' : 'bg-secondary') + ' rounded-pill visibility-badge';
+                    badge.innerHTML = data.is_visible ? '<i class="fe-eye me-1"></i> Visible' : '<i class="fe-eye-off me-1"></i> Hidden';
+                    badge.className = 'badge ' + (data.is_visible ? 'bg-success' : 'bg-secondary') + ' rounded-pill visibility-badge';
                 }
             }
         });
     }
 
-    function removeSection({{ __('id)') }} {
+    function removeSection(id) {
         Swal.fire({
             title: 'Remove section?',
             text: 'This section will be removed from the layout',
             icon: 'warning',
             showCancelButton: true,
-            confirmButton{{ __('Color') }}: '#ef4444',
-            confirmButton{{ __('Text') }}: 'Remove',
-            cancelButton{{ __('Text') }}: 'Cancel'
+            confirmButtonColor: '#ef4444',
+            confirmButtonText: 'Remove',
+            cancelButtonText: 'Cancel'
         }).then(result => {
             if (result.isConfirmed) {
                 fetch('{{ route('layouts.sections.remove') }}', {
-                    method: '{{ __('POST') }}',
+                    method: 'POST',
                     headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': CSRF_TOKEN },
                     body: JSON.stringify({ id: id })
                 })
@@ -402,8 +402,8 @@
                             container.innerHTML = `
                                 <div class="empty-canvas" id="emptyCanvas">
                                     <i class="mdi mdi-drag-variant" style="font-size:36px;"></i>
-                                    <h6 class="mt-2">{{ __('Your layout is empty') }}</h6>
-                                    <p>{{ __('Drag sections from the left panel or click + to add them') }}</p>
+                                    <h6 class="mt-2">Your layout is empty</h6>
+                                    <p>Drag sections from the left panel or click + to add them</p>
                                 </div>
                             `;
                         }
@@ -413,8 +413,8 @@
         });
     }
 
-    function toggleSettings({{ __('id)') }} {
-        const panel = document.getElementById('settings-' + {{ __('id)') }};
+    function toggleSettings(id) {
+        const panel = document.getElementById('settings-' + id);
         if (panel) {
             panel.classList.toggle('open');
         }
@@ -431,7 +431,7 @@
 
         // Create a hidden iframe to render the section
         const iframe = document.createElement('iframe');
-        iframe.style.css{{ __('Text') }} = 'position:fixed;top:-10000px;left:-10000px;width:1200px;height:800px;border:none;';
+        iframe.style.cssText = 'position:fixed;top:-10000px;left:-10000px;width:1200px;height:800px;border:none;';
         iframe.src = '{{ url('admin/layout/section') }}/' + sectionSlug + '/preview';
         document.body.appendChild(iframe);
 
@@ -448,19 +448,19 @@
 
             try {
                 const doc = iframe.contentDocument || iframe.contentWindow.document;
-                const capture{{ __('Area') }} = doc.getElementById('capture{{ __('Area') }}');
-                if (!capture{{ __('Area') }} || capture{{ __('Area') }}.innerHTML.trim() === '') {
+                const captureArea = doc.getElementById('captureArea');
+                if (!captureArea || captureArea.innerHTML.trim() === '') {
                     setTimeout(tryCapture, 500);
                     return;
                 }
 
                 // Found the content, wait a bit more for images to load
                 setTimeout(() => {
-                    html2canvas(capture{{ __('Area') }}, {
+                    html2canvas(captureArea, {
                         scale: 2,
                         useCORS: true,
                         allowTaint: false,
-                        background{{ __('Color') }}: '#ffffff',
+                        backgroundColor: '#ffffff',
                         logging: false,
                     }).then(canvas => {
                         const imageData = canvas.toDataURL('image/png');
@@ -468,7 +468,7 @@
 
                         // Send to server
                         fetch('{{ route('layouts.sections.capture-screenshot') }}', {
-                            method: '{{ __('POST') }}',
+                            method: 'POST',
                             headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': CSRF_TOKEN },
                             body: JSON.stringify({ section_id: sectionId, image_data: imageData })
                         })
@@ -481,15 +481,15 @@
                                     null;
                                 
                                 if (screenshotDiv) {
-                                    screenshotDiv.innerHTML = '<img src="' + data.image_url + '?t=' + {{ __('Date') }}.now() + '" alt="Section screenshot">';
+                                    screenshotDiv.innerHTML = '<img src="' + data.image_url + '?t=' + Date.now() + '" alt="Section screenshot">';
                                 }
 
                                 // Also update pool item preview if exists
-                                const pool{{ __('Item') }} = document.querySelector(`.section-pool-item[data-section-id="${sectionId}"]`);
-                                if (pool{{ __('Item') }}) {
-                                    const oldIcon = pool{{ __('Item') }}.querySelector('.pool-icon i');
+                                const poolItem = document.querySelector(`.section-pool-item[data-section-id="${sectionId}"]`);
+                                if (poolItem) {
+                                    const oldIcon = poolItem.querySelector('.pool-icon i');
                                     if (oldIcon) {
-                                        oldIcon.class{{ __('Name') }} = 'mdi mdi-camera-check text-success';
+                                        oldIcon.className = 'mdi mdi-camera-check text-success';
                                     }
                                 }
 
@@ -500,7 +500,7 @@
                                     showConfirmButton: false,
                                 });
                             } else {
-                                Swal.fire('Error', data.{{ __('message') }} || 'Failed to save screenshot', 'error');
+                                Swal.fire('Error', data.message || 'Failed to save screenshot', 'error');
                             }
                         })
                         .catch(() => {
@@ -508,7 +508,7 @@
                         });
                     }).catch(err => {
                         document.body.removeChild(iframe);
-                        Swal.fire('Error', 'html2canvas failed: ' + err.{{ __('message') }}, 'error');
+                        Swal.fire('Error', 'html2canvas failed: ' + err.message, 'error');
                     });
                 }, 1500); // extra wait for images
             } catch (e) {
@@ -520,13 +520,13 @@
     }
 
     function attachSectionEvents(el) {
-        // {{ __('Visibility') }} toggle
+        // Visibility toggle
         const visBtn = el.querySelector('.toggle-visibility');
         if (visBtn) {
             visBtn.addEventListener('click', function() {
                 const id = parseInt(el.dataset.lsId);
                 const isVisible = !el.querySelector('.visibility-badge')?.classList.contains('bg-success');
-                toggle{{ __('Visibility') }}(id, isVisible);
+                toggleVisibility(id, isVisible);
             });
         }
 
@@ -537,8 +537,8 @@
                 const sectionId = parseInt(el.dataset.sectionId);
                 const slug = el.querySelector('.section-screenshot')?.dataset?.sectionSlug;
                 // Find slug from the pool item
-                const pool{{ __('Item') }} = document.querySelector(`.section-pool-item[data-section-id="${sectionId}"]`);
-                const sectionSlug = pool{{ __('Item') }}?.dataset?.sectionSlug || slug || 'unknown';
+                const poolItem = document.querySelector(`.section-pool-item[data-section-id="${sectionId}"]`);
+                const sectionSlug = poolItem?.dataset?.sectionSlug || slug || 'unknown';
                 captureSectionScreenshot(sectionId, sectionSlug, el);
             });
         }
@@ -548,7 +548,7 @@
         if (rmBtn) {
             rmBtn.addEventListener('click', function() {
                 const id = parseInt(el.dataset.lsId);
-                removeSection({{ __('id)') }};
+                removeSection(id);
             });
         }
 
@@ -557,7 +557,7 @@
         if (settingsBtn) {
             settingsBtn.addEventListener('click', function() {
                 const id = parseInt(el.dataset.lsId);
-                toggleSettings({{ __('id)') }};
+                toggleSettings(id);
             });
         }
     }

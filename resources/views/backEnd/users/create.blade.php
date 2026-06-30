@@ -1,5 +1,5 @@
 @extends('backEnd.layouts.master')
-@section('title','{{ __('{{ __('{{ __('{{ __('Use') }}r') }}s') }} Create') }}')
+@section('title','Users Create')
 @section('css')
 <link href="{{asset('public/backEnd')}}/assets/libs/select2/css/select2.min.css" rel="stylesheet" type="text/css" />
 <link href="{{asset('public/backEnd')}}/assets/css/switchery.min.css" rel="stylesheet" type="text/css" />
@@ -12,9 +12,9 @@
         <div class="col-12">
             <div class="page-title-box">
                 <div class="page-title-right">
-                    <a href="{{route('users.index')}}" class="btn btn-primary rounded-pill">{{ __('Manage') }}</a>
+                    <a href="{{route('users.index')}}" class="btn btn-primary rounded-pill">Manage</a>
                 </div>
-                <h4 class="page-title">{{ __('{{ __('{{ __('{{ __('Use') }}r') }}s') }} Create') }}</h4>
+                <h4 class="page-title">Users Create</h4>
             </div>
         </div>
     </div>       
@@ -23,11 +23,11 @@
     <div class="col-lg-12">
         <div class="card">
             <div class="card-body">
-                <form action="{{route('users.store')}}" method={{ __('"{{ __('POST') }}"') }} class=row data-parsley-validate=""  enctype="multipart/form-data">
+                <form action="{{route('users.store')}}" method="POST" class=row data-parsley-validate=""  enctype="multipart/form-data">
                     @csrf
                     <div class="col-sm-6">
                         <div class="form-group mb-3">
-                            <label for="name" class="form-label">{{ __('{{ __('Name') }} *') }}</label>
+                            <label for="name" class="form-label">Name *</label>
                             <input type="text" class="form-control @error('name') is-invalid @enderror" name="name" value="{{ old('name') }}" id="name" required="">
                             @error('name')
                                 <span class="invalid-feedback" role="alert">
@@ -39,7 +39,7 @@
                     <!-- col-end -->
                     <div class="col-sm-6">
                         <div class="form-group mb-3">
-                            <label for="email" class="form-label">{{ __('{{ __('Email') }} *') }}</label>
+                            <label for="email" class="form-label">Email *</label>
                             <input type="text" class="form-control @error('email') is-invalid @enderror" name="email" value="{{ old('email') }}"  id="email" required="">
                             @error('email')
                                 <span class="invalid-feedback" role="alert">
@@ -51,7 +51,7 @@
                     <!-- col-end -->
                     <div class="col-sm-6">
                         <div class="form-group mb-3">
-                            <label for="password" class="form-label">{{ __('Password *') }}</label>
+                            <label for="password" class="form-label">Password *</label>
                             <div class="input-group">
                                 <input type="password" class="form-control @error('password') is-invalid @enderror" name="password" value="{{ old('password') }}" id="password" required="">
                                 <span class="input-group-text" style="cursor:pointer;" onclick="togglePassword('password', this)">
@@ -68,7 +68,7 @@
                     <!-- col end -->
                     <div class="col-sm-6">
                         <div class="form-group mb-3">
-                            <label for="confirm-password" class="form-label">{{ __('Confirm {{ __('Password *') }}') }}</label>
+                            <label for="confirm-password" class="form-label">Confirm Password *</label>
                             <div class="input-group">
                                 <input type="password" class="form-control @error('confirm-password') is-invalid @enderror" name="confirm-password" value="{{ old('confirm-password') }}"  id="confirm-password" required="">
                                 <span class="input-group-text" style="cursor:pointer;" onclick="togglePassword('confirm-password', this)">
@@ -85,9 +85,9 @@
                     <!-- col end -->
                     <div class="col-sm-6">
                         <div class="form-group mb-3">
-                            <label for="roles" class="form-label">{{ __('Role *') }}</label>
-                             <select class="form-control select2-multiple" name="roles[]" data-toggle="select2" multiple="multiple" data-placeholder="{{ __('Choose ...') }}" required>
-                                <optgroup label="{{ __('Select Role') }}">
+                            <label for="roles" class="form-label">Role *</label>
+                             <select class="form-control select2-multiple" name="roles[]" data-toggle="select2" multiple="multiple" data-placeholder="Choose ..." required>
+                                <optgroup label="Select Role">
                                     @foreach($roles as $role)
                                     <option value="{{$role->name}}">{{$role->name}}</option>
                                     @endforeach
@@ -103,7 +103,7 @@
                     <!-- col end -->
                     <div class="col-sm-6 mb-3">
                         <div class="form-group">
-                            <label for="image" class="form-label">{{ __('Image *') }}</label>
+                            <label for="image" class="form-label">Image *</label>
                             <input type="file" class="form-control @error('image') is-invalid @enderror" name="image" value="{{ old('image') }}"  id="image" required="">
                             @error('image')
                                 <span class="invalid-feedback" role="alert">
@@ -129,7 +129,7 @@
                     </div>
                     <!-- col end -->
                     <div>
-                        <input type="{{ __('submit') }}" class="btn btn-success" value="Submit">
+                        <input type="submit" class="btn btn-success" value="Submit">
                     </div>
 
                 </form>

@@ -1,5 +1,5 @@
 @extends('backEnd.layouts.master')
-@section('title', 'Add {{ __('New') }} {{ __('Coupon') }}')
+@section('title', 'Add New Coupon')
 
 @section('css')
 <style>
@@ -49,7 +49,7 @@
     <div class="row justify-content-center">
         <div class="col-md-8 col-lg-7">
             
-            <form action="{{ route('admin.coupons.store') }}" method={{ __('"{{ __('POST') }}"') }}>
+            <form action="{{ route('admin.coupons.store') }}" method="POST">
                 @csrf
 
                 <div class="card card-modern">
@@ -57,81 +57,81 @@
                     {{-- Header --}}
                     <div class="card-header-modern">
                         <div>
-                            <h5 class="mb-1 fw-bold text-dark">{{ __('Create {{ __('Coupon') }}') }}</h5>
-                            <p class="text-muted small mb-0">{{ __('Set up a new discount code for your customers.') }}</p>
+                            <h5 class="mb-1 fw-bold text-dark">Create Coupon</h5>
+                            <p class="text-muted small mb-0">Set up a new discount code for your customers.</p>
                         </div>
                         <a href="{{ route('admin.coupons.index') }}" class="btn btn-light btn-sm rounded-pill px-3">
-                            <i data-feather="list" style="width:{{ __('14px') }};" class="me-1"></i> {{ __('All {{ __('{{ __('Coupon') }}s') }}') }}
+                            <i data-feather="list" style="width:14px;" class="me-1"></i> All Coupons
                         </a>
                     </div>
 
                     <div class="card-body p-4">
                         
-                        {{-- {{ __('Coupon') }} Code Section --}}
+                        {{-- Coupon Code Section --}}
                         <div class="mb-4">
-                            <label class="form-label-custom">{{ __('{{ __('Coupon') }} Code') }}<span class="text-danger">*</span></label>
+                            <label class="form-label-custom">{{ __('Coupon Code') }}<span class="text-danger">*</span></label>
                             <div class="input-group">
                                 <span class="input-group-text bg-white border-end-0 text-muted border-start-custom" style="border-radius: 10px 0 0 10px; border: 1px solid #e2e8f0; border-right: 0;">
                                     <i data-feather="tag" style="width:16px;"></i>
                                 </span>
                                 <input type="text" name="code" id="coupon_code" class="form-control form-control-custom border-start-0" 
-                                       placeholder="{{ __('e.g. SUMMER2024') }}" style="text-transform: uppercase; font-weight: bold; letter-spacing: 1px;" required>
-                                <button type="button" class="btn btn-generate" onclick="generate{{ __('Coupon') }}()">
-                                    <i data-feather="refresh-cw" style="width:{{ __('14px') }};" class="me-1"></i> Random
+                                       placeholder="e.g. SUMMER2024" style="text-transform: uppercase; font-weight: bold; letter-spacing: 1px;" required>
+                                <button type="button" class="btn btn-generate" onclick="generateCoupon()">
+                                    <i data-feather="refresh-cw" style="width:14px;" class="me-1"></i> Random
                                 </button>
                             </div>
-                            <small class="text-muted ms-1">{{ __('{{ __('Customer') }}s will enter this code at checkout.') }}</small>
+                            <small class="text-muted ms-1">Customers will enter this code at checkout.</small>
                         </div>
 
-                        {{-- {{ __('Value') }} & Type --}}
+                        {{-- Value & Type --}}
                         <div class="row g-3 mb-4">
                             <div class="col-md-6">
-                                <label class="form-label-custom">{{ __('{{ __('Discount') }} Type') }}</label>
+                                <label class="form-label-custom">Discount Type</label>
                                 <select name="type" id="discount_type" class="form-select form-select-custom">
-                                    <option value="flat">{{ __('{{ __('{{ __('Fixed') }} {{ __('Amount') }}') }} (Flat)') }}</option>
-                                    <option value="percent">{{ __('{{ __('Percentage') }} (%)') }}</option>
+                                    <option value="flat">Fixed Amount (Flat)</option>
+                                    <option value="percent">Percentage (%)</option>
                                 </select>
                             </div>
                             <div class="col-md-6">
-                                <label class="form-label-custom">{{ __('{{ __('Discount') }} {{ __('Value') }}') }} <span class="text-danger">*</span></label>
+                                <label class="form-label-custom">Discount Value <span class="text-danger">*</span></label>
                                 <div class="input-group">
                                     <span class="input-group-text input-group-text-custom" id="value_icon" style="border-radius: 10px 0 0 10px; border-right: 0;">৳</span>
-                                    <input type="{{ __('number') }}" step="0.01" name="value" class="form-control form-control-custom border-start-0" 
-                                           placeholder="{{ __('0.00') }}" required style="border-radius: 0 10px 10px 0;">
+                                    <input type="number" step="0.01" name="value" class="form-control form-control-custom border-start-0" 
+                                           placeholder="0.00" required style="border-radius: 0 10px 10px 0;">
                                 </div>
                             </div>
                         </div>
 
-                        {{-- {{ __('Limit') }}s --}}
+                        {{-- Limits --}}
                         <div class="mb-4">
-                            <label class="form-label-custom">{{ __('Minimum Purchase {{ __('Amount') }} {{ __('({{ __('Optional') }})') }}') }}</label>
+                            <label class="form-label-custom">Minimum Purchase Amount (Optional)</label>
                             <div class="input-group">
                                 <span class="input-group-text input-group-text-custom" style="border-radius: 10px 0 0 10px; border-right: 0;">৳</span>
-                                <input type="{{ __('number') }}" step="0.01" name="min_purchase" class="form-control form-control-custom border-start-0" 
-                                       placeholder="{{ __('Enter amount') }}" style="border-radius: 0 10px 10px 0;">
+                                <input type="number" step="0.01" name="min_purchase" class="form-control form-control-custom border-start-0" 
+                                       placeholder="Enter amount" style="border-radius: 0 10px 10px 0;">
                             </div>
-                            <small class="text-muted ms-1">{{ __('Minimum cart value required to apply this coupon.') }}</small>
+                            <small class="text-muted ms-1">Minimum cart value required to apply this coupon.</small>
                         </div>
 
-                        {{-- Validity {{ __('Date') }}s --}}
+                        {{-- Validity Dates --}}
                         <div class="p-3 bg-light rounded-3 mb-4 border">
-                            <h6 class="text-dark fw-bold mb-3 small text-uppercase"><i data-feather="calendar" style="width:{{ __('14px') }};" class="me-1"></i> {{ __('Validity Period') }}</h6>
+                            <h6 class="text-dark fw-bold mb-3 small text-uppercase"><i data-feather="calendar" style="width:14px;" class="me-1"></i> Validity Period</h6>
                             <div class="row g-3">
                                 <div class="col-6">
-                                    <label class="form-label-custom mb-1">{{ __('Valid {{ __('From') }}') }}</label>
+                                    <label class="form-label-custom mb-1">Valid From</label>
                                     <input type="date" name="valid_from" class="form-control form-control-custom" value="{{ date('Y-m-d') }}">
                                 </div>
                                 <div class="col-6">
-                                    <label class="form-label-custom mb-1">{{ __('Valid To') }}</label>
+                                    <label class="form-label-custom mb-1">Valid To</label>
                                     <input type="date" name="valid_to" class="form-control form-control-custom">
                                 </div>
                             </div>
                         </div>
 
-                        {{-- {{ __('Actions') }} --}}
+                        {{-- Actions --}}
                         <div class="d-grid gap-2">
-                            <button type="{{ __('submit') }}" class="btn btn-primary py-2 fw-bold shadow-sm">
-                                <i data-feather="check-circle" class="me-1" style="width: 16px;"></i> {{ __('Create {{ __('Coupon') }}') }}
+                            <button type="submit" class="btn btn-primary py-2 fw-bold shadow-sm">
+                                <i data-feather="check-circle" class="me-1" style="width: 16px;"></i> Create Coupon
                             </button>
                             <a href="{{ route('admin.coupons.index') }}" class="btn btn-light py-2">{{ __('Cancel') }}</a>
                         </div>
@@ -148,7 +148,7 @@
 @push('scripts')
 <script>
     // Script to generate random coupon code
-    function generate{{ __('Coupon') }}() {
+    function generateCoupon() {
         const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
         let result = '';
         for (let i = 0; i < 8; i++) {

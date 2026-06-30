@@ -1,5 +1,5 @@
 @extends('backEnd.layouts.master')
-@section('title','Edit {{ __('Category') }}')
+@section('title','Edit Category')
 
 @section('css')
 <style>
@@ -18,7 +18,7 @@
         border: 1px solid #e2e8f0;
         padding: 12px 15px;
         border-radius: 8px;
-        font-size: {{ __('14px') }};
+        font-size: 14px;
         color: #334155;
         transition: all 0.2s;
     }
@@ -49,7 +49,7 @@
         align-items: center;
     }
     .status-text h6 {
-        font-size: {{ __('14px') }};
+        font-size: 14px;
         font-weight: 700;
         color: #334155;
         margin: 0;
@@ -66,13 +66,13 @@
     
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
-            <h4 class="fw-bold m-0 text-dark">{{ __('Edit {{ __('Category') }}') }}</h4>
-            <span class="text-muted small">{{ __('Modify placement category details') }}</span>
+            <h4 class="fw-bold m-0 text-dark">{{ __('Edit Category') }}</h4>
+            <span class="text-muted small">Modify placement category details</span>
         </div>
         <div class="d-flex gap-2">
             <a href="{{route('banner_category.index')}}" class="btn btn-light border fw-bold text-secondary px-3">{{ __('Cancel') }}</a>
-            <button type="{{ __('submit') }}" form="edit{{ __('Category') }}Form" class="btn btn-primary fw-bold px-4 shadow-sm">
-                <i class="fe-save me-1"></i> Update {{ __('Category') }}
+            <button type="submit" form="editCategoryForm" class="btn btn-primary fw-bold px-4 shadow-sm">
+                <i class="fe-save me-1"></i> Update Category
             </button>
         </div>
     </div>
@@ -81,12 +81,12 @@
         <div class="col-lg-6 col-md-8">
             
             <div class="studio-card p-4">
-                <form action="{{route('banner_category.update')}}" method={{ __('"{{ __('POST') }}"') }} id="edit{{ __('Category') }}Form" data-parsley-validate="">
+                <form action="{{route('banner_category.update')}}" method="POST" id="editCategoryForm" data-parsley-validate="">
                     @csrf
                     <input type="hidden" value="{{$edit_data->id}}" name="id">
 
                     <div class="mb-4">
-                        <label for="name" class="form-label-custom">{{ __('{{ __('Category') }} {{ __('Name') }}') }} <span class="text-danger">*</span></label>
+                        <label for="name" class="form-label-custom">Category Name <span class="text-danger">*</span></label>
                         <input type="text" 
                                class="form-control input-clean @error('name') is-invalid @enderror" 
                                name="name" 
@@ -99,11 +99,11 @@
                     </div>
 
                     <div class="mb-2">
-                        <label class="form-label-custom">{{ __('{{ __('Status') }} {{ __('Configuration') }}') }}</label>
+                        <label class="form-label-custom">Status Configuration</label>
                         <div class="status-toggle-box">
                             <div class="status-text">
-                                <h6>{{ __('Active {{ __('Status') }}') }}</h6>
-                                <small>{{ __('{{ __('Enable') }} or disable this category') }}</small>
+                                <h6>Active Status</h6>
+                                <small>Enable or disable this category</small>
                             </div>
                             <div class="form-check form-switch">
                                 <input class="form-check-input" type="checkbox" name="status" value="1" @if($edit_data->status==1) checked @endif style="width: 3em; height: 1.5em; cursor:pointer;">

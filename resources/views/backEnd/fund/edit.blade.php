@@ -35,14 +35,14 @@
                 </div>
                 <div class="card-body">
 
-                    <form action="{{ route('admin.fund.update', $transaction->{{ __('id)') }} }}" method={{ __('"{{ __('POST') }}"') }}>
+                    <form action="{{ route('admin.fund.update', $transaction->id) }}" method="POST">
                         @csrf
 
                         <div class="mb-3">
-                            <label class="form-label fw-semibold">{{ __('bn_f8971291') }}</label>
+                            <label class="form-label fw-semibold">Direction / ধরণ *</label>
                             <select name="direction" class="form-select @error('direction') is-invalid @enderror" required>
-                                <option value="in" {{ old('direction', $transaction->direction) == 'in' ? 'selected' : '' }}>{{ __('IN (+)') }}</option>
-                                <option value="out" {{ old('direction', $transaction->direction) == 'out' ? 'selected' : '' }}>{{ __('OUT (-)') }}</option>
+                                <option value="in" {{ old('direction', $transaction->direction) == 'in' ? 'selected' : '' }}>IN (+)</option>
+                                <option value="out" {{ old('direction', $transaction->direction) == 'out' ? 'selected' : '' }}>OUT (-)</option>
                             </select>
                             @error('direction')
                             <span class="invalid-feedback">{{ $message }}</span>
@@ -50,23 +50,23 @@
                         </div>
 
                         <div class="mb-3">
-                            <label class="form-label fw-semibold">{{ __('Source') }}</label>
+                            <label class="form-label fw-semibold">Source</label>
                             <input type="text" 
                                    name="source" 
                                    class="form-control" 
                                    value="{{ old('source', $transaction->source) }}" 
                                    readonly>
-                            <small class="text-muted">{{ __('{{ __('Source') }} cannot be changed') }}</small>
+                            <small class="text-muted">Source cannot be changed</small>
                         </div>
 
                         <div class="mb-3">
-                            <label class="form-label fw-semibold">{{ __('bn_b4e82b3d') }}</label>
-                            <input type="{{ __('number') }}" 
+                            <label class="form-label fw-semibold">Amount (৳) *</label>
+                            <input type="number" 
                                    step="0.01" 
                                    name="amount" 
                                    class="form-control @error('amount') is-invalid @enderror" 
                                    value="{{ old('amount', $transaction->amount) }}" 
-                                   placeholder="{{ __('0.00') }}" 
+                                   placeholder="0.00" 
                                    required>
                             @error('amount')
                             <span class="invalid-feedback">{{ $message }}</span>
@@ -74,7 +74,7 @@
                         </div>
 
                         <div class="mb-3">
-                            <label class="form-label fw-semibold">{{ __('{{ __('Note') }} (optional)') }}</label>
+                            <label class="form-label fw-semibold">Note (optional)</label>
                             <textarea name="note" 
                                       class="form-control" 
                                       rows="3" 
@@ -91,7 +91,7 @@
                         </div>
 
                         <div class="d-flex justify-content-between">
-                            <button type="{{ __('submit') }}" class="btn btn-primary">
+                            <button type="submit" class="btn btn-primary">
                                 <i data-feather="save" class="me-1" style="width:16px;height:16px;"></i>
                                 Update Transaction
                             </button>

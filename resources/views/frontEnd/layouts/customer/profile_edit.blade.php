@@ -5,23 +5,23 @@ use Illuminate\Support\Str;
 $customer = Auth::guard('customer')->user();
 $customerId = $customer->id;
 
-// Site {{ __('Name') }} & Logo
-$site{{ __('Name') }} = \App\Models\GeneralSetting::first();
-$siteInitial = strtoupper(substr($site{{ __('Name') }}->name ?? 'G', 0, 1));
-$siteDisplay{{ __('Name') }} = Str::limit($site{{ __('Name') }}->name ?? 'Gadget{{ __('Shop') }}', 8);
-$generalsetting = $site{{ __('Name') }};
-$darkLogo = $site{{ __('Name') }}->dark_logo ?? null;
+// Site Name & Logo
+$siteName = \App\Models\GeneralSetting::first();
+$siteInitial = strtoupper(substr($siteName->name ?? 'G', 0, 1));
+$siteDisplayName = Str::limit($siteName->name ?? 'GadgetShop', 8);
+$generalsetting = $siteName;
+$darkLogo = $siteName->dark_logo ?? null;
 
 // Pending Orders Count for Badge
-$pendingOrdersCount = \App\Models\Order::w{{ __('here') }}('customer_id', $customerId)
-    ->w{{ __('here') }}NotIn('order_status', ['6', '11'])
+$pendingOrdersCount = \App\Models\Order::where('customer_id', $customerId)
+    ->whereNotIn('order_status', ['6', '11'])
     ->count();
 
-// Profile Image - {{ __('Use') }} direct image path, not accessor
+// Profile Image - Use direct image path, not accessor
 $profileImage = $profile_edit->image ? asset($profile_edit->image) : asset('public/uploads/default/no-image.png');
 
-// {{ __('Total') }} Order {{ __('Amount') }}
-$totalOrder{{ __('Amount') }} = \App\Models\Order::w{{ __('here') }}('customer_id', $customerId)->sum('amount');
+// Total Order Amount
+$totalOrderAmount = \App\Models\Order::where('customer_id', $customerId)->sum('amount');
 @endphp
 
 <!DOCTYPE html>
@@ -30,19 +30,19 @@ $totalOrder{{ __('Amount') }} = \App\Models\Order::w{{ __('here') }}('customer_i
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>{{ __('Settings') }} | {{ $site{{ __('Name') }}->name ?? 'Gadget Style' }}</title>
-    <script src="{{ __('https://') }}cdn.tailwindcss.com"></script>
-    <link href="{{ __('https://') }}cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <link href="{{ __('https://') }}cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <title>সেটিংস | {{ $siteName->name ?? 'Gadget Style' }}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
     <!-- Toastr CSS -->
     <link rel="stylesheet" href="{{asset('public/backEnd/')}}/assets/css/toastr.min.css" />
     <style>
-        @import url('{{ __('https://') }}fonts.googleapis.com/css2?family=Hind+Siliguri:wght@300;400;500;600;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@300;400;500;600;700&display=swap');
         body { font-family: 'Hind Siliguri', sans-serif; background-color: #F0F2F5; }
         .sidebar-item:hover { background-color: #f3f4f6; color: #4f46e5; }
         .active-menu { background-color: #EEF2FF; color: #4f46e5; border-right: 3px solid #4f46e5; }
         
-        /* {{ __('Mobile') }} Menu Transition */
+        /* Mobile Menu Transition */
         #sidebar { transition: transform 0.3s ease-in-out; }
         
         /* Profile Image Upload */
@@ -109,12 +109,12 @@ $totalOrder{{ __('Amount') }} = \App\Models\Order::w{{ __('here') }}('customer_i
         <div class="p-4 sm:p-6 flex items-center justify-between lg:justify-start gap-2 border-b border-gray-100">
             @if($darkLogo)
                 <a href="{{ route('home') }}" class="flex items-center gap-2 flex-1">
-                    <img src="{{ asset($darkLogo) }}" alt="{{ $site{{ __('Name') }}->name ?? 'Logo' }}" class="h-8 sm:h-10 w-auto max-w-full object-contain">
+                    <img src="{{ asset($darkLogo) }}" alt="{{ $siteName->name ?? 'Logo' }}" class="h-8 sm:h-10 w-auto max-w-full object-contain">
                 </a>
             @else
                 <div class="flex items-center gap-2">
                     <div class="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center text-white font-bold">{{ $siteInitial }}</div>
-                    <h1 class="text-xl sm:text-2xl font-bold text-gray-800 tracking-tight">{{ $siteDisplay{{ __('Name') }} }}</h1>
+                    <h1 class="text-xl sm:text-2xl font-bold text-gray-800 tracking-tight">{{ $siteDisplayName }}</h1>
                 </div>
             @endif
             <button onclick="toggleSidebar()" class="lg:hidden text-gray-500 hover:text-red-500">
@@ -127,7 +127,7 @@ $totalOrder{{ __('Amount') }} = \App\Models\Order::w{{ __('here') }}('customer_i
                 <i class="fas fa-home w-6"></i> ড্যাশবোর্ড
             </a>
             <a href="{{route('customer.orders')}}" class="{{request()->is('customer/orders')?'active-menu':'sidebar-item'}} flex items-center px-6 py-3.5 transition-colors">
-                <i class="fas fa-box-open w-6"></i> {{ __('My Orders') }} 
+                <i class="fas fa-box-open w-6"></i> আমার অর্ডার 
                 @if($pendingOrdersCount > 0)
                     <span class="ml-auto bg-red-100 text-red-600 text-xs px-2 py-0.5 rounded-full">{{ $pendingOrdersCount }}</span>
                 @endif
@@ -136,23 +136,23 @@ $totalOrder{{ __('Amount') }} = \App\Models\Order::w{{ __('here') }}('customer_i
                 <i class="fas fa-truck w-6"></i> ট্র্যাক অর্ডার
             </a>
             <a href="{{route('customer.refunds')}}" class="{{request()->is('customer/refunds*')?'active-menu':'sidebar-item'}} flex items-center px-6 py-3.5 transition-colors">
-                <i class="fas fa-undo w-6"></i> {{ __('Refund Request') }}
+                <i class="fas fa-undo w-6"></i> রিফান্ড রিকোয়েস্ট
             </a>
             <a href="{{ route('complaint') }}" class="{{ request()->is('complaint') ? 'active-menu' : 'sidebar-item' }} flex items-center px-6 py-3.5 transition-colors">
                 <i class="fas fa-headset w-6"></i> সাপোর্ট টিকেট
             </a>
             <a href="{{route('customer.profile_edit')}}" class="{{request()->is('customer/profile-edit')?'active-menu':'sidebar-item'}} flex items-center px-6 py-3.5 transition-colors">
-                <i class="fas fa-user-cog w-6"></i> {{ __('Settings') }}
+                <i class="fas fa-user-cog w-6"></i> সেটিংস
             </a>
         </nav>
 
         <div class="p-6 border-t">
             <a href="{{ route('customer.logout') }}" 
-               onclick="event.preventDefault(); document.getElementById('logout-form').{{ __('submit') }}();"
+               onclick="event.preventDefault(); document.getElementById('logout-form').submit();"
                class="w-full flex items-center justify-center px-4 py-2.5 text-red-500 bg-red-50 hover:bg-red-100 rounded-lg font-bold transition">
                 <i class="fas fa-sign-out-alt mr-2"></i> লগআউট
             </a>
-            <form id="logout-form" action="{{ route('customer.logout') }}" method={{ __('"{{ __('POST') }}"') }} style="display: none;">
+            <form id="logout-form" action="{{ route('customer.logout') }}" method="POST" style="display: none;">
                 @csrf
             </form>
         </div>
@@ -166,13 +166,13 @@ $totalOrder{{ __('Amount') }} = \App\Models\Order::w{{ __('here') }}('customer_i
             </div>
 
             <div class="flex-1">
-                <h2 class="text-xl font-bold text-gray-800">{{ __('Settings') }}</h2>
-                <p class="text-xs text-gray-400 mt-0.5 hidden sm:block">{{ __('bn_045c4ccc') }}</p>
+                <h2 class="text-xl font-bold text-gray-800">সেটিংস</h2>
+                <p class="text-xs text-gray-400 mt-0.5 hidden sm:block">আপনার প্রোফাইল তথ্য আপডেট করুন</p>
             </div>
 
             <div class="flex items-center gap-4">
                 <div class="hidden sm:flex bg-green-50 text-green-700 px-4 py-2 rounded-full items-center font-bold text-sm border border-green-100">
-                    <i class="fas fa-wallet mr-2"></i> {{ __('bn_70ac0f2d') }}: ৳{{ number_format($totalOrder{{ __('Amount') }}, 0) }}
+                    <i class="fas fa-wallet mr-2"></i> মোট: ৳{{ number_format($totalOrderAmount, 0) }}
                 </div>
                 
                 <div class="relative cursor-pointer w-10 h-10 bg-gray-50 rounded-full flex items-center justify-center hover:bg-gray-100 transition">
@@ -187,25 +187,25 @@ $totalOrder{{ __('Amount') }} = \App\Models\Order::w{{ __('here') }}('customer_i
             
             <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
                 <div class="p-6 border-b border-gray-50">
-                    <h3 class="text-lg font-bold text-gray-800">{{ __('bn_19a562d5') }}</h3>
+                    <h3 class="text-lg font-bold text-gray-800">⚙️ প্রোফাইল আপডেট</h3>
                 </div>
                 
-                <form action="{{route('customer.profile_update')}}" method={{ __('"{{ __('POST') }}"') }} enctype="multipart/form-data" class="p-6 space-y-6" id="profileForm">
+                <form action="{{route('customer.profile_update')}}" method="POST" enctype="multipart/form-data" class="p-6 space-y-6" id="profileForm">
                     @csrf
                     
                     {{-- Profile Image Upload Section --}}
                     <div class="flex flex-col items-center mb-6 pb-6 border-b border-gray-100">
                         <div class="profile-image-container mb-4">
-                            <img id="profileImage{{ __('Prev') }}iew" src="{{ $profileImage }}" onerror="this.src='{{ asset('public/uploads/default/no-image.png') }}'" class="profile-image-preview" alt="Profile Image">
+                            <img id="profileImagePreview" src="{{ $profileImage }}" onerror="this.src='{{ asset('public/uploads/default/no-image.png') }}'" class="profile-image-preview" alt="Profile Image">
                             <label for="profileImageInput" class="profile-image-upload-btn">
                                 <i class="fas fa-camera"></i>
                             </label>
                             <input type="file" id="profileImageInput" name="image" accept="image/jpeg,image/jpg,image/png,image/webp" onchange="previewProfileImage(this)">
                         </div>
                         <div class="text-center">
-                            <h6 class="font-bold text-gray-800 mb-1">{{ __('Profile') }}</h6>
-                            <p class="text-xs text-gray-500">{{ __('bn_01d84249') }}</p>
-                            <p id="imageFile{{ __('Name') }}" class="text-xs text-indigo-600 mt-1 hidden"></p>
+                            <h6 class="font-bold text-gray-800 mb-1">প্রোফাইল ছবি</h6>
+                            <p class="text-xs text-gray-500">PNG, JPG বা WEBP (সর্বোচ্চ 2MB)</p>
+                            <p id="imageFileName" class="text-xs text-indigo-600 mt-1 hidden"></p>
                             @if(session('success'))
                                 <p class="text-green-500 text-xs mt-1">{{ session('success') }}</p>
                             @endif
@@ -217,9 +217,9 @@ $totalOrder{{ __('Amount') }} = \App\Models\Order::w{{ __('here') }}('customer_i
 
                     {{-- Form Fields --}}
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        {{-- {{ __('Full {{ __('Name') }}') }} --}}
+                        {{-- Full Name --}}
                         <div>
-                            <label for="name" class="block text-sm font-semibold text-gray-700 mb-2">{{ __('bn_2516c071') }}</label>
+                            <label for="name" class="block text-sm font-semibold text-gray-700 mb-2">পুরো নাম *</label>
                             <input type="text" id="name" name="name" value="{{old('name', $profile_edit->name)}}" required
                                    class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition @error('name') border-red-500 @enderror">
                             @error('name')
@@ -227,20 +227,20 @@ $totalOrder{{ __('Amount') }} = \App\Models\Order::w{{ __('here') }}('customer_i
                             @enderror
                         </div>
 
-                        {{-- {{ __('{{ __('Phone') }} Number') }} --}}
+                        {{-- Phone Number --}}
                         <div>
-                            <label for="{{ __('phone') }}" class="block text-sm font-semibold text-gray-700 mb-2">{{ __('bn_46d42b32') }}</label>
-                            <input type="{{ __('number') }}" id="{{ __('phone') }}" name="{{ __('phone') }}" value="{{old('{{ __('phone') }}', $profile_edit->{{ __('{{ __('phone') }})') }}}}" required
-                                   class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition @error('{{ __('phone') }}') border-red-500 @enderror">
-                                @error('{{ __('phone') }}')
+                            <label for="phone" class="block text-sm font-semibold text-gray-700 mb-2">ফোন নম্বর *</label>
+                            <input type="number" id="phone" name="phone" value="{{old('phone', $profile_edit->phone)}}" required
+                                   class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition @error('phone') border-red-500 @enderror">
+                                @error('phone')
                                 <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
                                 @enderror
                         </div>
 
-                        {{-- {{ __('{{ __('Email') }} Address') }} --}}
+                        {{-- Email Address --}}
                         <div>
-                            <label for="email" class="block text-sm font-semibold text-gray-700 mb-2">{{ __('bn_fed9741a') }}</label>
-                            <input type="email" id="email" name="email" value="{{old('email', $profile_edit->{{ __('email)') }}}}" required
+                            <label for="email" class="block text-sm font-semibold text-gray-700 mb-2">ইমেইল ঠিকানা *</label>
+                            <input type="email" id="email" name="email" value="{{old('email', $profile_edit->email)}}" required
                                    class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition @error('email') border-red-500 @enderror">
                                 @error('email')
                                 <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
@@ -249,19 +249,19 @@ $totalOrder{{ __('Amount') }} = \App\Models\Order::w{{ __('here') }}('customer_i
 
                         {{-- Address --}}
                         <div>
-                            <label for="address" class="block text-sm font-semibold text-gray-700 mb-2">{{ __('Address') }}</label>
-                            <input type="text" id="address" name="address" value="{{old('address', $profile_edit->{{ __('address)') }}}}" required
+                            <label for="address" class="block text-sm font-semibold text-gray-700 mb-2">ঠিকানা *</label>
+                            <input type="text" id="address" name="address" value="{{old('address', $profile_edit->address)}}" required
                                    class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition @error('address') border-red-500 @enderror">
                                 @error('address')
                                 <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
                                 @enderror
                         </div>
 
-                        {{-- {{ __('District') }} --}}
+                        {{-- District --}}
                         <div>
-                            <label for="district" class="block text-sm font-semibold text-gray-700 mb-2">{{ __('bn_70341838') }}</label>
+                            <label for="district" class="block text-sm font-semibold text-gray-700 mb-2">জেলা *</label>
                             <select id="district" name="district" class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition select2 @error('district') border-red-500 @enderror" required>
-                                <option value="">{{ __('bn_ffd291e7') }}</option>
+                                <option value="">নির্বাচন করুন...</option>
                                     @foreach($districts as $key=>$district)
                                     <option value="{{$district->district}}" @if(old('district', $profile_edit->district)==$district->district) selected @endif>{{$district->district}}</option>
                                     @endforeach
@@ -271,13 +271,13 @@ $totalOrder{{ __('Amount') }} = \App\Models\Order::w{{ __('here') }}('customer_i
                                 @enderror
                         </div>
 
-                        {{-- {{ __('Area') }} --}}
+                        {{-- Area --}}
                         <div>
-                            <label for="area" class="block text-sm font-semibold text-gray-700 mb-2">{{ __('bn_2ca0ea69') }}</label>
+                            <label for="area" class="block text-sm font-semibold text-gray-700 mb-2">এলাকা *</label>
                             <select id="area" name="area" class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition select2 area @error('area') border-red-500 @enderror" required>
-                                <option value="">{{ __('bn_ffd291e7') }}</option>
+                                <option value="">নির্বাচন করুন...</option>
                                     @foreach($areas as $key=>$area)
-                                    <option value="{{$area->id}}" @if(old('area', $profile_edit->area) == $area->{{ __('id)') }} selected @endif>{{$area->area_name}}</option>
+                                    <option value="{{$area->id}}" @if(old('area', $profile_edit->area) == $area->id) selected @endif>{{$area->area_name}}</option>
                                     @endforeach
                                 </select>
                                 @error('area')
@@ -288,7 +288,7 @@ $totalOrder{{ __('Amount') }} = \App\Models\Order::w{{ __('here') }}('customer_i
 
                     {{-- Submit Button --}}
                     <div class="pt-6 border-t border-gray-100">
-                        <button type="{{ __('submit') }}" class="w-full md:w-auto bg-indigo-600 hover:bg-indigo-700 text-white font-semibold px-8 py-3 rounded-lg transition duration-200 shadow-sm hover:shadow-md flex items-center justify-center gap-2">
+                        <button type="submit" class="w-full md:w-auto bg-indigo-600 hover:bg-indigo-700 text-white font-semibold px-8 py-3 rounded-lg transition duration-200 shadow-sm hover:shadow-md flex items-center justify-center gap-2">
                             <i class="fas fa-save"></i>
                             আপডেট করুন
                         </button>
@@ -299,13 +299,13 @@ $totalOrder{{ __('Amount') }} = \App\Models\Order::w{{ __('here') }}('customer_i
         </div>
     </main>
 
-    <script src="{{ __('https://') }}code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="{{ __('https://') }}cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <!-- Toastr JS -->
     <script src="{{asset('public/backEnd/')}}/assets/js/toastr.min.js"></script>
-    {!! Toastr::{{ __('message') }}() !!}
+    {!! Toastr::message() !!}
     <script>
-        // Toastr {{ __('Configuration') }}
+        // Toastr Configuration
         toastr.options = {
             "closeButton": true,
             "debug": false,
@@ -314,28 +314,28 @@ $totalOrder{{ __('Amount') }} = \App\Models\Order::w{{ __('here') }}('customer_i
             "positionClass": "toast-top-right",
             "preventDuplicates": false,
             "onclick": null,
-            "show{{ __('Duration') }}": "300",
-            "hide{{ __('Duration') }}": "1000",
+            "showDuration": "300",
+            "hideDuration": "1000",
             "timeOut": "5000",
             "extendedTimeOut": "1000",
             "showEasing": "swing",
             "hideEasing": "linear",
-            "show{{ __('Method') }}": "fadeIn",
-            "hide{{ __('Method') }}": "fadeOut"
+            "showMethod": "fadeIn",
+            "hideMethod": "fadeOut"
         };
 
-        // Display session {{ __('message') }}s
-        @if({{ __('Session') }}::has('success'))
-            toastr.success("{{ {{ __('Session') }}::get('success') }}", "{{ __('bn_fbbc3031') }}!");
+        // Display session messages
+        @if(Session::has('success'))
+            toastr.success("{{ Session::get('success') }}", "সফল!");
         @endif
-        @if({{ __('Session') }}::has('error'))
-            toastr.error("{{ {{ __('Session') }}::get('error') }}", "{{ __('bn_8183e331') }}!");
+        @if(Session::has('error'))
+            toastr.error("{{ Session::get('error') }}", "ত্রুটি!");
         @endif
-        @if({{ __('Session') }}::has('info'))
-            toastr.info("{{ {{ __('Session') }}::get('info') }}", "তথ্য!");
+        @if(Session::has('info'))
+            toastr.info("{{ Session::get('info') }}", "তথ্য!");
         @endif
-        @if({{ __('Session') }}::has('warning'))
-            toastr.warning("{{ {{ __('Session') }}::get('warning') }}", "{{ __('bn_698a7cc6') }}");
+        @if(Session::has('warning'))
+            toastr.warning("{{ Session::get('warning') }}", "সতর্কতা!");
         @endif
     </script>
     <script>
@@ -352,20 +352,20 @@ $totalOrder{{ __('Amount') }} = \App\Models\Order::w{{ __('here') }}('customer_i
             }
         }
 
-        // Profile Image {{ __('Prev') }}iew
+        // Profile Image Preview
         function previewProfileImage(input) {
             if (input.files && input.files[0]) {
                 const file = input.files[0];
                 const maxSize = 2 * 1024 * 1024; // 2MB
                 
-                // {{ __('Check') }} file size
+                // Check file size
                 if (file.size > maxSize) {
                     alert('ইমেজ সাইজ 2MB এর বেশি হতে পারবে না!');
                     input.value = '';
                     return;
                 }
                 
-                // {{ __('Check') }} file type
+                // Check file type
                 const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
                 if (!allowedTypes.includes(file.type)) {
                     alert('শুধুমাত্র JPG, PNG বা WEBP ফরম্যাটের ইমেজ আপলোড করা যাবে!');
@@ -375,16 +375,16 @@ $totalOrder{{ __('Amount') }} = \App\Models\Order::w{{ __('here') }}('customer_i
                 
                 const reader = new FileReader();
                 reader.onload = function(e) {
-                    document.getElementById('profileImage{{ __('Prev') }}iew').src = e.target.result;
-                    document.getElementById('imageFile{{ __('Name') }}').textContent = file.name;
-                    document.getElementById('imageFile{{ __('Name') }}').classList.remove('hidden');
+                    document.getElementById('profileImagePreview').src = e.target.result;
+                    document.getElementById('imageFileName').textContent = file.name;
+                    document.getElementById('imageFileName').classList.remove('hidden');
                 }
                 reader.readAsDataURL(file);
             }
         }
         
         // Form submission validation
-        document.getElementById('profileForm').addEventListener('{{ __('submit') }}', function(e) {
+        document.getElementById('profileForm').addEventListener('submit', function(e) {
             const imageInput = document.getElementById('profileImageInput');
             if (imageInput.files && imageInput.files[0]) {
                 const file = imageInput.files[0];
@@ -406,19 +406,19 @@ $totalOrder{{ __('Amount') }} = \App\Models\Order::w{{ __('here') }}('customer_i
             });
     });
 
-        // {{ __('District') }} {{ __('Change') }} Handler
+        // District Change Handler
         $('.district').on('change', function(){
     var id = $(this).val();
         $.ajax({
-                type: "{{ __('GET') }}",
+                type: "GET",
                 data: {'id': id},
                 url: "{{route('districts')}}",
                 success: function(res){               
             if(res){
                 $(".area").empty();
-                        $(".area").append('<option value="">{{ __('bn_ffd291e7') }}</option>');
+                        $(".area").append('<option value="">নির্বাচন করুন...</option>');
                         $.each(res, function(key, value){
-                            $(".area").append('<option value="'+key+'">{{ __("'+value+'") }}</option>');
+                            $(".area").append('<option value="'+key+'">'+value+'</option>');
                         });
                     } else {
                $(".area").empty();

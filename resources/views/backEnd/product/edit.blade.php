@@ -1,12 +1,12 @@
 @extends('backEnd.layouts.master')
-@section('title','{{ __('Product') }} Edit')
+@section('title','Product Edit')
 
 @section('css')
 <link href="{{asset('public/backEnd')}}/assets/libs/select2/css/select2.min.css" rel="stylesheet" type="text/css" />
 <link href="{{asset('public/backEnd')}}/assets/libs/summernote/summernote-lite.min.css" rel="stylesheet" type="text/css" />
 
 <style>
-    /* Custom Design similar to {{ __('Create Page') }} */
+    /* Custom Design similar to Create Page */
     .section-title { background: #f1f3f7; padding: 10px 15px; border-radius: 6px; font-weight: 700; color: #343a40; border-left: 4px solid #727cf5; margin-bottom: 20px; font-size: 15px; }
     .form-label { font-weight: 600; font-size: 13px; color: #555; }
     .card { border: none; box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075); border-radius: 0.75rem; }
@@ -24,7 +24,7 @@
     .switch { position: relative; display: inline-block; width: 40px; height: 20px; }
     .switch input { opacity: 0; width: 0; height: 0; }
     .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s; border-radius: 20px; }
-    .slider:before { position: absolute; content: ""; height: {{ __('14px') }}; width: {{ __('14px') }}; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; }
+    .slider:before { position: absolute; content: ""; height: 14px; width: 14px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; }
     input:checked + .slider { background-color: #0acf97; }
     input:checked + .slider:before { transform: translateX(20px); }
 </style>
@@ -37,20 +37,20 @@
     $dbType   = $edit_data->product_type ?? ($edit_data->is_digital ? 'digital' : 'simple');
     $currentType = old('product_type', $dbType);
     $isDigital   = $currentType === 'digital' || $edit_data->is_digital;
-    $is{{ __('Variable') }}  = $currentType === 'variable' || $hasVariants;
+    $isVariable  = $currentType === 'variable' || $hasVariants;
 @endphp
 <div class="container-fluid">
     <div class="row">
         <div class="col-12">
             <div class="page-title-box d-flex align-items-center justify-content-between py-3">
-                <h4 class="page-title mb-0">Edit {{ __('Product') }}: {{ $edit_data->name }}</h4>
+                <h4 class="page-title mb-0">Edit Product: {{ $edit_data->name }}</h4>
                 <div class="page-title-right">
-                    <a href="{{route('inhouse.products.index')}}" class="btn btn-primary rounded-pill px-4 shadow-sm"><i class="fe-list me-1"></i>{{ __('{{ __('{{ __('Manage') }} {{ __('Product') }}') }}s') }}</a>
+                    <a href="{{route('inhouse.products.index')}}" class="btn btn-primary rounded-pill px-4 shadow-sm"><i class="fe-list me-1"></i>{{ __('Manage Products') }}</a>
                 </div>
             </div>
         </div>
     </div>
-    <form action="{{route('products.update')}}" method={{ __('"{{ __('POST') }}"') }} data-parsley-validate="" enctype="multipart/form-data" name="editForm">
+    <form action="{{route('products.update')}}" method="POST" data-parsley-validate="" enctype="multipart/form-data" name="editForm">
         @csrf
         <input type="hidden" value="{{$edit_data->id}}" name="id" />
 
@@ -59,10 +59,10 @@
                 
                 <div class="card mb-4">
                     <div class="card-body">
-                        <div class="section-title"><i class="fe-info me-1"></i> {{ __('{{ __('Basic') }} Information') }}</div>
+                        <div class="section-title"><i class="fe-info me-1"></i> Basic Information</div>
 
                         <div class="form-group mb-3">
-                            <label for="name" class="form-label">{{ __('{{ __('{{ __('Product') }} {{ __('Name') }}') }} *') }}</label>
+                            <label for="name" class="form-label">Product Name *</label>
                             <input type="text" class="form-control @error('name') is-invalid @enderror"
                                    name="name" value="{{$edit_data->name }}" id="name" required />
                             @error('name')
@@ -72,18 +72,18 @@
 
                         <div class="row">
                             <div class="col-md-4 mb-3">
-                                <label for="category_id" class="form-label">{{ __('Categories *') }}</label>
+                                <label for="category_id" class="form-label">Categories *</label>
                                 <select class="form-control form-select select2 @error('category_id') is-invalid @enderror"
                                         name="category_id" id="category_id" required>
                                     <optgroup>
-                                        <option value="">{{ __('Select..') }}</option>
+                                        <option value="">Select..</option>
                                         @foreach($categories as $category)
-                                            <option value="{{$category->id}}" @if($edit_data->category_id==$category->{{ __('id)') }} selected @endif>
+                                            <option value="{{$category->id}}" @if($edit_data->category_id==$category->id) selected @endif>
                                                 {{$category->name}}
                                             </option>
-                                            @foreach ($category->childrenCategories as $child{{ __('Category') }})
-                                                <option value="{{$child{{ __('Category') }}->id}}" @if($edit_data->category_id==$child{{ __('Category') }}->{{ __('id)') }} selected @endif>
-                                                    - {{$child{{ __('Category') }}->name}}
+                                            @foreach ($category->childrenCategories as $childCategory)
+                                                <option value="{{$childCategory->id}}" @if($edit_data->category_id==$childCategory->id) selected @endif>
+                                                    - {{$childCategory->name}}
                                                 </option>
                                             @endforeach
                                         @endforeach
@@ -95,14 +95,14 @@
                             </div>
 
                             <div class="col-md-4 mb-3">
-                                <label for="subcategory_id" class="form-label">{{ __('SubCategories') }}</label>
+                                <label for="subcategory_id" class="form-label">SubCategories</label>
                                 <select class="form-control form-select select2 @error('subcategory_id') is-invalid @enderror"
                                         id="subcategory_id" name="subcategory_id">
                                     <optgroup>
-                                        <option value="">{{ __('Select..') }}</option>
+                                        <option value="">Select..</option>
                                         @foreach($subcategory as $value)
-                                            <option value="{{$value->id}}" @if($edit_data->subcategory_id==$value->{{ __('id)') }} selected @endif>
-                                                {{$value->subcategory{{ __('Name') }}}}
+                                            <option value="{{$value->id}}" @if($edit_data->subcategory_id==$value->id) selected @endif>
+                                                {{$value->subcategoryName}}
                                             </option>
                                         @endforeach
                                     </optgroup>
@@ -113,14 +113,14 @@
                             </div>
 
                             <div class="col-md-4 mb-3">
-                                <label for="childcategory_id" class="form-label">{{ __('Child Categories') }}</label>
+                                <label for="childcategory_id" class="form-label">Child Categories</label>
                                 <select class="form-control form-select select2 @error('childcategory_id') is-invalid @enderror"
                                         id="childcategory_id" name="childcategory_id">
                                     <optgroup>
-                                        <option value="">{{ __('Select..') }}</option>
+                                        <option value="">Select..</option>
                                         @foreach($childcategory as $value)
-                                            <option value="{{$value->id}}" @if($edit_data->childcategory_id==$value->{{ __('id)') }} selected @endif>
-                                                {{$value->childcategory{{ __('Name') }}}}
+                                            <option value="{{$value->id}}" @if($edit_data->childcategory_id==$value->id) selected @endif>
+                                                {{$value->childcategoryName}}
                                             </option>
                                         @endforeach
                                     </optgroup>
@@ -156,7 +156,7 @@
                 <div class="card mb-4">
                     <div class="card-body">
                         <div class="form-group mb-3">
-                            <label class="d-block form-label">{{ __('Wholesale {{ __('Product') }}') }}</label>
+                            <label class="d-block form-label">Wholesale Product</label>
                             <label class="switch">
                                 <input type="checkbox" value="1" name="is_wholesale" id="is_wholesale" {{ old('is_wholesale', $edit_data->is_wholesale ?? 0) ? 'checked' : '' }}>
                                 <span class="slider round"></span>
@@ -169,8 +169,8 @@
                 <div id="wholesale_area" style="{{ old('is_wholesale', $edit_data->is_wholesale ?? 0) ? 'display:block;' : 'display:none;' }}" class="card mb-4">
                     <div class="card-body">
                         <div class="section-title d-flex justify-content-between align-items-center">
-                            <span><i class="fe-dollar-sign me-1"></i> {{ __('Wholesale Pricing Tiers') }}</span>
-                            <button type="button" class="btn btn-sm btn-success add-wholesale-tier rounded-pill px-3"><i class="fa fa-plus me-1"></i> {{ __('Add {{ __('New') }} Tier') }}</button>
+                            <span><i class="fe-dollar-sign me-1"></i> Wholesale Pricing Tiers</span>
+                            <button type="button" class="btn btn-sm btn-success add-wholesale-tier rounded-pill px-3"><i class="fa fa-plus me-1"></i> Add New Tier</button>
                         </div>
                         
                         <div id="wholesale-wrapper">
@@ -179,24 +179,24 @@
                                     <div class="variant-card">
                                         <div class="row align-items-end">
                                             <div class="col-md-3 mb-2">
-                                                <label class="form-label">{{ __('Min Quantity') }}</label>
-                                                <input type="{{ __('number') }}" name="wholesale_price[{{ $key }}][min_quantity]" class="form-control" 
+                                                <label class="form-label">Min Quantity</label>
+                                                <input type="number" name="wholesale_price[{{ $key }}][min_quantity]" class="form-control" 
                                                        value="{{ old('wholesale_price.'.$key.'.min_quantity', $tier->min_quantity) }}">
                                             </div>
                                             <div class="col-md-3 mb-2">
-                                                <label class="form-label">{{ __('Max Quantity') }}</label>
-                                                <input type="{{ __('number') }}" name="wholesale_price[{{ $key }}][max_quantity]" class="form-control" 
-                                                       value="{{ old('wholesale_price.'.$key.'.max_quantity', $tier->max_quantity) }}" placeholder="{{ __('Optional') }}">
+                                                <label class="form-label">Max Quantity</label>
+                                                <input type="number" name="wholesale_price[{{ $key }}][max_quantity]" class="form-control" 
+                                                       value="{{ old('wholesale_price.'.$key.'.max_quantity', $tier->max_quantity) }}" placeholder="Optional">
                                             </div>
                                             <div class="col-md-2 mb-2">
-                                                <label class="form-label">{{ __('Wholesale Price') }}</label>
-                                                <input type="{{ __('number') }}" step="0.01" name="wholesale_price[{{ $key }}][wholesale_price]" class="form-control" 
+                                                <label class="form-label">Wholesale Price</label>
+                                                <input type="number" step="0.01" name="wholesale_price[{{ $key }}][wholesale_price]" class="form-control" 
                                                        value="{{ old('wholesale_price.'.$key.'.wholesale_price', $tier->wholesale_price) }}">
                                             </div>
                                             <div class="col-md-2 mb-2">
-                                                <label class="form-label">{{ __('{{ __('Stock') }} Qty') }}</label>
-                                                <input type="{{ __('number') }}" name="wholesale_price[{{ $key }}][{{ __('stock') }}]" class="form-control" 
-                                                       value="{{ old('wholesale_price.'.$key.'.{{ __('stock') }}', $tier->{{ __('stock') }} ?? 0) }}" placeholder="0">
+                                                <label class="form-label">Stock Qty</label>
+                                                <input type="number" name="wholesale_price[{{ $key }}][stock]" class="form-control" 
+                                                       value="{{ old('wholesale_price.'.$key.'.stock', $tier->stock ?? 0) }}" placeholder="0">
                                             </div>
                                             <div class="col-md-2 mb-2">
                                                 @if($loop->first)
@@ -212,20 +212,20 @@
                                 <div class="variant-card">
                                     <div class="row align-items-end">
                                         <div class="col-md-3 mb-2">
-                                            <label class="form-label">{{ __('Min Quantity') }}</label>
-                                            <input type="{{ __('number') }}" name="wholesale_price[0][min_quantity]" class="form-control" placeholder="{{ __('e.g. 10') }}">
+                                            <label class="form-label">Min Quantity</label>
+                                            <input type="number" name="wholesale_price[0][min_quantity]" class="form-control" placeholder="e.g. 10">
                                         </div>
                                         <div class="col-md-3 mb-2">
-                                            <label class="form-label">{{ __('Max Quantity') }}</label>
-                                            <input type="{{ __('number') }}" name="wholesale_price[0][max_quantity]" class="form-control" placeholder="{{ __('e.g. 50 (optional)') }}">
+                                            <label class="form-label">Max Quantity</label>
+                                            <input type="number" name="wholesale_price[0][max_quantity]" class="form-control" placeholder="e.g. 50 (optional)">
                                         </div>
                                         <div class="col-md-2 mb-2">
-                                            <label class="form-label">{{ __('Wholesale Price') }}</label>
-                                            <input type="{{ __('number') }}" step="0.01" name="wholesale_price[0][wholesale_price]" class="form-control" placeholder="{{ __('0.00') }}">
+                                            <label class="form-label">Wholesale Price</label>
+                                            <input type="number" step="0.01" name="wholesale_price[0][wholesale_price]" class="form-control" placeholder="0.00">
                                         </div>
                                         <div class="col-md-2 mb-2">
-                                            <label class="form-label">{{ __('{{ __('Stock') }} Qty') }}</label>
-                                            <input type="{{ __('number') }}" name="wholesale_price[0][{{ __('stock') }}]" class="form-control" placeholder="0">
+                                            <label class="form-label">Stock Qty</label>
+                                            <input type="number" name="wholesale_price[0][stock]" class="form-control" placeholder="0">
                                         </div>
                                         <div class="col-md-2 mb-2">
                                             <button type="button" class="btn btn-success add-wholesale-tier w-100"><i class="fa fa-plus"></i></button>
@@ -241,8 +241,8 @@
                 <div class="card mb-4" id="variant_section" style="{{ $hasVariants ? '' : 'display:none;' }}">
                     <div class="card-body">
                         <div class="section-title d-flex justify-content-between align-items-center">
-                            <span><i class="fe-layers me-1"></i> {{ __('{{ __('{{ __('Product') }} Variants') }} ({{ __('Color') }} & Size)') }}</span>
-                            <button type="button" class="btn btn-sm btn-success add-variant rounded-pill px-3"><i class="fa fa-plus me-1"></i> {{ __('Add Variant') }}</button>
+                            <span><i class="fe-layers me-1"></i> Product Variants (Color & Size)</span>
+                            <button type="button" class="btn btn-sm btn-success add-variant rounded-pill px-3"><i class="fa fa-plus me-1"></i> Add Variant</button>
                         </div>
 
                         <div id="variant-wrapper">
@@ -255,18 +255,18 @@
                             
                             @forelse($allVariants as $vp)
                                 @php
-                                    $vp{{ __('Color') }}Id = $vp->color_id ?? '';
+                                    $vpColorId = $vp->color_id ?? '';
                                     $vpSizeId  = $vp->size_id ?? '';
                                 @endphp
                                 <div class="variant-card variant-item">
                                     <div class="row align-items-end">
                                         <div class="col-md-2 mb-2">
-                                            <label class="form-label">{{ __('{{ __('Color') }}') }}</label>
+                                            <label class="form-label">{{ __('Color') }}</label>
                                             <select name="variant_price[{{ $variantIndex }}][color_id]" class="form-control select2 variant-color-select">
-                                                <option value="">{{ __('Select {{ __('Color') }} {{ __('({{ __('Optional') }})') }}') }}</option>
+                                                <option value="">Select Color (Optional)</option>
                                                 @foreach($totalcolors as $color)
-                                                    <option value="{{ $color->id }}" {{ $vp{{ __('Color') }}Id == $color->id ? 'selected' : '' }}>
-                                                        {{ $color->color{{ __('Name') }} ?? $color->name }}
+                                                    <option value="{{ $color->id }}" {{ $vpColorId == $color->id ? 'selected' : '' }}>
+                                                        {{ $color->colorName ?? $color->name }}
                                                     </option>
                                                 @endforeach
                                             </select>
@@ -275,10 +275,10 @@
                                         <div class="col-md-2 mb-2">
                                             <label class="form-label">{{ __('Size') }}</label>
                                             <select name="variant_price[{{ $variantIndex }}][size_id]" class="form-control select2 variant-size-select">
-                                                <option value="">{{ __('Select Size {{ __('({{ __('Optional') }})') }}') }}</option>
+                                                <option value="">Select Size (Optional)</option>
                                                 @foreach($totalsizes as $size)
                                                     <option value="{{ $size->id }}" {{ $vpSizeId == $size->id ? 'selected' : '' }}>
-                                                        {{ $size->size{{ __('Name') }} ?? $size->name }}
+                                                        {{ $size->sizeName ?? $size->name }}
                                                     </option>
                                                 @endforeach
                                             </select>
@@ -286,22 +286,22 @@
 
                                         <div class="col-md-2 mb-2">
                                             <label class="form-label">{{ __('Price') }}</label>
-                                            <input type="{{ __('number') }}" step="0.01" name="variant_price[{{ $variantIndex }}][price]"
+                                            <input type="number" step="0.01" name="variant_price[{{ $variantIndex }}][price]"
                                                    value="{{ $vp->price }}" class="form-control" placeholder="{{ __('Enter Price') }}">
                                         </div>
 
                                         <div class="col-md-2 mb-2">
-                                            <label class="form-label">{{ __('{{ __('Stock') }}') }}</label>
-                                            <input type="{{ __('number') }}" name="variant_price[{{ $variantIndex }}][{{ __('stock') }}]"
-                                                   value="{{ $vp->{{ __('stock') }} }}" class="form-control" placeholder="0">
+                                            <label class="form-label">{{ __('Stock') }}</label>
+                                            <input type="number" name="variant_price[{{ $variantIndex }}][stock]"
+                                                   value="{{ $vp->stock }}" class="form-control" placeholder="0">
                                         </div>
 
                                         <div class="col-md-2 mb-2">
-                                            <label class="form-label">{{ __('Variant Image') }}</label>
+                                            <label class="form-label">Variant Image</label>
                                             @php
-                                                $matchImg = $edit_data->images->{{ __('filter') }}(function($img) use ($vp) {
-                                                    return ($img->color_id == $vp->color_id || (empty($img->color_{{ __('id)') }} && empty($vp->color_{{ __('id)') }}))
-                                                        && ($img->size_id == $vp->size_id || (empty($img->size_{{ __('id)') }} && empty($vp->size_{{ __('id)') }}));
+                                                $matchImg = $edit_data->images->filter(function($img) use ($vp) {
+                                                    return ($img->color_id == $vp->color_id || (empty($img->color_id) && empty($vp->color_id)))
+                                                        && ($img->size_id == $vp->size_id || (empty($img->size_id) && empty($vp->size_id)));
                                                 })->unique('image');
                                             @endphp
                                             @if($matchImg->isNotEmpty())
@@ -317,7 +317,7 @@
                                             <div class="variant-img-upload">
                                                 <input type="file" name="variant_image[{{ $variantIndex }}][image]" class="form-control form-control-sm variant-img-input" accept="image/*">
                                                 <div class="variant-img-preview mt-1" style="display:none;">
-                                                    <img src="" alt="{{ __('Prev') }}iew" class="rounded border" style="max-width:60px;max-height:60px;object-fit:cover;">
+                                                    <img src="" alt="Preview" class="rounded border" style="max-width:60px;max-height:60px;object-fit:cover;">
                                                     <button type="button" class="btn btn-sm btn-danger variant-img-clear ms-1" title="{{ __('Remove') }}"><i class="fe-x"></i></button>
                                                 </div>
                                             </div>
@@ -339,7 +339,7 @@
                                         <div class="col-12">
                                             <small class="text-muted">
                                                 <i class="fa fa-info-circle"></i> 
-                                                আপনি শুধু {{ __('Color') }}, শুধু Size, {{ __('bn_6bbacc71') }} {{ __('Color') }} + Size উভয় add করতে পারবেন
+                                                আপনি শুধু Color, শুধু Size, অথবা Color + Size উভয় add করতে পারবেন
                                             </small>
                                         </div>
                                     </div>
@@ -349,42 +349,42 @@
                                 <div class="variant-card variant-item">
                                     <div class="row align-items-end">
                                         <div class="col-md-3 mb-2">
-                                            <label class="form-label">{{ __('{{ __('Color') }}') }}<small class="text-muted">{{ __('({{ __('Optional') }})') }}</small></label>
+                                            <label class="form-label">{{ __('Color') }}<small class="text-muted">(Optional)</small></label>
                                             <select name="variant_price[0][color_id]" class="form-control select2 variant-color-select">
-                                                <option value="">{{ __('Select {{ __('Color') }} {{ __('({{ __('Optional') }})') }}') }}</option>
+                                                <option value="">Select Color (Optional)</option>
                                                 @foreach($totalcolors as $color)
-                                                    <option value="{{ $color->id }}">{{ $color->color{{ __('Name') }} ?? $color->name }}</option>
+                                                    <option value="{{ $color->id }}">{{ $color->colorName ?? $color->name }}</option>
                                                 @endforeach
                                             </select>
                                         </div>
 
                                         <div class="col-md-3 mb-2">
-                                            <label class="form-label">{{ __('Size') }}<small class="text-muted">{{ __('({{ __('Optional') }})') }}</small></label>
+                                            <label class="form-label">{{ __('Size') }}<small class="text-muted">(Optional)</small></label>
                                             <select name="variant_price[0][size_id]" class="form-control select2 variant-size-select">
-                                                <option value="">{{ __('Select Size {{ __('({{ __('Optional') }})') }}') }}</option>
+                                                <option value="">Select Size (Optional)</option>
                                                 @foreach($totalsizes as $size)
-                                                    <option value="{{ $size->id }}">{{ $size->size{{ __('Name') }} ?? $size->name }}</option>
+                                                    <option value="{{ $size->id }}">{{ $size->sizeName ?? $size->name }}</option>
                                                 @endforeach
                                             </select>
                                         </div>
 
                                         <div class="col-md-2 mb-2">
-                                            <label class="form-label">{{ __('Price') }}<small class="text-muted">{{ __('({{ __('Optional') }})') }}</small></label>
-                                            <input type="{{ __('number') }}" step="0.01" name="variant_price[0][price]"
+                                            <label class="form-label">{{ __('Price') }}<small class="text-muted">(Optional)</small></label>
+                                            <input type="number" step="0.01" name="variant_price[0][price]"
                                                    class="form-control" placeholder="{{ __('Enter Price') }}">
                                         </div>
 
                                         <div class="col-md-2 mb-2">
-                                            <label class="form-label">{{ __('{{ __('Stock') }}') }}</label>
-                                            <input type="{{ __('number') }}" name="variant_price[0][{{ __('stock') }}]" class="form-control" placeholder="0">
+                                            <label class="form-label">{{ __('Stock') }}</label>
+                                            <input type="number" name="variant_price[0][stock]" class="form-control" placeholder="0">
                                         </div>
 
                                         <div class="col-md-2 mb-2">
-                                            <label class="form-label">{{ __('Variant Image') }}</label>
+                                            <label class="form-label">Variant Image</label>
                                             <div class="variant-img-upload">
                                                 <input type="file" name="variant_image[0][image]" class="form-control form-control-sm variant-img-input" accept="image/*">
                                                 <div class="variant-img-preview mt-1" style="display:none;">
-                                                    <img src="" alt="{{ __('Prev') }}iew" class="rounded border" style="max-width:60px;max-height:60px;object-fit:cover;">
+                                                    <img src="" alt="Preview" class="rounded border" style="max-width:60px;max-height:60px;object-fit:cover;">
                                                     <button type="button" class="btn btn-sm btn-danger variant-img-clear ms-1" title="{{ __('Remove') }}"><i class="fe-x"></i></button>
                                                 </div>
                                             </div>
@@ -400,7 +400,7 @@
                                         <div class="col-12">
                                             <small class="text-muted">
                                                 <i class="fa fa-info-circle"></i> 
-                                                আপনি শুধু {{ __('Color') }}, শুধু Size, {{ __('bn_6bbacc71') }} {{ __('Color') }} + Size উভয় add করতে পারবেন
+                                                আপনি শুধু Color, শুধু Size, অথবা Color + Size উভয় add করতে পারবেন
                                             </small>
                                         </div>
                                     </div>
@@ -413,40 +413,40 @@
                 {{-- SEO CONFIG CARD --}}
                 <div class="card mb-4">
                     <div class="card-body">
-                        <div class="section-title"><i class="fe-search me-1"></i> {{ __('SEO {{ __('Configuration') }}') }}</div>
+                        <div class="section-title"><i class="fe-search me-1"></i> SEO Configuration</div>
                         
                         <div class="row">
                             <div class="col-md-6 mb-3">
-                                <label for="meta_title" class="form-label">{{ __('Meta {{ __('Title') }}') }}</label>
+                                <label for="meta_title" class="form-label">{{ __('Meta Title') }}</label>
                                 <input type="text" name="meta_title" id="meta_title" class="form-control"
                                        value="{{ $edit_data->meta_title ?? $edit_data->name }}"
-                                       placeholder="{{ __('Enter meta title') }}">
+                                       placeholder="Enter meta title">
                             </div>
 
                             <div class="col-md-6 mb-3">
                                 <label for="meta_keywords" class="form-label">{{ __('Meta Keywords') }}</label>
                                 <input type="text" name="meta_keywords" id="meta_keywords" class="form-control"
                                        value="{{ $edit_data->meta_keywords ?? '' }}"
-                                       placeholder="{{ __('meta1, meta2, meta3') }}">
+                                       placeholder="meta1, meta2, meta3">
                             </div>
 
                             <div class="col-md-12 mb-3">
                                 <label for="meta_description" class="form-label">{{ __('Meta Description') }}</label>
                                 <textarea name="meta_description" id="meta_description" class="form-control" rows="3"
-                                          placeholder="{{ __('Enter short SEO description...') }}">{{ $edit_data->meta_description ?? \Illuminate\Support\Str::limit(strip_tags($edit_data->description), 160) }}</textarea>
+                                          placeholder="Enter short SEO description...">{{ $edit_data->meta_description ?? \Illuminate\Support\Str::limit(strip_tags($edit_data->description), 160) }}</textarea>
                             </div>
 
                             <div class="col-md-12 mb-3">
-                                <label for="meta_image" class="form-label">{{ __('{{ __('Meta Image') }} (og:image)') }}</label>
+                                <label for="meta_image" class="form-label">Meta Image (og:image)</label>
                                 <input type="file" name="meta_image" id="meta_image" class="form-control">
 
                                 @if(!empty($edit_data->meta_image))
                                     <div class="mt-2">
-                                        <img src="{{ asset($edit_data->meta_image) }}" alt="{{ __('Meta Image') }}"
+                                        <img src="{{ asset($edit_data->meta_image) }}" alt="Meta Image"
                                              class="border rounded" width="120">
                                     </div>
                                 @endif
-                                <small class="text-muted d-block mt-1">{{ __('Recommended size: 1200x630px') }}</small>
+                                <small class="text-muted d-block mt-1">Recommended size: 1200x630px</small>
                             </div>
                         </div>
                     </div>
@@ -457,10 +457,10 @@
                 {{-- PRICING & INVENTORY CARD --}}
                 <div class="card mb-4">
                     <div class="card-body">
-                        <div class="section-title"><i class="fe-dollar-sign me-1"></i> {{ __('Pricing & {{ __('Inv') }}entory') }}</div>
+                        <div class="section-title"><i class="fe-dollar-sign me-1"></i> Pricing & Inventory</div>
 
                         <div class="form-group mb-3">
-                            <label for="purchase_price" class="form-label">{{ __('Purchase Price') }} <small class="text-muted">{{ __('({{ __('Optional') }})') }}</small></label>
+                            <label for="purchase_price" class="form-label">Purchase Price <small class="text-muted">(Optional)</small></label>
                             <input type="text" class="form-control border-primary @error('purchase_price') is-invalid @enderror"
                                    name="purchase_price" value="{{ $edit_data->purchase_price}}" id="purchase_price" placeholder="0" />
                             @error('purchase_price')
@@ -470,7 +470,7 @@
 
                         <div class="row">
                             <div class="col-md-6 mb-3">
-                                <label for="old_price" class="form-label">{{ __('Old Price') }}</label>
+                                <label for="old_price" class="form-label">Old Price</label>
                                 <input type="text" class="form-control @error('old_price') is-invalid @enderror"
                                        name="old_price" value="{{ $edit_data->old_price }}" id="old_price" />
                                 @error('old_price')
@@ -479,7 +479,7 @@
                             </div>
 
                             <div class="col-md-6 mb-3">
-                                <label for="new_price" class="form-label">{{ __('{{ __('New') }} Price') }} <small class="text-muted">{{ __('({{ __('Optional') }})') }}</small></label>
+                                <label for="new_price" class="form-label">New Price <small class="text-muted">(Optional)</small></label>
                                 <input type="text" class="form-control font-weight-bold @error('new_price') is-invalid @enderror"
                                        name="new_price" value="{{ $edit_data->new_price }}" id="new_price" placeholder="0" />
                                 @error('new_price')
@@ -489,10 +489,10 @@
                         </div>
 
                         <div class="form-group mb-3">
-                            <label for="reseller_price" class="form-label">{{ __('Reseller Price') }}</label>
+                            <label for="reseller_price" class="form-label">Reseller Price</label>
                             <input type="text" step="0.01" class="form-control @error('reseller_price') is-invalid @enderror"
-                                   name="reseller_price" value="{{ old('reseller_price', $edit_data->reseller_price) }}" id="reseller_price" placeholder="{{ __('Reseller price (optional)') }}" />
-                            <small class="text-muted">{{ __('Special price for resellers. Leave empty if not applicable.') }}</small>
+                                   name="reseller_price" value="{{ old('reseller_price', $edit_data->reseller_price) }}" id="reseller_price" placeholder="Reseller price (optional)" />
+                            <small class="text-muted">Special price for resellers. Leave empty if not applicable.</small>
                             @error('reseller_price')
                             <span class="invalid-feedback" role="alert"><strong>{{ $message }}</strong></span>
                             @enderror
@@ -500,10 +500,10 @@
 
                         <div class="row">
                             <div class="col-md-6 mb-3">
-                                <label for="{{ __('stock') }}" class="form-label">{{ __('{{ __('Total') }} {{ __('Stock') }}') }} <small class="text-muted">{{ __('({{ __('Optional') }})') }}</small></label>
-                                <input type="text" class="form-control @error('{{ __('stock') }}') is-invalid @enderror"
-                                       name="{{ __('stock') }}" value="{{ $edit_data->{{ __('stock') }} }}" id="{{ __('stock') }}" placeholder="0" />
-                                @error('{{ __('stock') }}')
+                                <label for="stock" class="form-label">Total Stock <small class="text-muted">(Optional)</small></label>
+                                <input type="text" class="form-control @error('stock') is-invalid @enderror"
+                                       name="stock" value="{{ $edit_data->stock }}" id="stock" placeholder="0" />
+                                @error('stock')
                                 <span class="invalid-feedback" role="alert"><strong>{{ $message }}</strong></span>
                                 @enderror
                             </div>
@@ -518,9 +518,9 @@
                             <label for="brand_id" class="form-label">{{ __('Brand') }}</label>
                             <select class="form-control select2 @error('brand_id') is-invalid @enderror"
                                     name="brand_id">
-                                <option value="">{{ __('Select..') }}</option>
+                                <option value="">Select..</option>
                                 @foreach($brands as $value)
-                                    <option value="{{$value->id}}" @if($edit_data->brand_id==$value->{{ __('id)') }} selected @endif>
+                                    <option value="{{$value->id}}" @if($edit_data->brand_id==$value->id) selected @endif>
                                         {{$value->name}}
                                     </option>
                                 @endforeach
@@ -535,10 +535,10 @@
                 {{-- MEDIA CARD --}}
                 <div class="card mb-4">
                     <div class="card-body">
-                        <div class="section-title"><i class="fe-image me-1"></i> {{ __('{{ __('Media') }} & Video') }}</div>
+                        <div class="section-title"><i class="fe-image me-1"></i> Media & Video</div>
 
                         <div class="form-group mb-3">
-                            <label class="form-label">{{ __('{{ __('Product') }} Gallery Images') }}</label>
+                            <label class="form-label">Product Gallery Images</label>
                             <div class="increment-wrapper">
                                 <div class="control-group increment mb-2 image-row">
                                     <div class="row align-items-end g-2">
@@ -572,7 +572,7 @@
                             </div>
 
                             <div class="product_img mt-3 d-flex flex-wrap">
-                                @foreach($edit_data->images->{{ __('filter') }}(fn($img) => !$img->color_id && !$img->size_{{ __('id)') }} as $image)
+                                @foreach($edit_data->images->filter(fn($img) => !$img->color_id && !$img->size_id) as $image)
                                     <div class="position-relative me-2 mb-2">
                                         <img src="{{asset($image->image)}}" class="edit-image border" alt="">
                                         <a href="{{route('products.image.destroy',['id'=>$image->id])}}"
@@ -584,16 +584,16 @@
                                     </div>
                                 @endforeach
                             </div>
-                            @php $colorSizeImages = $edit_data->images->{{ __('filter') }}(fn($img) => $img->color_id || $img->size_{{ __('id)') }}; @endphp
+                            @php $colorSizeImages = $edit_data->images->filter(fn($img) => $img->color_id || $img->size_id); @endphp
                             @if($colorSizeImages->isNotEmpty())
                             <div class="mt-3">
-                                <label class="form-label small text-muted">{{ __('{{ __('Color') }}/Size Images') }}</label>
+                                <label class="form-label small text-muted">Color/Size Images</label>
                                 <div class="d-flex flex-wrap gap-2">
                                     @foreach($colorSizeImages as $img)
                                         <div class="position-relative">
                                             <img src="{{asset($img->image)}}" class="edit-image border" alt="">
                                             <span class="badge bg-info position-absolute bottom-0 start-0" style="font-size:9px;">
-                                                {{ $img->color ? ($img->color->color{{ __('Name') }} ?? $img->color->name) : '-' }} / {{ $img->size ? ($img->size->size{{ __('Name') }} ?? $img->size->name) : '-' }}
+                                                {{ $img->color ? ($img->color->colorName ?? $img->color->name) : '-' }} / {{ $img->size ? ($img->size->sizeName ?? $img->size->name) : '-' }}
                                             </span>
                                             <a href="{{route('products.image.destroy',['id'=>$img->id])}}" class="btn btn-xs btn-danger position-absolute top-0 end-0 rounded-circle" style="padding:0 4px;top:-5px;right:-5px;" onclick="return confirm('Delete?')"><i class="mdi mdi-close"></i></a>
                                         </div>
@@ -608,7 +608,7 @@
                             $existingVideoType = $edit_data->pro_video_type ?? ($edit_data->pro_video ? 'youtube' : null);
                         @endphp
                         <div class="form-group mb-0">
-                            <label class="form-label fw-semibold">{{ __('{{ __('Product') }}s') }}</label>
+                            <label class="form-label fw-semibold">প্রোডাক্ট ভিডিও</label>
                             <div class="d-flex gap-3 mb-2">
                                 <div class="form-check">
                                     <input class="form-check-input" type="radio" name="pro_video_source"
@@ -623,7 +623,7 @@
                                            id="vs_up_e" value="upload"
                                            {{ $existingVideoType === 'upload' ? 'checked' : '' }}>
                                     <label class="form-check-label" for="vs_up_e">
-                                        <i class="fa fa-upload text-primary me-1"></i> {{ __('bn_9607a518') }} আপলোড
+                                        <i class="fa fa-upload text-primary me-1"></i> ভিডিও আপলোড
                                     </label>
                                 </div>
                             </div>
@@ -640,7 +640,7 @@
                                 @if($edit_data->pro_video)
                                 <div id="yt_preview_e" class="mt-2">
                                     <iframe id="yt_iframe_e" width="100%" height="200"
-                                            src="{{ __('https://') }}www.youtube.com/embed/{{ $edit_data->pro_video }}"
+                                            src="https://www.youtube.com/embed/{{ $edit_data->pro_video }}"
                                             frameborder="0" allowfullscreen
                                             style="border-radius:8px;"></iframe>
                                 </div>
@@ -651,7 +651,7 @@
                                             style="border-radius:8px;"></iframe>
                                 </div>
                                 @endif
-                                <small class="text-muted">{{ __('bn_b7bd583c') }}</small>
+                                <small class="text-muted">YouTube full URL অথবা শুধু Video ID উভয়ই চলবে।</small>
                             </div>
 
                             {{-- Upload input --}}
@@ -659,10 +659,10 @@
                                 @if($existingVideoType === 'upload' && $edit_data->pro_video_path)
                                 <div class="mb-2 p-2 bg-light rounded d-flex align-items-center gap-2">
                                     <i class="fa fa-film text-primary"></i>
-                                    <span style="font-size:12px;">{{ __('bn_9a165830') }}: <strong>{{ basename($edit_data->pro_video_path) }}</strong></span>
+                                    <span style="font-size:12px;">বর্তমান ভিডিও: <strong>{{ basename($edit_data->pro_video_path) }}</strong></span>
                                     <a href="{{ asset($edit_data->pro_video_path) }}" target="_blank"
                                        class="btn btn-xs btn-outline-primary ms-auto" style="font-size:11px;padding:2px 8px;">
-                                        <i class="fa fa-play"></i> {{ __('View') }}
+                                        <i class="fa fa-play"></i> দেখুন
                                     </a>
                                 </div>
                                 @endif
@@ -672,7 +672,7 @@
                                     <video id="up_video_e" width="100%" height="220" controls
                                            style="border-radius:8px;background:#000;"></video>
                                 </div>
-                                <small class="text-muted">{{ __('bn_bf3cdb2b') }}</small>
+                                <small class="text-muted">নতুন ভিডিও বেছে না নিলে পুরনোটাই থাকবে। MP4, WebM, OGG | সর্বোচ্চ 40MB।</small>
                             </div>
                         </div>
                         {{-- ===== /VIDEO SECTION (EDIT) ===== --}}
@@ -682,17 +682,17 @@
                 {{-- PRODUCT SETTINGS CARD --}}
                 <div class="card mb-4">
                     <div class="card-body">
-                        <div class="section-title"><i class="fe-settings me-1"></i> {{ __('{{ __('Product') }} Settings') }}</div>
+                        <div class="section-title"><i class="fe-settings me-1"></i> Product Settings</div>
 
                         <div class="form-group mb-3">
-                            <label for="product_type" class="form-label">{{ __('{{ __('Product') }} Type') }}</label>
+                            <label for="product_type" class="form-label">Product Type</label>
                             <select class="form-control bg-light" id="product_type" name="product_type">
-                                <option value="simple" {{ $currentType === 'simple' ? 'selected' : '' }}>📦 {{ __('Simple') }} {{ __('Product') }}</option>
-                                <option value="variable" {{ $currentType === 'variable' ? 'selected' : '' }}>🎨 {{ __('Variable') }} {{ __('Product') }}</option>
-                                <option value="digital" {{ $currentType === 'digital' ? 'selected' : '' }}>💾 {{ __('Digital {{ __('Product') }}') }}</option>
+                                <option value="simple" {{ $currentType === 'simple' ? 'selected' : '' }}>📦 Simple Product</option>
+                                <option value="variable" {{ $currentType === 'variable' ? 'selected' : '' }}>🎨 Variable Product</option>
+                                <option value="digital" {{ $currentType === 'digital' ? 'selected' : '' }}>💾 Digital Product</option>
                             </select>
                             <small class="text-muted d-block mt-1">
-                                <strong>{{ __('Simple') }}:</strong> Single price & {{ __('stock') }} | <strong>{{ __('Variable') }}:</strong> Multiple variants with different prices ({{ __('Color') }}, Size, etc.)
+                                <strong>Simple:</strong> Single price & stock | <strong>Variable:</strong> Multiple variants with different prices (Color, Size, etc.)
                             </small>
                         </div>
 
@@ -701,9 +701,9 @@
                             <label class="form-label d-flex align-items-center gap-2">
                                 <input type="checkbox" id="enable_variants" {{ $hasVariants ? 'checked' : '' }} 
                                        onchange="toggleVariantSection()" style="width:18px;height:18px;">
-                                <span>{{ __('{{ __('Enable') }} {{ __('{{ __('{{ __('Product') }} Variants') }} ({{ __('Color') }} & Size)') }}') }}</span>
+                                <span>Enable Product Variants (Color & Size)</span>
                             </label>
-                            <small class="text-muted d-block">{{ __('{{ __('Check') }} this to add multiple variations with different prices, {{ __('stock') }} & images per {{ __('Color') }}/Size combination.') }}</small>
+                            <small class="text-muted d-block">Check this to add multiple variations with different prices, stock & images per Color/Size combination.</small>
                         </div>
 
                         {{-- DIGITAL PRODUCT CHECKBOX --}}
@@ -712,15 +712,15 @@
                             <label class="form-label d-flex align-items-center gap-2">
                                 <input type="checkbox" id="is_digital_check" name="is_digital_check" {{ $isDigital ? 'checked' : '' }} 
                                        onchange="toggleDigitalSection()" style="width:18px;height:18px;">
-                                <span>{{ __('Digital / Downloadable {{ __('Product') }}') }}</span>
+                                <span>Digital / Downloadable Product</span>
                             </label>
-                            <small class="text-muted d-block">{{ __('No shipping required. {{ __('Customer') }}s can download the product after purchase.') }}</small>
+                            <small class="text-muted d-block">No shipping required. Customers can download the product after purchase.</small>
                         </div>
 
                         {{-- ADVANCE PAYMENT (PHYSICAL) --}}
                         <div id="advance_area" style="{{ $isDigital ? 'display:none;' : 'display:block;' }}">
                             <div class="form-group mb-3">
-                                <label for="advance_amount" class="form-label">{{ __('Advance Payment') }}</label>
+                                <label for="advance_amount" class="form-label">Advance Payment</label>
                                 <input type="text" class="form-control @error('advance_amount') is-invalid @enderror"
                                        name="advance_amount" id="advance_amount"
                                        value="{{ old('advance_amount', $edit_data->advance_amount) }}" />
@@ -732,13 +732,13 @@
 
                         {{-- FREE DELIVERY --}}
                         <div class="form-group mb-3">
-                            <label class="form-label">{{ __('Free Delivery') }}</label>
+                            <label class="form-label">Free Delivery</label>
                             <div class="d-flex align-items-center">
                                 <label class="switch me-3">
                                     <input type="checkbox" value="1" name="free_delivery" {{ old('free_delivery', $edit_data->free_delivery) ? 'checked' : '' }}>
                                     <span class="slider round"></span>
                                 </label>
-                                <small class="text-muted">{{ __('{{ __('Enable') }} free delivery for this product (No shipping charge will be applied)') }}</small>
+                                <small class="text-muted">Enable free delivery for this product (No shipping charge will be applied)</small>
                             </div>
                         </div>
 
@@ -746,22 +746,22 @@
                         <div id="digital_area" style="{{ $isDigital ? 'display:block;' : 'display:none;' }}" class="p-2 border rounded mb-3 bg-light">
                             <div class="mb-3">
                                 @if($edit_data->digital_file)
-                                    <label class="form-label d-block text-truncate">{{ __('Current') }}: <code>{{ $edit_data->digital_file }}</code></label>
+                                    <label class="form-label d-block text-truncate">Current: <code>{{ $edit_data->digital_file }}</code></label>
                                 @endif
-                                <label for="digital_file" class="form-label">{{ __('{{ __('Change') }} {{ __('Digital File') }}') }}</label>
+                                <label for="digital_file" class="form-label">Change Digital File</label>
                                 <input type="file" class="form-control" name="digital_file" id="digital_file">
                             </div>
 
                             <div class="row">
                                 <div class="col-6">
-                                    <label class="form-label"><small>{{ __('Limit') }}</small></label>
-                                    <input type="{{ __('number') }}" class="form-control form-control-sm"
+                                    <label class="form-label"><small>Limit</small></label>
+                                    <input type="number" class="form-control form-control-sm"
                                            name="download_limit" id="download_limit"
                                            value="{{ old('download_limit', $edit_data->download_limit ?? 5) }}" min="1">
                                 </div>
                                 <div class="col-6">
-                                    <label class="form-label"><small>{{ __('{{ __('Days') }} Exp.') }}</small></label>
-                                    <input type="{{ __('number') }}" class="form-control form-control-sm"
+                                    <label class="form-label"><small>Days Exp.</small></label>
+                                    <input type="number" class="form-control form-control-sm"
                                            name="download_expire_days" id="download_expire_days"
                                            value="{{ old('download_expire_days', $edit_data->download_expire_days ?? 7) }}" min="1">
                                 </div>
@@ -779,7 +779,7 @@
                             </div>
 
                             <div class="col-3 mb-2">
-                                <label for="topsale" class="d-block form-label">{{ __('{{ __('Hot Deal') }}s') }}</label>
+                                <label for="topsale" class="d-block form-label">{{ __('Hot Deals') }}</label>
                                 <label class="switch">
                                     <input type="checkbox" value="1" name="topsale" @if($edit_data->topsale==1) checked @endif>
                                     <span class="slider round"></span>
@@ -796,13 +796,13 @@
 
                           
                             <div class="col-12 mb-2 text-start">
-                                <label for="sold" class="form-label">{{ __('Sold Count') }}</label>
+                                <label for="sold" class="form-label">Sold Count</label>
                                 <input type="text" class="form-control @error('sold') is-invalid @enderror"
                                        name="sold" value="{{ $edit_data->sold }}" id="sold" />
                             </div>
                         </div>
 
-                        <button type="{{ __('submit') }}" class="btn btn-success btn-lg w-100 shadow rounded-pill"><i class="fe-check-circle me-1"></i> {{ __('Update {{ __('Product') }}') }}</button>
+                        <button type="submit" class="btn btn-success btn-lg w-100 shadow rounded-pill"><i class="fe-check-circle me-1"></i> Update Product</button>
 
                     </div>
                 </div>
@@ -821,7 +821,7 @@
 
 <script>
     $(".summernote").summernote({
-        placeholder: "Enter Your {{ __('Text') }} Here",
+        placeholder: "Enter Your Text Here",
     });
 </script>
 
@@ -841,19 +841,19 @@
 </script>
 
 <script>
-    // {{ __('Category') }} to subcategory & childcategory
+    // Category to subcategory & childcategory
     $("#category_id").on("change", function () {
         var ajaxId = $(this).val();
         if (ajaxId) {
             $.ajax({
-                type: "{{ __('GET') }}",
+                type: "GET",
                 url: "{{url('ajax-product-subcategory')}}?category_id=" + ajaxId,
                 success: function (res) {
                     if (res) {
                         $("#subcategory_id").empty();
-                        $("#subcategory_id").append('<option value="0">{{ __('Choose...') }}</option>');
+                        $("#subcategory_id").append('<option value="0">Choose...</option>');
                         $.each(res, function (key, value) {
-                            $("#subcategory_id").append('<option value="' + key + '">{{ __("' + value + "") }}</option>");
+                            $("#subcategory_id").append('<option value="' + key + '">' + value + "</option>");
                         });
                     } else {
                         $("#subcategory_id").empty();
@@ -869,14 +869,14 @@
         var ajaxId = $(this).val();
         if (ajaxId) {
             $.ajax({
-                type: "{{ __('GET') }}",
+                type: "GET",
                 url: "{{url('ajax-product-childcategory')}}?subcategory_id=" + ajaxId,
                 success: function (res) {
                     if (res) {
                         $("#childcategory_id").empty();
-                        $("#childcategory_id").append('<option value="0">{{ __('Choose...') }}</option>');
+                        $("#childcategory_id").append('<option value="0">Choose...</option>');
                         $.each(res, function (key, value) {
-                            $("#childcategory_id").append('<option value="' + key + '">{{ __("' + value + "") }}</option>");
+                            $("#childcategory_id").append('<option value="' + key + '">' + value + "</option>");
                         });
                     } else {
                         $("#childcategory_id").empty();
@@ -904,7 +904,7 @@ $(function() {
     $('.variant-size-select').select2({ width: '100%' });
     $('.variant-color-select').select2({ width: '100%' });
 
-    // {{ __('Use') }} jQuery event delegation for add/remove buttons
+    // Use jQuery event delegation for add/remove buttons
     $(document).on('click', '.add-variant', function() {
         var wrapper = $('#variant-wrapper');
         var firstRow = wrapper.find('.variant-item').first();
@@ -921,13 +921,13 @@ $(function() {
         
         // Update all input/select names with new index
         newRow.find('input, select').each(function() {
-            var old{{ __('Name') }} = $(this).attr('name');
-            if (!old{{ __('Name') }}) return;
+            var oldName = $(this).attr('name');
+            if (!oldName) return;
             
-            if (old{{ __('Name') }}.includes('variant_image')) {
+            if (oldName.includes('variant_image')) {
                 $(this).attr('name', 'variant_image[' + variantIndex + '][image]');
             } else {
-                $(this).attr('name', old{{ __('Name') }}.replace(/\[\d+\]/, '[' + variantIndex + ']'));
+                $(this).attr('name', oldName.replace(/\[\d+\]/, '[' + variantIndex + ']'));
             }
             
             // Clear values
@@ -941,7 +941,7 @@ $(function() {
             }
         });
         
-        // {{ __('Change') }} add button to remove button
+        // Change add button to remove button
         newRow.find('.add-variant')
             .removeClass('btn-success add-variant')
             .addClass('btn-danger remove-variant')
@@ -983,7 +983,7 @@ $(function() {
 });
 </script>
 
-{{-- {{ __('Product') }} type toggle --}}
+{{-- Product type toggle --}}
 <script>
 // Global toggle functions (called from onchange attributes in HTML)
 function toggleVariantSection() {
@@ -994,139 +994,139 @@ function toggleVariantSection() {
     }
     // Sync product_type select (only if not digital)
     var productType = document.getElementById('product_type');
-    var digital{{ __('Check') }} = document.getElementById('is_digital_check');
-    if (productType && !digital{{ __('Check') }}.checked && productType.value !== 'digital') {
+    var digitalCheck = document.getElementById('is_digital_check');
+    if (productType && !digitalCheck.checked && productType.value !== 'digital') {
         productType.value = checked ? 'variable' : 'simple';
     }
     // Toggle pricing fields visibility
     var newPriceField = document.getElementById('new_price');
-    var {{ __('stock') }}Field = document.getElementById('{{ __('stock') }}');
+    var stockField = document.getElementById('stock');
     if (newPriceField) {
         newPriceField.closest('.col-md-6').style.opacity = checked ? '0.5' : '1';
         newPriceField.readOnly = checked;
     }
-    if ({{ __('stock') }}Field) {
-        {{ __('stock') }}Field.closest('.col-md-6').style.opacity = checked ? '0.5' : '1';
-        {{ __('stock') }}Field.readOnly = checked;
+    if (stockField) {
+        stockField.closest('.col-md-6').style.opacity = checked ? '0.5' : '1';
+        stockField.readOnly = checked;
     }
 }
 
 function toggleDigitalSection() {
     var checked = document.getElementById('is_digital_check').checked;
-    var digital{{ __('Area') }} = document.getElementById('digital_area');
-    var advance{{ __('Area') }} = document.getElementById('advance_area');
+    var digitalArea = document.getElementById('digital_area');
+    var advanceArea = document.getElementById('advance_area');
     var productType = document.getElementById('product_type');
-    var variantToggle{{ __('Area') }} = document.getElementById('variant_toggle_area');
+    var variantToggleArea = document.getElementById('variant_toggle_area');
     var variantSection = document.getElementById('variant_section');
     var digitalHidden = document.getElementById('is_digital_hidden');
     var newPriceField = document.getElementById('new_price');
-    var {{ __('stock') }}Field = document.getElementById('{{ __('stock') }}');
+    var stockField = document.getElementById('stock');
     
     if (digitalHidden) digitalHidden.value = checked ? 1 : 0;
-    if (digital{{ __('Area') }}) digital{{ __('Area') }}.style.display = checked ? 'block' : 'none';
-    if (advance{{ __('Area') }}) advance{{ __('Area') }}.style.display = checked ? 'none' : 'block';
+    if (digitalArea) digitalArea.style.display = checked ? 'block' : 'none';
+    if (advanceArea) advanceArea.style.display = checked ? 'none' : 'block';
     
     if (checked) {
         // Digital product - hide variant options
-        if (variantToggle{{ __('Area') }}) variantToggle{{ __('Area') }}.style.display = 'none';
+        if (variantToggleArea) variantToggleArea.style.display = 'none';
         if (variantSection) variantSection.style.display = 'none';
         if (productType) productType.value = 'digital';
-        // {{ __('Enable') }} price/{{ __('stock') }} for digital products
+        // Enable price/stock for digital products
         if (newPriceField) {
             newPriceField.closest('.col-md-6').style.opacity = '1';
             newPriceField.readOnly = false;
         }
-        if ({{ __('stock') }}Field) {
-            {{ __('stock') }}Field.closest('.col-md-6').style.opacity = '1';
-            {{ __('stock') }}Field.readOnly = false;
+        if (stockField) {
+            stockField.closest('.col-md-6').style.opacity = '1';
+            stockField.readOnly = false;
         }
     } else {
         // Physical product - show variant options
-        if (variantToggle{{ __('Area') }}) variantToggle{{ __('Area') }}.style.display = '';
+        if (variantToggleArea) variantToggleArea.style.display = '';
         // Restore variant section based on checkbox
-        var variant{{ __('Check') }} = document.getElementById('enable_variants');
-        if (variantSection && variant{{ __('Check') }}) {
-            variantSection.style.display = variant{{ __('Check') }}.checked ? '' : 'none';
+        var variantCheck = document.getElementById('enable_variants');
+        if (variantSection && variantCheck) {
+            variantSection.style.display = variantCheck.checked ? '' : 'none';
         }
         if (productType) {
-            var variant{{ __('Check') }}2 = document.getElementById('enable_variants');
-            productType.value = variant{{ __('Check') }}2 && variant{{ __('Check') }}2.checked ? 'variable' : 'simple';
+            var variantCheck2 = document.getElementById('enable_variants');
+            productType.value = variantCheck2 && variantCheck2.checked ? 'variable' : 'simple';
         }
     }
 }
 
 /** Sync all UI sections based on the selected product_type value */
-function sync{{ __('Product') }}TypeUI(productType{{ __('Value') }}) {
-    var isDigital{{ __('Check') }}ed = document.getElementById('is_digital_check');
+function syncProductTypeUI(productTypeValue) {
+    var isDigitalChecked = document.getElementById('is_digital_check');
     var digitalHidden = document.getElementById('is_digital_hidden');
-    var digital{{ __('Area') }} = document.getElementById('digital_area');
-    var advance{{ __('Area') }} = document.getElementById('advance_area');
-    var variantToggle{{ __('Area') }} = document.getElementById('variant_toggle_area');
+    var digitalArea = document.getElementById('digital_area');
+    var advanceArea = document.getElementById('advance_area');
+    var variantToggleArea = document.getElementById('variant_toggle_area');
     var variantSection = document.getElementById('variant_section');
-    var variant{{ __('Check') }} = document.getElementById('enable_variants');
+    var variantCheck = document.getElementById('enable_variants');
     var newPriceField = document.getElementById('new_price');
-    var {{ __('stock') }}Field = document.getElementById('{{ __('stock') }}');
+    var stockField = document.getElementById('stock');
 
-    if (productType{{ __('Value') }} === 'digital') {
+    if (productTypeValue === 'digital') {
         // Digital: hide variants, show digital fields
-        if (isDigital{{ __('Check') }}ed) isDigital{{ __('Check') }}ed.checked = true;
+        if (isDigitalChecked) isDigitalChecked.checked = true;
         if (digitalHidden) digitalHidden.value = 1;
-        if (digital{{ __('Area') }}) digital{{ __('Area') }}.style.display = 'block';
-        if (advance{{ __('Area') }}) advance{{ __('Area') }}.style.display = 'none';
-        if (variantToggle{{ __('Area') }}) variantToggle{{ __('Area') }}.style.display = 'none';
+        if (digitalArea) digitalArea.style.display = 'block';
+        if (advanceArea) advanceArea.style.display = 'none';
+        if (variantToggleArea) variantToggleArea.style.display = 'none';
         if (variantSection) variantSection.style.display = 'none';
-        if (variant{{ __('Check') }}) variant{{ __('Check') }}.checked = false;
-        // {{ __('Enable') }} price/{{ __('stock') }}
+        if (variantCheck) variantCheck.checked = false;
+        // Enable price/stock
         if (newPriceField) { newPriceField.closest('.col-md-6').style.opacity = '1'; newPriceField.readOnly = false; }
-        if ({{ __('stock') }}Field) { {{ __('stock') }}Field.closest('.col-md-6').style.opacity = '1'; {{ __('stock') }}Field.readOnly = false; }
+        if (stockField) { stockField.closest('.col-md-6').style.opacity = '1'; stockField.readOnly = false; }
     } else {
         // Physical (simple or variable)
-        if (isDigital{{ __('Check') }}ed) isDigital{{ __('Check') }}ed.checked = false;
+        if (isDigitalChecked) isDigitalChecked.checked = false;
         if (digitalHidden) digitalHidden.value = 0;
-        if (digital{{ __('Area') }}) digital{{ __('Area') }}.style.display = 'none';
-        if (advance{{ __('Area') }}) advance{{ __('Area') }}.style.display = 'block';
-        if (variantToggle{{ __('Area') }}) variantToggle{{ __('Area') }}.style.display = '';
+        if (digitalArea) digitalArea.style.display = 'none';
+        if (advanceArea) advanceArea.style.display = 'block';
+        if (variantToggleArea) variantToggleArea.style.display = '';
         
-        var is{{ __('Variable') }} = productType{{ __('Value') }} === 'variable';
-        if (variant{{ __('Check') }}) variant{{ __('Check') }}.checked = is{{ __('Variable') }};
-        if (variantSection) variantSection.style.display = is{{ __('Variable') }} ? '' : 'none';
+        var isVariable = productTypeValue === 'variable';
+        if (variantCheck) variantCheck.checked = isVariable;
+        if (variantSection) variantSection.style.display = isVariable ? '' : 'none';
         
-        // Toggle price/{{ __('stock') }} based on variable
+        // Toggle price/stock based on variable
         if (newPriceField) {
-            newPriceField.closest('.col-md-6').style.opacity = is{{ __('Variable') }} ? '0.5' : '1';
-            newPriceField.readOnly = is{{ __('Variable') }};
+            newPriceField.closest('.col-md-6').style.opacity = isVariable ? '0.5' : '1';
+            newPriceField.readOnly = isVariable;
         }
-        if ({{ __('stock') }}Field) {
-            {{ __('stock') }}Field.closest('.col-md-6').style.opacity = is{{ __('Variable') }} ? '0.5' : '1';
-            {{ __('stock') }}Field.readOnly = is{{ __('Variable') }};
+        if (stockField) {
+            stockField.closest('.col-md-6').style.opacity = isVariable ? '0.5' : '1';
+            stockField.readOnly = isVariable;
         }
     }
 }
 
 document.addEventListener('DOMContentLoaded', function () {
     // Digital checkbox
-    var digital{{ __('Check') }} = document.getElementById('is_digital_check');
-    if (digital{{ __('Check') }}) {
-        digital{{ __('Check') }}.addEventListener('change', toggleDigitalSection);
+    var digitalCheck = document.getElementById('is_digital_check');
+    if (digitalCheck) {
+        digitalCheck.addEventListener('change', toggleDigitalSection);
     }
     
     // Variant checkbox
-    var variant{{ __('Check') }} = document.getElementById('enable_variants');
-    if (variant{{ __('Check') }}) {
-        variant{{ __('Check') }}.addEventListener('change', toggleVariantSection);
+    var variantCheck = document.getElementById('enable_variants');
+    if (variantCheck) {
+        variantCheck.addEventListener('change', toggleVariantSection);
     }
 
-    // {{ __('Product') }} type select change (WooCommerce-like: simple, variable, digital)
+    // Product type select change (WooCommerce-like: simple, variable, digital)
     var productTypeSelect = document.getElementById('product_type');
     if (productTypeSelect) {
         productTypeSelect.addEventListener('change', function() {
-            sync{{ __('Product') }}TypeUI(this.value);
+            syncProductTypeUI(this.value);
         });
     }
 
     // Initial state sync based on the currently selected product_type
     if (productTypeSelect) {
-        sync{{ __('Product') }}TypeUI(productTypeSelect.value);
+        syncProductTypeUI(productTypeSelect.value);
     } else {
         // Fallback to individual toggles
         toggleDigitalSection();
@@ -1134,18 +1134,18 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     // Wholesale toggle
-    var wholesale{{ __('Check') }} = document.getElementById('is_wholesale');
-    if (wholesale{{ __('Check') }}) {
-        wholesale{{ __('Check') }}.addEventListener('change', function() {
-            var wholesale{{ __('Area') }} = document.getElementById('wholesale_area');
+    var wholesaleCheck = document.getElementById('is_wholesale');
+    if (wholesaleCheck) {
+        wholesaleCheck.addEventListener('change', function() {
+            var wholesaleArea = document.getElementById('wholesale_area');
             if (this.checked) {
-                wholesale{{ __('Area') }}.style.display = 'block';
-                wholesale{{ __('Area') }}.querySelectorAll('input').forEach(function(input) {
+                wholesaleArea.style.display = 'block';
+                wholesaleArea.querySelectorAll('input').forEach(function(input) {
                     input.setAttribute('required', 'required');
                 });
             } else {
-                wholesale{{ __('Area') }}.style.display = 'none';
-                wholesale{{ __('Area') }}.querySelectorAll('input').forEach(function(input) {
+                wholesaleArea.style.display = 'none';
+                wholesaleArea.querySelectorAll('input').forEach(function(input) {
                     input.removeAttribute('required');
                 });
             }
@@ -1158,8 +1158,8 @@ document.addEventListener('DOMContentLoaded', function () {
         let firstRow = wrapper.find('.variant-card').first().clone();
         
         firstRow.find('input').each(function(){
-            let old{{ __('Name') }} = $(this).attr('name');
-            $(this).attr('name', old{{ __('Name') }}.replace(/\[\d+\]/, '[' + wholesaleIndex + ']'));
+            let oldName = $(this).attr('name');
+            $(this).attr('name', oldName.replace(/\[\d+\]/, '[' + wholesaleIndex + ']'));
             $(this).val('');
         });
 
@@ -1172,7 +1172,7 @@ document.addEventListener('DOMContentLoaded', function () {
         $(this).parents(".variant-card").remove();
     });
 
-    // {{ __('Variant Image') }} Add/Remove
+    // Variant Image Add/Remove
     let variantImgIndex = 1;
     $(".add-variant-image").click(function () {
         let wrapper = $("#variant-image-wrapper");
@@ -1227,7 +1227,7 @@ document.addEventListener('DOMContentLoaded', function () {
             var box = document.getElementById('yt_preview_e');
             var fr  = document.getElementById('yt_iframe_e');
             if (id && box && fr) {
-                fr.src = '{{ __('https://') }}www.youtube.com/embed/' + id;
+                fr.src = 'https://www.youtube.com/embed/' + id;
                 box.style.display = '';
             } else if (box && fr) {
                 fr.src = '';
@@ -1243,7 +1243,7 @@ document.addEventListener('DOMContentLoaded', function () {
             var file = this.files[0];
             var box  = document.getElementById('up_preview_e');
             var vid  = document.getElementById('up_video_e');
-            if (file && box && v{{ __('id)') }} {
+            if (file && box && vid) {
                 vid.src = URL.createObjectURL(file);
                 box.style.display = '';
             }

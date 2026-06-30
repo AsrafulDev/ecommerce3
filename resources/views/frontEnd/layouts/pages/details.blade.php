@@ -40,7 +40,7 @@ if (typeof ttq !== 'undefined') {
 @endpush
 @push('seo')
 @php
-    $meta{{ __('Title') }} = $details->meta_title ?? $details->name;
+    $metaTitle = $details->meta_title ?? $details->name;
     $metaDescription = $details->meta_description ?? Str::limit(strip_tags($details->description), 160);
     $metaKeywords = $details->meta_keywords ?? $details->name;
     $metaImage = $details->meta_image ? asset($details->meta_image) : asset(optional($details->image)->image);
@@ -49,19 +49,19 @@ if (typeof ttq !== 'undefined') {
 <meta name="app-url" content="{{ route('product', $details->slug) }}" />
 <meta name="robots" content="index, follow" />
 
-<meta name="title" content="{{ $meta{{ __('Title') }} }}" />
+<meta name="title" content="{{ $metaTitle }}" />
 <meta name="description" content="{{ $metaDescription }}" />
 <meta name="keywords" content="{{ $metaKeywords }}" />
 
 <!-- Twitter Card data -->
 <meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:site" content="@gomobd" />
-<meta name="twitter:title" content="{{ $meta{{ __('Title') }} }}" />
+<meta name="twitter:title" content="{{ $metaTitle }}" />
 <meta name="twitter:description" content="{{ $metaDescription }}" />
 <meta name="twitter:image" content="{{ $metaImage }}" />
 
 <!-- Open Graph data -->
-<meta property="og:title" content="{{ $meta{{ __('Title') }} }}" />
+<meta property="og:title" content="{{ $metaTitle }}" />
 <meta property="og:type" content="product" />
 <meta property="og:url" content="{{ route('product', $details->slug) }}" />
 <meta property="og:image" content="{{ $metaImage }}" />
@@ -73,18 +73,18 @@ if (typeof ttq !== 'undefined') {
 @push('css')
 <link rel="stylesheet" href="{{ asset('public/frontEnd/css/zoomsl.css') }}">
 <style>
-/* ✅ Scoped {{ __('Review') }} Section */
+/* ✅ Scoped Review Section */
 .gomobd-review-section {
     font-family: 'Poppins', sans-serif;
 }
 
-/* {{ __('{{ __('Title') }} *') }}/
+/* Title */
 .gomobd-review-section .gomobd-review-title {
     font-size: 20px;
     color: #222;
 }
 
-/* {{ __('Review') }} Card */
+/* Review Card */
 .gomobd-review-section .gomobd-review-card {
     background: #fff;
     border: 1px solid #e6e6e6;
@@ -120,7 +120,7 @@ if (typeof ttq !== 'undefined') {
     margin-right: 12px;
 }
 
-/* {{ __('Name') }} + {{ __('{{ __('Date') }} *') }}/
+/* Name + Date */
 .gomobd-review-section .gomobd-review-meta {
     flex-grow: 1;
 }
@@ -140,7 +140,7 @@ if (typeof ttq !== 'undefined') {
     font-size: 15px;
 }
 
-/* {{ __('Review') }} {{ __('Text') }} */
+/* Review Text */
 .gomobd-review-section .gomobd-review-body {
     margin-top: 10px;
     color: #555;
@@ -155,7 +155,7 @@ if (typeof ttq !== 'undefined') {
     color: #777;
 }
 
-/* ✅ {{ __('Simple') }} Wholesale Pricing Styles */
+/* ✅ Simple Wholesale Pricing Styles */
 .wholesale-tier-row:hover {
     background: #f0f8f0 !important;
 }
@@ -165,7 +165,7 @@ if (typeof ttq !== 'undefined') {
     border-left: 3px solid #28a745 !important;
 }
 
-/* {{ __('Review') }} Modal: z-index fix যাতে ব্যাকড্রপের পিছনে না পড়ে এবং ক্লিক/টাইপ কাজ করে */
+/* Review Modal: z-index fix যাতে ব্যাকড্রপের পিছনে না পড়ে এবং ক্লিক/টাইপ কাজ করে */
 #exampleModal {
     z-index: 10055 !important;
 }
@@ -226,12 +226,12 @@ if (typeof ttq !== 'undefined') {
                                             @if ($details->subcategory)
                                                 <li><span>/</span></li>
                                                 <li><a
-                                                        href="#">{{ $details->subcategory ? $details->subcategory->subcategory{{ __('Name') }} : '' }}</a>
+                                                        href="#">{{ $details->subcategory ? $details->subcategory->subcategoryName : '' }}</a>
                                                 </li>
                                                 @endif @if ($details->childcategory)
                                                     <li><span>/</span></li>
                                                     <li><a
-                                                            href="#">{{ $details->childcategory->childcategory{{ __('Name') }} }}</a>
+                                                            href="#">{{ $details->childcategory->childcategoryName }}</a>
                                                     </li>
                                                 @endif
                                         </ul>
@@ -248,18 +248,18 @@ if (typeof ttq !== 'undefined') {
                                             </p>
                                             <div class="details-ratting-wrapper">
                                             @php
-                                                $average{{ __('Rating') }} = $reviews->avg('ratting');
-                                                $filledStars = floor($average{{ __('Rating') }});
+                                                $averageRating = $reviews->avg('ratting');
+                                                $filledStars = floor($averageRating);
                                                 $emptyStars = 5 - $filledStars;
                                             @endphp
                                             
-                                            @if ($average{{ __('Rating') }} >= 0 && $average{{ __('Rating') }} <= 5)
+                                            @if ($averageRating >= 0 && $averageRating <= 5)
                                                 @for ($i = 1; $i <= $filledStars; $i++)
                                                     <i class="fas fa-star"></i>
                                                 @endfor
                                             
-                                                @if ($average{{ __('Rating') }} == $filledStars)
-                                                    {{-- If average{{ __('Rating') }} is an integer, don't display half star --}}
+                                                @if ($averageRating == $filledStars)
+                                                    {{-- If averageRating is an integer, don't display half star --}}
                                                 @else
                                                     <i class="far fa-star-half-alt"></i>
                                                 @endif
@@ -268,30 +268,30 @@ if (typeof ttq !== 'undefined') {
                                                     <i class="far fa-star"></i>
                                                 @endfor
                                             
-                                                <span>{{ number_format($average{{ __('Rating') }}, 2) }}/5</span>
+                                                <span>{{ number_format($averageRating, 2) }}/5</span>
                                             @else
-                                                <span>{{ __('{{ __('Inv') }}alid rating range') }}</span>
+                                                <span>Invalid rating range</span>
                                             @endif
-                                            <a class="all-reviews-button" href="#write{{ __('Review') }}">{{ __('See {{ __('{{ __('Review') }}s') }}') }}</a>
+                                            <a class="all-reviews-button" href="#writeReview">See Reviews</a>
                                             </div>
                                             <div class="product-code">
-                                                <p><span>{{ __('{{ __('Product') }}s') }} : </span>{{ $details->product_code }}</p>
+                                                <p><span>প্রোডাক্ট কোড : </span>{{ $details->product_code }}</p>
                                             </div>
 
-                                            {{-- ⭐⭐ এখানে {{ __('{{ __('Product') }} Type') }} দেখানো হচ্ছে ⭐⭐ --}}
+                                            {{-- ⭐⭐ এখানে Product Type দেখানো হচ্ছে ⭐⭐ --}}
                                             @php
-                                                $productType{{ __('Text') }} = $details->is_digital
+                                                $productTypeText = $details->is_digital
                                                     ? 'Digital'
                                                     : 'Physical';
                                             @endphp
                                             <div class="pro_brand">
                                                 <p>
-                                                  {{ __('{{ __('Product') }} Type') }}: {{ $productType{{ __('Text') }} }}
+                                                  Product Type: {{ $productTypeText }}
                                                 </p>
                                             </div>
-                                            {{-- ⭐⭐ {{ __('{{ __('Product') }} Type') }} End ⭐⭐ --}}
+                                            {{-- ⭐⭐ Product Type End ⭐⭐ --}}
 
-                                            {{-- ⭐⭐ {{ __('Wholesale Pricing Tiers') }} - {{ __('Simple') }} Clean Design ⭐⭐ --}}
+                                            {{-- ⭐⭐ Wholesale Pricing Tiers - Simple Clean Design ⭐⭐ --}}
                                             @if($details->is_wholesale && $details->wholesalePrices && $details->wholesalePrices->count() > 0)
                                             <div class="wholesale-pricing-section" style="margin: 20px 0;">
                                                 <h5 style="margin-bottom: 15px; font-size: 16px; font-weight: 600; color: #333;">
@@ -301,9 +301,9 @@ if (typeof ttq !== 'undefined') {
                                                     <table class="table table-bordered table-hover mb-0" style="background: #fff;">
                                                         <thead style="background: #f8f9fa;">
                                                             <tr>
-                                                                <th style="padding: 12px; font-size: {{ __('14px') }}; font-weight: 600;">{{ __('Quantity') }}</th>
-                                                                <th style="padding: 12px; font-size: {{ __('14px') }}; font-weight: 600;">{{ __('Price') }}</th>
-                                                                <th style="padding: 12px; font-size: {{ __('14px') }}; font-weight: 600;">{{ __('Stock') }}</th>
+                                                                <th style="padding: 12px; font-size: 14px; font-weight: 600;">{{ __('Quantity') }}</th>
+                                                                <th style="padding: 12px; font-size: 14px; font-weight: 600;">{{ __('Price') }}</th>
+                                                                <th style="padding: 12px; font-size: 14px; font-weight: 600;">{{ __('Stock') }}</th>
                                                             </tr>
                                                         </thead>
                                                         <tbody>
@@ -313,14 +313,14 @@ if (typeof ttq !== 'undefined') {
                                                                 data-max-qty="{{ $tier->max_quantity ?? 999999 }}" 
                                                                 data-price="{{ $tier->wholesale_price }}"
                                                                 style="cursor: pointer; transition: background 0.2s;">
-                                                                <td style="padding: 12px; font-size: {{ __('14px') }};">
+                                                                <td style="padding: 12px; font-size: 14px;">
                                                                     {{ $tier->min_quantity }}{{ $tier->max_quantity ? ' - ' . $tier->max_quantity : '+' }} pcs
                                                                 </td>
-                                                                <td style="padding: 12px; font-size: {{ __('14px') }}; font-weight: 600; color: #28a745;">
+                                                                <td style="padding: 12px; font-size: 14px; font-weight: 600; color: #28a745;">
                                                                     ৳{{ number_format($tier->wholesale_price, 2) }}
                                                                 </td>
-                                                                <td style="padding: 12px; font-size: {{ __('14px') }}; color: {{ ($tier->{{ __('stock') }} ?? 0) > 0 ? '#28a745' : '#dc3545' }};">
-                                                                    {{ $tier->{{ __('stock') }} ?? 0 }} pcs
+                                                                <td style="padding: 12px; font-size: 14px; color: {{ ($tier->stock ?? 0) > 0 ? '#28a745' : '#dc3545' }};">
+                                                                    {{ $tier->stock ?? 0 }} pcs
                                                                 </td>
                                                             </tr>
                                                             @endforeach
@@ -334,23 +334,23 @@ if (typeof ttq !== 'undefined') {
                                             @endif
                                             {{-- ⭐⭐ Wholesale Pricing End ⭐⭐ --}}
 
-                                            <form action="{{ route('cart.store') }}" method={{ __('"{{ __('POST') }}"') }} name="form{{ __('Name') }}" class="ajax-cart-form" id="productDetails{{ __('Cart') }}Form" on{{ __('submit') }}="return handleDetails{{ __('Cart') }}Submit(event)">
+                                            <form action="{{ route('cart.store') }}" method="POST" name="formName" class="ajax-cart-form" id="productDetailsCartForm" onsubmit="return handleDetailsCartSubmit(event)">
                                                 @csrf
                                                 <input type="hidden" name="id" value="{{ $details->id }}" />
 
 
-{{-- ✅ Variant-based {{ __('Color') }} & Size (with your old design style) --}}
+{{-- ✅ Variant-based Color & Size (with your old design style) --}}
 @if ($details->variantPrices->count() > 0)
     @php
-        $productcolors = $details->variantPrices->pluck('color')->unique('id')->{{ __('filter') }}();
-        $productsizes = $details->variantPrices->pluck('size')->unique('id')->{{ __('filter') }}();
+        $productcolors = $details->variantPrices->pluck('color')->unique('id')->filter();
+        $productsizes = $details->variantPrices->pluck('size')->unique('id')->filter();
     @endphp
 
-    {{-- 🎨 {{ __('Color') }} Section --}}
+    {{-- 🎨 Color Section --}}
     @if ($productcolors->count() > 0)
         <div class="pro-color" style="width: 100%;">
             <div class="color_inner">
-                <p>{{ __('Color') }} -</p>
+                <p>Color -</p>
                 <div class="size-container">
                     <div class="selector">
                         @foreach ($productcolors as $procolor)
@@ -366,7 +366,7 @@ if (typeof ttq !== 'undefined') {
                                     style="background-color: {{ $procolor->color ?? '#ccc' }}"
                                     class="selector-item_label">
                                     <span>
-                                        <img src="{{ asset('public/frontEnd/images/check-icon.svg') }}" alt="{{ __('Check') }}ed Icon" />
+                                        <img src="{{ asset('public/frontEnd/images/check-icon.svg') }}" alt="Checked Icon" />
                                     </span>
                                 </label>
                             </div>
@@ -381,7 +381,7 @@ if (typeof ttq !== 'undefined') {
     @if ($productsizes->count() > 0)
         <div class="pro-size" style="width: 100%;">
             <div class="size_inner">
-                <p>{{ __('Size & Variant') }} - <span class="attibute-name"></span></p>
+                <p>Size & Variant - <span class="attibute-name"></span></p>
                 <div class="size-container">
                     <div class="selector">
                         @foreach ($productsizes as $prosize)
@@ -394,7 +394,7 @@ if (typeof ttq !== 'undefined') {
                                     class="selector-item_radio emptyalert"
                                     required />
                                 <label for="f-option{{ $prosize->id }}" class="selector-item_label">
-                                    {{ $prosize->size{{ __('Name') }} ?? $prosize->name }}
+                                    {{ $prosize->sizeName ?? $prosize->name }}
                                 </label>
                             </div>
                         @endforeach
@@ -418,7 +418,7 @@ if (typeof ttq !== 'undefined') {
                                                         @endif
                                                         <div class="pro_brand">
                                                             <p>Brand :
-                                                                {{ $details->brand ? $details->brand->name : '{{ __('N/A') }}' }}
+                                                                {{ $details->brand ? $details->brand->name : 'N/A' }}
                                                             </p>
                                                         </div>
 
@@ -432,15 +432,15 @@ if (typeof ttq !== 'undefined') {
                                                                 </div>
                                                             </div>
                                                             <div class="d-flex single_product col-sm-12">
-                                                  <input type="{{ __('submit') }}" class="btn px-4 add_cart_btn" onclick="return sendSuccess();" name="add_cart" value="কার্টে যোগ করুন" />
-<input type="{{ __('submit') }}" class="btn px-4 order_now_btn order_now_btn_m" onclick="return sendSuccess();" name="order_now" value="{{ __('Order Now') }}" />
+                                                  <input type="submit" class="btn px-4 add_cart_btn" onclick="return sendSuccess();" name="add_cart" value="কার্টে যোগ করুন" />
+<input type="submit" class="btn px-4 order_now_btn order_now_btn_m" onclick="return sendSuccess();" name="order_now" value="অর্ডার করুন" />
                                                             </div>
                                                         </div>
                                                         <div class="mt-md-2 mt-2">
                                                             <h4 class="font-weight-bold">
                                                                 <a class="btn btn-success w-100 call_now_btn"
                                                                     href="tel: {{ $contact->hotline ?? '01XXX-XXXXXX' }}">
-                                                                    <i class="fa fa-{{ __('phone') }}-square"></i>
+                                                                    <i class="fa fa-phone-square"></i>
                                                                     {{ $contact->hotline ?? '01XXX-XXXXXX' }}
                                                                 </a>
                                                             </h4>
@@ -448,7 +448,7 @@ if (typeof ttq !== 'undefined') {
                                                        <div class="mt-md-2 mt-2">
                                                         <h4 class="font-weight-bold">
                                                             <a class="btn btn-success w-100 call_now_btn"
-                                                                href="{{ __('https://') }}api.whatsapp.com/send?{{ __('phone') }}={{ $contact->whatsapp ?? '8801519607646' }}&text=হ্যালো, আমি এই পণ্যটির ব্যাপারে জানতে চাই: {{ urlencode(Request::url()) }}"
+                                                                href="https://api.whatsapp.com/send?phone={{ $contact->whatsapp ?? '8801519607646' }}&text=হ্যালো, আমি এই পণ্যটির ব্যাপারে জানতে চাই: {{ urlencode(Request::url()) }}"
                                                                 target="_blank">
                                                                 <i class="fa fa-whatsapp"></i>
                                                                 এই পণ্যটি সম্পর্কে জিজ্ঞাসা করুন
@@ -495,16 +495,16 @@ if (typeof ttq !== 'undefined') {
                 <div class="description-nav">
                     <ul class="desc-nav-ul">
                         {{-- <li class="active">
-                            <a href="#specification" target="_self">{{ __('Specification') }}</a>
+                            <a href="#specification" target="_self">Specification</a>
                         </li> --}}
                         <li>
                             <a href="#description" target="_self">{{ __('Description') }}</a>
                         </li>
                         {{-- <li>
-                            <a href="#question" target="_self">{{ __('Questions (0)') }}</a>
+                            <a href="#question" target="_self">Questions (0)</a>
                         </li> --}}
                         <li>
-                            <a href="#write{{ __('Review') }}" target="_self">{{ __('{{ __('Review') }}s') }} ({{ $reviews->count() }}) </a>
+                            <a href="#writeReview" target="_self">Reviews ({{ $reviews->count() }}) </a>
                         </li>
                     </ul>
                 </div>
@@ -518,10 +518,10 @@ if (typeof ttq !== 'undefined') {
         <div class="row">
             <div class="col-sm-8">
                 <div class="description tab-content details-action-box" id="description">
-                    <h2>{{ __('bn_4c5d67bf') }}</h2>
+                    <h2>বিস্তারিত</h2>
                     <p>{!! $details->description !!}</p>
                 </div>
-                <div class="tab-content details-action-box" id="write{{ __('Review') }}">
+                <div class="tab-content details-action-box" id="writeReview">
                     <div class="container">
                         <div class="row">
                             <div class="col-sm-12">
@@ -532,11 +532,11 @@ if (typeof ttq !== 'undefined') {
 							<section class="gomobd-review-section mt-5" id="reviewsList">
     <div class="gomobd-review-header d-flex justify-content-between align-items-center mb-3 flex-wrap">
         <h3 class="gomobd-review-title fw-bold mb-2 mb-md-0">
-            {{ __('{{ __('Customer') }} {{ __('{{ __('Review') }}s') }}') }} ({{ $reviews->count() }})
+            Customer Reviews ({{ $reviews->count() }})
         </h3>
         <button type="button" class="gomobd-review-btn btn btn-success btn-sm"
             data-bs-toggle="modal" data-bs-target="#exampleModal">
-            <i class="fa fa-edit me-1"></i> Write a {{ __('Review') }}
+            <i class="fa fa-edit me-1"></i> Write a Review
         </button>
     </div>
 
@@ -575,7 +575,7 @@ if (typeof ttq !== 'undefined') {
     @else
     <div class="gomobd-review-empty text-center py-5">
         <i class="fa fa-clipboard-list fs-1 text-muted mb-3"></i>
-        <p>{{ __('This product has no reviews yet.') }}<br><strong>{{ __('Be the first one to write a review.') }}</strong></p>
+        <p>This product has no reviews yet.<br><strong>Be the first one to write a review.</strong></p>
     </div>
     @endif
 </section>
@@ -591,10 +591,10 @@ if (typeof ttq !== 'undefined') {
             @if($hasVideo)
             <div class="col-sm-4">
                 <div class="pro_vide">
-                    <h2>{{ __('bn_9607a518') }}</h2>
+                    <h2>ভিডিও</h2>
                     @if($videoType === 'youtube' && $details->pro_video)
                     <iframe width="100%" height="315"
-                        src="{{ __('https://') }}www.youtube.com/embed/{{ $details->pro_video }}" title="YouTube video player"
+                        src="https://www.youtube.com/embed/{{ $details->pro_video }}" title="YouTube video player"
                         frameborder="0"
                         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                         allowfullscreen></iframe>
@@ -603,7 +603,7 @@ if (typeof ttq !== 'undefined') {
                         <source src="{{ asset($details->pro_video_path) }}" type="video/mp4">
                         <source src="{{ asset($details->pro_video_path) }}" type="video/webm">
                         <source src="{{ asset($details->pro_video_path) }}" type="video/ogg">
-                        আপনার ব্রাউজার {{ __('bn_9607a518') }} সাপোর্ট করে না।
+                        আপনার ব্রাউজার ভিডিও সাপোর্ট করে না।
                     </video>
                     @endif
                 </div>
@@ -617,7 +617,7 @@ if (typeof ttq !== 'undefined') {
     <div class="container">
         <div class="row">
             <div class="related-title">
-                <h5>{{ __('Related {{ __('Product') }}') }}</h5>
+                <h5>Related Product</h5>
             </div>
         </div>
         <div class="row">
@@ -657,9 +657,9 @@ if (typeof ttq !== 'undefined') {
                         </div>
 
                         @php
-                            $average{{ __('Rating') }} = $value->reviews->avg('ratting'); 
-                            $filledStars = floor($average{{ __('Rating') }});
-                            $hasHalfStar = $average{{ __('Rating') }} - $filledStars >= 0.5;
+                            $averageRating = $value->reviews->avg('ratting'); 
+                            $filledStars = floor($averageRating);
+                            $hasHalfStar = $averageRating - $filledStars >= 0.5;
                             $emptyStars = 5 - $filledStars - ($hasHalfStar ? 1 : 0);
                         @endphp
 
@@ -688,7 +688,7 @@ if (typeof ttq !== 'undefined') {
 
                             <a href="{{ route('product', $value->slug) }}" 
                                 class="order-btn-link order-btn">
-                                {{ __('Order Now') }}
+                                অর্ডার করুন
                             </a>
 
                             <a href="{{ route('product', $value->slug) }}" 
@@ -699,28 +699,28 @@ if (typeof ttq !== 'undefined') {
                         </div>
 
                         @else
-                        {{-- ভ্যারিয়েন্ট নেই = Order Now + Add to {{ __('Cart') }} --}}
+                        {{-- ভ্যারিয়েন্ট নেই = Order Now + Add to Cart --}}
                         <div class="pro_btn">
 
                             {{-- Order Now --}}
-                            <form action="{{ route('cart.store') }}" method={{ __('"{{ __('POST') }}"') }} class="ajax-cart-form">
+                            <form action="{{ route('cart.store') }}" method="POST" class="ajax-cart-form">
                                 @csrf
                                 <input type="hidden" name="id" value="{{ $value->id }}">
                                 <input type="hidden" name="qty" value="1">
                                 <input type="hidden" name="order_now" value="1">
 
-                                <button type="{{ __('submit') }}" class="order-btn">
-                                    {{ __('Order Now') }}
+                                <button type="submit" class="order-btn">
+                                    অর্ডার করুন
                                 </button>
                             </form>
 
-                            {{-- Add to {{ __('Cart') }} --}}
-                            <form action="{{ route('cart.store') }}" method={{ __('"{{ __('POST') }}"') }} class="ajax-cart-form">
+                            {{-- Add to Cart --}}
+                            <form action="{{ route('cart.store') }}" method="POST" class="ajax-cart-form">
                                 @csrf
                                 <input type="hidden" name="id" value="{{ $value->id }}">
                                 <input type="hidden" name="qty" value="1">
 
-                                <button type="{{ __('submit') }}" class="cart-icon-btn">
+                                <button type="submit" class="cart-icon-btn">
                                     <i class="fa-solid fa-cart-shopping"></i>
                                 </button>
                             </form>
@@ -736,18 +736,18 @@ if (typeof ttq !== 'undefined') {
     </div>
 </section>
 
-{{-- {{ __('Review') }} Modal: body এর কাছাকাছি রাখা {{ __('bn_290a7f61') }}েছে যাতে z-index/stacking issue না {{ __('bn_290a7f61') }} --}}
-<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModal{{ __('Label') }}" aria-hidden="true">
+{{-- Review Modal: body এর কাছাকাছি রাখা হয়েছে যাতে z-index/stacking issue না হয় --}}
+<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header">
-                <h1 class="modal-title fs-5" id="exampleModal{{ __('Label') }}">{{ __('Your review') }}</h1>
+                <h1 class="modal-title fs-5" id="exampleModalLabel">Your review</h1>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{{ __('Close') }}"></button>
             </div>
             <div class="modal-body">
                 <div class="insert-review">
                     @if (Auth::guard('customer')->user())
-                        <form action="{{ route('customer.review') }}" id="review-form" method={{ __('"{{ __('POST') }}"') }}>
+                        <form action="{{ route('customer.review') }}" id="review-form" method="POST">
                             @csrf
                             <input type="hidden" name="product_id" value="{{ $details->id }}">
                             <div class="fz-12 mb-2">
@@ -760,16 +760,16 @@ if (typeof ttq !== 'undefined') {
                                 </div>
                             </div>
                             <div class="form-group">
-                                <label for="{{ __('message') }}-text" class="col-form-label">{{ __('Message') }}:</label>
-                                <textarea required class="form-control radius-lg" name="review" id="{{ __('message') }}-text"></textarea>
-                                <span id="validation-{{ __('message') }}" style="color: red;"></span>
+                                <label for="message-text" class="col-form-label">Message:</label>
+                                <textarea required class="form-control radius-lg" name="review" id="message-text"></textarea>
+                                <span id="validation-message" style="color: red;"></span>
                             </div>
                             <div class="form-group">
-                                <button class="details-review-button" type="{{ __('submit') }}">{{ __('Submit {{ __('Review') }}') }}</button>
+                                <button class="details-review-button" type="submit">Submit Review</button>
                             </div>
                         </form>
                     @else
-                        <a class="customer-login-redirect" href="{{ route('customer.login') }}">{{ __('Login to Post Your {{ __('Review') }}') }}</a>
+                        <a class="customer-login-redirect" href="{{ route('customer.login') }}">Login to Post Your Review</a>
                     @endif
                 </div>
             </div>
@@ -782,7 +782,7 @@ if (typeof ttq !== 'undefined') {
 
 <script src="{{ asset('public/frontEnd/js/zoomsl.min.js') }}"></script>
 <script>
-    // {{ __('Review') }} modal কে body তে সরিয়ে দেওয়া - #content এর z-index:1 এর জন্য modal backdrop এর পিছনে পড়ছিল
+    // Review modal কে body তে সরিয়ে দেওয়া - #content এর z-index:1 এর জন্য modal backdrop এর পিছনে পড়ছিল
     document.addEventListener('DOMContentLoaded', function() {
         var m = document.getElementById('exampleModal');
         if (m && document.body) document.body.appendChild(m);
@@ -822,27 +822,27 @@ if (typeof ttq !== 'undefined') {
         // ✅ color + size (both selected)
         if (color && size) {
             match = variants.find(v => {
-                let v{{ __('Color') }}Id = v.color_id ?? v.color;
+                let vColorId = v.color_id ?? v.color;
                 let vSizeId = v.size_id ?? v.size;
-                return {{ __('String') }}(v{{ __('Color') }}Id) == {{ __('String') }}(color) && {{ __('String') }}(vSizeId) == {{ __('String') }}(size);
+                return String(vColorId) == String(color) && String(vSizeId) == String(size);
             });
         }
 
         // ✅ only color (no size selected)
         if (!match && color && !size) {
             match = variants.find(v => {
-                let v{{ __('Color') }}Id = v.color_id ?? v.color;
+                let vColorId = v.color_id ?? v.color;
                 let vSizeId = v.size_id ?? v.size;
-                return {{ __('String') }}(v{{ __('Color') }}Id) == {{ __('String') }}(color) && (vSizeId === null || vSizeId === '');
+                return String(vColorId) == String(color) && (vSizeId === null || vSizeId === '');
             });
         }
 
         // ✅ only size (no color selected)
         if (!match && size && !color) {
             match = variants.find(v => {
-                let v{{ __('Color') }}Id = v.color_id ?? v.color;
+                let vColorId = v.color_id ?? v.color;
                 let vSizeId = v.size_id ?? v.size;
-                return {{ __('String') }}(vSizeId) == {{ __('String') }}(size) && (v{{ __('Color') }}Id === null || v{{ __('Color') }}Id === '');
+                return String(vSizeId) == String(size) && (vColorId === null || vColorId === '');
             });
         }
 
@@ -862,7 +862,7 @@ if (typeof ttq !== 'undefined') {
         }
         @endif
 
-        $('#newPrice').text('৳' + basePrice.to{{ __('Fixed') }}(2));
+        $('#newPrice').text('৳' + basePrice.toFixed(2));
     }
     
     // Call on page load if color/size is already selected
@@ -881,39 +881,39 @@ if (typeof ttq !== 'undefined') {
         return ['src' => asset($img->image), 'color_id' => $img->color_id];
     }));
 
-    function updateImagesBy{{ __('Color') }}(colorId) {
-        var colorIdStr = colorId ? {{ __('String') }}(colorId) : null;
-        var {{ __('filter') }}edImages = [];
+    function updateImagesByColor(colorId) {
+        var colorIdStr = colorId ? String(colorId) : null;
+        var filteredImages = [];
 
         if (colorIdStr) {
-            var colorSpecific = productImages.{{ __('filter') }}(function(img) {
-                return img.color_id && {{ __('String') }}(img.color_{{ __('id)') }} === colorIdStr;
+            var colorSpecific = productImages.filter(function(img) {
+                return img.color_id && String(img.color_id) === colorIdStr;
             });
-            var defaultImages = productImages.{{ __('filter') }}(function(img) { return !img.color_id; });
-            {{ __('filter') }}edImages = colorSpecific.length > 0 ? colorSpecific : defaultImages;
+            var defaultImages = productImages.filter(function(img) { return !img.color_id; });
+            filteredImages = colorSpecific.length > 0 ? colorSpecific : defaultImages;
         } else {
-            {{ __('filter') }}edImages = productImages.{{ __('filter') }}(function(img) { return !img.color_id; });
-            if ({{ __('filter') }}edImages.length === 0) {{ __('filter') }}edImages = productImages;
+            filteredImages = productImages.filter(function(img) { return !img.color_id; });
+            if (filteredImages.length === 0) filteredImages = productImages;
         }
-        if ({{ __('filter') }}edImages.length === 0) {{ __('filter') }}edImages = productImages;
+        if (filteredImages.length === 0) filteredImages = productImages;
 
         var $slider = $(".details_slider");
         var owl = $slider.data("owl.carousel");
         if (owl) owl.destroy();
 
-        var sliderHtml = {{ __('filter') }}edImages.map(function(img, i) {
+        var sliderHtml = filteredImages.map(function(img, i) {
             return '<div class="dimage_item"><img src="' + img.src + '" class="block__pic" /></div>';
         }).join('');
         $slider.html(sliderHtml);
 
-        var thumbHtml = {{ __('filter') }}edImages.map(function(img, i) {
+        var thumbHtml = filteredImages.map(function(img, i) {
             return '<div class="indicator-item" data-id="' + i + '"><img src="' + img.src + '" /></div>';
         }).join('');
         var $thumbWrapper = $("#indicator_thumb_wrapper");
         var thumbOwl = $thumbWrapper.data("owl.carousel");
         if (thumbOwl) thumbOwl.destroy();
         $thumbWrapper.removeClass("thumb_slider owl-carousel").html(thumbHtml);
-        if ({{ __('filter') }}edImages.length > 4) {
+        if (filteredImages.length > 4) {
             $thumbWrapper.addClass("thumb_slider owl-carousel");
             $thumbWrapper.owlCarousel({ margin: 15, items: 4, loop: true, dots: false, nav: true, autoplayTimeout: 6000, autoplayHoverPause: true });
         }
@@ -921,7 +921,7 @@ if (typeof ttq !== 'undefined') {
         $slider.owlCarousel({
             margin: 15,
             items: 1,
-            loop: {{ __('filter') }}edImages.length > 1,
+            loop: filteredImages.length > 1,
             dots: false,
             autoplay: true,
             autoplayTimeout: 6000,
@@ -939,7 +939,7 @@ if (typeof ttq !== 'undefined') {
     }
 
     $(document).on("change", "input[name='product_color']", function() {
-        updateImagesBy{{ __('Color') }}($(this).val() || null);
+        updateImagesByColor($(this).val() || null);
     });
 </script>
 
@@ -979,7 +979,7 @@ if (typeof ttq !== 'undefined') {
                 item_category: "{{ $details->category->name }}",
                 item_variant: "{{ $details->pro_unit }}",
                 currency: "BDT",
-                quantity: {{ $details->{{ __('stock') }} ?? 0 }}
+                quantity: {{ $details->stock ?? 0 }}
             }],
             impression: [
                 @foreach ($products as $value)
@@ -991,7 +991,7 @@ if (typeof ttq !== 'undefined') {
                         item_category: "{{ $value->category ? $value->category->name : '' }}",
                         item_variant: "{{ $value->pro_unit }}",
                         currency: "BDT",
-                        quantity: {{ $value->{{ __('stock') }} ?? 0 }}
+                        quantity: {{ $value->stock ?? 0 }}
                     },
                 @endforeach
             ]
@@ -1005,7 +1005,7 @@ if (typeof ttq !== 'undefined') {
                 currency: "BDT",
                 value: "1.5",
                 items: [
-                    @foreach ({{ __('Cart') }}::instance('shopping')->content() as $cartInfo)
+                    @foreach (Cart::instance('shopping')->content() as $cartInfo)
                         {
                             item_id: "{{$details->id}}",
                             item_name: "{{$details->name}}",
@@ -1026,7 +1026,7 @@ if (typeof ttq !== 'undefined') {
                 currency: "BDT",
                 value: "1.5",
                 items: [
-                    @foreach ({{ __('Cart') }}::instance('shopping')->content() as $cartInfo)
+                    @foreach (Cart::instance('shopping')->content() as $cartInfo)
                         {
                             item_id: "{{$details->id}}",
                             item_name: "{{$details->name}}",
@@ -1049,7 +1049,7 @@ if (typeof ttq !== 'undefined') {
 
     (function () {
 
-        var product{{ __('Item') }} = {
+        var productItem = {
             item_id: "{{ $details->id }}",
             item_name: @json($details->name),
             price: {{ (float) $details->new_price }},
@@ -1057,10 +1057,10 @@ if (typeof ttq !== 'undefined') {
             item_category: @json(optional($details->category)->name),
             item_variant: @json($details->pro_unit),
             currency: "BDT",
-            quantity: {{ $details->{{ __('stock') }} ?? 0 }}
+            quantity: {{ $details->stock ?? 0 }}
         };
 
-        var related{{ __('{{ __('Item') }}s') }} = [
+        var relatedItems = [
             @foreach ($products as $value)
             {
                 item_id: "{{ $value->id }}",
@@ -1070,19 +1070,19 @@ if (typeof ttq !== 'undefined') {
                 item_category: @json(optional($value->category)->name),
                 item_variant: @json($value->pro_unit),
                 currency: "BDT",
-                quantity: {{ $value->{{ __('stock') }} ?? 0 }}
+                quantity: {{ $value->stock ?? 0 }}
             }@if(!$loop->last),@endif
             @endforeach
         ];
 
         // view_item_list (Related products)
-        if (related{{ __('{{ __('Item') }}s') }}.length) {
+        if (relatedItems.length) {
             window.dataLayer.push({
                 event: "view_item_list",
                 ecommerce: {
-                    item_list_name: "{{ __('Related {{ __('Product') }}') }}s",
+                    item_list_name: "Related Products",
                     currency: "BDT",
-                    items: related{{ __('{{ __('Item') }}s') }}
+                    items: relatedItems
                 }
             });
         }
@@ -1090,35 +1090,35 @@ if (typeof ttq !== 'undefined') {
         // Facebook Pixel: ViewContent
         if (typeof fbq === "function") {
             fbq("track", "ViewContent", {
-                content_ids: [product{{ __('Item') }}.item_id],
-                content_name: product{{ __('Item') }}.item_name,
-                content_category: product{{ __('Item') }}.item_category,
-                value: product{{ __('Item') }}.price,
+                content_ids: [productItem.item_id],
+                content_name: productItem.item_name,
+                content_category: productItem.item_category,
+                value: productItem.price,
                 currency: "BDT"
             });
         }
 
         // Helper: qty সহ item তৈরি
-        function build{{ __('Current') }}{{ __('Item') }}() {
+        function buildCurrentItem() {
             var qtyInput = document.querySelector("input[name='qty']");
             var qty = parseInt(qtyInput ? qtyInput.value : "1", 10);
             if (isNaN(qty) || qty < 1) qty = 1;
 
             return {
-                item_id: product{{ __('Item') }}.item_id,
-                item_name: product{{ __('Item') }}.item_name,
-                price: product{{ __('Item') }}.price,
-                item_brand: product{{ __('Item') }}.item_brand,
-                item_category: product{{ __('Item') }}.item_category,
-                item_variant: product{{ __('Item') }}.item_variant,
+                item_id: productItem.item_id,
+                item_name: productItem.item_name,
+                price: productItem.price,
+                item_brand: productItem.item_brand,
+                item_category: productItem.item_category,
+                item_variant: productItem.item_variant,
                 currency: "BDT",
                 quantity: qty
             };
         }
 
-        // "কার্টে যোগ করুন" -> add_to_cart + FB AddTo{{ __('Cart') }}
+        // "কার্টে যোগ করুন" -> add_to_cart + FB AddToCart
         $(document).on("click", ".add_cart_btn", function () {
-            var item  = build{{ __('Current') }}{{ __('Item') }}();
+            var item  = buildCurrentItem();
             var value = item.price * item.quantity;
 
             window.dataLayer.push({ ecommerce: null });
@@ -1132,7 +1132,7 @@ if (typeof ttq !== 'undefined') {
             });
 
             if (typeof fbq === "function") {
-                fbq("track", "AddTo{{ __('Cart') }}", {
+                fbq("track", "AddToCart", {
                     content_ids: [item.item_id],
                     content_name: item.item_name,
                     value: value,
@@ -1144,9 +1144,9 @@ if (typeof ttq !== 'undefined') {
             }
         });
 
-        // "{{ __('Order Now') }}" -> add_to_cart + begin_checkout + FB Initiate{{ __('Check') }}out
+        // "অর্ডার করুন" -> add_to_cart + begin_checkout + FB InitiateCheckout
         $(document).on("click", ".order_now_btn", function () {
-            var item  = build{{ __('Current') }}{{ __('Item') }}();
+            var item  = buildCurrentItem();
             var value = item.price * item.quantity;
 
             // GA4 add_to_cart
@@ -1172,7 +1172,7 @@ if (typeof ttq !== 'undefined') {
 
             // FB Pixel
             if (typeof fbq === "function") {
-                fbq("track", "AddTo{{ __('Cart') }}", {
+                fbq("track", "AddToCart", {
                     content_ids: [item.item_id],
                     content_name: item.item_name,
                     value: value,
@@ -1182,7 +1182,7 @@ if (typeof ttq !== 'undefined') {
                     ]
                 });
 
-                fbq("track", "Initiate{{ __('Check') }}out", {
+                fbq("track", "InitiateCheckout", {
                     value: value,
                     currency: "BDT",
                     num_items: item.quantity
@@ -1241,7 +1241,7 @@ if (typeof ttq !== 'undefined') {
             return false;
         });
 
-        // {{ __('Wholesale Price') }} Update on Quantity {{ __('Change') }} - Modern Card Design
+        // Wholesale Price Update on Quantity Change - Modern Card Design
         @if($details->is_wholesale && $details->wholesalePrices && $details->wholesalePrices->count() > 0)
         var wholesaleTiers = [
             @foreach($details->wholesalePrices->sortBy('min_quantity') as $tier)
@@ -1269,7 +1269,7 @@ if (typeof ttq !== 'undefined') {
             }
 
             // Update price display
-            $('#newPrice').text('৳' + selectedPrice.to{{ __('Fixed') }}(2));
+            $('#newPrice').text('৳' + selectedPrice.toFixed(2));
 
             // Highlight matching tier row
             $('.wholesale-tier-row').removeClass('active-tier');
@@ -1303,7 +1303,7 @@ if (typeof ttq !== 'undefined') {
 
 <script>
     function sendSuccess() {
-        var form = document.forms["form{{ __('Name') }}"];
+        var form = document.forms["formName"];
         if (!form) return true;
         var sizeEl = form["product_size"];
         var colorEl = form["product_color"];
@@ -1323,52 +1323,52 @@ if (typeof ttq !== 'undefined') {
         }
         return true;
     }
-    function handleDetails{{ __('Cart') }}Submit(event) {
+    function handleDetailsCartSubmit(event) {
         if (!sendSuccess()) return false;
         event.preventDefault();
-        // master.blade এ document-level {{ __('submit') }} লিসেনার আছে; বাবল হলে একই ফর্মে দ্বিতীয়বার {{ __('POST') }} {{ __('bn_290a7f61') }}
+        // master.blade এ document-level submit লিসেনার আছে; বাবল হলে একই ফর্মে দ্বিতীয়বার POST হয়
         if (event.stopPropagation) event.stopPropagation();
         if (event.stopImmediatePropagation) event.stopImmediatePropagation();
-        var form = document.getElementById("productDetails{{ __('Cart') }}Form");
-        if (!form || form.classList.contains("cart-ajax-{{ __('submit') }}")) return false;
-        var isOrderNow = event.{{ __('submit') }}ter && event.{{ __('submit') }}ter.name === "order_now";
-        form.classList.add("cart-ajax-{{ __('submit') }}");
+        var form = document.getElementById("productDetailsCartForm");
+        if (!form || form.classList.contains("cart-ajax-submit")) return false;
+        var isOrderNow = event.submitter && event.submitter.name === "order_now";
+        form.classList.add("cart-ajax-submit");
         var formData = new FormData(form);
         if (isOrderNow) formData.append("order_now", "1");
         var xhr = new XMLHttpRequest();
-        xhr.open({{ __('"{{ __('POST') }}"') }}, "{{ route('cart.store') }}");
-        xhr.setRequestHeader("X-{{ __('Requested') }}-With", "XMLHttpRequest");
+        xhr.open("POST", "{{ route('cart.store') }}");
+        xhr.setRequestHeader("X-Requested-With", "XMLHttpRequest");
         xhr.setRequestHeader("X-CSRF-TOKEN", document.querySelector('meta[name="csrf-token"]').content);
         xhr.setRequestHeader("Accept", "application/json");
         xhr.onload = function() {
-            form.classList.remove("cart-ajax-{{ __('submit') }}");
+            form.classList.remove("cart-ajax-submit");
             try {
-                var data = JSON.parse(xhr.response{{ __('Text') }});
+                var data = JSON.parse(xhr.responseText);
                 if (data && data.success) {
-                    if (typeof toastr !== "undefined") toastr.success("কার্টে যোগ হয়েছে!", "{{ __('bn_fbbc3031') }}");
+                    if (typeof toastr !== "undefined") toastr.success("কার্টে যোগ হয়েছে!", "সফল");
                     if (typeof cart_count === "function") cart_count();
                     if (typeof mobile_cart === "function") mobile_cart();
-                    if (typeof sidebar{{ __('Cart') }}Refresh === "function") sidebar{{ __('Cart') }}Refresh();
+                    if (typeof sidebarCartRefresh === "function") sidebarCartRefresh();
                     if (data.redirect || isOrderNow) {
                         window.location.href = data.redirect || "{{ route('customer.checkout') }}";
                     } else {
-                        if (typeof runFlyTo{{ __('Cart') }} === "function") runFlyTo{{ __('Cart') }}($(form), function() {
-                            if (typeof openSidebar{{ __('Cart') }} === "function") openSidebar{{ __('Cart') }}();
+                        if (typeof runFlyToCart === "function") runFlyToCart($(form), function() {
+                            if (typeof openSidebarCart === "function") openSidebarCart();
                         });
-                        else if (typeof openSidebar{{ __('Cart') }} === "function") openSidebar{{ __('Cart') }}();
+                        else if (typeof openSidebarCart === "function") openSidebarCart();
                     }
                 } else {
-                    form.{{ __('submit') }}();
+                    form.submit();
                 }
             } catch (e) {
-                form.{{ __('submit') }}();
+                form.submit();
             }
         };
         xhr.onerror = function() {
-            form.classList.remove("cart-ajax-{{ __('submit') }}");
-            form.{{ __('submit') }}();
+            form.classList.remove("cart-ajax-submit");
+            form.submit();
         };
-        var params = new URLSearchParams(formData).to{{ __('String') }}();
+        var params = new URLSearchParams(formData).toString();
         xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
         xhr.send(params);
         return false;

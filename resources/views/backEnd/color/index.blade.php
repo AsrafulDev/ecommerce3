@@ -1,5 +1,5 @@
 @extends('backEnd.layouts.master')
-@section('title','{{ __('Manage') }} {{ __('{{ __('Color') }}s') }}')
+@section('title','Manage Colors')
 
 @section('css')
 <link href="{{asset('/public/backEnd/')}}/assets/libs/datatables.net-bs5/css/dataTables.bootstrap5.min.css" rel="stylesheet" type="text/css" />
@@ -33,10 +33,10 @@
         padding: 15px;
         border-bottom: 1px solid #f1f5f7;
         color: #313b5e;
-        font-size: {{ __('14px') }};
+        font-size: 14px;
     }
 
-    /* {{ __('Color') }} Swatch */
+    /* Color Swatch */
     .color-swatch {
         width: 35px;
         height: 35px;
@@ -46,7 +46,7 @@
     }
     .color-info h6 {
         margin: 0;
-        font-size: {{ __('14px') }};
+        font-size: 14px;
         font-weight: 600;
         color: #343a40;
     }
@@ -87,9 +87,9 @@
     
     <div class="row mb-3 mt-3">
         <div class="col-12 d-flex justify-content-between align-items-center">
-            <h4 class="page-title mb-0" style="font-weight: 700; color: #2d3436;">{{ __('{{ __('Color') }} Palette') }}</h4>
+            <h4 class="page-title mb-0" style="font-weight: 700; color: #2d3436;">Color Palette</h4>
             <a href="{{route('colors.create')}}" class="btn btn-primary rounded-pill shadow-sm px-4">
-                <i class="fe-plus me-1"></i> Add {{ __('Color') }}
+                <i class="fe-plus me-1"></i> Add Color
             </a>
         </div>
     </div>
@@ -102,8 +102,8 @@
                         <thead>
                             <tr>
                                 <th style="width: 50px;">{{ __('SL') }}</th>
-                                <th>{{ __('{{ __('Color') }} Info') }}</th>
-                                <th>{{ __('{{ __('Status') }}') }}</th>
+                                <th>Color Info</th>
+                                <th>{{ __('Status') }}</th>
                                 <th class="text-end" style="width: 150px;">{{ __('Action') }}</th>
                             </tr>
                         </thead>                
@@ -116,7 +116,7 @@
                                     <div class="d-flex align-items-center gap-3">
                                         <div class="color-swatch" style="background-color: {{ $value->color }};" title="{{ $value->color }}"></div>
                                         <div class="color-info">
-                                            <h6>{{$value->color{{ __('Name') }}}}</h6>
+                                            <h6>{{$value->colorName}}</h6>
                                             <small>{{$value->color}}</small>
                                         </div>
                                     </div>
@@ -132,12 +132,12 @@
 
                                 <td class="text-end">
                                     <div class="d-inline-flex gap-2">
-                                        {{-- {{ __('Status') }} Toggle --}}
+                                        {{-- Status Toggle --}}
                                         @if($value->status == 1)
                                             <form method="post" action="{{route('colors.inactive')}}" class="d-inline"> 
                                                 @csrf
                                                 <input type="hidden" value="{{$value->id}}" name="hidden_id">        
-                                                <button type="{{ __('submit') }}" class="action-btn btn-inactive" title="Deactivate">
+                                                <button type="submit" class="action-btn btn-inactive" title="Deactivate">
                                                     <i class="fe-eye-off"></i>
                                                 </button>
                                             </form>
@@ -145,14 +145,14 @@
                                             <form method="post" action="{{route('colors.active')}}" class="d-inline">
                                                 @csrf
                                                 <input type="hidden" value="{{$value->id}}" name="hidden_id">        
-                                                <button type="{{ __('submit') }}" class="action-btn btn-active" title="Activate">
+                                                <button type="submit" class="action-btn btn-active" title="Activate">
                                                     <i class="fe-eye"></i>
                                                 </button>
                                             </form>
                                         @endif
 
                                         {{-- Edit --}}
-                                        <a href="{{route('colors.edit',$value->{{ __('id)') }}}}" class="action-btn btn-edit" title="{{ __('Edit') }}">
+                                        <a href="{{route('colors.edit',$value->id)}}" class="action-btn btn-edit" title="{{ __('Edit') }}">
                                             <i class="fe-edit"></i>
                                         </a>
 
@@ -160,7 +160,7 @@
                                         <form method="post" action="{{ route('colors.destroy') }}" class="d-inline">
                                             @csrf
                                             <input type="hidden" name="hidden_id" value="{{ $value->id }}">
-                                            <button type="{{ __('submit') }}" class="action-btn btn-delete delete-confirm" title="{{ __('Delete') }}">
+                                            <button type="submit" class="action-btn btn-delete delete-confirm" title="{{ __('Delete') }}">
                                                 <i class="fe-trash-2"></i>
                                             </button>
                                         </form>

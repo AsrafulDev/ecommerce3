@@ -1,6 +1,6 @@
 @extends('backEnd.layouts.master')
 
-@section('title','{{ __('{{ __('Order Restriction') }} Settings') }}')
+@section('title','Order Restriction Settings')
 
 @section('content')
 
@@ -105,8 +105,8 @@
                         <i class="fe-clock fs-2 text-danger"></i>
                     </div>
                     <div>
-                        <h2 class="mb-1 text-white fw-bold">{{ __('{{ __('Order Restriction') }} Settings') }}</h2>
-                        <p class="mb-0 text-white-50 small">{{ __('Control order limits and restrictions') }}</p>
+                        <h2 class="mb-1 text-white fw-bold">Order Restriction Settings</h2>
+                        <p class="mb-0 text-white-50 small">Control order limits and restrictions</p>
                     </div>
                 </div>
             </div>
@@ -117,11 +117,11 @@
         
         <div class="col-lg-8 mb-4">
             
-            @if(session()->has('success') || session()->has('{{ __('message') }}'))
+            @if(session()->has('success') || session()->has('message'))
                 <div class="alert alert-success alert-custom alert-dismissible fade show mb-4 d-flex align-items-center" role="alert">
                     <i class="fe-check-circle fs-4 me-2"></i>
                     <div>
-                        <strong>{{ __('bn_dadb998f') }}</strong> {{ session('success') ?? session('{{ __('message') }}') }}
+                        <strong>সফল হয়েছে!</strong> {{ session('success') ?? session('message') }}
                     </div>
                     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="{{ __('Close') }}"></button>
                 </div>
@@ -140,50 +140,50 @@
 
             <div class="card settings-card h-100">
                 <div class="settings-card-header">
-                    <i class="fe-sliders me-2 text-danger"></i> {{ __('Order Restriction') }} {{ __('Configuration') }}
+                    <i class="fe-sliders me-2 text-danger"></i> Order Restriction Configuration
                 </div>
                 
                 <div class="card-body p-4">
                     
-                    <form action="{{ route('admin.order.restriction.setting.update') }}" method={{ __('"{{ __('POST') }}"') }}>
+                    <form action="{{ route('admin.order.restriction.setting.update') }}" method="POST">
                         @csrf
                         
                         <div class="mb-4">
-                            <label class="form-label fw-bold text-dark mb-2">{{ __('{{ __('Order Restriction') }} Time') }} <span class="text-danger">*</span></label>
+                            <label class="form-label fw-bold text-dark mb-2">Order Restriction Time <span class="text-danger">*</span></label>
                             
                             <div class="input-group">
-                                <input type="{{ __('number') }}" name="order_limit_time" 
+                                <input type="number" name="order_limit_time" 
                                        class="form-control form-control-lg-custom" 
-                                       placeholder="{{ __('Enter time in hours') }}"
+                                       placeholder="Enter time in hours"
                                        value="{{ old('order_limit_time', $data->order_limit_time ?? 48) }}"
                                        min="1"
                                        required>
-                                <span class="input-group-text bg-light">{{ __('Hours') }}</span>
+                                <span class="input-group-text bg-light">Hours</span>
                             </div>
                             <small class="text-muted mt-2 d-block">
-                                <i class="fe-clock me-1"></i> এই সময়ের মধ্যে একজন কাস্টমার একই {{ __('{{ __('Product') }}s') }} কতবার অর্ডার করতে পারবে তা নির্ধারণ করে। {{ __('bn_9f4bc027') }}: 24 ঘন্টা মানে গত 24 ঘন্টার মধ্যে।
+                                <i class="fe-clock me-1"></i> এই সময়ের মধ্যে একজন কাস্টমার একই প্রোডাক্ট কতবার অর্ডার করতে পারবে তা নির্ধারণ করে। উদাহরণ: 24 ঘন্টা মানে গত 24 ঘন্টার মধ্যে।
                             </small>
                         </div>
 
                         <div class="mb-4">
-                            <label class="form-label fw-bold text-dark mb-2">{{ __('Max Order Quantity {{ __('Limit') }}') }} <span class="text-danger">*</span></label>
+                            <label class="form-label fw-bold text-dark mb-2">Max Order Quantity Limit <span class="text-danger">*</span></label>
                             
                             <div class="input-group">
-                                <input type="{{ __('number') }}" name="order_limit_qty" 
+                                <input type="number" name="order_limit_qty" 
                                        class="form-control form-control-lg-custom" 
-                                       placeholder="{{ __('Enter maximum quantity') }}"
+                                       placeholder="Enter maximum quantity"
                                        value="{{ old('order_limit_qty', $data->order_limit_qty ?? 2) }}"
                                        min="1"
                                        required>
-                                <span class="input-group-text bg-light">{{ __('Times') }}</span>
+                                <span class="input-group-text bg-light">Times</span>
                             </div>
                             <small class="text-muted mt-2 d-block">
-                                <i class="fe-shopping-cart me-1"></i> নির্ধারিত সময়ের মধ্যে একজন কাস্টমার সর্বোচ্চ কতবার অর্ডার করতে পারবে। {{ __('bn_9f4bc027') }}: 2 মানে সর্বোচ্চ 2 বার।
+                                <i class="fe-shopping-cart me-1"></i> নির্ধারিত সময়ের মধ্যে একজন কাস্টমার সর্বোচ্চ কতবার অর্ডার করতে পারবে। উদাহরণ: 2 মানে সর্বোচ্চ 2 বার।
                             </small>
                         </div>
 
-                        <button type="{{ __('submit') }}" class="btn btn-danger btn-save w-100 text-white rounded-pill">
-                            <i class="fe-save me-2"></i> {{ __('Settings') }} আপডেট করুন
+                        <button type="submit" class="btn btn-danger btn-save w-100 text-white rounded-pill">
+                            <i class="fe-save me-2"></i> সেটিংস আপডেট করুন
                         </button>
                     </form>
 
@@ -193,12 +193,12 @@
                             <div>
                                 <h6 class="fw-bold mb-2">কিভাবে কাজ করে?</h6>
                                 <p class="small text-muted mb-2">
-                                    <strong>{{ __('bn_9f4bc027') }}:</strong> যদি {{ __('{{ __('Order Restriction') }} Time') }} = 24 {{ __('Hours') }} এবং {{ __('Max Order Quantity {{ __('Limit') }}') }} = 2 {{ __('bn_290a7f61') }}, তাহলে:
+                                    <strong>উদাহরণ:</strong> যদি Order Restriction Time = 24 Hours এবং Max Order Quantity Limit = 2 হয়, তাহলে:
                                 </p>
                                 <ul class="small text-muted mb-0">
-                                    <li>{{ __('bn_b6565af2') }}</li>
-                                    <li>{{ __('bn_cb13e02e') }}</li>
-                                    <li>{{ __('bn_916e1374') }}</li>
+                                    <li>একজন কাস্টমার গত 24 ঘন্টার মধ্যে একই প্রোডাক্ট সর্বোচ্চ 2 বার অর্ডার করতে পারবে</li>
+                                    <li>3য় বার অর্ডার করতে চাইলে সিস্টেম তাকে বাধা দেবে</li>
+                                    <li>24 ঘন্টা পার হয়ে গেলে আবার অর্ডার করতে পারবে</li>
                                 </ul>
                             </div>
                         </div>
@@ -211,20 +211,20 @@
         <div class="col-lg-4">
             <div class="card settings-card">
                 <div class="settings-card-header">
-                    <i class="fe-alert-circle me-2 text-warning"></i> {{ __('Important') }} {{ __('Note') }}s
+                    <i class="fe-alert-circle me-2 text-warning"></i> Important Notes
                 </div>
                 <div class="card-body p-4">
                     <div class="mb-3">
-                        <h6 class="fw-bold text-dark mb-2">⚙️ {{ __('Current') }} Settings</h6>
+                        <h6 class="fw-bold text-dark mb-2">⚙️ Current Settings</h6>
                         <div class="bg-light p-3 rounded">
-                            <p class="mb-2"><strong>{{ __('Restriction Time') }}:</strong> <span class="text-primary">{{ $data->order_limit_time ?? 48 }} {{ __('Hours') }}</span></p>
-                            <p class="mb-0"><strong>{{ __('Max Quantity') }}:</strong> <span class="text-primary">{{ $data->order_limit_qty ?? 2 }} {{ __('Times') }}</span></p>
+                            <p class="mb-2"><strong>Restriction Time:</strong> <span class="text-primary">{{ $data->order_limit_time ?? 48 }} Hours</span></p>
+                            <p class="mb-0"><strong>Max Quantity:</strong> <span class="text-primary">{{ $data->order_limit_qty ?? 2 }} Times</span></p>
                         </div>
                     </div>
                     
                     <div class="alert alert-warning border-0">
                         <small>
-                            <strong>{{ __('bn_4652c7ab') }}:</strong> এই {{ __('Settings') }} পরিবর্তন করলে তা সাথে সাথে কার্যকর হবে। 
+                            <strong>সতর্কতা:</strong> এই সেটিংস পরিবর্তন করলে তা সাথে সাথে কার্যকর হবে। 
                             নতুন অর্ডারগুলো এই নিয়ম অনুসরণ করবে।
                         </small>
                     </div>

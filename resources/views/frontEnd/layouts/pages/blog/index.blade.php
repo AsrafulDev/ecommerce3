@@ -47,7 +47,7 @@
 .read-more-btn {
     border-radius: 20px;
     padding: 6px 22px;
-    font-size: {{ __('14px') }};
+    font-size: 14px;
 }
 </style>
 @endpush
@@ -82,7 +82,7 @@
                             @if($blog->image)
                                 <img src="{{ asset($blog->image) }}" alt="{{ $blog->title }}">
                             @else
-                                <img src="{{ asset('public/backEnd/assets/images/image-placeholder.png') }}" alt="{{ __('No Image') }}">
+                                <img src="{{ asset('public/backEnd/assets/images/image-placeholder.png') }}" alt="No Image">
                             @endif
                         </a>
                     </div>

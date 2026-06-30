@@ -46,7 +46,7 @@
         width: 64px;
         height: 64px;
         background: rgba(255,255,255,0.2);
-        border-radius: {{ __('14px') }};
+        border-radius: 14px;
         display: flex;
         align-items: center;
         justify-content: center;
@@ -120,7 +120,7 @@
         padding: 28px;
     }
 
-    /* Update {{ __('Item') }} Cards (for each available update) */
+    /* Update Item Cards (for each available update) */
     .update-item {
         background: #fff;
         border: 1px solid var(--up-border);
@@ -154,7 +154,7 @@
     }
     .update-item-notes {
         color: var(--up-muted);
-        font-size: {{ __('14px') }};
+        font-size: 14px;
         line-height: 1.6;
         margin-bottom: 16px;
     }
@@ -167,7 +167,7 @@
         padding: 10px 20px;
         border-radius: 10px;
         font-weight: 600;
-        font-size: {{ __('14px') }};
+        font-size: 14px;
         display: inline-flex;
         align-items: center;
         gap: 8px;
@@ -243,7 +243,7 @@
     }
     .info-item-value {
         font-weight: 600;
-        font-size: {{ __('14px') }};
+        font-size: 14px;
         color: var(--up-text);
     }
 
@@ -258,7 +258,7 @@
 <div class="content-wrapper">
     <div class="container-fluid update-page">
         
-        {{-- {{ __('Page {{ __('Title') }}') }} --}}
+        {{-- Page Title --}}
         <div class="d-flex align-items-center mb-4">
             <h3 class="m-0 fw-bold text-dark">
                 <i class="fas fa-sync-alt text-primary me-2"></i> System Updates
@@ -268,7 +268,7 @@
         <div class="row justify-content-center">
             <div class="col-lg-11 col-xl-10">
                 
-                {{-- 1. Script {{ __('Name') }} & Version Hero --}}
+                {{-- 1. Script Name & Version Hero --}}
                 <div class="script-hero">
                     <div class="script-hero-left">
                         <div class="script-hero-icon">
@@ -276,28 +276,28 @@
                         </div>
                         <div>
                             @php
-    $displayScript{{ __('Name') }} = (isset($script{{ __('Name') }}) && is_string($script{{ __('Name') }}) && trim($script{{ __('Name') }}) !== '') ? trim($script{{ __('Name') }}) : 'Ecommerce Pro';
+    $displayScriptName = (isset($scriptName) && is_string($scriptName) && trim($scriptName) !== '') ? trim($scriptName) : 'Ecommerce Pro';
 @endphp
-<div class="script-name">{{ $displayScript{{ __('Name') }} }}</div>
+<div class="script-name">{{ $displayScriptName }}</div>
                             <div class="script-version">
-                                {{ __('bn_311eecab') }}: <span class="script-version-num">v{{ $currentVersion }}</span>
+                                বর্তমান ভার্সন: <span class="script-version-num">v{{ $currentVersion }}</span>
                             </div>
                         </div>
                     </div>
                     <div class="script-hero-right">
                         <span class="license-badge {{ $licenseValid ? 'valid' : 'invalid' }}">
                             <i class="fas fa-{{ $licenseValid ? 'shield-check' : 'exclamation-triangle' }}"></i>
-                            {{ $licenseValid ? 'License {{ __('Verified') }}' : 'License {{ __('Inv') }}alid' }}
+                            {{ $licenseValid ? 'License Verified' : 'License Invalid' }}
                         </span>
                     </div>
                 </div>
 
                 {{-- License invalid alert --}}
-                @if(!$licenseVal{{ __('id)') }}
+                @if(!$licenseValid)
                 <div class="alert alert-danger alert-update mb-4">
                     <i class="fas fa-exclamation-triangle me-2"></i>
-                    <strong>{{ __('bn_803e7266') }}:</strong> আপডেট {{ __('Download') }} ও ইনস্টল করতে ভ্যালিড লাইসেন্স প্রয়োজন। 
-                    <a href="{{ route('admin.license.info') }}" class="alert-link">{{ __('bn_fefbab51') }}</a> এ যান।
+                    <strong>আপডেট সীমাবদ্ধ:</strong> আপডেট ডাউনলোড ও ইনস্টল করতে ভ্যালিড লাইসেন্স প্রয়োজন। 
+                    <a href="{{ route('admin.license.info') }}" class="alert-link">লাইসেন্স সেটিংস</a> এ যান।
                 </div>
                 @endif
 
@@ -307,11 +307,11 @@
                     $domain = str_replace('www.', '', $host);
                     $isLocal = in_array($domain, ['127.0.0.1', 'localhost']);
                 @endphp
-                @if($isLocal && $licenseVal{{ __('id)') }}
+                @if($isLocal && $licenseValid)
                 <div class="alert alert-warning alert-update mb-4">
                     <i class="fas fa-info-circle me-2"></i>
-                    <strong>{{ __('bn_7a62e578') }}:</strong> আপনি XAMPP/localhost-এ রান করছেন। আপডেট চেক করার জন্য প্রোডাকশন ডোমেইন এবং ভ্যালিড লাইসেন্স প্রয়োজন। 
-                    <a href="{{ route('admin.license.info') }}" class="alert-link">{{ __('bn_fefbab51') }}</a> এ যান।
+                    <strong>লোকালহোস্ট পরিবেশ:</strong> আপনি XAMPP/localhost-এ রান করছেন। আপডেট চেক করার জন্য প্রোডাকশন ডোমেইন এবং ভ্যালিড লাইসেন্স প্রয়োজন। 
+                    <a href="{{ route('admin.license.info') }}" class="alert-link">লাইসেন্স সেটিংস</a> এ যান।
                 </div>
                 @endif
 
@@ -324,33 +324,33 @@
                     </div>
                     <div class="update-card-body">
                         
-                        {{-- {{ __('Update {{ __('Status') }}') }}: লোডিং স্টেট, আপডেট কার্ড {{ __('bn_6bbacc71') }} আপ-টু-ডেট মেসেজ JS দ্বারা সেট হবে --}}
-                        <div id="update{{ __('Status') }}">
+                        {{-- Update Status: লোডিং স্টেট, আপডেট কার্ড অথবা আপ-টু-ডেট মেসেজ JS দ্বারা সেট হবে --}}
+                        <div id="updateStatus">
                             <div class="update-empty-state">
                                 <div class="icon"><i class="fas fa-spinner fa-spin"></i></div>
-                                <p class="mb-0">{{ __('bn_c4e61036') }}</p>
+                                <p class="mb-0">আপডেট চেক করা হচ্ছে...</p>
                             </div>
                         </div>
 
                         {{-- Available Updates List (populated by JS) --}}
                         <div id="updateList" style="display: none;"></div>
 
-                        {{-- Update {{ __('Actions') }} (Download/Install - shown when update available) --}}
-                        <div id="update{{ __('Actions') }}" style="display: none;"></div>
+                        {{-- Update Actions (Download/Install - shown when update available) --}}
+                        <div id="updateActions" style="display: none;"></div>
 
                         {{-- Backup Files Section - Always visible, works without update --}}
                         <hr class="my-4">
-                        <h5 class="mb-3"><i class="fas fa-database me-2 text-info"></i> {{ __('bn_2e112107') }}</h5>
+                        <h5 class="mb-3"><i class="fas fa-database me-2 text-info"></i> ব্যাকআপ ফাইল</h5>
                         <div class="d-flex flex-wrap align-items-center gap-2 mb-3">
                             <button type="button" id="createBackupBtn" class="btn btn-info btn-sm">
                                 <i class="fas fa-save me-1"></i> ব্যাকআপ তৈরি করুন
                             </button>
-                            <small class="text-muted">{{ __('bn_a24e53bd') }}</small>
+                            <small class="text-muted">কোড জিপ ও ডাটাবেইস ব্যাকআপ তৈরি করে ডাউনলোড করুন</small>
                         </div>
                         <div id="backupList" class="mb-4">
                             <div class="update-empty-state py-3">
                                 <div class="icon"><i class="fas fa-spinner fa-spin"></i></div>
-                                <p class="mb-0 small">{{ __('bn_f396e666') }}</p>
+                                <p class="mb-0 small">ব্যাকআপ লোড করা হচ্ছে...</p>
                             </div>
                         </div>
 
@@ -358,15 +358,15 @@
                         <hr class="my-4">
                         <div class="info-grid">
                             <div class="info-item">
-                                <div class="info-item-label">{{ __('Environment') }}</div>
+                                <div class="info-item-label">Environment</div>
                                 <div class="info-item-value">{{ request()->getHost() }}</div>
                             </div>
                             <div class="info-item">
-                                <div class="info-item-label">{{ __('PHP') }}</div>
-                                <div class="info-item-value">{{ {{ __('PHP') }}_VERSION }}</div>
+                                <div class="info-item-label">PHP</div>
+                                <div class="info-item-value">{{ PHP_VERSION }}</div>
                             </div>
                             <div class="info-item">
-                                <div class="info-item-label">{{ __('Laravel') }}</div>
+                                <div class="info-item-label">Laravel</div>
                                 <div class="info-item-value">{{ app()->version() }}</div>
                             </div>
                         </div>
@@ -381,12 +381,12 @@
 {{-- Scripts --}}
 <script>
     let currentVersion = '{{ $currentVersion }}';
-    let script{{ __('Name') }} = '{{ $script{{ __('Name') }} }}';
+    let scriptName = '{{ $scriptName }}';
     let licenseValid = {{ $licenseValid ? 'true' : 'false' }};
     let demoMode = {{ (isset($demoMode) && $demoMode) ? 'true' : 'false' }};
     let availableUpdates = [];
 
-    function renderUpdate{{ __('{{ __('Item') }}s') }}(updates) {
+    function renderUpdateItems(updates) {
         if (!updates || updates.length === 0) return '';
         let html = '';
         updates.forEach(function(u, idx) {
@@ -409,26 +409,26 @@
         return html;
     }
 
-    function do{{ __('Check') }}Updates() {
-        var statusDiv = document.getElementById('update{{ __('Status') }}');
+    function doCheckUpdates() {
+        var statusDiv = document.getElementById('updateStatus');
         var listDiv = document.getElementById('updateList');
-        var actionsDiv = document.getElementById('update{{ __('Actions') }}');
+        var actionsDiv = document.getElementById('updateActions');
 
-        if (!licenseVal{{ __('id)') }} {
+        if (!licenseValid) {
             statusDiv.innerHTML = `
                 <div class="alert alert-danger alert-update mb-0">
                     <i class="fas fa-exclamation-triangle me-2"></i>
-                    <strong>{{ __('bn_8183e331') }}:</strong> লাইসেন্স যাচাই {{ __('bn_84d84036') }}। লাইসেন্স কী চেক করুন।
+                    <strong>ত্রুটি:</strong> লাইসেন্স যাচাই ব্যর্থ। লাইসেন্স কী চেক করুন।
                 </div>
             `;
             return;
         }
 
-        statusDiv.innerHTML = '<div class="update-empty-state"><div class="icon"><i class="fas fa-spinner fa-spin"></i></div><p class="mb-0">{{ __('bn_c4e61036') }}</p></div>';
+        statusDiv.innerHTML = '<div class="update-empty-state"><div class="icon"><i class="fas fa-spinner fa-spin"></i></div><p class="mb-0">আপডেট চেক করা হচ্ছে...</p></div>';
 
         fetch('{{ route("admin.updates.check") }}', {
-            method: '{{ __('GET') }}',
-            headers: { 'X-{{ __('Requested') }}-With': 'XMLHttpRequest', 'Accept': 'application/json' }
+            method: 'GET',
+            headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json' }
         })
         .then(function(r) { return r.json(); })
         .then(function(data) {
@@ -446,15 +446,15 @@
                     }
                     availableUpdates = updates;
                     statusDiv.innerHTML = '';
-                    listDiv.innerHTML = renderUpdate{{ __('{{ __('Item') }}s') }}(updates);
+                    listDiv.innerHTML = renderUpdateItems(updates);
                     listDiv.style.display = 'block';
                     actionsDiv.style.display = 'none';
                 } else {
                     statusDiv.innerHTML = `
                         <div class="update-empty-state up-to-date">
                             <div class="icon"><i class="fas fa-check-circle"></i></div>
-                            <strong>{{ __('bn_862fce8a') }}</strong>
-                            <p class="mb-0 mt-2">{{ __('bn_311eecab') }}: <span class="badge bg-success">v${data.current_version}</span></p>
+                            <strong>আপনার স্ক্রিপ্ট আপ টু ডেট ও লেটেস্ট ভার্শন ইউজ করতেছেন।</strong>
+                            <p class="mb-0 mt-2">বর্তমান ভার্সন: <span class="badge bg-success">v${data.current_version}</span></p>
                         </div>
                     `;
                     listDiv.style.display = 'none';
@@ -464,7 +464,7 @@
                 statusDiv.innerHTML = `
                     <div class="alert alert-danger alert-update mb-0">
                         <i class="fas fa-exclamation-triangle me-2"></i>
-                        <strong>{{ __('bn_8183e331') }}:</strong> ${data.{{ __('message') }}}
+                        <strong>ত্রুটি:</strong> ${data.message}
                     </div>
                 `;
                 listDiv.style.display = 'none';
@@ -474,7 +474,7 @@
             statusDiv.innerHTML = `
                 <div class="alert alert-danger alert-update mb-0">
                     <i class="fas fa-exclamation-triangle me-2"></i>
-                    <strong>{{ __('bn_8183e331') }}:</strong> আপডেট চেক করতে {{ __('bn_84d84036') }}। আবার চেষ্টা করুন।
+                    <strong>ত্রুটি:</strong> আপডেট চেক করতে ব্যর্থ। আবার চেষ্টা করুন।
                 </div>
             `;
         });
@@ -483,31 +483,31 @@
     function loadBackups() {
         var div = document.getElementById('backupList');
         fetch('{{ route("admin.updates.backups") }}', {
-            headers: { 'X-{{ __('Requested') }}-With': 'XMLHttpRequest', 'Accept': 'application/json' }
+            headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json' }
         })
         .then(function(r) { return r.json(); })
         .then(function(data) {
             if (data.status === 'success' && data.backups && data.backups.length > 0) {
                 var html = '<div class="row g-3">';
                 data.backups.forEach(function(b) {
-                    var size = (b.size / 1024).to{{ __('Fixed') }}(1) + ' KB';
-                    if (b.size > 1024 * 1024) size = (b.size / 1024 / 1024).to{{ __('Fixed') }}(2) + ' MB';
-                    var type{{ __('Label') }} = b.type === 'code' ? 'কোড জিপ' : (b.type === 'database' ? 'ডাটাবেইস' : '{{ __('File') }}');
+                    var size = (b.size / 1024).toFixed(1) + ' KB';
+                    if (b.size > 1024 * 1024) size = (b.size / 1024 / 1024).toFixed(2) + ' MB';
+                    var typeLabel = b.type === 'code' ? 'কোড জিপ' : (b.type === 'database' ? 'ডাটাবেইস' : 'ফাইল');
                     var icon = b.type === 'code' ? 'fa-file-archive' : (b.type === 'database' ? 'fa-database' : 'fa-file');
                     html += '<div class="col-md-6 col-lg-4"><div class="update-item d-flex align-items-center justify-content-between p-3">';
-                    html += '<div><i class="fas ' + icon + ' me-2 text-primary"></i><small class="text-muted">{{ __("' + type{{ __('Label') }} + '") }}</small><br><span class="small fw-bold">{{ __("' + b.name + '") }}</span><br><span class="text-muted" style="font-size:11px">{{ __("' + size + '") }}</span></div>';
+                    html += '<div><i class="fas ' + icon + ' me-2 text-primary"></i><small class="text-muted">' + typeLabel + '</small><br><span class="small fw-bold">' + b.name + '</span><br><span class="text-muted" style="font-size:11px">' + size + '</span></div>';
                     var downloadUrl = '{{ route("admin.updates.backup.download", ["filename" => "__NAME__"]) }}'.replace('__NAME__', encodeURIComponent(b.name));
-                    html += '<a href="' + downloadUrl + '" class="btn btn-sm btn-success btn-download" target="_blank"><i class="fas fa-download me-1"></i> {{ __('Download') }}</a>';
+                    html += '<a href="' + downloadUrl + '" class="btn btn-sm btn-success btn-download" target="_blank"><i class="fas fa-download me-1"></i> ডাউনলোড</a>';
                     html += '</div></div>';
                 });
                 html += '</div>';
                 div.innerHTML = html;
             } else {
-                div.innerHTML = '<div class="update-empty-state py-3"><div class="icon"><i class="fas fa-folder-open"></i></div><p class="mb-0 small text-muted">{{ __('bn_ed986592') }}</p></div>';
+                div.innerHTML = '<div class="update-empty-state py-3"><div class="icon"><i class="fas fa-folder-open"></i></div><p class="mb-0 small text-muted">কোন ব্যাকআপ ফাইল নেই। আপডেট ইন্সটল করলে ব্যাকআপ তৈরি হবে।</p></div>';
             }
         })
         .catch(function() {
-            div.innerHTML = '<div class="update-empty-state py-3"><p class="mb-0 small text-danger">{{ __('bn_5ca781ab') }}</p></div>';
+            div.innerHTML = '<div class="update-empty-state py-3"><p class="mb-0 small text-danger">ব্যাকআপ লোড করতে ব্যর্থ।</p></div>';
         });
     }
 
@@ -515,17 +515,17 @@
         if (e.target.closest('#backupList .btn-download')) {
             if (demoMode) {
                 e.preventDefault();
-                if (typeof showDemoModeAlert !== 'undefined') showDemoModeAlert('ব্যাকআপ {{ __('Download') }} {{ __('bn_67543547') }} মুডে {{ __('Close') }} আছে।');
-                else if (typeof Swal !== 'undefined') Swal.fire('{{ __('bn_67543547') }} মুড', 'ব্যাকআপ {{ __('Download') }} {{ __('bn_67543547') }} মুডে {{ __('Close') }} আছে।', 'info');
-                else alert('{{ __('bn_391c505f') }}। ব্যাকআপ {{ __('Download') }} করা যাবে না।');
+                if (typeof showDemoModeAlert !== 'undefined') showDemoModeAlert('ব্যাকআপ ডাউনলোড ডেমো মুডে বন্ধ আছে।');
+                else if (typeof Swal !== 'undefined') Swal.fire('ডেমো মুড', 'ব্যাকআপ ডাউনলোড ডেমো মুডে বন্ধ আছে।', 'info');
+                else alert('ডেমো মুড সক্রিয়। ব্যাকআপ ডাউনলোড করা যাবে না।');
                 return;
             }
         }
         if (e.target.closest('#createBackupBtn')) {
             if (demoMode) {
-                if (typeof showDemoModeAlert !== 'undefined') showDemoModeAlert('ব্যাকআপ তৈরি {{ __('bn_67543547') }} মুডে {{ __('Close') }} আছে।');
-                else if (typeof Swal !== 'undefined') Swal.fire('{{ __('bn_67543547') }} মুড', 'ব্যাকআপ তৈরি {{ __('bn_67543547') }} মুডে {{ __('Close') }} আছে।', 'info');
-                else alert('{{ __('bn_391c505f') }}। ব্যাকআপ তৈরি করা যাবে না।');
+                if (typeof showDemoModeAlert !== 'undefined') showDemoModeAlert('ব্যাকআপ তৈরি ডেমো মুডে বন্ধ আছে।');
+                else if (typeof Swal !== 'undefined') Swal.fire('ডেমো মুড', 'ব্যাকআপ তৈরি ডেমো মুডে বন্ধ আছে।', 'info');
+                else alert('ডেমো মুড সক্রিয়। ব্যাকআপ তৈরি করা যাবে না।');
                 return;
             }
             var btn = document.getElementById('createBackupBtn');
@@ -533,20 +533,20 @@
             btn.disabled = true;
             btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>ব্যাকআপ তৈরি হচ্ছে...';
             fetch('{{ route("admin.updates.create-backup") }}', {
-                method: '{{ __('POST') }}',
-                headers: { 'X-{{ __('Requested') }}-With': 'XMLHttpRequest', 'Accept': 'application/json', 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' }
+                method: 'POST',
+                headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json', 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' }
             })
             .then(function(r) { return r.json(); })
             .then(function(data) {
                 if (data.status === 'success') {
                     loadBackups();
-                    if (typeof Swal !== 'undefined') Swal.fire('{{ __('bn_fbbc3031') }}!', data.{{ __('message') }}, 'success');
-                    else alert(data.{{ __('message') }});
-                } else throw new Error(data.{{ __('message') }} || 'ব্যাকআপ {{ __('bn_84d84036') }}');
+                    if (typeof Swal !== 'undefined') Swal.fire('সফল!', data.message, 'success');
+                    else alert(data.message);
+                } else throw new Error(data.message || 'ব্যাকআপ ব্যর্থ');
             })
             .catch(function(err) {
-                if (typeof Swal !== 'undefined') Swal.fire('{{ __('bn_8183e331') }}!', err.{{ __('message') }}, 'error');
-                else alert('{{ __('bn_8183e331') }}: ' + err.{{ __('message') }});
+                if (typeof Swal !== 'undefined') Swal.fire('ত্রুটি!', err.message, 'error');
+                else alert('ত্রুটি: ' + err.message);
             })
             .finally(function() {
                 btn.disabled = false;
@@ -556,7 +556,7 @@
     });
 
     document.addEventListener('DOMContentLoaded', function() {
-        do{{ __('Check') }}Updates();
+        doCheckUpdates();
         loadBackups();
     });
 
@@ -566,15 +566,15 @@
             var version = btn.getAttribute('data-version');
             var downloadUrl = btn.getAttribute('data-download-url') || '';
 
-            if (!confirm('v' + version + ' আপডেট করুন? {{ __('Download') }} ও ইন্সটল শুরু হবে।')) return;
+            if (!confirm('v' + version + ' আপডেট করুন? ডাউনলোড ও ইন্সটল শুরু হবে।')) return;
 
             btn.disabled = true;
-            btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>{{ __('Download') }} হচ্ছে...';
+            btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>ডাউনলোড হচ্ছে...';
 
             fetch('{{ route("admin.updates.download") }}', {
-                method: '{{ __('POST') }}',
+                method: 'POST',
                 headers: {
-                    'X-{{ __('Requested') }}-With': 'XMLHttpRequest',
+                    'X-Requested-With': 'XMLHttpRequest',
                     'Accept': 'application/json',
                     'Content-Type': 'application/json',
                     'X-CSRF-TOKEN': '{{ csrf_token() }}'
@@ -586,9 +586,9 @@
                 if (data.status === 'success') {
                     btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>ইন্সটল হচ্ছে...';
                     return fetch('{{ route("admin.updates.install") }}', {
-                        method: '{{ __('POST') }}',
+                        method: 'POST',
                         headers: {
-                            'X-{{ __('Requested') }}-With': 'XMLHttpRequest',
+                            'X-Requested-With': 'XMLHttpRequest',
                             'Accept': 'application/json',
                             'Content-Type': 'application/json',
                             'X-CSRF-TOKEN': '{{ csrf_token() }}'
@@ -596,26 +596,26 @@
                         body: JSON.stringify({ version: version })
                     });
                 } else {
-                    throw new Error(data.{{ __('message') }} || '{{ __('Download') }} {{ __('bn_84d84036') }}');
+                    throw new Error(data.message || 'ডাউনলোড ব্যর্থ');
                 }
             })
             .then(function(r) { return r.json(); })
             .then(function(data) {
                 if (data.status === 'success') {
                     if (typeof Swal !== 'undefined') {
-                        Swal.fire('{{ __('bn_fbbc3031') }}!', 'আপডেট সম্পন্ন {{ __('bn_290a7f61') }}েছে।', 'success').then(function() { location.reload(); });
+                        Swal.fire('সফল!', 'আপডেট সম্পন্ন হয়েছে।', 'success').then(function() { location.reload(); });
                     } else {
-                        alert('আপডেট সম্পন্ন {{ __('bn_290a7f61') }}েছে!');
+                        alert('আপডেট সম্পন্ন হয়েছে!');
                         location.reload();
                     }
                 } else {
-                    throw new Error(data.{{ __('message') }} || 'ইন্সটল {{ __('bn_84d84036') }}');
+                    throw new Error(data.message || 'ইন্সটল ব্যর্থ');
                 }
             })
             .catch(function(err) {
                 btn.disabled = false;
                 btn.innerHTML = '<i class="fas fa-download me-2"></i> আপডেট করুন';
-                alert('{{ __('bn_8183e331') }}: ' + (err.{{ __('message') }} || 'আপডেট {{ __('bn_84d84036') }}।'));
+                alert('ত্রুটি: ' + (err.message || 'আপডেট ব্যর্থ।'));
             });
         }
     });

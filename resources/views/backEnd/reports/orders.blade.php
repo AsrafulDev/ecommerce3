@@ -1,5 +1,5 @@
 @extends('backEnd.layouts.master')
-@section('title', '{{ __('Order Report') }}')
+@section('title', 'Order Report')
 
 {{-- CSS Section --}}
 @section('css')
@@ -15,7 +15,7 @@
     }
     
     /* --- Filter Section --- */
-    .{{ __('filter') }}-card {
+    .filter-card {
         background: #fff;
         border-radius: 12px;
         padding: 20px;
@@ -78,27 +78,27 @@
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
             <h4 class="mb-1 fw-bold text-dark">
-                <i data-feather="bar-chart-2" class="text-primary me-2"></i> {{ __('Order Report') }}s
+                <i data-feather="bar-chart-2" class="text-primary me-2"></i> Order Reports
             </h4>
-            <p class="text-muted small mb-0">{{ __('Analysis for') }}: <strong>{{ $label }}</strong></p>
+            <p class="text-muted small mb-0">Analysis for: <strong>{{ $label }}</strong></p>
         </div>
     </div>
 
     {{-- FILTERS --}}
-    <div class="{{ __('filter') }}-card">
-        <form method="{{ __('GET') }}" action="{{ route('admin.reports.orders') }}" id="order-{{ __('filter') }}-form">
+    <div class="filter-card">
+        <form method="GET" action="{{ route('admin.reports.orders') }}" id="order-filter-form">
             <div class="row g-3 align-items-end">
                 
                 {{-- Report Type --}}
                 <div class="col-md-3">
-                    <label class="form-label-custom">{{ __('Filter By') }}</label>
+                    <label class="form-label-custom">Filter By</label>
                     <div class="input-group">
-                        <span class="input-group-text bg-white border-end-0"><i data-feather="{{ __('filter') }}" style="width:16px;"></i></span>
+                        <span class="input-group-text bg-white border-end-0"><i data-feather="filter" style="width:16px;"></i></span>
                         <select name="type" class="form-select form-select-custom border-start-0" id="report-type">
-                            <option value="{{ __('today') }}" {{ $type=='{{ __('today') }}' ? 'selected' : '' }}>{{ __('Today') }}</option>
-                            <option value="month" {{ $type=='month' ? 'selected' : '' }}>{{ __('Monthly') }}</option>
-                            <option value="year"  {{ $type=='year'  ? 'selected' : '' }}>{{ __('Yearly') }}</option>
-                            <option value="range" {{ $type=='range' ? 'selected' : '' }}>{{ __('{{ __('Custom {{ __('Date') }}') }} Range') }}</option>
+                            <option value="today" {{ $type=='today' ? 'selected' : '' }}>Today</option>
+                            <option value="month" {{ $type=='month' ? 'selected' : '' }}>Monthly</option>
+                            <option value="year"  {{ $type=='year'  ? 'selected' : '' }}>Yearly</option>
+                            <option value="range" {{ $type=='range' ? 'selected' : '' }}>Custom Date Range</option>
                         </select>
                     </div>
                 </div>
@@ -106,7 +106,7 @@
                 {{-- Dynamic Inputs --}}
                 <div class="col-md-2 type-month type-year" style="display:none;">
                     <label class="form-label-custom">{{ __('Year') }}</label>
-                    <input type="{{ __('number') }}" name="year" class="form-control form-control-custom" value="{{ request('year', now()->year) }}" placeholder="{{ __('YYYY') }}">
+                    <input type="number" name="year" class="form-control form-control-custom" value="{{ request('year', now()->year) }}" placeholder="YYYY">
                 </div>
 
                 <div class="col-md-2 type-month" style="display:none;">
@@ -121,21 +121,21 @@
                 </div>
 
                 <div class="col-md-2 type-range" style="display:none;">
-                    <label class="form-label-custom">{{ __('Start {{ __('Date') }}') }}</label>
+                    <label class="form-label-custom">Start Date</label>
                     <input type="date" name="from_date" class="form-control form-control-custom" value="{{ request('from_date') }}">
                 </div>
 
                 <div class="col-md-2 type-range" style="display:none;">
-                    <label class="form-label-custom">{{ __('End {{ __('Date') }}') }}</label>
+                    <label class="form-label-custom">End Date</label>
                     <input type="date" name="to_date" class="form-control form-control-custom" value="{{ request('to_date') }}">
                 </div>
 
-                {{-- {{ __('Actions') }} --}}
+                {{-- Actions --}}
                 <div class="col-md-auto ms-auto d-flex gap-2">
-                    <button class="btn btn-custom-primary" type="{{ __('submit') }}">
+                    <button class="btn btn-custom-primary" type="submit">
                         <i data-feather="search" class="me-1" style="width:16px;"></i> Generate
                     </button>
-                    <button class="btn btn-custom-outline" type="{{ __('submit') }}" name="export" value="csv" id="export-csv-btn">
+                    <button class="btn btn-custom-outline" type="submit" name="export" value="csv" id="export-csv-btn">
                         <i data-feather="download" class="me-1" style="width:16px;"></i> CSV
                     </button>
                 </div>
@@ -145,54 +145,54 @@
 
     {{-- SUMMARY STATS --}}
     <div class="row g-4 mb-4">
-        {{-- {{ __('{{ __('Total') }} Orders') }} --}}
+        {{-- Total Orders --}}
         <div class="col-md-3">
             <div class="stat-card">
                 <div class="stat-icon bg-light-primary">
                     <i data-feather="shopping-bag"></i>
                 </div>
                 <div>
-                    <div class="stat-label">{{ __('{{ __('Total') }} Orders') }}</div>
+                    <div class="stat-label">Total Orders</div>
                     <h3 class="stat-value">{{ $totalOrders }}</h3>
                 </div>
             </div>
         </div>
 
-        {{-- {{ __('{{ __('Total') }} {{ __('Amount') }}') }} --}}
+        {{-- Total Amount --}}
         <div class="col-md-3">
             <div class="stat-card">
                 <div class="stat-icon bg-light-success">
                     <span class="fw-bold">৳</span>
                 </div>
                 <div>
-                    <div class="stat-label">{{ __('Revenue') }}</div>
-                    <h3 class="stat-value">{{ number_format($total{{ __('Amount') }}, 2) }}</h3>
+                    <div class="stat-label">Revenue</div>
+                    <h3 class="stat-value">{{ number_format($totalAmount, 2) }}</h3>
                 </div>
             </div>
         </div>
 
-        {{-- {{ __('Total') }} {{ __('Discount') }} --}}
+        {{-- Total Discount --}}
         <div class="col-md-3">
             <div class="stat-card">
                 <div class="stat-icon bg-light-warning">
                     <i data-feather="tag"></i>
                 </div>
                 <div>
-                    <div class="stat-label">{{ __('{{ __('Discount') }} Given') }}</div>
-                    <h3 class="stat-value">{{ number_format($total{{ __('Discount') }}, 2) }}</h3>
+                    <div class="stat-label">Discount Given</div>
+                    <h3 class="stat-value">{{ number_format($totalDiscount, 2) }}</h3>
                 </div>
             </div>
         </div>
 
-        {{-- {{ __('Shipping') }} --}}
+        {{-- Shipping --}}
         <div class="col-md-3">
             <div class="stat-card">
                 <div class="stat-icon bg-light-info">
                     <i data-feather="truck"></i>
                 </div>
                 <div>
-                    <div class="stat-label">{{ __('{{ __('Shipping') }} Cost') }}</div>
-                    <h3 class="stat-value">{{ number_format($total{{ __('Shipping') }}, 2) }}</h3>
+                    <div class="stat-label">Shipping Cost</div>
+                    <h3 class="stat-value">{{ number_format($totalShipping, 2) }}</h3>
                 </div>
             </div>
         </div>
@@ -201,7 +201,7 @@
     {{-- ORDER TABLE --}}
     <div class="card card-modern">
         <div class="card-header border-bottom bg-white py-3">
-            <h5 class="mb-0 fw-bold text-dark">{{ __('Detailed Order List') }}</h5>
+            <h5 class="mb-0 fw-bold text-dark">Detailed Order List</h5>
         </div>
 
         <div class="table-responsive" id="order-table">
@@ -209,29 +209,29 @@
                 <thead>
                     <tr>
                         <th width="5%">#</th>
-                        <th width="15%">{{ __('{{ __('Inv') }}oice') }}</th>
-                        <th width="20%">{{ __('Customer') }}</th>
-                        <th width="15%" class="text-end">{{ __('{{ __('Total') }} {{ __('Amount') }}') }}</th>
-                        <th width="10%" class="text-end">{{ __('{{ __('Discount') }}') }}</th>
-                        <th width="10%" class="text-end">{{ __('{{ __('Shipping') }}') }}</th>
-                        <th width="10%">{{ __('{{ __('Status') }}') }}</th>
-                        <th width="15%">{{ __('{{ __('Date') }}') }}</th>
+                        <th width="15%">{{ __('Invoice') }}</th>
+                        <th width="20%">Customer</th>
+                        <th width="15%" class="text-end">Total Amount</th>
+                        <th width="10%" class="text-end">{{ __('Discount') }}</th>
+                        <th width="10%" class="text-end">{{ __('Shipping') }}</th>
+                        <th width="10%">{{ __('Status') }}</th>
+                        <th width="15%">{{ __('Date') }}</th>
                     </tr>
                 </thead>
                 <tbody>
                 @forelse($orders as $order)
                     @php
-                        $row{{ __('Total') }} = $order->amount ?? $order->{{ __('total') }} ?? $order->{{ __('total') }}_amount ?? $order->grand_{{ __('total') }} ?? $order->sub{{ __('total') }} ?? 0;
-                        $row{{ __('Discount') }} = $order->discount ?? $order->discount_amount ?? $order->coupon_discount ?? 0;
-                        $row{{ __('Shipping') }} = $order->shipping_amount ?? $order->shipping_charge ?? $order->shipping_cost ?? $order->shipping ?? 0;
+                        $rowTotal = $order->amount ?? $order->total ?? $order->total_amount ?? $order->grand_total ?? $order->subtotal ?? 0;
+                        $rowDiscount = $order->discount ?? $order->discount_amount ?? $order->coupon_discount ?? 0;
+                        $rowShipping = $order->shipping_amount ?? $order->shipping_charge ?? $order->shipping_cost ?? $order->shipping ?? 0;
                         
-                        // {{ __('Status') }} Badge Logic
-                        $status{{ __('Name') }} = is_object($order->status) ? $order->status->name : ($order->order_status ?? $order->status ?? '-');
+                        // Status Badge Logic
+                        $statusName = is_object($order->status) ? $order->status->name : ($order->order_status ?? $order->status ?? '-');
                         $badgeClass = 'bg-secondary';
-                        if(stripos($status{{ __('Name') }}, 'complete') !== false || stripos($status{{ __('Name') }}, 'delivered') !== false) $badgeClass = 'bg-success';
-                        elseif(stripos($status{{ __('Name') }}, 'pending') !== false) $badgeClass = 'bg-warning text-dark';
-                        elseif(stripos($status{{ __('Name') }}, 'cancel') !== false) $badgeClass = 'bg-danger';
-                        elseif(stripos($status{{ __('Name') }}, 'process') !== false) $badgeClass = 'bg-info';
+                        if(stripos($statusName, 'complete') !== false || stripos($statusName, 'delivered') !== false) $badgeClass = 'bg-success';
+                        elseif(stripos($statusName, 'pending') !== false) $badgeClass = 'bg-warning text-dark';
+                        elseif(stripos($statusName, 'cancel') !== false) $badgeClass = 'bg-danger';
+                        elseif(stripos($statusName, 'process') !== false) $badgeClass = 'bg-info';
                     @endphp
                     <tr>
                         <td class="text-muted">{{ $loop->iteration + ($orders->currentPage() - 1) * $orders->perPage() }}</td>
@@ -246,11 +246,11 @@
                                 <span class="text-dark fw-medium">{{ $order->customer_name ?? ($order->customer->name ?? 'Guest') }}</span>
                             </div>
                         </td>
-                        <td class="text-end fw-bold text-dark">৳{{ number_format($row{{ __('Total') }}, 2) }}</td>
-                        <td class="text-end text-muted">{{ $row{{ __('Discount') }} > 0 ? '৳'.number_format($row{{ __('Discount') }}, 2) : '-' }}</td>
-                        <td class="text-end text-muted">{{ $row{{ __('Shipping') }} > 0 ? '৳'.number_format($row{{ __('Shipping') }}, 2) : 'Free' }}</td>
+                        <td class="text-end fw-bold text-dark">৳{{ number_format($rowTotal, 2) }}</td>
+                        <td class="text-end text-muted">{{ $rowDiscount > 0 ? '৳'.number_format($rowDiscount, 2) : '-' }}</td>
+                        <td class="text-end text-muted">{{ $rowShipping > 0 ? '৳'.number_format($rowShipping, 2) : 'Free' }}</td>
                         <td>
-                            <span class="badge {{ $badgeClass }} rounded-pill px-2">{{ $status{{ __('Name') }} }}</span>
+                            <span class="badge {{ $badgeClass }} rounded-pill px-2">{{ $statusName }}</span>
                         </td>
                         <td class="text-muted small">
                             {{ optional($order->created_at)->format('d M, Y') }}<br>
@@ -261,9 +261,9 @@
                     <tr>
                         <td colspan="8" class="text-center py-5">
                             <div class="d-flex flex-column align-items-center">
-                                <img src="{{ __('https://') }}cdn-icons-png.flaticon.com/512/7486/7486744.png" width="50" class="opacity-25 mb-2">
-                                <p class="text-muted fw-bold mb-0">{{ __('No orders found') }}</p>
-                                <small class="text-muted">{{ __('Try changing the {{ __('filter') }} parameters.') }}</small>
+                                <img src="https://cdn-icons-png.flaticon.com/512/7486/7486744.png" width="50" class="opacity-25 mb-2">
+                                <p class="text-muted fw-bold mb-0">No orders found</p>
+                                <small class="text-muted">Try changing the filter parameters.</small>
                             </div>
                         </td>
                     </tr>
@@ -273,7 +273,7 @@
             
             {{-- Pagination --}}
             <div class="p-4 border-top d-flex justify-content-between align-items-center">
-                <small class="text-muted">Showing {{ $orders->first{{ __('Item') }}() }} to {{ $orders->last{{ __('Item') }}() }} of {{ $orders->{{ __('total') }}() }} results</small>
+                <small class="text-muted">Showing {{ $orders->firstItem() }} to {{ $orders->lastItem() }} of {{ $orders->total() }} results</small>
                 <div>{{ $orders->links('pagination::bootstrap-4') }}</div>
             </div>
         </div>
@@ -281,12 +281,12 @@
 </div>
 @endsection
 
-@push('scripts') {{-- {{ __('Change') }}d from section('script') to push('scripts') to fix error --}}
+@push('scripts') {{-- Changed from section('script') to push('scripts') to fix error --}}
 <script>
     function toggleReportFields() {
         let type = document.getElementById('report-type').value;
         
-        // Hide all specific {{ __('filter') }}s first
+        // Hide all specific filters first
         document.querySelectorAll('.type-month, .type-year, .type-range').forEach(el => el.style.display = 'none');
 
         // Show based on selection
@@ -304,24 +304,24 @@
     toggleReportFields();
 
     // AJAX Handling
-    document.getElementById('order-{{ __('filter') }}-form').addEventListener('{{ __('submit') }}', function(e){
-        let {{ __('submit') }}ter = e.{{ __('submit') }}ter;
+    document.getElementById('order-filter-form').addEventListener('submit', function(e){
+        let submitter = e.submitter;
         
-        // Let normal {{ __('submit') }} happen for CSV export
-        if ({{ __('submit') }}ter && {{ __('submit') }}ter.id === 'export-csv-btn') {
+        // Let normal submit happen for CSV export
+        if (submitter && submitter.id === 'export-csv-btn') {
             return true;
         }
 
         e.preventDefault();
         
         // Add loading state
-        let btn = this.querySelector('button[type="{{ __('submit') }}"]:not(#export-csv-btn)');
-        let original{{ __('Text') }} = btn.innerHTML;
+        let btn = this.querySelector('button[type="submit"]:not(#export-csv-btn)');
+        let originalText = btn.innerHTML;
         btn.innerHTML = '<i class="spinner-border spinner-border-sm"></i> Loading...';
         btn.disabled = true;
 
-        loadOrders(new URLSearchParams(new FormData(this)).to{{ __('String') }}(), () => {
-            btn.innerHTML = original{{ __('Text') }};
+        loadOrders(new URLSearchParams(new FormData(this)).toString(), () => {
+            btn.innerHTML = originalText;
             btn.disabled = false;
         });
     });
@@ -337,7 +337,7 @@
 
     function loadOrders(query, callback) {
         fetch("{{ route('admin.reports.orders') }}?" + query, {
-            headers: { 'X-{{ __('Requested') }}-With': 'XMLHttpRequest' }
+            headers: { 'X-Requested-With': 'XMLHttpRequest' }
         })
         .then(res => res.text())
         .then(html => {
@@ -350,7 +350,7 @@
                 document.getElementById('order-table').innerHTML = newTable.innerHTML;
             }
             
-            // {{ __('Note') }}: If you want to update {{ __('Summary') }} Cards dynamically, 
+            // Note: If you want to update Summary Cards dynamically, 
             // you'd need the backend to return JSON data or partial HTML for those cards as well.
             
             if(callback) callback();

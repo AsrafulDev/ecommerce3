@@ -24,13 +24,13 @@
 								<div class="mb-5 text-center">
 									<img src="{{asset($generalsetting->dark_logo)}}" class="mw-100 mb-4" height="40">
 									<h1 class="h3 text-primary mb-0">{{ __('Forgot Password') }}</h1>
-									<p>{{ __('Enter your email to reset password') }}</p>
+									<p>Enter your email to reset password</p>
 								</div>
 
-								<form method={{ __('"{{ __('POST') }}"') }} action="{{ route('admin.password.email') }}">
+								<form method="POST" action="{{ route('admin.password.email') }}">
 									@csrf
 									<div class="form-group">
-										<input id="email" type="email" name="email" class="form-control @error('email') is-invalid @enderror" placeholder="{{ __('Enter {{ __('Email') }}') }}" required autofocus>
+										<input id="email" type="email" name="email" class="form-control @error('email') is-invalid @enderror" placeholder="{{ __('Enter Email') }}" required autofocus>
 										@error('email')
 											<span class="invalid-feedback" role="alert">
 												<strong>{{ $message }}</strong>
@@ -38,8 +38,8 @@
 										@enderror
 									</div>
 
-									<button type="{{ __('submit') }}" class="btn btn-primary btn-lg btn-block">
-										Send Password Reset {{ __('Link') }}
+									<button type="submit" class="btn btn-primary btn-lg btn-block">
+										Send Password Reset Link
 									</button>
 									@if (session('status'))
     <div class="alert alert-success mt-3 text-center">
@@ -56,7 +56,7 @@
 								</form>
 								
 								<div class="mt-3 text-center">
-									<a href="{{ route('login') }}" class="text-reset fs-14">{{ __('Back to Login') }}</a>
+									<a href="{{ route('login') }}" class="text-reset fs-14">Back to Login</a>
 								</div>
 							</div>
 						</div><!-- card -->

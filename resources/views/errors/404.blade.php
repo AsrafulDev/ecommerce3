@@ -3,10 +3,10 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Page {{ __('Not Found') }} | 404</title>
+    <title>Page Not Found | 404</title>
 
-    <link href="{{ __('https://') }}fonts.googleapis.com/css2?family=Poppins:wght@300;500;700;900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="{{ __('https://') }}cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <style>
         /* --- General Styles --- */
@@ -70,8 +70,8 @@
         }
 
         .mouth {
-            width: {{ __('14px') }};
-            height: {{ __('14px') }};
+            width: 14px;
+            height: 14px;
             background: #333;
             border-radius: 50%;
             position: absolute;
@@ -126,7 +126,7 @@
             margin-bottom: -20px;
             position: relative;
             z-index: -1;
-            /* {{ __('Text') }} with image clipping effect ({{ __('Optional') }} style) */
+            /* Text with image clipping effect (Optional style) */
             -webkit-text-stroke: 2px #e5e7eb;
             color: transparent; 
             background: linear-gradient(to bottom, #6366f1, #8b5cf6);
@@ -203,8 +203,8 @@
         </div>
 
         <h1>404</h1>
-        <h2>{{ __('Oops! Page {{ __('Not Found') }}') }}</h2>
-        <p>{{ __('bn_83a92780') }} <br> {{ __('bn_211af61d') }}</p>
+        <h2>Oops! Page Not Found</h2>
+        <p>দুঃখিত, আপনি যে পেজটি খুঁজছেন তা হারিয়ে গেছে <br> অথবা এই মুহূর্তে লিংকটি কাজ করছে না।</p>
 
         <a href="{{ url('/') }}" class="btn-home">
             <i class="fa-solid fa-house"></i> হোম পেজে ফিরে যান

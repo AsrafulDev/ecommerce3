@@ -1,5 +1,5 @@
 @extends('backEnd.layouts.master')
-@section('title','{{ __('Create Size') }}')
+@section('title','Create Size')
 
 @section('css')
 <link href="{{asset('public/backEnd')}}/assets/libs/summernote/summernote-lite.min.css" rel="stylesheet" type="text/css" />
@@ -51,7 +51,7 @@
         border: 1px solid #eef2f7;
         padding: 12px 15px;
         border-radius: 8px;
-        font-size: {{ __('14px') }};
+        font-size: 14px;
         color: #2d3436;
         transition: all 0.3s;
     }
@@ -70,7 +70,7 @@
     input:checked + .slider:before { transform: translateX(22px); }
 
     /* Button Style */
-    .btn-{{ __('submit') }} {
+    .btn-submit {
         background: linear-gradient(45deg, #0acf97, #06b6d4);
         border: none;
         color: white;
@@ -80,7 +80,7 @@
         box-shadow: 0 4px 15px rgba(10, 207, 151, 0.3);
         transition: 0.3s;
     }
-    .btn-{{ __('submit') }}:hover {
+    .btn-submit:hover {
         transform: translateY(-2px);
         box-shadow: 0 6px 20px rgba(10, 207, 151, 0.4);
     }
@@ -94,8 +94,8 @@
         <div class="col-12">
             <div class="page-title-box d-flex align-items-center justify-content-between py-4">
                 <div>
-                    <h4 class="page-title mb-1 text-dark fw-bold">{{ __('Create Size') }}</h4>
-                    <p class="text-muted font-size-13 mb-0">{{ __('Add new product sizes (e.g., XL, 42, Medium).') }}</p>
+                    <h4 class="page-title mb-1 text-dark fw-bold">Create Size</h4>
+                    <p class="text-muted font-size-13 mb-0">Add new product sizes (e.g., XL, 42, Medium).</p>
                 </div>
                 <div class="page-title-right">
                     <a href="{{route('sizes.index')}}" class="btn btn-light rounded-pill border shadow-sm px-4">
@@ -106,7 +106,7 @@
         </div>
     </div>
 
-    <form action="{{route('sizes.store')}}" method={{ __('"{{ __('POST') }}"') }} enctype="multipart/form-data" data-parsley-validate>
+    <form action="{{route('sizes.store')}}" method="POST" enctype="multipart/form-data" data-parsley-validate>
         @csrf
         <div class="row">
             
@@ -114,15 +114,15 @@
                 <div class="card mb-4">
                     <div class="card-header">
                         <div class="header-icon"><i class="fe-maximize"></i></div>
-                        <h5 class="card-title">{{ __('Size Details') }}</h5>
+                        <h5 class="card-title">Size Details</h5>
                     </div>
                     <div class="card-body">
                         <div class="form-group mb-4">
-                            <label for="size{{ __('Name') }}" class="form-label">{{ __('Size {{ __('Name') }}') }} <span class="text-danger">*</span></label>
-                            <input type="text" class="form-control @error('size{{ __('Name') }}') is-invalid @enderror" 
-                                   name="size{{ __('Name') }}" value="{{ old('size{{ __('Name') }}') }}" id="size{{ __('Name') }}" 
-                                   placeholder="{{ __('e.g. XL, 42, Medium') }}" required>
-                            @error('size{{ __('Name') }}')
+                            <label for="sizeName" class="form-label">Size Name <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control @error('sizeName') is-invalid @enderror" 
+                                   name="sizeName" value="{{ old('sizeName') }}" id="sizeName" 
+                                   placeholder="e.g. XL, 42, Medium" required>
+                            @error('sizeName')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                         </div>
@@ -135,13 +135,13 @@
                 <div class="card mb-4">
                     <div class="card-header">
                         <div class="header-icon"><i class="fe-settings"></i></div>
-                        <h5 class="card-title">{{ __('Visibility') }}</h5>
+                        <h5 class="card-title">Visibility</h5>
                     </div>
                     <div class="card-body">
                         <div class="d-flex justify-content-between align-items-center mb-4 p-3 bg-light rounded border border-light">
                             <div>
-                                <h6 class="mb-1 text-dark fw-bold">{{ __('Active {{ __('Status') }}') }}</h6>
-                                <p class="text-muted font-size-12 mb-0">{{ __('Show this size in options') }}</p>
+                                <h6 class="mb-1 text-dark fw-bold">Active Status</h6>
+                                <p class="text-muted font-size-12 mb-0">Show this size in options</p>
                             </div>
                             <label class="switch">
                                 <input type="checkbox" name="status" value="1" checked>
@@ -152,7 +152,7 @@
                             <div class="text-danger small mb-2">{{ $message }}</div>
                         @enderror
 
-                        <button type="{{ __('submit') }}" class="btn btn-{{ __('submit') }} w-100 rounded-pill">
+                        <button type="submit" class="btn btn-submit w-100 rounded-pill">
                             <i class="fe-check-circle me-1"></i> Save Size
                         </button>
                     </div>

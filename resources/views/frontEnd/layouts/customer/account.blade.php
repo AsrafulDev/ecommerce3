@@ -4,53 +4,53 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 use App\Models\Order;
 use App\Models\OrderDetails;
-use App\Models\{{ __('Product') }};
+use App\Models\Product;
 
 $customer = Auth::guard('customer')->user();
 $customerId = $customer->id;
 
 // Statistics
-$totalOrders = Order::w{{ __('here') }}('customer_id', $customerId)->count();
-$pendingOrders = Order::w{{ __('here') }}('customer_id', $customerId)
-    ->w{{ __('here') }}NotIn('order_status', ['6', '11'])
+$totalOrders = Order::where('customer_id', $customerId)->count();
+$pendingOrders = Order::where('customer_id', $customerId)
+    ->whereNotIn('order_status', ['6', '11'])
     ->count();
-$completedOrders = Order::w{{ __('here') }}('customer_id', $customerId)
-    ->w{{ __('here') }}('order_status', '6')
+$completedOrders = Order::where('customer_id', $customerId)
+    ->where('order_status', '6')
     ->count();
 
 // Recent Orders (last 5)
-$recentOrders = Order::w{{ __('here') }}('customer_id', $customerId)
+$recentOrders = Order::where('customer_id', $customerId)
     ->with(['status', 'payment', 'orderdetails.product'])
     ->latest()
     ->limit(5)
     ->get();
 
-// Recommended {{ __('Product') }}s
-$recommended{{ __('Product') }}s = {{ __('Product') }}::w{{ __('here') }}('status', 1)
-    ->w{{ __('here') }}('approval_status', 'approved')
-    ->w{{ __('here') }}('{{ __('stock') }}', '>', 0)
+// Recommended Products
+$recommendedProducts = Product::where('status', 1)
+    ->where('approval_status', 'approved')
+    ->where('stock', '>', 0)
     ->with('image')
     ->inRandomOrder()
     ->limit(4)
     ->get();
 
-// {{ __('Total') }} Order {{ __('Amount') }}
-$totalOrder{{ __('Amount') }} = Order::w{{ __('here') }}('customer_id', $customerId)->sum('amount');
+// Total Order Amount
+$totalOrderAmount = Order::where('customer_id', $customerId)->sum('amount');
 
-// Profile Image - {{ __('Use') }} direct image path
+// Profile Image - Use direct image path
 $profileImage = $customer->image ? asset($customer->image) : asset('public/uploads/default/no-image.png');
 
 // Pending Orders Count for Badge
-$pendingOrdersCount = Order::w{{ __('here') }}('customer_id', $customerId)
-    ->w{{ __('here') }}NotIn('order_status', ['6', '11'])
+$pendingOrdersCount = Order::where('customer_id', $customerId)
+    ->whereNotIn('order_status', ['6', '11'])
     ->count();
 
-// Site {{ __('Name') }} & Logo
-$site{{ __('Name') }} = \App\Models\GeneralSetting::first();
-$siteInitial = strtoupper(substr($site{{ __('Name') }}->name ?? 'G', 0, 1));
-$siteDisplay{{ __('Name') }} = Str::limit($site{{ __('Name') }}->name ?? 'Gadget{{ __('Shop') }}', 8);
-$generalsetting = $site{{ __('Name') }}; // For sidebar compatibility
-$darkLogo = $site{{ __('Name') }}->dark_logo ?? null;
+// Site Name & Logo
+$siteName = \App\Models\GeneralSetting::first();
+$siteInitial = strtoupper(substr($siteName->name ?? 'G', 0, 1));
+$siteDisplayName = Str::limit($siteName->name ?? 'GadgetShop', 8);
+$generalsetting = $siteName; // For sidebar compatibility
+$darkLogo = $siteName->dark_logo ?? null;
 @endphp
 
 <!DOCTYPE html>
@@ -59,11 +59,11 @@ $darkLogo = $site{{ __('Name') }}->dark_logo ?? null;
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>{{ __('Customer') }} Panel | {{ $site{{ __('Name') }}->name ?? 'Gadget Style' }}</title>
-    <script src="{{ __('https://') }}cdn.tailwindcss.com"></script>
-    <link href="{{ __('https://') }}cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <title>Customer Panel | {{ $siteName->name ?? 'Gadget Style' }}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
-        @import url('{{ __('https://') }}fonts.googleapis.com/css2?family=Hind+Siliguri:wght@300;400;500;600;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@300;400;500;600;700&display=swap');
         body { font-family: 'Hind Siliguri', sans-serif; background-color: #F0F2F5; }
         .sidebar-item:hover { background-color: #f3f4f6; color: #4f46e5; }
         .active-menu { background-color: #EEF2FF; color: #4f46e5; border-right: 3px solid #4f46e5; }
@@ -72,10 +72,10 @@ $darkLogo = $site{{ __('Name') }}->dark_logo ?? null;
         .custom-table th { background-color: #F9FAFB; color: #6B7280; font-weight: 600; font-size: 0.85rem; }
         .custom-table td { border-bottom: 1px solid #F3F4F6; padding: 16px; font-size: 0.9rem; }
         
-        /* {{ __('Mobile') }} Menu Transition */
+        /* Mobile Menu Transition */
         #sidebar { transition: transform 0.3s ease-in-out; }
         
-        /* {{ __('Product') }} Image Responsive */
+        /* Product Image Responsive */
         .product-image-container {
             position: relative;
             width: 100%;
@@ -113,7 +113,7 @@ $darkLogo = $site{{ __('Name') }}->dark_logo ?? null;
             overflow: hidden;
         }
         
-        /* {{ __('Product') }} Card Hover Effect */
+        /* Product Card Hover Effect */
         .product-card-hover {
             transition: all 0.3s ease;
         }
@@ -132,12 +132,12 @@ $darkLogo = $site{{ __('Name') }}->dark_logo ?? null;
         <div class="p-4 sm:p-6 flex items-center justify-between lg:justify-start gap-2 border-b border-gray-100">
             @if($darkLogo)
                 <a href="{{ route('home') }}" class="flex items-center gap-2 flex-1">
-                    <img src="{{ asset($darkLogo) }}" alt="{{ $site{{ __('Name') }}->name ?? 'Logo' }}" class="h-8 sm:h-10 w-auto max-w-full object-contain">
+                    <img src="{{ asset($darkLogo) }}" alt="{{ $siteName->name ?? 'Logo' }}" class="h-8 sm:h-10 w-auto max-w-full object-contain">
                 </a>
             @else
                 <div class="flex items-center gap-2">
                     <div class="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center text-white font-bold">{{ $siteInitial }}</div>
-                    <h1 class="text-xl sm:text-2xl font-bold text-gray-800 tracking-tight">{{ $siteDisplay{{ __('Name') }} }}</h1>
+                    <h1 class="text-xl sm:text-2xl font-bold text-gray-800 tracking-tight">{{ $siteDisplayName }}</h1>
                 </div>
             @endif
             <button onclick="toggleSidebar()" class="lg:hidden text-gray-500 hover:text-red-500">
@@ -150,7 +150,7 @@ $darkLogo = $site{{ __('Name') }}->dark_logo ?? null;
                 <i class="fas fa-home w-6"></i> ড্যাশবোর্ড
             </a>
             <a href="{{route('customer.orders')}}" class="{{request()->is('customer/orders')?'active-menu':'sidebar-item'}} flex items-center px-6 py-3.5 transition-colors">
-                <i class="fas fa-box-open w-6"></i> {{ __('My Orders') }} 
+                <i class="fas fa-box-open w-6"></i> আমার অর্ডার 
                 @if($pendingOrdersCount > 0)
                     <span class="ml-auto bg-red-100 text-red-600 text-xs px-2 py-0.5 rounded-full">{{ $pendingOrdersCount }}</span>
                 @endif
@@ -159,23 +159,23 @@ $darkLogo = $site{{ __('Name') }}->dark_logo ?? null;
                 <i class="fas fa-truck w-6"></i> ট্র্যাক অর্ডার
             </a>
             <a href="{{route('customer.refunds')}}" class="{{request()->is('customer/refunds*')?'active-menu':'sidebar-item'}} flex items-center px-6 py-3.5 transition-colors">
-                <i class="fas fa-undo w-6"></i> {{ __('Refund Request') }}
+                <i class="fas fa-undo w-6"></i> রিফান্ড রিকোয়েস্ট
             </a>
             <a href="{{ route('complaint') }}" class="{{ request()->is('complaint') ? 'active-menu' : 'sidebar-item' }} flex items-center px-6 py-3.5 transition-colors">
                 <i class="fas fa-headset w-6"></i> সাপোর্ট টিকেট
             </a>
             <a href="{{route('customer.profile_edit')}}" class="{{request()->is('customer/profile-edit')?'active-menu':'sidebar-item'}} flex items-center px-6 py-3.5 transition-colors">
-                <i class="fas fa-user-cog w-6"></i> {{ __('Settings') }}
+                <i class="fas fa-user-cog w-6"></i> সেটিংস
             </a>
         </nav>
 
         <div class="p-6 border-t">
             <a href="{{ route('customer.logout') }}" 
-               onclick="event.preventDefault(); document.getElementById('logout-form').{{ __('submit') }}();"
+               onclick="event.preventDefault(); document.getElementById('logout-form').submit();"
                class="w-full flex items-center justify-center px-4 py-2.5 text-red-500 bg-red-50 hover:bg-red-100 rounded-lg font-bold transition">
                 <i class="fas fa-sign-out-alt mr-2"></i> লগআউট
             </a>
-            <form id="logout-form" action="{{ route('customer.logout') }}" method={{ __('"{{ __('POST') }}"') }} style="display: none;">
+            <form id="logout-form" action="{{ route('customer.logout') }}" method="POST" style="display: none;">
                 @csrf
             </form>
         </div>
@@ -190,12 +190,12 @@ $darkLogo = $site{{ __('Name') }}->dark_logo ?? null;
 
             <div class="flex-1">
                 <h2 class="text-xl font-bold text-gray-800">স্বাগতম, {{ $customer->name }}! 👋</h2>
-                <p class="text-xs text-gray-400 mt-0.5 hidden sm:block">{{ __('bn_92aaa82f') }}</p>
+                <p class="text-xs text-gray-400 mt-0.5 hidden sm:block">আপনার কেনাকাটার সংক্ষিপ্ত বিবরণ</p>
             </div>
 
             <div class="flex items-center gap-4">
                 <div class="hidden sm:flex bg-green-50 text-green-700 px-4 py-2 rounded-full items-center font-bold text-sm border border-green-100">
-                    <i class="fas fa-wallet mr-2"></i> {{ __('bn_70ac0f2d') }}: ৳{{ number_format($totalOrder{{ __('Amount') }}, 0) }}
+                    <i class="fas fa-wallet mr-2"></i> মোট: ৳{{ number_format($totalOrderAmount, 0) }}
                 </div>
                 
                 <div class="relative cursor-pointer w-10 h-10 bg-gray-50 rounded-full flex items-center justify-center hover:bg-gray-100 transition">
@@ -211,7 +211,7 @@ $darkLogo = $site{{ __('Name') }}->dark_logo ?? null;
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
                 <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 flex justify-between items-center group hover:shadow-md transition">
                     <div>
-                        <p class="text-gray-400 text-xs font-medium uppercase tracking-wider">{{ __('Orders') }}</p>
+                        <p class="text-gray-400 text-xs font-medium uppercase tracking-wider">মোট অর্ডার</p>
                         <p class="text-2xl font-bold text-gray-800 mt-1">{{ $totalOrders }} টি</p>
                     </div>
                     <div class="w-12 h-12 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center text-xl group-hover:scale-110 transition">
@@ -221,7 +221,7 @@ $darkLogo = $site{{ __('Name') }}->dark_logo ?? null;
 
                 <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 flex justify-between items-center group hover:shadow-md transition">
                     <div>
-                        <p class="text-gray-400 text-xs font-medium uppercase tracking-wider">{{ __('bn_26089ff4') }}</p>
+                        <p class="text-gray-400 text-xs font-medium uppercase tracking-wider">চলমান অর্ডার</p>
                         <p class="text-2xl font-bold text-gray-800 mt-1">{{ $pendingOrders }} টি</p>
                     </div>
                     <div class="w-12 h-12 bg-orange-50 text-orange-500 rounded-xl flex items-center justify-center text-xl group-hover:scale-110 transition">
@@ -231,7 +231,7 @@ $darkLogo = $site{{ __('Name') }}->dark_logo ?? null;
 
                 <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 flex justify-between items-center group hover:shadow-md transition">
                     <div>
-                        <p class="text-gray-400 text-xs font-medium uppercase tracking-wider">{{ __('bn_e35fe987') }}</p>
+                        <p class="text-gray-400 text-xs font-medium uppercase tracking-wider">কমপ্লিট অর্ডার</p>
                         <p class="text-2xl font-bold text-gray-800 mt-1">{{ $completedOrders }} টি</p>
                     </div>
                     <div class="w-12 h-12 bg-green-50 text-green-600 rounded-xl flex items-center justify-center text-xl group-hover:scale-110 transition">
@@ -241,8 +241,8 @@ $darkLogo = $site{{ __('Name') }}->dark_logo ?? null;
 
                 <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 flex justify-between items-center group hover:shadow-md transition">
                     <div>
-                        <p class="text-gray-400 text-xs font-medium uppercase tracking-wider">{{ __('bn_93349cea') }}</p>
-                        <p class="text-2xl font-bold text-gray-800 mt-1">৳{{ number_format($totalOrder{{ __('Amount') }}, 0) }}</p>
+                        <p class="text-gray-400 text-xs font-medium uppercase tracking-wider">মোট টাকা</p>
+                        <p class="text-2xl font-bold text-gray-800 mt-1">৳{{ number_format($totalOrderAmount, 0) }}</p>
                     </div>
                     <div class="w-12 h-12 bg-indigo-50 text-indigo-600 rounded-xl flex items-center justify-center text-xl group-hover:scale-110 transition">
                         <i class="fas fa-money-bill-wave"></i>
@@ -252,63 +252,63 @@ $darkLogo = $site{{ __('Name') }}->dark_logo ?? null;
 
             <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
                 <div class="p-6 border-b border-gray-50 flex justify-between items-center">
-                    <h3 class="text-lg font-bold text-gray-800">{{ __('bn_75be7162') }}</h3>
-                    <a href="{{ route('customer.orders') }}" class="text-sm text-indigo-600 font-semibold hover:underline">{{ __('bn_fb5eb875') }}</a>
+                    <h3 class="text-lg font-bold text-gray-800">📦 সাম্প্রতিক অর্ডারসমূহ</h3>
+                    <a href="{{ route('customer.orders') }}" class="text-sm text-indigo-600 font-semibold hover:underline">সবগুলো দেখুন</a>
                 </div>
                 <div class="overflow-x-auto">
                     <table class="w-full text-left custom-table">
                         <thead>
                             <tr>
-                                <th class="pl-6 py-4">{{ __('Order ID') }}</th>
-                                <th class="py-4">{{ __('Date') }}</th>
-                                <th class="py-4">{{ __('bn_420950ee') }}</th>
-                                <th class="py-4">{{ __('bn_93349cea') }}</th>
-                                <th class="py-4">{{ __('bn_f0a1817c') }}</th>
-                                <th class="py-4">{{ __('{{ __('Status') }}') }}</th>
-                                <th class="pr-6 py-4 text-right">{{ __('bn_7c6fd8c1') }}</th>
+                                <th class="pl-6 py-4">অর্ডার আইডি</th>
+                                <th class="py-4">তারিখ</th>
+                                <th class="py-4">পণ্যের নাম</th>
+                                <th class="py-4">মোট টাকা</th>
+                                <th class="py-4">পেমেন্ট</th>
+                                <th class="py-4">স্ট্যাটাস</th>
+                                <th class="pr-6 py-4 text-right">অ্যাকশন</th>
                             </tr>
                         </thead>
                         <tbody>
                             @forelse($recentOrders as $order)
                                 @php
-                                    $first{{ __('Product') }} = $order->orderdetails->first();
-                                    $product{{ __('Name') }} = $first{{ __('Product') }} && $first{{ __('Product') }}->product ? Str::limit($first{{ __('Product') }}->product->name, 30) : '{{ __('N/A') }}';
+                                    $firstProduct = $order->orderdetails->first();
+                                    $productName = $firstProduct && $firstProduct->product ? Str::limit($firstProduct->product->name, 30) : 'N/A';
                                     
                                     $payment = $order->payment;
-                                    $payment{{ __('Status') }} = $payment ? strtolower($payment->payment_status) : 'pending';
-                                    $is{{ __('Paid') }} = $payment{{ __('Status') }} === 'paid' || $payment{{ __('Status') }} === 'success';
+                                    $paymentStatus = $payment ? strtolower($payment->payment_status) : 'pending';
+                                    $isPaid = $paymentStatus === 'paid' || $paymentStatus === 'success';
                                     
                                     $statusClass = '';
-                                    $status{{ __('Text') }} = '';
+                                    $statusText = '';
                                     
                                     if($order->order_status == '6') {
                                         $statusClass = 'bg-green-50 text-green-600';
-                                        $status{{ __('Text') }} = '{{ __('Delivered') }}';
+                                        $statusText = 'Delivered';
                                     } elseif($order->order_status == '11') {
                                         $statusClass = 'bg-red-50 text-red-600';
-                                        $status{{ __('Text') }} = 'Cancelled';
+                                        $statusText = 'Cancelled';
                                     } elseif(in_array($order->order_status, ['3', '4', '5'])) {
                                         $statusClass = 'bg-orange-50 text-orange-600';
-                                        $status{{ __('Text') }} = 'Shipped';
+                                        $statusText = 'Shipped';
                                     } else {
                                         $statusClass = 'bg-blue-50 text-blue-600';
-                                        $status{{ __('Text') }} = 'Processing';
+                                        $statusText = 'Processing';
                                     }
                                 @endphp
                                 <tr class="hover:bg-gray-50 transition">
                                     <td class="pl-6 font-bold text-indigo-600">#{{ $order->invoice_id ?? $order->id }}</td>
                                     <td class="text-gray-500">{{ $order->created_at->format('d M, Y') }}</td>
-                                    <td class="font-medium text-gray-700">{{ $product{{ __('Name') }} }}</td>
+                                    <td class="font-medium text-gray-700">{{ $productName }}</td>
                                     <td class="font-bold text-gray-800">৳{{ number_format($order->amount, 0) }}</td>
                                     <td>
-                                        @if($is{{ __('Paid') }})
-                                            <span class="bg-green-50 text-green-600 px-2.5 py-1 rounded text-xs font-bold">{{ __('Paid') }}</span>
+                                        @if($isPaid)
+                                            <span class="bg-green-50 text-green-600 px-2.5 py-1 rounded text-xs font-bold">Paid</span>
                                         @else
-                                            <span class="bg-red-50 text-red-600 px-2.5 py-1 rounded text-xs font-bold">{{ __('Unpaid') }}</span>
+                                            <span class="bg-red-50 text-red-600 px-2.5 py-1 rounded text-xs font-bold">Unpaid</span>
                                         @endif
                                     </td>
                                     <td>
-                                        <span class="{{ $statusClass }} px-2.5 py-1 rounded text-xs font-bold">{{ $status{{ __('Text') }} }}</span>
+                                        <span class="{{ $statusClass }} px-2.5 py-1 rounded text-xs font-bold">{{ $statusText }}</span>
                                     </td>
                                     <td class="pr-6 text-right">
                                         <a href="{{ route('customer.invoice', ['id' => $order->id]) }}" class="text-gray-400 hover:text-indigo-600"><i class="fas fa-eye"></i></a>
@@ -316,7 +316,7 @@ $darkLogo = $site{{ __('Name') }}->dark_logo ?? null;
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="7" class="text-center py-8 text-gray-500">{{ __('bn_f114c891') }}</td>
+                                    <td colspan="7" class="text-center py-8 text-gray-500">কোনো অর্ডার পাওয়া যায়নি</td>
                                 </tr>
                             @endforelse
                         </tbody>
@@ -324,13 +324,13 @@ $darkLogo = $site{{ __('Name') }}->dark_logo ?? null;
                 </div>
             </div>
 
-            @if($recommended{{ __('Product') }}s->count() > 0)
+            @if($recommendedProducts->count() > 0)
             <div>
                 <div class="flex justify-between items-center mb-5 px-2 sm:px-0">
-                    <h3 class="text-lg font-bold text-gray-800">{{ __('bn_3f35852f') }}</h3>
+                    <h3 class="text-lg font-bold text-gray-800">🔥 আপনার জন্য সেরা (Recommended)</h3>
                 </div>
                 <div class="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 lg:gap-5">
-                    @foreach($recommended{{ __('Product') }}s as $product)
+                    @foreach($recommendedProducts as $product)
                         @php
                             $discount = 0;
                             if($product->old_price && $product->new_price && $product->old_price > $product->new_price) {
@@ -339,21 +339,21 @@ $darkLogo = $site{{ __('Name') }}->dark_logo ?? null;
                         @endphp
                         <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden group hover:shadow-lg transition-all duration-300 product-card-hover">
                             <div class="product-image-container relative">
-                                <a href="{{ route('product', $product->slug ?? $product->{{ __('id)') }} }}" class="block w-full h-full">
+                                <a href="{{ route('product', $product->slug ?? $product->id) }}" class="block w-full h-full">
                                     <img src="{{ asset($product->image->image ?? 'public/uploads/default/no-image.png') }}" onerror="this.src='{{ asset('public/uploads/default/no-image.png') }}'" class="group-hover:scale-105 transition duration-500" alt="{{ $product->name }}">
                                 </a>
                                 @if($discount > 0)
                                     <span class="absolute top-1.5 left-1.5 sm:top-2 sm:left-2 bg-indigo-600 text-white text-[9px] sm:text-xs px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full shadow-md font-bold z-10">{{ $discount }}% OFF</span>
                                 @elseif($product->feature_product)
-                                    <span class="absolute top-1.5 left-1.5 sm:top-2 sm:left-2 bg-green-500 text-white text-[9px] sm:text-xs px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full shadow-md font-bold z-10">{{ __('New') }}</span>
+                                    <span class="absolute top-1.5 left-1.5 sm:top-2 sm:left-2 bg-green-500 text-white text-[9px] sm:text-xs px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full shadow-md font-bold z-10">New</span>
                                 @endif
-                                @if($product->{{ __('stock') }} <= 0)
-                                    <span class="absolute top-1.5 right-1.5 sm:top-2 sm:right-2 bg-red-500 text-white text-[9px] sm:text-xs px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full shadow-md font-bold z-10">{{ __('bn_fb418ee2') }}</span>
+                                @if($product->stock <= 0)
+                                    <span class="absolute top-1.5 right-1.5 sm:top-2 sm:right-2 bg-red-500 text-white text-[9px] sm:text-xs px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full shadow-md font-bold z-10">স্টকে নেই</span>
                                 @endif
                             </div>
                             <div class="p-3 sm:p-4">
                                 <h4 class="font-bold text-gray-800 text-xs sm:text-sm mb-2 line-clamp-2 min-h-[2rem] sm:min-h-[2.5rem]">
-                                    <a href="{{ route('product', $product->slug ?? $product->{{ __('id)') }} }}" class="hover:text-indigo-600 transition">{{ $product->name }}</a>
+                                    <a href="{{ route('product', $product->slug ?? $product->id) }}" class="hover:text-indigo-600 transition">{{ $product->name }}</a>
                                 </h4>
                                 
                                 <div class="flex items-center gap-1 sm:gap-2 mb-2 sm:mb-3 flex-wrap">
@@ -363,19 +363,19 @@ $darkLogo = $site{{ __('Name') }}->dark_logo ?? null;
                                     <span class="text-indigo-600 font-bold text-base sm:text-lg">৳{{ number_format($product->new_price ?? 0, 0) }}</span>
                                 </div>
                                 
-                                @if($product->{{ __('stock') }} > 0)
+                                @if($product->stock > 0)
                                 <div class="flex flex-col sm:flex-row gap-2">
-                                    <a href="{{ route('product', $product->slug ?? $product->{{ __('id)') }} }}" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white text-xs sm:text-sm font-semibold py-2 sm:py-2.5 px-3 sm:px-4 rounded-lg text-center transition duration-200 flex items-center justify-center gap-1 sm:gap-2 shadow-sm hover:shadow-md">
+                                    <a href="{{ route('product', $product->slug ?? $product->id) }}" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white text-xs sm:text-sm font-semibold py-2 sm:py-2.5 px-3 sm:px-4 rounded-lg text-center transition duration-200 flex items-center justify-center gap-1 sm:gap-2 shadow-sm hover:shadow-md">
                                         <i class="fas fa-shopping-cart text-[10px] sm:text-xs"></i>
-                                        <span class="whitespace-nowrap">{{ __('Order Now') }}</span>
+                                        <span class="whitespace-nowrap">অর্ডার করুন</span>
                                     </a>
-                                    <button onclick="addTo{{ __('Cart') }}({{ $product->id }})" class="w-full sm:w-auto bg-gray-100 hover:bg-indigo-600 hover:text-white text-gray-600 sm:w-11 h-9 sm:h-11 rounded-lg flex items-center justify-center transition duration-200 border border-gray-200 hover:border-indigo-600" title="কার্টে যোগ করুন">
+                                    <button onclick="addToCart({{ $product->id }})" class="w-full sm:w-auto bg-gray-100 hover:bg-indigo-600 hover:text-white text-gray-600 sm:w-11 h-9 sm:h-11 rounded-lg flex items-center justify-center transition duration-200 border border-gray-200 hover:border-indigo-600" title="কার্টে যোগ করুন">
                                         <i class="fas fa-cart-plus text-xs sm:text-sm"></i>
                                     </button>
                                 </div>
                                 @else
                                 <div class="w-full bg-gray-100 text-gray-500 text-xs sm:text-sm font-semibold py-2 sm:py-2.5 px-3 sm:px-4 rounded-lg text-center">
-                                    <i class="fas fa-ban mr-1 sm:mr-2"></i>{{ __('bn_fb418ee2') }}
+                                    <i class="fas fa-ban mr-1 sm:mr-2"></i>স্টকে নেই
                                 </div>
                                 @endif
                             </div>
@@ -402,13 +402,13 @@ $darkLogo = $site{{ __('Name') }}->dark_logo ?? null;
             }
         }
 
-        function addTo{{ __('Cart') }}(productId) {
+        function addToCart(productId) {
             // Add to cart functionality
             window.location.href = '{{ url("add-to-cart") }}/' + productId + '/1';
         }
         
         function orderNow(productId) {
-            // {{ __('Dir') }}ect order functionality - redirect to product details page
+            // Direct order functionality - redirect to product details page
             window.location.href = '{{ url("product") }}/' + productId;
         }
     </script>

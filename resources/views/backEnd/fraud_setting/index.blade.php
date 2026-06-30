@@ -1,6 +1,6 @@
 @extends('backEnd.layouts.master')
 
-@section('title','{{ __('Fraud API Settings') }}')
+@section('title','Fraud API Settings')
 
 @section('content')
 
@@ -139,11 +139,11 @@
         
         <div class="col-lg-5 mb-4">
             
-            @if(session()->has('success') || session()->has('{{ __('message') }}'))
+            @if(session()->has('success') || session()->has('message'))
                 <div class="alert alert-success alert-custom alert-dismissible fade show mb-4 d-flex align-items-center" role="alert">
                     <i class="fe-check-circle fs-4 me-2"></i>
                     <div>
-                        <strong>{{ __('bn_eeb2e782') }}</strong> {{ session('success') ?? session('{{ __('message') }}') }}
+                        <strong>সফল হয়েছে!</strong> {{ session('success') ?? session('message') }}
                     </div>
                     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="{{ __('Close') }}"></button>
                 </div>
@@ -162,19 +162,19 @@
 
             <div class="card settings-card h-100">
                 <div class="settings-card-header">
-                    <i class="fe-sliders me-2 text-primary"></i> API {{ __('Configuration') }}
+                    <i class="fe-sliders me-2 text-primary"></i> API Configuration
                 </div>
                 
                 <div class="card-body p-4 d-flex flex-column justify-content-center">
                     
-                    <form action="{{ route('admin.fraud.update') }}" method={{ __('"{{ __('POST') }}"') }}>
+                    <form action="{{ route('admin.fraud.update') }}" method="POST">
                         @csrf
                         
                         <div class="mb-4">
                             <div class="d-flex align-items-center justify-content-between p-3 bg-light rounded border">
                                 <div>
-                                    <label class="fw-bold text-dark mb-1 d-block">{{ __('{{ __('Fraud {{ __('Check') }}') }} (API)') }}</label>
-                                    <small class="text-muted">{{ __('bn_5829b39c') }}</small>
+                                    <label class="fw-bold text-dark mb-1 d-block">Fraud Check (API)</label>
+                                    <small class="text-muted">ফ্রড চেকিং ফিচার অন/অফ করুন</small>
                                 </div>
                                 <div class="form-check form-switch form-switch-lg">
                                     <input type="checkbox" name="fraud_check_enabled" id="fraud_check_enabled" 
@@ -188,32 +188,32 @@
                                 </div>
                             </div>
                             <small class="text-muted mt-2 d-block">
-                                <i class="fe-shield me-1"></i> {{ __('Close') }} থাকলে অর্ডার প্লেস করার সময় API কল করা হবে না।
+                                <i class="fe-shield me-1"></i> বন্ধ থাকলে অর্ডার প্লেস করার সময় API কল করা হবে না।
                             </small>
                         </div>
 
                         <div class="mb-4">
-                            <label class="fw-bold text-dark mb-1 d-block">{{ __('Duplicate Order API URL') }}</label>
-                            <small class="text-muted d-block mb-2">{{ __('bn_aacfd236') }}</small>
+                            <label class="fw-bold text-dark mb-1 d-block">Duplicate Order API URL</label>
+                            <small class="text-muted d-block mb-2">ডুপ্লিকেট অর্ডার চেক করার জন্য API Endpoint URL</small>
                             <input type="text" name="duplicate_order_api_url" class="form-control form-control-lg-custom" 
                                    value="{{ old('duplicate_order_api_url', $data->duplicate_order_api_url ?? '') }}"
-                                   placeholder="{{ __('{{ __('https://') }}api.example.com/check-duplicate') }}">
+                                   placeholder="https://api.example.com/check-duplicate">
                         </div>
 
                         <div class="row mb-4">
                             <div class="col-md-4">
-                                <label class="fw-bold text-dark mb-1 d-block">{{ __('API {{ __('Method') }}') }}</label>
+                                <label class="fw-bold text-dark mb-1 d-block">API Method</label>
                                 <select name="duplicate_order_method" class="form-control form-control-lg-custom">
-                                    <option value={{ __('"{{ __('POST') }}"') }} {{ ($data->duplicate_order_method ?? '{{ __('POST') }}') == '{{ __('POST') }}' ? 'selected' : '' }}>{{ __('POST') }}</option>
-                                    <option value="{{ __('GET') }}" {{ ($data->duplicate_order_method ?? '{{ __('POST') }}') == '{{ __('GET') }}' ? 'selected' : '' }}>{{ __('GET') }}</option>
+                                    <option value="POST" {{ ($data->duplicate_order_method ?? 'POST') == 'POST' ? 'selected' : '' }}>POST</option>
+                                    <option value="GET" {{ ($data->duplicate_order_method ?? 'POST') == 'GET' ? 'selected' : '' }}>GET</option>
                                 </select>
                             </div>
                             <div class="col-md-4">
-                                <label class="fw-bold text-dark mb-1 d-block">{{ __('{{ __('{{ __('Phone') }} Number') }} Key') }}</label>
-                                <input type="text" name="duplicate_order_{{ __('phone') }}_key" class="form-control form-control-lg-custom" 
-                                       value="{{ old('duplicate_order_{{ __('phone') }}_key', $data->duplicate_order_{{ __('phone') }}_key ?? '{{ __('phone') }}') }}"
-                                       placeholder="{{ __('phone') }}">
-                                <small class="text-muted">{{ __('bn_d3cc50d7') }}</small>
+                                <label class="fw-bold text-dark mb-1 d-block">Phone Number Key</label>
+                                <input type="text" name="duplicate_order_phone_key" class="form-control form-control-lg-custom" 
+                                       value="{{ old('duplicate_order_phone_key', $data->duplicate_order_phone_key ?? 'phone') }}"
+                                       placeholder="phone">
+                                <small class="text-muted">API তে ফোন পাঠানোর প্যারামিটার নাম</small>
                             </div>
                             <div class="col-md-4">
                                 <label class="fw-bold text-dark mb-1 d-block">{{ __('API Key') }}</label>
@@ -231,8 +231,8 @@
                         </script>
                         @endsection
 
-                        <button type="{{ __('submit') }}" class="btn btn-primary btn-save w-100 text-white rounded-pill">
-                            <i class="fe-save me-2"></i> {{ __('Settings') }} আপডেট করুন
+                        <button type="submit" class="btn btn-primary btn-save w-100 text-white rounded-pill">
+                            <i class="fe-save me-2"></i> সেটিংস আপডেট করুন
                         </button>
                     </form>
 
@@ -240,7 +240,7 @@
                         <div class="d-flex">
                             <i class="fe-info text-primary mt-1 me-2"></i>
                             <p class="small text-muted mb-0">
-                                <strong>{{ __('bn_2a69f150') }}</strong> {{ __('bn_edb98e65') }} চেক করার জন্য আপনার API প্রদানকারীর তথ্য দিন। API {{ __('bn_84d84036') }} হলে অর্ডার {{ __('Pending') }} রাখা হবে এবং নোট যোগ করা হবে।
+                                <strong>বিঃদ্রঃ</strong> ডুপ্লিকেট অর্ডার চেক করার জন্য আপনার API প্রদানকারীর তথ্য দিন। API ব্যর্থ হলে অর্ডার পেন্ডিং রাখা হবে এবং নোট যোগ করা হবে।
                             </p>
                         </div>
                     </div>
@@ -252,15 +252,15 @@
         <div class="col-lg-6">
             <div class="ms-lg-3">
                 <h5 class="mb-4 fw-bold text-dark px-2 border-start border-4 border-primary">
-                    &nbsp;{{ __('Fraud {{ __('Check') }}') }} API সেটআপ গাইড
+                    &nbsp;Fraud Check API সেটআপ গাইড
                 </h5>
 
                 <div class="timeline mt-2">
                     <div class="timeline-item">
                         <div class="timeline-badge"></div>
                         <div class="timeline-content ms-3">
-                            <h6>{{ __('bn_e82d2817') }}</h6>
-                            <p>এখন আপনি নিজের পছন্দের {{ __('Fraud {{ __('Check') }}') }} API প্রদানকারীর এন্ডপয়েন্ট, {{ __('bn_ad0b92c2') }} ({{ __('POST') }}/{{ __('GET') }}), এবং ফোন নম্বর প্যারামিটার কী কনফিগার করতে পারবেন।</p>
+                            <h6>ডায়নামিক API কনফিগারেশন</h6>
+                            <p>এখন আপনি নিজের পছন্দের Fraud Check API প্রদানকারীর এন্ডপয়েন্ট, মেথড (POST/GET), এবং ফোন নম্বর প্যারামিটার কী কনফিগার করতে পারবেন।</p>
                         </div>
                     </div>
 
@@ -268,29 +268,29 @@
                         <div class="timeline-badge"></div>
                         <div class="timeline-content ms-3">
                             <h6>কিভাবে কাজ করে?</h6>
-                            <p>অর্ডার প্লেস করার সময় আপনার দেওয়া API URL-এ কল যাবে। {{ __('GET') }} {{ __('bn_ad0b92c2') }}ে প্যারামিটারগুলো URL-এর সাথে সংযুক্ত হবে, {{ __('POST') }} {{ __('bn_ad0b92c2') }}ে ফর্ম ডাটা হিসেবে যাবে।</p>
+                            <p>অর্ডার প্লেস করার সময় আপনার দেওয়া API URL-এ কল যাবে। GET মেথডে প্যারামিটারগুলো URL-এর সাথে সংযুক্ত হবে, POST মেথডে ফর্ম ডাটা হিসেবে যাবে।</p>
                         </div>
                     </div>
 
                     <div class="timeline-item">
                         <div class="timeline-badge"></div>
                         <div class="timeline-content ms-3">
-                            <h6>{{ __('API Response') }}</h6>
-                            <p>{{ __('bn_146a19a7') }} <strong>{{ __('Pending') }}</strong> {{ __('bn_6c4a6da8') }}</p>
+                            <h6>API Response</h6>
+                            <p>API সফলভাবে রেসপন্স করলে অর্ডারের ফ্রড রেট আপডেট হবে। ব্যর্থ হলে অর্ডারটি <strong>পেন্ডিং</strong> স্ট্যাটাসে রাখা হবে এবং একটি নোট যোগ করা হবে।</p>
                         </div>
                     </div>
 
                     <div class="timeline-item">
                         <div class="timeline-badge"></div>
                         <div class="timeline-content ms-3">
-                            <h6>{{ __('bn_57369b0b') }}</h6>
-                            <p>{{ __('bn_72a42eb8') }} <strong>{{ __('Close') }}</strong> {{ __('bn_c73782f9') }}</p>
+                            <h6>On / Off সুবিধা</h6>
+                            <p>আপনি চাইলে উপরের টগল সুইচ দিয়ে Fraud Check ফিচারটি <strong>বন্ধ</strong> রাখতে পারেন। বন্ধ থাকলে অর্ডার প্লেস করার সময় কোনো API কল হবে না।</p>
                         </div>
                     </div>
                 </div>
 
                 <div class="mt-2 ms-4 ps-2">
-                    <a href="{{ __('https://') }}www.fraudcheck.online" target="_blank" 
+                    <a href="https://www.fraudcheck.online" target="_blank" 
                        class="btn btn-outline-primary btn-sm rounded-pill px-4">
                         <i class="fe-external-link me-1"></i> fraudcheck.online
                     </a>

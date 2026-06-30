@@ -1,5 +1,5 @@
 @extends('backEnd.layouts.master')
-@section('title', 'Salary {{ __('Manage') }}ment')
+@section('title', 'Salary Management')
 
 @section('css')
 <style>
@@ -10,7 +10,7 @@
         box-shadow: 0 4px 10px rgba(0, 0, 0, 0.03);
         background: #fff;
     }
-    .{{ __('filter') }}-container {
+    .filter-container {
         background: #f8fafc;
         border-bottom: 1px solid #e2e8f0;
         padding: 1.25rem;
@@ -84,16 +84,16 @@
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
             <h4 class="mb-1 fw-bold text-dark">
-                <i data-feather="dollar-sign" class="text-primary me-2"></i> Salary {{ __('Manage') }}ment
+                <i data-feather="dollar-sign" class="text-primary me-2"></i> Salary Management
             </h4>
-            <p class="text-muted small mb-0">{{ __('{{ __('Calculate') }} and manage employee monthly salaries.') }}</p>
+            <p class="text-muted small mb-0">Calculate and manage employee monthly salaries.</p>
         </div>
         <div class="d-flex gap-2">
             <button type="button" class="btn btn-white border shadow-sm rounded-pill px-3 text-dark" data-bs-toggle="modal" data-bs-target="#calculateModal">
-                <i data-feather="plus" class="me-1" style="width: 16px;"></i> {{ __('Calculate') }} Single
+                <i data-feather="plus" class="me-1" style="width: 16px;"></i> Calculate Single
             </button>
-            <button type="button" class="btn btn-primary px-4 rounded-pill shadow-sm" data-bs-toggle="modal" data-bs-target="#bulk{{ __('Calculate') }}Modal">
-                <i data-feather="zap" class="me-1" style="width: 16px;"></i> Bulk {{ __('Calculate') }}
+            <button type="button" class="btn btn-primary px-4 rounded-pill shadow-sm" data-bs-toggle="modal" data-bs-target="#bulkCalculateModal">
+                <i data-feather="zap" class="me-1" style="width: 16px;"></i> Bulk Calculate
             </button>
         </div>
     </div>
@@ -101,13 +101,13 @@
     <div class="card card-modern">
         
         {{-- FILTERS --}}
-        <div class="{{ __('filter') }}-container">
-            <form method="{{ __('GET') }}" action="{{ route('admin.salaries.index') }}">
+        <div class="filter-container">
+            <form method="GET" action="{{ route('admin.salaries.index') }}">
                 <div class="row g-3 align-items-end">
                     <div class="col-md-3">
                         <label class="form-label small fw-bold text-muted text-uppercase mb-1">{{ __('Employee') }}</label>
                         <select name="employee_id" class="form-control select2 form-select-modern">
-                            <option value="">{{ __('All {{ __('Employees') }}') }}</option>
+                            <option value="">All Employees</option>
                             @foreach($employees as $emp)
                                 <option value="{{ $emp->id }}" {{ request('employee_id') == $emp->id ? 'selected' : '' }}>
                                     {{ $emp->name }} ({{ $emp->employee_id }})
@@ -120,16 +120,16 @@
                         <input type="month" name="month" class="form-control form-control-modern" value="{{ request('month') }}">
                     </div>
                     <div class="col-md-2">
-                        <label class="form-label small fw-bold text-muted text-uppercase mb-1">{{ __('{{ __('Status') }}') }}</label>
+                        <label class="form-label small fw-bold text-muted text-uppercase mb-1">{{ __('Status') }}</label>
                         <select name="status" class="form-select form-select-modern">
-                            <option value="">{{ __('All {{ __('Status') }}') }}</option>
+                            <option value="">All Status</option>
                             <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }}>{{ __('Pending') }}</option>
-                            <option value="calculated" {{ request('status') == 'calculated' ? 'selected' : '' }}>{{ __('{{ __('Calculate') }}d') }}</option>
-                            <option value="paid" {{ request('status') == 'paid' ? 'selected' : '' }}>{{ __('Paid') }}</option>
+                            <option value="calculated" {{ request('status') == 'calculated' ? 'selected' : '' }}>Calculated</option>
+                            <option value="paid" {{ request('status') == 'paid' ? 'selected' : '' }}>Paid</option>
                         </select>
                     </div>
                     <div class="col-md-3 d-flex gap-2">
-                        <button type="{{ __('submit') }}" class="btn btn-dark w-100 fw-bold">{{ __('Filter') }}</button>
+                        <button type="submit" class="btn btn-dark w-100 fw-bold">{{ __('Filter') }}</button>
                         <a href="{{ route('admin.salaries.index') }}" class="btn btn-light border px-3" title="{{ __('Reset') }}">
                             <i data-feather="refresh-cw" style="width:16px;"></i>
                         </a>
@@ -144,13 +144,13 @@
                 <thead>
                     <tr>
                         <th width="5%">#</th>
-                        <th width="20%">{{ __('Employee Details') }}</th>
+                        <th width="20%">Employee Details</th>
                         <th width="10%">{{ __('Month') }}</th>
-                        <th width="20%">{{ __('Attendance {{ __('Summary') }}') }}</th>
-                        <th width="15%">{{ __('Gross Salary') }}</th>
-                        <th width="15%">{{ __('Net Payable') }}</th>
-                        <th width="10%">{{ __('{{ __('Status') }}') }}</th>
-                        <th width="5%" class="text-end">{{ __('Actions') }}</th>
+                        <th width="20%">Attendance Summary</th>
+                        <th width="15%">Gross Salary</th>
+                        <th width="15%">Net Payable</th>
+                        <th width="10%">{{ __('Status') }}</th>
+                        <th width="5%" class="text-end">Actions</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -172,30 +172,30 @@
                             <td class="fw-medium text-dark">{{ \Carbon\Carbon::parse($salary->salary_month)->format('M Y') }}</td>
                             <td>
                                 <div class="d-flex gap-2 text-xs">
-                                    <span class="badge-days" title="{{ __('Working {{ __('Days') }}') }}">W: {{ $salary->working_days }}</span>
-                                    <span class="badge-days text-success" title="{{ __('Present') }}">P: {{ $salary->present_days }}</span>
-                                    <span class="badge-days text-danger" title="{{ __('Absent') }}">A: {{ $salary->absent_days }}</span>
+                                    <span class="badge-days" title="Working Days">W: {{ $salary->working_days }}</span>
+                                    <span class="badge-days text-success" title="Present">P: {{ $salary->present_days }}</span>
+                                    <span class="badge-days text-danger" title="Absent">A: {{ $salary->absent_days }}</span>
                                 </div>
                             </td>
                             <td class="text-muted">৳{{ number_format($salary->gross_salary, 2) }}</td>
                             <td class="fw-bold text-dark fs-6">৳{{ number_format($salary->net_salary, 2) }}</td>
                             <td>
                                 @if($salary->status == 'paid')
-                                    <span class="badge-soft badge-paid">{{ __('Paid') }}</span>
+                                    <span class="badge-soft badge-paid">Paid</span>
                                 @elseif($salary->status == 'calculated')
-                                    <span class="badge-soft badge-calculated">{{ __('{{ __('Calculate') }}d') }}</span>
+                                    <span class="badge-soft badge-calculated">Calculated</span>
                                 @else
                                     <span class="badge-soft badge-pending">{{ __('Pending') }}</span>
                                 @endif
                             </td>
                             <td class="text-end">
                                 <div class="d-flex justify-content-end gap-1">
-                                    <a href="{{ route('admin.salaries.show', $salary->{{ __('id)') }} }}" class="btn-icon btn-view" title="View Details">
-                                        <i data-feather="eye" style="width:{{ __('14px') }};"></i>
+                                    <a href="{{ route('admin.salaries.show', $salary->id) }}" class="btn-icon btn-view" title="View Details">
+                                        <i data-feather="eye" style="width:14px;"></i>
                                     </a>
                                     @if($salary->status == 'calculated')
                                         <a href="{{ route('admin.salary_payments.create', ['employee_id' => $salary->employee_id, 'salary_id' => $salary->id]) }}" class="btn-icon btn-pay" title="Pay Now">
-                                            <i data-feather="credit-card" style="width:{{ __('14px') }};"></i>
+                                            <i data-feather="credit-card" style="width:14px;"></i>
                                         </a>
                                     @endif
                                 </div>
@@ -204,9 +204,9 @@
                     @empty
                         <tr>
                             <td colspan="8" class="text-center py-5">
-                                <img src="{{ __('https://') }}cdn-icons-png.flaticon.com/512/7486/7486744.png" width="60" class="mb-3 opacity-25">
-                                <p class="text-muted fw-bold mb-0">{{ __('No salary records found') }}</p>
-                                <small class="text-muted">{{ __('Try calculating salary for a month.') }}</small>
+                                <img src="https://cdn-icons-png.flaticon.com/512/7486/7486744.png" width="60" class="mb-3 opacity-25">
+                                <p class="text-muted fw-bold mb-0">No salary records found</p>
+                                <small class="text-muted">Try calculating salary for a month.</small>
                             </td>
                         </tr>
                     @endforelse
@@ -216,7 +216,7 @@
 
         {{-- PAGINATION --}}
         <div class="p-4 border-top d-flex justify-content-between align-items-center bg-white rounded-bottom">
-            <small class="text-muted">{{ __('Showing') }}<strong>{{ $salaries->first{{ __('Item') }}() }}</strong>{{ __('to') }}<strong>{{ $salaries->last{{ __('Item') }}() }}</strong>{{ __('of') }}<strong>{{ $salaries->{{ __('total') }}() }}</strong> records
+            <small class="text-muted">{{ __('Showing') }}<strong>{{ $salaries->firstItem() }}</strong>{{ __('to') }}<strong>{{ $salaries->lastItem() }}</strong>{{ __('of') }}<strong>{{ $salaries->total() }}</strong> records
             </small>
             <div>
                 {{ $salaries->links('pagination::bootstrap-4') }}
@@ -230,57 +230,57 @@
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content border-0 shadow-lg">
             <div class="modal-header border-bottom-0 pb-0">
-                <h5 class="modal-title fw-bold">{{ __('{{ __('Calculate') }} Salary') }}</h5>
+                <h5 class="modal-title fw-bold">Calculate Salary</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
-            <form action="{{ route('admin.salaries.calculate') }}" method={{ __('"{{ __('POST') }}"') }}>
+            <form action="{{ route('admin.salaries.calculate') }}" method="POST">
                 @csrf
                 <div class="modal-body">
                     <div class="mb-3">
-                        <label class="form-label small fw-bold text-muted">{{ __('Select Employee') }} <span class="text-danger">*</span></label>
+                        <label class="form-label small fw-bold text-muted">Select Employee <span class="text-danger">*</span></label>
                         <select name="employee_id" class="form-control select2" required style="width: 100%;">
-                            <option value="">{{ __('Choose Employee') }}</option>
+                            <option value="">Choose Employee</option>
                             @foreach($employees as $emp)
                                 <option value="{{ $emp->id }}">{{ $emp->name }} ({{ $emp->employee_id }})</option>
                             @endforeach
                         </select>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label small fw-bold text-muted">{{ __('Salary Month') }} <span class="text-danger">*</span></label>
+                        <label class="form-label small fw-bold text-muted">Salary Month <span class="text-danger">*</span></label>
                         <input type="month" name="salary_month" class="form-control" value="{{ date('Y-m') }}" required>
                     </div>
                 </div>
                 <div class="modal-footer border-top-0 pt-0">
                     <button type="button" class="btn btn-light" data-bs-dismiss="modal">{{ __('Cancel') }}</button>
-                    <button type="{{ __('submit') }}" class="btn btn-primary px-4">{{ __('Calculate') }}</button>
+                    <button type="submit" class="btn btn-primary px-4">Calculate</button>
                 </div>
             </form>
         </div>
     </div>
 </div>
 
-<div class="modal fade" id="bulk{{ __('Calculate') }}Modal" tabindex="-1">
+<div class="modal fade" id="bulkCalculateModal" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content border-0 shadow-lg">
             <div class="modal-header border-bottom-0 pb-0">
-                <h5 class="modal-title fw-bold">{{ __('Bulk Salary Calculation') }}</h5>
+                <h5 class="modal-title fw-bold">Bulk Salary Calculation</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
-            <form action="{{ route('admin.salaries.bulk_calculate') }}" method={{ __('"{{ __('POST') }}"') }}>
+            <form action="{{ route('admin.salaries.bulk_calculate') }}" method="POST">
                 @csrf
                 <div class="modal-body">
                     <div class="alert alert-soft-info d-flex align-items-center mb-3 border-0 bg-light p-3 rounded">
                         <i data-feather="info" class="me-2 text-primary"></i>
-                        <small class="text-muted">{{ __('This will calculate salary for') }} <strong>{{ __('ALL active employees') }}</strong> {{ __('for the selected month.') }}</small>
+                        <small class="text-muted">This will calculate salary for <strong>ALL active employees</strong> for the selected month.</small>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label small fw-bold text-muted">{{ __('Select Month') }} <span class="text-danger">*</span></label>
+                        <label class="form-label small fw-bold text-muted">Select Month <span class="text-danger">*</span></label>
                         <input type="month" name="salary_month" class="form-control" value="{{ date('Y-m') }}" required>
                     </div>
                 </div>
                 <div class="modal-footer border-top-0 pt-0">
                     <button type="button" class="btn btn-light" data-bs-dismiss="modal">{{ __('Cancel') }}</button>
-                    <button type="{{ __('submit') }}" class="btn btn-primary px-4">{{ __('Start Calculation') }}</button>
+                    <button type="submit" class="btn btn-primary px-4">Start Calculation</button>
                 </div>
             </form>
         </div>

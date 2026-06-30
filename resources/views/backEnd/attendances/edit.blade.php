@@ -1,5 +1,5 @@
 @extends('backEnd.layouts.master')
-@section('title', '{{ __('Edit Attendance') }}')
+@section('title', 'Edit Attendance')
 
 @section('css')
 <style>
@@ -33,7 +33,7 @@
         background-color: #f8fafc; color: #64748b; border-color: #e2e8f0; opacity: 1;
     }
 
-    /* --- {{ __('Status') }} Radio Group --- */
+    /* --- Status Radio Group --- */
     .status-radio-group {
         display: flex; gap: 10px; flex-wrap: wrap;
     }
@@ -47,7 +47,7 @@
         border-color: transparent; color: #fff; box-shadow: 0 2px 5px rgba(0,0,0,0.1);
     }
     
-    /* {{ __('Status') }} {{ __('{{ __('Color') }}s') }} */
+    /* Status Colors */
     #status_present:checked + .status-radio-label { background-color: #10b981; }
     #status_absent:checked + .status-radio-label { background-color: #ef4444; }
     #status_late:checked + .status-radio-label { background-color: #f59e0b; }
@@ -62,7 +62,7 @@
     <div class="row justify-content-center">
         <div class="col-md-7 col-lg-6">
             
-            <form action="{{ route('admin.attendances.update', $attendance->{{ __('id)') }} }}" method={{ __('"{{ __('POST') }}"') }}>
+            <form action="{{ route('admin.attendances.update', $attendance->id) }}" method="POST">
                 @csrf
                 @method('PUT')
 
@@ -70,11 +70,11 @@
                     {{-- Header --}}
                     <div class="card-header-modern">
                         <div>
-                            <h5 class="mb-1 fw-bold text-dark">{{ __('Edit Attendance') }}</h5>
-                            <p class="text-muted small mb-0">{{ __('Update employee attendance record.') }}</p>
+                            <h5 class="mb-1 fw-bold text-dark">Edit Attendance</h5>
+                            <p class="text-muted small mb-0">Update employee attendance record.</p>
                         </div>
                         <a href="{{ route('admin.attendances.index') }}" class="btn btn-light btn-sm rounded-pill px-3">
-                            <i data-feather="x" style="width:{{ __('14px') }};"></i>{{ __('Close') }}</a>
+                            <i data-feather="x" style="width:14px;"></i>{{ __('Close') }}</a>
                     </div>
 
                     <div class="card-body p-4">
@@ -97,54 +97,54 @@
                         {{-- Time Inputs --}}
                         <div class="row g-3 mb-4">
                             <div class="col-6">
-                                <label class="form-label-custom">{{ __('{{ __('Check') }} In Time') }}</label>
+                                <label class="form-label-custom">Check In Time</label>
                                 <input type="time" name="check_in" class="form-control form-control-custom" 
                                        value="{{ old('check_in', $attendance->check_in ? \Carbon\Carbon::parse($attendance->check_in)->format('H:i') : '') }}">
                             </div>
                             <div class="col-6">
-                                <label class="form-label-custom">{{ __('{{ __('Check') }} Out Time') }}</label>
+                                <label class="form-label-custom">Check Out Time</label>
                                 <input type="time" name="check_out" class="form-control form-control-custom" 
                                        value="{{ old('check_out', $attendance->check_out ? \Carbon\Carbon::parse($attendance->check_out)->format('H:i') : '') }}">
                             </div>
                         </div>
 
-                        {{-- {{ __('Status') }} Selection --}}
+                        {{-- Status Selection --}}
                         <div class="mb-4">
-                            <label class="form-label-custom d-block mb-2">{{ __('Attendance {{ __('Status') }}') }} <span class="text-danger">*</span></label>
+                            <label class="form-label-custom d-block mb-2">Attendance Status <span class="text-danger">*</span></label>
                             <div class="status-radio-group">
                                 
                                 <input type="radio" id="status_present" name="status" value="present" class="status-radio-input" 
                                     {{ $attendance->status == 'present' ? 'checked' : '' }}>
-                                <label for="status_present" class="status-radio-label">{{ __('Present') }}</label>
+                                <label for="status_present" class="status-radio-label">Present</label>
 
                                 <input type="radio" id="status_late" name="status" value="late" class="status-radio-input"
                                     {{ $attendance->status == 'late' ? 'checked' : '' }}>
-                                <label for="status_late" class="status-radio-label">{{ __('Late') }}</label>
+                                <label for="status_late" class="status-radio-label">Late</label>
 
                                 <input type="radio" id="status_half_day" name="status" value="half_day" class="status-radio-input"
                                     {{ $attendance->status == 'half_day' ? 'checked' : '' }}>
-                                <label for="status_half_day" class="status-radio-label">{{ __('Half Day') }}</label>
+                                <label for="status_half_day" class="status-radio-label">Half Day</label>
 
                                 <input type="radio" id="status_absent" name="status" value="absent" class="status-radio-input"
                                     {{ $attendance->status == 'absent' ? 'checked' : '' }}>
-                                <label for="status_absent" class="status-radio-label">{{ __('Absent') }}</label>
+                                <label for="status_absent" class="status-radio-label">Absent</label>
 
                                 <input type="radio" id="status_holiday" name="status" value="holiday" class="status-radio-input"
                                     {{ $attendance->status == 'holiday' ? 'checked' : '' }}>
-                                <label for="status_holiday" class="status-radio-label">{{ __('Holiday') }}</label>
+                                <label for="status_holiday" class="status-radio-label">Holiday</label>
                             </div>
                             @error('status') <span class="text-danger small mt-1 d-block">{{ $message }}</span> @enderror
                         </div>
 
-                        {{-- {{ __('Note') }}s --}}
+                        {{-- Notes --}}
                         <div class="mb-4">
-                            <label class="form-label-custom">{{ __('Additional {{ __('Note') }}s') }}</label>
-                            <textarea name="notes" class="form-control form-control-custom" rows="3" placeholder="{{ __('Any remarks...') }}">{{ old('notes', $attendance->notes) }}</textarea>
+                            <label class="form-label-custom">Additional Notes</label>
+                            <textarea name="notes" class="form-control form-control-custom" rows="3" placeholder="Any remarks...">{{ old('notes', $attendance->notes) }}</textarea>
                         </div>
 
                         {{-- Action Buttons --}}
                         <div class="d-grid gap-2">
-                            <button type="{{ __('submit') }}" class="btn btn-primary py-2 fw-bold shadow-sm">
+                            <button type="submit" class="btn btn-primary py-2 fw-bold shadow-sm">
                                 <i data-feather="check-circle" class="me-1" style="width: 16px;"></i> Update Attendance
                             </button>
                             <a href="{{ route('admin.attendances.index') }}" class="btn btn-light py-2">{{ __('Cancel') }}</a>

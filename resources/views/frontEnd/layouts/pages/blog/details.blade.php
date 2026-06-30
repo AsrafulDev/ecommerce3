@@ -9,7 +9,7 @@
 }
 
 .blog-meta {
-    font-size: {{ __('14px') }};
+    font-size: 14px;
     color: #777;
     margin-bottom: 15px;
 }
@@ -26,7 +26,7 @@
 }
 
 .sidebar-blog-title {
-    font-size: {{ __('14px') }};
+    font-size: 14px;
     font-weight: 600;
     line-height: 1.3;
     color: #222;
@@ -65,7 +65,7 @@
 
         <div class="row">
 
-            {{-- 🔹 Main {{ __('Blog Content') }} --}}
+            {{-- 🔹 Main Blog Content --}}
             <div class="col-md-8">
 
                 <h3 class="mb-2">{{ $blog->title }}</h3>
@@ -84,7 +84,7 @@
                 @else
                     <img src="{{ asset('public/backEnd/assets/images/image-placeholder.png') }}"
                          class="img-fluid mb-4"
-                         alt="{{ __('No Image') }}">
+                         alt="No Image">
                 @endif
 
                 {{-- Blog Description --}}
@@ -98,7 +98,7 @@
             <div class="col-md-4">
 
                 <div class="card">
-                    <div class="card-header">{{ __('{{ __('Late') }}st Blogs') }}</div>
+                    <div class="card-header">{{ __('Latest Blogs') }}</div>
 
                     <ul class="list-group list-group-flush">
 
@@ -114,7 +114,7 @@
                                              alt="{{ $rblog->title }}">
                                     @else
                                         <img src="{{ asset('public/backEnd/assets/images/image-placeholder.png') }}"
-                                             alt="{{ __('No Image') }}">
+                                             alt="No Image">
                                     @endif
                                 </div>
 

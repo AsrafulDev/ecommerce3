@@ -1,5 +1,5 @@
 @extends('backEnd.layouts.master')
-@section('title','{{ __('Edit Permission') }}')
+@section('title','Edit Permission')
 
 @section('css')
 <link href="{{asset('public/backEnd')}}/assets/libs/select2/css/select2.min.css" rel="stylesheet" type="text/css" />
@@ -50,7 +50,7 @@
         border: 1px solid #eef2f7;
         padding: 12px 15px;
         border-radius: 8px;
-        font-size: {{ __('14px') }};
+        font-size: 14px;
         color: #2d3436;
         transition: all 0.3s;
     }
@@ -61,7 +61,7 @@
     }
 
     /* Button Style */
-    .btn-{{ __('submit') }} {
+    .btn-submit {
         background: linear-gradient(45deg, #0acf97, #06b6d4);
         border: none;
         color: white;
@@ -72,7 +72,7 @@
         transition: 0.3s;
         border-radius: 50rem;
     }
-    .btn-{{ __('submit') }}:hover {
+    .btn-submit:hover {
         transform: translateY(-2px);
         box-shadow: 0 6px 20px rgba(10, 207, 151, 0.4);
     }
@@ -85,8 +85,8 @@
     <div class="row mb-3 mt-3">
         <div class="col-12 d-flex justify-content-between align-items-center">
             <div>
-                <h4 class="page-title mb-0" style="font-weight: 700; color: #2d3436;">{{ __('Edit Permission') }}</h4>
-                <p class="text-muted font-size-13 mb-0">{{ __('Update system access control definition.') }}</p>
+                <h4 class="page-title mb-0" style="font-weight: 700; color: #2d3436;">Edit Permission</h4>
+                <p class="text-muted font-size-13 mb-0">Update system access control definition.</p>
             </div>
             <a href="{{route('permissions.index')}}" class="btn btn-light rounded-pill border shadow-sm px-4">
                 <i class="fe-arrow-left me-1"></i> Back to List
@@ -99,20 +99,20 @@
             <div class="card">
                 <div class="card-header">
                     <div class="header-icon"><i class="fe-edit"></i></div>
-                    <h5 class="card-title">{{ __('Update Permission') }}</h5>
+                    <h5 class="card-title">Update Permission</h5>
                 </div>
                 <div class="card-body">
-                    <form action="{{route('permissions.update')}}" method={{ __('"{{ __('POST') }}"') }} data-parsley-validate>
+                    <form action="{{route('permissions.update')}}" method="POST" data-parsley-validate>
                         @csrf
                         <input type="hidden" name="hidden_id" value="{{$edit_data->id}}">
                         
                         <div class="form-group mb-4">
-                            <label for="name" class="form-label">{{ __('Permission {{ __('Name') }}') }} <span class="text-danger">*</span></label>
+                            <label for="name" class="form-label">Permission Name <span class="text-danger">*</span></label>
                             <input type="text" class="form-control form-control-lg @error('name') is-invalid @enderror" 
                                    name="name" value="{{ $edit_data->name }}" id="name" required>
                             
                             <small class="text-muted d-block mt-2">
-                                <i class="fe-info"></i> {{ __('Make sure the permission name follows your naming convention (e.g.,') }} <code>{{ __('blog-edit') }}</code>).
+                                <i class="fe-info"></i> Make sure the permission name follows your naming convention (e.g., <code>blog-edit</code>).
                             </small>
 
                             @error('name')
@@ -121,8 +121,8 @@
                         </div>
 
                         <div class="text-end">
-                            <button type="{{ __('submit') }}" class="btn btn-{{ __('submit') }}">
-                                <i class="fe-check-circle me-1"></i> {{ __('Update Permission') }}
+                            <button type="submit" class="btn btn-submit">
+                                <i class="fe-check-circle me-1"></i> Update Permission
                             </button>
                         </div>
 

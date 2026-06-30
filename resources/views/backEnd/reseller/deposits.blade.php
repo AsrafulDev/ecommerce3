@@ -6,9 +6,9 @@
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
             <h4 class="mb-1 fw-bold text-dark">
-                <i data-feather="wallet" class="text-primary me-2"></i> {{ __('bn_ce1342da') }} ডিপোজিট
+                <i data-feather="wallet" class="text-primary me-2"></i> রিসেলার ডিপোজিট
             </h4>
-            <p class="text-muted small mb-0">{{ __('bn_3f4b9b8c') }}</p>
+            <p class="text-muted small mb-0">পেন্ডিং ডিপোজিট এডমিন পেইড মার্ক করলে ওয়ালেটে যোগ হবে</p>
         </div>
     </div>
 
@@ -20,13 +20,13 @@
                     সব
                 </a>
                 <a href="{{ route('admin.reseller-deposits.index', ['status' => 'pending']) }}" class="btn btn-sm {{ request('status') === 'pending' ? 'btn-warning' : 'btn-outline-warning' }}">
-                    {{ __('Pending') }}
+                    পেন্ডিং
                 </a>
                 <a href="{{ route('admin.reseller-deposits.index', ['status' => 'completed']) }}" class="btn btn-sm {{ request('status') === 'completed' ? 'btn-success' : 'btn-outline-success' }}">
-                    {{ __('bn_623a38a3') }}
+                    পেইড
                 </a>
                 <a href="{{ route('admin.reseller-deposits.index', ['status' => 'failed']) }}" class="btn btn-sm {{ request('status') === 'failed' ? 'btn-danger' : 'btn-outline-danger' }}">
-                    {{ __('bn_84d84036') }}
+                    ব্যর্থ
                 </a>
             </div>
         </div>
@@ -38,12 +38,12 @@
                 <thead class="table-light">
                     <tr>
                         <th>#</th>
-                        <th>{{ __('bn_ce1342da') }}</th>
-                        <th>{{ __('Quantity') }}</th>
-                        <th>{{ __('Status') }}</th>
-                        <th>{{ __('Date') }}</th>
-                        <th>{{ __('bn_65934baf') }}</th>
-                        <th class="text-end">{{ __('bn_7c6fd8c1') }}</th>
+                        <th>রিসেলার</th>
+                        <th>পরিমাণ</th>
+                        <th>স্ট্যাটাস</th>
+                        <th>তারিখ</th>
+                        <th>ট্রানজেকশন ID</th>
+                        <th class="text-end">অ্যাকশন</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -52,7 +52,7 @@
                         <td>{{ $d->id }}</td>
                         <td>
                             <div>
-                                <strong>{{ $d->user->name ?? '{{ __('N/A') }}' }}</strong>
+                                <strong>{{ $d->user->name ?? 'N/A' }}</strong>
                                 @if($d->user->shop_name)
                                 <br><small class="text-muted">{{ $d->user->shop_name }}</small>
                                 @endif
@@ -62,21 +62,21 @@
                         <td><strong class="text-success">৳{{ number_format($d->amount, 2) }}</strong></td>
                         <td>
                             @if($d->status === 'pending')
-                            <span class="badge bg-warning">{{ __('Pending') }}</span>
+                            <span class="badge bg-warning">পেন্ডিং</span>
                             @elseif($d->status === 'completed')
-                            <span class="badge bg-success">{{ __('bn_623a38a3') }}</span>
+                            <span class="badge bg-success">পেইড</span>
                             @else
-                            <span class="badge bg-danger">{{ __('bn_84d84036') }}</span>
+                            <span class="badge bg-danger">ব্যর্থ</span>
                             @endif
                         </td>
                         <td>{{ $d->created_at->format('d M Y, h:i A') }}</td>
                         <td><small class="text-muted">{{ $d->transaction_id ?? '-' }}</small></td>
                         <td class="text-end">
                             @if($d->status === 'pending')
-                            <form action="{{ route('admin.reseller-deposits.mark-paid', $d->{{ __('id)') }} }}" method={{ __('"{{ __('POST') }}"') }} class="d-inline" on{{ __('submit') }}="return confirm('{{ __('bn_f0a1817c') }} নিশ্চিত করেছেন? ওয়ালেটে টাকা যোগ হবে।');">
+                            <form action="{{ route('admin.reseller-deposits.mark-paid', $d->id) }}" method="POST" class="d-inline" onsubmit="return confirm('পেমেন্ট নিশ্চিত করেছেন? ওয়ালেটে টাকা যোগ হবে।');">
                                 @csrf
-                                <button type="{{ __('submit') }}" class="btn btn-sm btn-success">
-                                    <i class="mdi mdi-check-circle"></i> {{ __('bn_623a38a3') }} মার্ক করুন
+                                <button type="submit" class="btn btn-sm btn-success">
+                                    <i class="mdi mdi-check-circle"></i> পেইড মার্ক করুন
                                 </button>
                             </form>
                             @else
@@ -86,7 +86,7 @@
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="7" class="text-center py-5 text-muted">{{ __('bn_356b6cc7') }}</td>
+                        <td colspan="7" class="text-center py-5 text-muted">কোনো ডিপোজিট নেই</td>
                     </tr>
                     @endforelse
                 </tbody>
@@ -94,7 +94,7 @@
         </div>
         @if($deposits->hasPages())
         <div class="card-footer">
-            {{ $deposits->withQuery{{ __('String') }}()->links() }}
+            {{ $deposits->withQueryString()->links() }}
         </div>
         @endif
     </div>

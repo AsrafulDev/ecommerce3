@@ -1,5 +1,5 @@
 @extends('backEnd.layouts.master')
-@section('title','{{ __('Send Custom SMS') }}')
+@section('title','Send Custom SMS')
 
 @section('content')
 
@@ -36,7 +36,7 @@
         font-weight: 600;
         color: #475467;
         margin-bottom: 8px;
-        font-size: {{ __('14px') }};
+        font-size: 14px;
     }
 
     .form-control-minimal {
@@ -100,8 +100,8 @@
         <div class="sms-card">
             <div class="sms-card-header d-flex justify-content-between align-items-center">
                 <div>
-                    <h4>{{ __('Send Custom SMS') }}</h4>
-                    <p class="text-muted small mb-0">{{ __('bn_f900340f') }}</p>
+                    <h4>Send Custom SMS</h4>
+                    <p class="text-muted small mb-0">কাস্টম এবং বাল্ক এসএমএস পাঠানোর প্রফেশনাল প্যানেল</p>
                 </div>
                 <i class="fe-mail fs-2 text-muted"></i>
             </div>
@@ -111,38 +111,38 @@
                     <div class="alert alert-success border-0 mb-4">{{ session('success') }}</div>
                 @endif
 
-                <form action="{{ route('admin.sms.custom.send') }}" method={{ __('"{{ __('POST') }}"') }}>
+                <form action="{{ route('admin.sms.custom.send') }}" method="POST">
                     @csrf
                     
                     <div class="mb-4">
                         <div class="d-flex justify-content-between align-items-center mb-2">
-                            <label class="mb-0">{{ __('Recipient Numbers') }}</label>
-                            <span class="badge-soft badge-soft-primary" id="{{ __('number') }}_count">{{ __('0 Numbers Detected') }}</span>
+                            <label class="mb-0">Recipient Numbers</label>
+                            <span class="badge-soft badge-soft-primary" id="number_count">0 Numbers Detected</span>
                         </div>
-                        <textarea name="{{ __('phone') }}" id="{{ __('phone') }}_input" class="form-control form-control-minimal" rows="4" 
-                                  placeholder="{{ __('01712345678, 01812345678') }}" required></textarea>
+                        <textarea name="phone" id="phone_input" class="form-control form-control-minimal" rows="4" 
+                                  placeholder="01712345678, 01812345678" required></textarea>
                         <div class="helper-text">
-                            <i class="fe-info me-1"></i> একাধিক নাম্বার থাকলে কমা ( , ) বা নতুন লাইন (Enter) ব্যব{{ __('bn_f29420ce') }} করুন।
+                            <i class="fe-info me-1"></i> একাধিক নাম্বার থাকলে কমা ( , ) বা নতুন লাইন (Enter) ব্যবহার করুন।
                         </div>
                     </div>
 
                     <div class="mb-4">
                         <div class="d-flex justify-content-between align-items-center mb-2">
-                            <label class="mb-0">{{ __('Your {{ __('Message') }}') }}</label>
-                            <span class="badge-soft badge-soft-info" id="sms_parts">{{ __('1 SMS Part') }}</span>
+                            <label class="mb-0">{{ __('Your Message') }}</label>
+                            <span class="badge-soft badge-soft-info" id="sms_parts">1 SMS Part</span>
                         </div>
-                        <textarea name="{{ __('message') }}" id="sms_{{ __('message') }}" class="form-control form-control-minimal" rows="5" 
+                        <textarea name="message" id="sms_message" class="form-control form-control-minimal" rows="5" 
                                   placeholder="আপনার বার্তার বিষয়বস্তু এখানে লিখুন..." required></textarea>
                         
                         <div class="d-flex justify-content-between mt-2">
-                            <div class="helper-text">{{ __('bn_0b1475d7') }}</div>
-                            <div class="helper-text fw-bold"><span id="char_count">0</span> {{ __('/ 160 Characters') }}</div>
+                            <div class="helper-text">কন্টেন্ট অনুযায়ী কস্ট এবং পার্ট গণনা করা হবে।</div>
+                            <div class="helper-text fw-bold"><span id="char_count">0</span> / 160 Characters</div>
                         </div>
                     </div>
 
                     <div class="pt-2">
-                        <button type="{{ __('submit') }}" class="btn btn-send-sms w-100">
-                            <i class="fe-send"></i> Send {{ __('Message') }} Now
+                        <button type="submit" class="btn btn-send-sms w-100">
+                            <i class="fe-send"></i> Send Message Now
                         </button>
                     </div>
                 </form>
@@ -150,36 +150,36 @@
         </div>
 
         <p class="text-center text-muted mt-4 small">
-            Powered by <strong>{{ __('Creative Design {{ __('SMS Gateway') }}') }}</strong>
+            Powered by <strong>Creative Design SMS Gateway</strong>
         </p>
     </div>
 </div>
 
 <script>
-    // 1. {{ __('Live') }} Number Counter
-    const {{ __('phone') }}Input = document.getElementById('{{ __('phone') }}_input');
-    const {{ __('number') }}CountDisplay = document.getElementById('{{ __('number') }}_count');
+    // 1. Live Number Counter
+    const phoneInput = document.getElementById('phone_input');
+    const numberCountDisplay = document.getElementById('number_count');
 
-    {{ __('phone') }}Input.addEventListener('input', function() {
+    phoneInput.addEventListener('input', function() {
         // স্প্লিট করে খালি ভ্যালুগুলো ফিল্টার করা
-        const {{ __('number') }}s = this.value.split(/[\n,]+/).map(s => s.trim()).{{ __('filter') }}(s => s.length > 0);
-        {{ __('number') }}CountDisplay.inner{{ __('Text') }} = {{ __('number') }}s.length + " Numbers Detected";
+        const numbers = this.value.split(/[\n,]+/).map(s => s.trim()).filter(s => s.length > 0);
+        numberCountDisplay.innerText = numbers.length + " Numbers Detected";
     });
 
     // 2. Character & SMS Part Counter
-    const {{ __('message') }}Input = document.getElementById('sms_{{ __('message') }}');
+    const messageInput = document.getElementById('sms_message');
     const charDisplay = document.getElementById('char_count');
     const partDisplay = document.getElementById('sms_parts');
 
-    {{ __('message') }}Input.addEventListener('input', function() {
+    messageInput.addEventListener('input', function() {
         const length = this.value.length;
-        charDisplay.inner{{ __('Text') }} = length;
+        charDisplay.innerText = length;
 
         let parts = 1;
         if (length > 160) {
             parts = Math.ceil(length / 153);
         }
-        partDisplay.inner{{ __('Text') }} = parts + " SMS Part" + (parts > 1 ? "s" : "");
+        partDisplay.innerText = parts + " SMS Part" + (parts > 1 ? "s" : "");
     });
 </script>
 

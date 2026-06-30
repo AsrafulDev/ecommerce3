@@ -11,7 +11,7 @@
             <div class="details_short">
                 {!! $data->short_description !!}
             </div>
-            <form action="{{route('cart.store')}}" method={{ __('"{{ __('POST') }}"') }} class="ajax-cart-form">
+            <form action="{{route('cart.store')}}" method="POST" class="ajax-cart-form">
                 @csrf
                 <input type="hidden" name="id" value="{{$data->id}}">                
                 
@@ -21,16 +21,16 @@
                         <input type="text" name="qty" value="1"/>
                         <span class="plus">+</span>
                     </div>
-                    <button type="{{ __('submit') }}" class="add-to-cart cart_store" data-id="{{$data->id}}" data-name="{{ addslashes($data->name) }}" data-price="{{ $data->new_price ?? 0 }}" data-category="{{ addslashes($data->category->name ?? '') }}">{{ __('add to cart') }}</button>
+                    <button type="submit" class="add-to-cart cart_store" data-id="{{$data->id}}" data-name="{{ addslashes($data->name) }}" data-price="{{ $data->new_price ?? 0 }}" data-category="{{ addslashes($data->category->name ?? '') }}">add to cart</button>
                 </div>
             </form>
-            <a href="{{route('product',['id'=>$data->id])}}" style="display: none;" class="details-wishlist">{{ __('Go To Details') }}</a>
+            <a href="{{route('product',['id'=>$data->id])}}" style="display: none;" class="details-wishlist">Go To Details</a>
             <div class="col-12 mt-3 delivery_details">
                 <table class="table">
                     <tbody>                                    
                         <tr>
                             <td class="potro_font">
-                               {{ __('Category') }}: {{ $data->category->name }}
+                               Category: {{ $data->category->name }}
                             </td>                                        
                         </tr>
                         <tr>

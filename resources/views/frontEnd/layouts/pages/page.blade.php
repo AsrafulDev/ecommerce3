@@ -14,7 +14,7 @@
                         </li>
                         @endforeach
                         <li>
-                            <a href="{{route('contact')}}">{{ __('{{ __('Contact') }} Us') }}</a>
+                            <a href="{{route('contact')}}">{{ __('Contact Us') }}</a>
                         </li>
                     </ul>
                 </div>

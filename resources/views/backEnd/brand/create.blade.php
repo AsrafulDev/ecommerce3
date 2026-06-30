@@ -41,7 +41,7 @@
         border: 1px solid #e2e8f0;
         border-radius: 6px;
         padding: 10px 15px;
-        font-size: {{ __('14px') }};
+        font-size: 14px;
         color: #334155;
         transition: all 0.2s;
     }
@@ -51,7 +51,7 @@
         outline: none;
     }
 
-    /* Logo Upload {{ __('Area') }} */
+    /* Logo Upload Area */
     .logo-upload-box {
         border: 2px dashed #cbd5e1;
         border-radius: 8px;
@@ -125,7 +125,7 @@
     
     <div class="row align-items-center mb-3 mt-3">
         <div class="col-6">
-            <h4 class="m-0 font-weight-bold text-dark">{{ __('Add {{ __('New') }} Brand') }}</h4>
+            <h4 class="m-0 font-weight-bold text-dark">Add New Brand</h4>
         </div>
         <div class="col-6 text-end">
             <a href="{{route('brands.index')}}" class="btn btn-outline-secondary btn-sm rounded-pill px-3">
@@ -133,7 +133,7 @@
         </div>
     </div>
 
-    <form action="{{route('brands.store')}}" method={{ __('"{{ __('POST') }}"') }} enctype="multipart/form-data" data-parsley-validate>
+    <form action="{{route('brands.store')}}" method="POST" enctype="multipart/form-data" data-parsley-validate>
         @csrf
         <div class="row">
             
@@ -141,14 +141,14 @@
                 
                 <div class="card">
                     <div class="card-header">
-                        <h5 class="card-title">{{ __('{{ __('Basic') }} Information') }}</h5>
+                        <h5 class="card-title">Basic Information</h5>
                     </div>
                     <div class="card-body">
                         <div class="form-group mb-0">
-                            <label for="name" class="form-label">{{ __('Brand {{ __('Name') }}') }} <span class="text-danger">*</span></label>
+                            <label for="name" class="form-label">Brand Name <span class="text-danger">*</span></label>
                             <input type="text" class="form-control @error('name') is-invalid @enderror" 
                                    name="name" value="{{ old('name') }}" id="name" 
-                                   placeholder="{{ __('e.g. Nike') }}" required autofocus>
+                                   placeholder="e.g. Nike" required autofocus>
                             @error('name')
                                 <div class="invalid-feedback mt-1">{{ $message }}</div>
                             @enderror
@@ -158,13 +158,13 @@
 
                 <div class="card">
                     <div class="card-header">
-                        <h5 class="card-title">{{ __('Publish') }}</h5>
+                        <h5 class="card-title">Publish</h5>
                     </div>
                     <div class="card-body">
                         <div class="status-box">
                             <div>
-                                <h6 class="mb-0 fw-bold text-dark font-size-14">{{ __('Active {{ __('Status') }}') }}</h6>
-                                <small class="text-muted" style="font-size: 11px;">{{ __('{{ __('Enable') }} this brand on website') }}</small>
+                                <h6 class="mb-0 fw-bold text-dark font-size-14">Active Status</h6>
+                                <small class="text-muted" style="font-size: 11px;">Enable this brand on website</small>
                             </div>
                             <label class="switch">
                                 <input type="checkbox" name="status" value="1" checked>
@@ -175,7 +175,7 @@
                             <div class="text-danger small mt-1">{{ $message }}</div>
                         @enderror
 
-                        <button type="{{ __('submit') }}" class="btn-save mt-3">
+                        <button type="submit" class="btn-save mt-3">
                             <i class="fe-save me-1"></i> Save Brand
                         </button>
                     </div>
@@ -186,18 +186,18 @@
             <div class="col-lg-4">
                 <div class="card">
                     <div class="card-header">
-                        <h5 class="card-title">{{ __('Brand Logo') }}</h5>
+                        <h5 class="card-title">Brand Logo</h5>
                     </div>
                     <div class="card-body">
                         <div class="logo-upload-box" onclick="document.getElementById('image').click()">
                             <input type="file" name="image" id="image" class="d-none" accept="image/*" onchange="readURL(this)">
                             
-                            <img id="preview_image" class="preview-img" src="#" alt="{{ __('Prev') }}iew">
+                            <img id="preview_image" class="preview-img" src="#" alt="Preview">
                             
                             <div id="upload_placeholder" class="upload-placeholder">
                                 <i class="fe-image"></i>
-                                <p>{{ __('Click to upload logo') }}</p>
-                                <small class="text-muted d-block mt-1">{{ __('(PNG, JPG, WEBP)') }}</small>
+                                <p>Click to upload logo</p>
+                                <small class="text-muted d-block mt-1">(PNG, JPG, WEBP)</small>
                             </div>
                         </div>
                         @error('image')

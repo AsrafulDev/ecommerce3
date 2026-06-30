@@ -1,5 +1,5 @@
 @extends('backEnd.layouts.master')
-@section('title','{{ __('Edit {{ __('Review') }}') }}')
+@section('title','Edit Review')
 
 @section('css')
 <link href="{{asset('public/backEnd')}}/assets/libs/select2/css/select2.min.css" rel="stylesheet" type="text/css" />
@@ -51,7 +51,7 @@
         border: 1px solid #eef2f7;
         padding: 10px 15px;
         border-radius: 8px;
-        font-size: {{ __('14px') }};
+        font-size: 14px;
         color: #2d3436;
         transition: all 0.3s;
     }
@@ -63,7 +63,7 @@
         align-items: center;
     }
 
-    /* {{ __('Text') }}area specific styling */
+    /* Textarea specific styling */
     textarea.form-control {
         min-height: 150px;
         resize: vertical;
@@ -89,7 +89,7 @@
     input:checked + .slider:before { transform: translateX(22px); }
 
     /* Button Style */
-    .btn-{{ __('submit') }} {
+    .btn-submit {
         background: linear-gradient(45deg, #0acf97, #06b6d4);
         border: none;
         color: white;
@@ -99,7 +99,7 @@
         box-shadow: 0 4px 15px rgba(10, 207, 151, 0.3);
         transition: 0.3s;
     }
-    .btn-{{ __('submit') }}:hover {
+    .btn-submit:hover {
         transform: translateY(-2px);
         box-shadow: 0 6px 20px rgba(10, 207, 151, 0.4);
     }
@@ -113,8 +113,8 @@
         <div class="col-12">
             <div class="page-title-box d-flex align-items-center justify-content-between py-4">
                 <div>
-                    <h4 class="page-title mb-1 text-dark fw-bold">{{ __('Edit {{ __('Review') }}') }}</h4>
-                    <p class="text-muted font-size-13 mb-0">{{ __('Update customer review details.') }}</p>
+                    <h4 class="page-title mb-1 text-dark fw-bold">Edit Review</h4>
+                    <p class="text-muted font-size-13 mb-0">Update customer review details.</p>
                 </div>
                 <div class="page-title-right">
                     <a href="{{ route('reviews.index') }}" class="btn btn-light rounded-pill border shadow-sm px-4">
@@ -125,7 +125,7 @@
         </div>
     </div>
 
-    <form action="{{ route('reviews.update') }}" method={{ __('"{{ __('POST') }}"') }} enctype="multipart/form-data" data-parsley-validate>
+    <form action="{{ route('reviews.update') }}" method="POST" enctype="multipart/form-data" data-parsley-validate>
         @csrf
         <input type="hidden" value="{{$edit_data->id}}" name="hidden_id">
 
@@ -136,14 +136,14 @@
                 <div class="card mb-4">
                     <div class="card-header">
                         <div class="header-icon"><i class="fe-edit"></i></div>
-                        <h5 class="card-title">{{ __('{{ __('Review') }} Information') }}</h5>
+                        <h5 class="card-title">Review Information</h5>
                     </div>
                     <div class="card-body">
                         
                         <div class="form-group mb-4">
-                            <label class="form-label">{{ __('Product') }} <span class="text-danger">*</span></label>
+                            <label class="form-label">Product <span class="text-danger">*</span></label>
                             <select class="form-control select2" name="product_id" required>
-                                <option value="">{{ __('{{ __('Select {{ __('Product') }}') }}...') }}</option>
+                                <option value="">Select Product...</option>
                                 @foreach($products as $value)
                                     <option value="{{$value->id}}" {{$edit_data->product_id==$value->id?'selected':''}}>
                                         {{$value->name}}
@@ -158,7 +158,7 @@
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="form-group mb-4">
-                                    <label class="form-label">{{ __('{{ __('Customer') }} {{ __('Name') }}') }} <span class="text-danger">*</span></label>
+                                    <label class="form-label">Customer Name <span class="text-danger">*</span></label>
                                     <input type="text" class="form-control" name="name" value="{{ $edit_data->name }}" required>
                                     @error('name')
                                         <div class="text-danger small mt-1">{{ $message }}</div>
@@ -167,7 +167,7 @@
                             </div>
                             <div class="col-md-6">
                                 <div class="form-group mb-4">
-                                    <label class="form-label">{{ __('{{ __('Customer') }} {{ __('Email') }}') }} <span class="text-danger">*</span></label>
+                                    <label class="form-label">Customer Email <span class="text-danger">*</span></label>
                                     <input type="email" class="form-control" name="email" value="{{ $edit_data->email }}" required>
                                     @error('email')
                                         <div class="text-danger small mt-1">{{ $message }}</div>
@@ -177,7 +177,7 @@
                         </div>
 
                         <div class="form-group mb-0">
-                            <label class="form-label">{{ __('{{ __('Review') }} Comment') }} <span class="text-danger">*</span></label>
+                            <label class="form-label">Review Comment <span class="text-danger">*</span></label>
                             <textarea name="review" class="form-control" rows="5" required>{{$edit_data->review}}</textarea>
                             @error('review')
                                 <div class="text-danger small mt-1">{{ $message }}</div>
@@ -193,13 +193,13 @@
                 <div class="card mb-4">
                     <div class="card-header">
                         <div class="header-icon"><i class="fe-star"></i></div>
-                        <h5 class="card-title">{{ __('Rating') }}</h5>
+                        <h5 class="card-title">Rating</h5>
                     </div>
                     <div class="card-body">
                         <div class="form-group mb-4">
-                            <label class="form-label">{{ __('Star {{ __('Rating') }}') }} <span class="text-danger">*</span></label>
+                            <label class="form-label">Star Rating <span class="text-danger">*</span></label>
                             <select class="form-control select2" name="ratting" required>
-                                <option value="">{{ __('Choose {{ __('Rating') }}...') }}</option>
+                                <option value="">Choose Rating...</option>
                                 <option value="5" {{$edit_data->ratting == 5 ? 'selected' : ''}}>⭐⭐⭐⭐⭐ (5 Stars)</option>
                                 <option value="4" {{$edit_data->ratting == 4 ? 'selected' : ''}}>⭐⭐⭐⭐ (4 Stars)</option>
                                 <option value="3" {{$edit_data->ratting == 3 ? 'selected' : ''}}>⭐⭐⭐ (3 Stars)</option>
@@ -213,8 +213,8 @@
 
                         <div class="d-flex justify-content-between align-items-center p-3 bg-light rounded border border-light">
                             <div>
-                                <h6 class="mb-1 text-dark fw-bold">{{ __('Active {{ __('Status') }}') }}</h6>
-                                <p class="text-muted font-size-12 mb-0">{{ __('Publish') }} review?</p>
+                                <h6 class="mb-1 text-dark fw-bold">Active Status</h6>
+                                <p class="text-muted font-size-12 mb-0">Publish review?</p>
                             </div>
                             <label class="switch">
                                 <input type="hidden" name="status" value="pending">
@@ -226,8 +226,8 @@
                             <div class="text-danger small mt-1">{{ $message }}</div>
                         @enderror
 
-                        <button type="{{ __('submit') }}" class="btn btn-{{ __('submit') }} w-100 rounded-pill mt-4">
-                            <i class="fe-check-circle me-1"></i> Update {{ __('Review') }}
+                        <button type="submit" class="btn btn-submit w-100 rounded-pill mt-4">
+                            <i class="fe-check-circle me-1"></i> Update Review
                         </button>
                     </div>
                 </div>

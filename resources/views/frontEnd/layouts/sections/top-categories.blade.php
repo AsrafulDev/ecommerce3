@@ -1,4 +1,4 @@
-{{-- {{ __('Top Categories') }} Slider --}}
+{{-- Top Categories Slider --}}
 <section class="homeproduct">
     <div class="container">
         <div class="row">
@@ -7,7 +7,7 @@
                     <h3 class="section-title-header">
                         <div class="timer_inner">
                             <div class="">
-                                <span class="section-title-name"> {{ __('Top Categories') }} </span>
+                                <span class="section-title-name"> Top Categories </span>
                             </div>
                         </div>
                     </h3>

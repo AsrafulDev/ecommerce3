@@ -1,11 +1,11 @@
 @php
     $settings = \App\Models\GeneralSetting::first();
     $theme = null;
-    if ($settings && $settings->theme_{{ __('id)') }} {
-        $theme = \App\Models\Theme::find($settings->theme_{{ __('id)') }};
+    if ($settings && $settings->theme_id) {
+        $theme = \App\Models\Theme::find($settings->theme_id);
     }
     if (!$theme) {
-        $theme = \App\Models\Theme::w{{ __('here') }}('is_default', true)->first();
+        $theme = \App\Models\Theme::where('is_default', true)->first();
     }
 @endphp
 /* ================================================================
@@ -34,7 +34,7 @@
     --sale-badge-text: {{ $theme->sale_badge_text ?? '#ffffff' }};
     --font-family: {{ $theme->font_family ?? "'Roboto', sans-serif" }};
     --heading-font: {{ $theme->heading_font ?? "'Jost', sans-serif" }};
-    --body-font-size: {{ $theme->body_font_size ?? '{{ __('14px') }}' }};
+    --body-font-size: {{ $theme->body_font_size ?? '14px' }};
     --border-radius: {{ $theme->border_radius ?? '8px' }};
     --card-shadow: {{ $theme->card_shadow ?? '0 2px 8px rgba(0,0,0,0.08)' }};
     --layout-style: {{ $theme->layout_style ?? 'contained' }};
@@ -77,7 +77,7 @@
 .container { max-width: 100% !important; padding-left: 15px; padding-right: 15px; }
 @endif
 
-/* {{ __('Custom CSS') }} from theme */
+/* Custom CSS from theme */
 @if(!empty($theme->custom_css))
 {{ $theme->custom_css }}
 @endif

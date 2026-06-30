@@ -36,14 +36,14 @@
                     <div class="d-flex align-items-center mb-3">
                         <span class="backup-icon me-3">💾</span>
                         <div>
-                            <h5 class="mb-0">{{ __('Full Site Backup') }}</h5>
-                            <small class="text-muted">{{ __('Database + Uploads + Settings') }}</small>
+                            <h5 class="mb-0">Full Site Backup</h5>
+                            <small class="text-muted">Database + Uploads + Settings</small>
                         </div>
                     </div>
-                    <p class="text-muted small">{{ __('Creates a complete ZIP backup of your entire site including all database tables, uploaded files, and settings.') }}</p>
-                    <form action="{{ route('backup.create') }}" method={{ __('"{{ __('POST') }}"') }}>
+                    <p class="text-muted small">Creates a complete ZIP backup of your entire site including all database tables, uploaded files, and settings.</p>
+                    <form action="{{ route('backup.create') }}" method="POST">
                         @csrf
-                        <button type="{{ __('submit') }}" class="btn btn-primary w-100">
+                        <button type="submit" class="btn btn-primary w-100">
                             <i class="mdi mdi-plus-circle"></i> Create Backup Now
                         </button>
                     </form>
@@ -57,19 +57,19 @@
                     <div class="d-flex align-items-center mb-3">
                         <span class="backup-icon me-3">📥</span>
                         <div>
-                            <h5 class="mb-0">{{ __('Restore Backup') }}</h5>
-                            <small class="text-muted">{{ __('Upload a backup ZIP to restore') }}</small>
+                            <h5 class="mb-0">Restore Backup</h5>
+                            <small class="text-muted">Upload a backup ZIP to restore</small>
                         </div>
                     </div>
                     <p class="text-muted small">Upload a previously created backup ZIP file. ⚠️ This will replace ALL current data.</p>
-                    <form action="{{ route('backup.restore') }}" method={{ __('"{{ __('POST') }}"') }} enctype="multipart/form-data">
+                    <form action="{{ route('backup.restore') }}" method="POST" enctype="multipart/form-data">
                         @csrf
                         <div class="file-drop-area mb-3" onclick="document.getElementById('backup_file').click()">
                             <i class="mdi mdi-cloud-upload fs-1 text-muted"></i>
-                            <p class="mb-0 mt-2">{{ __('Click to select backup ZIP') }}</p>
+                            <p class="mb-0 mt-2">Click to select backup ZIP</p>
                             <input type="file" name="backup_file" id="backup_file" class="d-none" accept=".zip" required onchange="this.parentNode.querySelector('p').textContent = this.files[0].name">
                         </div>
-                        <button type="{{ __('submit') }}" class="btn btn-danger w-100" onclick="return confirm('⚠️ This will replace ALL current data. Continue?')">
+                        <button type="submit" class="btn btn-danger w-100" onclick="return confirm('⚠️ This will replace ALL current data. Continue?')">
                             <i class="mdi mdi-restore"></i> Restore from Backup
                         </button>
                     </form>
@@ -86,8 +86,8 @@
                     <div class="d-flex align-items-center mb-3">
                         <span class="backup-icon me-3">🎨</span>
                         <div>
-                            <h5 class="mb-0">{{ __('Theme Export / Import') }}</h5>
-                            <small class="text-muted">{{ __('{{ __('{{ __('Color') }}s') }}, logos, typography settings') }}</small>
+                            <h5 class="mb-0">Theme Export / Import</h5>
+                            <small class="text-muted">Colors, logos, typography settings</small>
                         </div>
                     </div>
                     <div class="d-flex gap-2">
@@ -98,9 +98,9 @@
                             <i class="mdi mdi-upload"></i> Import Theme
                         </button>
                     </div>
-                    <form action="{{ route('theme.import') }}" method={{ __('"{{ __('POST') }}"') }} enctype="multipart/form-data" class="mt-2">
+                    <form action="{{ route('theme.import') }}" method="POST" enctype="multipart/form-data" class="mt-2">
                         @csrf
-                        <input type="file" name="theme_file" id="theme_file" class="d-none" accept=".json" onchange="this.form.{{ __('submit') }}()">
+                        <input type="file" name="theme_file" id="theme_file" class="d-none" accept=".json" onchange="this.form.submit()">
                     </form>
                 </div>
             </div>
@@ -112,15 +112,15 @@
                     <div class="d-flex align-items-center mb-3">
                         <span class="backup-icon me-3">📐</span>
                         <div>
-                            <h5 class="mb-0">{{ __('Layout Export / Import') }}</h5>
-                            <small class="text-muted">{{ __('Homepage layout sections & order') }}</small>
+                            <h5 class="mb-0">Layout Export / Import</h5>
+                            <small class="text-muted">Homepage layout sections & order</small>
                         </div>
                     </div>
-                    <form action="{{ route('layout.import') }}" method={{ __('"{{ __('POST') }}"') }} enctype="multipart/form-data">
+                    <form action="{{ route('layout.import') }}" method="POST" enctype="multipart/form-data">
                         @csrf
                         <div class="mb-2">
                             <select name="layout_id" class="form-select form-select-sm mb-2" id="export-layout-select">
-                                <option value="">-- {{ __('Export a layout') }} --</option>
+                                <option value="">-- Export a layout --</option>
                                 @foreach($layouts as $layout)
                                     <option value="{{ $layout->id }}">{{ $layout->name }} ({{ $layout->sections_count }} sections)</option>
                                 @endforeach
@@ -134,7 +134,7 @@
                                 <i class="mdi mdi-upload"></i> Import Layout
                             </button>
                         </div>
-                        <input type="file" name="layout_file" id="layout_file" class="d-none" accept=".json" onchange="this.form.{{ __('submit') }}()">
+                        <input type="file" name="layout_file" id="layout_file" class="d-none" accept=".json" onchange="this.form.submit()">
                     </form>
                 </div>
             </div>
@@ -146,7 +146,7 @@
         <div class="col-sm-12">
             <div class="card backup-card">
                 <div class="card-body">
-                    <h5 class="mb-3">📦 {{ __('Demo Presets') }} — Download / Restore</h5>
+                    <h5 class="mb-3">📦 Demo Presets — Download / Restore</h5>
                     <div class="row g-3">
                         @foreach($presets as $slug => $meta)
                         <div class="col-lg-2 col-md-3 col-sm-4 col-6">
@@ -185,10 +185,10 @@
                         <table class="table table-sm table-hover">
                             <thead>
                                 <tr>
-                                    <th>{{ __('Filename') }}</th>
+                                    <th>Filename</th>
                                     <th>{{ __('Size') }}</th>
                                     <th>{{ __('Date') }}</th>
-                                    <th class="text-end">{{ __('Actions') }}</th>
+                                    <th class="text-end">Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -224,9 +224,9 @@
     function exportLayout() {
         var layoutId = document.getElementById('export-layout-select').value;
         if (!layoutId) { alert('Please select a layout to export'); return; }
-        // Create a hidden form and {{ __('submit') }} it
+        // Create a hidden form and submit it
         var form = document.createElement('form');
-        form.method = '{{ __('POST') }}';
+        form.method = 'POST';
         form.action = '{{ route("layout.export") }}';
         var csrf = document.createElement('input');
         csrf.type = 'hidden';
@@ -239,7 +239,7 @@
         input.value = layoutId;
         form.appendChild(input);
         document.body.appendChild(form);
-        form.{{ __('submit') }}();
+        form.submit();
     }
 </script>
 @endpush

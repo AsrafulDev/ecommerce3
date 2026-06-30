@@ -52,7 +52,7 @@
         border: 1px solid #eef2f7;
         padding: 12px 15px;
         border-radius: 8px;
-        font-size: {{ __('14px') }};
+        font-size: 14px;
         color: #2d3436;
         transition: all 0.3s;
     }
@@ -74,7 +74,7 @@
     .select2-container--default .select2-selection--single .select2-selection__rendered {
         padding-left: 15px;
         color: #2d3436;
-        font-size: {{ __('14px') }};
+        font-size: 14px;
     }
     .select2-container--default .select2-selection--single .select2-selection__arrow {
         height: 44px;
@@ -90,7 +90,7 @@
     input:checked + .slider:before { transform: translateX(22px); }
 
     /* Button Style */
-    .btn-{{ __('submit') }} {
+    .btn-submit {
         background: linear-gradient(45deg, #0acf97, #06b6d4);
         border: none;
         color: white;
@@ -100,7 +100,7 @@
         box-shadow: 0 4px 15px rgba(10, 207, 151, 0.3);
         transition: 0.3s;
     }
-    .btn-{{ __('submit') }}:hover {
+    .btn-submit:hover {
         transform: translateY(-2px);
         box-shadow: 0 6px 20px rgba(10, 207, 151, 0.4);
     }
@@ -114,8 +114,8 @@
         <div class="col-12">
             <div class="page-title-box d-flex align-items-center justify-content-between py-4">
                 <div>
-                    <h4 class="page-title mb-1 text-dark fw-bold">Edit Childcategory: {{ $edit_data->childcategory{{ __('Name') }} }}</h4>
-                    <p class="text-muted font-size-13 mb-0">{{ __('Update childcategory details and mapping.') }}</p>
+                    <h4 class="page-title mb-1 text-dark fw-bold">Edit Childcategory: {{ $edit_data->childcategoryName }}</h4>
+                    <p class="text-muted font-size-13 mb-0">Update childcategory details and mapping.</p>
                 </div>
                 <div class="page-title-right">
                     <a href="{{route('childcategories.index')}}" class="btn btn-light rounded-pill border shadow-sm px-4">
@@ -126,7 +126,7 @@
         </div>
     </div>
 
-    <form action="{{route('childcategories.update')}}" method={{ __('"{{ __('POST') }}"') }} name="editForm" enctype="multipart/form-data" data-parsley-validate>
+    <form action="{{route('childcategories.update')}}" method="POST" name="editForm" enctype="multipart/form-data" data-parsley-validate>
         @csrf
         <input type="hidden" value="{{$edit_data->id}}" name="id">
 
@@ -137,22 +137,22 @@
                 <div class="card mb-4">
                     <div class="card-header">
                         <div class="header-icon"><i class="fe-edit"></i></div>
-                        <h5 class="card-title">{{ __('{{ __('Basic') }} Information') }}</h5>
+                        <h5 class="card-title">Basic Information</h5>
                     </div>
                     <div class="card-body">
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="form-group mb-4">
-                                    <label for="subcategory_id" class="form-label">{{ __('Parent {{ __('Subcategory') }}') }} <span class="text-danger">*</span></label>
+                                    <label for="subcategory_id" class="form-label">Parent Subcategory <span class="text-danger">*</span></label>
                                     <select class="form-control select2 @error('subcategory_id') is-invalid @enderror" 
                                             id="subcategory_id" name="subcategory_id" required>
-                                        <option value="">{{ __('Select {{ __('Subcategory') }}') }}</option>
+                                        <option value="">Select Subcategory</option>
                                         @foreach ($menucategories as $category)
                                             <optgroup label="{{ $category->name }}">
                                                 @foreach ($category->subcategories as $subcat)
                                                     <option value="{{ $subcat->id }}" 
-                                                        @if($subcat->id == $edit_data->subcategory_{{ __('id)') }} selected @endif>
-                                                        {{ $subcat->subcategory{{ __('Name') }} }}
+                                                        @if($subcat->id == $edit_data->subcategory_id) selected @endif>
+                                                        {{ $subcat->subcategoryName }}
                                                     </option>
                                                 @endforeach
                                             </optgroup>
@@ -165,11 +165,11 @@
                             </div>
                             <div class="col-md-6">
                                 <div class="form-group mb-4">
-                                    <label for="childcategory{{ __('Name') }}" class="form-label">{{ __('Childcategory {{ __('Name') }}') }} <span class="text-danger">*</span></label>
-                                    <input type="text" class="form-control @error('childcategory{{ __('Name') }}') is-invalid @enderror" 
-                                           name="childcategory{{ __('Name') }}" value="{{ $edit_data->childcategory{{ __('Name') }} }}" 
-                                           id="childcategory{{ __('Name') }}" required>
-                                    @error('childcategory{{ __('Name') }}')
+                                    <label for="childcategoryName" class="form-label">Childcategory Name <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control @error('childcategoryName') is-invalid @enderror" 
+                                           name="childcategoryName" value="{{ $edit_data->childcategoryName }}" 
+                                           id="childcategoryName" required>
+                                    @error('childcategoryName')
                                         <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
                                 </div>
@@ -181,11 +181,11 @@
                 <div class="card mb-4">
                     <div class="card-header">
                         <div class="header-icon"><i class="fe-search"></i></div>
-                        <h5 class="card-title">{{ __('SEO {{ __('Configuration') }}') }}</h5>
+                        <h5 class="card-title">SEO Configuration</h5>
                     </div>
                     <div class="card-body">
                         <div class="form-group mb-4">
-                            <label for="meta_title" class="form-label">{{ __('Meta {{ __('Title') }}') }}</label>
+                            <label for="meta_title" class="form-label">{{ __('Meta Title') }}</label>
                             <input type="text" class="form-control @error('meta_title') is-invalid @enderror" 
                                    name="meta_title" value="{{ $edit_data->meta_title }}" id="meta_title">
                             @error('meta_title')
@@ -210,13 +210,13 @@
                 <div class="card">
                     <div class="card-header">
                         <div class="header-icon"><i class="fe-settings"></i></div>
-                        <h5 class="card-title">{{ __('Visibility') }}</h5>
+                        <h5 class="card-title">Visibility</h5>
                     </div>
                     <div class="card-body">
                         <div class="d-flex justify-content-between align-items-center mb-4 p-3 bg-light rounded border border-light">
                             <div>
                                 <h6 class="mb-1 text-dark fw-bold">{{ __('Status') }}</h6>
-                                <p class="text-muted font-size-12 mb-0">{{ __('{{ __('Enable') }} or disable childcategory') }}</p>
+                                <p class="text-muted font-size-12 mb-0">Enable or disable childcategory</p>
                             </div>
                             <label class="switch">
                                 <input type="checkbox" name="status" value="1" {{ $edit_data->status == 1 ? 'checked' : '' }}>
@@ -224,8 +224,8 @@
                             </label>
                         </div>
 
-                        <button type="{{ __('submit') }}" class="btn btn-{{ __('submit') }} w-100 rounded-pill">
-                            <i class="fe-save me-1"></i> Update {{ __('Change') }}s
+                        <button type="submit" class="btn btn-submit w-100 rounded-pill">
+                            <i class="fe-save me-1"></i> Update Changes
                         </button>
                     </div>
                 </div>
@@ -235,7 +235,7 @@
                         <div class="d-flex align-items-start">
                             <i class="fe-info font-size-18 me-2 text-primary"></i>
                             <p class="mb-0 font-size-13 text-primary">
-                                <strong>{{ __('Note') }}:</strong> {{ __('Childcategories') }} provide the deepest level of product organization. Ensure SEO titles are unique.
+                                <strong>Note:</strong> Childcategories provide the deepest level of product organization. Ensure SEO titles are unique.
                             </p>
                         </div>
                     </div>

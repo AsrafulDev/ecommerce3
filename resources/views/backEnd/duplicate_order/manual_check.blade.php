@@ -1,5 +1,5 @@
 @extends('backEnd.layouts.master')
-@section('title', 'Manual Duplicate Order {{ __('Check') }}')
+@section('title', 'Manual Duplicate Order Check')
 
 @section('content')
 
@@ -17,7 +17,7 @@
         margin: 20px auto;
     }
 
-    /* {{ __('Status') }} Box */
+    /* Status Box */
     .status-box {
         padding: 12px;
         border-radius: 10px;
@@ -34,20 +34,20 @@
     <div class="card shadow-sm p-4">
 
         <h4 class="text-center fw-bold mb-4">
-            {{ __('bn_edb98e65') }} চেক করতে {{ __('{{ __('Mobile') }} Number') }}টি দিয়ে {{ __('Search') }}
+            ডুপ্লিকেট অর্ডার চেক করতে মোবাইল নাম্বারটি দিয়ে সার্চ দিন
         </h4>
 
         {{-- Search Box --}}
-        <form action="{{ route('manualDuplicateOrder.check') }}" method={{ __('"{{ __('POST') }}"') }} class="text-center mb-4">
+        <form action="{{ route('manualDuplicateOrder.check') }}" method="POST" class="text-center mb-4">
             @csrf
             <div class="input-group justify-content-center" style="max-width:400px; margin:auto;">
                 <input type="text" name="mobile" class="form-control text-center"
-                    value="{{ $mobile ?? '' }}" placeholder="{{ __('017XXXXXXXX') }}" required>
-                <button class="btn btn-success px-4">{{ __('Search') }}</button>
+                    value="{{ $mobile ?? '' }}" placeholder="017XXXXXXXX" required>
+                <button class="btn btn-success px-4">সার্চ দিন</button>
             </div>
         </form>
 
-        {{-- API Error {{ __('Message') }} --}}
+        {{-- API Error Message --}}
         @if(session('error'))
             <div class="row justify-content-center">
                 <div class="col-md-8">
@@ -65,7 +65,7 @@
                 <div class="card shadow-sm p-4">
 
                     <h5 class="fw-bold bg-primary text-white py-2 rounded text-center mb-4">
-                        {{ __('bn_edb98e65') }} তথ্য
+                        ডুপ্লিকেট অর্ডার তথ্য
                     </h5>
 
                     <h3 class="text-center fw-bold text-primary mt-3">
@@ -75,8 +75,8 @@
                     @php
                         $isDuplicate = $data['is_duplicate'] ?? false;
                         $duplicateCount = $data['duplicate_count'] ?? 0;
-                        $duplicate{{ __('Rate') }} = $data['duplicate_rate'] ?? 0;
-                        $lastDuplicate{{ __('Date') }} = $data['last_duplicate_date'] ?? null;
+                        $duplicateRate = $data['duplicate_rate'] ?? 0;
+                        $lastDuplicateDate = $data['last_duplicate_date'] ?? null;
                     @endphp
 
                     {{-- Circle --}}
@@ -86,30 +86,30 @@
                                 {{ $duplicateCount }}
                             </span>
                             <br>
-                            <small class="text-muted" style="font-size: 12px;">{{ __('bn_edb98e65') }}</small>
+                            <small class="text-muted" style="font-size: 12px;">ডুপ্লিকেট অর্ডার</small>
                         </div>
                     </div>
 
-                    {{-- {{ __('Status') }} {{ __('Message') }} --}}
+                    {{-- Status Message --}}
                     @if($isDuplicate)
                         <div class="status-box status-red">
-                            <h5 class="fw-bold">{{ __('bn_94793b14') }}</h5>
-                            <p class="mb-0">এই {{ __('{{ __('Mobile') }} Number') }} দিয়ে {{ $duplicateCount }} টি {{ __('bn_edb98e65') }} পাওয়া গেছে।</p>
-                            @if($lastDuplicate{{ __('Date') }})
-                                <p class="mb-0 mt-2"><small>সর্বশেষ {{ __('bn_edb98e65') }}: {{ $lastDuplicate{{ __('Date') }} }}</small></p>
+                            <h5 class="fw-bold">❗ ডুপ্লিকেট অর্ডার ডিটেক্টেড!</h5>
+                            <p class="mb-0">এই মোবাইল নাম্বার দিয়ে {{ $duplicateCount }} টি ডুপ্লিকেট অর্ডার পাওয়া গেছে।</p>
+                            @if($lastDuplicateDate)
+                                <p class="mb-0 mt-2"><small>সর্বশেষ ডুপ্লিকেট অর্ডার: {{ $lastDuplicateDate }}</small></p>
                             @endif
                         </div>
                     @else
                         <div class="status-box status-green">
-                            <h5 class="fw-bold">{{ __('bn_d85d23fa') }}</h5>
-                            <p class="mb-0">{{ __('bn_627d0ed0') }}</p>
+                            <h5 class="fw-bold">✔ ডুপ্লিকেট অর্ডার নেই</h5>
+                            <p class="mb-0">এই মোবাইল নাম্বার দিয়ে কোনো ডুপ্লিকেট অর্ডার পাওয়া যায়নি।</p>
                         </div>
                     @endif
 
                     {{-- Additional Info --}}
                     @if(isset($data['details']))
                     <div class="mt-4">
-                        <h6 class="fw-bold">{{ __('bn_f0832243') }}:</h6>
+                        <h6 class="fw-bold">বিস্তারিত তথ্য:</h6>
                         <pre class="bg-light p-3 rounded">{{ json_encode($data['details'], JSON_PRETTY_PRINT) }}</pre>
                     </div>
                     @endif

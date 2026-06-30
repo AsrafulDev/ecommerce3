@@ -1,5 +1,5 @@
 @extends('backEnd.layouts.master')
-@section('title','Edit {{ __('Subcategory') }}')
+@section('title','Edit Subcategory')
 
 @section('css')
 <link href="{{asset('public/backEnd')}}/assets/libs/select2/css/select2.min.css" rel="stylesheet" type="text/css" />
@@ -51,7 +51,7 @@
         border: 1px solid #eef2f7;
         padding: 12px 15px;
         border-radius: 8px;
-        font-size: {{ __('14px') }};
+        font-size: 14px;
         color: #2d3436;
         transition: all 0.3s;
     }
@@ -73,7 +73,7 @@
     .select2-container--default .select2-selection--single .select2-selection__rendered {
         padding-left: 15px;
         color: #2d3436;
-        font-size: {{ __('14px') }};
+        font-size: 14px;
     }
     .select2-container--default .select2-selection--single .select2-selection__arrow {
         height: 44px;
@@ -89,7 +89,7 @@
     input:checked + .slider:before { transform: translateX(22px); }
 
     /* Button Style */
-    .btn-{{ __('submit') }} {
+    .btn-submit {
         background: linear-gradient(45deg, #0acf97, #06b6d4);
         border: none;
         color: white;
@@ -99,7 +99,7 @@
         box-shadow: 0 4px 15px rgba(10, 207, 151, 0.3);
         transition: 0.3s;
     }
-    .btn-{{ __('submit') }}:hover {
+    .btn-submit:hover {
         transform: translateY(-2px);
         box-shadow: 0 6px 20px rgba(10, 207, 151, 0.4);
     }
@@ -113,8 +113,8 @@
         <div class="col-12">
             <div class="page-title-box d-flex align-items-center justify-content-between py-4">
                 <div>
-                    <h4 class="page-title mb-1 text-dark fw-bold">Edit {{ __('Subcategory') }}: {{ $edit_data->subcategory{{ __('Name') }} }}</h4>
-                    <p class="text-muted font-size-13 mb-0">{{ __('Update subcategory details and configuration.') }}</p>
+                    <h4 class="page-title mb-1 text-dark fw-bold">Edit Subcategory: {{ $edit_data->subcategoryName }}</h4>
+                    <p class="text-muted font-size-13 mb-0">Update subcategory details and configuration.</p>
                 </div>
                 <div class="page-title-right">
                     <a href="{{route('subcategories.index')}}" class="btn btn-light rounded-pill border shadow-sm px-4">
@@ -125,7 +125,7 @@
         </div>
     </div>
 
-    <form action="{{route('subcategories.update')}}" method={{ __('"{{ __('POST') }}"') }} name="editForm" enctype="multipart/form-data" data-parsley-validate>
+    <form action="{{route('subcategories.update')}}" method="POST" name="editForm" enctype="multipart/form-data" data-parsley-validate>
         @csrf
         <input type="hidden" value="{{$edit_data->id}}" name="id">
 
@@ -136,16 +136,16 @@
                 <div class="card mb-4">
                     <div class="card-header">
                         <div class="header-icon"><i class="fe-edit"></i></div>
-                        <h5 class="card-title">{{ __('{{ __('Basic') }} Information') }}</h5>
+                        <h5 class="card-title">Basic Information</h5>
                     </div>
                     <div class="card-body">
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="form-group mb-4">
-                                    <label for="category_id" class="form-label">{{ __('Parent {{ __('Category') }}') }} <span class="text-danger">*</span></label>
+                                    <label for="category_id" class="form-label">Parent Category <span class="text-danger">*</span></label>
                                     <select class="form-control select2 @error('category_id') is-invalid @enderror" 
                                             id="category_id" name="category_id" required>
-                                        <option value="">{{ __('Select {{ __('Category') }}') }}</option>
+                                        <option value="">{{ __('Select Category') }}</option>
                                         @foreach($categories as $category)
                                             <option value="{{ $category->id }}" {{ $edit_data->category_id == $category->id ? 'selected' : '' }}>
                                                 {{ $category->name }}
@@ -159,11 +159,11 @@
                             </div>
                             <div class="col-md-6">
                                 <div class="form-group mb-4">
-                                    <label for="subcategory{{ __('Name') }}" class="form-label">{{ __('{{ __('Subcategory') }} {{ __('Name') }}') }} <span class="text-danger">*</span></label>
-                                    <input type="text" class="form-control @error('subcategory{{ __('Name') }}') is-invalid @enderror" 
-                                           name="subcategory{{ __('Name') }}" value="{{ $edit_data->subcategory{{ __('Name') }} }}" 
-                                           id="subcategory{{ __('Name') }}" required>
-                                    @error('subcategory{{ __('Name') }}')
+                                    <label for="subcategoryName" class="form-label">Subcategory Name <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control @error('subcategoryName') is-invalid @enderror" 
+                                           name="subcategoryName" value="{{ $edit_data->subcategoryName }}" 
+                                           id="subcategoryName" required>
+                                    @error('subcategoryName')
                                         <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
                                 </div>
@@ -175,11 +175,11 @@
                 <div class="card mb-4">
                     <div class="card-header">
                         <div class="header-icon"><i class="fe-search"></i></div>
-                        <h5 class="card-title">{{ __('SEO {{ __('Configuration') }}') }}</h5>
+                        <h5 class="card-title">SEO Configuration</h5>
                     </div>
                     <div class="card-body">
                         <div class="form-group mb-4">
-                            <label for="meta_title" class="form-label">{{ __('Meta {{ __('Title') }}') }}</label>
+                            <label for="meta_title" class="form-label">{{ __('Meta Title') }}</label>
                             <input type="text" class="form-control @error('meta_title') is-invalid @enderror" 
                                    name="meta_title" value="{{ $edit_data->meta_title }}" id="meta_title">
                             @error('meta_title')
@@ -204,13 +204,13 @@
                 <div class="card">
                     <div class="card-header">
                         <div class="header-icon"><i class="fe-settings"></i></div>
-                        <h5 class="card-title">{{ __('Visibility') }}</h5>
+                        <h5 class="card-title">Visibility</h5>
                     </div>
                     <div class="card-body">
                         <div class="d-flex justify-content-between align-items-center mb-4 p-3 bg-light rounded border border-light">
                             <div>
                                 <h6 class="mb-1 text-dark fw-bold">{{ __('Status') }}</h6>
-                                <p class="text-muted font-size-12 mb-0">{{ __('{{ __('Enable') }} or disable subcategory') }}</p>
+                                <p class="text-muted font-size-12 mb-0">Enable or disable subcategory</p>
                             </div>
                             <label class="switch">
                                 <input type="checkbox" name="status" value="1" {{ $edit_data->status == 1 ? 'checked' : '' }}>
@@ -218,8 +218,8 @@
                             </label>
                         </div>
 
-                        <button type="{{ __('submit') }}" class="btn btn-{{ __('submit') }} w-100 rounded-pill">
-                            <i class="fe-save me-1"></i> Update {{ __('Change') }}s
+                        <button type="submit" class="btn btn-submit w-100 rounded-pill">
+                            <i class="fe-save me-1"></i> Update Changes
                         </button>
                     </div>
                 </div>

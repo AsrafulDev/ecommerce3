@@ -1,5 +1,5 @@
 @extends('backEnd.layouts.master')
-@section('title', '{{ __('{{ __('Stock') }} Report') }}')
+@section('title', 'Stock Report')
 
 @section('css')
 <style>
@@ -59,12 +59,12 @@
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
             <h4 class="mb-1 fw-bold text-dark">
-                <i data-feather="box" class="text-primary me-2"></i> {{ __('{{ __('Stock') }} Report') }}
+                <i data-feather="box" class="text-primary me-2"></i> Stock Report
             </h4>
-            <p class="text-muted small mb-0">{{ __('{{ __('Live') }} inventory status and valuation.') }}</p>
+            <p class="text-muted small mb-0">Live inventory status and valuation.</p>
         </div>
         <div>
-            <a href="{{ route('admin.reports.{{ __('stock') }}',['export'=>'csv']) }}" class="btn btn-custom-outline shadow-sm">
+            <a href="{{ route('admin.reports.stock',['export'=>'csv']) }}" class="btn btn-custom-outline shadow-sm">
                 <i data-feather="download" class="me-1" style="width:16px;"></i> Export CSV
             </a>
         </div>
@@ -72,12 +72,12 @@
 
     {{-- STATS OVERVIEW --}}
     <div class="row g-4 mb-4">
-        {{-- {{ __('Total') }} {{ __('Product') }}s --}}
+        {{-- Total Products --}}
         <div class="col-md-4">
             <div class="stat-card">
                 <div>
-                    <div class="stat-title">{{ __('{{ __('Total') }} {{ __('{{ __('Item') }}s') }}') }}</div>
-                    <h3 class="stat-value">{{ $products->{{ __('total') }}() }}</h3> {{-- {{ __('Use') }} {{ __('total') }}() for pagination count --}}
+                    <div class="stat-title">Total Items</div>
+                    <h3 class="stat-value">{{ $products->total() }}</h3> {{-- Use total() for pagination count --}}
                 </div>
                 <div class="stat-icon-box bg-light-primary">
                     <i data-feather="layers"></i>
@@ -85,12 +85,12 @@
             </div>
         </div>
 
-        {{-- {{ __('{{ __('Total') }} {{ __('Stock') }}') }} Qty --}}
+        {{-- Total Stock Qty --}}
         <div class="col-md-4">
             <div class="stat-card">
                 <div>
-                    <div class="stat-title">{{ __('{{ __('Stock') }} Quantity') }}</div>
-                    <h3 class="stat-value">{{ number_format($total{{ __('Stock') }}Qty) }}</h3>
+                    <div class="stat-title">Stock Quantity</div>
+                    <h3 class="stat-value">{{ number_format($totalStockQty) }}</h3>
                 </div>
                 <div class="stat-icon-box bg-light-info">
                     <i data-feather="package"></i>
@@ -98,12 +98,12 @@
             </div>
         </div>
 
-        {{-- {{ __('{{ __('Total') }} {{ __('Stock') }}') }} {{ __('Value') }} --}}
+        {{-- Total Stock Value --}}
         <div class="col-md-4">
             <div class="stat-card">
                 <div>
-                    <div class="stat-title">{{ __('{{ __('Inv') }}entory {{ __('Value') }}') }}</div>
-                    <h3 class="stat-value">৳{{ number_format($total{{ __('Stock') }}{{ __('Value') }}, 2) }}</h3>
+                    <div class="stat-title">Inventory Value</div>
+                    <h3 class="stat-value">৳{{ number_format($totalStockValue, 2) }}</h3>
                 </div>
                 <div class="stat-icon-box bg-light-success">
                     <span class="fw-bold">৳</span>
@@ -113,10 +113,10 @@
     </div>
 
     {{-- STOCK TABLE --}}
-    <div id="{{ __('stock') }}-table-wrapper">
+    <div id="stock-table-wrapper">
         <div class="card card-modern">
             <div class="card-header border-bottom bg-white py-3">
-                <h5 class="mb-0 fw-bold text-dark">{{ __('{{ __('Current') }} {{ __('Inv') }}entory List') }}</h5>
+                <h5 class="mb-0 fw-bold text-dark">Current Inventory List</h5>
             </div>
             
             <div class="table-responsive">
@@ -124,11 +124,11 @@
                     <thead>
                         <tr>
                             <th width="5%">#</th>
-                            <th width="35%">{{ __('{{ __('Product') }} {{ __('Name') }}') }}</th>
-                            <th width="15%" class="text-end">{{ __('In {{ __('Stock') }}') }}</th>
-                            <th width="15%" class="text-end">{{ __('Purchase Cost') }}</th>
-                            <th width="15%" class="text-end">{{ __('Selling Price') }}</th>
-                            <th width="15%" class="text-end">{{ __('{{ __('Total') }} {{ __('Value') }}') }}</th>
+                            <th width="35%">Product Name</th>
+                            <th width="15%" class="text-end">{{ __('In Stock') }}</th>
+                            <th width="15%" class="text-end">Purchase Cost</th>
+                            <th width="15%" class="text-end">Selling Price</th>
+                            <th width="15%" class="text-end">Total Value</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -136,8 +136,8 @@
                         @php
                             $purchasePrice = $p->purchase_price ?? 0;
                             $salePrice     = $p->new_price ?? $p->old_price ?? 0;
-                            $stock         = $p->{{ __('stock') }} ?? 0;
-                            $stock{{ __('Value') }}    = $purchasePrice * $stock;
+                            $stock         = $p->stock ?? 0;
+                            $stockValue    = $purchasePrice * $stock;
                         @endphp
                         <tr>
                             <td class="text-muted">{{ $loop->iteration + ($products->currentPage() - 1) * $products->perPage() }}</td>
@@ -151,14 +151,14 @@
                             </td>
                             <td class="text-end text-muted">৳{{ number_format($purchasePrice, 2) }}</td>
                             <td class="text-end text-muted">৳{{ number_format($salePrice, 2) }}</td>
-                            <td class="text-end fw-bold text-dark">৳{{ number_format($stock{{ __('Value') }}, 2) }}</td>
+                            <td class="text-end fw-bold text-dark">৳{{ number_format($stockValue, 2) }}</td>
                         </tr>
                     @empty
                         <tr>
                             <td colspan="6" class="text-center py-5">
                                 <div class="d-flex flex-column align-items-center">
-                                    <img src="{{ __('https://') }}cdn-icons-png.flaticon.com/512/7486/7486744.png" width="50" class="opacity-25 mb-2">
-                                    <p class="text-muted fw-bold mb-0">{{ __('No products found') }}</p>
+                                    <img src="https://cdn-icons-png.flaticon.com/512/7486/7486744.png" width="50" class="opacity-25 mb-2">
+                                    <p class="text-muted fw-bold mb-0">No products found</p>
                                 </div>
                             </td>
                         </tr>
@@ -169,7 +169,7 @@
 
             {{-- Pagination --}}
             <div class="p-4 border-top d-flex justify-content-between align-items-center">
-                <small class="text-muted">Showing {{ $products->first{{ __('Item') }}() }} to {{ $products->last{{ __('Item') }}() }} of {{ $products->{{ __('total') }}() }} entries</small>
+                <small class="text-muted">Showing {{ $products->firstItem() }} to {{ $products->lastItem() }} of {{ $products->total() }} entries</small>
                 <div>{{ $products->links('pagination::bootstrap-4') }}</div>
             </div>
         </div>
@@ -181,7 +181,7 @@
 @section('script')
 <script>
     /* ===============================
-       AJAX Pagination for {{ __('{{ __('Stock') }} Report') }}
+       AJAX Pagination for Stock Report
        =============================== */
     document.addEventListener('click', function(e){
         let link = e.target.closest('.pagination a');
@@ -191,17 +191,17 @@
         let url = link.getAttribute('href');
 
         // Add loading state
-        let tableWrapper = document.getElementById('{{ __('stock') }}-table-wrapper');
+        let tableWrapper = document.getElementById('stock-table-wrapper');
         tableWrapper.style.opacity = '0.5';
 
         fetch(url, {
-            headers: { 'X-{{ __('Requested') }}-With': 'XMLHttpRequest' }
+            headers: { 'X-Requested-With': 'XMLHttpRequest' }
         })
         .then(res => res.text())
         .then(html => {
             let temp = document.createElement('div');
             temp.innerHTML = html;
-            let newContent = temp.querySelector('#{{ __('stock') }}-table-wrapper');
+            let newContent = temp.querySelector('#stock-table-wrapper');
             
             if (newContent) {
                 tableWrapper.innerHTML = newContent.innerHTML;

@@ -1,5 +1,5 @@
 @extends('backEnd.layouts.master')
-@section('title', 'Sitemap {{ __('Configuration') }}')
+@section('title', 'Sitemap Configuration')
 
 @section('content')
 
@@ -103,13 +103,13 @@
             
             <div class="d-flex justify-content-between align-items-end mb-4">
                 <div>
-                    <h4 class="fw-bold mb-1">{{ __('Sitemap {{ __('Manage') }}ment') }}</h4>
-                    <p class="text-muted small mb-0">{{ __('Configure search engine indexing protocols') }}</p>
+                    <h4 class="fw-bold mb-1">Sitemap Management</h4>
+                    <p class="text-muted small mb-0">Configure search engine indexing protocols</p>
                 </div>
                 <div>
                     <span class="status-badge status-active">
                         <span style="height: 8px; width: 8px; background: #16a34a; border-radius: 50%; margin-right: 6px;"></span>
-                        {{ __('System Health') }}y
+                        System Healthy
                     </span>
                 </div>
             </div>
@@ -122,8 +122,8 @@
                             <i class="fas fa-project-diagram fa-lg"></i>
                         </div>
                         <div>
-                            <h6 class="mb-0 fw-bold">{{ __('XML Sitemap {{ __('Configuration') }}') }}</h6>
-                            <small class="text-muted">{{ __('sitemap.xml') }}</small>
+                            <h6 class="mb-0 fw-bold">XML Sitemap Configuration</h6>
+                            <small class="text-muted">sitemap.xml</small>
                         </div>
                     </div>
                 </div>
@@ -134,7 +134,7 @@
                     <div class="row g-4 mb-4">
                         <div class="col-md-4">
                             <div class="p-3 bg-light rounded-3 border border-light h-100">
-                                <div class="info-label">{{ __('Last Generated') }}</div>
+                                <div class="info-label">Last Generated</div>
                                 <div class="info-value">
                                     <i class="far fa-clock me-1 text-muted"></i> 
                                     {{ now()->format('M d, Y • h:i A') }}
@@ -143,15 +143,15 @@
                         </div>
                         <div class="col-md-4">
                             <div class="p-3 bg-light rounded-3 border border-light h-100">
-                                <div class="info-label">{{ __('File Path') }}</div>
+                                <div class="info-label">File Path</div>
                                 <div class="info-value text-break" style="font-size: 13px; font-family: monospace;">
-                                    /public/{{ __('sitemap.xml') }}
+                                    /public/sitemap.xml
                                 </div>
                             </div>
                         </div>
                         <div class="col-md-4">
                             <div class="p-3 bg-light rounded-3 border border-light h-100">
-                                <div class="info-label">{{ __('Update Frequency') }}</div>
+                                <div class="info-label">Update Frequency</div>
                                 <div class="info-value">
                                     <i class="fas fa-sync me-1 text-muted"></i> Hourly (Auto)
                                 </div>
@@ -164,25 +164,25 @@
                     {{-- Main Action Section --}}
                     <div class="row align-items-center">
                         <div class="col-md-7 mb-3 mb-md-0">
-                            <label class="info-label mb-2">{{ __('Public Sitemap URL') }}</label>
+                            <label class="info-label mb-2">Public Sitemap URL</label>
                             <div class="url-input-group">
-                                <span class="url-text" id="sitemapUrl">{{ url('{{ __('sitemap.xml') }}') }}</span>
-                                <button class="btn-copy ms-2" onclick="copyToClipboard()" title="Copy {{ __('Link') }}">
+                                <span class="url-text" id="sitemapUrl">{{ url('sitemap.xml') }}</span>
+                                <button class="btn-copy ms-2" onclick="copyToClipboard()" title="Copy Link">
                                     <i class="far fa-copy"></i>
                                 </button>
-                                <a href="{{ url('{{ __('sitemap.xml') }}') }}" target="_blank" class="btn-copy ms-1 text-decoration-none">
+                                <a href="{{ url('sitemap.xml') }}" target="_blank" class="btn-copy ms-1 text-decoration-none">
                                     <i class="fas fa-external-link-alt"></i>
                                 </a>
                             </div>
                             <small class="text-muted mt-2 d-block fst-italic">
-                                * Submit this URL to <a href="{{ __('https://') }}search.google.com/search-console" target="_blank" class="text-decoration-none fw-bold">{{ __('Google Search Console') }}</a>.
+                                * Submit this URL to <a href="https://search.google.com/search-console" target="_blank" class="text-decoration-none fw-bold">Google Search Console</a>.
                             </small>
                         </div>
 
                         <div class="col-md-5 text-md-end">
-                            <form action="{{ route('admin.sitemap.generate') }}" method={{ __('"{{ __('POST') }}"') }} id="proForm">
+                            <form action="{{ route('admin.sitemap.generate') }}" method="POST" id="proForm">
                                 @csrf
-                                <button type="{{ __('submit') }}" class="btn-generate-pro w-100" id="proBtn">
+                                <button type="submit" class="btn-generate-pro w-100" id="proBtn">
                                     <span id="btnContent">
                                         <i class="fas fa-sync-alt me-2"></i> Generate Sitemap
                                     </span>
@@ -192,7 +192,7 @@
                                 </button>
                             </form>
                             <div class="text-center text-md-end mt-2">
-                                <small class="text-muted" style="font-size: 11px;">{{ __('Manual override triggers instant rebuild') }}</small>
+                                <small class="text-muted" style="font-size: 11px;">Manual override triggers instant rebuild</small>
                             </div>
                         </div>
                     </div>
@@ -200,15 +200,15 @@
                 </div>
             </div>
 
-            {{-- {{ __('Optional') }}: Log Section (Visual only) --}}
+            {{-- Optional: Log Section (Visual only) --}}
             <div class="mt-4">
-                <p class="info-label text-uppercase mb-2 ms-1">{{ __('Recent Activity') }}</p>
+                <p class="info-label text-uppercase mb-2 ms-1">Recent Activity</p>
                 <div class="bg-white rounded-3 border p-3">
                     <div class="d-flex align-items-start mb-2">
                         <i class="fas fa-check-circle text-success mt-1 me-2"></i>
                         <div>
-                            <small class="d-block text-dark fw-bold">{{ __('Sitemap Generated Successfully') }}</small>
-                            <small class="text-muted" style="font-size: 11px;">System Automation • {{ now()->sub{{ __('Minutes') }}(5)->diffForHumans() }}</small>
+                            <small class="d-block text-dark fw-bold">Sitemap Generated Successfully</small>
+                            <small class="text-muted" style="font-size: 11px;">System Automation • {{ now()->subMinutes(5)->diffForHumans() }}</small>
                         </div>
                     </div>
                 </div>
@@ -222,19 +222,19 @@
 <script>
     // 1. Copy to Clipboard Function
     function copyToClipboard() {
-        const url{{ __('Text') }} = document.getElementById('sitemapUrl').inner{{ __('Text') }};
-        navigator.clipboard.write{{ __('Text') }}(url{{ __('Text') }}).then(() => {
+        const urlText = document.getElementById('sitemapUrl').innerText;
+        navigator.clipboard.writeText(urlText).then(() => {
             // Show temporary tooltip or change icon
             const btn = document.querySelector('.btn-copy i');
-            btn.class{{ __('Name') }} = 'fas fa-check text-success';
+            btn.className = 'fas fa-check text-success';
             setTimeout(() => {
-                btn.class{{ __('Name') }} = 'far fa-copy';
+                btn.className = 'far fa-copy';
             }, 2000);
         });
     }
 
     // 2. Loading State
-    document.getElementById('proForm').addEventListener('{{ __('submit') }}', function() {
+    document.getElementById('proForm').addEventListener('submit', function() {
         const btn = document.getElementById('proBtn');
         const content = document.getElementById('btnContent');
         const loader = document.getElementById('btnLoader');
@@ -247,7 +247,7 @@
     // 3. Background Sync (Silent)
     setInterval(() => {
         fetch('{{ route('admin.sitemap.generate') }}', { 
-            method: '{{ __('POST') }}', 
+            method: 'POST', 
             headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' } 
         });
     }, 3600000);

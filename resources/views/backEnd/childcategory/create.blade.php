@@ -1,5 +1,5 @@
 @extends('backEnd.layouts.master')
-@section('title','{{ __('Create Childcategory') }}')
+@section('title','Create Childcategory')
 
 @section('css')
 <link href="{{asset('public/backEnd')}}/assets/libs/select2/css/select2.min.css" rel="stylesheet" type="text/css" />
@@ -52,7 +52,7 @@
         border: 1px solid #eef2f7;
         padding: 12px 15px;
         border-radius: 8px;
-        font-size: {{ __('14px') }};
+        font-size: 14px;
         color: #2d3436;
         transition: all 0.3s;
     }
@@ -74,7 +74,7 @@
     .select2-container--default .select2-selection--single .select2-selection__rendered {
         padding-left: 15px;
         color: #2d3436;
-        font-size: {{ __('14px') }};
+        font-size: 14px;
     }
     .select2-container--default .select2-selection--single .select2-selection__arrow {
         height: 44px;
@@ -90,7 +90,7 @@
     input:checked + .slider:before { transform: translateX(22px); }
 
     /* Button Style */
-    .btn-{{ __('submit') }} {
+    .btn-submit {
         background: linear-gradient(45deg, #0acf97, #06b6d4);
         border: none;
         color: white;
@@ -100,7 +100,7 @@
         box-shadow: 0 4px 15px rgba(10, 207, 151, 0.3);
         transition: 0.3s;
     }
-    .btn-{{ __('submit') }}:hover {
+    .btn-submit:hover {
         transform: translateY(-2px);
         box-shadow: 0 6px 20px rgba(10, 207, 151, 0.4);
     }
@@ -114,8 +114,8 @@
         <div class="col-12">
             <div class="page-title-box d-flex align-items-center justify-content-between py-4">
                 <div>
-                    <h4 class="page-title mb-1 text-dark fw-bold">{{ __('Create Childcategory') }}</h4>
-                    <p class="text-muted font-size-13 mb-0">{{ __('Add a new level to your product hierarchy.') }}</p>
+                    <h4 class="page-title mb-1 text-dark fw-bold">Create Childcategory</h4>
+                    <p class="text-muted font-size-13 mb-0">Add a new level to your product hierarchy.</p>
                 </div>
                 <div class="page-title-right">
                     <a href="{{route('childcategories.index')}}" class="btn btn-light rounded-pill border shadow-sm px-4">
@@ -126,7 +126,7 @@
         </div>
     </div>
 
-    <form action="{{route('childcategories.store')}}" method={{ __('"{{ __('POST') }}"') }} enctype="multipart/form-data" data-parsley-validate>
+    <form action="{{route('childcategories.store')}}" method="POST" enctype="multipart/form-data" data-parsley-validate>
         @csrf
         <div class="row">
             
@@ -135,19 +135,19 @@
                 <div class="card mb-4">
                     <div class="card-header">
                         <div class="header-icon"><i class="fe-git-merge"></i></div>
-                        <h5 class="card-title">{{ __('General Information') }}</h5>
+                        <h5 class="card-title">General Information</h5>
                     </div>
                     <div class="card-body">
                         
                         <div class="form-group mb-4">
-                            <label for="subcategory_id" class="form-label">{{ __('Parent {{ __('Subcategory') }}') }} <span class="text-danger">*</span></label>
+                            <label for="subcategory_id" class="form-label">Parent Subcategory <span class="text-danger">*</span></label>
                             <select class="form-control select2 @error('subcategory_id') is-invalid @enderror" 
                                     id="subcategory_id" name="subcategory_id" required>
-                                <option value="">{{ __('Select {{ __('Subcategory') }}') }}</option>
+                                <option value="">Select Subcategory</option>
                                 @foreach ($menucategories as $category)
                                     <optgroup label="{{ $category->name }}">
                                         @foreach ($category->subcategories as $subcat)
-                                            <option value="{{ $subcat->id }}">{{ $subcat->subcategory{{ __('Name') }} }}</option>
+                                            <option value="{{ $subcat->id }}">{{ $subcat->subcategoryName }}</option>
                                         @endforeach
                                     </optgroup>
                                 @endforeach
@@ -158,11 +158,11 @@
                         </div>
 
                         <div class="form-group mb-4">
-                            <label for="childcategory{{ __('Name') }}" class="form-label">{{ __('Childcategory {{ __('Name') }}') }} <span class="text-danger">*</span></label>
-                            <input type="text" class="form-control @error('childcategory{{ __('Name') }}') is-invalid @enderror" 
-                                   name="childcategory{{ __('Name') }}" value="{{ old('childcategory{{ __('Name') }}') }}" 
-                                   id="childcategory{{ __('Name') }}" placeholder="{{ __('e.g. T-Shirts, Wireless Mouse') }}" required>
-                            @error('childcategory{{ __('Name') }}')
+                            <label for="childcategoryName" class="form-label">Childcategory Name <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control @error('childcategoryName') is-invalid @enderror" 
+                                   name="childcategoryName" value="{{ old('childcategoryName') }}" 
+                                   id="childcategoryName" placeholder="e.g. T-Shirts, Wireless Mouse" required>
+                            @error('childcategoryName')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                         </div>
@@ -172,13 +172,13 @@
                 <div class="card mb-4">
                     <div class="card-header">
                         <div class="header-icon"><i class="fe-search"></i></div>
-                        <h5 class="card-title">{{ __('SEO {{ __('Configuration') }}') }}</h5>
+                        <h5 class="card-title">SEO Configuration</h5>
                     </div>
                     <div class="card-body">
                         <div class="form-group mb-4">
-                            <label for="meta_title" class="form-label">{{ __('Meta {{ __('Title') }}') }}</label>
+                            <label for="meta_title" class="form-label">{{ __('Meta Title') }}</label>
                             <input type="text" class="form-control @error('meta_title') is-invalid @enderror" 
-                                   name="meta_title" value="{{ old('meta_title') }}" placeholder="{{ __('SEO {{ __('Title') }}') }}">
+                                   name="meta_title" value="{{ old('meta_title') }}" placeholder="SEO Title">
                             @error('meta_title')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
@@ -201,13 +201,13 @@
                 <div class="card mb-4">
                     <div class="card-header">
                         <div class="header-icon"><i class="fe-settings"></i></div>
-                        <h5 class="card-title">{{ __('Visibility') }}</h5>
+                        <h5 class="card-title">Visibility</h5>
                     </div>
                     <div class="card-body">
                         <div class="d-flex justify-content-between align-items-center mb-4 p-3 bg-light rounded border border-light">
                             <div>
                                 <h6 class="mb-1 text-dark fw-bold">{{ __('Status') }}</h6>
-                                <p class="text-muted font-size-12 mb-0">{{ __('{{ __('Enable') }} or disable category') }}</p>
+                                <p class="text-muted font-size-12 mb-0">Enable or disable category</p>
                             </div>
                             <label class="switch">
                                 <input type="checkbox" name="status" value="1" checked>
@@ -215,7 +215,7 @@
                             </label>
                         </div>
 
-                        <button type="{{ __('submit') }}" class="btn btn-{{ __('submit') }} w-100 rounded-pill">
+                        <button type="submit" class="btn btn-submit w-100 rounded-pill">
                             <i class="fe-save me-1"></i> Save Childcategory
                         </button>
                     </div>
@@ -226,7 +226,7 @@
                         <div class="d-flex align-items-start">
                             <i class="fe-help-circle font-size-18 me-2 text-secondary"></i>
                             <p class="mb-0 font-size-13 text-secondary">
-                                {{ __('Childcategories') }} are the 3rd level of categorization ({{ __('Category') }} -> {{ __('Subcategory') }} -> Childcategory). {{ __('Use') }} them for specific item grouping.
+                                Childcategories are the 3rd level of categorization (Category -> Subcategory -> Childcategory). Use them for specific item grouping.
                             </p>
                         </div>
                     </div>

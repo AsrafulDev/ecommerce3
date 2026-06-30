@@ -1,7 +1,7 @@
 {{-- 
-  {{ __('Product') }} Card Component 
+  Product Card Component 
   Usage: @include('frontEnd.layouts.sections.product-card', ['product' => $product, 'classes' => ''])
-  {{ __('Variable') }}s: $product (required), $classes (optional extra CSS classes)
+  Variables: $product (required), $classes (optional extra CSS classes)
 --}}
 <div class="product_item wist_item {{ $classes ?? '' }}">
     <div class="product_item_inner">
@@ -27,8 +27,8 @@
                 <img src="{{ asset($product->image ? $product->image->image : '') }}"
                     alt="{{ $product->name }}" />
             </a>
-            @if(!is_null($product->{{ __('stock') }}) && $product->{{ __('stock') }} < 1)
-                <div class="{{ __('stock') }}-out-overlay">{{ __('STOCK OUT') }}</div>
+            @if(!is_null($product->stock) && $product->stock < 1)
+                <div class="stock-out-overlay">STOCK OUT</div>
             @endif
         </div>
         <div class="pro_des">
@@ -46,11 +46,11 @@
         </div>
     </div>
 
-    {{-- Button logic: variant/{{ __('stock') }}-out → detail page, simple → direct cart --}}
-    @if (!$product->prosizes->isEmpty() || !$product->procolors->isEmpty() || (!is_null($product->{{ __('stock') }}) && $product->{{ __('stock') }} < 1))
+    {{-- Button logic: variant/stock-out → detail page, simple → direct cart --}}
+    @if (!$product->prosizes->isEmpty() || !$product->procolors->isEmpty() || (!is_null($product->stock) && $product->stock < 1))
         <div class="pro_btn">
             <a href="{{ route('product', $product->slug) }}" class="order-btn-link">
-                {{ __('Order Now') }}
+                অর্ডার করুন
             </a>
             <a href="{{ route('product', $product->slug) }}" class="cart-icon-link">
                 <i class="fa-solid fa-cart-shopping"></i>
@@ -58,18 +58,18 @@
         </div>
     @else
         <div class="pro_btn">
-            <form action="{{ route('cart.store') }}" method={{ __('"{{ __('POST') }}"') }} class="ajax-cart-form">
+            <form action="{{ route('cart.store') }}" method="POST" class="ajax-cart-form">
                 @csrf
                 <input type="hidden" name="id" value="{{ $product->id }}" />
                 <input type="hidden" name="qty" value="1" />
                 <input type="hidden" name="order_now" value="1">
-                <button type="{{ __('submit') }}" class="order-btn">{{ __('Order Now') }}</button>
+                <button type="submit" class="order-btn">অর্ডার করুন</button>
             </form>
-            <form action="{{ route('cart.store') }}" method={{ __('"{{ __('POST') }}"') }} class="ajax-cart-form">
+            <form action="{{ route('cart.store') }}" method="POST" class="ajax-cart-form">
                 @csrf
                 <input type="hidden" name="id" value="{{ $product->id }}" />
                 <input type="hidden" name="qty" value="1" />
-                <button type="{{ __('submit') }}" class="cart-icon-btn">
+                <button type="submit" class="cart-icon-btn">
                     <i class="fa-solid fa-cart-shopping"></i>
                 </button>
             </form>

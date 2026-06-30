@@ -1,5 +1,5 @@
 @extends('backEnd.layouts.master')
-@section('title','{{ __('Purchases') }}')
+@section('title','Purchases')
 
 @php
     use Illuminate\Support\Facades\Auth;
@@ -91,7 +91,7 @@
 <div class="container-fluid mb-5">
 
     <div class="d-sm-flex align-items-center justify-content-between mb-4 mt-2">
-        <h1 class="h3 mb-0 text-gray-800 fw-bold">🛒 Purchase {{ __('Manage') }}ment</h1>
+        <h1 class="h3 mb-0 text-gray-800 fw-bold">🛒 Purchase Management</h1>
         <a href="{{ route('purchases.logs') }}" class="d-none d-sm-inline-block btn btn-sm btn-info shadow-sm">
             <i class="fe-file-text me-1"></i> View Reports / Logs
         </a>
@@ -104,8 +104,8 @@
                     <div class="stats-icon bg-soft-success"><i class="fe-calendar"></i></div>
                     <div>
                         <div class="stats-label text-success">This Year ({{ $currentYear }})</div>
-                        <div class="stats-value">{{ number_format($yearly{{ __('Total') }}, 2) }} ৳</div>
-                        <div class="stats-sub">{{ __('{{ __('Total') }} Purchase') }}</div>
+                        <div class="stats-value">{{ number_format($yearlyTotal, 2) }} ৳</div>
+                        <div class="stats-sub">Total Purchase</div>
                     </div>
                 </div>
             </div>
@@ -117,10 +117,10 @@
                     <div class="stats-icon bg-soft-info"><i class="fe-bar-chart-2"></i></div>
                     <div>
                         <div class="stats-label text-info">
-                            {{ \Carbon\Carbon::create{{ __('From') }}{{ __('Date') }}(now()->year, $currentMonth, 1)->format('F') }}
+                            {{ \Carbon\Carbon::createFromDate(now()->year, $currentMonth, 1)->format('F') }}
                         </div>
-                        <div class="stats-value">{{ number_format($monthly{{ __('Total') }}, 2) }} ৳</div>
-                        <div class="stats-sub">{{ __('{{ __('Monthly') }} Purchase') }}</div>
+                        <div class="stats-value">{{ number_format($monthlyTotal, 2) }} ৳</div>
+                        <div class="stats-sub">Monthly Purchase</div>
                     </div>
                 </div>
             </div>
@@ -131,9 +131,9 @@
                 <div class="card-body stats-card">
                     <div class="stats-icon bg-soft-primary"><i class="fe-shopping-bag"></i></div>
                     <div>
-                        <div class="stats-label text-primary">{{ __('Today') }} ({{ now()->format('d M') }})</div>
-                        <div class="stats-value">{{ number_format($today{{ __('Total') }}, 2) }} ৳</div>
-                        <div class="stats-sub">{{ __('Daily Purchase') }}</div>
+                        <div class="stats-label text-primary">Today ({{ now()->format('d M') }})</div>
+                        <div class="stats-value">{{ number_format($todayTotal, 2) }} ৳</div>
+                        <div class="stats-sub">Daily Purchase</div>
                     </div>
                 </div>
             </div>
@@ -144,9 +144,9 @@
                 <div class="card-body stats-card">
                     <div class="stats-icon bg-soft-danger"><i class="fe-alert-circle"></i></div>
                     <div>
-                        <div class="stats-label text-danger">{{ __('{{ __('Supplier') }} {{ __('Due') }}') }}</div>
-                        <div class="stats-value">{{ number_format($total{{ __('Due') }}, 2) }} ৳</div>
-                        <div class="stats-sub">{{ __('{{ __('Total') }} Liability') }}</div>
+                        <div class="stats-label text-danger">Supplier Due</div>
+                        <div class="stats-value">{{ number_format($totalDue, 2) }} ৳</div>
+                        <div class="stats-sub">Total Liability</div>
                     </div>
                 </div>
             </div>
@@ -157,41 +157,41 @@
         <div class="col-lg-8 mb-4">
             <div class="card mb-4">
                 <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary"><i class="fe-plus-circle me-1"></i> {{ __('{{ __('New') }} Purchase Entry') }}</h6>
+                    <h6 class="m-0 font-weight-bold text-primary"><i class="fe-plus-circle me-1"></i> New Purchase Entry</h6>
                 </div>
                 <div class="card-body">
-                    <form action="{{ route('purchases.store') }}" method={{ __('"{{ __('POST') }}"') }}>
+                    <form action="{{ route('purchases.store') }}" method="POST">
                         @csrf
                         <div class="row">
                             <div class="col-md-4 mb-3">
-                                <label class="form-label">{{ __('{{ __('Supplier') }} *') }}</label>
+                                <label class="form-label">Supplier *</label>
                                 <select name="supplier_id" class="form-control form-select" required>
-                                    <option value="">-- {{ __('Select {{ __('Supplier') }}') }} --</option>
+                                    <option value="">-- Select Supplier --</option>
                                     @foreach($suppliers as $s)
-                                        <option value="{{ $s->id }}">{{ $s->name }} ({{ $s->{{ __('phone') }} }})</option>
+                                        <option value="{{ $s->id }}">{{ $s->name }} ({{ $s->phone }})</option>
                                     @endforeach
                                 </select>
                             </div>
                             <div class="col-md-4 mb-3">
-                                <label class="form-label">{{ __('{{ __('{{ __('{{ __('Inv') }}oice') }} No') }} *') }}</label>
+                                <label class="form-label">Invoice No *</label>
                                 <input type="text" name="invoice_no" class="form-control" value="{{ 'PUR-'.time() }}" required readonly style="background-color: #f8f9fc;">
                             </div>
                             <div class="col-md-4 mb-3">
-                                <label class="form-label">{{ __('{{ __('Date') }} *') }}</label>
+                                <label class="form-label">Date *</label>
                                 <input type="date" name="purchase_date" class="form-control" value="{{ now()->format('Y-m-d') }}" required>
                             </div>
                         </div>
 
                         <hr class="sidebar-divider my-3">
-                        <h6 class="text-xs font-weight-bold text-uppercase text-gray-500 mb-3">{{ __('{{ __('Product') }} Details') }}</h6>
+                        <h6 class="text-xs font-weight-bold text-uppercase text-gray-500 mb-3">{{ __('Product Details') }}</h6>
 
                         <div class="row">
                             <div class="col-md-6 mb-3">
-                                <label class="form-label">{{ __('{{ __('Product') }} *') }}</label>
+                                <label class="form-label">Product *</label>
                                 <select name="product_id" class="form-control form-select" required>
-                                    <option value="">-- {{ __('Select {{ __('Product') }}') }} --</option>
+                                    <option value="">-- Select Product --</option>
                                     @foreach($products as $p)
-                                        <option value="{{ $p->id }}">{{ $p->name }} ({{ __('Stock') }}: {{ $p->{{ __('stock') }} }})</option>
+                                        <option value="{{ $p->id }}">{{ $p->name }} (Stock: {{ $p->stock }})</option>
                                     @endforeach
                                 </select>
                             </div>
@@ -199,37 +199,37 @@
                             <input type="hidden" name="variant_price_id" value="">
 
                             <div class="col-md-3 mb-3">
-                                <label class="form-label">{{ __('Quantity *') }}</label>
-                                <input type="{{ __('number') }}" name="qty" class="form-control" min="1" value="1" required>
+                                <label class="form-label">Quantity *</label>
+                                <input type="number" name="qty" class="form-control" min="1" value="1" required>
                             </div>
                             <div class="col-md-3 mb-3">
-                                <label class="form-label">{{ __('bn_24c12649') }}</label>
-                                <input type="{{ __('number') }}" step="0.01" name="unit_cost" class="form-control" placeholder="{{ __('0.00') }}" required>
+                                <label class="form-label">Unit Cost (৳) *</label>
+                                <input type="number" step="0.01" name="unit_cost" class="form-control" placeholder="0.00" required>
                             </div>
                         </div>
 
                         <div class="row">
                             <div class="col-md-3 mb-3">
                                 <label class="form-label">{{ __('Discount') }}</label>
-                                <input type="{{ __('number') }}" step="0.01" name="discount" class="form-control" value="0">
+                                <input type="number" step="0.01" name="discount" class="form-control" value="0">
                             </div>
                             <div class="col-md-3 mb-3">
-                                <label class="form-label">{{ __('{{ __('Shipping') }} Cost') }}</label>
-                                <input type="{{ __('number') }}" step="0.01" name="shipping_cost" class="form-control" value="0">
+                                <label class="form-label">Shipping Cost</label>
+                                <input type="number" step="0.01" name="shipping_cost" class="form-control" value="0">
                             </div>
                             <div class="col-md-3 mb-3">
-                                <label class="form-label text-success fw-bold">{{ __('{{ __('Paid') }} {{ __('Amount') }}') }}</label>
-                                <input type="{{ __('number') }}" step="0.01" name="paid_amount" class="form-control border-success" value="0">
-                                <small class="text-muted" style="font-size:10px;">{{ __('Deducted from fund') }}</small>
+                                <label class="form-label text-success fw-bold">Paid Amount</label>
+                                <input type="number" step="0.01" name="paid_amount" class="form-control border-success" value="0">
+                                <small class="text-muted" style="font-size:10px;">Deducted from fund</small>
                             </div>
                             <div class="col-md-3 mb-3">
                                 <label class="form-label">{{ __('Note') }}</label>
-                                <input type="text" name="note" class="form-control" placeholder="{{ __('Optional') }}">
+                                <input type="text" name="note" class="form-control" placeholder="Optional">
                             </div>
                         </div>
 
                         <div class="mt-3 text-end">
-                            <button type="{{ __('submit') }}" class="btn btn-primary px-4">
+                            <button type="submit" class="btn btn-primary px-4">
                                 <i class="fe-save me-1"></i> Save Purchase
                             </button>
                         </div>
@@ -241,21 +241,21 @@
         <div class="col-lg-4 mb-4">
             <div class="card h-100">
                 <div class="card-header py-3 bg-white">
-                    <h6 class="m-0 font-weight-bold text-dark"><i class="fe-download me-1"></i> {{ __('Export Report') }}</h6>
+                    <h6 class="m-0 font-weight-bold text-dark"><i class="fe-download me-1"></i> Export Report</h6>
                 </div>
                 <div class="card-body">
-                    <form action="{{ route('purchases.export') }}" method="{{ __('GET') }}" target="_blank">
+                    <form action="{{ route('purchases.export') }}" method="GET" target="_blank">
                         <div class="mb-3">
-                            <label class="form-label">{{ __('Filter by Month/Year') }}</label>
+                            <label class="form-label">Filter by Month/Year</label>
                             <div class="input-group">
-                                <input type="{{ __('number') }}" name="month" class="form-control" placeholder="{{ __('Month (1-12)') }}" value="{{ request('month') }}">
-                                <input type="{{ __('number') }}" name="year" class="form-control" placeholder="{{ __('Year') }}" value="{{ request('year') }}">
+                                <input type="number" name="month" class="form-control" placeholder="Month (1-12)" value="{{ request('month') }}">
+                                <input type="number" name="year" class="form-control" placeholder="{{ __('Year') }}" value="{{ request('year') }}">
                             </div>
                         </div>
                         <div class="mb-3">
-                            <label class="form-label">{{ __('{{ __('Date') }} Range') }}</label>
+                            <label class="form-label">Date Range</label>
                             <div class="input-group">
-                                <span class="input-group-text bg-light border-end-0">{{ __('From') }}</span>
+                                <span class="input-group-text bg-light border-end-0">From</span>
                                 <input type="date" name="from_date" class="form-control" value="{{ request('from_date') }}">
                             </div>
                             <div class="input-group mt-2">
@@ -264,7 +264,7 @@
                             </div>
                         </div>
                         <div class="d-grid">
-                            <button type="{{ __('submit') }}" class="btn btn-outline-dark">
+                            <button type="submit" class="btn btn-outline-dark">
                                 <i class="fe-download-cloud me-2"></i> Download CSV
                             </button>
                         </div>
@@ -276,7 +276,7 @@
 
     <div class="card shadow mb-4">
         <div class="card-header py-3 d-flex justify-content-between align-items-center">
-            <h6 class="m-0 font-weight-bold text-primary"><i class="fe-list me-1"></i> {{ __('Recent Purchase History') }}</h6>
+            <h6 class="m-0 font-weight-bold text-primary"><i class="fe-list me-1"></i> Recent Purchase History</h6>
         </div>
         <div class="card-body p-0">
             <div id="purchase-table-wrapper" class="table-responsive">
@@ -284,13 +284,13 @@
                     <thead>
                         <tr>
                             <th class="text-center" width="5%">#</th>
-                            <th width="12%">{{ __('{{ __('Date') }}') }}</th>
-                            <th width="15%">{{ __('{{ __('{{ __('Inv') }}oice') }}') }}</th>
-                            <th width="15%">{{ __('{{ __('Supplier') }}') }}</th>
-                            <th class="text-end" width="10%">{{ __('{{ __('Total') }}') }}</th>
-                            <th class="text-end" width="10%">{{ __('Paid') }}</th>
-                            <th class="text-end" width="10%">{{ __('Due') }}</th>
-                            <th class="text-center" width="23%">{{ __('Actions') }}</th>
+                            <th width="12%">{{ __('Date') }}</th>
+                            <th width="15%">{{ __('Invoice') }}</th>
+                            <th width="15%">{{ __('Supplier') }}</th>
+                            <th class="text-end" width="10%">{{ __('Total') }}</th>
+                            <th class="text-end" width="10%">Paid</th>
+                            <th class="text-end" width="10%">Due</th>
+                            <th class="text-center" width="23%">Actions</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -302,10 +302,10 @@
                                 if ($user->id == 1) {
                                     $isAdmin = true;
                                 } else {
-                                    $spatie{{ __('Roles') }} = $user->getRole{{ __('Name') }}s()->map(function($role) {
+                                    $spatieRoles = $user->getRoleNames()->map(function($role) {
                                         return strtolower($role);
                                     })->toArray();
-                                    $isAdmin = in_array('admin', $spatie{{ __('Roles') }});
+                                    $isAdmin = in_array('admin', $spatieRoles);
                                 }
                             }
                         @endphp
@@ -323,41 +323,41 @@
                             <td>
                                 @if($p->supplier)
                                     <div class="fw-bold text-secondary">{{ $p->supplier->name }}</div>
-                                    <small class="text-muted">{{ $p->supplier->{{ __('phone') }} }}</small>
+                                    <small class="text-muted">{{ $p->supplier->phone }}</small>
                                 @else
-                                    <span class="text-danger">{{ __('Deleted') }}</span>
+                                    <span class="text-danger">Deleted</span>
                                 @endif
                             </td>
-                            <td class="text-end fw-bold">{{ number_format($p->grand_{{ __('total') }},2) }}</td>
+                            <td class="text-end fw-bold">{{ number_format($p->grand_total,2) }}</td>
                             <td class="text-end text-success">{{ number_format($p->paid_amount,2) }}</td>
                             <td class="text-end text-danger">{{ number_format($p->due_amount,2) }}</td>
                             <td class="text-center">
                                 <div class="d-flex justify-content-center align-items-center gap-1">
-                                    <a href="{{ route('purchases.invoice',$p->{{ __('id)') }} }}" class="btn btn-action btn-outline-secondary" target="_blank" title="{{ __('{{ __('{{ __('Inv') }}oice') }}') }}">
+                                    <a href="{{ route('purchases.invoice',$p->id) }}" class="btn btn-action btn-outline-secondary" target="_blank" title="{{ __('Invoice') }}">
                                         <i class="fe-file-text"></i>
                                     </a>
 
                                     @if($p->due_amount > 0)
-                                        <form action="{{ route('purchases.pay_due',$p->{{ __('id)') }} }}" method={{ __('"{{ __('POST') }}"') }} class="d-flex align-items-center bg-light rounded p-1 border">
+                                        <form action="{{ route('purchases.pay_due',$p->id) }}" method="POST" class="d-flex align-items-center bg-light rounded p-1 border">
                                             @csrf
-                                            <input type="{{ __('number') }}" step="0.01" name="amount" class="pay-input me-1" placeholder="{{ __('Pay {{ __('Due') }}') }}" required>
+                                            <input type="number" step="0.01" name="amount" class="pay-input me-1" placeholder="Pay Due" required>
                                             <input type="hidden" name="payment_date" value="{{ now()->format('Y-m-d') }}">
                                             <button class="btn btn-success pay-btn text-white" title="Pay Now">
                                                 <i class="fe-check"></i>
                                             </button>
                                         </form>
                                     @else
-                                        <span class="badge bg-success bg-soft-success text-success border border-success px-2">{{ __('Paid') }}</span>
+                                        <span class="badge bg-success bg-soft-success text-success border border-success px-2">Paid</span>
                                     @endif
 
                                     @if($isAdmin)
-                                        <a href="{{ route('purchases.edit', $p->{{ __('id)') }} }}" class="btn btn-action btn-outline-primary ms-1" title="{{ __('Edit') }}">
+                                        <a href="{{ route('purchases.edit', $p->id) }}" class="btn btn-action btn-outline-primary ms-1" title="{{ __('Edit') }}">
                                             <i class="fe-edit"></i>
                                         </a>
-                                        <form method={{ __('"{{ __('POST') }}"') }} action="{{ route('purchases.destroy', $p->{{ __('id)') }} }}" class="d-inline delete-form">
+                                        <form method="POST" action="{{ route('purchases.destroy', $p->id) }}" class="d-inline delete-form">
                                             @csrf
                                             @method('DELETE')
-                                            <button type="{{ __('submit') }}" class="btn btn-action btn-outline-danger delete-confirm ms-1" title="{{ __('Delete') }}" onclick="return confirm('Confirm delete? This affects {{ __('stock') }} & fund.');">
+                                            <button type="submit" class="btn btn-action btn-outline-danger delete-confirm ms-1" title="{{ __('Delete') }}" onclick="return confirm('Confirm delete? This affects stock & fund.');">
                                                 <i class="fe-trash-2"></i>
                                             </button>
                                         </form>
@@ -368,8 +368,8 @@
                     @empty
                         <tr>
                             <td colspan="8" class="text-center py-5">
-                                <img src="{{ __('https://') }}cdn-icons-png.flaticon.com/512/4076/4076432.png" width="60" class="mb-3 opacity-50">
-                                <p class="text-muted mb-0">{{ __('No purchase records found.') }}</p>
+                                <img src="https://cdn-icons-png.flaticon.com/512/4076/4076432.png" width="60" class="mb-3 opacity-50">
+                                <p class="text-muted mb-0">No purchase records found.</p>
                             </td>
                         </tr>
                     @endforelse

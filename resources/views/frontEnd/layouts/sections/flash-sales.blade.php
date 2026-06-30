@@ -1,4 +1,4 @@
-{{-- Flash {{ __('Sales') }} Section --}}
+{{-- Flash Sales Section --}}
 @if($isFlashSaleActive)
 <section class="homeproduct">
     <div class="container">

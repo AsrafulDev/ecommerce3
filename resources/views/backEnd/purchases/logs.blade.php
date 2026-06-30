@@ -86,10 +86,10 @@
             <h4 class="mb-1 fw-bold text-gray-800">
                 <i data-feather="activity" class="text-primary me-1"></i> Purchase Logs
             </h4>
-            <p class="text-muted small mb-0">{{ __('Audit trail of edited and deleted purchase records.') }}</p>
+            <p class="text-muted small mb-0">Audit trail of edited and deleted purchase records.</p>
         </div>
         <a href="{{ route('purchases.index') }}" class="btn btn-white border shadow-sm rounded-pill px-3">
-            <i data-feather="arrow-left" class="me-1"></i> Back to {{ __('Purchases') }}
+            <i data-feather="arrow-left" class="me-1"></i> Back to Purchases
         </a>
     </div>
 
@@ -102,7 +102,7 @@
                 </div>
                 <div>
                     <h3 class="mb-0 fw-bold text-dark">{{ $total_edits }}</h3>
-                    <small class="text-muted text-uppercase fw-bold">{{ __('{{ __('Total') }} Edited Records') }}</small>
+                    <small class="text-muted text-uppercase fw-bold">Total Edited Records</small>
                 </div>
             </div>
         </div>
@@ -113,7 +113,7 @@
                 </div>
                 <div>
                     <h3 class="mb-0 fw-bold text-dark">{{ $total_deletes }}</h3>
-                    <small class="text-muted text-uppercase fw-bold">{{ __('{{ __('Total') }} {{ __('Deleted') }} Records') }}</small>
+                    <small class="text-muted text-uppercase fw-bold">Total Deleted Records</small>
                 </div>
             </div>
         </div>
@@ -124,29 +124,29 @@
         
         {{-- Filter Header --}}
         <div class="card-header bg-white border-bottom p-4">
-            <form method="{{ __('GET') }}" action="{{ route('purchases.logs') }}">
+            <form method="GET" action="{{ route('purchases.logs') }}">
                 <div class="row g-3 align-items-end">
                     <div class="col-md-3">
-                        <label class="form-label small fw-bold text-muted">{{ __('Action Type') }}</label>
+                        <label class="form-label small fw-bold text-muted">Action Type</label>
                         <select name="action" class="form-select">
-                            <option value="">{{ __('All {{ __('Actions') }}') }}</option>
+                            <option value="">All Actions</option>
                             <option value="edit" {{ request('action') == 'edit' ? 'selected' : '' }}>{{ __('Edit') }}</option>
                             <option value="delete" {{ request('action') == 'delete' ? 'selected' : '' }}>{{ __('Delete') }}</option>
                         </select>
                     </div>
                     <div class="col-md-3">
-                        <label class="form-label small fw-bold text-muted">{{ __('{{ __('From') }} {{ __('Date') }}') }}</label>
+                        <label class="form-label small fw-bold text-muted">From Date</label>
                         <input type="date" name="from_date" class="form-control" value="{{ request('from_date') }}">
                     </div>
                     <div class="col-md-3">
-                        <label class="form-label small fw-bold text-muted">{{ __('To {{ __('Date') }}') }}</label>
+                        <label class="form-label small fw-bold text-muted">To Date</label>
                         <input type="date" name="to_date" class="form-control" value="{{ request('to_date') }}">
                     </div>
                     <div class="col-md-3 d-flex gap-2">
-                        <button type="{{ __('submit') }}" class="btn btn-primary flex-grow-1">
-                            <i data-feather="{{ __('filter') }}" class="me-1" style="width:{{ __('14px') }};"></i>{{ __('Filter') }}</button>
+                        <button type="submit" class="btn btn-primary flex-grow-1">
+                            <i data-feather="filter" class="me-1" style="width:14px;"></i>{{ __('Filter') }}</button>
                         <a href="{{ route('purchases.logs') }}" class="btn btn-light border">
-                            <i data-feather="refresh-cw" style="width:{{ __('14px') }};"></i>
+                            <i data-feather="refresh-cw" style="width:14px;"></i>
                         </a>
                     </div>
                 </div>
@@ -161,11 +161,11 @@
                         <tr>
                             <th width="5%">#</th>
                             <th width="10%">{{ __('Action') }}</th>
-                            <th width="15%">{{ __('Reference') }}</th>
-                            <th width="20%">{{ __('{{ __('Prev') }}ious Data') }}</th>
-                            <th width="20%">{{ __('{{ __('New') }} Data') }}</th>
-                            <th width="15%">{{ __('Fund Impact') }}</th>
-                            <th width="15%">{{ __('{{ __('{{ __('Use') }}r') }} & Time') }}</th>
+                            <th width="15%">Reference</th>
+                            <th width="20%">Previous Data</th>
+                            <th width="20%">New Data</th>
+                            <th width="15%">Fund Impact</th>
+                            <th width="15%">User & Time</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -181,12 +181,12 @@
                                         </span>
                                     @else
                                         <span class="badge badge-soft-danger px-3 py-2 rounded-pill">
-                                            <i data-feather="trash" style="width:10px;"></i> {{ __('Deleted') }}
+                                            <i data-feather="trash" style="width:10px;"></i> Deleted
                                         </span>
                                     @endif
                                 </td>
 
-                                {{-- {{ __('Reference') }} --}}
+                                {{-- Reference --}}
                                 <td>
                                     <div class="fw-bold text-dark">
                                         @if($log->purchase)
@@ -198,41 +198,41 @@
                                     <small class="text-muted d-block mt-1">ID: {{ $log->purchase_id }}</small>
                                 </td>
 
-                                {{-- {{ __('Old {{ __('Value') }}s') }} --}}
+                                {{-- Old Values --}}
                                 <td>
                                     @if($log->old_invoice_no)
                                         <ul class="data-list">
-                                            <li><span class="data-label">{{ __('Inv') }}:</span> <span class="data-value">{{ $log->old_invoice_no }}</span></li>
-                                            <li><span class="data-label">{{ __('Date') }}:</span> <span class="data-value">{{ $log->old_purchase_date ? \Carbon\Carbon::parse($log->old_purchase_date)->format('d M y') : '-' }}</span></li>
-                                            <li><span class="data-label">{{ __('Paid') }}:</span> <span class="data-value text-secondary">{{ number_format($log->old_paid_amount, 2) }}</span></li>
-                                            <li><span class="data-label">{{ __('Total') }}:</span> <span class="data-value">{{ number_format($log->old_grand_{{ __('total') }}, 2) }}</span></li>
+                                            <li><span class="data-label">Inv:</span> <span class="data-value">{{ $log->old_invoice_no }}</span></li>
+                                            <li><span class="data-label">Date:</span> <span class="data-value">{{ $log->old_purchase_date ? \Carbon\Carbon::parse($log->old_purchase_date)->format('d M y') : '-' }}</span></li>
+                                            <li><span class="data-label">Paid:</span> <span class="data-value text-secondary">{{ number_format($log->old_paid_amount, 2) }}</span></li>
+                                            <li><span class="data-label">Total:</span> <span class="data-value">{{ number_format($log->old_grand_total, 2) }}</span></li>
                                         </ul>
                                     @else
-                                        <span class="text-muted small">{{ __('N/A') }}</span>
+                                        <span class="text-muted small">N/A</span>
                                     @endif
                                 </td>
 
-                                {{-- {{ __('{{ __('New') }} {{ __('Value') }}s') }} --}}
+                                {{-- New Values --}}
                                 <td>
                                     @if($log->new_invoice_no)
                                         <ul class="data-list">
-                                            <li><span class="data-label">{{ __('Inv') }}:</span> <span class="data-value">{{ $log->new_invoice_no }}</span></li>
-                                            <li><span class="data-label">{{ __('Date') }}:</span> <span class="data-value">{{ $log->new_purchase_date ? \Carbon\Carbon::parse($log->new_purchase_date)->format('d M y') : '-' }}</span></li>
-                                            <li><span class="data-label">{{ __('Paid') }}:</span> <span class="data-value fw-bold text-dark">{{ number_format($log->new_paid_amount, 2) }}</span></li>
-                                            <li><span class="data-label">{{ __('Total') }}:</span> <span class="data-value">{{ number_format($log->new_grand_{{ __('total') }}, 2) }}</span></li>
+                                            <li><span class="data-label">Inv:</span> <span class="data-value">{{ $log->new_invoice_no }}</span></li>
+                                            <li><span class="data-label">Date:</span> <span class="data-value">{{ $log->new_purchase_date ? \Carbon\Carbon::parse($log->new_purchase_date)->format('d M y') : '-' }}</span></li>
+                                            <li><span class="data-label">Paid:</span> <span class="data-value fw-bold text-dark">{{ number_format($log->new_paid_amount, 2) }}</span></li>
+                                            <li><span class="data-label">Total:</span> <span class="data-value">{{ number_format($log->new_grand_total, 2) }}</span></li>
                                         </ul>
                                     @else
-                                        <span class="text-muted small fst-italic">{{ __('Record {{ __('Deleted') }}') }}</span>
+                                        <span class="text-muted small fst-italic">Record Deleted</span>
                                     @endif
                                 </td>
 
-                                {{-- Fund {{ __('Change') }} --}}
+                                {{-- Fund Change --}}
                                 <td>
                                     @php
                                         $diff = $log->fund_balance_after - $log->fund_balance_before;
                                     @endphp
                                     
-                                    <div class="mb-1 text-muted small">{{ __('Balance') }}:</div>
+                                    <div class="mb-1 text-muted small">Balance:</div>
                                     <div class="small">{{ number_format($log->fund_balance_before, 2) }} ➝ {{ number_format($log->fund_balance_after, 2) }}</div>
                                     
                                     <div class="mt-2">
@@ -245,12 +245,12 @@
                                                 <i data-feather="arrow-down-right" style="width:12px;"></i> {{ number_format(abs($diff), 2) }}
                                             </span>
                                         @else
-                                            <span class="badge bg-light text-muted border">{{ __('No {{ __('Change') }}') }}</span>
+                                            <span class="badge bg-light text-muted border">No Change</span>
                                         @endif
                                     </div>
                                 </td>
 
-                                {{-- {{ __('{{ __('Use') }}r') }} Info --}}
+                                {{-- User Info --}}
                                 <td>
                                     <div class="d-flex align-items-center">
                                         <div class="avatar-sm bg-light rounded-circle d-flex align-items-center justify-content-center text-primary fw-bold me-2" style="width:30px; height:30px; font-size:12px;">
@@ -273,9 +273,9 @@
                         @empty
                             <tr>
                                 <td colspan="7" class="text-center py-5">
-                                    <img src="{{ __('https://') }}cdn-icons-png.flaticon.com/512/7486/7486744.png" width="60" class="mb-3 opacity-25">
-                                    <p class="text-muted fw-bold">{{ __('No Activity Logs Found') }}</p>
-                                    <small class="text-muted">{{ __('Try changing the date {{ __('filter') }} or action type.') }}</small>
+                                    <img src="https://cdn-icons-png.flaticon.com/512/7486/7486744.png" width="60" class="mb-3 opacity-25">
+                                    <p class="text-muted fw-bold">No Activity Logs Found</p>
+                                    <small class="text-muted">Try changing the date filter or action type.</small>
                                 </td>
                             </tr>
                         @endforelse

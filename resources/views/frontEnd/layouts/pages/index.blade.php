@@ -25,14 +25,14 @@
 @push('css')
 <link rel="stylesheet" href="{{ asset('public/frontEnd/css/owl.carousel.min.css') }}" />
 <link rel="stylesheet" href="{{ asset('public/frontEnd/css/owl.theme.default.min.css') }}" />
-<link href="{{ __('https://') }}cdnjs.cloudflare.com/ajax/libs/animate.css/3.5.2/animate.css" rel="stylesheet" />
+<link href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.5.2/animate.css" rel="stylesheet" />
 @endpush 
 
 @section('content')
 {{--
     LAYOUT-BASED HOMEPAGE RENDERING
     If an active layout exists (set in Admin → Settings), renders homepage sections
-    in the order defined by the admin via the drag-drop {{ __('Layout Builder') }}.
+    in the order defined by the admin via the drag-drop Layout Builder.
     Otherwise falls back to the original hardcoded section order.
 --}}
 @if($activeLayout && $activeLayout->sections->count() > 0)
@@ -69,7 +69,7 @@
 
 <script>
     $(document).ready(function() {
-        // Full-{{ __('Width') }} Slider
+        // Full-Width Slider
         $(".fullwidth-slider").owlCarousel({
             items: 1,
             loop: true,
@@ -83,12 +83,12 @@
             autoplayTimeout: 4000,
             animateOut: "fadeOut",
             animateIn: "fadeIn",
-            nav{{ __('Text') }}: ["<i class='fa-solid fa-angle-left'></i>",
+            navText: ["<i class='fa-solid fa-angle-left'></i>",
                 "<i class='fa-solid fa-angle-right'></i>"
             ],
         });
 
-        // Left {{ __('Category') }} Hero Slider
+        // Left Category Hero Slider
         $(".hero-slider").owlCarousel({
             items: 1,
             loop: true,
@@ -102,7 +102,7 @@
             autoplayTimeout: 3500,
             animateOut: "fadeOutRight",
             animateIn: "slideInLeft",
-            nav{{ __('Text') }}: ["<i class='fa-solid fa-angle-left'></i>",
+            navText: ["<i class='fa-solid fa-angle-left'></i>",
                 "<i class='fa-solid fa-angle-right'></i>"
             ],
         });
@@ -121,7 +121,7 @@
             autoplayTimeout: 3500,
             animateOut: "fadeOut",
             animateIn: "fadeIn",
-            nav{{ __('Text') }}: ["<i class='fa-solid fa-angle-left'></i>",
+            navText: ["<i class='fa-solid fa-angle-left'></i>",
                 "<i class='fa-solid fa-angle-right'></i>"
             ],
         });
@@ -285,7 +285,7 @@
 
 <script>
     $("#simple_timer").syotimer({
-        date: new {{ __('Date') }}("{{$generalsetting->hot_deal_end_date}}T23:59:59"),
+        date: new Date("{{$generalsetting->hot_deal_end_date}}T23:59:59"),
         layout: "hms",
         doubleNumbers: false,
         effectType: "opacity",
@@ -293,7 +293,7 @@
         periodic: false
     });
    $("#flash_sale_timer").syotimer({
-        date: new {{ __('Date') }}("{{$generalsetting->flash_sale_end_date}}T23:59:59"),
+        date: new Date("{{$generalsetting->flash_sale_end_date}}T23:59:59"),
         layout: "hms",
         doubleNumbers: false,
         effectType: "opacity",

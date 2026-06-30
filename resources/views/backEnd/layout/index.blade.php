@@ -1,12 +1,12 @@
 @extends('backEnd.layouts.master')
-@section('title','{{ __('Layout {{ __('Manage') }}r') }}')
+@section('title','Layout Manager')
 
 @section('css')
-<link href="{{ __('https://') }}cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
 <style>
     .layout-card {
         background: #fff;
-        border-radius: {{ __('14px') }};
+        border-radius: 14px;
         box-shadow: 0 4px 20px rgba(0,0,0,0.06);
         border: 1px solid #e2e8f0;
         padding: 20px 24px;
@@ -43,12 +43,12 @@
     {{-- Header --}}
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
-            <h4 class="fw-bold m-0"><i class="mdi mdi-view-dashboard me-2"></i> {{ __('Layout {{ __('Manage') }}r') }}</h4>
-            <span class="text-muted small">{{ __('Create and manage homepage section layouts') }}</span>
+            <h4 class="fw-bold m-0"><i class="mdi mdi-view-dashboard me-2"></i> Layout Manager</h4>
+            <span class="text-muted small">Create and manage homepage section layouts</span>
         </div>
         <div>
             <a href="{{ route('themes.index') }}" class="btn btn-outline-secondary rounded-pill px-3 me-2">
-                <i class="mdi mdi-palette me-1"></i> {{ __('Themes') }}
+                <i class="mdi mdi-palette me-1"></i> Themes
             </a>
             <a href="{{ route('layouts.create') }}" class="btn btn-primary rounded-pill px-4 shadow-sm">
                 <i class="fe-plus me-1"></i> Create Layout
@@ -56,16 +56,16 @@
         </div>
     </div>
 
-    {{-- {{ __('Active Layout') }} Banner --}}
+    {{-- Active Layout Banner --}}
     @if($activeLayout)
     <div class="alert alert-info d-flex align-items-center gap-3 rounded-4 border-0 shadow-sm mb-4" style="background:#eff6ff;">
         <i class="mdi mdi-check-circle text-primary fs-3"></i>
         <div>
-            <strong class="text-dark">{{ __('Active Layout') }}:</strong>
+            <strong class="text-dark">Active Layout:</strong>
             <span class="fw-bold ms-1">{{ $activeLayout->name }}</span>
             <span class="text-muted ms-2">({{ $activeLayout->sections_count }} sections)</span>
         </div>
-        <a href="{{ route('layouts.builder', $activeLayout->{{ __('id)') }} }}" class="btn btn-outline-primary btn-sm rounded-pill ms-auto">
+        <a href="{{ route('layouts.builder', $activeLayout->id) }}" class="btn btn-outline-primary btn-sm rounded-pill ms-auto">
             <i class="mdi mdi-drag me-1"></i> Open Builder
         </a>
     </div>
@@ -99,19 +99,19 @@
 
             <div class="d-flex gap-2 align-items-center">
                 @if(!$isActive)
-                <a href="{{ route('layouts.apply', $layout->{{ __('id)') }} }}" class="btn btn-sm btn-outline-dark rounded-pill px-3" onclick="return confirm('Apply &quot;{{ $layout->name }}&quot; layout?')">
+                <a href="{{ route('layouts.apply', $layout->id) }}" class="btn btn-sm btn-outline-dark rounded-pill px-3" onclick="return confirm('Apply &quot;{{ $layout->name }}&quot; layout?')">
                     <i class="fe-check me-1"></i>{{ __('Apply') }}</a>
                 @endif
-                <a href="{{ route('layouts.builder', $layout->{{ __('id)') }} }}" class="btn btn-sm btn-primary rounded-pill px-3">
+                <a href="{{ route('layouts.builder', $layout->id) }}" class="btn btn-sm btn-primary rounded-pill px-3">
                     <i class="mdi mdi-drag me-1"></i> Builder
                 </a>
-                <a href="{{ route('layouts.edit', $layout->{{ __('id)') }} }}" class="btn btn-sm btn-light rounded-pill px-3">
+                <a href="{{ route('layouts.edit', $layout->id) }}" class="btn btn-sm btn-light rounded-pill px-3">
                     <i class="fe-edit-2 me-1"></i>{{ __('Edit') }}</a>
                 @if(!$isActive)
-                <form action="{{ route('layouts.destroy') }}" method={{ __('"{{ __('POST') }}"') }} class="d-inline">
+                <form action="{{ route('layouts.destroy') }}" method="POST" class="d-inline">
                     @csrf
                     <input type="hidden" name="hidden_id" value="{{ $layout->id }}">
-                    <button type="{{ __('submit') }}" class="btn btn-sm btn-light rounded-pill px-3" style="color:#ef4444;" onclick="return confirm('Delete &quot;{{ $layout->name }}&quot;?')">
+                    <button type="submit" class="btn btn-sm btn-light rounded-pill px-3" style="color:#ef4444;" onclick="return confirm('Delete &quot;{{ $layout->name }}&quot;?')">
                         <i class="fe-trash-2 me-1"></i>
                     </button>
                 </form>
@@ -122,9 +122,9 @@
     @empty
     <div class="text-center py-5">
         <i class="mdi mdi-view-dashboard-outline" style="font-size:48px;color:#cbd5e1;"></i>
-        <h5 class="mt-3 text-muted">{{ __('No layouts yet') }}</h5>
-        <p class="text-muted small">{{ __('Create a layout to start organizing homepage sections') }}</p>
-        <a href="{{ route('layouts.create') }}" class="btn btn-primary rounded-pill mt-2">{{ __('Create Your First Layout') }}</a>
+        <h5 class="mt-3 text-muted">No layouts yet</h5>
+        <p class="text-muted small">Create a layout to start organizing homepage sections</p>
+        <a href="{{ route('layouts.create') }}" class="btn btn-primary rounded-pill mt-2">Create Your First Layout</a>
     </div>
     @endforelse
 </div>

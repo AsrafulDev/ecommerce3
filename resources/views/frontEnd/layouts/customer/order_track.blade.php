@@ -1,10 +1,10 @@
 @extends('frontEnd.layouts.master')
-@section('title','{{ __('{{ __('Track') }} Your Order') }}')
+@section('title','Track Your Order')
 @php
     $generalsetting = \App\Models\GeneralSetting::first();
 @endphp
 @push('css')
-<link href="{{ __('https://') }}fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
 <style>
     /* ১. মেইন ব্যাকগ্রাউন্ড */
     .tracking-wrapper {
@@ -61,7 +61,7 @@
         z-index: 2;
     }
     .track-left p {
-        font-size: {{ __('14px') }};
+        font-size: 14px;
         opacity: 0.9;
         line-height: 1.6;
         z-index: 2;
@@ -72,7 +72,7 @@
     .track-img {
         width: 100%;
         max-width: 280px;
-        {{ __('filter') }}: drop-shadow(0 15px 30px rgba(0,0,0,0.2));
+        filter: drop-shadow(0 15px 30px rgba(0,0,0,0.2));
         transition: transform 0.5s ease;
         z-index: 2;
     }
@@ -96,7 +96,7 @@
     }
     .form-subtitle {
         color: #636e72;
-        font-size: {{ __('14px') }};
+        font-size: 14px;
         margin-bottom: 35px;
     }
 
@@ -202,44 +202,44 @@
                 <div class="circle-deco circle-1"></div>
                 <div class="circle-deco circle-2"></div>
 
-                <h2>{{ __('{{ __('Track') }} Your Order') }}</h2>
-                <p><span style="color: white;">{{ __('bn_841ef655') }}</span></p>
+                <h2>Track Your Order</h2>
+                <p><span style="color: white;">কোথাও যাওয়ার প্রয়োজন নেই। ঘরে বসেই এক ক্লিকে জানুন আপনার পণ্য এখন কোথায় আছে।</span></p>
                 
                 {{-- হাই কোয়ালিটি 3D ইলাস্ট্রেশন --}}
-                <img src="{{ asset('public/frontEnd/images/7486744.png') }}" alt="Delivery {{ __('{{ __('Track') }}ing') }}" class="track-img">
+                <img src="{{ asset('public/frontEnd/images/7486744.png') }}" alt="Delivery Tracking" class="track-img">
             </div>
 
             {{-- ডান পাশ: ইনপুট ফর্ম --}}
             <div class="track-right">
                 <div>
-                    <h3 class="form-title">{{ __('Order {{ __('Status') }}') }}</h3>
-                    <p class="form-subtitle">{{ __('bn_e06f4482') }}</p>
+                    <h3 class="form-title">অর্ডার স্ট্যাটাস</h3>
+                    <p class="form-subtitle">ট্র্যাক করতে আপনার ফোন নাম্বার অথবা ইনভয়েস আইডি দিন</p>
                 </div>
                 
-                {{-- আপনার আগের রাউট এবং {{ __('bn_ad0b92c2') }} ঠিক রাখা হয়েছে --}}
-                <form action="{{route('customer.order_track_result')}}" method="{{ __('GET') }}">
+                {{-- আপনার আগের রাউট এবং মেথড ঠিক রাখা হয়েছে --}}
+                <form action="{{route('customer.order_track_result')}}" method="GET">
                     
-                    {{-- {{ __('Phone') }} Input --}}
+                    {{-- Phone Input --}}
                     <div>
-                        <label class="input-label">{{ __('{{ __('Mobile') }} Number') }}</label>
+                        <label class="input-label">মোবাইল নাম্বার</label>
                         <div class="input-wrapper">
-                            <input type="{{ __('number') }}" name="{{ __('phone') }}" 
-                                   class="modern-input @error('{{ __('phone') }}') is-invalid @enderror" 
-                                   value="{{ old('{{ __('phone') }}') }}" 
-                                   placeholder="{{ __('017xxxxxxxx') }}">
+                            <input type="number" name="phone" 
+                                   class="modern-input @error('phone') is-invalid @enderror" 
+                                   value="{{ old('phone') }}" 
+                                   placeholder="017xxxxxxxx">
                             <i class="fas fa-mobile-alt"></i>
                         </div>
-                        @error('{{ __('phone') }}')
+                        @error('phone')
                             <small class="text-danger d-block mb-3 ms-2">{{ $message }}</small>
                         @enderror
                     </div>
 
                     {{-- OR Divider --}}
-                    <div class="or-divider"><span>{{ __('bn_6bbacc71') }}</span></div>
+                    <div class="or-divider"><span>অথবা</span></div>
 
-                    {{-- {{ __('{{ __('Inv') }}oice') }} Input --}}
+                    {{-- Invoice Input --}}
                     <div>
-                        <label class="input-label">{{ __('bn_e0c476a3') }}</label>
+                        <label class="input-label">ইনভয়েস আইডি</label>
                         <div class="input-wrapper">
                             <input type="text" name="invoice_id" 
                                    class="modern-input @error('invoice_id') is-invalid @enderror" 
@@ -253,7 +253,7 @@
                     </div>
 
                     {{-- Submit Button --}}
-                    <button type="{{ __('submit') }}" class="modern-btn mt-4">
+                    <button type="submit" class="modern-btn mt-4">
                         ট্র্যাক করুন <i class="fas fa-search ms-2"></i>
                     </button>
 

@@ -1,5 +1,5 @@
 @extends('backEnd.layouts.master')
-@section('title','{{ __('Product') }} Details')
+@section('title','Product Details')
 
 @section('css')
 <style>
@@ -18,7 +18,7 @@
         color: #495057;
     }
 
-    /* {{ __('Product') }} Image Section */
+    /* Product Image Section */
     .pro-img-details {
         border-radius: 10px;
         overflow: hidden;
@@ -89,8 +89,8 @@
         background-color: #f9fbfd;
     }
     
-    /* {{ __('Stock') }} Progress */
-    .{{ __('stock') }}-box {
+    /* Stock Progress */
+    .stock-box {
         background: #f8f9fa;
         padding: 15px;
         border-radius: 8px;
@@ -105,16 +105,16 @@
     <div class="row">
         <div class="col-12">
             <div class="page-title-box d-flex align-items-center justify-content-between py-3">
-                <h4 class="page-title mb-0">{{ __('{{ __('Product') }} Details') }}</h4>
+                <h4 class="page-title mb-0">{{ __('Product Details') }}</h4>
                 <div class="page-title-right gap-2 d-flex">
-                    <form action="{{ route('admin.facebook_page.post_product', $product->{{ __('id)') }} }}" method={{ __('"{{ __('POST') }}"') }} class="d-inline">
+                    <form action="{{ route('admin.facebook_page.post_product', $product->id) }}" method="POST" class="d-inline">
                         @csrf
-                        <button type="{{ __('submit') }}" class="btn btn-primary rounded-pill shadow-sm" title="Post to Facebook Page">
-                            <i class="{{ __('fe-facebook') }} me-1"></i> Post to Facebook
+                        <button type="submit" class="btn btn-primary rounded-pill shadow-sm" title="Post to Facebook Page">
+                            <i class="fe-facebook me-1"></i> Post to Facebook
                         </button>
                     </form>
-                    <a href="{{route('products.edit', $product->{{ __('id)') }}}}" class="btn btn-info rounded-pill shadow-sm">
-                        <i class="fe-edit me-1"></i>{{ __('Edit {{ __('Product') }}') }}</a>
+                    <a href="{{route('products.edit', $product->id)}}" class="btn btn-info rounded-pill shadow-sm">
+                        <i class="fe-edit me-1"></i>{{ __('Edit Product') }}</a>
                     <a href="{{route('inhouse.products.index')}}" class="btn btn-secondary rounded-pill shadow-sm">
                         <i class="fe-arrow-left me-1"></i> Back to List
                     </a>
@@ -134,7 +134,7 @@
                     
                     @if($product->images->count() > 0)
                         <div class="pro-thumb-list">
-                            {{-- {{ __('Main Image') }} Thumbnail --}}
+                            {{-- Main Image Thumbnail --}}
                             <img src="{{ asset($product->image ? $product->image->image : 'storage/uploads/placeholder.png') }}" 
                                  class="pro-thumb-img" onclick="changeImage(this.src)">
                             
@@ -151,7 +151,7 @@
                 <div class="card-body">
                     <div class="d-flex align-items-center mb-3">
                         <div class="flex-grow-1">
-                            <h5 class="mt-0 mb-1">{{ __('Brand Information') }}</h5>
+                            <h5 class="mt-0 mb-1">Brand Information</h5>
                             <p class="text-muted mb-0">
                                 <i class="fe-box me-1"></i> {{ $product->brand ? $product->brand->name : 'No Brand' }}
                             </p>
@@ -160,12 +160,12 @@
                     <hr>
                     <div class="d-flex align-items-center">
                         <div class="flex-grow-1">
-                            <h5 class="mt-0 mb-1">{{ __('{{ __('Product') }} Type') }}</h5>
+                            <h5 class="mt-0 mb-1">Product Type</h5>
                             <p class="text-muted mb-0">
                                 @if($product->is_digital)
-                                    <span class="badge badge-soft-primary"><i class="fe-file-text me-1"></i>{{ __('Digital {{ __('Product') }}') }}</span>
+                                    <span class="badge badge-soft-primary"><i class="fe-file-text me-1"></i>Digital Product</span>
                                 @else
-                                    <span class="badge badge-soft-info"><i class="fe-package me-1"></i>{{ __('Physical {{ __('Product') }}') }}</span>
+                                    <span class="badge badge-soft-info"><i class="fe-package me-1"></i>Physical Product</span>
                                 @endif
                             </p>
                         </div>
@@ -187,11 +187,11 @@
                         @endif
 
                         @if($product->topsale == 1)
-                            <span class="badge badge-soft-warning px-2 py-1 ms-1"><i class="fe-zap"></i> {{ __('Hot Deal') }}</span>
+                            <span class="badge badge-soft-warning px-2 py-1 ms-1"><i class="fe-zap"></i> Hot Deal</span>
                         @endif
 
                         @if($product->feature_product == 1)
-                            <span class="badge badge-soft-primary px-2 py-1 ms-1"><i class="fe-star"></i> {{ __('Featured') }}</span>
+                            <span class="badge badge-soft-primary px-2 py-1 ms-1"><i class="fe-star"></i> Featured</span>
                         @endif
                     </div>
 
@@ -205,56 +205,56 @@
                         @endif
                     </div>
 
-                    <div class="{{ __('stock') }}-box mt-3 mb-4">
+                    <div class="stock-box mt-3 mb-4">
                         <div class="row align-items-center">
                             <div class="col-md-6">
-                                <p class="mb-1 text-muted fw-bold">{{ __('{{ __('Current') }} {{ __('Stock') }}') }}</p>
-                                <h4 class="mb-0 {{ $product->{{ __('stock') }} <= 5 ? 'text-danger' : 'text-success' }}">
-                                    {{ $product->{{ __('stock') }} }} <small class="font-size-14 text-muted">{{ $product->pro_unit }}</small>
+                                <p class="mb-1 text-muted fw-bold">Current Stock</p>
+                                <h4 class="mb-0 {{ $product->stock <= 5 ? 'text-danger' : 'text-success' }}">
+                                    {{ $product->stock }} <small class="font-size-14 text-muted">{{ $product->pro_unit }}</small>
                                 </h4>
                             </div>
                             <div class="col-md-6 border-start">
-                                <p class="mb-1 text-muted fw-bold">{{ __('Purchase Price') }}</p>
+                                <p class="mb-1 text-muted fw-bold">Purchase Price</p>
                                 <h5 class="mb-0 text-dark">৳{{ number_format($product->purchase_price, 2) }}</h5>
                             </div>
                         </div>
                     </div>
 
-                    <h5 class="font-size-15 mb-3 text-uppercase text-muted">{{ __('{{ __('Specification') }}s') }}</h5>
+                    <h5 class="font-size-15 mb-3 text-uppercase text-muted">Specifications</h5>
                     <div class="table-responsive">
                         <table class="table table-nowrap table-bordered mb-0">
                             <tbody>
                                 <tr>
-                                    <th>{{ __('{{ __('Product') }} Code') }}</th>
+                                    <th>Product Code</th>
                                     <td>#{{ $product->product_code }}</td>
                                 </tr>
                                 <tr>
                                     <th>{{ __('Category') }}</th>
                                     <td>
-                                        {{ $product->category ? $product->category->name : '{{ __('N/A') }}' }}
+                                        {{ $product->category ? $product->category->name : 'N/A' }}
                                         @if($product->subcategory)
-                                            <i class="fe-chevron-right mx-1 font-size-10"></i> {{ $product->subcategory->subcategory{{ __('Name') }} }}
+                                            <i class="fe-chevron-right mx-1 font-size-10"></i> {{ $product->subcategory->subcategoryName }}
                                         @endif
                                         @if($product->childcategory)
-                                            <i class="fe-chevron-right mx-1 font-size-10"></i> {{ $product->childcategory->childcategory{{ __('Name') }} }}
+                                            <i class="fe-chevron-right mx-1 font-size-10"></i> {{ $product->childcategory->childcategoryName }}
                                         @endif
                                     </td>
                                 </tr>
                                 @if($product->is_digital)
                                 <tr>
-                                    <th>{{ __('Digital File') }}</th>
+                                    <th>Digital File</th>
                                     <td>
                                         @if($product->digital_file)
-                                            <a href="#" class="text-primary"><i class="fe-download me-1"></i> {{ __('Download File') }}</a>
+                                            <a href="#" class="text-primary"><i class="fe-download me-1"></i> Download File</a>
                                         @else
-                                            <span class="text-muted">{{ __('No file uploaded') }}</span>
+                                            <span class="text-muted">No file uploaded</span>
                                         @endif
                                     </td>
                                 </tr>
                                 @endif
                                 <tr>
-                                    <th>{{ __('Short {{ __('Note') }}') }}</th>
-                                    <td>{{ $product->note ?? '{{ __('N/A') }}' }}</td>
+                                    <th>Short Note</th>
+                                    <td>{{ $product->note ?? 'N/A' }}</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -266,14 +266,14 @@
                             @if($product->description)
                                 {!! $product->description !!}
                             @else
-                                <span class="text-muted font-italic">{{ __('No description available.') }}</span>
+                                <span class="text-muted font-italic">No description available.</span>
                             @endif
                         </div>
                     </div>
 
                     @if($product->pro_video)
                     <div class="mt-4">
-                        <h5 class="font-size-15 mb-2">{{ __('{{ __('Product') }} Video') }}</h5>
+                        <h5 class="font-size-15 mb-2">Product Video</h5>
                         <a href="{{ $product->pro_video }}" target="_blank" class="btn btn-outline-danger btn-sm">
                             <i class="fe-youtube me-1"></i> Watch Video
                         </a>
@@ -287,7 +287,7 @@
 </div>
 
 <script>
-    // {{ __('Simple') }} script to change main image on click
+    // Simple script to change main image on click
     function changeImage(src) {
         document.getElementById('main_image').src = src;
     }
