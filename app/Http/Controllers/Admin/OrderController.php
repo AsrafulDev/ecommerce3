@@ -440,6 +440,10 @@ class OrderController extends Controller
                 return OrderStatus::where('slug', $slug)->withCount('orders')->first();
             });
             
+            if (!$order_status) {
+                return redirect()->route('admin.order.index')->with('error', 'Order status not found.');
+            }
+            
             $show_data = Order::where(['order_status' => $order_status->id])
                 ->latest()
                 ->with([

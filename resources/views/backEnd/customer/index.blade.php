@@ -134,7 +134,7 @@
                                         <td>
                                             <div class="d-flex flex-column">
                                                 <span class="text-dark"><i class="fe-phone me-1 text-muted"></i> {{ $value->phone }}</span>
-                                                @if($value-> {{ __('email)') }} <span class="customer-contact"><i class="fe-mail me-1"></i> {{ $value->email }}</span>
+                                                @if($value->email <span class="customer-contact"><i class="fe-mail me-1"></i> {{ $value->email }}</span>
                                                 @endif
                                             </div>
                                         </td>

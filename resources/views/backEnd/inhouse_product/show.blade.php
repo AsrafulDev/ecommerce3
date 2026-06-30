@@ -209,7 +209,7 @@
                         <div class="row align-items-center">
                             <div class="col-md-6">
                                 <p class="mb-1 text-muted fw-bold"> {{ __('Current Stock') }} </p>
-                                <h4 class="mb-0 {{ $product-> {{ __('stock') }} <= 5 ? 'text-danger' : 'text-success' }}">
+                                <h4 class="mb-0 {{ $product->stock <= 5 ? 'text-danger' : 'text-success' }}">
                                     {{ $product->stock }} <small class="font-size-14 text-muted">{{ $product->pro_unit }}</small>
                                 </h4>
                             </div>

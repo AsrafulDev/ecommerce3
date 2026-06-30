@@ -576,7 +576,7 @@ if (typeof ttq !== 'undefined') {
                     <div class="payment-content">
                         <div class="text-center" style="width: 40px;"><i class="fas fa-truck text-success fs-2"></i></div>
                         <div class="pay-info">
-                            <strong>Cash On Delivery</strong>
+                            <strong>{{ __('Cash On Delivery') }}</strong>
                             <small>পণ্য হাতে পেয়ে মূল্য পরিশোধ করুন</small>
                         </div>
                     </div>
@@ -592,7 +592,7 @@ if (typeof ttq !== 'undefined') {
                     <div class="payment-content">
                         <img src="{{ asset('public/frontEnd/images/bkash.svg') }}" class="pay-logo" alt="bKash">
                         <div class="pay-info">
-                            <strong>bKash Payment</strong>
+                            <strong>{{ __('bKash Payment') }}</strong>
                             <small>বিকাশ অ্যাপ বা গেটওয়ে দ্বারা পেমেন্ট</small>
                         </div>
                     </div>
@@ -609,22 +609,22 @@ if (typeof ttq !== 'undefined') {
                         <img src="{{ asset('public/frontEnd/images/shurjoPay.png') }}" class="pay-logo" alt="ShurjoPay">
                         <div class="pay-info">
                             <strong>{{ __('Online Payment') }}</strong>
-                            <small>ShurjoPay (Card/Mobile Banking)</small>
+                            <small>{{ __('ShurjoPay (Card/Mobile Banking)') }}</small>
                         </div>
                     </div>
                     <div class="check-circle"></div>
                 </label>
             @endif
 
-            {{-- UddoktaPay --}}
+            {{-- {{ __('UddoktaPay') }} --}}
             @if($uddoktapay_gateway)
                 <label class="payment-option-label">
                     {{-- required যুক্ত করা হয়েছে --}}
                     <input type="radio" name="payment_method" value="uddoktapay" required>
                     <div class="payment-content">
-                        <img src="{{ asset('public/frontEnd/images/uddokta.png') }}" class="pay-logo" alt="UddoktaPay">
+                        <img src="{{ asset('public/frontEnd/images/uddokta.png') }}" class="pay-logo" alt="{{ __('UddoktaPay') }}">
                         <div class="pay-info">
-                            <strong>UddoktaPay</strong>
+                            <strong>{{ __('UddoktaPay') }}</strong>
                             <small>মোবাইল ব্যাংকিং পেমেন্ট গেটওয়ে</small>
                         </div>
                     </div>
@@ -632,17 +632,17 @@ if (typeof ttq !== 'undefined') {
                 </label>
             @endif
 
-            {{-- aamarPay --}}
+            {{-- {{ __('aamarPay') }} --}}
             @if($aamarpay_gateway)
                 <label class="payment-option-label">
                     <input type="radio" name="payment_method" value="aamarpay" required>
                     <div class="payment-content">
-                        <img src="{{ asset('public/frontEnd/images/aamarpay.png') }}" class="pay-logo" alt="aamarPay" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                        <img src="{{ asset('public/frontEnd/images/aamarpay.png') }}" class="pay-logo" alt="{{ __('aamarPay') }}" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
                         <div class="pay-info" style="display: none;">
                             <i class="fas fa-credit-card text-primary fs-4"></i>
                         </div>
                         <div class="pay-info">
-                            <strong>aamarPay</strong>
+                            <strong>{{ __('aamarPay') }}</strong>
                             <small>কার্ড ও মোবাইল ব্যাংকিং পেমেন্ট</small>
                         </div>
                     </div>
@@ -724,12 +724,12 @@ if (typeof ttq !== 'undefined') {
         <div class="coupon-group-modern">
             {{-- ভিজ্যুয়াল ইনপুট (এটি কোনো ফর্মের অংশ নয়, শুধু ডাটা নেওয়ার জন্য) --}}
             <input type="text" id="coupon_input" class="coupon-input-modern" placeholder="কুপন কোড আছে? এখানে লিখুন...">
-            <button type="button" class="coupon-btn-modern" onclick="submitCoupon()">APPLY</button>
+            <button type="button" class="coupon-btn-modern" onclick="submit{{ __('Coupon') }}()">{{ __('APPLY') }}</button>
         </div>
     @else
         <div class="alert alert-success d-flex justify-content-between align-items-center m-0 py-3 px-3 border-0 rounded shadow-sm">
-            <span><i class="fas fa-check-circle"></i> Coupon <b>{{ Session::get('coupon_code') }}</b> Applied!</span>
-            <a href="{{ route('coupon.remove') }}" class="text-danger fw-bold text-decoration-none px-2">REMOVE</a>
+            <span><i class="fas fa-check-circle"></i> {{ __('Coupon') }} <b>{{ Session::get('coupon_code') }}</b> {{ __('Applied!') }}</span>
+            <a href="{{ route('coupon.remove') }}" class="text-danger fw-bold text-decoration-none px-2">{{ __('REMOVE') }}</a>
         </div>
     @endif
 </div>
@@ -739,7 +739,7 @@ if (typeof ttq !== 'undefined') {
                                     <div class="total-row"><span>সাবটোটাল</span> <span id="subtotalAmount">৳ {{ number_format($subtotal, 2) }}</span></div>
                                     <div class="total-row"><span>ডেলিভারি চার্জ</span> <span id="shippingAmount">৳ {{ number_format($shipping, 2) }}</span></div>
                                     @if($discount > 0)
-                                        <div class="total-row text-success"><span>{{ __('Coupon Discount') }}</span> <span id="discountAmount">- ৳ {{ number_format($discount, 2) }}</span></div>
+                                        <div class="total-row text-success"><span>{{ __('{{ __('Coupon') }} Discount') }}</span> <span id="discountAmount">- ৳ {{ number_format($discount, 2) }}</span></div>
                                     @endif
                                     <div class="total-row final"><span>{{ __('Total') }}</span> <span id="grandTotalAmount">৳ {{ number_format($grand_total, 2) }}</span></div>
 
@@ -776,7 +776,7 @@ if (typeof ttq !== 'undefined') {
 <script src="{{ asset('public/frontEnd/js/select2.min.js') }}"></script>
 
 {{-- ============================================================== --}}
-{{--  JAVASCRIPT LOGIC (EXACT COPY - NO FUNCTIONALITY REMOVED)  --}}
+{{--  JAVASCRIPT LOGIC (EXACT COPY - NO FUNCTIONALITY {{ __('REMOVE') }}D)  --}}
 {{-- ============================================================== --}}
 </form> 
         
@@ -792,7 +792,7 @@ if (typeof ttq !== 'undefined') {
 
         {{-- কুপন সাবমিট করার জাভাস্ক্রিপ্ট --}}
         <script>
-            function submitCoupon() {
+            function submit{{ __('Coupon') }}() {
                 var code = document.getElementById('coupon_input').value;
                 if(code) {
                     document.getElementById('hidden_coupon_code').value = code;
@@ -817,7 +817,7 @@ if (typeof ttq !== 'undefined') {
         $(".select2").select2({ width: '100%' });
 
         // ==========================================
-        // 1. CART LOGIC (REMOVE, INCREASE, DECREASE)
+        // 1. CART LOGIC ({{ __('REMOVE') }}, INCREASE, DECREASE)
         // ==========================================
         
         // Remove Item

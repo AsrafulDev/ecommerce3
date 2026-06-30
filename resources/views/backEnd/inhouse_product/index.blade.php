@@ -147,8 +147,8 @@
 
                                     <td>
                                         <div class="fw-bold text-dark">৳{{ number_format($value->new_price, 2) }}</div>
-                                        <small class="text-muted">Stock: <span class="{{ $value-> {{ __('stock') }} <= 5 ? 'text-danger' : 'text-success' }} fw-bold">{{ $value->stock ?? 0 }}</span> {{ $value->pro_unit ?? 'pcs' }}</small>
-                                        <small class="text-muted text-small">Stock: <span class="{{ $value-> {{ __('stock') }} <= 5 ? 'text-danger fw-bold' : 'text-success' }}">{{$value->stock}}</span></small>
+                                        <small class="text-muted">Stock: <span class="{{ $value->stock <= 5 ? 'text-danger' : 'text-success' }} fw-bold">{{ $value->stock ?? 0 }}</span> {{ $value->pro_unit ?? 'pcs' }}</small>
+                                        <small class="text-muted text-small">Stock: <span class="{{ $value->stock <= 5 ? 'text-danger fw-bold' : 'text-success' }}">{{$value->stock}}</span></small>
                                     </td>
 
                                     <td>

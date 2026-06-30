@@ -174,7 +174,7 @@
                                             <small class="text-muted">{{ $s->phone }}</small>
                                         </td>
                                         <td>
-                                            @if($s-> {{ __('email)') }} <div class="d-flex align-items-center text-muted small">
+                                            @if($s->email <div class="d-flex align-items-center text-muted small">
                                                     <i data-feather="mail" class="me-1" style="width:12px;"></i> {{ $s->email }}
                                                 </div>
                                             @else

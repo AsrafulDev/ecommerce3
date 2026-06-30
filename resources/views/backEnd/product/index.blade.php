@@ -139,7 +139,7 @@
                                     </td>
                                     <td>
                                         <div class="fw-bold text-dark">৳{{ number_format($value->new_price, 2) }}</div>
-                                        <small class="text-muted">Stock: <span class="{{ $value-> {{ __('stock') }} <= 5 ? 'text-danger fw-bold' : '' }}">{{$value->stock}}</span></small>
+                                        <small class="text-muted">Stock: <span class="{{ $value->stock <= 5 ? 'text-danger fw-bold' : '' }}">{{$value->stock}}</span></small>
                                     </td>
                                     <td>
                                         <div class="d-flex flex-column gap-1">
