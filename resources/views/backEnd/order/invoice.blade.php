@@ -127,8 +127,8 @@
                                 <div class="invoice_form">
                                     <p style="font-size:16px;line-height:1.8;color:#222"><strong>Invoice From:</strong></p>
                                     <p style="font-size:16px;line-height:1.8;color:#222">{{$generalsetting->name}}</p>
-                                    <p style="font-size:16px;line-height:1.8;color:#222">{{$contact->phone}}</p>
-                                    <p style="font-size:16px;line-height:1.8;color:#222">{{$contact->email}}</p>
+                                    <p style="font-size:16px;line-height:1.8;color:#222">{{ $contact->phone ?? '' }}</p>
+                                    <p style="font-size:16px;line-height:1.8;color:#222">{{ $contact->email ?? '' }}</p>
                             {{-- ⭐ SHOW ORDER NOTE --}}
 @if(!empty($order->order_note) || !empty($order->note))
 <p style="font-size:16px;line-height:1.8;color:#222">
@@ -342,9 +342,9 @@
 <div class="pos-receipt">
     <div class="rh">
         <div class="shop">{{ $generalsetting->name }}</div>
-        @if($contact->address <p>{{ $contact->address }}</p>@endif
-        @if($contact->phone <p>Phone: {{ $contact->phone }}</p>@endif
-        @if($contact->email <p>{{ $contact->email }}</p>@endif
+        @if($contact->address) <p>{{ $contact->address }}</p> @endif
+        @if($contact->phone) <p>Phone: {{ $contact->phone }}</p> @endif
+        @if($contact->email) <p>{{ $contact->email }}</p> @endif
     </div>
     <div class="rt"> {{ __('POS Invoice') }} </div>
     <div class="rm">
@@ -356,7 +356,7 @@
         @if($order->shipping && $order->shipping->name)
         <div class="fl"><span>Buyer &nbsp;&nbsp;: <strong>{{ $order->shipping->name }}</strong></span></div>
         @endif
-        @if($order->shipping && $order->shipping->phone <div class="fl"><span>Phone &nbsp;&nbsp;: {{ $order->shipping->phone }}</span></div>
+        @if($order->shipping && $order->shipping->phone) <div class="fl"><span>Phone &nbsp;&nbsp;: {{ $order->shipping->phone }}</span></div>
         @endif
         @if($order->shipping && ($order->shipping->address || $order->shipping->area))
         <div class="fl"><span>Address : {{ $order->shipping->address }}{{ $order->shipping->area ? ', '.$order->shipping->area : '' }}</span></div>
