@@ -903,7 +903,7 @@ class OrderController extends Controller
     public function invoice($invoice_id)
     {
         $order = Order::where(['invoice_id' => $invoice_id])
-            ->with(['orderdetails', 'orderdetails.size', 'orderdetails.color', 'payment', 'shipping', 'customer'])
+            ->with(['orderdetails', 'orderdetails.size', 'orderdetails.color', 'payment', 'shipping', 'customer', 'status'])
             ->firstOrFail();
 
         $orderstatus = OrderStatus::all();
