@@ -78,8 +78,8 @@
     <div class="row mb-3 mt-3">
         <div class="col-12 d-flex justify-content-between align-items-center">
             <div>
-                <h4 class="page-title mb-0" style="font-weight: 700; color: #2d3436;">Edit Role</h4>
-                <p class="text-muted font-size-13 mb-0">Modify role name and update permissions.</p>
+                <h4 class="page-title mb-0" style="font-weight: 700; color: #2d3436;"> {{ __('Edit Role') }} </h4>
+                <p class="text-muted font-size-13 mb-0"> {{ __('Modify role name and update permissions.') }} </p>
             </div>
             <a href="{{route('roles.index')}}" class="btn btn-light rounded-pill border shadow-sm px-4">
                 <i class="fe-arrow-left me-1"></i> Back to Roles
@@ -98,7 +98,7 @@
                         <div class="row mb-4">
                             <div class="col-md-6">
                                 <div class="form-group">
-                                    <label for="name" class="form-label">Role Name <span class="text-danger">*</span></label>
+                                    <label for="name" class="form-label"> {{ __('Role Name') }} <span class="text-danger">*</span></label>
                                     <input type="text" class="form-control form-control-lg @error('name') is-invalid @enderror" 
                                            name="name" value="{{ $edit_data->name }}" id="name" required>
                                     @error('name')
@@ -111,10 +111,10 @@
                         <hr style="border-color: #f1f5f7;">
 
                         <div class="d-flex justify-content-between align-items-center mb-3 mt-3">
-                            <h5 class="text-uppercase text-muted font-size-14 fw-bold">Manage Permissions</h5>
+                            <h5 class="text-uppercase text-muted font-size-14 fw-bold"> {{ __('Manage Permissions') }} </h5>
                             
                             <div class="select-all-wrapper">
-                                <span class="font-size-13 fw-bold text-primary">Select All Permissions</span>
+                                <span class="font-size-13 fw-bold text-primary"> {{ __('Select All Permissions') }} </span>
                                 <label class="switch mb-0">
                                     <input type="checkbox" id="checkall">
                                     <span class="slider round"></span>
@@ -146,8 +146,8 @@
                         @else
                             <div class="empty-state">
                                 <i class="fe-alert-triangle font-size-24 mb-2"></i>
-                                <h5>No Permissions Found!</h5>
-                                <p class="mb-0">Please create permissions in the system first with <code>guard_name = 'admin'</code>.</p>
+                                <h5> {{ __('No Permissions Found!') }} </h5>
+                                <p class="mb-0"> {{ __('Please create permissions in the system first with') }} <code>guard_name = 'admin'</code>.</p>
                             </div>
                         @endif
 

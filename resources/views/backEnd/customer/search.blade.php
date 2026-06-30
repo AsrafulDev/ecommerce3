@@ -5,7 +5,7 @@
                 <table class="table table-hover table-centered table-nowrap mb-0">
                     <thead class="table-light">
                         <tr>
-                            <th class="border-top-0">Customer Name</th>
+                            <th class="border-top-0"> {{ __('Customer Name') }} </th>
                             <th class="border-top-0 text-end">{{ __('Action') }}</th>
                         </tr>
                     </thead>
@@ -40,6 +40,6 @@
     </div>
 @else
     <div class="text-center p-3">
-        <p class="text-muted mb-0"><i class="fe-alert-circle me-1"></i> No customers found.</p>
+        <p class="text-muted mb-0"><i class="fe-alert-circle me-1"></i> {{ __('No customers found.') }} </p>
     </div>
 @endif

@@ -30,7 +30,7 @@
     <div class="row">
         <div class="col-12">
             <div class="page-title-box d-flex align-items-center justify-content-between py-3">
-                <h4 class="page-title mb-0">Add New Product</h4>
+                <h4 class="page-title mb-0"> {{ __('Add New Product') }} </h4>
                 <div class="page-title-right">
                     <a href="{{route('inhouse.products.index')}}" class="btn btn-primary rounded-pill px-4 shadow-sm"><i class="fe-list me-1"></i>{{ __('Manage Products') }}</a>
                 </div>
@@ -44,17 +44,17 @@
             <div class="col-lg-8">
                 <div class="card mb-4">
                     <div class="card-body">
-                        <div class="section-title"><i class="fe-info me-1"></i> Basic Information</div>
+                        <div class="section-title"><i class="fe-info me-1"></i> {{ __('Basic Information') }} </div>
                         
                         <div class="form-group mb-3">
-                            <label for="name" class="form-label">Product Name *</label>
+                            <label for="name" class="form-label"> {{ __('Product Name *') }} </label>
                             <input type="text" class="form-control @error('name') is-invalid @enderror" name="name" value="{{ old('name') }}" placeholder="Enter product name" required />
                             @error('name') <span class="invalid-feedback">{{ $message }}</span> @enderror
                         </div>
 
                         <div class="row">
                             <div class="col-md-4 mb-3">
-                                <label class="form-label">Main Category *</label>
+                                <label class="form-label"> {{ __('Main Category *') }} </label>
                                 <select class="form-control select2" name="category_id" id="category_id" required>
                                     <option value="">{{ __('Select Category') }}</option>
                                     @foreach($categories as $category)
@@ -63,26 +63,26 @@
                                 </select>
                             </div>
                             <div class="col-md-4 mb-3">
-                                <label class="form-label">Sub Category</label>
+                                <label class="form-label"> {{ __('Sub Category') }} </label>
                                 <select class="form-control select2" name="subcategory_id" id="subcategory_id">
-                                    <option value="">Choose Sub Category</option>
+                                    <option value=""> {{ __('Choose Sub Category') }} </option>
                                 </select>
                             </div>
                             <div class="col-md-4 mb-3">
-                                <label class="form-label">Child Category</label>
+                                <label class="form-label"> {{ __('Child Category') }} </label>
                                 <select class="form-control select2" name="childcategory_id" id="childcategory_id">
-                                    <option value="">Choose Child Category</option>
+                                    <option value=""> {{ __('Choose Child Category') }} </option>
                                 </select>
                             </div>
                         </div>
 
                         <div class="form-group mb-3">
-                            <label class="form-label">Full Description *</label>
+                            <label class="form-label"> {{ __('Full Description *') }} </label>
                             <textarea name="description" class="summernote" required>{{ old('description') }}</textarea>
                         </div>
 
                         <div class="form-group mb-0">
-                            <label class="form-label">Short Note</label>
+                            <label class="form-label"> {{ __('Short Note') }} </label>
                             <textarea name="note" rows="2" class="form-control" placeholder="Small note for internal use..."></textarea>
                         </div>
                     </div>
@@ -91,7 +91,7 @@
                 <div class="card mb-4">
                     <div class="card-body">
                         <div class="form-group mb-3">
-                            <label class="d-block form-label">Wholesale Product</label>
+                            <label class="d-block form-label"> {{ __('Wholesale Product') }} </label>
                             <label class="switch"><input type="checkbox" value="1" name="is_wholesale" id="is_wholesale"><span class="slider round"></span></label>
                         </div>
                     </div>
@@ -100,27 +100,27 @@
                 <div id="wholesale_area" style="display:none;" class="card mb-4">
                     <div class="card-body">
                         <div class="section-title d-flex justify-content-between align-items-center">
-                            <span><i class="fe-dollar-sign me-1"></i> Wholesale Pricing Tiers</span>
-                            <button type="button" class="btn btn-sm btn-success add-wholesale-tier rounded-pill px-3"><i class="fa fa-plus me-1"></i> Add New Tier</button>
+                            <span><i class="fe-dollar-sign me-1"></i> {{ __('Wholesale Pricing Tiers') }} </span>
+                            <button type="button" class="btn btn-sm btn-success add-wholesale-tier rounded-pill px-3"><i class="fa fa-plus me-1"></i> {{ __('Add New Tier') }} </button>
                         </div>
                         
                         <div id="wholesale-wrapper">
                             <div class="variant-card">
                                 <div class="row align-items-end">
                                     <div class="col-md-3 mb-2">
-                                        <label class="form-label">Min Quantity</label>
+                                        <label class="form-label"> {{ __('Min Quantity') }} </label>
                                         <input type="number" name="wholesale_price[0][min_quantity]" class="form-control" placeholder="e.g. 10">
                                     </div>
                                     <div class="col-md-3 mb-2">
-                                        <label class="form-label">Max Quantity</label>
+                                        <label class="form-label"> {{ __('Max Quantity') }} </label>
                                         <input type="number" name="wholesale_price[0][max_quantity]" class="form-control" placeholder="e.g. 50 (optional)">
                                     </div>
                                     <div class="col-md-2 mb-2">
-                                        <label class="form-label">Wholesale Price</label>
+                                        <label class="form-label"> {{ __('Wholesale Price') }} </label>
                                         <input type="number" step="0.01" name="wholesale_price[0][wholesale_price]" class="form-control" placeholder="0.00">
                                     </div>
                                     <div class="col-md-2 mb-2">
-                                        <label class="form-label">Stock Qty</label>
+                                        <label class="form-label"> {{ __('Stock Qty') }} </label>
                                         <input type="number" name="wholesale_price[0][stock]" class="form-control" placeholder="0">
                                     </div>
                                     <div class="col-md-2 mb-2">
@@ -135,8 +135,8 @@
                 <div class="card mb-4" id="variant_section">
                     <div class="card-body">
                         <div class="section-title d-flex justify-content-between align-items-center">
-                            <span><i class="fe-layers me-1"></i> Product Variants (Size & Color)</span>
-                            <button type="button" class="btn btn-sm btn-success add-variant rounded-pill px-3"><i class="fa fa-plus me-1"></i> Add New Variant</button>
+                            <span><i class="fe-layers me-1"></i> {{ __('Product Variants (Size & Color)') }} </span>
+                            <button type="button" class="btn btn-sm btn-success add-variant rounded-pill px-3"><i class="fa fa-plus me-1"></i> {{ __('Add New Variant') }} </button>
                         </div>
                         
                         <div id="variant-wrapper">
@@ -169,7 +169,7 @@
                                         <input type="number" name="variant_price[0][stock]" class="form-control" placeholder="0">
                                     </div>
                                     <div class="col-md-3 mb-2">
-                                        <label class="form-label">Variant Image</label>
+                                        <label class="form-label"> {{ __('Variant Image') }} </label>
                                         <div class="variant-img-upload position-relative">
                                             <input type="file" name="variant_image[0][image]" class="form-control form-control-sm variant-img-input" accept="image/*">
                                             <div class="variant-img-preview mt-1" style="display:none;">
@@ -197,7 +197,7 @@
 
                 <div class="card mb-4">
                     <div class="card-body">
-                        <div class="section-title"><i class="fe-search me-1"></i> SEO Configuration</div>
+                        <div class="section-title"><i class="fe-search me-1"></i> {{ __('SEO Configuration') }} </div>
                         <div class="row">
                             <div class="col-md-6 mb-3">
                                 <label class="form-label">{{ __('Meta Title') }}</label>
@@ -212,7 +212,7 @@
                                 <textarea name="meta_description" class="form-control" rows="2" placeholder="Brief description for search engines"></textarea>
                             </div>
                             <div class="col-md-12">
-                                <label class="form-label">Meta Image</label>
+                                <label class="form-label"> {{ __('Meta Image') }} </label>
                                 <input type="file" name="meta_image" class="form-control">
                             </div>
                         </div>
@@ -223,37 +223,37 @@
             <div class="col-lg-4">
                 <div class="card mb-4">
                     <div class="card-body">
-                        <div class="section-title"><i class="fe-dollar-sign me-1"></i> Pricing & Inventory</div>
+                        <div class="section-title"><i class="fe-dollar-sign me-1"></i> {{ __('Pricing & Inventory') }} </div>
                         
                         <div class="form-group mb-3">
-                            <label class="form-label">Purchase Price <small class="text-muted">(Optional)</small></label>
+                            <label class="form-label"> {{ __('Purchase Price') }} <small class="text-muted">(Optional)</small></label>
                             <input type="number" name="purchase_price" class="form-control border-primary" placeholder="0">
                         </div>
 
                         <div class="row">
                             <div class="col-md-6 mb-3">
-                                <label class="form-label">Old Price</label>
+                                <label class="form-label"> {{ __('Old Price') }} </label>
                                 <input type="number" name="old_price" class="form-control">
                             </div>
                             <div class="col-md-6 mb-3">
-                                <label class="form-label">New Price <small class="text-muted">(Optional)</small></label>
+                                <label class="form-label"> {{ __('New Price') }} <small class="text-muted">(Optional)</small></label>
                                 <input type="number" name="new_price" class="form-control font-weight-bold" placeholder="0">
                             </div>
                         </div>
 
                         <div class="form-group mb-3">
-                            <label class="form-label">Reseller Price</label>
+                            <label class="form-label"> {{ __('Reseller Price') }} </label>
                             <input type="number" step="0.01" name="reseller_price" class="form-control" placeholder="Reseller price (optional)">
-                            <small class="text-muted">Special price for resellers. Leave empty if not applicable.</small>
+                            <small class="text-muted"> {{ __('Special price for resellers. Leave empty if not applicable.') }} </small>
                         </div>
 
                         <div class="row">
                             <div class="col-md-6 mb-3">
-                                <label class="form-label">Total Stock <small class="text-muted">(Optional)</small></label>
+                                <label class="form-label"> {{ __('Total Stock') }} <small class="text-muted">(Optional)</small></label>
                                 <input type="number" name="stock" class="form-control" placeholder="0">
                             </div>
                             <div class="col-md-6 mb-3">
-                                <label class="form-label">Unit (kg/pc)</label>
+                                <label class="form-label"> {{ __('Unit (kg/pc)') }} </label>
                                 <input type="text" name="pro_unit" class="form-control" placeholder="e.g. pcs">
                             </div>
                         </div>
@@ -262,10 +262,10 @@
 
                 <div class="card mb-4">
                     <div class="card-body">
-                        <div class="section-title"><i class="fe-image me-1"></i> Media & Video</div>
+                        <div class="section-title"><i class="fe-image me-1"></i> {{ __('Media & Video') }} </div>
                         
                         <div class="form-group mb-3">
-                            <label class="form-label">Product Gallery Images *</label>
+                            <label class="form-label"> {{ __('Product Gallery Images *') }} </label>
                             <div class="increment-wrapper">
                                 <div class="control-group increment mb-2 image-row">
                                     <div class="row align-items-end g-2">
@@ -344,10 +344,10 @@
 
                 <div class="card mb-4">
                     <div class="card-body">
-                        <div class="section-title"><i class="fe-settings me-1"></i> Product Settings</div>
+                        <div class="section-title"><i class="fe-settings me-1"></i> {{ __('Product Settings') }} </div>
                         
                         <div class="form-group mb-3">
-                            <label class="form-label">Product Type</label>
+                            <label class="form-label"> {{ __('Product Type') }} </label>
                             <select class="form-control bg-light" id="product_type" name="product_type">
                                 <option value="simple" selected>📦 Simple Product</option>
                                 <option value="digital">💾 Digital Product</option>
@@ -355,31 +355,31 @@
                         </div>
 
                         <div class="form-group mb-3" id="advance_area">
-                            <label class="form-label">Advance Payment Amount</label>
+                            <label class="form-label"> {{ __('Advance Payment Amount') }} </label>
                             <input type="number" name="advance_amount" class="form-control" placeholder="0.00">
                         </div>
 
                         <div class="form-group mb-3">
-                            <label class="form-label">Free Delivery</label>
+                            <label class="form-label"> {{ __('Free Delivery') }} </label>
                             <div class="d-flex align-items-center">
                                 <label class="switch me-3">
                                     <input type="checkbox" value="1" name="free_delivery">
                                     <span class="slider round"></span>
                                 </label>
-                                <small class="text-muted">Enable free delivery for this product (No shipping charge will be applied)</small>
+                                <small class="text-muted"> {{ __('Enable free delivery for this product (No shipping charge will be applied)') }} </small>
                             </div>
                         </div>
 
                         <div id="digital_area" style="display:none;" class="p-2 border rounded mb-3 bg-light">
-                            <label class="form-label">Digital File</label>
+                            <label class="form-label"> {{ __('Digital File') }} </label>
                             <input type="file" class="form-control mb-2" name="digital_file">
                             <div class="row">
                                 <div class="col-6">
-                                    <small>Limit</small>
+                                    <small> {{ __('Limit') }} </small>
                                     <input type="number" class="form-control form-control-sm" name="download_limit" value="5">
                                 </div>
                                 <div class="col-6">
-                                    <small>Days Exp.</small>
+                                    <small> {{ __('Days Exp.') }} </small>
                                     <input type="number" class="form-control form-control-sm" name="download_expire_days" value="7">
                                 </div>
                             </div>
@@ -391,7 +391,7 @@
                                 <label class="switch"><input type="checkbox" value="1" name="status" checked><span class="slider round"></span></label>
                             </div>
                             <div class="col-4 mb-2">
-                                <label class="d-block form-label">Hot Deal</label>
+                                <label class="d-block form-label"> {{ __('Hot Deal') }} </label>
                                 <label class="switch"><input type="checkbox" value="1" name="topsale"><span class="slider round"></span></label>
                             </div>
                            
@@ -410,7 +410,7 @@
                             </div>
                         </div>
 
-                        <button type="submit" class="btn btn-success btn-lg w-100 shadow rounded-pill"><i class="fe-check-circle me-1"></i> Publish Product</button>
+                        <button type="submit" class="btn btn-success btn-lg w-100 shadow rounded-pill"><i class="fe-check-circle me-1"></i> {{ __('Publish Product') }} </button>
                     </div>
                 </div>
             </div>
@@ -596,7 +596,7 @@
             var id = $(this).val();
             if (id) {
                 $.get("{{url('ajax-product-subcategory')}}?category_id=" + id, function(res){
-                    $("#subcategory_id").empty().append('<option value="">Choose Sub Category</option>');
+                    $("#subcategory_id").empty().append('<option value=""> {{ __('Choose Sub Category') }} </option>');
                     $.each(res, function(key, value){
                         $("#subcategory_id").append('<option value="'+key+'">'+value+'</option>');
                     });
@@ -608,7 +608,7 @@
             var id = $(this).val();
             if (id) {
                 $.get("{{url('ajax-product-childcategory')}}?subcategory_id=" + id, function(res){
-                    $("#childcategory_id").empty().append('<option value="">Choose Child Category</option>');
+                    $("#childcategory_id").empty().append('<option value=""> {{ __('Choose Child Category') }} </option>');
                     $.each(res, function(key, value){
                         $("#childcategory_id").append('<option value="'+key+'">'+value+'</option>');
                     });

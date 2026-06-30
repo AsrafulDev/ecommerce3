@@ -188,28 +188,28 @@
         <div class="col-xl-3 col-lg-4">
             <div class="sidebar-info-card">
                 <div class="info-header">
-                    <h5 class="m-0">Live Preview</h5>
-                    <small class="text-muted">Current published details</small>
+                    <h5 class="m-0"> {{ __('Live Preview') }} </h5>
+                    <small class="text-muted"> {{ __('Current published details') }} </small>
                 </div>
 
                 <div class="current-item">
                     <i class="fe-phone-call"></i>
-                    <div><span>Hotline</span><strong>{{ $contact->hotline ?? 'Not Set' }}</strong></div>
+                    <div><span> {{ __('Hotline') }} </span><strong>{{ $contact->hotline ?? 'Not Set' }}</strong></div>
                 </div>
                 <div class="current-item">
                     <i class="fe-mail"></i>
-                    <div><span>Business Mail</span><strong>{{ $contact->email }}</strong></div>
+                    <div><span> {{ __('Business Mail') }} </span><strong>{{ $contact->email }}</strong></div>
                 </div>
                 <div class="current-item">
                     <i class="fe-map-pin"></i>
-                    <div><span>Location</span><strong>{{ Str::limit($contact->address, 40) }}</strong></div>
+                    <div><span> {{ __('Location') }} </span><strong>{{ Str::limit($contact->address, 40) }}</strong></div>
                 </div>
                 
                 <div class="mt-4 p-3 rounded-4 border border-secondary border-dashed">
-                    <small class="text-muted d-block mb-2">System Health</small>
+                    <small class="text-muted d-block mb-2"> {{ __('System Health') }} </small>
                     <div class="d-flex align-items-center gap-2">
                         <div class="spinner-grow spinner-grow-sm text-success"></div>
-                        <span class="small">Contact Module Online</span>
+                        <span class="small"> {{ __('Contact Module Online') }} </span>
                     </div>
                 </div>
             </div>
@@ -218,7 +218,7 @@
         <div class="col-xl-9 col-lg-8">
             <div class="form-canvas">
                 <div class="d-flex justify-content-between align-items-center mb-4">
-                    <h4 class="fw-bold text-dark m-0">Global Contact Settings</h4>
+                    <h4 class="fw-bold text-dark m-0"> {{ __('Global Contact Settings') }} </h4>
                     <a href="{{route('contact.index')}}" class="btn btn-sm btn-outline-secondary px-3 rounded-pill">
                         <i class="fe-refresh-cw me-1"></i> Reset View
                     </a>
@@ -228,59 +228,59 @@
                     @csrf
                     <input type="hidden" value="{{$contact->id}}" name="hidden_id">
 
-                    <div class="section-divider">Communication Channels</div>
+                    <div class="section-divider"> {{ __('Communication Channels') }} </div>
                     
                     <div class="row">
                         <div class="col-md-6">
                             <div class="input-wrapper">
-                                <label class="elite-label">Support Hotline</label>
+                                <label class="elite-label"> {{ __('Support Hotline') }} </label>
                                 <input type="text" class="elite-input" name="hotline" value="{{ old('hotline', $contact->hotline) }}">
                                 <i class="fe-phone-outgoing"></i>
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div class="input-wrapper">
-                                <label class="elite-label">Official Email Address *</label>
+                                <label class="elite-label"> {{ __('Official Email Address *') }} </label>
                                 <input type="email" class="elite-input" name="email" value="{{ old('email', $contact->email) }}" required>
                                 <i class="fe-mail"></i>
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div class="input-wrapper">
-                                <label class="elite-label">Primary Phone (Mobile) *</label>
+                                <label class="elite-label"> {{ __('Primary Phone (Mobile) *') }} </label>
                                 <input type="text" class="elite-input" name="phone" value="{{ old('phone', $contact->phone) }}" required>
                                 <i class="fe-smartphone"></i>
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div class="input-wrapper">
-                                <label class="elite-label">Secondary / Help Email</label>
+                                <label class="elite-label"> {{ __('Secondary / Help Email') }} </label>
                                 <input type="email" class="elite-input" name="hotmail" value="{{ old('hotmail', $contact->hotmail) }}">
                                 <i class="fe-at-sign"></i>
                             </div>
                         </div>
                     </div>
 
-                    <div class="section-divider">Location & Presence</div>
+                    <div class="section-divider"> {{ __('Location & Presence') }} </div>
 
                     <div class="row">
                         <div class="col-md-6">
                             <div class="input-wrapper">
-                                <label class="elite-label">WhatsApp Integration</label>
+                                <label class="elite-label"> {{ __('WhatsApp Integration') }} </label>
                                 <input type="text" class="elite-input" name="whatsapp" value="{{ old('whatsapp', $contact->whatsapp) }}">
                                 <i class="fab fa-whatsapp"></i>
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div class="input-wrapper">
-                                <label class="elite-label">Google Maps URL</label>
+                                <label class="elite-label"> {{ __('Google Maps URL') }} </label>
                                 <input type="text" class="elite-input" name="maplink" value="{{ old('maplink', $contact->maplink) }}">
                                 <i class="fe-map"></i>
                             </div>
                         </div>
                         <div class="col-12">
                             <div class="input-wrapper">
-                                <label class="elite-label">Physical Office Address *</label>
+                                <label class="elite-label"> {{ __('Physical Office Address *') }} </label>
                                 <textarea class="elite-input" name="address" rows="2" style="padding-left: 48px;" required>{{ old('address', $contact->address) }}</textarea>
                                 <i class="fe-navigation" style="top: 42px;"></i>
                             </div>
@@ -291,8 +291,8 @@
                         <div class="col-md-7">
                             <div class="status-panel">
                                 <div>
-                                    <h6 class="m-0 fw-bold">Visibility Control</h6>
-                                    <small class="text-muted">Display these details on the store front</small>
+                                    <h6 class="m-0 fw-bold"> {{ __('Visibility Control') }} </h6>
+                                    <small class="text-muted"> {{ __('Display these details on the store front') }} </small>
                                 </div>
                                 <div class="form-check form-switch">
                                     <input class="form-check-input" type="checkbox" name="status" value="1" @if($contact->status==1) checked @endif style="width: 3.5em; height: 1.7em; cursor:pointer;">

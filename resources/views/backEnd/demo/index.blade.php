@@ -57,8 +57,8 @@
 <div class="container-fluid py-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
-            <h4 class="fw-bold m-0"><i class="mdi mdi-backup-restore me-2"></i> Demo Management</h4>
-            <p class="text-muted small m-0 mt-1">Export your current settings or import a complete demo shop with one click</p>
+            <h4 class="fw-bold m-0"><i class="mdi mdi-backup-restore me-2"></i> {{ __('Demo Management') }} </h4>
+            <p class="text-muted small m-0 mt-1"> {{ __('Export your current settings or import a complete demo shop with one click') }} </p>
         </div>
     </div>
 
@@ -70,7 +70,7 @@
                     <i class="mdi mdi-palette"></i>
                 </div>
                 <h5 class="fw-bold mb-0">{{ $themes->count() }}</h5>
-                <small class="text-muted">Themes</small>
+                <small class="text-muted"> {{ __('Themes') }} </small>
             </div>
         </div>
         <div class="col-md-2">
@@ -79,7 +79,7 @@
                     <i class="mdi mdi-view-dashboard"></i>
                 </div>
                 <h5 class="fw-bold mb-0">{{ $layouts->count() }}</h5>
-                <small class="text-muted">Layouts</small>
+                <small class="text-muted"> {{ __('Layouts') }} </small>
             </div>
         </div>
         <div class="col-md-2">
@@ -88,7 +88,7 @@
                     <i class="mdi mdi-export"></i>
                 </div>
                 <h5 class="fw-bold mb-0">{{ count($presets) }}</h5>
-                <small class="text-muted">Demo Presets</small>
+                <small class="text-muted"> {{ __('Demo Presets') }} </small>
             </div>
         </div>
         <div class="col-md-3">
@@ -97,7 +97,7 @@
                     <i class="mdi mdi-store"></i>
                 </div>
                 <h5 class="fw-bold mb-0">{{ count($shopPresets) }}</h5>
-                <small class="text-muted">Shop Presets</small>
+                <small class="text-muted"> {{ __('Shop Presets') }} </small>
             </div>
         </div>
         <div class="col-md-3">
@@ -108,7 +108,7 @@
                 <h5 class="fw-bold mb-0">
                     @if($activeLayout) {{ $activeLayout->name }} @else N/A @endif
                 </h5>
-                <small class="text-muted">Active Layout</small>
+                <small class="text-muted"> {{ __('Active Layout') }} </small>
             </div>
         </div>
     </div>
@@ -116,8 +116,8 @@
     {{-- Shop Presets (One-click Import) --}}
     <div class="card shadow-none border rounded-4 mb-4">
         <div class="card-header bg-transparent border-bottom-0 pt-3">
-            <h5 class="fw-bold m-0"><i class="mdi mdi-store me-1"></i> Available Shop Presets</h5>
-            <small class="text-muted">Click any preset to instantly import a complete shop with categories, products, and settings</small>
+            <h5 class="fw-bold m-0"><i class="mdi mdi-store me-1"></i> {{ __('Available Shop Presets') }} </h5>
+            <small class="text-muted"> {{ __('Click any preset to instantly import a complete shop with categories, products, and settings') }} </small>
         </div>
         <div class="card-body">
             <div class="row g-4">
@@ -152,8 +152,8 @@
     <div class="reset-card mb-4">
         <div class="d-flex align-items-center justify-content-between">
             <div>
-                <h5 class="fw-bold text-danger m-0"><i class="mdi mdi-alert-circle me-1"></i> Danger Zone</h5>
-                <p class="small text-muted m-0 mt-1">Reset deletes everything then re-seeds default data. Clean wipes everything leaving an empty site.</p>
+                <h5 class="fw-bold text-danger m-0"><i class="mdi mdi-alert-circle me-1"></i> {{ __('Danger Zone') }} </h5>
+                <p class="small text-muted m-0 mt-1"> {{ __('Reset deletes everything then re-seeds default data. Clean wipes everything leaving an empty site.') }} </p>
             </div>
             <div class="d-flex gap-2">
                 <form action="{{ route('demo.reset') }}" method="POST" class="d-inline">
@@ -185,8 +185,8 @@
                             <i class="mdi mdi-export"></i>
                         </div>
                         <div>
-                            <h5 class="fw-bold m-0">Export Current Setup</h5>
-                            <small class="text-muted">Download your themes, layouts & settings as a zip</small>
+                            <h5 class="fw-bold m-0"> {{ __('Export Current Setup') }} </h5>
+                            <small class="text-muted"> {{ __('Download your themes, layouts & settings as a zip') }} </small>
                         </div>
                     </div>
                     <p class="small text-muted">This will export all {{ $themes->count() }} themes, {{ $layouts->count() }} layouts, and section configurations.</p>
@@ -206,7 +206,7 @@
                             <i class="mdi mdi-package-variant-closed"></i>
                         </div>
                         <div>
-                            <h5 class="fw-bold m-0">Upload Preset Zip</h5>
+                            <h5 class="fw-bold m-0"> {{ __('Upload Preset Zip') }} </h5>
                             <small class="text-muted">Upload a preset zip (data.json + images/)</small>
                         </div>
                     </div>
@@ -228,7 +228,7 @@
     @if(count($presets) > 0)
     <div class="card shadow-none border rounded-4">
         <div class="card-header bg-transparent border-bottom-0 pt-3">
-            <h5 class="fw-bold m-0"><i class="mdi mdi-package-variant-closed me-1"></i> Saved Demo Presets</h5>
+            <h5 class="fw-bold m-0"><i class="mdi mdi-package-variant-closed me-1"></i> {{ __('Saved Demo Presets') }} </h5>
         </div>
         <div class="card-body p-3">
             <div class="table-responsive">

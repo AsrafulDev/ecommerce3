@@ -66,8 +66,8 @@
     
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
-            <h4 class="fw-bold m-0 text-dark">Create Shipping Charge</h4>
-            <span class="text-muted small">Define new delivery area and its cost</span>
+            <h4 class="fw-bold m-0 text-dark"> {{ __('Create Shipping Charge') }} </h4>
+            <span class="text-muted small"> {{ __('Define new delivery area and its cost') }} </span>
         </div>
         <div class="d-flex gap-2">
             <a href="{{route('shippingcharges.index')}}" class="btn btn-light border fw-bold text-secondary px-3">{{ __('Cancel') }}</a>
@@ -87,7 +87,7 @@
                     <div class="row g-4">
                         
                         <div class="col-md-6">
-                            <label class="form-label-custom">Area / Location Name <span class="text-danger">*</span></label>
+                            <label class="form-label-custom"> {{ __('Area / Location Name') }} <span class="text-danger">*</span></label>
                             <input type="text" 
                                    class="form-control input-clean @error('name') is-invalid @enderror" 
                                    name="name" 
@@ -101,7 +101,7 @@
                         </div>
 
                         <div class="col-md-6">
-                            <label class="form-label-custom">Shipping Cost <span class="text-danger">*</span></label>
+                            <label class="form-label-custom"> {{ __('Shipping Cost') }} <span class="text-danger">*</span></label>
                             <div class="input-group">
                                 <span class="input-group-text bg-light border-end-0 text-muted">৳</span>
                                 <input type="number" 
@@ -118,11 +118,11 @@
                         </div>
 
                         <div class="col-12">
-                            <label class="form-label-custom">Initial Status</label>
+                            <label class="form-label-custom"> {{ __('Initial Status') }} </label>
                             <div class="status-toggle-box">
                                 <div class="status-text">
-                                    <h6>Active for Customers</h6>
-                                    <small>Enable this area immediately on checkout</small>
+                                    <h6> {{ __('Active for Customers') }} </h6>
+                                    <small> {{ __('Enable this area immediately on checkout') }} </small>
                                 </div>
                                 <div class="form-check form-switch">
                                     <input class="form-check-input" type="checkbox" name="status" value="1" checked style="width: 3em; height: 1.5em; cursor:pointer;">

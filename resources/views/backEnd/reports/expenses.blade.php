@@ -86,14 +86,14 @@
                 
                 {{-- Report Type --}}
                 <div class="col-md-3">
-                    <label class="form-label-custom">Filter By</label>
+                    <label class="form-label-custom"> {{ __('Filter By') }} </label>
                     <div class="input-group">
                         <span class="input-group-text bg-white border-end-0"><i data-feather="filter" style="width:16px;"></i></span>
                         <select name="type" class="form-select form-select-custom border-start-0" id="report-type">
-                            <option value="today" {{ ($type ?? '')=='today' ? 'selected' : '' }}>Today</option>
-                            <option value="month" {{ ($type ?? '')=='month' ? 'selected' : '' }}>Monthly</option>
-                            <option value="year"  {{ ($type ?? '')=='year'  ? 'selected' : '' }}>Yearly</option>
-                            <option value="range" {{ ($type ?? '')=='range' ? 'selected' : '' }}>Custom Date Range</option>
+                            <option value="today" {{ ($type ?? '')=='today' ? 'selected' : '' }}> {{ __('Today') }} </option>
+                            <option value="month" {{ ($type ?? '')=='month' ? 'selected' : '' }}> {{ __('Monthly') }} </option>
+                            <option value="year"  {{ ($type ?? '')=='year'  ? 'selected' : '' }}> {{ __('Yearly') }} </option>
+                            <option value="range" {{ ($type ?? '')=='range' ? 'selected' : '' }}> {{ __('Custom Date Range') }} </option>
                         </select>
                     </div>
                 </div>
@@ -116,12 +116,12 @@
                 </div>
 
                 <div class="col-md-2 type-range" style="display:none;">
-                    <label class="form-label-custom">Start Date</label>
+                    <label class="form-label-custom"> {{ __('Start Date') }} </label>
                     <input type="date" name="from_date" class="form-control form-control-custom" value="{{ request('from_date') }}">
                 </div>
 
                 <div class="col-md-2 type-range" style="display:none;">
-                    <label class="form-label-custom">End Date</label>
+                    <label class="form-label-custom"> {{ __('End Date') }} </label>
                     <input type="date" name="to_date" class="form-control form-control-custom" value="{{ request('to_date') }}">
                 </div>
 
@@ -143,7 +143,7 @@
         <div class="col-md-4">
             <div class="expense-card">
                 <div>
-                    <div class="expense-label">Total Expenses</div>
+                    <div class="expense-label"> {{ __('Total Expenses') }} </div>
                     <h2 class="expense-amount">৳{{ number_format($totalExpense ?? 0, 2) }}</h2>
                 </div>
                 <div class="expense-icon">
@@ -157,7 +157,7 @@
     <div id="expense-table-wrapper">
         <div class="card card-modern">
             <div class="card-header border-bottom bg-white py-3">
-                <h5 class="mb-0 fw-bold text-dark">Expense List</h5>
+                <h5 class="mb-0 fw-bold text-dark"> {{ __('Expense List') }} </h5>
             </div>
             
             <div class="table-responsive">
@@ -191,7 +191,7 @@
                             <td colspan="6" class="text-center py-5">
                                 <div class="d-flex flex-column align-items-center">
                                     <img src="https://cdn-icons-png.flaticon.com/512/7486/7486744.png" width="50" class="opacity-25 mb-2">
-                                    <p class="text-muted fw-bold mb-0">No expenses found</p>
+                                    <p class="text-muted fw-bold mb-0"> {{ __('No expenses found') }} </p>
                                 </div>
                             </td>
                         </tr>

@@ -82,14 +82,14 @@
                 @php $type = $type ?? request('type','today'); @endphp
 
                 <div class="col-md-3">
-                    <label class="form-label-custom">Filter By</label>
+                    <label class="form-label-custom"> {{ __('Filter By') }} </label>
                     <div class="input-group">
                         <span class="input-group-text bg-white border-end-0"><i data-feather="filter" style="width:16px;"></i></span>
                         <select name="type" class="form-select form-select-custom border-start-0" id="report-type">
-                            <option value="today" {{ $type=='today'?'selected':'' }}>Today</option>
-                            <option value="month" {{ $type=='month'?'selected':'' }}>Monthly</option>
-                            <option value="year"  {{ $type=='year'?'selected':'' }}>Yearly</option>
-                            <option value="range" {{ $type=='range'?'selected':'' }}>Custom Range</option>
+                            <option value="today" {{ $type=='today'?'selected':'' }}> {{ __('Today') }} </option>
+                            <option value="month" {{ $type=='month'?'selected':'' }}> {{ __('Monthly') }} </option>
+                            <option value="year"  {{ $type=='year'?'selected':'' }}> {{ __('Yearly') }} </option>
+                            <option value="range" {{ $type=='range'?'selected':'' }}> {{ __('Custom Range') }} </option>
                         </select>
                     </div>
                 </div>
@@ -111,12 +111,12 @@
                 </div>
 
                 <div class="col-md-2 type-range" style="display:none;">
-                    <label class="form-label-custom">Start Date</label>
+                    <label class="form-label-custom"> {{ __('Start Date') }} </label>
                     <input type="date" name="from_date" class="form-control form-control-custom" value="{{ request('from_date') }}">
                 </div>
 
                 <div class="col-md-2 type-range" style="display:none;">
-                    <label class="form-label-custom">End Date</label>
+                    <label class="form-label-custom"> {{ __('End Date') }} </label>
                     <input type="date" name="to_date" class="form-control form-control-custom" value="{{ request('to_date') }}">
                 </div>
 
@@ -139,25 +139,25 @@
         <div class="row g-4 mb-4">
             <div class="col-md-3">
                 <div class="stat-card bg-soft-primary">
-                    <div class="stat-title">Total Sales</div>
+                    <div class="stat-title"> {{ __('Total Sales') }} </div>
                     <div class="stat-amount">৳{{ number_format($salesAmount ?? 0, 2) }}</div>
                 </div>
             </div>
             <div class="col-md-3">
                 <div class="stat-card bg-soft-warning">
-                    <div class="stat-title">COGS (Cost)</div>
+                    <div class="stat-title"> {{ __('COGS (Cost)') }} </div>
                     <div class="stat-amount">৳{{ number_format($cogs ?? 0, 2) }}</div>
                 </div>
             </div>
             <div class="col-md-3">
                 <div class="stat-card bg-soft-secondary">
-                    <div class="stat-title">Total Expenses</div>
+                    <div class="stat-title"> {{ __('Total Expenses') }} </div>
                     <div class="stat-amount">৳{{ number_format($totalExpense ?? 0, 2) }}</div>
                 </div>
             </div>
             <div class="col-md-3">
                 <div class="stat-card {{ ($netProfit ?? 0) >= 0 ? 'bg-soft-success' : 'bg-soft-danger' }}">
-                    <div class="stat-title">Net Profit/Loss</div>
+                    <div class="stat-title"> {{ __('Net Profit/Loss') }} </div>
                     <div class="stat-amount">৳{{ number_format($netProfit ?? 0, 2) }}</div>
                 </div>
             </div>
@@ -166,30 +166,30 @@
         {{-- Detailed Summary Table --}}
         <div class="card card-modern">
             <div class="card-header border-bottom bg-white py-3">
-                <h5 class="mb-0 fw-bold text-dark">Financial Statement</h5>
+                <h5 class="mb-0 fw-bold text-dark"> {{ __('Financial Statement') }} </h5>
             </div>
             <div class="card-body p-0">
                 <div class="table-responsive">
                     <table class="table table-bordered mb-0 summary-table">
                         <tbody>
                             <tr>
-                                <th width="40%">Total Revenue (Sales)</th>
+                                <th width="40%"> {{ __('Total Revenue (Sales)') }} </th>
                                 <td class="text-end text-primary">৳{{ number_format($salesAmount ?? 0, 2) }}</td>
                             </tr>
                             <tr>
-                                <th>Cost of Goods Sold (COGS)</th>
+                                <th> {{ __('Cost of Goods Sold (COGS)') }} </th>
                                 <td class="text-end text-danger">- ৳{{ number_format($cogs ?? 0, 2) }}</td>
                             </tr>
                             <tr class="bg-light">
-                                <th><strong>Gross Profit</strong></th>
+                                <th><strong> {{ __('Gross Profit') }} </strong></th>
                                 <td class="text-end fw-bold">৳{{ number_format($grossProfit ?? 0, 2) }}</td>
                             </tr>
                             <tr>
-                                <th>Operating Expenses</th>
+                                <th> {{ __('Operating Expenses') }} </th>
                                 <td class="text-end text-danger">- ৳{{ number_format($totalExpense ?? 0, 2) }}</td>
                             </tr>
                             <tr class="{{ ($netProfit ?? 0) >= 0 ? 'net-profit-row' : 'net-loss-row' }}">
-                                <th class="fs-5"><strong>Net Profit / (Loss)</strong></th>
+                                <th class="fs-5"><strong> {{ __('Net Profit / (Loss)') }} </strong></th>
                                 <td class="text-end fs-4 fw-bold {{ ($netProfit ?? 0) >= 0 ? 'text-success' : 'text-danger' }}">
                                     ৳{{ number_format($netProfit ?? 0, 2) }}
                                 </td>

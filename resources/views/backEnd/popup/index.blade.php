@@ -66,8 +66,8 @@
     {{-- 1. Header Section --}}
     <div class="page-header">
         <div>
-            <h4 class="fw-bold mb-1 text-dark">Marketing Popups</h4>
-            <small class="text-muted">Manage website promotional modals</small>
+            <h4 class="fw-bold mb-1 text-dark"> {{ __('Marketing Popups') }} </h4>
+            <small class="text-muted"> {{ __('Manage website promotional modals') }} </small>
         </div>
         <button type="button" class="btn btn-primary px-4 shadow-sm" data-bs-toggle="modal" data-bs-target="#createPopupModal">
             <i class="fas fa-plus me-2"></i> Create New Popup
@@ -85,10 +85,10 @@
                                 <tr>
                                     <th width="5%">{{ __('SL') }}</th>
                                     <th width="15%">{{ __('Preview') }}</th>
-                                    <th width="25%">Campaign Title</th>
-                                    <th width="30%">Offer Details</th>
+                                    <th width="25%"> {{ __('Campaign Title') }} </th>
+                                    <th width="30%"> {{ __('Offer Details') }} </th>
                                     <th width="10%">{{ __('Status') }}</th>
-                                    <th width="15%" class="text-end">Actions</th>
+                                    <th width="15%" class="text-end"> {{ __('Actions') }} </th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -108,7 +108,7 @@
                                             {{ $value->description ?: 'শুধু ইমেইজ পপআপ' }}
                                         </small>
                                         @if($value->link)
-                                            <small class="text-primary"><i class="fas fa-link fa-xs me-1"></i> Has Link</small>
+                                            <small class="text-primary"><i class="fas fa-link fa-xs me-1"></i> {{ __('Has Link') }} </small>
                                         @endif
                                     </td>
                                     <td>
@@ -137,7 +137,7 @@
                                 <tr>
                                     <td colspan="6" class="text-center py-5 text-muted">
                                         <i class="far fa-folder-open fa-3x mb-3 opacity-50"></i>
-                                        <p class="mb-0">No popups found. Create one to get started!</p>
+                                        <p class="mb-0"> {{ __('No popups found. Create one to get started!') }} </p>
                                     </td>
                                 </tr>
                                 @endforelse

@@ -76,12 +76,11 @@
     <div class="row mb-3 mt-3">
         <div class="col-12 d-flex justify-content-between align-items-center">
             <div>
-                <h4 class="page-title mb-0" style="font-weight: 700; color: #2d3436;">Roles & Permissions</h4>
-                <p class="text-muted font-size-13 mb-0">Manage user roles and access control.</p>
+                <h4 class="page-title mb-0" style="font-weight: 700; color: #2d3436;"> {{ __('Roles & Permissions') }} </h4>
+                <p class="text-muted font-size-13 mb-0"> {{ __('Manage user roles and access control.') }} </p>
             </div>
             <a href="{{route('roles.create')}}" class="btn btn-primary rounded-pill shadow-sm px-4">
-                <i class="fe-plus me-1"></i> Create New Role
-            </a>
+                <i class="fe-plus me-1"></i> {{ __('Create New Role') }} </a>
         </div>
     </div>
 
@@ -93,7 +92,7 @@
                         <thead>
                             <tr>
                                 <th style="width: 50px;">{{ __('SL') }}</th>
-                                <th>Role Name</th>
+                                <th> {{ __('Role Name') }} </th>
                                 <th class="text-end" style="width: 150px;">{{ __('Action') }}</th>
                             </tr>
                         </thead>                

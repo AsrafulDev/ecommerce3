@@ -68,7 +68,7 @@
             <h4 class="mb-1 fw-bold text-dark">
                 <i data-feather="dollar-sign" class="text-primary me-2"></i> Reseller Withdrawals
             </h4>
-            <p class="text-muted small mb-0">Manage reseller payout requests and history.</p>
+            <p class="text-muted small mb-0"> {{ __('Manage reseller payout requests and history.') }} </p>
         </div>
     </div>
 
@@ -85,13 +85,13 @@
                 <thead>
                     <tr>
                         <th width="5%">#</th>
-                        <th width="20%">Reseller Details</th>
+                        <th width="20%"> {{ __('Reseller Details') }} </th>
                         <th width="15%">{{ __('Amount') }}</th>
-                        <th width="10%">Method</th>
-                        <th width="20%">Account Info</th>
-                        <th width="15%">Request Date</th>
+                        <th width="10%"> {{ __('Method') }} </th>
+                        <th width="20%"> {{ __('Account Info') }} </th>
+                        <th width="15%"> {{ __('Request Date') }} </th>
                         <th width="10%">{{ __('Status') }}</th>
-                        <th width="5%" class="text-end">Actions</th>
+                        <th width="5%" class="text-end"> {{ __('Actions') }} </th>
                     </tr>
                 </thead>
                 <tbody>
@@ -177,7 +177,7 @@
                                     <div class="modal-dialog modal-dialog-centered">
                                         <div class="modal-content border-0 shadow-lg">
                                             <div class="modal-header border-bottom-0 pb-0">
-                                                <h5 class="modal-title fw-bold text-success">Approve Withdrawal</h5>
+                                                <h5 class="modal-title fw-bold text-success"> {{ __('Approve Withdrawal') }} </h5>
                                                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                                             </div>
                                             <form action="{{ route('admin.reseller.withdrawals.approve', $row->id) }}" method="POST">
@@ -198,13 +198,13 @@
                                                         </div>
                                                     </div>
                                                     <div class="mb-3">
-                                                        <label class="form-label small fw-bold text-muted">Admin Note (Optional)</label>
+                                                        <label class="form-label small fw-bold text-muted"> {{ __('Admin Note (Optional)') }} </label>
                                                         <textarea name="admin_note" class="form-control" rows="2" placeholder="Transaction ID or remarks..."></textarea>
                                                     </div>
                                                 </div>
                                                 <div class="modal-footer border-top-0 pt-0">
                                                     <button type="button" class="btn btn-light btn-sm" data-bs-dismiss="modal">{{ __('Cancel') }}</button>
-                                                    <button type="submit" class="btn btn-success btn-sm px-4">Confirm Approve</button>
+                                                    <button type="submit" class="btn btn-success btn-sm px-4"> {{ __('Confirm Approve') }} </button>
                                                 </div>
                                             </form>
                                         </div>
@@ -216,7 +216,7 @@
                                     <div class="modal-dialog modal-dialog-centered">
                                         <div class="modal-content border-0 shadow-lg">
                                             <div class="modal-header border-bottom-0 pb-0">
-                                                <h5 class="modal-title fw-bold text-danger">Reject Withdrawal</h5>
+                                                <h5 class="modal-title fw-bold text-danger"> {{ __('Reject Withdrawal') }} </h5>
                                                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                                             </div>
                                             <form action="{{ route('admin.reseller.withdrawals.reject', $row->id) }}" method="POST">
@@ -227,13 +227,13 @@
                                                         Amount will be refunded to reseller's wallet.
                                                     </div>
                                                     <div class="mb-3">
-                                                        <label class="form-label small fw-bold text-muted">Rejection Reason <span class="text-danger">*</span></label>
+                                                        <label class="form-label small fw-bold text-muted"> {{ __('Rejection Reason') }} <span class="text-danger">*</span></label>
                                                         <textarea name="admin_note" class="form-control" rows="3" required placeholder="e.g. Invalid bank details..."></textarea>
                                                     </div>
                                                 </div>
                                                 <div class="modal-footer border-top-0 pt-0">
                                                     <button type="button" class="btn btn-light btn-sm" data-bs-dismiss="modal">{{ __('Cancel') }}</button>
-                                                    <button type="submit" class="btn btn-danger btn-sm px-4">Confirm Reject</button>
+                                                    <button type="submit" class="btn btn-danger btn-sm px-4"> {{ __('Confirm Reject') }} </button>
                                                 </div>
                                             </form>
                                         </div>

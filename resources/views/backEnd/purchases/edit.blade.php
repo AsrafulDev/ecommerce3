@@ -60,7 +60,7 @@
             <h4 class="mb-1 fw-bold text-gray-800">
                 <i data-feather="edit-3" class="text-primary me-1"></i> Edit Purchase
             </h4>
-            <p class="text-muted small mb-0">Update invoice details and payment information.</p>
+            <p class="text-muted small mb-0"> {{ __('Update invoice details and payment information.') }} </p>
         </div>
         <a href="{{ route('purchases.index') }}" class="btn btn-white border shadow-sm rounded-pill px-3">
             <i data-feather="arrow-left" class="me-1"></i> Back to List
@@ -75,13 +75,13 @@
             <div class="col-lg-8">
                 <div class="card card-modern mb-4">
                     <div class="card-header-modern">
-                        <h6 class="m-0 font-weight-bold text-primary">Editable Information</h6>
+                        <h6 class="m-0 font-weight-bold text-primary"> {{ __('Editable Information') }} </h6>
                     </div>
                     <div class="card-body p-4">
                         
                         <div class="row">
                             <div class="col-md-6 mb-4">
-                                <label class="form-label">Invoice No <span class="text-danger">*</span></label>
+                                <label class="form-label"> {{ __('Invoice No') }} <span class="text-danger">*</span></label>
                                 <div class="input-group">
                                     <span class="input-group-text bg-light border-end-0"><i data-feather="hash" style="width:14px;"></i></span>
                                     <input type="text" name="invoice_no" class="form-control border-start-0 @error('invoice_no') is-invalid @enderror" 
@@ -91,7 +91,7 @@
                             </div>
 
                             <div class="col-md-6 mb-4">
-                                <label class="form-label">Purchase Date <span class="text-danger">*</span></label>
+                                <label class="form-label"> {{ __('Purchase Date') }} <span class="text-danger">*</span></label>
                                 <div class="input-group">
                                     <span class="input-group-text bg-light border-end-0"><i data-feather="calendar" style="width:14px;"></i></span>
                                     <input type="date" name="purchase_date" class="form-control border-start-0 @error('purchase_date') is-invalid @enderror" 
@@ -110,12 +110,12 @@
                             
                             <div class="alert alert-soft-warning d-flex align-items-center mt-2 p-2 rounded" style="background: #fff3cd; border: 1px solid #ffeeba; color: #856404;">
                                 <i data-feather="alert-circle" class="me-2"></i>
-                                <small><strong>Warning:</strong> Changing the "Paid Amount" will automatically adjust your company fund balance.</small>
+                                <small><strong>Warning:</strong> {{ __('Changing the "Paid Amount" will automatically adjust your company fund balance.') }} </small>
                             </div>
                         </div>
 
                         <div class="mb-4">
-                            <label class="form-label">Note (Optional)</label>
+                            <label class="form-label"> {{ __('Note (Optional)') }} </label>
                             <textarea name="note" class="form-control" rows="3" placeholder="Add any additional details here...">{{ old('note', $purchase->note) }}</textarea>
                         </div>
 
@@ -137,7 +137,7 @@
                 <div class="card card-modern mb-4">
                     <div class="card-body p-0">
                         <div class="grand-total-box">
-                            <div class="opacity-75 text-uppercase small fw-bold mb-1">Grand Total Amount</div>
+                            <div class="opacity-75 text-uppercase small fw-bold mb-1"> {{ __('Grand Total Amount') }} </div>
                             <h2 class="mb-0 fw-bold">{{ number_format($purchase->grand_total, 2) }} ৳</h2>
                             <small class="opacity-75">(Cannot be edited here)</small>
                         </div>
@@ -147,7 +147,7 @@
                 {{-- Supplier Info --}}
                 <div class="card card-modern mb-4">
                     <div class="card-header-modern bg-light">
-                        <h6 class="m-0 font-weight-bold text-dark">Supplier Details</h6>
+                        <h6 class="m-0 font-weight-bold text-dark"> {{ __('Supplier Details') }} </h6>
                     </div>
                     <div class="card-body">
                         <div class="mb-3">

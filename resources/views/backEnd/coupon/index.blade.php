@@ -81,11 +81,10 @@
         <div>
             <h4 class="mb-1 fw-bold text-dark">
                 <i data-feather="tag" class="text-primary me-2"></i>{{ __('Manage Coupons') }}</h4>
-            <p class="text-muted small mb-0">Create and manage discount codes for customers.</p>
+            <p class="text-muted small mb-0"> {{ __('Create and manage discount codes for customers.') }} </p>
         </div>
         <a href="{{ route('admin.coupons.create') }}" class="btn btn-primary px-4 py-2 rounded-pill shadow-sm">
-            <i data-feather="plus-circle" class="me-1" style="width: 16px;"></i> Create Coupon
-        </a>
+            <i data-feather="plus-circle" class="me-1" style="width: 16px;"></i> {{ __('Create Coupon') }} </a>
     </div>
 
     <div class="card card-modern">
@@ -95,12 +94,12 @@
                     <tr>
                         <th width="5%">#</th>
                         <th width="20%">{{ __('Coupon Code') }}</th>
-                        <th width="15%">Discount Type</th>
-                        <th width="10%">Value</th>
-                        <th width="15%">Min Purchase</th>
-                        <th width="20%">Validity Period</th>
+                        <th width="15%"> {{ __('Discount Type') }} </th>
+                        <th width="10%"> {{ __('Value') }} </th>
+                        <th width="15%"> {{ __('Min Purchase') }} </th>
+                        <th width="20%"> {{ __('Validity Period') }} </th>
                         <th width="10%">{{ __('Status') }}</th>
-                        <th width="10%" class="text-end">Actions</th>
+                        <th width="10%" class="text-end"> {{ __('Actions') }} </th>
                     </tr>
                 </thead>
                 <tbody>
@@ -118,12 +117,12 @@
                                 @if(in_array($coupon->type, ['flat', 'fixed']))
                                     <div class="d-flex align-items-center">
                                         <span class="type-icon type-fixed"><i class="fas fa-dollar-sign"></i></span>
-                                        <span>Fixed Amount</span>
+                                        <span> {{ __('Fixed Amount') }} </span>
                                     </div>
                                 @else
                                     <div class="d-flex align-items-center">
                                         <span class="type-icon type-percent"><i class="fas fa-percent"></i></span>
-                                        <span>Percentage</span>
+                                        <span> {{ __('Percentage') }} </span>
                                     </div>
                                 @endif
                             </td>
@@ -163,7 +162,7 @@
                                 @endphp
 
                                 @if($isExpired)
-                                    <span class="badge-soft badge-expired">Expired</span>
+                                    <span class="badge-soft badge-expired"> {{ __('Expired') }} </span>
                                 @elseif($coupon->status)
                                     <span class="badge-soft badge-active">{{ __('Active') }}</span>
                                 @else
@@ -193,8 +192,8 @@
                         <tr>
                             <td colspan="8" class="text-center py-5">
                                 <img src="https://cdn-icons-png.flaticon.com/512/7486/7486744.png" width="60" class="mb-3 opacity-25">
-                                <p class="text-muted fw-bold mb-0">No Coupons Found</p>
-                                <small class="text-muted">Create a new coupon to get started.</small>
+                                <p class="text-muted fw-bold mb-0"> {{ __('No Coupons Found') }} </p>
+                                <small class="text-muted"> {{ __('Create a new coupon to get started.') }} </small>
                             </td>
                         </tr>
                     @endforelse

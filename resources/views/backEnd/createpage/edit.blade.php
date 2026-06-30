@@ -74,8 +74,8 @@
     
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
-            <h4 class="fw-bold m-0 text-dark">Edit Content Page</h4>
-            <span class="text-muted small">Update your website information and legal content</span>
+            <h4 class="fw-bold m-0 text-dark"> {{ __('Edit Content Page') }} </h4>
+            <span class="text-muted small"> {{ __('Update your website information and legal content') }} </span>
         </div>
         <div class="d-flex gap-2">
             <a href="{{route('pages.index')}}" class="btn btn-light border fw-bold text-secondary px-3">{{ __('Cancel') }}</a>
@@ -96,7 +96,7 @@
                     <div class="row g-4">
                         
                         <div class="col-md-6">
-                            <label class="form-label-custom">Page Name <span class="text-danger">*</span></label>
+                            <label class="form-label-custom"> {{ __('Page Name') }} <span class="text-danger">*</span></label>
                             <input type="text" 
                                    class="form-control input-clean @error('name') is-invalid @enderror" 
                                    name="name" 
@@ -109,7 +109,7 @@
                         </div>
 
                         <div class="col-md-6">
-                            <label class="form-label-custom">Page Title <span class="text-danger">*</span></label>
+                            <label class="form-label-custom"> {{ __('Page Title') }} <span class="text-danger">*</span></label>
                             <input type="text" 
                                    class="form-control input-clean @error('title') is-invalid @enderror" 
                                    name="title" 
@@ -122,7 +122,7 @@
                         </div>
 
                         <div class="col-12">
-                            <label class="form-label-custom">Page Content / Description <span class="text-danger">*</span></label>
+                            <label class="form-label-custom"> {{ __('Page Content / Description') }} <span class="text-danger">*</span></label>
                             <textarea class="summernote form-control @error('description') is-invalid @enderror" 
                                       name="description" 
                                       id="description" 
@@ -133,11 +133,11 @@
                         </div>
 
                         <div class="col-md-6">
-                            <label class="form-label-custom">Visibility Status</label>
+                            <label class="form-label-custom"> {{ __('Visibility Status') }} </label>
                             <div class="status-toggle-box">
                                 <div class="status-text">
-                                    <h6>Active & Published</h6>
-                                    <small>Toggle to hide or show this page</small>
+                                    <h6> {{ __('Active & Published') }} </h6>
+                                    <small> {{ __('Toggle to hide or show this page') }} </small>
                                 </div>
                                 <div class="form-check form-switch">
                                     <input class="form-check-input" type="checkbox" name="status" value="1" @if($edit_data->status == 1) checked @endif style="width: 3em; height: 1.5em; cursor:pointer;">

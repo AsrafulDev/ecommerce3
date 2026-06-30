@@ -83,7 +83,7 @@
             <h4 class="mb-1 fw-bold text-dark">
                 <i data-feather="users" class="text-primary me-2"></i> Supplier Management
             </h4>
-            <p class="text-muted small mb-0">Manage your supplier list and track dues.</p>
+            <p class="text-muted small mb-0"> {{ __('Manage your supplier list and track dues.') }} </p>
         </div>
         @if(isset($supplier))
             <a href="{{ route('admin.suppliers.index') }}" class="btn btn-white border shadow-sm rounded-pill px-3">
@@ -107,20 +107,20 @@
                         {{-- Route uses POST, not PUT --}}
 
                         <div class="mb-3">
-                            <label class="form-label-modern">Full Name <span class="text-danger">*</span></label>
+                            <label class="form-label-modern"> {{ __('Full Name') }} <span class="text-danger">*</span></label>
                             <input type="text" name="name" class="form-control form-control-modern @error('name') is-invalid @enderror" 
                                    value="{{ old('name', $supplier->name ?? '') }}" placeholder="e.g. John Doe" required>
                             @error('name') <div class="invalid-feedback">{{ $message }}</div> @enderror
                         </div>
 
                         <div class="mb-3">
-                            <label class="form-label-modern">Phone Number</label>
+                            <label class="form-label-modern"> {{ __('Phone Number') }} </label>
                             <input type="text" name="phone" class="form-control form-control-modern" 
                                    value="{{ old('phone', $supplier->phone ?? '') }}" placeholder="e.g. 017xxxxxxxx">
                         </div>
 
                         <div class="mb-3">
-                            <label class="form-label-modern">Email Address</label>
+                            <label class="form-label-modern"> {{ __('Email Address') }} </label>
                             <input type="email" name="email" class="form-control form-control-modern" 
                                    value="{{ old('email', $supplier->email ?? '') }}" placeholder="supplier@example.com">
                         </div>
@@ -136,7 +136,7 @@
                                 {{ isset($supplier) ? 'Update Supplier' : 'Save Supplier' }}
                             </button>
                             @if(isset($supplier))
-                                <a href="{{ route('admin.suppliers.index') }}" class="btn btn-light py-2">Cancel Edit</a>
+                                <a href="{{ route('admin.suppliers.index') }}" class="btn btn-light py-2"> {{ __('Cancel Edit') }} </a>
                             @endif
                         </div>
                     </form>
@@ -148,7 +148,7 @@
         <div class="col-lg-8">
             <div class="card card-modern h-100">
                 <div class="card-header-modern d-flex justify-content-between align-items-center">
-                    <span>Registered Suppliers</span>
+                    <span> {{ __('Registered Suppliers') }} </span>
                     <span class="badge bg-light text-dark border">{{ $suppliers->total() }} Found</span>
                 </div>
                 
@@ -158,11 +158,11 @@
                             <thead>
                                 <tr>
                                     <th width="5%">#</th>
-                                    <th width="25%">Supplier Info</th>
-                                    <th width="20%">Contact</th>
+                                    <th width="25%"> {{ __('Supplier Info') }} </th>
+                                    <th width="20%"> {{ __('Contact') }} </th>
                                     <th width="20%">{{ __('Address') }}</th>
-                                    <th width="15%">Due Amount</th>
-                                    <th width="15%" class="text-end">Actions</th>
+                                    <th width="15%"> {{ __('Due Amount') }} </th>
+                                    <th width="15%" class="text-end"> {{ __('Actions') }} </th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -174,8 +174,7 @@
                                             <small class="text-muted">{{ $s->phone }}</small>
                                         </td>
                                         <td>
-                                            @if($s->email)
-                                                <div class="d-flex align-items-center text-muted small">
+                                            @if($s-> {{ __('email)') }} <div class="d-flex align-items-center text-muted small">
                                                     <i data-feather="mail" class="me-1" style="width:12px;"></i> {{ $s->email }}
                                                 </div>
                                             @else
@@ -189,7 +188,7 @@
                                             @if($s->current_due > 0)
                                                 <span class="due-amount">{{ number_format($s->current_due, 2) }} ৳</span>
                                             @else
-                                                <span class="badge bg-light text-success border border-success">Paid</span>
+                                                <span class="badge bg-light text-success border border-success"> {{ __('Paid') }} </span>
                                             @endif
                                         </td>
                                         <td class="text-end">
@@ -211,8 +210,8 @@
                                     <tr>
                                         <td colspan="6" class="text-center py-5">
                                             <img src="https://cdn-icons-png.flaticon.com/512/7486/7486744.png" width="60" class="mb-3 opacity-25">
-                                            <p class="text-muted fw-bold mb-0">No Suppliers Found</p>
-                                            <small class="text-muted">Add a new supplier from the left form.</small>
+                                            <p class="text-muted fw-bold mb-0"> {{ __('No Suppliers Found') }} </p>
+                                            <small class="text-muted"> {{ __('Add a new supplier from the left form.') }} </small>
                                         </td>
                                     </tr>
                                 @endforelse

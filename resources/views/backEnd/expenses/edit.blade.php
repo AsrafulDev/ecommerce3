@@ -31,7 +31,7 @@
             <div class="card border-0 shadow-sm bg-success" style="color:white; border-radius: 12px;">
                 <div class="card-body">
                     <div class="d-flex justify-content-between align-items-center mb-1">
-                        <h6 class="mb-0" style="color:white;">Available Balance</h6>
+                        <h6 class="mb-0" style="color:white;"> {{ __('Available Balance') }} </h6>
                         <i data-feather="wallet" style="width:18px;height:18px;"></i>
                     </div>
                     <h2 class="mb-0 fw-bold" style="color:white;">
@@ -111,9 +111,7 @@
             <div class="card shadow-sm border-0" style="border-radius: 12px;">
                 <div class="card-header border-0 bg-light" style="border-radius: 12px 12px 0 0;">
                     <strong>
-                        <i data-feather="file-text" class="me-1" style="width:16px;height:16px;"></i>
-                        Edit Expense
-                    </strong>
+                        <i data-feather="file-text" class="me-1" style="width:16px;height:16px;"></i> {{ __('Edit Expense') }} </strong>
                 </div>
                 <div class="card-body">
 
@@ -121,7 +119,7 @@
                         @csrf
 
                         <div class="mb-3">
-                            <label class="form-label fw-semibold">Title *</label>
+                            <label class="form-label fw-semibold"> {{ __('Title *') }} </label>
                             <input type="text"
                                    name="title"
                                    class="form-control @error('title') is-invalid @enderror"
@@ -149,7 +147,7 @@
                             </div>
 
                             <div class="col-md-6 mb-3">
-                                <label class="form-label fw-semibold">Date *</label>
+                                <label class="form-label fw-semibold"> {{ __('Date *') }} </label>
                                 <input type="date"
                                        name="expense_date"
                                        class="form-control @error('expense_date') is-invalid @enderror"
@@ -167,7 +165,7 @@
                         </div>
 
                         <div class="mb-3">
-                            <label class="form-label fw-semibold">Category (optional)</label>
+                            <label class="form-label fw-semibold"> {{ __('Category (optional)') }} </label>
                             <input type="text"
                                    name="category"
                                    class="form-control"
@@ -176,7 +174,7 @@
                         </div>
 
                         <div class="mb-3">
-                            <label class="form-label fw-semibold">Note (optional)</label>
+                            <label class="form-label fw-semibold"> {{ __('Note (optional)') }} </label>
                             <textarea name="note"
                                       class="form-control"
                                       rows="3"

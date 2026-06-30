@@ -145,7 +145,7 @@
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
             <h4 class="fw-bold m-0 text-dark">{{ __('Edit Banner') }}</h4>
-            <span class="text-muted small">Update visual content & links</span>
+            <span class="text-muted small"> {{ __('Update visual content & links') }} </span>
         </div>
         <div class="d-flex gap-2">
             <a href="{{route('banners.index')}}" class="btn btn-light border fw-bold text-secondary px-3">{{ __('Cancel') }}</a>
@@ -168,7 +168,7 @@
                         <img id="realPreview" src="{{asset($edit_data->image)}}" class="real-view-image" alt="Banner Preview">
                         
                         <label class="upload-overlay-btn" for="imageUpload">
-                            <i class="fe-camera"></i> <span>Change Image</span>
+                            <i class="fe-camera"></i> <span> {{ __('Change Image') }} </span>
                         </label>
                         <input type="file" name="image" id="imageUpload" class="d-none" accept="image/*" onchange="updateCanvas(this)">
                     </div>
@@ -177,7 +177,7 @@
                         <div class="row g-4">
                             
                             <div class="col-lg-7">
-                                <label class="category-label">Select Placement Category</label>
+                                <label class="category-label"> {{ __('Select Placement Category') }} </label>
                                 <div class="radio-tile-group">
                                     @foreach($categories as $cat)
                                         <label>
@@ -197,7 +197,7 @@
 
                             <div class="col-lg-5 ps-lg-4 border-start-lg">
                                 <div class="mb-4">
-                                    <label class="category-label">Destination URL</label>
+                                    <label class="category-label"> {{ __('Destination URL') }} </label>
                                     <div class="input-group">
                                         <span class="input-group-text bg-white border-end-0 text-muted"><i class="fe-link"></i></span>
                                         <input type="text" class="form-control input-clean border-start-0" name="link" value="{{$edit_data->link}}" placeholder="https://example.com/offer">
@@ -206,11 +206,11 @@
                                 </div>
 
                                 <div>
-                                    <label class="category-label">Publication Status</label>
+                                    <label class="category-label"> {{ __('Publication Status') }} </label>
                                     <div class="d-flex align-items-center justify-content-between p-3 rounded border bg-light">
                                         <div>
-                                            <span class="fw-bold text-dark d-block" style="font-size: 14px;">Active Mode</span>
-                                            <small class="text-muted" style="font-size: 12px;">Visible on website</small>
+                                            <span class="fw-bold text-dark d-block" style="font-size: 14px;"> {{ __('Active Mode') }} </span>
+                                            <small class="text-muted" style="font-size: 12px;"> {{ __('Visible on website') }} </small>
                                         </div>
                                         <div class="form-check form-switch">
                                             <input class="form-check-input" type="checkbox" name="status" value="1" @if($edit_data->status==1) checked @endif style="width: 3em; height: 1.5em; cursor:pointer;">

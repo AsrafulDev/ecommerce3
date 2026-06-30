@@ -100,7 +100,7 @@
     <div class="row mb-3 mt-3">
         <div class="col-12">
             <div class="page-title-box">
-                <h4 class="page-title" style="font-weight: 700; color: #2d3436;">Customer Complaints</h4>
+                <h4 class="page-title" style="font-weight: 700; color: #2d3436;"> {{ __('Customer Complaints') }} </h4>
             </div>
         </div>
     </div>
@@ -114,11 +114,11 @@
                             <tr>
                                 <th style="width: 50px;">{{ __('SL') }}</th>
                                 <th>{{ __('Order ID') }}</th>
-                                <th>Customer Info</th>
+                                <th> {{ __('Customer Info') }} </th>
                                 <th style="width: 25%;">{{ __('Description') }}</th>
                                 <th>{{ __('Image') }}</th>
-                                <th>Current Status</th>
-                                <th style="width: 200px;">Update Status / Action</th>
+                                <th> {{ __('Current Status') }} </th>
+                                <th style="width: 200px;"> {{ __('Update Status / Action') }} </th>
                             </tr>
                         </thead>                
                         <tbody>
@@ -149,7 +149,7 @@
                                             <img src="{{ asset('public/'.$complaint->image) }}" class="complaint-img" alt="Evidence">
                                         </a>
                                     @else
-                                        <span class="badge bg-light text-dark">No Image</span>
+                                        <span class="badge bg-light text-dark"> {{ __('No Image') }} </span>
                                     @endif
                                 </td>
 
@@ -159,7 +159,7 @@
                                     @elseif($complaint->status === 'processing')
                                         <span class="badge badge-pill badge-soft-info">{{ __('Processing') }}</span>
                                     @else
-                                        <span class="badge badge-pill badge-soft-success">Resolved</span>
+                                        <span class="badge badge-pill badge-soft-success"> {{ __('Resolved') }} </span>
                                     @endif
                                 </td>
 
@@ -171,7 +171,7 @@
                                             <select name="status" class="form-select form-select-sm" style="width: 110px; font-size: 12px;">
                                                 <option value="pending" {{ $complaint->status == 'pending' ? 'selected' : '' }}>{{ __('Pending') }}</option>
                                                 <option value="processing" {{ $complaint->status == 'processing' ? 'selected' : '' }}>{{ __('Processing') }}</option>
-                                                <option value="resolved" {{ $complaint->status == 'resolved' ? 'selected' : '' }}>Resolved</option>
+                                                <option value="resolved" {{ $complaint->status == 'resolved' ? 'selected' : '' }}> {{ __('Resolved') }} </option>
                                             </select>
                                             <button type="submit" class="action-btn btn-update change-confirm" title="{{ __('Update') }}">
                                                 <i class="fe-check"></i>

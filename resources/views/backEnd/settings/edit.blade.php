@@ -101,7 +101,7 @@
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
             <h4 class="fw-bold m-0 text-dark">{{ __('General Settings') }}</h4>
-            <span class="text-muted small">Update site identity, appearance and business rules</span>
+            <span class="text-muted small"> {{ __('Update site identity, appearance and business rules') }} </span>
         </div>
     </div>
 
@@ -113,51 +113,50 @@
             <div class="col-lg-8">
                 <div class="settings-card">
                     <div class="section-title-pro">
-                        <i class="mdi mdi-web text-primary"></i> Basic Information
-                    </div>
+                        <i class="mdi mdi-web text-primary"></i> {{ __('Basic Information') }} </div>
                     <div class="p-4 row">
                         <div class="col-md-6 mb-3">
-                            <label class="form-label-pro">Site Name *</label>
+                            <label class="form-label-pro"> {{ __('Site Name *') }} </label>
                             <input type="text" name="name" class="form-control custom-input" value="{{ $edit_data->name }}" required>
                         </div>
                         <div class="col-md-6 mb-3">
-                            <label class="form-label-pro">FB Page Username</label>
+                            <label class="form-label-pro"> {{ __('FB Page Username') }} </label>
                             <input type="text" name="facebook_page_username" class="form-control custom-input" value="{{ $edit_data->facebook_page_username }}" required>
                         </div>
                         <div class="col-md-6 mb-3">
                             <label class="form-label-pro">{{ __('Default Language') }}</label>
                             <select name="default_language" class="form-control custom-input">
-                                <option value="en" {{ ($edit_data->default_language ?? 'en') == 'en' ? 'selected' : '' }}>English</option>
+                                <option value="en" {{ ($edit_data->default_language ?? 'en') == 'en' ? 'selected' : '' }}> {{ __('English') }} </option>
                                 <option value="bn" {{ ($edit_data->default_language ?? 'en') == 'bn' ? 'selected' : '' }}>বাংলা (Bangla)</option>
                             </select>
-                            <small class="text-muted">Frontend & customer-facing language</small>
+                            <small class="text-muted"> {{ __('Frontend & customer-facing language') }} </small>
                         </div>
                         <div class="col-md-6 mb-3">
                             <label class="form-label-pro">{{ __('Admin Language') }}</label>
                             <select name="admin_language" class="form-control custom-input">
-                                <option value="en" {{ ($edit_data->admin_language ?? 'en') == 'en' ? 'selected' : '' }}>English</option>
+                                <option value="en" {{ ($edit_data->admin_language ?? 'en') == 'en' ? 'selected' : '' }}> {{ __('English') }} </option>
                                 <option value="bn" {{ ($edit_data->admin_language ?? 'en') == 'bn' ? 'selected' : '' }}>বাংলা (Bangla)</option>
                             </select>
-                            <small class="text-muted">Admin panel language</small>
+                            <small class="text-muted"> {{ __('Admin panel language') }} </small>
                         </div>
                         <div class="col-12 mb-3">
-                            <label class="form-label-pro">Top Headline / Scrolling News</label>
+                            <label class="form-label-pro"> {{ __('Top Headline / Scrolling News') }} </label>
                             <textarea name="top_headline" class="form-control custom-input" rows="2">{{ $edit_data->top_headline }}</textarea>
                         </div>
                         <div class="col-12 mb-3">
-                            <label class="form-label-pro">Footer About Text</label>
+                            <label class="form-label-pro"> {{ __('Footer About Text') }} </label>
                             <textarea name="footer_about_text" class="form-control custom-input" rows="3" placeholder="আপনার ব্যবসার ডিজিটাল পার্টনার। আমরা বিশ্বাস করি গুণগত মান এবং গ্রাহক সন্তুষ্টিতে। প্রযুক্তির সাথে এগিয়ে চলুন আমাদের সাথে।">{{ $edit_data->footer_about_text ?? '' }}</textarea>
-                            <small class="text-muted">This text appears in the footer about section on the frontend</small>
+                            <small class="text-muted"> {{ __('This text appears in the footer about section on the frontend') }} </small>
                         </div>
                         <div class="col-md-6 mb-3">
-                            <label class="form-label-pro">Google Play App Link</label>
+                            <label class="form-label-pro"> {{ __('Google Play App Link') }} </label>
                             <input type="url" name="google_play_link" class="form-control custom-input" value="{{ $edit_data->google_play_link ?? '' }}" placeholder="https://play.google.com/store/apps/...">
-                            <small class="text-muted">Footer - Google Play download button</small>
+                            <small class="text-muted"> {{ __('Footer - Google Play download button') }} </small>
                         </div>
                         <div class="col-md-6 mb-3">
-                            <label class="form-label-pro">App Store Link</label>
+                            <label class="form-label-pro"> {{ __('App Store Link') }} </label>
                             <input type="url" name="app_store_link" class="form-control custom-input" value="{{ $edit_data->app_store_link ?? '' }}" placeholder="https://apps.apple.com/...">
-                            <small class="text-muted">Footer - App Store download button</small>
+                            <small class="text-muted"> {{ __('Footer - App Store download button') }} </small>
                         </div>
                     </div>
                 </div>
@@ -170,7 +169,7 @@
                         {{-- Active Theme Dropdown --}}
                         <div class="row mb-4 g-3">
                             <div class="col-md-6">
-                                <label class="form-label-pro">Active Theme</label>
+                                <label class="form-label-pro"> {{ __('Active Theme') }} </label>
                                 <select name="theme_id" class="form-control custom-input select2">
                                     <option value="">— Select Theme —</option>
                                     @foreach($themes as $theme)
@@ -197,7 +196,7 @@
                                 </div>
                             </div>
                             <div class="col-md-6">
-                                <label class="form-label-pro">Active Layout</label>
+                                <label class="form-label-pro"> {{ __('Active Layout') }} </label>
                                 <select name="active_layout_id" class="form-control custom-input select2">
                                     <option value="">— Default Order —</option>
                                     @foreach($layouts as $layout)
@@ -269,23 +268,23 @@
                     </div>
                     <div class="p-4">
                         <div class="mb-4">
-                            <label class="form-label-pro">Hot Deal End Date</label>
+                            <label class="form-label-pro"> {{ __('Hot Deal End Date') }} </label>
                             <input type="date" name="hot_deal_end_date" class="form-control custom-input" value="{{ $edit_data->hot_deal_end_date }}">
                         </div>
                         <div class="mb-4">
-                            <label class="form-label-pro">Flash Sale End Date</label>
+                            <label class="form-label-pro"> {{ __('Flash Sale End Date') }} </label>
                             <input type="date" name="flash_sale_end_date" class="form-control custom-input" value="{{ $edit_data->flash_sale_end_date }}">
                         </div>
                         <div class="mb-4">
-                            <label class="form-label-pro">Visibility Controls</label>
+                            <label class="form-label-pro"> {{ __('Visibility Controls') }} </label>
                             <div class="d-grid gap-2">
                                 <select class="form-select custom-input" name="show_all_products">
-                                    <option value="1" @if($edit_data->show_all_products==1) selected @endif>Home: Show All Products</option>
-                                    <option value="0" @if($edit_data->show_all_products==0) selected @endif>Home: Hide All Products</option>
+                                    <option value="1" @if($edit_data->show_all_products==1) selected @endif> {{ __('Home: Show All Products') }} </option>
+                                    <option value="0" @if($edit_data->show_all_products==0) selected @endif> {{ __('Home: Hide All Products') }} </option>
                                 </select>
                                 <select class="form-select custom-input" name="show_category_wise_products">
-                                    <option value="1" @if($edit_data->show_category_wise_products==1) selected @endif>Home: Category Wise On</option>
-                                    <option value="0" @if($edit_data->show_category_wise_products==0) selected @endif>Home: Category Wise Off</option>
+                                    <option value="1" @if($edit_data->show_category_wise_products==1) selected @endif> {{ __('Home: Category Wise On') }} </option>
+                                    <option value="0" @if($edit_data->show_category_wise_products==0) selected @endif> {{ __('Home: Category Wise Off') }} </option>
                                 </select>
                             </div>
                         </div>
@@ -301,11 +300,11 @@
                     </div>
                     <div class="p-4">
                         <div class="mb-4">
-                            <label class="form-label-pro">Checkout Note</label>
+                            <label class="form-label-pro"> {{ __('Checkout Note') }} </label>
                             <textarea class="summernote" name="checkout_note">{{ $edit_data->checkout_note }}</textarea>
                         </div>
                         <div class="mb-4">
-                            <label class="form-label-pro">Order Policy</label>
+                            <label class="form-label-pro"> {{ __('Order Policy') }} </label>
                             <textarea class="summernote" name="order_policy">{{ $edit_data->order_policy }}</textarea>
                         </div>
                     </div>

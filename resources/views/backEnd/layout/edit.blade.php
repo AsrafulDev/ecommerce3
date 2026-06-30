@@ -89,29 +89,29 @@
                 @endif
 
                 <div class="form-card">
-                    <div class="section-title-pro"><i class="mdi mdi-information-outline text-primary"></i> Layout Details</div>
+                    <div class="section-title-pro"><i class="mdi mdi-information-outline text-primary"></i> {{ __('Layout Details') }} </div>
                     <div class="p-4">
                         <div class="row g-3">
                             <div class="col-md-6">
-                                <label class="form-label-pro">Layout Name *</label>
+                                <label class="form-label-pro"> {{ __('Layout Name *') }} </label>
                                 <input type="text" name="name" class="custom-input" value="{{ old('name', $edit_data->name ?? '') }}" required maxlength="100" placeholder="e.g. Default Layout v2">
                             </div>
                             <div class="col-md-3">
-                                <label class="form-label-pro">Active?</label>
+                                <label class="form-label-pro"> {{ __('Active?') }} </label>
                                 <select name="is_active" class="custom-input">
                                     <option value="1" {{ old('is_active', $edit_data->is_active ?? true) ? 'selected' : '' }}>{{ __('Yes') }}</option>
                                     <option value="0" {{ old('is_active', $edit_data->is_active ?? true) ? '' : 'selected' }}>{{ __('No') }}</option>
                                 </select>
                             </div>
                             <div class="col-md-3">
-                                <label class="form-label-pro">Set as Default?</label>
+                                <label class="form-label-pro"> {{ __('Set as Default?') }} </label>
                                 <select name="is_default" class="custom-input">
                                     <option value="1" {{ old('is_default', $edit_data->is_default ?? false) ? 'selected' : '' }}>{{ __('Yes') }}</option>
                                     <option value="0" {{ old('is_default', $edit_data->is_default ?? false) ? '' : 'selected' }}>{{ __('No') }}</option>
                                 </select>
                             </div>
                             <div class="col-12">
-                                <label class="form-label-pro">Notes / Description</label>
+                                <label class="form-label-pro"> {{ __('Notes / Description') }} </label>
                                 <textarea name="description" class="custom-input" rows="3" placeholder="Optional description for this layout...">{{ old('description', $edit_data->description ?? '') }}</textarea>
                             </div>
                         </div>

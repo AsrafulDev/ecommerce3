@@ -112,11 +112,10 @@
             <h4 class="mb-1 fw-bold text-dark">
                 <i data-feather="users" class="text-primary me-2"></i> Employee Management
             </h4>
-            <p class="text-muted small mb-0">Manage all your employees, departments, and payroll info.</p>
+            <p class="text-muted small mb-0"> {{ __('Manage all your employees, departments, and payroll info.') }} </p>
         </div>
         <a href="{{ route('admin.employees.create') }}" class="btn btn-primary px-4 py-2 rounded-pill shadow-sm">
-            <i data-feather="plus" class="me-1" style="width: 16px;"></i> Add New Employee
-        </a>
+            <i data-feather="plus" class="me-1" style="width: 16px;"></i> {{ __('Add New Employee') }} </a>
     </div>
 
     <div class="card-modern">
@@ -133,7 +132,7 @@
                     </div>
                     <div class="col-md-2">
                         <select name="department" class="form-select form-select-clean">
-                            <option value="">All Departments</option>
+                            <option value=""> {{ __('All Departments') }} </option>
                             @foreach($departments as $dept)
                                 <option value="{{ $dept }}" {{ request('department') == $dept ? 'selected' : '' }}>{{ $dept }}</option>
                             @endforeach
@@ -141,10 +140,10 @@
                     </div>
                     <div class="col-md-2">
                         <select name="status" class="form-select form-select-clean">
-                            <option value="">All Status</option>
+                            <option value=""> {{ __('All Status') }} </option>
                             <option value="active" {{ request('status') == 'active' ? 'selected' : '' }}>{{ __('Active') }}</option>
                             <option value="inactive" {{ request('status') == 'inactive' ? 'selected' : '' }}>{{ __('Inactive') }}</option>
-                            <option value="terminated" {{ request('status') == 'terminated' ? 'selected' : '' }}>Terminated</option>
+                            <option value="terminated" {{ request('status') == 'terminated' ? 'selected' : '' }}> {{ __('Terminated') }} </option>
                         </select>
                     </div>
                     <div class="col-md-4 d-flex gap-2">
@@ -162,12 +161,12 @@
             <table class="employee-table">
                 <thead>
                     <tr>
-                        <th width="30%">Employee Details</th>
-                        <th width="20%">Role & Dept</th>
-                        <th width="15%">Contact</th>
+                        <th width="30%"> {{ __('Employee Details') }} </th>
+                        <th width="20%"> {{ __('Role & Dept') }} </th>
+                        <th width="15%"> {{ __('Contact') }} </th>
                         <th width="15%">{{ __('Salary') }}</th>
                         <th width="10%">{{ __('Status') }}</th>
-                        <th width="10%" class="text-end">Actions</th>
+                        <th width="10%" class="text-end"> {{ __('Actions') }} </th>
                     </tr>
                 </thead>
                 <tbody>
@@ -207,7 +206,7 @@
                             {{-- Salary --}}
                             <td>
                                 <span class="fw-bold text-dark">৳{{ number_format($employee->basic_salary, 2) }}</span>
-                                <div class="text-muted" style="font-size: 10px;">Basic</div>
+                                <div class="text-muted" style="font-size: 10px;"> {{ __('Basic') }} </div>
                             </td>
 
                             {{-- Status --}}
@@ -217,7 +216,7 @@
                                 @elseif($employee->status == 'inactive')
                                     <span class="status-badge status-inactive"><span class="status-dot"></span>{{ __('Inactive') }}</span>
                                 @else
-                                    <span class="status-badge status-terminated"><span class="status-dot"></span> Terminated</span>
+                                    <span class="status-badge status-terminated"><span class="status-dot"></span> {{ __('Terminated') }} </span>
                                 @endif
                             </td>
 
@@ -244,8 +243,8 @@
                         <tr>
                             <td colspan="6" class="text-center py-5">
                                 <img src="https://cdn-icons-png.flaticon.com/512/7486/7486754.png" width="60" class="mb-3 opacity-25">
-                                <p class="text-muted fw-bold mb-0">No Employees Found</p>
-                                <small class="text-muted">Try adjusting your search or filters.</small>
+                                <p class="text-muted fw-bold mb-0"> {{ __('No Employees Found') }} </p>
+                                <small class="text-muted"> {{ __('Try adjusting your search or filters.') }} </small>
                             </td>
                         </tr>
                     @endforelse

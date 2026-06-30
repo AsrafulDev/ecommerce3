@@ -99,8 +99,8 @@
 
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
-            <h4 class="fw-bold m-0 text-dark">Category Manager</h4>
-            <span class="text-muted small">Organize and manage banner categories</span>
+            <h4 class="fw-bold m-0 text-dark"> {{ __('Category Manager') }} </h4>
+            <span class="text-muted small"> {{ __('Organize and manage banner categories') }} </span>
         </div>
         <a href="{{ route('banner_category.create') }}" class="btn btn-primary rounded-pill px-4 shadow-sm fw-bold">
             <i class="fe-plus me-1"></i> Add New Category
@@ -115,9 +115,9 @@
                         <thead>
                             <tr>
                                 <th width="10%">{{ __('SL') }}</th>
-                                <th width="50%">Category Name</th>
+                                <th width="50%"> {{ __('Category Name') }} </th>
                                 <th width="20%">{{ __('Status') }}</th>
-                                <th width="20%" class="text-end">Actions</th>
+                                <th width="20%" class="text-end"> {{ __('Actions') }} </th>
                             </tr>
                         </thead>
                         <tbody>

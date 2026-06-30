@@ -62,19 +62,18 @@
                     {{-- Header --}}
                     <div class="card-header-modern">
                         <div>
-                            <h5 class="mb-1 fw-bold text-dark">Process Salary Payment</h5>
-                            <p class="text-muted small mb-0">Disburse salary to an employee.</p>
+                            <h5 class="mb-1 fw-bold text-dark"> {{ __('Process Salary Payment') }} </h5>
+                            <p class="text-muted small mb-0"> {{ __('Disburse salary to an employee.') }} </p>
                         </div>
                         <a href="{{ route('admin.salary_payments.index') }}" class="btn btn-light btn-sm rounded-pill px-3">
-                            <i data-feather="list" style="width:14px;" class="me-1"></i> History
-                        </a>
+                            <i data-feather="list" style="width:14px;" class="me-1"></i> {{ __('History') }} </a>
                     </div>
 
                     <div class="card-body p-4">
                         
                         {{-- Employee Select --}}
                         <div class="mb-4">
-                            <label class="form-label-custom">Select Employee <span class="text-danger">*</span></label>
+                            <label class="form-label-custom"> {{ __('Select Employee') }} <span class="text-danger">*</span></label>
                             <select name="employee_id" id="employee_id" class="form-control select2 form-select-custom @error('employee_id') is-invalid @enderror" required>
                                 <option value="">-- Choose Employee --</option>
                                 @foreach($employees as $emp)
@@ -91,7 +90,7 @@
                         <div class="auto-fill-box mb-4">
                             <div class="d-flex align-items-center mb-2">
                                 <i data-feather="zap" class="text-primary me-2" style="width:16px;"></i>
-                                <span class="fw-bold text-primary small text-uppercase">Smart Auto-fill</span>
+                                <span class="fw-bold text-primary small text-uppercase"> {{ __('Smart Auto-fill') }} </span>
                             </div>
                             <label class="form-label-custom">Select a calculated (unpaid) salary record:</label>
                             <select name="salary_id" class="form-select form-select-custom bg-white">
@@ -108,13 +107,13 @@
                         {{-- Payment Details --}}
                         <div class="row g-3 mb-4">
                             <div class="col-md-6">
-                                <label class="form-label-custom">Payment For Month <span class="text-danger">*</span></label>
+                                <label class="form-label-custom"> {{ __('Payment For Month') }} <span class="text-danger">*</span></label>
                                 <input type="month" name="payment_month" class="form-control form-control-custom @error('payment_month') is-invalid @enderror" 
                                        value="{{ old('payment_month', request('month', date('Y-m'))) }}" required>
                                 @error('payment_month') <span class="text-danger small">{{ $message }}</span> @enderror
                             </div>
                             <div class="col-md-6">
-                                <label class="form-label-custom">Payment Date <span class="text-danger">*</span></label>
+                                <label class="form-label-custom"> {{ __('Payment Date') }} <span class="text-danger">*</span></label>
                                 <div class="input-group">
                                     <span class="input-group-text bg-white border-end-0 text-muted"><i data-feather="calendar" style="width:16px;"></i></span>
                                     <input type="date" name="payment_date" class="form-control form-control-custom border-start-0 @error('payment_date') is-invalid @enderror" 
@@ -126,7 +125,7 @@
 
                         {{-- Amount --}}
                         <div class="mb-4">
-                            <label class="form-label-custom">Paying Amount <span class="text-danger">*</span></label>
+                            <label class="form-label-custom"> {{ __('Paying Amount') }} <span class="text-danger">*</span></label>
                             <div class="input-group">
                                 <span class="input-group-text input-group-text-custom fw-bold">৳</span>
                                 <input type="number" step="0.01" name="amount" id="amount" class="form-control form-control-custom border-start-0 ps-2 @error('amount') is-invalid @enderror" 
@@ -140,15 +139,15 @@
                             <div class="col-md-6">
                                 <label class="form-label-custom">{{ __('Payment Method') }}<span class="text-danger">*</span></label>
                                 <select name="payment_method" class="form-select form-select-custom @error('payment_method') is-invalid @enderror" required>
-                                    <option value="bank_transfer" {{ old('payment_method') == 'bank_transfer' ? 'selected' : '' }}>Bank Transfer</option>
-                                    <option value="cash" {{ old('payment_method') == 'cash' ? 'selected' : '' }}>Cash</option>
-                                    <option value="bkash" {{ old('payment_method') == 'bkash' ? 'selected' : '' }}>Bkash</option>
-                                    <option value="nagad" {{ old('payment_method') == 'nagad' ? 'selected' : '' }}>Nagad</option>
-                                    <option value="check" {{ old('payment_method') == 'check' ? 'selected' : '' }}>Check</option>
+                                    <option value="bank_transfer" {{ old('payment_method') == 'bank_transfer' ? 'selected' : '' }}> {{ __('Bank Transfer') }} </option>
+                                    <option value="cash" {{ old('payment_method') == 'cash' ? 'selected' : '' }}> {{ __('Cash') }} </option>
+                                    <option value="bkash" {{ old('payment_method') == 'bkash' ? 'selected' : '' }}> {{ __('Bkash') }} </option>
+                                    <option value="nagad" {{ old('payment_method') == 'nagad' ? 'selected' : '' }}> {{ __('Nagad') }} </option>
+                                    <option value="check" {{ old('payment_method') == 'check' ? 'selected' : '' }}> {{ __('Check') }} </option>
                                 </select>
                             </div>
                             <div class="col-md-6">
-                                <label class="form-label-custom">Transaction / Check ID</label>
+                                <label class="form-label-custom"> {{ __('Transaction / Check ID') }} </label>
                                 <input type="text" name="transaction_id" class="form-control form-control-custom" value="{{ old('transaction_id') }}" placeholder="Optional">
                             </div>
                         </div>
@@ -156,11 +155,11 @@
                         {{-- Bank Details (Optional) --}}
                         <div class="row g-3 mb-4">
                             <div class="col-md-6">
-                                <label class="form-label-custom">Bank/Provider Name</label>
+                                <label class="form-label-custom"> {{ __('Bank/Provider Name') }} </label>
                                 <input type="text" name="bank_name" class="form-control form-control-custom" value="{{ old('bank_name') }}" placeholder="e.g. City Bank">
                             </div>
                             <div class="col-md-6">
-                                <label class="form-label-custom">Account Number</label>
+                                <label class="form-label-custom"> {{ __('Account Number') }} </label>
                                 <input type="text" name="account_number" class="form-control form-control-custom" value="{{ old('account_number') }}" placeholder="Account No.">
                             </div>
                         </div>
@@ -175,7 +174,7 @@
                         <div class="fund-alert mb-4 d-flex align-items-center">
                             <i data-feather="alert-triangle" class="me-2"></i>
                             <div>
-                                <strong>Warning:</strong> This amount will be deducted from your main fund. <br>
+                                <strong>Warning:</strong> {{ __('This amount will be deducted from your main fund.') }} <br>
                                 Current Balance: <strong>৳{{ number_format(\App\Helpers\FundHelper::balance(), 2) }}</strong>
                             </div>
                         </div>

@@ -70,7 +70,7 @@
     
     <div class="row mb-3 mt-3">
         <div class="col-12 d-flex justify-content-between align-items-center">
-            <h4 class="page-title mb-0" style="font-weight: 700; color: #333;">Banner Management</h4>
+            <h4 class="page-title mb-0" style="font-weight: 700; color: #333;"> {{ __('Banner Management') }} </h4>
             <a href="{{route('banners.create')}}" class="btn btn-primary rounded-pill px-4 shadow-sm">
                 <i class="fe-plus me-1"></i>{{ __('Create New') }}</a>
         </div>

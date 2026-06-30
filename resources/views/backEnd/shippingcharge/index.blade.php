@@ -99,8 +99,8 @@
 
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
-            <h4 class="fw-bold m-0 text-dark">Shipping Charges</h4>
-            <span class="text-muted small">Manage delivery areas and costs</span>
+            <h4 class="fw-bold m-0 text-dark"> {{ __('Shipping Charges') }} </h4>
+            <span class="text-muted small"> {{ __('Manage delivery areas and costs') }} </span>
         </div>
         <a href="{{ route('shippingcharges.create') }}" class="btn btn-primary rounded-pill px-4 shadow-sm fw-bold">
             <i class="fe-plus me-1"></i> Create Charge
@@ -115,9 +115,9 @@
                         <thead>
                             <tr>
                                 <th width="10%">{{ __('SL') }}</th>
-                                <th width="50%">Area Name</th>
+                                <th width="50%"> {{ __('Area Name') }} </th>
                                 <th width="20%">{{ __('Status') }}</th>
-                                <th width="20%" class="text-end">Actions</th>
+                                <th width="20%" class="text-end"> {{ __('Actions') }} </th>
                             </tr>
                         </thead>
                         <tbody>

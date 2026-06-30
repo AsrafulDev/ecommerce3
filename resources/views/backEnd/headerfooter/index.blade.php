@@ -21,7 +21,7 @@
 @section('content')
 <div class="container-fluid">
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h4 class="page-title"><i class="mdi mdi-page-layout-header text-primary"></i> Header & Footer Builder</h4>
+        <h4 class="page-title"><i class="mdi mdi-page-layout-header text-primary"></i> {{ __('Header & Footer Builder') }} </h4>
         <a href="{{ route('home') }}" target="_blank" class="btn btn-outline-primary btn-sm">
             <i class="mdi mdi-open-in-new"></i> View Site
         </a>
@@ -33,7 +33,7 @@
         {{-- ===== HEADER STYLES ===== --}}
         <div class="card mb-4">
             <div class="card-header bg-light">
-                <h5 class="mb-0"><i class="mdi mdi-page-layout-header me-2"></i>Header Style</h5>
+                <h5 class="mb-0"><i class="mdi mdi-page-layout-header me-2"></i> {{ __('Header Style') }} </h5>
             </div>
             <div class="card-body">
                 @php $hIcons = ['classic'=>'mdi-page-layout-header','modern'=>'mdi-view-dashboard','minimal'=>'mdi-page-layout-body','centered'=>'mdi-align-horizontal-center','mega'=>'mdi-menu-open','custom'=>'mdi-cog']; @endphp
@@ -55,13 +55,13 @@
                     <div class="col-md-6">
                         <label class="d-flex align-items-center gap-2">
                             <label class="toggle-switch"><input type="checkbox" name="header_top_bar" value="1" {{ ($setting->header_top_bar ?? 1) ? 'checked' : '' }}><span class="toggle-slider"></span></label>
-                            <span>Show Top Bar</span>
+                            <span> {{ __('Show Top Bar') }} </span>
                         </label>
                     </div>
                     <div class="col-md-6">
                         <label class="d-flex align-items-center gap-2">
                             <label class="toggle-switch"><input type="checkbox" name="header_sticky" value="1" {{ ($setting->header_sticky ?? 1) ? 'checked' : '' }}><span class="toggle-slider"></span></label>
-                            <span>Sticky Header</span>
+                            <span> {{ __('Sticky Header') }} </span>
                         </label>
                     </div>
                 </div>
@@ -71,8 +71,8 @@
         {{-- ===== HEADER PREVIEW ===== --}}
         <div class="card mb-4">
             <div class="card-header bg-light d-flex justify-content-between align-items-center">
-                <h5 class="mb-0"><i class="mdi mdi-eye me-2"></i>Header Preview</h5>
-                <span class="badge bg-primary" id="header-preview-label">Classic</span>
+                <h5 class="mb-0"><i class="mdi mdi-eye me-2"></i> {{ __('Header Preview') }} </h5>
+                <span class="badge bg-primary" id="header-preview-label"> {{ __('Classic') }} </span>
             </div>
             <div class="card-body p-0">
                 <div class="preview-frame" id="header-preview">
@@ -86,7 +86,7 @@
         {{-- ===== FOOTER STYLES ===== --}}
         <div class="card mb-4">
             <div class="card-header bg-light">
-                <h5 class="mb-0"><i class="mdi mdi-page-layout-footer me-2"></i>Footer Style</h5>
+                <h5 class="mb-0"><i class="mdi mdi-page-layout-footer me-2"></i> {{ __('Footer Style') }} </h5>
             </div>
             <div class="card-body">
                 @php $fIcons = ['classic'=>'mdi-page-layout-footer','modern'=>'mdi-view-dashboard','dark'=>'mdi-invert-colors','minimal'=>'mdi-minimize','columns'=>'mdi-view-column','custom'=>'mdi-cog']; @endphp
@@ -109,8 +109,8 @@
         {{-- ===== FOOTER PREVIEW ===== --}}
         <div class="card mb-4">
             <div class="card-header bg-light d-flex justify-content-between align-items-center">
-                <h5 class="mb-0"><i class="mdi mdi-eye me-2"></i>Footer Preview</h5>
-                <span class="badge bg-primary" id="footer-preview-label">Classic</span>
+                <h5 class="mb-0"><i class="mdi mdi-eye me-2"></i> {{ __('Footer Preview') }} </h5>
+                <span class="badge bg-primary" id="footer-preview-label"> {{ __('Classic') }} </span>
             </div>
             <div class="card-body p-0">
                 <div class="preview-frame" id="footer-preview">
@@ -154,7 +154,7 @@
             container.innerHTML = '<iframe srcdoc="' + data.html.replace(/"/g,'&quot;') + '"></iframe>';
         })
         .catch(() => {
-            container.innerHTML = '<div class="d-flex justify-content-center align-items-center h-100 text-danger">Preview failed</div>';
+            container.innerHTML = '<div class="d-flex justify-content-center align-items-center h-100 text-danger"> {{ __('Preview failed') }} </div>';
         });
     }
 

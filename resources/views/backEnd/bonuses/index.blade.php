@@ -88,7 +88,7 @@
             <h4 class="mb-1 fw-bold text-dark">
                 <i data-feather="gift" class="text-primary me-2"></i> Bonus Management
             </h4>
-            <p class="text-muted small mb-0">Manage employee bonuses and incentives.</p>
+            <p class="text-muted small mb-0"> {{ __('Manage employee bonuses and incentives.') }} </p>
         </div>
         <a href="{{ route('admin.bonuses.create') }}" class="btn btn-primary px-4 py-2 rounded-pill shadow-sm">
             <i data-feather="plus-circle" class="me-1" style="width: 16px;"></i> Add New Bonus
@@ -104,7 +104,7 @@
                     <div class="col-md-3">
                         <label class="form-label small fw-bold text-muted text-uppercase mb-1">{{ __('Employee') }}</label>
                         <select name="employee_id" class="form-control select2 form-select-modern">
-                            <option value="">All Employees</option>
+                            <option value=""> {{ __('All Employees') }} </option>
                             @foreach($employees as $emp)
                                 <option value="{{ $emp->id }}" {{ request('employee_id') == $emp->id ? 'selected' : '' }}>
                                     {{ $emp->name }} ({{ $emp->employee_id }})
@@ -115,14 +115,14 @@
                     <div class="col-md-2">
                         <label class="form-label small fw-bold text-muted text-uppercase mb-1">{{ __('Status') }}</label>
                         <select name="status" class="form-select form-select-modern">
-                            <option value="">All Status</option>
+                            <option value=""> {{ __('All Status') }} </option>
                             <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }}>{{ __('Pending') }}</option>
                             <option value="approved" {{ request('status') == 'approved' ? 'selected' : '' }}>{{ __('Approved') }}</option>
-                            <option value="paid" {{ request('status') == 'paid' ? 'selected' : '' }}>Paid</option>
+                            <option value="paid" {{ request('status') == 'paid' ? 'selected' : '' }}> {{ __('Paid') }} </option>
                         </select>
                     </div>
                     <div class="col-md-3">
-                        <label class="form-label small fw-bold text-muted text-uppercase mb-1">Bonus Type</label>
+                        <label class="form-label small fw-bold text-muted text-uppercase mb-1"> {{ __('Bonus Type') }} </label>
                         <input type="text" name="bonus_type" class="form-control form-control-modern" placeholder="e.g. Eid Bonus" value="{{ request('bonus_type') }}">
                     </div>
                     <div class="col-md-4 d-flex gap-2">
@@ -141,12 +141,12 @@
                 <thead>
                     <tr>
                         <th width="5%">#</th>
-                        <th width="20%">Employee Details</th>
-                        <th width="15%">Bonus Type</th>
+                        <th width="20%"> {{ __('Employee Details') }} </th>
+                        <th width="15%"> {{ __('Bonus Type') }} </th>
                         <th width="15%">{{ __('Amount') }}</th>
                         <th width="15%">{{ __('Month') }}</th>
                         <th width="15%">{{ __('Status') }}</th>
-                        <th width="15%" class="text-end">Actions</th>
+                        <th width="15%" class="text-end"> {{ __('Actions') }} </th>
                     </tr>
                 </thead>
                 <tbody>
@@ -170,7 +170,7 @@
                             <td class="text-muted">{{ $bonus->salary_month ?? '-' }}</td>
                             <td>
                                 @if($bonus->status == 'paid')
-                                    <span class="badge-soft badge-paid"><span class="status-dot"></span> Paid</span>
+                                    <span class="badge-soft badge-paid"><span class="status-dot"></span> {{ __('Paid') }} </span>
                                 @elseif($bonus->status == 'approved')
                                     <span class="badge-soft badge-approved"><span class="status-dot"></span>{{ __('Approved') }}</span>
                                 @else
@@ -208,20 +208,20 @@
                                     <div class="modal-dialog modal-dialog-centered">
                                         <div class="modal-content border-0 shadow-lg">
                                             <div class="modal-header border-bottom-0 pb-0">
-                                                <h5 class="modal-title text-danger fw-bold">Reject Bonus</h5>
+                                                <h5 class="modal-title text-danger fw-bold"> {{ __('Reject Bonus') }} </h5>
                                                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                                             </div>
                                             <form action="{{ route('admin.bonuses.reject', $bonus->id) }}" method="POST">
                                                 @csrf
                                                 <div class="modal-body text-start">
                                                     <div class="mb-3">
-                                                        <label class="form-label small fw-bold text-muted">Reason for Rejection</label>
+                                                        <label class="form-label small fw-bold text-muted"> {{ __('Reason for Rejection') }} </label>
                                                         <textarea name="notes" class="form-control" rows="3" placeholder="Enter reason..."></textarea>
                                                     </div>
                                                 </div>
                                                 <div class="modal-footer border-top-0 pt-0">
                                                     <button type="button" class="btn btn-light btn-sm" data-bs-dismiss="modal">{{ __('Cancel') }}</button>
-                                                    <button type="submit" class="btn btn-danger btn-sm px-4">Confirm Reject</button>
+                                                    <button type="submit" class="btn btn-danger btn-sm px-4"> {{ __('Confirm Reject') }} </button>
                                                 </div>
                                             </form>
                                         </div>
@@ -234,8 +234,8 @@
                         <tr>
                             <td colspan="7" class="text-center py-5">
                                 <img src="https://cdn-icons-png.flaticon.com/512/7486/7486744.png" width="60" class="mb-3 opacity-25">
-                                <p class="text-muted fw-bold mb-0">No bonus records found</p>
-                                <small class="text-muted">Adjust filters or add a new bonus.</small>
+                                <p class="text-muted fw-bold mb-0"> {{ __('No bonus records found') }} </p>
+                                <small class="text-muted"> {{ __('Adjust filters or add a new bonus.') }} </small>
                             </td>
                         </tr>
                     @endforelse

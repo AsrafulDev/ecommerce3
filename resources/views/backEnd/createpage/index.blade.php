@@ -111,13 +111,12 @@
     
     <div class="row align-items-center mb-4">
         <div class="col-md-6">
-            <h4 class="fw-bold text-dark m-0">Content Pages</h4>
-            <span class="text-muted small">Manage your dynamic website pages and sections</span>
+            <h4 class="fw-bold text-dark m-0"> {{ __('Content Pages') }} </h4>
+            <span class="text-muted small"> {{ __('Manage your dynamic website pages and sections') }} </span>
         </div>
         <div class="col-md-6 text-md-end mt-3 mt-md-0">
             <a href="{{route('pages.create')}}" class="btn btn-primary rounded-pill px-4 shadow-sm fw-bold">
-                <i class="fa fa-plus me-1"></i> Create New Page
-            </a>
+                <i class="fa fa-plus me-1"></i> {{ __('Create New Page') }} </a>
         </div>
     </div>
 
@@ -130,10 +129,10 @@
                             <thead>
                                 <tr>
                                     <th width="5%">{{ __('SL') }}</th>
-                                    <th width="35%">Page Name</th>
+                                    <th width="35%"> {{ __('Page Name') }} </th>
                                     <th width="30%">{{ __('Title') }}</th>
                                     <th width="15%">{{ __('Status') }}</th>
-                                    <th width="15%" class="text-end">Actions</th>
+                                    <th width="15%" class="text-end"> {{ __('Actions') }} </th>
                                 </tr>
                             </thead>
                             <tbody>

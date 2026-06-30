@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Invoice Print</title>
+    <title> {{ __('Invoice Print') }} </title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -105,7 +105,7 @@
 <body>
 
 <div class="no-print">
-    <button onclick="window.print()">&#128438; Print All</button>
+    <button onclick="window.print()"> {{ __('&#128438; Print All') }} </button>
 </div>
 
 @foreach($orders as $order)
@@ -129,13 +129,13 @@
     {{-- Header --}}
     <div class="rh">
         <div class="shop">{{ $generalsetting->name }}</div>
-        @if($contact->address)<p>{{ $contact->address }}</p>@endif
-        @if($contact->phone)<p>Phone: {{ $contact->phone }}</p>@endif
-        @if($contact->email)<p>{{ $contact->email }}</p>@endif
+        @if($contact-> {{ __('address)') }} <p>{{ $contact->address }}</p>@endif
+        @if($contact-> {{ __('phone)') }} <p>Phone: {{ $contact->phone }}</p>@endif
+        @if($contact-> {{ __('email)') }} <p>{{ $contact->email }}</p>@endif
     </div>
 
     {{-- Title --}}
-    <div class="rt">POS Invoice</div>
+    <div class="rt"> {{ __('POS Invoice') }} </div>
 
     {{-- Meta --}}
     <div class="rm">
@@ -147,8 +147,7 @@
         @if($order->shipping && $order->shipping->name)
         <div class="fl"><span>Buyer &nbsp;&nbsp;: <strong>{{ $order->shipping->name }}</strong></span></div>
         @endif
-        @if($order->shipping && $order->shipping->phone)
-        <div class="fl"><span>Phone &nbsp;&nbsp;: {{ $order->shipping->phone }}</span></div>
+        @if($order->shipping && $order->shipping-> {{ __('phone)') }} <div class="fl"><span>Phone &nbsp;&nbsp;: {{ $order->shipping->phone }}</span></div>
         @endif
         @if($order->shipping && ($order->shipping->address || $order->shipping->area))
         <div class="fl"><span>Address : {{ $order->shipping->address }}{{ $order->shipping->area ? ', '.$order->shipping->area : '' }}</span></div>
@@ -160,9 +159,9 @@
         <thead>
             <tr>
                 <th style="width:14px;">#</th>
-                <th>Product</th>
+                <th> {{ __('Product') }} </th>
                 <th style="width:22px;text-align:center;">{{ __('Qty') }}</th>
-                <th style="width:44px;" class="r">Rate</th>
+                <th style="width:44px;" class="r"> {{ __('Rate') }} </th>
                 <th style="width:48px;" class="r">{{ __('Total') }}</th>
             </tr>
         </thead>
@@ -205,7 +204,7 @@
     <div class="rs"><span>Discount (–)</span><span>{{ number_format($order->discount, 2) }}</span></div>
     @endif
     @if($order->shipping_charge > 0)
-    <div class="rs"><span>Delivery (+)</span><span>{{ number_format($order->shipping_charge, 2) }}</span></div>
+    <div class="rs"><span> {{ __('Delivery (+)') }} </span><span>{{ number_format($order->shipping_charge, 2) }}</span></div>
     @endif
 
     <div class="rtotal">
@@ -233,7 +232,7 @@
         @if($order->courier_sent_at)<div class="fl"><span>Sent &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:</span><span>{{ \Carbon\Carbon::parse($order->courier_sent_at)->format('d M Y') }}</span></div>@endif
         @endif
         <div class="ptotal">
-            <span>Total Paid</span>
+            <span> {{ __('Total Paid') }} </span>
             <span>&#2547; {{ number_format($finalTotal, 2) }}</span>
         </div>
     </div>
@@ -244,8 +243,8 @@
 
     {{-- Footer --}}
     <div class="rf">
-        <div class="ty">Thank You!</div>
-        <div>Visit Again!</div>
+        <div class="ty"> {{ __('Thank You!') }} </div>
+        <div> {{ __('Visit Again!') }} </div>
         <small>* Computer generated invoice. No signature required.</small>
     </div>
 

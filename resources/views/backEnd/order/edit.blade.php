@@ -37,7 +37,7 @@
                         </button>
                     </form>
                 </div>
-                <h4 class="page-title">Order Create</h4>
+                <h4 class="page-title"> {{ __('Order Create') }} </h4>
             </div>
         </div>
     </div>
@@ -54,9 +54,9 @@
                         <!-- Product Select -->
                         <div class="col-sm-12">
                             <div class="form-group mb-3">
-                                <label class="form-label">Products *</label>
+                                <label class="form-label"> {{ __('Products *') }} </label>
                                 <select id="cart_add" class="form-control select2">
-                                    <option value="">Select..</option>
+                                    <option value=""> {{ __('Select..') }} </option>
                                     @foreach($products as $value)
                                         <option value="{{$value->id}}">{{$value->name}}</option> 
                                     @endforeach
@@ -74,9 +74,9 @@
 										  <th>{{ __('Color') }}</th>
 										  <th>{{ __('Size') }}</th>
                                         <th>{{ __('Qty') }}</th>
-                                        <th>Sell Price</th>
+                                        <th> {{ __('Sell Price') }} </th>
                                         <th>{{ __('Discount') }}</th>
-                                        <th>Sub Total</th>
+                                        <th> {{ __('Sub Total') }} </th>
                                         <th>{{ __('Action') }}</th>
                                     </tr>
                                 </thead>
@@ -122,7 +122,7 @@
                                 </div>
                                 <div class="col-sm-12 mb-3">
                                     <select id="area" class="form-control" name="area" required>
-                                        <option value="">Delivery Area</option>
+                                        <option value=""> {{ __('Delivery Area') }} </option>
                                         @foreach($shippingcharge as $key=>$value)
                                             <option value="{{$value->id}}" @if($shippinginfo->area == $value->name) selected @endif>{{$value->name}}</option>
                                         @endforeach
@@ -161,11 +161,11 @@
             @endphp
 
             <tr>
-                <td>Sub Total</td>
+                <td> {{ __('Sub Total') }} </td>
                 <td>{{ $subtotal }}</td>
             </tr>
             <tr>
-                <td>Shipping Fee</td>
+                <td> {{ __('Shipping Fee') }} </td>
                 <td>{{ $shipping }}</td>
             </tr>
             <tr>
@@ -180,11 +180,11 @@
             {{-- 🔥 যদি advance payment থাকে তখনই extra দুইটা রো দেখাব --}}
             @if($advancePaid > 0)
                 <tr>
-                    <td><strong>Advance Paid</strong></td>
+                    <td><strong> {{ __('Advance Paid') }} </strong></td>
                     <td><strong>{{ number_format($advancePaid, 2) }}</strong></td>
                 </tr>
                 <tr>
-                    <td><strong>Due Amount</strong></td>
+                    <td><strong> {{ __('Due Amount') }} </strong></td>
                     <td><strong>{{ number_format($dueAmount, 2) }}</strong></td>
                 </tr>
             @endif
@@ -196,22 +196,22 @@
                         <!-- ✅ Full Width Payment Info Section -->
                         <div class="col-sm-12 mt-3">
                             <div class="payment-box w-100">
-                                <h6><i class="fa fa-credit-card"></i> Payment Info</h6>
+                                <h6><i class="fa fa-credit-card"></i> {{ __('Payment Info') }} </h6>
                                 <div class="row">
                                     <!-- Gateway -->
                                     <div class="col-md-6 mb-3">
-                                        <label class="form-label">Payment Gateway</label>
+                                        <label class="form-label"> {{ __('Payment Gateway') }} </label>
                                         <input type="text" class="form-control" value="{{ ucfirst($order->payment_gateway ?? 'N/A') }}" readonly>
                                     </div>
 
                                     <!-- Status -->
                                     <div class="col-md-6 mb-3">
-                                        <label class="form-label">Payment Status</label>
+                                        <label class="form-label"> {{ __('Payment Status') }} </label>
                                         <div class="input-group">
                                             <select id="payment_status_{{ $order->id }}" class="form-select">
                                                 <option value="pending" {{ $order->payment_status == 'pending' ? 'selected' : '' }}>{{ __('Pending') }}</option>
-                                                <option value="paid" {{ $order->payment_status == 'paid' ? 'selected' : '' }}>Paid</option>
-                                                <option value="unpaid" {{ $order->payment_status == 'unpaid' ? 'selected' : '' }}>Unpaid</option>
+                                                <option value="paid" {{ $order->payment_status == 'paid' ? 'selected' : '' }}> {{ __('Paid') }} </option>
+                                                <option value="unpaid" {{ $order->payment_status == 'unpaid' ? 'selected' : '' }}> {{ __('Unpaid') }} </option>
                                                 <option value="failed" {{ $order->payment_status == 'failed' ? 'selected' : '' }}>{{ __('Failed') }}</option>
                                             </select>
                                             <button type="button" class="btn btn-success" onclick="updatePaymentStatus({{ $order->id }})">

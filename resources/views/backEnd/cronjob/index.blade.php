@@ -122,7 +122,7 @@
                 <h4 class="page-title pull-left">Cron Job ম্যানেজমেন্ট</h4>
                 <ul class="breadcrumbs pull-left">
                     <li><a href="{{ route('admin.dashboard') }}">{{ __('Dashboard') }}</a></li>
-                    <li><span>Cron Jobs</span></li>
+                    <li><span> {{ __('Cron Jobs') }} </span></li>
                 </ul>
             </div>
         </div>
@@ -289,7 +289,7 @@
                     <i class="fa fa-terminal mr-2"></i>Manual Run (Terminal)
                 </h6>
                 <code>php artisan courier:check-status --limit=50</code>
-                <code style="margin-top:6px;">php artisan courier:check-status --force</code>
+                <code style="margin-top:6px;"> {{ __('php artisan courier:check-status --force') }} </code>
             </div>
         </div>
 

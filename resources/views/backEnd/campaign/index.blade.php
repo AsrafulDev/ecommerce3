@@ -76,12 +76,11 @@
     <div class="row mb-3 mt-3">
         <div class="col-12 d-flex justify-content-between align-items-center">
             <div>
-                <h4 class="page-title mb-0" style="font-weight: 700; color: #2d3436;">Landing Pages</h4>
-                <p class="text-muted font-size-13 mb-0">Manage your marketing campaign pages.</p>
+                <h4 class="page-title mb-0" style="font-weight: 700; color: #2d3436;"> {{ __('Landing Pages') }} </h4>
+                <p class="text-muted font-size-13 mb-0"> {{ __('Manage your marketing campaign pages.') }} </p>
             </div>
             <a href="{{route('campaign.create')}}" class="btn btn-primary rounded-pill shadow-sm px-4">
-                <i class="fe-plus me-1"></i> Create New Page
-            </a>
+                <i class="fe-plus me-1"></i> {{ __('Create New Page') }} </a>
         </div>
     </div>
 
@@ -93,7 +92,7 @@
                         <thead>
                             <tr>
                                 <th style="width: 50px;">{{ __('SL') }}</th>
-                                <th>Landing Page Title</th>
+                                <th> {{ __('Landing Page Title') }} </th>
                                 <th class="text-end" style="width: 150px;">{{ __('Action') }}</th>
                             </tr>
                         </thead>                

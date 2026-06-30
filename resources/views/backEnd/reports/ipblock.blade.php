@@ -140,8 +140,8 @@
         <div class="col-12">
             <div class="page-title-box d-flex align-items-center justify-content-between py-4">
                 <div>
-                    <h4 class="page-title mb-1 text-dark fw-bold">IP Block Manager</h4>
-                    <p class="text-muted font-size-13 mb-0">Restrict access for specific IP addresses.</p>
+                    <h4 class="page-title mb-1 text-dark fw-bold"> {{ __('IP Block Manager') }} </h4>
+                    <p class="text-muted font-size-13 mb-0"> {{ __('Restrict access for specific IP addresses.') }} </p>
                 </div>
             </div>
         </div>
@@ -153,13 +153,13 @@
             <div class="card">
                 <div class="card-header">
                     <div class="header-icon"><i class="fe-shield-off"></i></div>
-                    <h5 class="card-title">Block New IP</h5>
+                    <h5 class="card-title"> {{ __('Block New IP') }} </h5>
                 </div>
                 <div class="card-body">
                     <form action="{{route('customers.ipblock.store')}}" method="POST" data-parsley-validate>
                         @csrf
                         <div class="form-group mb-3">
-                            <label for="ip_no" class="form-label">IP Address <span class="text-danger">*</span></label>
+                            <label for="ip_no" class="form-label"> {{ __('IP Address') }} <span class="text-danger">*</span></label>
                             <input type="text" class="form-control @error('ip_no') is-invalid @enderror" 
                                    name="ip_no" value="{{ old('ip_no', $prefillIp ?? '') }}" id="ip_no" 
                                    placeholder="e.g. 192.168.0.1" required>
@@ -169,7 +169,7 @@
                         </div>
 
                         <div class="form-group mb-4">
-                            <label for="reason" class="form-label">Reason <span class="text-danger">*</span></label>
+                            <label for="reason" class="form-label"> {{ __('Reason') }} <span class="text-danger">*</span></label>
                             <textarea class="form-control @error('reason') is-invalid @enderror" 
                                       name="reason" rows="4" id="reason" 
                                       placeholder="Why is this IP being blocked?" required>{{ old('reason', $prefillReason ?? '') }}</textarea>
@@ -201,7 +201,7 @@
             <div class="card">
                 <div class="card-header">
                     <div class="header-icon"><i class="fe-list"></i></div>
-                    <h5 class="card-title">Blocked IP List</h5>
+                    <h5 class="card-title"> {{ __('Blocked IP List') }} </h5>
                 </div>
                 <div class="card-body">
                     <div class="table-responsive">
@@ -209,8 +209,8 @@
                             <thead>
                                 <tr>
                                     <th style="width: 50px;">{{ __('SL') }}</th>
-                                    <th>IP Address</th>
-                                    <th>Reason</th>
+                                    <th> {{ __('IP Address') }} </th>
+                                    <th> {{ __('Reason') }} </th>
                                     <th class="text-end" style="width: 100px;">{{ __('Action') }}</th>
                                 </tr>
                             </thead>
@@ -253,7 +253,7 @@
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title text-dark fw-bold">Edit IP Block</h5>
+                <h5 class="modal-title text-dark fw-bold"> {{ __('Edit IP Block') }} </h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{{ __('Close') }}"></button>
             </div>
             <div class="modal-body p-4">
@@ -262,12 +262,12 @@
                     <input type="hidden" name="id" value="{{$value->id}}">
                     
                     <div class="form-group mb-3">
-                        <label for="ip_no" class="form-label">IP Address <span class="text-danger">*</span></label>
+                        <label for="ip_no" class="form-label"> {{ __('IP Address') }} <span class="text-danger">*</span></label>
                         <input type="text" class="form-control" name="ip_no" value="{{$value->ip_no}}" required>
                     </div>
 
                     <div class="form-group mb-4">
-                        <label for="reason" class="form-label">Reason <span class="text-danger">*</span></label>
+                        <label for="reason" class="form-label"> {{ __('Reason') }} <span class="text-danger">*</span></label>
                         <textarea class="form-control" name="reason" rows="4" required>{{$value->reason}}</textarea>
                     </div>
 

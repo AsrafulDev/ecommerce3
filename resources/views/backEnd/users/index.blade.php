@@ -76,7 +76,7 @@
         <div>
             <h4 class="mb-1 fw-bold text-dark">
                 <i data-feather="users" class="text-primary me-2"></i>{{ __('Manage Users') }}</h4>
-            <p class="text-muted small mb-0">Overview of all registered users and their roles.</p>
+            <p class="text-muted small mb-0"> {{ __('Overview of all registered users and their roles.') }} </p>
         </div>
         <a href="{{ route('users.create') }}" class="btn btn-primary px-4 py-2 rounded-pill shadow-sm">
             <i data-feather="plus" class="me-1" style="width: 16px;"></i> Create User
@@ -90,10 +90,10 @@
                 <thead>
                     <tr>
                         <th width="5%">#</th>
-                        <th width="30%">User Name</th>
-                        <th width="30%">Email Address</th>
+                        <th width="30%"> {{ __('User Name') }} </th>
+                        <th width="30%"> {{ __('Email Address') }} </th>
                         <th width="15%">{{ __('Status') }}</th>
-                        <th width="20%" class="text-end">Actions</th>
+                        <th width="20%" class="text-end"> {{ __('Actions') }} </th>
                     </tr>
                 </thead>
                 <tbody>

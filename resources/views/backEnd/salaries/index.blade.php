@@ -86,7 +86,7 @@
             <h4 class="mb-1 fw-bold text-dark">
                 <i data-feather="dollar-sign" class="text-primary me-2"></i> Salary Management
             </h4>
-            <p class="text-muted small mb-0">Calculate and manage employee monthly salaries.</p>
+            <p class="text-muted small mb-0"> {{ __('Calculate and manage employee monthly salaries.') }} </p>
         </div>
         <div class="d-flex gap-2">
             <button type="button" class="btn btn-white border shadow-sm rounded-pill px-3 text-dark" data-bs-toggle="modal" data-bs-target="#calculateModal">
@@ -107,7 +107,7 @@
                     <div class="col-md-3">
                         <label class="form-label small fw-bold text-muted text-uppercase mb-1">{{ __('Employee') }}</label>
                         <select name="employee_id" class="form-control select2 form-select-modern">
-                            <option value="">All Employees</option>
+                            <option value=""> {{ __('All Employees') }} </option>
                             @foreach($employees as $emp)
                                 <option value="{{ $emp->id }}" {{ request('employee_id') == $emp->id ? 'selected' : '' }}>
                                     {{ $emp->name }} ({{ $emp->employee_id }})
@@ -122,10 +122,10 @@
                     <div class="col-md-2">
                         <label class="form-label small fw-bold text-muted text-uppercase mb-1">{{ __('Status') }}</label>
                         <select name="status" class="form-select form-select-modern">
-                            <option value="">All Status</option>
+                            <option value=""> {{ __('All Status') }} </option>
                             <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }}>{{ __('Pending') }}</option>
-                            <option value="calculated" {{ request('status') == 'calculated' ? 'selected' : '' }}>Calculated</option>
-                            <option value="paid" {{ request('status') == 'paid' ? 'selected' : '' }}>Paid</option>
+                            <option value="calculated" {{ request('status') == 'calculated' ? 'selected' : '' }}> {{ __('Calculated') }} </option>
+                            <option value="paid" {{ request('status') == 'paid' ? 'selected' : '' }}> {{ __('Paid') }} </option>
                         </select>
                     </div>
                     <div class="col-md-3 d-flex gap-2">
@@ -144,13 +144,13 @@
                 <thead>
                     <tr>
                         <th width="5%">#</th>
-                        <th width="20%">Employee Details</th>
+                        <th width="20%"> {{ __('Employee Details') }} </th>
                         <th width="10%">{{ __('Month') }}</th>
-                        <th width="20%">Attendance Summary</th>
-                        <th width="15%">Gross Salary</th>
-                        <th width="15%">Net Payable</th>
+                        <th width="20%"> {{ __('Attendance Summary') }} </th>
+                        <th width="15%"> {{ __('Gross Salary') }} </th>
+                        <th width="15%"> {{ __('Net Payable') }} </th>
                         <th width="10%">{{ __('Status') }}</th>
-                        <th width="5%" class="text-end">Actions</th>
+                        <th width="5%" class="text-end"> {{ __('Actions') }} </th>
                     </tr>
                 </thead>
                 <tbody>
@@ -181,9 +181,9 @@
                             <td class="fw-bold text-dark fs-6">৳{{ number_format($salary->net_salary, 2) }}</td>
                             <td>
                                 @if($salary->status == 'paid')
-                                    <span class="badge-soft badge-paid">Paid</span>
+                                    <span class="badge-soft badge-paid"> {{ __('Paid') }} </span>
                                 @elseif($salary->status == 'calculated')
-                                    <span class="badge-soft badge-calculated">Calculated</span>
+                                    <span class="badge-soft badge-calculated"> {{ __('Calculated') }} </span>
                                 @else
                                     <span class="badge-soft badge-pending">{{ __('Pending') }}</span>
                                 @endif
@@ -205,8 +205,8 @@
                         <tr>
                             <td colspan="8" class="text-center py-5">
                                 <img src="https://cdn-icons-png.flaticon.com/512/7486/7486744.png" width="60" class="mb-3 opacity-25">
-                                <p class="text-muted fw-bold mb-0">No salary records found</p>
-                                <small class="text-muted">Try calculating salary for a month.</small>
+                                <p class="text-muted fw-bold mb-0"> {{ __('No salary records found') }} </p>
+                                <small class="text-muted"> {{ __('Try calculating salary for a month.') }} </small>
                             </td>
                         </tr>
                     @endforelse
@@ -230,29 +230,29 @@
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content border-0 shadow-lg">
             <div class="modal-header border-bottom-0 pb-0">
-                <h5 class="modal-title fw-bold">Calculate Salary</h5>
+                <h5 class="modal-title fw-bold"> {{ __('Calculate Salary') }} </h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <form action="{{ route('admin.salaries.calculate') }}" method="POST">
                 @csrf
                 <div class="modal-body">
                     <div class="mb-3">
-                        <label class="form-label small fw-bold text-muted">Select Employee <span class="text-danger">*</span></label>
+                        <label class="form-label small fw-bold text-muted"> {{ __('Select Employee') }} <span class="text-danger">*</span></label>
                         <select name="employee_id" class="form-control select2" required style="width: 100%;">
-                            <option value="">Choose Employee</option>
+                            <option value=""> {{ __('Choose Employee') }} </option>
                             @foreach($employees as $emp)
                                 <option value="{{ $emp->id }}">{{ $emp->name }} ({{ $emp->employee_id }})</option>
                             @endforeach
                         </select>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label small fw-bold text-muted">Salary Month <span class="text-danger">*</span></label>
+                        <label class="form-label small fw-bold text-muted"> {{ __('Salary Month') }} <span class="text-danger">*</span></label>
                         <input type="month" name="salary_month" class="form-control" value="{{ date('Y-m') }}" required>
                     </div>
                 </div>
                 <div class="modal-footer border-top-0 pt-0">
                     <button type="button" class="btn btn-light" data-bs-dismiss="modal">{{ __('Cancel') }}</button>
-                    <button type="submit" class="btn btn-primary px-4">Calculate</button>
+                    <button type="submit" class="btn btn-primary px-4"> {{ __('Calculate') }} </button>
                 </div>
             </form>
         </div>
@@ -263,7 +263,7 @@
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content border-0 shadow-lg">
             <div class="modal-header border-bottom-0 pb-0">
-                <h5 class="modal-title fw-bold">Bulk Salary Calculation</h5>
+                <h5 class="modal-title fw-bold"> {{ __('Bulk Salary Calculation') }} </h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <form action="{{ route('admin.salaries.bulk_calculate') }}" method="POST">
@@ -271,16 +271,16 @@
                 <div class="modal-body">
                     <div class="alert alert-soft-info d-flex align-items-center mb-3 border-0 bg-light p-3 rounded">
                         <i data-feather="info" class="me-2 text-primary"></i>
-                        <small class="text-muted">This will calculate salary for <strong>ALL active employees</strong> for the selected month.</small>
+                        <small class="text-muted"> {{ __('This will calculate salary for') }} <strong> {{ __('ALL active employees') }} </strong> {{ __('for the selected month.') }} </small>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label small fw-bold text-muted">Select Month <span class="text-danger">*</span></label>
+                        <label class="form-label small fw-bold text-muted"> {{ __('Select Month') }} <span class="text-danger">*</span></label>
                         <input type="month" name="salary_month" class="form-control" value="{{ date('Y-m') }}" required>
                     </div>
                 </div>
                 <div class="modal-footer border-top-0 pt-0">
                     <button type="button" class="btn btn-light" data-bs-dismiss="modal">{{ __('Cancel') }}</button>
-                    <button type="submit" class="btn btn-primary px-4">Start Calculation</button>
+                    <button type="submit" class="btn btn-primary px-4"> {{ __('Start Calculation') }} </button>
                 </div>
             </form>
         </div>

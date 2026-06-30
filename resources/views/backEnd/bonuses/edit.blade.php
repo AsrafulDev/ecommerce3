@@ -54,8 +54,8 @@
                     {{-- Header --}}
                     <div class="card-header-modern">
                         <div>
-                            <h5 class="mb-1 fw-bold text-dark">Edit Bonus</h5>
-                            <p class="text-muted small mb-0">Modify existing bonus details.</p>
+                            <h5 class="mb-1 fw-bold text-dark"> {{ __('Edit Bonus') }} </h5>
+                            <p class="text-muted small mb-0"> {{ __('Modify existing bonus details.') }} </p>
                         </div>
                         <a href="{{ route('admin.bonuses.index') }}" class="btn btn-light btn-sm rounded-pill px-3">
                             <i data-feather="x" style="width:14px;"></i>{{ __('Close') }}</a>
@@ -65,7 +65,7 @@
                         
                         {{-- Employee Info (Read Only) --}}
                         <div class="mb-4">
-                            <label class="form-label-custom">Employee Name</label>
+                            <label class="form-label-custom"> {{ __('Employee Name') }} </label>
                             <input type="text" class="form-control form-control-custom" 
                                    value="{{ $bonus->employee->name }} (ID: {{ $bonus->employee->employee_id }})" disabled>
                         </div>
@@ -73,7 +73,7 @@
                         {{-- Type & Amount --}}
                         <div class="row g-3 mb-4">
                             <div class="col-md-6">
-                                <label class="form-label-custom">Bonus Type <span class="text-danger">*</span></label>
+                                <label class="form-label-custom"> {{ __('Bonus Type') }} <span class="text-danger">*</span></label>
                                 <input type="text" name="bonus_type" class="form-control form-control-custom @error('bonus_type') is-invalid @enderror" 
                                        value="{{ old('bonus_type', $bonus->bonus_type) }}" required>
                                 @error('bonus_type') <span class="text-danger small">{{ $message }}</span> @enderror
@@ -91,7 +91,7 @@
 
                         {{-- Salary Month --}}
                         <div class="mb-4">
-                            <label class="form-label-custom">Applicable Month (Optional)</label>
+                            <label class="form-label-custom"> {{ __('Applicable Month (Optional)') }} </label>
                             <div class="input-group">
                                 <span class="input-group-text bg-white border-end-0 text-muted"><i data-feather="calendar" style="width:16px;"></i></span>
                                 <input type="month" name="salary_month" class="form-control form-control-custom border-start-0" 
@@ -101,13 +101,13 @@
 
                         {{-- Reason --}}
                         <div class="mb-4">
-                            <label class="form-label-custom">Reason</label>
+                            <label class="form-label-custom"> {{ __('Reason') }} </label>
                             <textarea name="reason" class="form-control form-control-custom" rows="2">{{ old('reason', $bonus->reason) }}</textarea>
                         </div>
 
                         {{-- Notes --}}
                         <div class="mb-4">
-                            <label class="form-label-custom">Private Notes</label>
+                            <label class="form-label-custom"> {{ __('Private Notes') }} </label>
                             <textarea name="notes" class="form-control form-control-custom" rows="2">{{ old('notes', $bonus->notes) }}</textarea>
                         </div>
 

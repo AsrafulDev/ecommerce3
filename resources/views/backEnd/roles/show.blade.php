@@ -75,8 +75,8 @@
     <div class="row mb-3 mt-3">
         <div class="col-12 d-flex justify-content-between align-items-center">
             <div>
-                <h4 class="page-title mb-0" style="font-weight: 700; color: #2d3436;">Role Details</h4>
-                <p class="text-muted font-size-13 mb-0">View role information and permissions.</p>
+                <h4 class="page-title mb-0" style="font-weight: 700; color: #2d3436;"> {{ __('Role Details') }} </h4>
+                <p class="text-muted font-size-13 mb-0"> {{ __('View role information and permissions.') }} </p>
             </div>
             <a href="{{ route('roles.index') }}" class="btn btn-light rounded-pill border shadow-sm px-4">
                 <i class="fe-arrow-left me-1"></i> Back to Roles
@@ -103,7 +103,7 @@
 
                     <div class="row justify-content-center">
                         <div class="col-lg-10">
-                            <span class="role-label text-center">Assigned Permissions</span>
+                            <span class="role-label text-center"> {{ __('Assigned Permissions') }} </span>
                             
                             <div class="text-center mt-3">
                                 @if(!empty($rolePermissions) && count($rolePermissions) > 0)

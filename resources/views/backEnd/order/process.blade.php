@@ -44,7 +44,7 @@
         <tr>
             <th>{{ __('SL') }}</th>
             <th>{{ __('Image') }}</th>
-            <th>Product</th>
+            <th> {{ __('Product') }} </th>
             <th>{{ __('Color') }}</th>
             <th>{{ __('Size') }}</th>
             <th>{{ __('Price') }}</th>
@@ -108,28 +108,28 @@
                     
                     <div class="col-sm-6">
                         <div class="form-group mb-3">
-                            <label for="name" class="form-label">Customer name</label>
+                            <label for="name" class="form-label"> {{ __('Customer name') }} </label>
                             <input type="text" class="form-control" name="name" value="{{$data->shipping?$data->shipping->name:''}}" placeholder="Customer Name">
                         </div>
                     </div>
                             
                     <div class="col-sm-6">
                         <div class="form-group mb-3">
-                            <label for="phone" class="form-label">Customer Phone</label>
+                            <label for="phone" class="form-label"> {{ __('Customer Phone') }} </label>
                             <input type="text" class="form-control" name="phone" value="{{$data->shipping?$data->shipping->phone:''}}" placeholder="Phone Number">
                         </div>
                     </div>
 
                     <div class="col-sm-12">
                         <div class="form-group mb-3">
-                            <label for="address" class="form-label">Customer Address</label>
+                            <label for="address" class="form-label"> {{ __('Customer Address') }} </label>
                             <textarea name="address" class="form-control">{{$data->shipping?$data->shipping->address:''}}</textarea>
                         </div>
                     </div>
 
                     <div class="col-sm-12">
                         <div class="form-group mb-3">
-                            <label for="area" class="form-label">Delivery Area *</label>
+                            <label for="area" class="form-label"> {{ __('Delivery Area *') }} </label>
                             <select id="area" class="form-control" name="area" required>
                                 @foreach($shippingcharge as $key=>$value)
                                     <option @if($data->shipping?$data->shipping->area:'' == $value->name) selected @endif value="{{$value->id}}">
@@ -150,7 +150,7 @@
 
                     <div class="col-sm-12">
                         <div class="payment-box">
-                            <h5 class="mb-3"><i class="fa fa-credit-card"></i> Payment Information</h5>
+                            <h5 class="mb-3"><i class="fa fa-credit-card"></i> {{ __('Payment Information') }} </h5>
                             <div class="row">
                                 <div class="col-md-6 mb-3">
                                     <label class="payment-label">Payment Gateway:</label><br>
@@ -158,7 +158,7 @@
                                         @if(!empty($paymentInfo->payment_gateway))
                                             {{ strtoupper($paymentInfo->payment_gateway) }}
                                         @else
-                                            <span class="text-danger">Not Found</span>
+                                            <span class="text-danger"> {{ __('Not Found') }} </span>
                                         @endif
                                     </span>
                                 </div>
@@ -168,8 +168,8 @@
                                     <div class="d-flex align-items-center">
                                         <select id="payment_status_{{ $data->id }}" class="form-select form-select-sm w-auto">
                                             <option value="pending" {{ ($paymentInfo->payment_status ?? '') == 'pending' ? 'selected' : '' }}>{{ __('Pending') }}</option>
-                                            <option value="paid" {{ ($paymentInfo->payment_status ?? '') == 'paid' ? 'selected' : '' }}>Paid</option>
-                                            <option value="unpaid" {{ ($paymentInfo->payment_status ?? '') == 'unpaid' ? 'selected' : '' }}>Unpaid</option>
+                                            <option value="paid" {{ ($paymentInfo->payment_status ?? '') == 'paid' ? 'selected' : '' }}> {{ __('Paid') }} </option>
+                                            <option value="unpaid" {{ ($paymentInfo->payment_status ?? '') == 'unpaid' ? 'selected' : '' }}> {{ __('Unpaid') }} </option>
                                             <option value="failed" {{ ($paymentInfo->payment_status ?? '') == 'failed' ? 'selected' : '' }}>{{ __('Failed') }}</option>
                                         </select>
                                         <button type="button" class="btn btn-success btn-sm ms-2" onclick="updatePaymentStatus({{ $data->id }})">
@@ -195,7 +195,7 @@
 
                     <div class="col-sm-12 mt-3">
                         <div class="payment-box">
-                            <h5 class="mb-3"><i class="fa fa-money-bill-wave"></i> Order Amount Information</h5>
+                            <h5 class="mb-3"><i class="fa fa-money-bill-wave"></i> {{ __('Order Amount Information') }} </h5>
                             <div class="row">
                                 <div class="col-md-6 mb-2">
                                     <label class="payment-label">Subtotal:</label>
@@ -222,7 +222,7 @@
                         <div class="form-group mb-3">
                             <label for="category_id" class="form-label">{{ __('Order Status') }}</label>
                             <select class="form-control select2-multiple" name="status" data-toggle="select2" required>
-                                <option value="">Select..</option>
+                                <option value=""> {{ __('Select..') }} </option>
                                 @foreach($orderstatus as $value)
                                     <option value="{{$value->id}}"  @if($data->order_status==$value->id) selected @endif>{{$value->name}}</option>
                                 @endforeach

@@ -7,7 +7,7 @@
         <div class="col-12">
             <div class="page-title-box">
                 <div class="page-title-right">
-                    <a href="{{ route('admin.order.create') }}" class="btn btn-danger rounded-pill"><i class="fe-shopping-cart"></i> POS Create</a>
+                    <a href="{{ route('admin.order.create') }}" class="btn btn-danger rounded-pill"><i class="fe-shopping-cart"></i> {{ __('POS Create') }} </a>
                 </div>
                 <h4 class="page-title">{{ $order_status->name }} Order ({{ $order_status->orders_count }})</h4>
             </div>
@@ -20,19 +20,19 @@
                     <div class="row mb-3">
                         <div class="col-sm-8">
                             <ul class="action2-btn list-unstyled d-flex gap-2 p-0 m-0">
-                                <li><a data-bs-toggle="modal" data-bs-target="#asignUser" class="btn rounded-pill btn-success"><i class="fe-plus"></i> Assign</a></li>
+                                <li><a data-bs-toggle="modal" data-bs-target="#asignUser" class="btn rounded-pill btn-success"><i class="fe-plus"></i> {{ __('Assign') }} </a></li>
                                 <li><a data-bs-toggle="modal" data-bs-target="#changeStatus" class="btn rounded-pill btn-primary"><i class="fe-plus"></i>{{ __('Status') }}</a></li>
                                 <li><a href="{{ route('admin.order.bulk_destroy') }}" class="btn rounded-pill btn-danger order_delete"><i class="fe-plus"></i>{{ __('Delete') }}</a></li>
                                 <li><a href="{{ route('admin.order.order_print') }}" class="btn rounded-pill btn-info multi_order_print"><i class="fe-printer"></i>{{ __('Print') }}</a></li>
-                                <li><a href="{{ route('admin.order.order_print') }}" class="btn rounded-pill btn-secondary multi_label_print"><i class="fe-tag"></i> Label</a></li>
+                                <li><a href="{{ route('admin.order.order_print') }}" class="btn rounded-pill btn-secondary multi_label_print"><i class="fe-tag"></i> {{ __('Label') }} </a></li>
                                 @if($steadfast)
-                                    <li><a href="{{ route('admin.bulk_courier', 'steadfast') }}?status=5" class="btn rounded-pill btn-info multi_order_courier"><i class="fe-truck"></i> Steadfast</a></li>
+                                    <li><a href="{{ route('admin.bulk_courier', 'steadfast') }}?status=5" class="btn rounded-pill btn-info multi_order_courier"><i class="fe-truck"></i> {{ __('Steadfast') }} </a></li>
                                 @endif
                                 @if($pathao_info)
-                                    <li><a data-bs-toggle="modal" data-bs-target="#pathao" class="btn rounded-pill btn-warning"><i class="fe-truck"></i> Pathao</a></li>
+                                    <li><a data-bs-toggle="modal" data-bs-target="#pathao" class="btn rounded-pill btn-warning"><i class="fe-truck"></i> {{ __('Pathao') }} </a></li>
                                 @endif
                                 @if(isset($redx_info) && $redx_info)
-                                    <li><a href="{{ route('admin.bulk_courier', 'redx') }}?status=5" class="btn rounded-pill btn-warning multi_order_courier" style="background-color: #f59e0b; border-color: #f59e0b;"><i class="fe-truck"></i> RedX</a></li>
+                                    <li><a href="{{ route('admin.bulk_courier', 'redx') }}?status=5" class="btn rounded-pill btn-warning multi_order_courier" style="background-color: #f59e0b; border-color: #f59e0b;"><i class="fe-truck"></i> {{ __('RedX') }} </a></li>
                                 @endif
                             </ul>
                         </div>
@@ -64,13 +64,13 @@
                                     <th style="width:10%;">{{ __('Name') }}</th>
                                     <th style="width:8%;">{{ __('Type') }}</th>
                                     <th style="width:8%;">IP</th>
-                                    <th style="width:10%;">Order Note</th>
-                                    <th style="width:10%;">Admin Note</th>
+                                    <th style="width:10%;"> {{ __('Order Note') }} </th>
+                                    <th style="width:10%;"> {{ __('Admin Note') }} </th>
                                     <th style="width:10%;">{{ __('Amount') }}</th>
                                     <th style="width:10%;">{{ __('Status') }}</th>
-                                    <th style="width:12%;">Courier</th>
-                                    <th>Track</th>
-                                    <th>Fraud Check</th>
+                                    <th style="width:12%;"> {{ __('Courier') }} </th>
+                                    <th> {{ __('Track') }} </th>
+                                    <th> {{ __('Fraud Check') }} </th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -128,8 +128,7 @@
                                                     @endphp
                                                     @if($isBlocked)
                                                         <span class="badge bg-secondary" title="This IP is already blocked">
-                                                            <i class="fe-shield"></i> Blocked
-                                                        </span>
+                                                            <i class="fe-shield"></i> {{ __('Blocked') }} </span>
                                                     @else
                                                         <button type="button" 
                                                                 class="btn btn-sm btn-danger block-ip-btn" 
@@ -251,16 +250,13 @@
                                             @if(!empty($trackingId))
                                                 @if($courierType == 'pathao')
                                                     <a href="https://merchant.pathao.com/public-tracking?consignment_id={{ $trackingId }}" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-info">
-                                                        <i class="fe-truck"></i> Track
-                                                    </a>
+                                                        <i class="fe-truck"></i> {{ __('Track') }} </a>
                                                 @elseif($courierType == 'steadfast' || (!$courierType && $trackingId))
                                                     <a href="https://steadfast.com.bd/t/{{ $trackingId }}" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-primary">
-                                                        <i class="fe-truck"></i> Track
-                                                    </a>
+                                                        <i class="fe-truck"></i> {{ __('Track') }} </a>
                                                 @elseif($courierType == 'redx')
                                                     <a href="https://redx.com.bd/track/{{ $trackingId }}" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-warning">
-                                                        <i class="fe-truck"></i> Track
-                                                    </a>
+                                                        <i class="fe-truck"></i> {{ __('Track') }} </a>
                                                 @else
                                                     <span class="badge bg-secondary">{{ $trackingId }}</span>
                                                 @endif
@@ -310,14 +306,14 @@
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title">Assign User</h5>
+        <h5 class="modal-title"> {{ __('Assign User') }} </h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{{ __('Close') }}"></button>
       </div>
       <form action="{{ route('admin.order.assign') }}" id="order_assign">
         <div class="modal-body">
             <div class="form-group">
                 <select name="user_id" id="user_id" class="form-control">
-                    <option value="">Select..</option>
+                    <option value=""> {{ __('Select..') }} </option>
                     @foreach($users as $u)
                         <option value="{{ $u->id }}">{{ $u->name }}</option>
                     @endforeach
@@ -337,7 +333,7 @@
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title">Change Status</h5>
+        <h5 class="modal-title"> {{ __('Change Status') }} </h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{{ __('Close') }}"></button>
       </div>
       <form action="{{ route('admin.order.status') }}" id="order_status_form" novalidate>
@@ -345,22 +341,22 @@
             <div class="form-group">
                 <label class="form-label">{{ __('Select Status') }}<span class="text-danger">*</span></label>
                 <select name="order_status" id="order_status" class="form-control">
-                    <option value="">Select Status..</option>
+                    <option value=""> {{ __('Select Status..') }} </option>
                     @if(isset($orderstatus) && $orderstatus->count() > 0)
                         @foreach($orderstatus as $s)
                             <option value="{{ $s->id }}">{{ $s->name }}</option>
                         @endforeach
                     @else
-                        <option value="">No status available</option>
+                        <option value=""> {{ __('No status available') }} </option>
                     @endif
                 </select>
-                <small class="text-muted">Select orders first, then choose status</small>
-                <div class="invalid-feedback" id="status_error" style="display: none;">Please select a status</div>
+                <small class="text-muted"> {{ __('Select orders first, then choose status') }} </small>
+                <div class="invalid-feedback" id="status_error" style="display: none;"> {{ __('Please select a status') }} </div>
             </div>
         </div>
         <div class="modal-footer">
             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ __('Close') }}</button>
-            <button type="submit" class="btn btn-success">Update Status</button>
+            <button type="submit" class="btn btn-success"> {{ __('Update Status') }} </button>
         </div>
       </form>
     </div>
@@ -371,7 +367,7 @@
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title">Pathao Courier</h5>
+        <h5 class="modal-title"> {{ __('Pathao Courier') }} </h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{{ __('Close') }}"></button>
       </div>
       <form action="{{ route('admin.order.pathao') }}" id="order_sendto_pathao" method="POST">
@@ -379,9 +375,9 @@
       <input type="hidden" name="order_ids" id="pathao_order_ids" value="">
       <div class="modal-body">
         <div class="form-group">
-            <label for="pathaostore" class="form-label">Store</label>
+            <label for="pathaostore" class="form-label"> {{ __('Store') }} </label>
            <select name="pathaostore" id="pathaostore" class="pathaostore form-control" >
-             <option value="">Select Store...</option>
+             <option value=""> {{ __('Select Store...') }} </option>
              @if(isset($pathaostore['data']['data']))
                  @foreach($pathaostore['data']['data'] as $store)
                      <option value="{{ $store['store_id'] }}">{{ $store['store_name'] }}</option>
@@ -393,7 +389,7 @@
         <div class="form-group mt-3">
           <label for="pathaocity" class="form-label">{{ __('City') }}</label>
            <select name="pathaocity" id="pathaocity" class="chosen-select pathaocity form-control" style="width:100%" >
-             <option value="">Select City...</option>
+             <option value=""> {{ __('Select City...') }} </option>
              @if(isset($pathaocities['data']['data']))
                  @foreach($pathaocities['data']['data'] as $city)
                      <option value="{{ $city['city_id'] }}">{{ $city['city_name'] }}</option>
@@ -403,12 +399,12 @@
         </div>
 
         <div class="form-group mt-3">
-          <label class="form-label">Zone</label>
+          <label class="form-label"> {{ __('Zone') }} </label>
              <select name="pathaozone" id="pathaozone" class="pathaozone chosen-select form-control" style="width:100%"></select>
         </div>
 
         <div class="form-group mt-3">
-          <label class="form-label">Area</label>
+          <label class="form-label"> {{ __('Area') }} </label>
              <select name="pathaoarea" id="pathaoarea" class="pathaoarea chosen-select form-control" style="width:100%"></select>
         </div>
       </div>
@@ -1140,7 +1136,7 @@ $(document).ready(function(){
                 if(res.status === 'success'){
                     toastr.success(res.message || 'IP blocked successfully');
                     // Change button to show blocked state (badge style)
-                    $btn.replaceWith('<span class="badge bg-secondary" title="This IP is already blocked"><i class="fe-shield"></i> Blocked</span>');
+                    $btn.replaceWith('<span class="badge bg-secondary" title="This IP is already blocked"><i class="fe-shield"></i> {{ __('Blocked') }} </span>');
                 } else {
                     toastr.error(res.message || 'Failed to block IP');
                     $btn.prop('disabled', false);
@@ -1179,8 +1175,8 @@ $(document).ready(function(){
     $(document).on('change', '#pathaocity', function(){
         var cityId = $(this).val();
         if(!cityId){
-            $('#pathaozone').html('<option value="">Select Zone...</option>');
-            $('#pathaoarea').html('<option value="">Select Area...</option>');
+            $('#pathaozone').html('<option value=""> {{ __('Select Zone...') }} </option>');
+            $('#pathaoarea').html('<option value=""> {{ __('Select Area...') }} </option>');
             return;
         }
         
@@ -1189,7 +1185,7 @@ $(document).ready(function(){
             type: "GET",
             data: { city_id: cityId },
             success: function(res){
-                var options = '<option value="">Select Zone...</option>';
+                var options = '<option value=""> {{ __('Select Zone...') }} </option>';
                 if(res && res.data && res.data.data && res.data.data.length > 0){
                     $.each(res.data.data, function(key, zone){
                         options += '<option value="' + zone.zone_id + '">' + zone.zone_name + '</option>';
@@ -1198,7 +1194,7 @@ $(document).ready(function(){
                     toastr.warning('No zones found for this city');
                 }
                 $('#pathaozone').html(options);
-                $('#pathaoarea').html('<option value="">Select Area...</option>');
+                $('#pathaoarea').html('<option value=""> {{ __('Select Area...') }} </option>');
             },
             error: function(xhr){
                 var errorMsg = 'Failed to load zones';
@@ -1206,8 +1202,8 @@ $(document).ready(function(){
                     errorMsg = xhr.responseJSON.message;
                 }
                 toastr.error(errorMsg);
-                $('#pathaozone').html('<option value="">Select Zone...</option>');
-                $('#pathaoarea').html('<option value="">Select Area...</option>');
+                $('#pathaozone').html('<option value=""> {{ __('Select Zone...') }} </option>');
+                $('#pathaoarea').html('<option value=""> {{ __('Select Area...') }} </option>');
             }
         });
     });
@@ -1216,7 +1212,7 @@ $(document).ready(function(){
     $(document).on('change', '#pathaozone', function(){
         var zoneId = $(this).val();
         if(!zoneId){
-            $('#pathaoarea').html('<option value="">Select Area...</option>');
+            $('#pathaoarea').html('<option value=""> {{ __('Select Area...') }} </option>');
             return;
         }
         
@@ -1225,7 +1221,7 @@ $(document).ready(function(){
             type: "GET",
             data: { zone_id: zoneId },
             success: function(res){
-                var options = '<option value="">Select Area...</option>';
+                var options = '<option value=""> {{ __('Select Area...') }} </option>';
                 if(res && res.data && res.data.data && res.data.data.length > 0){
                     $.each(res.data.data, function(key, area){
                         options += '<option value="' + area.area_id + '">' + area.area_name + '</option>';
@@ -1241,7 +1237,7 @@ $(document).ready(function(){
                     errorMsg = xhr.responseJSON.message;
                 }
                 toastr.error(errorMsg);
-                $('#pathaoarea').html('<option value="">Select Area...</option>');
+                $('#pathaoarea').html('<option value=""> {{ __('Select Area...') }} </option>');
             }
         });
     });

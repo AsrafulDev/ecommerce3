@@ -11,7 +11,7 @@
                         <i class="fe-arrow-left"></i> Back to List
                     </a>
                 </div>
-                <h4 class="page-title">Reseller Verification Details</h4>
+                <h4 class="page-title"> {{ __('Reseller Verification Details') }} </h4>
             </div>
         </div>
     </div>
@@ -22,7 +22,7 @@
             <!-- Reseller Information Card -->
             <div class="card mb-3">
                 <div class="card-header bg-primary text-white">
-                    <h5 class="mb-0"><i class="fe-user"></i> Reseller Information</h5>
+                    <h5 class="mb-0"><i class="fe-user"></i> {{ __('Reseller Information') }} </h5>
                 </div>
                 <div class="card-body">
                     <div class="row">
@@ -48,7 +48,7 @@
             <!-- Verification Status Card -->
             <div class="card mb-3">
                 <div class="card-header bg-info text-white">
-                    <h5 class="mb-0"><i class="fe-check-circle"></i> Verification Status</h5>
+                    <h5 class="mb-0"><i class="fe-check-circle"></i> {{ __('Verification Status') }} </h5>
                 </div>
                 <div class="card-body">
                     <div class="row">
@@ -87,13 +87,13 @@
             <!-- Verification Documents Card -->
             <div class="card mb-3">
                 <div class="card-header bg-success text-white">
-                    <h5 class="mb-0"><i class="fe-file-text"></i> Verification Documents</h5>
+                    <h5 class="mb-0"><i class="fe-file-text"></i> {{ __('Verification Documents') }} </h5>
                 </div>
                 <div class="card-body">
                     <div class="row">
                         <!-- Voter ID Front -->
                         <div class="col-md-4 mb-4">
-                            <label class="form-label"><strong>Voter ID Card - Front Side</strong></label>
+                            <label class="form-label"><strong> {{ __('Voter ID Card - Front Side') }} </strong></label>
                             @if($reseller->voter_id_front)
                                 <div class="text-center">
                                     <img src="{{ asset($reseller->voter_id_front) }}" alt="Voter ID Front" 
@@ -106,13 +106,13 @@
                                     </p>
                                 </div>
                             @else
-                                <div class="alert alert-warning">Not uploaded</div>
+                                <div class="alert alert-warning"> {{ __('Not uploaded') }} </div>
                             @endif
                         </div>
 
                         <!-- Voter ID Back -->
                         <div class="col-md-4 mb-4">
-                            <label class="form-label"><strong>Voter ID Card - Back Side</strong></label>
+                            <label class="form-label"><strong> {{ __('Voter ID Card - Back Side') }} </strong></label>
                             @if($reseller->voter_id_back)
                                 <div class="text-center">
                                     <img src="{{ asset($reseller->voter_id_back) }}" alt="Voter ID Back" 
@@ -125,13 +125,13 @@
                                     </p>
                                 </div>
                             @else
-                                <div class="alert alert-warning">Not uploaded</div>
+                                <div class="alert alert-warning"> {{ __('Not uploaded') }} </div>
                             @endif
                         </div>
 
                         <!-- Self Image -->
                         <div class="col-md-4 mb-4">
-                            <label class="form-label"><strong>Self Image (Your Photo)</strong></label>
+                            <label class="form-label"><strong> {{ __('Self Image (Your Photo)') }} </strong></label>
                             @if($reseller->self_image)
                                 <div class="text-center">
                                     <img src="{{ asset($reseller->self_image) }}" alt="Self Image" 
@@ -144,7 +144,7 @@
                                     </p>
                                 </div>
                             @else
-                                <div class="alert alert-warning">Not uploaded</div>
+                                <div class="alert alert-warning"> {{ __('Not uploaded') }} </div>
                             @endif
                         </div>
                     </div>
@@ -155,7 +155,7 @@
             @if($reseller->verification_status == 'pending')
             <div class="card">
                 <div class="card-header bg-warning text-dark">
-                    <h5 class="mb-0"><i class="fe-check-circle"></i> Verification Actions</h5>
+                    <h5 class="mb-0"><i class="fe-check-circle"></i> {{ __('Verification Actions') }} </h5>
                 </div>
                 <div class="card-body">
                     <div class="row">
@@ -163,7 +163,7 @@
                             <form action="{{ route('admin.reseller.verification.approve', $reseller->id) }}" method="POST">
                                 @csrf
                                 <div class="form-group mb-3">
-                                    <label for="admin_note_approve">Admin Note (Optional)</label>
+                                    <label for="admin_note_approve"> {{ __('Admin Note (Optional)') }} </label>
                                     <textarea name="admin_note" id="admin_note_approve" class="form-control" rows="3" placeholder="Add a note..."></textarea>
                                 </div>
                                 <button type="submit" class="btn btn-success btn-lg" onclick="return confirm('Are you sure you want to approve this reseller verification?')">
@@ -175,7 +175,7 @@
                             <form action="{{ route('admin.reseller.verification.reject', $reseller->id) }}" method="POST">
                                 @csrf
                                 <div class="form-group mb-3">
-                                    <label for="rejection_reason">Rejection Reason *</label>
+                                    <label for="rejection_reason"> {{ __('Rejection Reason *') }} </label>
                                     <textarea name="rejection_reason" id="rejection_reason" class="form-control" rows="3" placeholder="Enter reason for rejection..." required></textarea>
                                 </div>
                                 <button type="submit" class="btn btn-danger btn-lg" onclick="return confirm('Are you sure you want to reject this reseller verification?')">

@@ -114,7 +114,7 @@
             <div class="page-title-box d-flex align-items-center justify-content-between py-4">
                 <div>
                     <h4 class="page-title mb-1 text-dark fw-bold">Edit Subcategory: {{ $edit_data->subcategoryName }}</h4>
-                    <p class="text-muted font-size-13 mb-0">Update subcategory details and configuration.</p>
+                    <p class="text-muted font-size-13 mb-0"> {{ __('Update subcategory details and configuration.') }} </p>
                 </div>
                 <div class="page-title-right">
                     <a href="{{route('subcategories.index')}}" class="btn btn-light rounded-pill border shadow-sm px-4">
@@ -136,13 +136,13 @@
                 <div class="card mb-4">
                     <div class="card-header">
                         <div class="header-icon"><i class="fe-edit"></i></div>
-                        <h5 class="card-title">Basic Information</h5>
+                        <h5 class="card-title"> {{ __('Basic Information') }} </h5>
                     </div>
                     <div class="card-body">
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="form-group mb-4">
-                                    <label for="category_id" class="form-label">Parent Category <span class="text-danger">*</span></label>
+                                    <label for="category_id" class="form-label"> {{ __('Parent Category') }} <span class="text-danger">*</span></label>
                                     <select class="form-control select2 @error('category_id') is-invalid @enderror" 
                                             id="category_id" name="category_id" required>
                                         <option value="">{{ __('Select Category') }}</option>
@@ -159,7 +159,7 @@
                             </div>
                             <div class="col-md-6">
                                 <div class="form-group mb-4">
-                                    <label for="subcategoryName" class="form-label">Subcategory Name <span class="text-danger">*</span></label>
+                                    <label for="subcategoryName" class="form-label"> {{ __('Subcategory Name') }} <span class="text-danger">*</span></label>
                                     <input type="text" class="form-control @error('subcategoryName') is-invalid @enderror" 
                                            name="subcategoryName" value="{{ $edit_data->subcategoryName }}" 
                                            id="subcategoryName" required>
@@ -175,7 +175,7 @@
                 <div class="card mb-4">
                     <div class="card-header">
                         <div class="header-icon"><i class="fe-search"></i></div>
-                        <h5 class="card-title">SEO Configuration</h5>
+                        <h5 class="card-title"> {{ __('SEO Configuration') }} </h5>
                     </div>
                     <div class="card-body">
                         <div class="form-group mb-4">
@@ -204,13 +204,13 @@
                 <div class="card">
                     <div class="card-header">
                         <div class="header-icon"><i class="fe-settings"></i></div>
-                        <h5 class="card-title">Visibility</h5>
+                        <h5 class="card-title"> {{ __('Visibility') }} </h5>
                     </div>
                     <div class="card-body">
                         <div class="d-flex justify-content-between align-items-center mb-4 p-3 bg-light rounded border border-light">
                             <div>
                                 <h6 class="mb-1 text-dark fw-bold">{{ __('Status') }}</h6>
-                                <p class="text-muted font-size-12 mb-0">Enable or disable subcategory</p>
+                                <p class="text-muted font-size-12 mb-0"> {{ __('Enable or disable subcategory') }} </p>
                             </div>
                             <label class="switch">
                                 <input type="checkbox" name="status" value="1" {{ $edit_data->status == 1 ? 'checked' : '' }}>

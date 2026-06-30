@@ -132,11 +132,11 @@
                 
                 <div class="card mb-4">
                     <div class="card-header">
-                        <h5 class="card-title"><i class="fe-file-text"></i> General Information</h5>
+                        <h5 class="card-title"><i class="fe-file-text"></i> {{ __('General Information') }} </h5>
                     </div>
                     <div class="card-body">
                         <div class="form-group mb-3">
-                            <label for="name" class="form-label">Category Name <span class="text-danger">*</span></label>
+                            <label for="name" class="form-label"> {{ __('Category Name') }} <span class="text-danger">*</span></label>
                             <input type="text" class="form-control @error('name') is-invalid @enderror" 
                                    name="name" value="{{ $edit_data->name }}" id="name" required>
                             @error('name')
@@ -148,7 +148,7 @@
 
                 <div class="card mb-4">
                     <div class="card-header">
-                        <h5 class="card-title"><i class="fe-search"></i> SEO Configuration</h5>
+                        <h5 class="card-title"><i class="fe-search"></i> {{ __('SEO Configuration') }} </h5>
                     </div>
                     <div class="card-body">
                         <div class="form-group mb-3">
@@ -176,13 +176,13 @@
                 
                 <div class="card mb-4">
                     <div class="card-header">
-                        <h5 class="card-title"><i class="fe-settings"></i> Visibility</h5>
+                        <h5 class="card-title"><i class="fe-settings"></i> {{ __('Visibility') }} </h5>
                     </div>
                     <div class="card-body">
                         <div class="d-flex justify-content-between align-items-center mb-3 p-2 bg-light rounded">
                             <div>
-                                <label class="form-label mb-0">Publish Status</label>
-                                <small class="d-block text-muted">Show in store</small>
+                                <label class="form-label mb-0"> {{ __('Publish Status') }} </label>
+                                <small class="d-block text-muted"> {{ __('Show in store') }} </small>
                             </div>
                             <label class="switch">
                                 <input type="checkbox" name="status" value="1" {{ $edit_data->status == 1 ? 'checked' : '' }}>
@@ -192,8 +192,8 @@
 
                         <div class="d-flex justify-content-between align-items-center p-2 bg-light rounded">
                             <div>
-                                <label class="form-label mb-0">Front View</label>
-                                <small class="d-block text-muted">Show on homepage</small>
+                                <label class="form-label mb-0"> {{ __('Front View') }} </label>
+                                <small class="d-block text-muted"> {{ __('Show on homepage') }} </small>
                             </div>
                             <label class="switch">
                                 <input type="checkbox" name="front_view" value="1" {{ $edit_data->front_view == 1 ? 'checked' : '' }}>
@@ -205,11 +205,11 @@
 
                 <div class="card mb-4">
                     <div class="card-header">
-                        <h5 class="card-title"><i class="fe-image"></i> Media</h5>
+                        <h5 class="card-title"><i class="fe-image"></i> {{ __('Media') }} </h5>
                     </div>
                     <div class="card-body">
                         <div class="mb-4">
-                            <label class="form-label">Main Image</label>
+                            <label class="form-label"> {{ __('Main Image') }} </label>
                             <div class="image-upload-box" onclick="document.getElementById('image').click()">
                                 <input type="file" name="image" id="image" class="d-none" onchange="readURL(this, 'preview_main', 'placeholder_main')">
                                 
@@ -219,7 +219,7 @@
                                 <div id="placeholder_main" class="upload-placeholder" 
                                      style="{{ $edit_data->image ? 'display:none;' : 'display:flex;' }}">
                                     <i class="fe-upload-cloud upload-icon"></i>
-                                    <p class="upload-text mb-0">Click to change image</p>
+                                    <p class="upload-text mb-0"> {{ __('Click to change image') }} </p>
                                 </div>
                             </div>
                             @error('image')
@@ -228,7 +228,7 @@
                         </div>
 
                         <div class="mb-0">
-                            <label class="form-label">Category Icon</label>
+                            <label class="form-label"> {{ __('Category Icon') }} </label>
                             <div class="image-upload-box" onclick="document.getElementById('icon').click()">
                                 <input type="file" name="icon" id="icon" class="d-none" onchange="readURL(this, 'preview_icon', 'placeholder_icon')">
                                 
@@ -238,7 +238,7 @@
                                 <div id="placeholder_icon" class="upload-placeholder" 
                                      style="{{ $edit_data->icon ? 'display:none;' : 'display:flex;' }}">
                                     <i class="fe-image upload-icon"></i>
-                                    <p class="upload-text mb-0">Click to change icon</p>
+                                    <p class="upload-text mb-0"> {{ __('Click to change icon') }} </p>
                                 </div>
                             </div>
                             @error('icon')

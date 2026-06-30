@@ -87,11 +87,10 @@
         <div>
             <h4 class="mb-1 fw-bold text-dark">
                 <i data-feather="clock" class="text-primary me-2"></i>{{ __('Attendance') }}</h4>
-            <p class="text-muted small mb-0">Track and manage employee attendance records.</p>
+            <p class="text-muted small mb-0"> {{ __('Track and manage employee attendance records.') }} </p>
         </div>
         <a href="{{ route('admin.attendances.create') }}" class="btn btn-primary px-4 py-2 rounded-pill shadow-sm">
-            <i data-feather="plus-circle" class="me-1" style="width: 16px;"></i> Mark Attendance
-        </a>
+            <i data-feather="plus-circle" class="me-1" style="width: 16px;"></i> {{ __('Mark Attendance') }} </a>
     </div>
 
     <div class="card card-modern">
@@ -103,7 +102,7 @@
                     <div class="col-md-3">
                         <label class="form-label small fw-bold text-muted text-uppercase mb-1">{{ __('Employee') }}</label>
                         <select name="employee_id" class="form-control select2 form-select-modern">
-                            <option value="">All Employees</option>
+                            <option value=""> {{ __('All Employees') }} </option>
                             @foreach($employees as $emp)
                                 <option value="{{ $emp->id }}" {{ request('employee_id') == $emp->id ? 'selected' : '' }}>
                                     {{ $emp->name }} ({{ $emp->employee_id }})
@@ -122,11 +121,11 @@
                     <div class="col-md-2">
                         <label class="form-label small fw-bold text-muted text-uppercase mb-1">{{ __('Status') }}</label>
                         <select name="status" class="form-select form-select-modern">
-                            <option value="">All Status</option>
-                            <option value="present" {{ request('status') == 'present' ? 'selected' : '' }}>Present</option>
-                            <option value="absent" {{ request('status') == 'absent' ? 'selected' : '' }}>Absent</option>
-                            <option value="late" {{ request('status') == 'late' ? 'selected' : '' }}>Late</option>
-                            <option value="half_day" {{ request('status') == 'half_day' ? 'selected' : '' }}>Half Day</option>
+                            <option value=""> {{ __('All Status') }} </option>
+                            <option value="present" {{ request('status') == 'present' ? 'selected' : '' }}> {{ __('Present') }} </option>
+                            <option value="absent" {{ request('status') == 'absent' ? 'selected' : '' }}> {{ __('Absent') }} </option>
+                            <option value="late" {{ request('status') == 'late' ? 'selected' : '' }}> {{ __('Late') }} </option>
+                            <option value="half_day" {{ request('status') == 'half_day' ? 'selected' : '' }}> {{ __('Half Day') }} </option>
                         </select>
                     </div>
                     <div class="col-md-3 d-flex gap-2">
@@ -145,12 +144,12 @@
                 <thead>
                     <tr>
                         <th width="5%">#</th>
-                        <th width="25%">Employee Details</th>
+                        <th width="25%"> {{ __('Employee Details') }} </th>
                         <th width="15%">{{ __('Date') }}</th>
                         <th width="15%">{{ __('Check In') }}</th>
                         <th width="15%">{{ __('Check Out') }}</th>
                         <th width="15%">{{ __('Status') }}</th>
-                        <th width="10%" class="text-end">Actions</th>
+                        <th width="10%" class="text-end"> {{ __('Actions') }} </th>
                     </tr>
                 </thead>
                 <tbody>
@@ -174,15 +173,15 @@
                             <td class="text-muted">{{ $attendance->check_out ? \Carbon\Carbon::parse($attendance->check_out)->format('h:i A') : '-' }}</td>
                             <td>
                                 @if($attendance->status == 'present')
-                                    <span class="badge-soft badge-present"><span class="status-dot"></span> Present</span>
+                                    <span class="badge-soft badge-present"><span class="status-dot"></span> {{ __('Present') }} </span>
                                 @elseif($attendance->status == 'absent')
-                                    <span class="badge-soft badge-absent"><span class="status-dot"></span> Absent</span>
+                                    <span class="badge-soft badge-absent"><span class="status-dot"></span> {{ __('Absent') }} </span>
                                 @elseif($attendance->status == 'late')
-                                    <span class="badge-soft badge-late"><span class="status-dot"></span> Late</span>
+                                    <span class="badge-soft badge-late"><span class="status-dot"></span> {{ __('Late') }} </span>
                                 @elseif($attendance->status == 'half_day')
-                                    <span class="badge-soft badge-half"><span class="status-dot"></span> Half Day</span>
+                                    <span class="badge-soft badge-half"><span class="status-dot"></span> {{ __('Half Day') }} </span>
                                 @else
-                                    <span class="badge-soft badge-holiday"><span class="status-dot"></span> Holiday</span>
+                                    <span class="badge-soft badge-holiday"><span class="status-dot"></span> {{ __('Holiday') }} </span>
                                 @endif
                             </td>
                             <td class="text-end">
@@ -205,8 +204,8 @@
                         <tr>
                             <td colspan="7" class="text-center py-5">
                                 <img src="https://cdn-icons-png.flaticon.com/512/7486/7486744.png" width="60" class="mb-3 opacity-25">
-                                <p class="text-muted fw-bold mb-0">No attendance records found</p>
-                                <small class="text-muted">Try adjusting the date or status filter.</small>
+                                <p class="text-muted fw-bold mb-0"> {{ __('No attendance records found') }} </p>
+                                <small class="text-muted"> {{ __('Try adjusting the date or status filter.') }} </small>
                             </td>
                         </tr>
                     @endforelse

@@ -97,7 +97,7 @@
                             <tr>
                                 <th style="width: 50px;">{{ __('SL') }}</th>
                                 <th>{{ __('Logo') }}</th>
-                                <th>Brand Name</th>
+                                <th> {{ __('Brand Name') }} </th>
                                 <th>{{ __('Status') }}</th>
                                 <th class="text-end" style="width: 150px;">{{ __('Action') }}</th>
                             </tr>

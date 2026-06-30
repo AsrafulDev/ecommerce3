@@ -113,8 +113,8 @@
         <div class="col-12">
             <div class="page-title-box d-flex align-items-center justify-content-between py-4">
                 <div>
-                    <h4 class="page-title mb-1 text-dark fw-bold">Create New Review</h4>
-                    <p class="text-muted font-size-13 mb-0">Add a customer review manually.</p>
+                    <h4 class="page-title mb-1 text-dark fw-bold"> {{ __('Create New Review') }} </h4>
+                    <p class="text-muted font-size-13 mb-0"> {{ __('Add a customer review manually.') }} </p>
                 </div>
                 <div class="page-title-right">
                     <a href="{{ route('reviews.index') }}" class="btn btn-light rounded-pill border shadow-sm px-4">
@@ -134,16 +134,16 @@
                 <div class="card mb-4">
                     <div class="card-header">
                         <div class="header-icon"><i class="fe-message-square"></i></div>
-                        <h5 class="card-title">Review Information</h5>
+                        <h5 class="card-title"> {{ __('Review Information') }} </h5>
                     </div>
                     <div class="card-body">
                         
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="form-group mb-4">
-                                    <label class="form-label">Product <span class="text-danger">*</span></label>
+                                    <label class="form-label"> {{ __('Product') }} <span class="text-danger">*</span></label>
                                     <select class="form-control select2" name="product_id" required>
-                                        <option value="">Select Product...</option>
+                                        <option value=""> {{ __('Select Product...') }} </option>
                                         @foreach ($products as $value)
                                             <option value="{{ $value->id }}">{{ $value->name }}</option>
                                         @endforeach
@@ -156,9 +156,9 @@
 
                             <div class="col-md-6">
                                 <div class="form-group mb-4">
-                                    <label class="form-label">Customer <span class="text-danger">*</span></label>
+                                    <label class="form-label"> {{ __('Customer') }} <span class="text-danger">*</span></label>
                                     <select class="form-control select2" name="customer_id" required>
-                                        <option value="">Select Customer...</option>
+                                        <option value=""> {{ __('Select Customer...') }} </option>
                                         @foreach ($customers as $value)
                                             <option value="{{ $value->id }}">{{ $value->name }}</option>
                                         @endforeach
@@ -171,7 +171,7 @@
                         </div>
 
                         <div class="form-group mb-0">
-                            <label class="form-label">Review Comment <span class="text-danger">*</span></label>
+                            <label class="form-label"> {{ __('Review Comment') }} <span class="text-danger">*</span></label>
                             <textarea name="review" class="form-control" rows="5" placeholder="Write the customer's review here..." required>{{ old('review') }}</textarea>
                             @error('review')
                                 <div class="text-danger small mt-1">{{ $message }}</div>
@@ -187,13 +187,13 @@
                 <div class="card mb-4">
                     <div class="card-header">
                         <div class="header-icon"><i class="fe-star"></i></div>
-                        <h5 class="card-title">Rating</h5>
+                        <h5 class="card-title"> {{ __('Rating') }} </h5>
                     </div>
                     <div class="card-body">
                         <div class="form-group mb-4">
-                            <label class="form-label">Star Rating <span class="text-danger">*</span></label>
+                            <label class="form-label"> {{ __('Star Rating') }} <span class="text-danger">*</span></label>
                             <select class="form-control select2" name="ratting" required>
-                                <option value="">Choose Rating...</option>
+                                <option value=""> {{ __('Choose Rating...') }} </option>
                                 <option value="5">⭐⭐⭐⭐⭐ (5 Stars)</option>
                                 <option value="4">⭐⭐⭐⭐ (4 Stars)</option>
                                 <option value="3">⭐⭐⭐ (3 Stars)</option>
@@ -207,8 +207,8 @@
 
                         <div class="d-flex justify-content-between align-items-center p-3 bg-light rounded border border-light">
                             <div>
-                                <h6 class="mb-1 text-dark fw-bold">Active Status</h6>
-                                <p class="text-muted font-size-12 mb-0">Publish review?</p>
+                                <h6 class="mb-1 text-dark fw-bold"> {{ __('Active Status') }} </h6>
+                                <p class="text-muted font-size-12 mb-0"> {{ __('Publish review?') }} </p>
                             </div>
                             <label class="switch">
                                 <input type="checkbox" name="status" value="active" checked>

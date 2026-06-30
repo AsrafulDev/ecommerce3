@@ -105,8 +105,8 @@
                         <i class="fe-clock fs-2 text-danger"></i>
                     </div>
                     <div>
-                        <h2 class="mb-1 text-white fw-bold">Order Restriction Settings</h2>
-                        <p class="mb-0 text-white-50 small">Control order limits and restrictions</p>
+                        <h2 class="mb-1 text-white fw-bold"> {{ __('Order Restriction Settings') }} </h2>
+                        <p class="mb-0 text-white-50 small"> {{ __('Control order limits and restrictions') }} </p>
                     </div>
                 </div>
             </div>
@@ -149,7 +149,7 @@
                         @csrf
                         
                         <div class="mb-4">
-                            <label class="form-label fw-bold text-dark mb-2">Order Restriction Time <span class="text-danger">*</span></label>
+                            <label class="form-label fw-bold text-dark mb-2"> {{ __('Order Restriction Time') }} <span class="text-danger">*</span></label>
                             
                             <div class="input-group">
                                 <input type="number" name="order_limit_time" 
@@ -158,7 +158,7 @@
                                        value="{{ old('order_limit_time', $data->order_limit_time ?? 48) }}"
                                        min="1"
                                        required>
-                                <span class="input-group-text bg-light">Hours</span>
+                                <span class="input-group-text bg-light"> {{ __('Hours') }} </span>
                             </div>
                             <small class="text-muted mt-2 d-block">
                                 <i class="fe-clock me-1"></i> এই সময়ের মধ্যে একজন কাস্টমার একই প্রোডাক্ট কতবার অর্ডার করতে পারবে তা নির্ধারণ করে। উদাহরণ: 24 ঘন্টা মানে গত 24 ঘন্টার মধ্যে।
@@ -166,7 +166,7 @@
                         </div>
 
                         <div class="mb-4">
-                            <label class="form-label fw-bold text-dark mb-2">Max Order Quantity Limit <span class="text-danger">*</span></label>
+                            <label class="form-label fw-bold text-dark mb-2"> {{ __('Max Order Quantity Limit') }} <span class="text-danger">*</span></label>
                             
                             <div class="input-group">
                                 <input type="number" name="order_limit_qty" 
@@ -175,7 +175,7 @@
                                        value="{{ old('order_limit_qty', $data->order_limit_qty ?? 2) }}"
                                        min="1"
                                        required>
-                                <span class="input-group-text bg-light">Times</span>
+                                <span class="input-group-text bg-light"> {{ __('Times') }} </span>
                             </div>
                             <small class="text-muted mt-2 d-block">
                                 <i class="fe-shopping-cart me-1"></i> নির্ধারিত সময়ের মধ্যে একজন কাস্টমার সর্বোচ্চ কতবার অর্ডার করতে পারবে। উদাহরণ: 2 মানে সর্বোচ্চ 2 বার।

@@ -15,42 +15,42 @@
 <div class="container-fluid py-3">
   <div class="d-flex justify-content-between align-items-center mb-4">
     <div>
-      <h4 class="fw-bold mb-1"><i class="fe-globe text-danger me-2"></i> Google Ads Result</h4>
-      <small class="text-muted">Live performance data from Google Ads</small>
+      <h4 class="fw-bold mb-1"><i class="fe-globe text-danger me-2"></i> {{ __('Google Ads Result') }} </h4>
+      <small class="text-muted"> {{ __('Live performance data from Google Ads') }} </small>
     </div>
     <div>
-      <span class="badge bg-success me-2"><i class="fe-radio"></i> Live</span>
+      <span class="badge bg-success me-2"><i class="fe-radio"></i> {{ __('Live') }} </span>
       <a href="{{ route('admin.ads_analytics.google', ['refresh' => 1]) }}" class="btn btn-sm btn-danger">
         <i class="fe-refresh-cw"></i>{{ __('Refresh') }}</a>
-      <a href="{{ route('admin.ads_analytics.dashboard') }}" class="btn btn-sm btn-outline-secondary">Overview</a>
+      <a href="{{ route('admin.ads_analytics.dashboard') }}" class="btn btn-sm btn-outline-secondary"> {{ __('Overview') }} </a>
       <a href="{{ route('admin.ads_analytics.settings') }}" class="btn btn-sm btn-outline-secondary">{{ __('Settings') }}</a>
     </div>
   </div>
 
   <div class="ads-card">
     @if(($google['success'] ?? false))
-      <h5 class="fw-bold mb-4">Today's Performance</h5>
+      <h5 class="fw-bold mb-4"> {{ __("Today's Performance") }} </h5>
       <div class="metric-row">
         <div class="metric-item">
           <div class="metric-value">{{ number_format($google['spend'] ?? 0, 2) }}</div>
-          <div class="metric-label">Spend</div>
+          <div class="metric-label"> {{ __('Spend') }} </div>
         </div>
         <div class="metric-item">
           <div class="metric-value">{{ number_format($google['clicks'] ?? 0) }}</div>
-          <div class="metric-label">Clicks</div>
+          <div class="metric-label"> {{ __('Clicks') }} </div>
         </div>
         <div class="metric-item">
           <div class="metric-value">{{ number_format($google['impressions'] ?? 0) }}</div>
-          <div class="metric-label">Impressions</div>
+          <div class="metric-label"> {{ __('Impressions') }} </div>
         </div>
         <div class="metric-item">
           <div class="metric-value">{{ number_format($google['conversions'] ?? 0) }}</div>
-          <div class="metric-label">Conversions</div>
+          <div class="metric-label"> {{ __('Conversions') }} </div>
         </div>
       </div>
     @else
       <p class="text-muted mb-3">{{ $google['message'] ?? 'Configure Google Ads API in Settings' }}</p>
-      <a href="{{ route('admin.ads_analytics.settings') }}" class="btn btn-danger">Configure API</a>
+      <a href="{{ route('admin.ads_analytics.settings') }}" class="btn btn-danger"> {{ __('Configure API') }} </a>
     @endif
   </div>
 </div>

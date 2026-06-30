@@ -358,7 +358,7 @@
                         <hr class="my-4">
                         <div class="info-grid">
                             <div class="info-item">
-                                <div class="info-item-label">Environment</div>
+                                <div class="info-item-label"> {{ __('Environment') }} </div>
                                 <div class="info-item-value">{{ request()->getHost() }}</div>
                             </div>
                             <div class="info-item">
@@ -366,7 +366,7 @@
                                 <div class="info-item-value">{{ PHP_VERSION }}</div>
                             </div>
                             <div class="info-item">
-                                <div class="info-item-label">Laravel</div>
+                                <div class="info-item-label"> {{ __('Laravel') }} </div>
                                 <div class="info-item-value">{{ app()->version() }}</div>
                             </div>
                         </div>

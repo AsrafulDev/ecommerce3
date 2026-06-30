@@ -57,12 +57,11 @@
                     {{-- Header --}}
                     <div class="card-header-modern">
                         <div>
-                            <h5 class="mb-1 fw-bold text-dark">Create Coupon</h5>
-                            <p class="text-muted small mb-0">Set up a new discount code for your customers.</p>
+                            <h5 class="mb-1 fw-bold text-dark"> {{ __('Create Coupon') }} </h5>
+                            <p class="text-muted small mb-0"> {{ __('Set up a new discount code for your customers.') }} </p>
                         </div>
                         <a href="{{ route('admin.coupons.index') }}" class="btn btn-light btn-sm rounded-pill px-3">
-                            <i data-feather="list" style="width:14px;" class="me-1"></i> All Coupons
-                        </a>
+                            <i data-feather="list" style="width:14px;" class="me-1"></i> {{ __('All Coupons') }} </a>
                     </div>
 
                     <div class="card-body p-4">
@@ -80,20 +79,20 @@
                                     <i data-feather="refresh-cw" style="width:14px;" class="me-1"></i> Random
                                 </button>
                             </div>
-                            <small class="text-muted ms-1">Customers will enter this code at checkout.</small>
+                            <small class="text-muted ms-1"> {{ __('Customers will enter this code at checkout.') }} </small>
                         </div>
 
                         {{-- Value & Type --}}
                         <div class="row g-3 mb-4">
                             <div class="col-md-6">
-                                <label class="form-label-custom">Discount Type</label>
+                                <label class="form-label-custom"> {{ __('Discount Type') }} </label>
                                 <select name="type" id="discount_type" class="form-select form-select-custom">
-                                    <option value="flat">Fixed Amount (Flat)</option>
-                                    <option value="percent">Percentage (%)</option>
+                                    <option value="flat"> {{ __('Fixed Amount (Flat)') }} </option>
+                                    <option value="percent"> {{ __('Percentage (%)') }} </option>
                                 </select>
                             </div>
                             <div class="col-md-6">
-                                <label class="form-label-custom">Discount Value <span class="text-danger">*</span></label>
+                                <label class="form-label-custom"> {{ __('Discount Value') }} <span class="text-danger">*</span></label>
                                 <div class="input-group">
                                     <span class="input-group-text input-group-text-custom" id="value_icon" style="border-radius: 10px 0 0 10px; border-right: 0;">৳</span>
                                     <input type="number" step="0.01" name="value" class="form-control form-control-custom border-start-0" 
@@ -104,25 +103,25 @@
 
                         {{-- Limits --}}
                         <div class="mb-4">
-                            <label class="form-label-custom">Minimum Purchase Amount (Optional)</label>
+                            <label class="form-label-custom"> {{ __('Minimum Purchase Amount (Optional)') }} </label>
                             <div class="input-group">
                                 <span class="input-group-text input-group-text-custom" style="border-radius: 10px 0 0 10px; border-right: 0;">৳</span>
                                 <input type="number" step="0.01" name="min_purchase" class="form-control form-control-custom border-start-0" 
                                        placeholder="Enter amount" style="border-radius: 0 10px 10px 0;">
                             </div>
-                            <small class="text-muted ms-1">Minimum cart value required to apply this coupon.</small>
+                            <small class="text-muted ms-1"> {{ __('Minimum cart value required to apply this coupon.') }} </small>
                         </div>
 
                         {{-- Validity Dates --}}
                         <div class="p-3 bg-light rounded-3 mb-4 border">
-                            <h6 class="text-dark fw-bold mb-3 small text-uppercase"><i data-feather="calendar" style="width:14px;" class="me-1"></i> Validity Period</h6>
+                            <h6 class="text-dark fw-bold mb-3 small text-uppercase"><i data-feather="calendar" style="width:14px;" class="me-1"></i> {{ __('Validity Period') }} </h6>
                             <div class="row g-3">
                                 <div class="col-6">
-                                    <label class="form-label-custom mb-1">Valid From</label>
+                                    <label class="form-label-custom mb-1"> {{ __('Valid From') }} </label>
                                     <input type="date" name="valid_from" class="form-control form-control-custom" value="{{ date('Y-m-d') }}">
                                 </div>
                                 <div class="col-6">
-                                    <label class="form-label-custom mb-1">Valid To</label>
+                                    <label class="form-label-custom mb-1"> {{ __('Valid To') }} </label>
                                     <input type="date" name="valid_to" class="form-control form-control-custom">
                                 </div>
                             </div>
@@ -131,8 +130,7 @@
                         {{-- Actions --}}
                         <div class="d-grid gap-2">
                             <button type="submit" class="btn btn-primary py-2 fw-bold shadow-sm">
-                                <i data-feather="check-circle" class="me-1" style="width: 16px;"></i> Create Coupon
-                            </button>
+                                <i data-feather="check-circle" class="me-1" style="width: 16px;"></i> {{ __('Create Coupon') }} </button>
                             <a href="{{ route('admin.coupons.index') }}" class="btn btn-light py-2">{{ __('Cancel') }}</a>
                         </div>
 

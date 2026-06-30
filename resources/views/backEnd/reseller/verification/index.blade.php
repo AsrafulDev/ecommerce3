@@ -79,7 +79,7 @@
             <h4 class="mb-1 fw-bold text-dark">
                 <i data-feather="shield" class="text-primary me-2"></i> Verification Requests
             </h4>
-            <p class="text-muted small mb-0">Review and verify reseller KYC documents.</p>
+            <p class="text-muted small mb-0"> {{ __('Review and verify reseller KYC documents.') }} </p>
         </div>
     </div>
 
@@ -94,10 +94,10 @@
                     <form method="GET" action="{{ route('admin.reseller.verification.index') }}">
                         <div class="input-group">
                             <select name="status" class="form-select form-select-modern">
-                                <option value="">Filter by Status</option>
-                                <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }}>Pending Requests</option>
-                                <option value="approved" {{ request('status') == 'approved' ? 'selected' : '' }}>Approved Resellers</option>
-                                <option value="rejected" {{ request('status') == 'rejected' ? 'selected' : '' }}>Rejected Resellers</option>
+                                <option value=""> {{ __('Filter by Status') }} </option>
+                                <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }}> {{ __('Pending Requests') }} </option>
+                                <option value="approved" {{ request('status') == 'approved' ? 'selected' : '' }}> {{ __('Approved Resellers') }} </option>
+                                <option value="rejected" {{ request('status') == 'rejected' ? 'selected' : '' }}> {{ __('Rejected Resellers') }} </option>
                             </select>
                             <button type="submit" class="btn btn-dark"><i data-feather="filter" style="width: 14px;"></i></button>
                         </div>
@@ -130,10 +130,10 @@
                 <thead>
                     <tr>
                         <th width="5%">#</th>
-                        <th width="25%">Reseller & Shop</th>
-                        <th width="20%">Contact Info</th>
-                        <th width="15%">Documents</th>
-                        <th width="15%">Request Date</th>
+                        <th width="25%"> {{ __('Reseller & Shop') }} </th>
+                        <th width="20%"> {{ __('Contact Info') }} </th>
+                        <th width="15%"> {{ __('Documents') }} </th>
+                        <th width="15%"> {{ __('Request Date') }} </th>
                         <th width="10%">{{ __('Status') }}</th>
                         <th width="10%" class="text-end">{{ __('Action') }}</th>
                     </tr>

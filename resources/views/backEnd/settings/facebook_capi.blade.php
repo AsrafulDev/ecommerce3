@@ -99,7 +99,7 @@
                     <div class="header-icon">
                         <i class="fe-share-2"></i>
                     </div>
-                    <h5 class="card-title mb-0">Credentials Configuration</h5>
+                    <h5 class="card-title mb-0"> {{ __('Credentials Configuration') }} </h5>
                 </div>
                 <div class="card-body">
                     <form action="{{ route('admin.facebook_capi.update') }}" method="POST">
@@ -182,8 +182,7 @@
 
                         <div class="text-end">
                             <button type="submit" class="btn btn-submit">
-                                <i class="fe-save me-1"></i> Save Settings
-                            </button>
+                                <i class="fe-save me-1"></i> {{ __('Save Settings') }} </button>
                         </div>
                     </form>
                 </div>

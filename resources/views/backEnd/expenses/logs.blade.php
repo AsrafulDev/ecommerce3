@@ -9,9 +9,7 @@
     <div class="d-flex justify-content-between align-items-center mb-3">
         <div>
             <h4 class="mb-1">
-                <i data-feather="file-text" class="me-1"></i>
-                Expense Logs / Reports
-            </h4>
+                <i data-feather="file-text" class="me-1"></i> {{ __('Expense Logs / Reports') }} </h4>
             <small class="text-muted">
                 সম্পাদিত এবং মুছে ফেলা Expense-এর বিস্তারিত রিপোর্ট
             </small>
@@ -31,17 +29,17 @@
                 <div class="col-md-3">
                     <label class="form-label">{{ __('Action') }}</label>
                     <select name="action" class="form-select">
-                        <option value="">All Actions</option>
+                        <option value=""> {{ __('All Actions') }} </option>
                         <option value="edit" {{ request('action') == 'edit' ? 'selected' : '' }}>{{ __('Edit') }}</option>
                         <option value="delete" {{ request('action') == 'delete' ? 'selected' : '' }}>{{ __('Delete') }}</option>
                     </select>
                 </div>
                 <div class="col-md-3">
-                    <label class="form-label">From Date</label>
+                    <label class="form-label"> {{ __('From Date') }} </label>
                     <input type="date" name="from_date" class="form-control" value="{{ request('from_date') }}">
                 </div>
                 <div class="col-md-3">
-                    <label class="form-label">To Date</label>
+                    <label class="form-label"> {{ __('To Date') }} </label>
                     <input type="date" name="to_date" class="form-control" value="{{ request('to_date') }}">
                 </div>
                 <div class="col-md-3 d-flex align-items-end gap-2">
@@ -57,7 +55,7 @@
         <div class="col-md-6">
             <div class="card bg-primary text-white">
                 <div class="card-body">
-                    <h5 class="mb-1" style="color:#fff !important;">Total Edits</h5>
+                    <h5 class="mb-1" style="color:#fff !important;"> {{ __('Total Edits') }} </h5>
                     <h3 class="mb-0" style="color:#fff !important;">{{ $total_edits }}</h3>
                 </div>
             </div>
@@ -65,7 +63,7 @@
         <div class="col-md-6">
             <div class="card bg-danger text-white">
                 <div class="card-body">
-                    <h5 class="mb-1" style="color:#fff !important;">Total Deletes</h5>
+                    <h5 class="mb-1" style="color:#fff !important;"> {{ __('Total Deletes') }} </h5>
                     <h3 class="mb-0" style="color:#fff !important;">{{ $total_deletes }}</h3>
                 </div>
             </div>
@@ -75,7 +73,7 @@
     {{-- LOGS TABLE --}}
     <div class="card">
         <div class="card-header bg-light">
-            <strong>Expense Logs / Reports</strong>
+            <strong> {{ __('Expense Logs / Reports') }} </strong>
         </div>
         <div class="card-body table-responsive">
             <table class="table table-bordered table-striped align-middle">
@@ -83,13 +81,13 @@
                     <tr>
                         <th>#</th>
                         <th>{{ __('Action') }}</th>
-                        <th>Expense ID</th>
-                        <th>Old Values</th>
-                        <th>New Values</th>
-                        <th>Fund Balance Change</th>
+                        <th> {{ __('Expense ID') }} </th>
+                        <th> {{ __('Old Values') }} </th>
+                        <th> {{ __('New Values') }} </th>
+                        <th> {{ __('Fund Balance Change') }} </th>
                         <th>{{ __('Description') }}</th>
-                        <th>Performed By</th>
-                        <th>Date & Time</th>
+                        <th> {{ __('Performed By') }} </th>
+                        <th> {{ __('Date & Time') }} </th>
                     </tr>
                 </thead>
                 <tbody>

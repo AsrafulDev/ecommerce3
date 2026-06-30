@@ -83,9 +83,8 @@
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
             <h4 class="mb-1 fw-bold text-dark">
-                <i data-feather="credit-card" class="text-primary me-2"></i> Salary Payments
-            </h4>
-            <p class="text-muted small mb-0">History of all salary transactions.</p>
+                <i data-feather="credit-card" class="text-primary me-2"></i> {{ __('Salary Payments') }} </h4>
+            <p class="text-muted small mb-0"> {{ __('History of all salary transactions.') }} </p>
         </div>
         <a href="{{ route('admin.salary_payments.create') }}" class="btn btn-success px-4 py-2 rounded-pill shadow-sm">
             <i data-feather="plus" class="me-1" style="width: 16px;"></i> Make Payment
@@ -101,7 +100,7 @@
                     <div class="col-md-3">
                         <label class="form-label small fw-bold text-muted text-uppercase mb-1">{{ __('Employee') }}</label>
                         <select name="employee_id" class="form-control select2 form-select-modern">
-                            <option value="">All Employees</option>
+                            <option value=""> {{ __('All Employees') }} </option>
                             @foreach($employees as $emp)
                                 <option value="{{ $emp->id }}" {{ request('employee_id') == $emp->id ? 'selected' : '' }}>
                                     {{ $emp->name }} ({{ $emp->employee_id }})
@@ -116,9 +115,9 @@
                     <div class="col-md-2">
                         <label class="form-label small fw-bold text-muted text-uppercase mb-1">{{ __('Status') }}</label>
                         <select name="status" class="form-select form-select-modern">
-                            <option value="">All Status</option>
+                            <option value=""> {{ __('All Status') }} </option>
                             <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }}>{{ __('Pending') }}</option>
-                            <option value="paid" {{ request('status') == 'paid' ? 'selected' : '' }}>Paid</option>
+                            <option value="paid" {{ request('status') == 'paid' ? 'selected' : '' }}> {{ __('Paid') }} </option>
                             <option value="failed" {{ request('status') == 'failed' ? 'selected' : '' }}>{{ __('Failed') }}</option>
                         </select>
                     </div>
@@ -138,11 +137,11 @@
                 <thead>
                     <tr>
                         <th width="5%">#</th>
-                        <th width="15%">Txn ID</th>
-                        <th width="20%">Employee Details</th>
+                        <th width="15%"> {{ __('Txn ID') }} </th>
+                        <th width="20%"> {{ __('Employee Details') }} </th>
                         <th width="15%">{{ __('Month') }}</th>
                         <th width="15%">{{ __('Amount') }}</th>
-                        <th width="15%">Method</th>
+                        <th width="15%"> {{ __('Method') }} </th>
                         <th width="10%">{{ __('Status') }}</th>
                         <th width="5%" class="text-end">{{ __('View') }}</th>
                     </tr>
@@ -182,7 +181,7 @@
                             </td>
                             <td>
                                 @if($payment->status == 'paid')
-                                    <span class="badge-soft badge-paid"><span class="status-dot"></span> Paid</span>
+                                    <span class="badge-soft badge-paid"><span class="status-dot"></span> {{ __('Paid') }} </span>
                                 @elseif($payment->status == 'failed')
                                     <span class="badge-soft badge-failed"><span class="status-dot"></span>{{ __('Failed') }}</span>
                                 @else
@@ -199,8 +198,8 @@
                         <tr>
                             <td colspan="8" class="text-center py-5">
                                 <img src="https://cdn-icons-png.flaticon.com/512/7486/7486744.png" width="60" class="mb-3 opacity-25">
-                                <p class="text-muted fw-bold mb-0">No payment history found</p>
-                                <small class="text-muted">Adjust filters or create a new payment.</small>
+                                <p class="text-muted fw-bold mb-0"> {{ __('No payment history found') }} </p>
+                                <small class="text-muted"> {{ __('Adjust filters or create a new payment.') }} </small>
                             </td>
                         </tr>
                     @endforelse

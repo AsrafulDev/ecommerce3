@@ -131,8 +131,8 @@
     
     <div class="row align-items-center mb-4">
         <div class="col-md-6">
-            <h4 class="fw-bold text-dark m-0">Social Media Links</h4>
-            <span class="text-muted small">Manage your official social media presence and links</span>
+            <h4 class="fw-bold text-dark m-0"> {{ __('Social Media Links') }} </h4>
+            <span class="text-muted small"> {{ __('Manage your official social media presence and links') }} </span>
         </div>
         <div class="col-md-6 text-md-end mt-3 mt-md-0">
             <a href="{{route('socialmedias.create')}}" class="btn btn-primary rounded-pill px-4 shadow-sm fw-bold">
@@ -150,10 +150,10 @@
                             <thead>
                                 <tr>
                                     <th width="5%">{{ __('SL') }}</th>
-                                    <th width="15%">Platform</th>
-                                    <th width="40%">Name / Title</th>
+                                    <th width="15%"> {{ __('Platform') }} </th>
+                                    <th width="40%"> {{ __('Name / Title') }} </th>
                                     <th width="15%">{{ __('Status') }}</th>
-                                    <th width="15%" class="text-end">Actions</th>
+                                    <th width="15%" class="text-end"> {{ __('Actions') }} </th>
                                 </tr>
                             </thead>
                             <tbody>

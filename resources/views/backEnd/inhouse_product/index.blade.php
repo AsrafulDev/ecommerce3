@@ -44,11 +44,10 @@
     <div class="row">
         <div class="col-12">
             <div class="page-title-box d-flex align-items-center justify-content-between py-3">
-                <h4 class="page-title mb-0">Inhouse Products Library</h4>
+                <h4 class="page-title mb-0"> {{ __('Inhouse Products Library') }} </h4>
                 <div class="page-title-right">
                     <a href="{{route('products.create')}}" class="btn btn-danger rounded-pill shadow-sm">
-                        <i class="fe-plus me-1"></i> Add New Product
-                    </a>
+                        <i class="fe-plus me-1"></i> {{ __('Add New Product') }} </a>
                 </div>
             </div>
         </div>
@@ -109,10 +108,10 @@
                                     </th>
                                     <th>{{ __('SL') }}</th>
                                     <th>{{ __('Image') }}</th>
-                                    <th style="width: 250px;">Product Info</th>
+                                    <th style="width: 250px;"> {{ __('Product Info') }} </th>
                                     <th>{{ __('Category') }}</th>
-                                    <th>Price & Stock</th>
-                                    <th>Features</th>
+                                    <th> {{ __('Price & Stock') }} </th>
+                                    <th> {{ __('Features') }} </th>
                                     <th>{{ __('Status') }}</th>
                                     <th class="text-center">{{ __('Action') }}</th>
                                 </tr>
@@ -148,21 +147,19 @@
 
                                     <td>
                                         <div class="fw-bold text-dark">৳{{ number_format($value->new_price, 2) }}</div>
-                                        <small class="text-muted">Stock: <span class="{{ $value->stock <= 5 ? 'text-danger' : 'text-success' }} fw-bold">{{ $value->stock ?? 0 }}</span> {{ $value->pro_unit ?? 'pcs' }}</small>
-                                        <small class="text-muted text-small">Stock: <span class="{{ $value->stock <= 5 ? 'text-danger fw-bold' : 'text-success' }}">{{$value->stock}}</span></small>
+                                        <small class="text-muted">Stock: <span class="{{ $value-> {{ __('stock') }} <= 5 ? 'text-danger' : 'text-success' }} fw-bold">{{ $value->stock ?? 0 }}</span> {{ $value->pro_unit ?? 'pcs' }}</small>
+                                        <small class="text-muted text-small">Stock: <span class="{{ $value-> {{ __('stock') }} <= 5 ? 'text-danger fw-bold' : 'text-success' }}">{{$value->stock}}</span></small>
                                     </td>
 
                                     <td>
                                         <div class="d-flex flex-column gap-1">
                                             @if($value->topsale==1)
                                             <span class="badge badge-soft-warning font-size-10 text-start">
-                                                <i class="fe-zap me-1"></i>Hot Deal
-                                            </span>
+                                                <i class="fe-zap me-1"></i> {{ __('Hot Deal') }} </span>
                                             @endif
                                             @if($value->feature_product==1)
                                             <span class="badge badge-soft-success font-size-10 text-start">
-                                                <i class="fe-star me-1"></i>Featured
-                                            </span>
+                                                <i class="fe-star me-1"></i> {{ __('Featured') }} </span>
                                             @endif
                                             @if($value->topsale!=1 && $value->feature_product!=1)
                                                 <span class="text-muted text-small">-</span>

@@ -34,7 +34,7 @@
 								<div class="mb-5 text-center">
 									<img src="{{asset($generalsetting->dark_logo)}}" class="mw-100 mb-4" height="40">
 									<h1 class="h3 text-primary mb-0">{{ __('Reset Password') }}</h1>
-									<p>Enter your new password below</p>
+									<p> {{ __('Enter your new password below') }} </p>
 								</div>
 
 								<form method="POST" action="{{ route('admin.password.update') }}">
@@ -67,7 +67,7 @@
 								</form>
 								
 								<div class="mt-3 text-center">
-									<a href="{{ route('login') }}" class="text-reset fs-14">Back to Login</a>
+									<a href="{{ route('login') }}" class="text-reset fs-14"> {{ __('Back to Login') }} </a>
 								</div>
 							</div>
 						</div><!-- card -->

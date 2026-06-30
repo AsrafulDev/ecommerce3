@@ -12,9 +12,9 @@
         <div class="col-12">
             <div class="page-title-box">
                 <div class="page-title-right">
-                    <a href="{{route('users.index')}}" class="btn btn-primary rounded-pill">Manage</a>
+                    <a href="{{route('users.index')}}" class="btn btn-primary rounded-pill"> {{ __('Manage') }} </a>
                 </div>
-                <h4 class="page-title">Users Create</h4>
+                <h4 class="page-title"> {{ __('Users Create') }} </h4>
             </div>
         </div>
     </div>       
@@ -27,7 +27,7 @@
                     @csrf
                     <div class="col-sm-6">
                         <div class="form-group mb-3">
-                            <label for="name" class="form-label">Name *</label>
+                            <label for="name" class="form-label"> {{ __('Name *') }} </label>
                             <input type="text" class="form-control @error('name') is-invalid @enderror" name="name" value="{{ old('name') }}" id="name" required="">
                             @error('name')
                                 <span class="invalid-feedback" role="alert">
@@ -39,7 +39,7 @@
                     <!-- col-end -->
                     <div class="col-sm-6">
                         <div class="form-group mb-3">
-                            <label for="email" class="form-label">Email *</label>
+                            <label for="email" class="form-label"> {{ __('Email *') }} </label>
                             <input type="text" class="form-control @error('email') is-invalid @enderror" name="email" value="{{ old('email') }}"  id="email" required="">
                             @error('email')
                                 <span class="invalid-feedback" role="alert">
@@ -51,7 +51,7 @@
                     <!-- col-end -->
                     <div class="col-sm-6">
                         <div class="form-group mb-3">
-                            <label for="password" class="form-label">Password *</label>
+                            <label for="password" class="form-label"> {{ __('Password *') }} </label>
                             <div class="input-group">
                                 <input type="password" class="form-control @error('password') is-invalid @enderror" name="password" value="{{ old('password') }}" id="password" required="">
                                 <span class="input-group-text" style="cursor:pointer;" onclick="togglePassword('password', this)">
@@ -68,7 +68,7 @@
                     <!-- col end -->
                     <div class="col-sm-6">
                         <div class="form-group mb-3">
-                            <label for="confirm-password" class="form-label">Confirm Password *</label>
+                            <label for="confirm-password" class="form-label"> {{ __('Confirm Password *') }} </label>
                             <div class="input-group">
                                 <input type="password" class="form-control @error('confirm-password') is-invalid @enderror" name="confirm-password" value="{{ old('confirm-password') }}"  id="confirm-password" required="">
                                 <span class="input-group-text" style="cursor:pointer;" onclick="togglePassword('confirm-password', this)">
@@ -85,7 +85,7 @@
                     <!-- col end -->
                     <div class="col-sm-6">
                         <div class="form-group mb-3">
-                            <label for="roles" class="form-label">Role *</label>
+                            <label for="roles" class="form-label"> {{ __('Role *') }} </label>
                              <select class="form-control select2-multiple" name="roles[]" data-toggle="select2" multiple="multiple" data-placeholder="Choose ..." required>
                                 <optgroup label="Select Role">
                                     @foreach($roles as $role)
@@ -103,7 +103,7 @@
                     <!-- col end -->
                     <div class="col-sm-6 mb-3">
                         <div class="form-group">
-                            <label for="image" class="form-label">Image *</label>
+                            <label for="image" class="form-label"> {{ __('Image *') }} </label>
                             <input type="file" class="form-control @error('image') is-invalid @enderror" name="image" value="{{ old('image') }}"  id="image" required="">
                             @error('image')
                                 <span class="invalid-feedback" role="alert">

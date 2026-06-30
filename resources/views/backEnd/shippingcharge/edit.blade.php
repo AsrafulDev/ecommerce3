@@ -66,8 +66,8 @@
     
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
-            <h4 class="fw-bold m-0 text-dark">Edit Shipping Charge</h4>
-            <span class="text-muted small">Update delivery area and cost details</span>
+            <h4 class="fw-bold m-0 text-dark"> {{ __('Edit Shipping Charge') }} </h4>
+            <span class="text-muted small"> {{ __('Update delivery area and cost details') }} </span>
         </div>
         <div class="d-flex gap-2">
             <a href="{{route('shippingcharges.index')}}" class="btn btn-light border fw-bold text-secondary px-3">{{ __('Cancel') }}</a>
@@ -88,7 +88,7 @@
                     <div class="row g-4">
                         
                         <div class="col-md-6">
-                            <label class="form-label-custom">Area / Location Name <span class="text-danger">*</span></label>
+                            <label class="form-label-custom"> {{ __('Area / Location Name') }} <span class="text-danger">*</span></label>
                             <input type="text" 
                                    class="form-control input-clean @error('name') is-invalid @enderror" 
                                    name="name" 
@@ -102,7 +102,7 @@
                         </div>
 
                         <div class="col-md-6">
-                            <label class="form-label-custom">Shipping Cost <span class="text-danger">*</span></label>
+                            <label class="form-label-custom"> {{ __('Shipping Cost') }} <span class="text-danger">*</span></label>
                             <div class="input-group">
                                 <span class="input-group-text bg-light border-end-0 text-muted">৳</span>
                                 <input type="number" 
@@ -119,11 +119,11 @@
                         </div>
 
                         <div class="col-12">
-                            <label class="form-label-custom">Configuration Status</label>
+                            <label class="form-label-custom"> {{ __('Configuration Status') }} </label>
                             <div class="status-toggle-box">
                                 <div class="status-text">
-                                    <h6>Active Status</h6>
-                                    <small>Enable or disable this shipping charge</small>
+                                    <h6> {{ __('Active Status') }} </h6>
+                                    <small> {{ __('Enable or disable this shipping charge') }} </small>
                                 </div>
                                 <div class="form-check form-switch">
                                     <input class="form-check-input" type="checkbox" name="status" value="1" 

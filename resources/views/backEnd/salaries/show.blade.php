@@ -73,8 +73,7 @@
         
         @if($salary->status == 'calculated')
             <a href="{{ route('admin.salary_payments.create', ['employee_id' => $salary->employee_id, 'salary_id' => $salary->id]) }}" class="btn btn-primary px-4 rounded-pill shadow-sm">
-                <i data-feather="credit-card" class="me-2" style="width: 16px;"></i> Process Payment
-            </a>
+                <i data-feather="credit-card" class="me-2" style="width: 16px;"></i> {{ __('Process Payment') }} </a>
         @endif
     </div>
 
@@ -84,7 +83,7 @@
         {{-- Header --}}
         <div class="payslip-header">
             <div>
-                <h4 class="mb-1 fw-bold text-white">Salary Slip</h4>
+                <h4 class="mb-1 fw-bold text-white"> {{ __('Salary Slip') }} </h4>
                 <div class="opacity-75 small">Month: {{ \Carbon\Carbon::parse($salary->salary_month)->format('F Y') }}</div>
             </div>
             <div>
@@ -98,23 +97,23 @@
         <div class="emp-info-box">
             <div class="row g-4">
                 <div class="col-md-4">
-                    <div class="info-label">Employee Name</div>
+                    <div class="info-label"> {{ __('Employee Name') }} </div>
                     <div class="info-value">{{ $salary->employee->name }}</div>
                 </div>
                 <div class="col-md-4">
-                    <div class="info-label">Employee ID</div>
+                    <div class="info-label"> {{ __('Employee ID') }} </div>
                     <div class="info-value">{{ $salary->employee->employee_id }}</div>
                 </div>
                 <div class="col-md-4">
-                    <div class="info-label">Department</div>
+                    <div class="info-label"> {{ __('Department') }} </div>
                     <div class="info-value">{{ $salary->employee->department ?? 'N/A' }}</div>
                 </div>
                 <div class="col-md-4">
-                    <div class="info-label">Designation</div>
+                    <div class="info-label"> {{ __('Designation') }} </div>
                     <div class="info-value">{{ $salary->employee->designation ?? 'N/A' }}</div>
                 </div>
                 <div class="col-md-4">
-                    <div class="info-label">Working Days</div>
+                    <div class="info-label"> {{ __('Working Days') }} </div>
                     <div class="info-value">{{ $salary->working_days }} Days</div>
                 </div>
                 <div class="col-md-4">
@@ -128,14 +127,14 @@
         <div class="breakdown-section">
             <div class="row">
                 <div class="col-md-6 border-end pe-md-4">
-                    <div class="breakdown-title text-success">Earnings</div>
+                    <div class="breakdown-title text-success"> {{ __('Earnings') }} </div>
                     
                     <div class="breakdown-row">
-                        <span>Basic Salary</span>
+                        <span> {{ __('Basic Salary') }} </span>
                         <span class="amount">৳{{ number_format($salary->basic_salary, 2) }}</span>
                     </div>
                     <div class="breakdown-row">
-                        <span>Allowances</span>
+                        <span> {{ __('Allowances') }} </span>
                         <span class="amount">৳{{ number_format($salary->allowance, 2) }}</span>
                     </div>
                     <div class="breakdown-row">
@@ -148,25 +147,25 @@
                     </div>
                     
                     <div class="breakdown-row mt-3 pt-2 border-top">
-                        <span class="fw-bold text-dark">Gross Salary</span>
+                        <span class="fw-bold text-dark"> {{ __('Gross Salary') }} </span>
                         <span class="fw-bold text-dark">৳{{ number_format($salary->gross_salary, 2) }}</span>
                     </div>
                 </div>
 
                 <div class="col-md-6 ps-md-4 mt-4 mt-md-0">
-                    <div class="breakdown-title text-danger">Deductions</div>
+                    <div class="breakdown-title text-danger"> {{ __('Deductions') }} </div>
                     
                     <div class="breakdown-row">
-                        <span>Absent Penalty</span>
-                        <span class="amount-deduct">Coming Soon</span>
+                        <span> {{ __('Absent Penalty') }} </span>
+                        <span class="amount-deduct"> {{ __('Coming Soon') }} </span>
                     </div>
                     <div class="breakdown-row">
-                        <span>Other Deductions</span>
+                        <span> {{ __('Other Deductions') }} </span>
                         <span class="amount-deduct">-৳{{ number_format($salary->deduction, 2) }}</span>
                     </div>
 
                     <div class="breakdown-row mt-3 pt-2 border-top">
-                        <span class="fw-bold text-dark">Total Deduction</span>
+                        <span class="fw-bold text-dark"> {{ __('Total Deduction') }} </span>
                         <span class="fw-bold text-danger">-৳{{ number_format($salary->deduction, 2) }}</span>
                     </div>
                 </div>
@@ -176,7 +175,7 @@
         {{-- Net Pay Footer --}}
         <div class="net-salary-box">
             <div>
-                <div class="net-label">Net Payable Salary</div>
+                <div class="net-label"> {{ __('Net Payable Salary') }} </div>
                 <small class="text-muted fst-italic">*Final amount to be paid to employee</small>
             </div>
             <div class="net-amount">৳{{ number_format($salary->net_salary, 2) }}</div>
@@ -185,7 +184,7 @@
         {{-- Notes (If Any) --}}
         @if($salary->notes)
         <div class="p-4 bg-light border-top">
-            <h6 class="fw-bold text-dark mb-2">Additional Notes</h6>
+            <h6 class="fw-bold text-dark mb-2"> {{ __('Additional Notes') }} </h6>
             <p class="text-muted small mb-0">{{ $salary->notes }}</p>
         </div>
         @endif

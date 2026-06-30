@@ -80,8 +80,8 @@
     <div class="row mb-3 mt-3">
         <div class="col-12 d-flex justify-content-between align-items-center">
             <div>
-                <h4 class="page-title mb-0" style="font-weight: 700; color: #2d3436;">Tracking Pixels</h4>
-                <p class="text-muted font-size-13 mb-0">Manage your Facebook/Google pixels.</p>
+                <h4 class="page-title mb-0" style="font-weight: 700; color: #2d3436;"> {{ __('Tracking Pixels') }} </h4>
+                <p class="text-muted font-size-13 mb-0"> {{ __('Manage your Facebook/Google pixels.') }} </p>
             </div>
             <a href="{{route('pixels.create')}}" class="btn btn-primary rounded-pill shadow-sm px-4">
                 <i class="fe-plus me-1"></i> Add Pixel
@@ -97,7 +97,7 @@
                         <thead>
                             <tr>
                                 <th style="width: 50px;">{{ __('SL') }}</th>
-                                <th>Pixel ID / Code</th>
+                                <th> {{ __('Pixel ID / Code') }} </th>
                                 <th>{{ __('Status') }}</th>
                                 <th class="text-end" style="width: 150px;">{{ __('Action') }}</th>
                             </tr>

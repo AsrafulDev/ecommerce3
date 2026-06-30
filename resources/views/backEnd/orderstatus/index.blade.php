@@ -74,7 +74,7 @@
     
     <div class="row mb-3 mt-3">
         <div class="col-12 d-flex justify-content-between align-items-center">
-            <h4 class="page-title mb-0" style="font-weight: 700; color: #2d3436;">Order Statuses</h4>
+            <h4 class="page-title mb-0" style="font-weight: 700; color: #2d3436;"> {{ __('Order Statuses') }} </h4>
             <a href="{{route('orderstatus.create')}}" class="btn btn-primary rounded-pill shadow-sm px-4">
                 <i class="fe-plus me-1"></i> Create Status
             </a>
@@ -89,8 +89,8 @@
                         <thead>
                             <tr>
                                 <th style="width: 50px;">{{ __('SL') }}</th>
-                                <th>Status Name</th>
-                                <th>Active Status</th>
+                                <th> {{ __('Status Name') }} </th>
+                                <th> {{ __('Active Status') }} </th>
                                 <th class="text-end" style="width: 150px;">{{ __('Action') }}</th>
                             </tr>
                         </thead>                

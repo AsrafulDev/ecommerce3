@@ -173,7 +173,7 @@
                         <div class="mb-4">
                             <div class="d-flex align-items-center justify-content-between p-3 bg-light rounded border">
                                 <div>
-                                    <label class="fw-bold text-dark mb-1 d-block">Fraud Check (API)</label>
+                                    <label class="fw-bold text-dark mb-1 d-block"> {{ __('Fraud Check (API)') }} </label>
                                     <small class="text-muted">ফ্রড চেকিং ফিচার অন/অফ করুন</small>
                                 </div>
                                 <div class="form-check form-switch form-switch-lg">
@@ -193,7 +193,7 @@
                         </div>
 
                         <div class="mb-4">
-                            <label class="fw-bold text-dark mb-1 d-block">Duplicate Order API URL</label>
+                            <label class="fw-bold text-dark mb-1 d-block"> {{ __('Duplicate Order API URL') }} </label>
                             <small class="text-muted d-block mb-2">ডুপ্লিকেট অর্ডার চেক করার জন্য API Endpoint URL</small>
                             <input type="text" name="duplicate_order_api_url" class="form-control form-control-lg-custom" 
                                    value="{{ old('duplicate_order_api_url', $data->duplicate_order_api_url ?? '') }}"
@@ -202,14 +202,14 @@
 
                         <div class="row mb-4">
                             <div class="col-md-4">
-                                <label class="fw-bold text-dark mb-1 d-block">API Method</label>
+                                <label class="fw-bold text-dark mb-1 d-block"> {{ __('API Method') }} </label>
                                 <select name="duplicate_order_method" class="form-control form-control-lg-custom">
                                     <option value="POST" {{ ($data->duplicate_order_method ?? 'POST') == 'POST' ? 'selected' : '' }}>POST</option>
                                     <option value="GET" {{ ($data->duplicate_order_method ?? 'POST') == 'GET' ? 'selected' : '' }}>GET</option>
                                 </select>
                             </div>
                             <div class="col-md-4">
-                                <label class="fw-bold text-dark mb-1 d-block">Phone Number Key</label>
+                                <label class="fw-bold text-dark mb-1 d-block"> {{ __('Phone Number Key') }} </label>
                                 <input type="text" name="duplicate_order_phone_key" class="form-control form-control-lg-custom" 
                                        value="{{ old('duplicate_order_phone_key', $data->duplicate_order_phone_key ?? 'phone') }}"
                                        placeholder="phone">
@@ -275,7 +275,7 @@
                     <div class="timeline-item">
                         <div class="timeline-badge"></div>
                         <div class="timeline-content ms-3">
-                            <h6>API Response</h6>
+                            <h6> {{ __('API Response') }} </h6>
                             <p>API সফলভাবে রেসপন্স করলে অর্ডারের ফ্রড রেট আপডেট হবে। ব্যর্থ হলে অর্ডারটি <strong>পেন্ডিং</strong> স্ট্যাটাসে রাখা হবে এবং একটি নোট যোগ করা হবে।</p>
                         </div>
                     </div>

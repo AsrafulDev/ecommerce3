@@ -100,7 +100,7 @@
     
     <div class="row mb-3 mt-3">
         <div class="col-12 d-flex justify-content-between align-items-center">
-            <h4 class="page-title mb-0" style="font-weight: 700; color: #2d3436;">Customer Reviews</h4>
+            <h4 class="page-title mb-0" style="font-weight: 700; color: #2d3436;"> {{ __('Customer Reviews') }} </h4>
             <a href="{{route('reviews.create')}}" class="btn btn-primary rounded-pill shadow-sm px-4">
                 <i class="fe-plus me-1"></i> Add Review
             </a>
@@ -115,9 +115,9 @@
                         <thead>
                             <tr>
                                 <th style="width: 50px;">{{ __('SL') }}</th>
-                                <th>Customer Info</th>
-                                <th style="width: 30%;">Review</th>
-                                <th>Rating</th>
+                                <th> {{ __('Customer Info') }} </th>
+                                <th style="width: 30%;"> {{ __('Review') }} </th>
+                                <th> {{ __('Rating') }} </th>
                                 <th>{{ __('Status') }}</th>
                                 <th class="text-end" style="width: 120px;">{{ __('Action') }}</th>
                             </tr>

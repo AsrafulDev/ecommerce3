@@ -51,7 +51,7 @@
                     <div class="card-header-modern">
                         <div>
                             <h5 class="mb-1 fw-bold text-dark">{{ __('Edit Coupon') }}</h5>
-                            <p class="text-muted small mb-0">Update discount details and validity.</p>
+                            <p class="text-muted small mb-0"> {{ __('Update discount details and validity.') }} </p>
                         </div>
                         <a href="{{ route('admin.coupons.index') }}" class="btn btn-light btn-sm rounded-pill px-3">
                             <i data-feather="x" style="width:14px;"></i>{{ __('Cancel') }}</a>
@@ -76,14 +76,14 @@
                         {{-- Value & Type --}}
                         <div class="row g-3 mb-4">
                             <div class="col-md-6">
-                                <label class="form-label-custom">Discount Type</label>
+                                <label class="form-label-custom"> {{ __('Discount Type') }} </label>
                                 <select name="type" id="discount_type" class="form-select form-select-custom">
-                                    <option value="flat" {{ $coupon->type == 'flat' ? 'selected' : '' }}>Fixed Amount (Flat)</option>
-                                    <option value="percent" {{ $coupon->type == 'percent' ? 'selected' : '' }}>Percentage (%)</option>
+                                    <option value="flat" {{ $coupon->type == 'flat' ? 'selected' : '' }}> {{ __('Fixed Amount (Flat)') }} </option>
+                                    <option value="percent" {{ $coupon->type == 'percent' ? 'selected' : '' }}> {{ __('Percentage (%)') }} </option>
                                 </select>
                             </div>
                             <div class="col-md-6">
-                                <label class="form-label-custom">Discount Value <span class="text-danger">*</span></label>
+                                <label class="form-label-custom"> {{ __('Discount Value') }} <span class="text-danger">*</span></label>
                                 <div class="input-group">
                                     <span class="input-group-text input-group-text-custom" id="value_icon" style="border-radius: 10px 0 0 10px; border-right: 0;">
                                         {{ $coupon->type == 'percent' ? '%' : '৳' }}
@@ -98,7 +98,7 @@
                         {{-- Limits & Status --}}
                         <div class="row g-3 mb-4">
                             <div class="col-md-6">
-                                <label class="form-label-custom">Min Purchase (Optional)</label>
+                                <label class="form-label-custom"> {{ __('Min Purchase (Optional)') }} </label>
                                 <div class="input-group">
                                     <span class="input-group-text input-group-text-custom" style="border-radius: 10px 0 0 10px; border-right: 0;">৳</span>
                                     <input type="number" step="0.01" name="min_purchase" class="form-control form-control-custom border-start-0" 
@@ -116,15 +116,15 @@
 
                         {{-- Validity Dates --}}
                         <div class="p-3 bg-light rounded-3 mb-4 border">
-                            <h6 class="text-dark fw-bold mb-3 small text-uppercase"><i data-feather="calendar" style="width:14px;" class="me-1"></i> Validity Period</h6>
+                            <h6 class="text-dark fw-bold mb-3 small text-uppercase"><i data-feather="calendar" style="width:14px;" class="me-1"></i> {{ __('Validity Period') }} </h6>
                             <div class="row g-3">
                                 <div class="col-6">
-                                    <label class="form-label-custom mb-1">Valid From</label>
+                                    <label class="form-label-custom mb-1"> {{ __('Valid From') }} </label>
                                     <input type="date" name="valid_from" class="form-control form-control-custom" 
                                            value="{{ old('valid_from', $coupon->valid_from) }}">
                                 </div>
                                 <div class="col-6">
-                                    <label class="form-label-custom mb-1">Valid To</label>
+                                    <label class="form-label-custom mb-1"> {{ __('Valid To') }} </label>
                                     <input type="date" name="valid_to" class="form-control form-control-custom" 
                                            value="{{ old('valid_to', $coupon->valid_to) }}">
                                 </div>
@@ -136,7 +136,7 @@
                             <button type="submit" class="btn btn-primary py-2 fw-bold shadow-sm">
                                 <i data-feather="save" class="me-1" style="width: 16px;"></i> Update Coupon
                             </button>
-                            <a href="{{ route('admin.coupons.index') }}" class="btn btn-light py-2">Discard Changes</a>
+                            <a href="{{ route('admin.coupons.index') }}" class="btn btn-light py-2"> {{ __('Discard Changes') }} </a>
                         </div>
 
                     </div>

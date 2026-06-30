@@ -43,13 +43,12 @@
     {{-- Header --}}
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
-            <h4 class="fw-bold m-0"><i class="mdi mdi-view-dashboard me-2"></i> Layout Manager</h4>
-            <span class="text-muted small">Create and manage homepage section layouts</span>
+            <h4 class="fw-bold m-0"><i class="mdi mdi-view-dashboard me-2"></i> {{ __('Layout Manager') }} </h4>
+            <span class="text-muted small"> {{ __('Create and manage homepage section layouts') }} </span>
         </div>
         <div>
             <a href="{{ route('themes.index') }}" class="btn btn-outline-secondary rounded-pill px-3 me-2">
-                <i class="mdi mdi-palette me-1"></i> Themes
-            </a>
+                <i class="mdi mdi-palette me-1"></i> {{ __('Themes') }} </a>
             <a href="{{ route('layouts.create') }}" class="btn btn-primary rounded-pill px-4 shadow-sm">
                 <i class="fe-plus me-1"></i> Create Layout
             </a>
@@ -122,9 +121,9 @@
     @empty
     <div class="text-center py-5">
         <i class="mdi mdi-view-dashboard-outline" style="font-size:48px;color:#cbd5e1;"></i>
-        <h5 class="mt-3 text-muted">No layouts yet</h5>
-        <p class="text-muted small">Create a layout to start organizing homepage sections</p>
-        <a href="{{ route('layouts.create') }}" class="btn btn-primary rounded-pill mt-2">Create Your First Layout</a>
+        <h5 class="mt-3 text-muted"> {{ __('No layouts yet') }} </h5>
+        <p class="text-muted small"> {{ __('Create a layout to start organizing homepage sections') }} </p>
+        <a href="{{ route('layouts.create') }}" class="btn btn-primary rounded-pill mt-2"> {{ __('Create Your First Layout') }} </a>
     </div>
     @endforelse
 </div>

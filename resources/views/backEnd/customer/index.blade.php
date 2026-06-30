@@ -97,8 +97,8 @@
     <div class="row mb-3 mt-3">
         <div class="col-12">
             <div class="page-title-box">
-                <h4 class="page-title" style="font-weight: 700; color: #2d3436;">Customer List</h4>
-                <p class="text-muted font-size-13 mb-0">Manage your customers and their account status.</p>
+                <h4 class="page-title" style="font-weight: 700; color: #2d3436;"> {{ __('Customer List') }} </h4>
+                <p class="text-muted font-size-13 mb-0"> {{ __('Manage your customers and their account status.') }} </p>
             </div>
         </div>
     </div>
@@ -117,7 +117,7 @@
                                     <tr>
                                         <th style="width: 50px;">{{ __('SL') }}</th>
                                         <th>{{ __('Name') }}</th>
-                                        <th>Contact Info</th>
+                                        <th> {{ __('Contact Info') }} </th>
                                         <th>{{ __('Status') }}</th>
                                         <th class="text-end" style="width: 180px;">{{ __('Action') }}</th>
                                     </tr>
@@ -134,8 +134,7 @@
                                         <td>
                                             <div class="d-flex flex-column">
                                                 <span class="text-dark"><i class="fe-phone me-1 text-muted"></i> {{ $value->phone }}</span>
-                                                @if($value->email)
-                                                    <span class="customer-contact"><i class="fe-mail me-1"></i> {{ $value->email }}</span>
+                                                @if($value-> {{ __('email)') }} <span class="customer-contact"><i class="fe-mail me-1"></i> {{ $value->email }}</span>
                                                 @endif
                                             </div>
                                         </td>

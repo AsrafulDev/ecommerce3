@@ -67,7 +67,7 @@
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
             <h4 class="fw-bold m-0 text-dark">{{ __('Edit Category') }}</h4>
-            <span class="text-muted small">Modify placement category details</span>
+            <span class="text-muted small"> {{ __('Modify placement category details') }} </span>
         </div>
         <div class="d-flex gap-2">
             <a href="{{route('banner_category.index')}}" class="btn btn-light border fw-bold text-secondary px-3">{{ __('Cancel') }}</a>
@@ -86,7 +86,7 @@
                     <input type="hidden" value="{{$edit_data->id}}" name="id">
 
                     <div class="mb-4">
-                        <label for="name" class="form-label-custom">Category Name <span class="text-danger">*</span></label>
+                        <label for="name" class="form-label-custom"> {{ __('Category Name') }} <span class="text-danger">*</span></label>
                         <input type="text" 
                                class="form-control input-clean @error('name') is-invalid @enderror" 
                                name="name" 
@@ -99,11 +99,11 @@
                     </div>
 
                     <div class="mb-2">
-                        <label class="form-label-custom">Status Configuration</label>
+                        <label class="form-label-custom"> {{ __('Status Configuration') }} </label>
                         <div class="status-toggle-box">
                             <div class="status-text">
-                                <h6>Active Status</h6>
-                                <small>Enable or disable this category</small>
+                                <h6> {{ __('Active Status') }} </h6>
+                                <small> {{ __('Enable or disable this category') }} </small>
                             </div>
                             <div class="form-check form-switch">
                                 <input class="form-check-input" type="checkbox" name="status" value="1" @if($edit_data->status==1) checked @endif style="width: 3em; height: 1.5em; cursor:pointer;">

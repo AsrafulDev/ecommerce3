@@ -28,10 +28,10 @@
                 <thead class="table-light">
                 <tr>
                     <th>#</th>
-                    <th>Product</th>
+                    <th> {{ __('Product') }} </th>
                     <th class="text-end">{{ __('Qty') }}</th>
-                    <th class="text-end">Unit Cost</th>
-                    <th class="text-end">Line Total</th>
+                    <th class="text-end"> {{ __('Unit Cost') }} </th>
+                    <th class="text-end"> {{ __('Line Total') }} </th>
                 </tr>
                 </thead>
                 <tbody>
@@ -63,11 +63,11 @@
                             <td class="text-end">{{ number_format($purchase->shipping_cost,2) }} ৳</td>
                         </tr>
                         <tr>
-                            <th>Grand Total</th>
+                            <th> {{ __('Grand Total') }} </th>
                             <td class="text-end"><strong>{{ number_format($purchase->grand_total,2) }} ৳</strong></td>
                         </tr>
                         <tr>
-                            <th>Paid</th>
+                            <th> {{ __('Paid') }} </th>
                             <td class="text-end text-success">{{ number_format($purchase->paid_amount,2) }} ৳</td>
                         </tr>
                         <tr>

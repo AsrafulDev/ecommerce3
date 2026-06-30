@@ -151,7 +151,7 @@
             <div class="page-title-box d-flex align-items-center justify-content-between py-4">
                 <div>
                     <h4 class="page-title mb-1 text-dark fw-bold">Edit Blog: {{ Str::limit($blog->title, 30) }}</h4>
-                    <p class="text-muted font-size-13 mb-0">Update blog content and media.</p>
+                    <p class="text-muted font-size-13 mb-0"> {{ __('Update blog content and media.') }} </p>
                 </div>
                 <div class="page-title-right">
                     <a href="{{ route('admin.blog.index') }}" class="btn btn-light rounded-pill border shadow-sm px-4">
@@ -171,23 +171,23 @@
                 <div class="card">
                     <div class="card-header">
                         <div class="header-icon"><i class="fe-edit-3"></i></div>
-                        <h5 class="card-title">Blog Content</h5>
+                        <h5 class="card-title"> {{ __('Blog Content') }} </h5>
                     </div>
                     <div class="card-body">
                         
                         <div class="form-group mb-4">
-                            <label class="form-label">Blog Title <span class="text-danger">*</span></label>
+                            <label class="form-label"> {{ __('Blog Title') }} <span class="text-danger">*</span></label>
                             <input type="text" name="title" class="form-control" 
                                    value="{{ $blog->title }}" required>
                         </div>
 
                         <div class="form-group mb-4">
-                            <label class="form-label">Short Description</label>
+                            <label class="form-label"> {{ __('Short Description') }} </label>
                             <textarea name="short_description" class="form-control" rows="3">{{ $blog->short_description }}</textarea>
                         </div>
 
                         <div class="form-group mb-0">
-                            <label class="form-label">Full Content <span class="text-danger">*</span></label>
+                            <label class="form-label"> {{ __('Full Content') }} <span class="text-danger">*</span></label>
                             <textarea name="description" class="summernote form-control" required>{!! $blog->description !!}</textarea>
                         </div>
 
@@ -200,13 +200,13 @@
                 <div class="card mb-4">
                     <div class="card-header">
                         <div class="header-icon"><i class="fe-settings"></i></div>
-                        <h5 class="card-title">Publish</h5>
+                        <h5 class="card-title"> {{ __('Publish') }} </h5>
                     </div>
                     <div class="card-body">
                         <div class="d-flex justify-content-between align-items-center mb-4 p-3 bg-light rounded border border-light">
                             <div>
-                                <h6 class="mb-1 text-dark fw-bold">Active Status</h6>
-                                <p class="text-muted font-size-12 mb-0">Is this post visible?</p>
+                                <h6 class="mb-1 text-dark fw-bold"> {{ __('Active Status') }} </h6>
+                                <p class="text-muted font-size-12 mb-0"> {{ __('Is this post visible?') }} </p>
                             </div>
                             <label class="switch">
                                 <input type="checkbox" name="status" value="1" {{ $blog->status == 1 ? 'checked' : '' }}>
@@ -223,7 +223,7 @@
                 <div class="card">
                     <div class="card-header">
                         <div class="header-icon"><i class="fe-image"></i></div>
-                        <h5 class="card-title">Featured Image</h5>
+                        <h5 class="card-title"> {{ __('Featured Image') }} </h5>
                     </div>
                     <div class="card-body">
                         <div class="image-upload-box" onclick="document.getElementById('image').click()">
@@ -237,8 +237,8 @@
                                 <div id="upload_placeholder" class="upload-placeholder" style="display: flex; flex-direction: column; align-items: center;">
                             @endif
                                     <i class="fe-upload-cloud"></i>
-                                    <p>Click to change image</p>
-                                    <small class="text-muted d-block mt-2">JPG, PNG, WEBP (Max 2MB)</small>
+                                    <p> {{ __('Click to change image') }} </p>
+                                    <small class="text-muted d-block mt-2"> {{ __('JPG, PNG, WEBP (Max 2MB)') }} </small>
                                 </div>
                         </div>
                     </div>

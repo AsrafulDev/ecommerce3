@@ -77,8 +77,8 @@
     <div class="row mb-3 mt-3">
         <div class="col-12 d-flex justify-content-between align-items-center">
             <div>
-                <h4 class="page-title mb-0" style="font-weight: 700; color: #2d3436;">Permissions</h4>
-                <p class="text-muted font-size-13 mb-0">Manage system permissions and access levels.</p>
+                <h4 class="page-title mb-0" style="font-weight: 700; color: #2d3436;"> {{ __('Permissions') }} </h4>
+                <p class="text-muted font-size-13 mb-0"> {{ __('Manage system permissions and access levels.') }} </p>
             </div>
             <a href="{{route('permissions.create')}}" class="btn btn-primary rounded-pill shadow-sm px-4">
                 <i class="fe-plus me-1"></i> Add New Permission
@@ -94,7 +94,7 @@
                         <thead>
                             <tr>
                                 <th style="width: 50px;">{{ __('SL') }}</th>
-                                <th>Permission Name</th>
+                                <th> {{ __('Permission Name') }} </th>
                                 <th class="text-end" style="width: 150px;">{{ __('Action') }}</th>
                             </tr>
                         </thead>                

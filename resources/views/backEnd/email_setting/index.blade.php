@@ -111,8 +111,8 @@
     
     <div class="d-flex justify-content-between align-items-center mb-3">
         <div>
-            <h4 class="fw-bold text-dark m-0">System Settings</h4>
-            <span class="text-muted small">Configure application parameters</span>
+            <h4 class="fw-bold text-dark m-0"> {{ __('System Settings') }} </h4>
+            <span class="text-muted small"> {{ __('Configure application parameters') }} </span>
         </div>
     </div>
 
@@ -133,8 +133,8 @@
                         <i class="fas fa-envelope-open-text"></i>
                     </div>
                     <div class="header-title">
-                        <h5>Email Configuration (SMTP)</h5>
-                        <small>Set up mail server details to enable system emails</small>
+                        <h5> {{ __('Email Configuration (SMTP)') }} </h5>
+                        <small> {{ __('Set up mail server details to enable system emails') }} </small>
                     </div>
                 </div>
 
@@ -144,7 +144,7 @@
 
                         <div class="row g-4">
                             <div class="col-md-6">
-                                <label class="form-label">Mailer Driver <span class="text-danger">*</span></label>
+                                <label class="form-label"> {{ __('Mailer Driver') }} <span class="text-danger">*</span></label>
                                 <div class="input-group">
                                     <span class="input-group-text bg-light border-end-0 text-muted"><i class="fas fa-paper-plane"></i></span>
                                     <input type="text" name="MAIL_MAILER" class="form-control border-start-0" 
@@ -174,19 +174,19 @@
                             </div>
 
                             <div class="col-md-6">
-                                <label class="form-label">Encryption Protocol <span class="text-danger">*</span></label>
+                                <label class="form-label"> {{ __('Encryption Protocol') }} <span class="text-danger">*</span></label>
                                 <div class="input-group">
                                     <span class="input-group-text bg-light border-end-0 text-muted"><i class="fas fa-lock"></i></span>
                                     <select name="MAIL_ENCRYPTION" class="form-select border-start-0" required>
-                                        <option value="ssl" {{ ($mail['MAIL_ENCRYPTION'] ?? '') == 'ssl' ? 'selected' : '' }}>SSL (Secure Sockets Layer)</option>
-                                        <option value="tls" {{ ($mail['MAIL_ENCRYPTION'] ?? '') == 'tls' ? 'selected' : '' }}>TLS (Transport Layer Security)</option>
+                                        <option value="ssl" {{ ($mail['MAIL_ENCRYPTION'] ?? '') == 'ssl' ? 'selected' : '' }}> {{ __('SSL (Secure Sockets Layer)') }} </option>
+                                        <option value="tls" {{ ($mail['MAIL_ENCRYPTION'] ?? '') == 'tls' ? 'selected' : '' }}> {{ __('TLS (Transport Layer Security)') }} </option>
                                         <option value="null" {{ ($mail['MAIL_ENCRYPTION'] ?? '') == 'null' ? 'selected' : '' }}>{{ __('None') }}</option>
                                     </select>
                                 </div>
                             </div>
 
                             <div class="col-md-6">
-                                <label class="form-label">SMTP Username <span class="text-danger">*</span></label>
+                                <label class="form-label"> {{ __('SMTP Username') }} <span class="text-danger">*</span></label>
                                 <div class="input-group">
                                     <span class="input-group-text bg-light border-end-0 text-muted"><i class="fas fa-user"></i></span>
                                     <input type="text" name="MAIL_USERNAME" class="form-control border-start-0" 
@@ -195,7 +195,7 @@
                             </div>
 
                             <div class="col-md-6">
-                                <label class="form-label">SMTP Password <span class="text-danger">*</span></label>
+                                <label class="form-label"> {{ __('SMTP Password') }} <span class="text-danger">*</span></label>
                                 <div class="input-group">
                                     <span class="input-group-text bg-light border-end-0 text-muted"><i class="fas fa-key"></i></span>
                                     <input type="password" name="MAIL_PASSWORD" id="MAIL_PASSWORD" class="form-control border-start-0" 
@@ -207,7 +207,7 @@
                             </div>
 
                             <div class="col-md-6">
-                                <label class="form-label">Sender Email Address <span class="text-danger">*</span></label>
+                                <label class="form-label"> {{ __('Sender Email Address') }} <span class="text-danger">*</span></label>
                                 <div class="input-group">
                                     <span class="input-group-text bg-light border-end-0 text-muted"><i class="fas fa-at"></i></span>
                                     <input type="email" name="MAIL_FROM_ADDRESS" class="form-control border-start-0" 
@@ -216,7 +216,7 @@
                             </div>
 
                             <div class="col-md-6">
-                                <label class="form-label">Sender Name <span class="text-danger">*</span></label>
+                                <label class="form-label"> {{ __('Sender Name') }} <span class="text-danger">*</span></label>
                                 <div class="input-group">
                                     <span class="input-group-text bg-light border-end-0 text-muted"><i class="fas fa-id-card"></i></span>
                                     <input type="text" name="MAIL_FROM_NAME" class="form-control border-start-0" 

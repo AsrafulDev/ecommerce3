@@ -185,7 +185,7 @@
         <div>
             <span class="badge bg-dark rounded-pill px-3 py-2 me-2" id="sectionCount">{{ $layout->sections->count() }} sections</span>
             <a href="{{ route('layouts.index') }}" class="btn btn-outline-secondary rounded-pill px-3 me-2">{{ __('Back') }}</a>
-            <a href="{{ route('layouts.edit', $layout->id) }}" class="btn btn-light rounded-pill px-3">Edit Name</a>
+            <a href="{{ route('layouts.edit', $layout->id) }}" class="btn btn-light rounded-pill px-3"> {{ __('Edit Name') }} </a>
         </div>
     </div>
 
@@ -194,8 +194,8 @@
         <div class="available-sections">
             <div class="card shadow-none border rounded-4">
                 <div class="card-header bg-transparent border-bottom-0 pt-3">
-                    <h6 class="fw-bold m-0"><i class="mdi mdi-view-grid-plus me-1"></i> Add Section</h6>
-                    <p class="small text-muted m-0 mt-1">Click or drag to canvas</p>
+                    <h6 class="fw-bold m-0"><i class="mdi mdi-view-grid-plus me-1"></i> {{ __('Add Section') }} </h6>
+                    <p class="small text-muted m-0 mt-1"> {{ __('Click or drag to canvas') }} </p>
                 </div>
                 <div class="card-body p-3" id="sectionPool">
                     @foreach($availableSections as $section)
@@ -245,8 +245,8 @@
                         @empty
                             <div class="empty-canvas" id="emptyCanvas">
                                 <i class="mdi mdi-drag-variant" style="font-size:36px;"></i>
-                                <h6 class="mt-2">Your layout is empty</h6>
-                                <p>Drag sections from the left panel or click + to add them</p>
+                                <h6 class="mt-2"> {{ __('Your layout is empty') }} </h6>
+                                <p> {{ __('Drag sections from the left panel or click + to add them') }} </p>
                             </div>
                         @endforelse
                     </div>
@@ -367,7 +367,7 @@
             if (data.success) {
                 const badge = document.querySelector(`.sortable-item[data-ls-id="${id}"] .visibility-badge`);
                 if (badge) {
-                    badge.innerHTML = data.is_visible ? '<i class="fe-eye me-1"></i> Visible' : '<i class="fe-eye-off me-1"></i> Hidden';
+                    badge.innerHTML = data.is_visible ? '<i class="fe-eye me-1"></i> {{ __("Visible' : '") }} <i class="fe-eye-off me-1"></i> Hidden';
                     badge.className = 'badge ' + (data.is_visible ? 'bg-success' : 'bg-secondary') + ' rounded-pill visibility-badge';
                 }
             }
@@ -402,8 +402,8 @@
                             container.innerHTML = `
                                 <div class="empty-canvas" id="emptyCanvas">
                                     <i class="mdi mdi-drag-variant" style="font-size:36px;"></i>
-                                    <h6 class="mt-2">Your layout is empty</h6>
-                                    <p>Drag sections from the left panel or click + to add them</p>
+                                    <h6 class="mt-2"> {{ __('Your layout is empty') }} </h6>
+                                    <p> {{ __('Drag sections from the left panel or click + to add them') }} </p>
                                 </div>
                             `;
                         }

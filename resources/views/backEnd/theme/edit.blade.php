@@ -154,18 +154,18 @@
         {{-- Live Preview --}}
         <div class="live-preview-box">
             <div class="d-flex justify-content-between align-items-center mb-3">
-                <h6 class="fw-bold m-0"><i class="mdi mdi-eye me-1"></i> Live Preview</h6>
-                <small class="text-muted">Colors update as you type hex values</small>
+                <h6 class="fw-bold m-0"><i class="mdi mdi-eye me-1"></i> {{ __('Live Preview') }} </h6>
+                <small class="text-muted"> {{ __('Colors update as you type hex values') }} </small>
             </div>
             <div class="preview-card" id="livePreview" 
                  style="border:1px solid var(--pv-border, #dee2e6);">
                 <div class="preview-header" id="pvHeader" style="background:var(--pv-header-bg, #ffffff);">
-                    <span id="pvHeaderText" style="color:var(--pv-header-text, #212529);font-weight:700;font-size:14px;">My Store</span>
+                    <span id="pvHeaderText" style="color:var(--pv-header-text, #212529);font-weight:700;font-size:14px;"> {{ __('My Store') }} </span>
                     <span class="preview-btn" id="pvButton" style="background:var(--pv-button-bg, #0d6efd);color:var(--pv-button-text, #ffffff);">{{ __('Shop Now') }}</span>
                 </div>
                 <div class="preview-body" id="pvBody" style="background:var(--pv-body-bg, #ffffff);">
-                    <h5 id="pvHeading" style="color:var(--pv-heading, #111111);font-weight:700;">Summer Collection 2026</h5>
-                    <p id="pvText" style="color:var(--pv-text, #212529);">Get up to <span class="preview-badge" id="pvBadge" style="background:var(--pv-sale-bg, #dc3545);color:var(--pv-sale-text, #ffffff);">50% OFF</span> on selected items. Limited time offer!</p>
+                    <h5 id="pvHeading" style="color:var(--pv-heading, #111111);font-weight:700;"> {{ __('Summer Collection 2026') }} </h5>
+                    <p id="pvText" style="color:var(--pv-text, #212529);"> {{ __('Get up to') }} <span class="preview-badge" id="pvBadge" style="background:var(--pv-sale-bg, #dc3545);color:var(--pv-sale-text, #ffffff);">50% OFF</span> {{ __('on selected items. Limited time offer!') }} </p>
                 </div>
                 <div class="preview-footer" id="pvFooter" style="background:var(--pv-footer-bg, #1a1a1a);color:var(--pv-footer-text, #cccccc);">
                     © 2026 My Store. All rights reserved.
@@ -178,15 +178,15 @@
             <div class="col-lg-6">
                 {{-- Basic Info --}}
                 <div class="theme-editor-card">
-                    <div class="section-title-pro"><i class="mdi mdi-information-outline text-primary"></i> Basic Information</div>
+                    <div class="section-title-pro"><i class="mdi mdi-information-outline text-primary"></i> {{ __('Basic Information') }} </div>
                     <div class="p-4">
                         <div class="row g-3">
                             <div class="col-md-6">
-                                <label class="form-label-pro">Theme Name *</label>
+                                <label class="form-label-pro"> {{ __('Theme Name *') }} </label>
                                 <input type="text" name="name" class="custom-input" value="{{ old('name', $edit_data->name ?? '') }}" required maxlength="100">
                             </div>
                             <div class="col-md-6">
-                                <label class="form-label-pro">Slug *</label>
+                                <label class="form-label-pro"> {{ __('Slug *') }} </label>
                                 <input type="text" name="slug" class="custom-input" value="{{ old('slug', $edit_data->slug ?? '') }}" required maxlength="120">
                             </div>
                             <div class="col-12">
@@ -194,18 +194,18 @@
                                 <textarea name="description" class="custom-input" rows="2">{{ old('description', $edit_data->description ?? '') }}</textarea>
                             </div>
                             <div class="col-md-6">
-                                <label class="form-label-pro">Preview Image</label>
+                                <label class="form-label-pro"> {{ __('Preview Image') }} </label>
                                 <input type="file" name="preview_image" class="custom-input">
                             </div>
                             <div class="col-md-3">
-                                <label class="form-label-pro">Active?</label>
+                                <label class="form-label-pro"> {{ __('Active?') }} </label>
                                 <select name="is_active" class="custom-input">
                                     <option value="1" {{ old('is_active', $edit_data->is_active ?? true) ? 'selected' : '' }}>{{ __('Yes') }}</option>
                                     <option value="0" {{ old('is_active', $edit_data->is_active ?? true) ? '' : 'selected' }}>{{ __('No') }}</option>
                                 </select>
                             </div>
                             <div class="col-md-3">
-                                <label class="form-label-pro">Set as Default?</label>
+                                <label class="form-label-pro"> {{ __('Set as Default?') }} </label>
                                 <select name="is_default" class="custom-input">
                                     <option value="1" {{ old('is_default', $edit_data->is_default ?? false) ? 'selected' : '' }}>{{ __('Yes') }}</option>
                                     <option value="0" {{ old('is_default', $edit_data->is_default ?? false) ? '' : 'selected' }}>{{ __('No') }}</option>
@@ -217,7 +217,7 @@
 
                 {{-- Brand Colors --}}
                 <div class="theme-editor-card">
-                    <div class="section-title-pro"><i class="mdi mdi-palette text-danger"></i> Brand Colors</div>
+                    <div class="section-title-pro"><i class="mdi mdi-palette text-danger"></i> {{ __('Brand Colors') }} </div>
                     <div class="p-4">
                         <div class="row g-3">
                             @php
@@ -246,7 +246,7 @@
 
                 {{-- Text Colors --}}
                 <div class="theme-editor-card">
-                    <div class="section-title-pro"><i class="mdi mdi-format-color-text text-warning"></i> Text Colors</div>
+                    <div class="section-title-pro"><i class="mdi mdi-format-color-text text-warning"></i> {{ __('Text Colors') }} </div>
                     <div class="p-4">
                         <div class="row g-3">
                             @php
@@ -282,7 +282,7 @@
             <div class="col-lg-6">
                 {{-- Background Colors --}}
                 <div class="theme-editor-card">
-                    <div class="section-title-pro"><i class="mdi mdi-invert-colors text-success"></i> Background Colors</div>
+                    <div class="section-title-pro"><i class="mdi mdi-invert-colors text-success"></i> {{ __('Background Colors') }} </div>
                     <div class="p-4">
                         <div class="row g-3">
                             @php
@@ -315,7 +315,7 @@
 
                 {{-- 🖥️ Admin Panel Colors --}}
                 <div class="theme-editor-card">
-                    <div class="section-title-pro"><i class="mdi mdi-monitor-dashboard text-secondary"></i> Admin Panel Colors</div>
+                    <div class="section-title-pro"><i class="mdi mdi-monitor-dashboard text-secondary"></i> {{ __('Admin Panel Colors') }} </div>
                     <div class="p-4">
                         <div class="row g-3">
                             @php
@@ -345,11 +345,11 @@
 
                 {{-- UI Elements --}}
                 <div class="theme-editor-card">
-                    <div class="section-title-pro"><i class="mdi mdi-border-all text-info"></i> UI Elements</div>
+                    <div class="section-title-pro"><i class="mdi mdi-border-all text-info"></i> {{ __('UI Elements') }} </div>
                     <div class="p-4">
                         <div class="row g-3">
                             <div class="col-md-6">
-                                <label class="form-label-pro">Border Color</label>
+                                <label class="form-label-pro"> {{ __('Border Color') }} </label>
                                 <div class="color-row">
                                     <input type="color" id="border_color_cp" value="{{ old('border_color', $edit_data->border_color ?? '#dee2e6') }}"
                                            oninput="updateColor('border_color', this.value);">
@@ -360,12 +360,12 @@
                                 </div>
                             </div>
                             <div class="col-md-6">
-                                <label class="form-label-pro">Border Radius</label>
+                                <label class="form-label-pro"> {{ __('Border Radius') }} </label>
                                 <input type="text" name="border_radius" class="custom-input" 
                                        value="{{ old('border_radius', $edit_data->border_radius ?? '8px') }}" placeholder="e.g. 8px">
                             </div>
                             <div class="col-md-12">
-                                <label class="form-label-pro">Card Shadow</label>
+                                <label class="form-label-pro"> {{ __('Card Shadow') }} </label>
                                 <input type="text" name="card_shadow" class="custom-input" 
                                        value="{{ old('card_shadow', $edit_data->card_shadow ?? '') }}" placeholder="e.g. 0 2px 8px rgba(0,0,0,0.08)">
                             </div>
@@ -375,26 +375,26 @@
 
                 {{-- Typography & Layout --}}
                 <div class="theme-editor-card">
-                    <div class="section-title-pro"><i class="mdi mdi-format-font text-purple"></i> Typography & Layout</div>
+                    <div class="section-title-pro"><i class="mdi mdi-format-font text-purple"></i> {{ __('Typography & Layout') }} </div>
                     <div class="p-4">
                         <div class="row g-3">
                             <div class="col-md-6">
-                                <label class="form-label-pro">Body Font Family</label>
+                                <label class="form-label-pro"> {{ __('Body Font Family') }} </label>
                                 <input type="text" name="font_family" class="custom-input" 
                                        value="{{ old('font_family', $edit_data->font_family ?? "'Roboto', sans-serif") }}">
                             </div>
                             <div class="col-md-6">
-                                <label class="form-label-pro">Heading Font</label>
+                                <label class="form-label-pro"> {{ __('Heading Font') }} </label>
                                 <input type="text" name="heading_font" class="custom-input" 
                                        value="{{ old('heading_font', $edit_data->heading_font ?? "'Jost', sans-serif") }}">
                             </div>
                             <div class="col-md-4">
-                                <label class="form-label-pro">Body Font Size</label>
+                                <label class="form-label-pro"> {{ __('Body Font Size') }} </label>
                                 <input type="text" name="body_font_size" class="custom-input" 
                                        value="{{ old('body_font_size', $edit_data->body_font_size ?? '14px') }}" placeholder="14px">
                             </div>
                             <div class="col-md-4">
-                                <label class="form-label-pro">Heading Weight</label>
+                                <label class="form-label-pro"> {{ __('Heading Weight') }} </label>
                                 <select name="heading_font_weight" class="custom-input">
                                     @foreach(['300'=>'Light','400'=>'Normal','500'=>'Medium','600'=>'Semi Bold','700'=>'Bold','800'=>'Extra Bold','900'=>'Black'] as $v=>$l)
                                     <option value="{{ $v }}" {{ old('heading_font_weight', $edit_data->heading_font_weight ?? '700') == $v ? 'selected' : '' }}>{{ $l }} ({{ $v }})</option>
@@ -402,14 +402,14 @@
                                 </select>
                             </div>
                             <div class="col-md-4">
-                                <label class="form-label-pro">Layout Style</label>
+                                <label class="form-label-pro"> {{ __('Layout Style') }} </label>
                                 <select name="layout_style" class="custom-input">
-                                    <option value="contained" {{ old('layout_style', $edit_data->layout_style ?? '') == 'contained' ? 'selected' : '' }}>Contained</option>
-                                    <option value="full-width" {{ old('layout_style', $edit_data->layout_style ?? '') == 'full-width' ? 'selected' : '' }}>Full Width</option>
+                                    <option value="contained" {{ old('layout_style', $edit_data->layout_style ?? '') == 'contained' ? 'selected' : '' }}> {{ __('Contained') }} </option>
+                                    <option value="full-width" {{ old('layout_style', $edit_data->layout_style ?? '') == 'full-width' ? 'selected' : '' }}> {{ __('Full Width') }} </option>
                                 </select>
                             </div>
                             <div class="col-12">
-                                <label class="form-label-pro">Custom CSS</label>
+                                <label class="form-label-pro"> {{ __('Custom CSS') }} </label>
                                 <textarea name="custom_css" class="custom-input" rows="4" placeholder="/* Write custom CSS overrides here */">{{ old('custom_css', $edit_data->custom_css ?? '') }}</textarea>
                             </div>
                         </div>

@@ -138,7 +138,7 @@
             <div class="page-title-box d-flex align-items-center justify-content-between" style="padding: 20px 0;">
                 <div class="d-flex align-items-center">
                     <i class="fas fa-sms" style="font-size: 28px; margin-right: 15px; color: #556ee6;"></i>
-                    <h4 class="mb-0 font-size-18">SMS Gateway Integration</h4>
+                    <h4 class="mb-0 font-size-18"> {{ __('SMS Gateway Integration') }} </h4>
                 </div>
                 <div class="page-title-right">
                     <ol class="breadcrumb m-0">
@@ -155,7 +155,7 @@
             <div class="card-box">
                 <div class="card-header-custom">
                     <i class="fas fa-cogs" style="margin-right: 10px; color: #556ee6;"></i>
-                    <h4>Configuration Settings</h4>
+                    <h4> {{ __('Configuration Settings') }} </h4>
                 </div>
 
                 <form action="{{route('smsgeteway.update')}}" method="POST" data-parsley-validate="" enctype="multipart/form-data">
@@ -196,35 +196,35 @@
 
                     <div class="row">
                         <div class="col-md-3 mb-4">
-                            <label for="method" class="form-label font-weight-bold">API Method</label>
+                            <label for="method" class="form-label font-weight-bold"> {{ __('API Method') }} </label>
                             <select name="method" id="method" class="form-control">
                                 <option value="POST" {{ ($sms->method ?? 'POST') == 'POST' ? 'selected' : '' }}>POST</option>
                                 <option value="GET" {{ ($sms->method ?? 'POST') == 'GET' ? 'selected' : '' }}>GET</option>
                             </select>
-                            <small class="text-muted">HTTP Method (POST/GET)</small>
+                            <small class="text-muted"> {{ __('HTTP Method (POST/GET)') }} </small>
                         </div>
                         <div class="col-md-3 mb-4">
-                            <label for="phone_key" class="form-label font-weight-bold">Phone Key</label>
+                            <label for="phone_key" class="form-label font-weight-bold"> {{ __('Phone Key') }} </label>
                             <input type="text" name="phone_key" id="phone_key" class="form-control" 
                                 value="{{ $sms->phone_key ?? 'number' }}" placeholder="number" />
                             <small class="text-muted">ফোন নম্বর প্যারামিটার নাম</small>
                         </div>
                         <div class="col-md-3 mb-4">
-                            <label for="message_key" class="form-label font-weight-bold">Message Key</label>
+                            <label for="message_key" class="form-label font-weight-bold"> {{ __('Message Key') }} </label>
                             <input type="text" name="message_key" id="message_key" class="form-control" 
                                 value="{{ $sms->message_key ?? 'message' }}" placeholder="message" />
                             <small class="text-muted">মেসেজ প্যারামিটার নাম</small>
                         </div>
                         <div class="col-md-3 mb-4">
-                            <label for="serderid" class="form-label font-weight-bold">Sender ID</label>
+                            <label for="serderid" class="form-label font-weight-bold"> {{ __('Sender ID') }} </label>
                             <input type="text" name="serderid" id="serderid" class="form-control" 
                                 value="{{ $sms->serderid }}" placeholder="Ex: 8801234" />
-                            <small class="text-muted">SMS Sender ID (optional)</small>
+                            <small class="text-muted"> {{ __('SMS Sender ID (optional)') }} </small>
                         </div>
                     </div>
 
                     <div class="form-group mb-4">
-                        <label for="admin_phone_list" class="form-label font-weight-bold">Admin Notification Numbers</label>
+                        <label for="admin_phone_list" class="form-label font-weight-bold"> {{ __('Admin Notification Numbers') }} </label>
                         <div class="input-group">
                             <div class="input-group-prepend">
                                 <span class="input-group-text"><i class="fas fa-mobile-alt"></i></span>
@@ -241,14 +241,14 @@
                     </div>
 
                     <hr class="mt-4 mb-4">
-                    <h5 class="font-size-14 mb-3 text-uppercase text-muted"><i class="fas fa-bell mr-2"></i>Automation Triggers</h5>
+                    <h5 class="font-size-14 mb-3 text-uppercase text-muted"><i class="fas fa-bell mr-2"></i> {{ __('Automation Triggers') }} </h5>
 
                     <div class="row">
                         <div class="col-md-6 mb-3">
                             <div class="d-flex justify-content-between align-items-center border p-3 rounded bg-light">
                                 <div>
-                                    <h6 class="mb-1">Gateway Status</h6>
-                                    <small class="text-muted">Enable/Disable SMS System</small>
+                                    <h6 class="mb-1"> {{ __('Gateway Status') }} </h6>
+                                    <small class="text-muted"> {{ __('Enable/Disable SMS System') }} </small>
                                 </div>
                                 <label class="switch">
                                     <input type="checkbox" value="1" @if($sms->status==1)checked @endif name="status" />
@@ -260,8 +260,8 @@
                         <div class="col-md-6 mb-3">
                             <div class="d-flex justify-content-between align-items-center border p-3 rounded">
                                 <div>
-                                    <h6 class="mb-1">Order Confirmation</h6>
-                                    <small class="text-muted">SMS when order placed</small>
+                                    <h6 class="mb-1"> {{ __('Order Confirmation') }} </h6>
+                                    <small class="text-muted"> {{ __('SMS when order placed') }} </small>
                                 </div>
                                 <label class="switch">
                                     <input type="checkbox" value="1" @if($sms->order==1)checked @endif name="order" />
@@ -274,7 +274,7 @@
                             <div class="d-flex justify-content-between align-items-center border p-3 rounded">
                                 <div>
                                     <h6 class="mb-1">{{ __('Forgot Password') }}</h6>
-                                    <small class="text-muted">OTP for password reset</small>
+                                    <small class="text-muted"> {{ __('OTP for password reset') }} </small>
                                 </div>
                                 <label class="switch">
                                     <input type="checkbox" value="1" @if($sms->forget_pass==1)checked @endif name="forget_pass" />
@@ -286,8 +286,8 @@
                         <div class="col-md-6 mb-3">
                             <div class="d-flex justify-content-between align-items-center border p-3 rounded">
                                 <div>
-                                    <h6 class="mb-1">User Registration</h6>
-                                    <small class="text-muted">Send generated password</small>
+                                    <h6 class="mb-1"> {{ __('User Registration') }} </h6>
+                                    <small class="text-muted"> {{ __('Send generated password') }} </small>
                                 </div>
                                 <label class="switch">
                                     <input type="checkbox" value="1" @if($sms->password_g==1)checked @endif name="password_g" />
@@ -310,7 +310,7 @@
             <div class="card-box bg-white border-info">
                 <div class="card-header-custom" style="background: #eef2ff;">
                     <i class="fas fa-book-reader" style="margin-right: 10px; color: #556ee6;"></i>
-                    <h4>API Integration Guide</h4>
+                    <h4> {{ __('API Integration Guide') }} </h4>
                 </div>
                 
                 <div class="p-2">
@@ -322,20 +322,20 @@
                         <li><strong>ধাপ ৪:</strong> অটোমেশন ট্রিগারগুলো অন/অফ করে নিন।</li>
                     </ul>
 
-                    <h5 class="text-primary mt-4 mb-3">API Parameters</h5>
+                    <h5 class="text-primary mt-4 mb-3"> {{ __('API Parameters') }} </h5>
                     <table class="table table-sm table-bordered font-size-13">
                         <thead class="thead-light">
                             <tr>
-                                <th>Parameter</th>
-                                <th>Value</th>
+                                <th> {{ __('Parameter') }} </th>
+                                <th> {{ __('Value') }} </th>
                                 <th>{{ __('Description') }}</th>
                             </tr>
                         </thead>
                         <tbody>
                             <tr>
                                 <td><code>api_key</code></td>
-                                <td>String</td>
-                                <td>Your unique API key</td>
+                                <td> {{ __('String') }} </td>
+                                <td> {{ __('Your unique API key') }} </td>
                             </tr>
                             <tr>
                                 <td><code>{{ $sms->phone_key ?? 'number' }}</code></td>
@@ -344,13 +344,13 @@
                             </tr>
                             <tr>
                                 <td><code>{{ $sms->message_key ?? 'message' }}</code></td>
-                                <td>Text</td>
+                                <td> {{ __('Text') }} </td>
                                 <td>SMS Content (ডায়নামিক কী)</td>
                             </tr>
                         </tbody>
                     </table>
 
-                    <h5 class="text-primary mt-4 mb-2">PHP Integration Example</h5>
+                    <h5 class="text-primary mt-4 mb-2"> {{ __('PHP Integration Example') }} </h5>
                     <p class="text-muted font-size-12 mb-2">আপনার প্রজেক্টের অন্য কোথাও ম্যানুয়ালি ব্যবহার করতে চাইলে:</p>
                     
                     <div class="code-block">

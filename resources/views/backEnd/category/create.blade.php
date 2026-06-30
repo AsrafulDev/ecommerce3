@@ -104,7 +104,7 @@
     <div class="row">
         <div class="col-12">
             <div class="page-title-box d-flex align-items-center justify-content-between py-3">
-                <h4 class="page-title mb-0 text-dark font-weight-bold">Create New Category</h4>
+                <h4 class="page-title mb-0 text-dark font-weight-bold"> {{ __('Create New Category') }} </h4>
                 <div class="page-title-right">
                     <a href="{{route('categories.index')}}" class="btn btn-light rounded-pill border shadow-sm">
                         <i class="fe-arrow-left me-1"></i> Back to List
@@ -122,11 +122,11 @@
                 
                 <div class="card mb-4">
                     <div class="card-header">
-                        <h5 class="card-title"><i class="fe-file-text"></i> General Information</h5>
+                        <h5 class="card-title"><i class="fe-file-text"></i> {{ __('General Information') }} </h5>
                     </div>
                     <div class="card-body">
                         <div class="form-group mb-3">
-                            <label for="name" class="form-label">Category Name <span class="text-danger">*</span></label>
+                            <label for="name" class="form-label"> {{ __('Category Name') }} <span class="text-danger">*</span></label>
                             <input type="text" class="form-control @error('name') is-invalid @enderror" 
                                    name="name" value="{{ old('name') }}" id="name" 
                                    placeholder="e.g. Smart Phones" required>
@@ -139,7 +139,7 @@
 
                 <div class="card mb-4">
                     <div class="card-header">
-                        <h5 class="card-title"><i class="fe-search"></i> SEO Configuration</h5>
+                        <h5 class="card-title"><i class="fe-search"></i> {{ __('SEO Configuration') }} </h5>
                     </div>
                     <div class="card-body">
                         <div class="form-group mb-3">
@@ -168,13 +168,13 @@
                 
                 <div class="card mb-4">
                     <div class="card-header">
-                        <h5 class="card-title"><i class="fe-settings"></i> Visibility</h5>
+                        <h5 class="card-title"><i class="fe-settings"></i> {{ __('Visibility') }} </h5>
                     </div>
                     <div class="card-body">
                         <div class="d-flex justify-content-between align-items-center mb-3 p-2 bg-light rounded">
                             <div>
-                                <label class="form-label mb-0">Publish Status</label>
-                                <small class="d-block text-muted">Show in store</small>
+                                <label class="form-label mb-0"> {{ __('Publish Status') }} </label>
+                                <small class="d-block text-muted"> {{ __('Show in store') }} </small>
                             </div>
                             <label class="switch">
                                 <input type="checkbox" name="status" value="1" checked>
@@ -184,8 +184,8 @@
 
                         <div class="d-flex justify-content-between align-items-center p-2 bg-light rounded">
                             <div>
-                                <label class="form-label mb-0">Front View</label>
-                                <small class="d-block text-muted">Show on homepage</small>
+                                <label class="form-label mb-0"> {{ __('Front View') }} </label>
+                                <small class="d-block text-muted"> {{ __('Show on homepage') }} </small>
                             </div>
                             <label class="switch">
                                 <input type="checkbox" name="front_view" value="1">
@@ -197,14 +197,14 @@
 
                 <div class="card mb-4">
                     <div class="card-header">
-                        <h5 class="card-title"><i class="fe-image"></i> Media</h5>
+                        <h5 class="card-title"><i class="fe-image"></i> {{ __('Media') }} </h5>
                     </div>
                     <div class="card-body">
                         <div class="mb-4">
-                            <label class="form-label">Main Image <span class="text-danger">*</span></label>
+                            <label class="form-label"> {{ __('Main Image') }} <span class="text-danger">*</span></label>
                             <div class="image-upload-box" onclick="document.getElementById('image').click()">
                                 <i class="fe-upload-cloud upload-icon" id="icon_main"></i>
-                                <p class="upload-text mb-0" id="text_main">Click to upload image</p>
+                                <p class="upload-text mb-0" id="text_main"> {{ __('Click to upload image') }} </p>
                                 <img id="preview_main" class="preview-img mt-2" src="#" alt="Preview">
                                 <input type="file" name="image" id="image" class="d-none" onchange="readURL(this, 'preview_main', 'icon_main', 'text_main')" required>
                             </div>
@@ -214,10 +214,10 @@
                         </div>
 
                         <div class="mb-0">
-                            <label class="form-label">Category Icon</label>
+                            <label class="form-label"> {{ __('Category Icon') }} </label>
                             <div class="image-upload-box" onclick="document.getElementById('icon').click()">
                                 <i class="fe-image upload-icon" id="icon_sub"></i>
-                                <p class="upload-text mb-0" id="text_sub">Click to upload icon</p>
+                                <p class="upload-text mb-0" id="text_sub"> {{ __('Click to upload icon') }} </p>
                                 <img id="preview_sub" class="preview-img mt-2" src="#" alt="Preview" style="max-height: 60px;">
                                 <input type="file" name="icon" id="icon" class="d-none" onchange="readURL(this, 'preview_sub', 'icon_sub', 'text_sub')">
                             </div>

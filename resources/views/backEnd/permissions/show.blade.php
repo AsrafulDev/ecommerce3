@@ -8,9 +8,9 @@
         <div class="col-12">
             <div class="page-title-box">
                 <div class="page-title-right">
-                    <a href="{{route('users.index')}}" class="btn btn-primary rounded-pill">Manage</a>
+                    <a href="{{route('users.index')}}" class="btn btn-primary rounded-pill"> {{ __('Manage') }} </a>
                 </div>
-                <h4 class="page-title">Roles Show</h4>
+                <h4 class="page-title"> {{ __('Roles Show') }} </h4>
             </div>
         </div>
     </div>       

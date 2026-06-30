@@ -62,7 +62,7 @@
     <div class="container">
         <div class="row">
             <div class="col-sm-6">
-                <a href="/admin/order/all" class="no-print"><strong><i class="fe-arrow-left"></i> Back To Order</strong></a>
+                <a href="/admin/order/all" class="no-print"><strong><i class="fe-arrow-left"></i> {{ __('Back To Order') }} </strong></a>
             </div>
             <div class="col-sm-6 text-end">
                 <button onclick="printFunction()" class="no-print btn btn-xs btn-success waves-effect waves-light"><i class="fa fa-print"></i></button>
@@ -85,8 +85,8 @@
                                     <p><strong>Payment Status:</strong></p>
                                     <select id="payment_status_{{ $order->id }}" class="form-control no-print" style="width:auto; display:inline-block;">
                                         <option value="pending" {{ $order->payment_status == 'pending' ? 'selected' : '' }}>{{ __('Pending') }}</option>
-                                        <option value="paid" {{ $order->payment_status == 'paid' ? 'selected' : '' }}>Paid</option>
-                                        <option value="unpaid" {{ $order->payment_status == 'unpaid' ? 'selected' : '' }}>Unpaid</option>
+                                        <option value="paid" {{ $order->payment_status == 'paid' ? 'selected' : '' }}> {{ __('Paid') }} </option>
+                                        <option value="unpaid" {{ $order->payment_status == 'unpaid' ? 'selected' : '' }}> {{ __('Unpaid') }} </option>
                                         <option value="failed" {{ $order->payment_status == 'failed' ? 'selected' : '' }}>{{ __('Failed') }}</option>
                                     </select>
                                     <button class="btn btn-sm btn-success no-print" onclick="updatePaymentStatus({{ $order->id }})">{{ __('Update') }}</button>
@@ -109,8 +109,7 @@
                                             @endforeach
                                         </select>
                                         <button class="btn btn-sm btn-primary" onclick="updateOrderStatus({{ $order->id }})">
-                                            <i class="fa fa-save"></i> Update Status
-                                        </button>
+                                            <i class="fa fa-save"></i> {{ __('Update Status') }} </button>
                                         @if($order->courier_type)
                                         <br><small class="text-muted" style="margin-top: 5px; display: inline-block;">
                                             <i class="fa fa-truck"></i> Courier: {{ ucfirst($order->courier_type) }}
@@ -163,7 +162,7 @@
                         <thead style="background: #4DBC60; color: #fff;">
                             <tr>
                                 <th>{{ __('SL') }}</th>
-                                <th>Product</th>
+                                <th> {{ __('Product') }} </th>
                                 <th>{{ __('Price') }}</th>
                                 <th>{{ __('Qty') }}</th>
                                 <th>{{ __('Total') }}</th>
@@ -277,20 +276,20 @@
     <tbody style="background:#f1f9f8">
         @if($isResellerOrder)
             <tr style="background:#ffc107;color:#000">
-                <td><strong><i class="fa fa-user-tag"></i> Reseller Order</strong></td>
+                <td><strong><i class="fa fa-user-tag"></i> {{ __('Reseller Order') }} </strong></td>
                 <td></td>
             </tr>
         @endif
         <tr>
-            <td><strong>SubTotal</strong></td>
+            <td><strong> {{ __('SubTotal') }} </strong></td>
             <td><strong>৳{{ number_format($subtotal, 2) }}</strong></td>
         </tr>
         <tr>
-            <td><strong>Shipping(+)</strong></td>
+            <td><strong> {{ __('Shipping(+)') }} </strong></td>
             <td><strong>৳{{ number_format($shipping, 2) }}</strong></td>
         </tr>
         <tr>
-            <td><strong>Discount(-)</strong></td>
+            <td><strong> {{ __('Discount(-)') }} </strong></td>
             <td><strong>৳{{ number_format($discount, 2) }}</strong></td>
         </tr>
 
@@ -302,11 +301,11 @@
         {{-- 🔥 যদি Advance Payment থাকে --}}
         @if($advancePaid > 0 && $advancePaid < $finalTotal)
             <tr>
-                <td><strong>Advance Paid</strong></td>
+                <td><strong> {{ __('Advance Paid') }} </strong></td>
                 <td><strong>৳{{ number_format($advancePaid, 2) }}</strong></td>
             </tr>
             <tr>
-                <td><strong>Due Amount</strong></td>
+                <td><strong> {{ __('Due Amount') }} </strong></td>
                 <td><strong>৳{{ number_format($dueAmount, 2) }}</strong></td>
             </tr>
         @endif
@@ -343,11 +342,11 @@
 <div class="pos-receipt">
     <div class="rh">
         <div class="shop">{{ $generalsetting->name }}</div>
-        @if($contact->address)<p>{{ $contact->address }}</p>@endif
-        @if($contact->phone)<p>Phone: {{ $contact->phone }}</p>@endif
-        @if($contact->email)<p>{{ $contact->email }}</p>@endif
+        @if($contact-> {{ __('address)') }} <p>{{ $contact->address }}</p>@endif
+        @if($contact-> {{ __('phone)') }} <p>Phone: {{ $contact->phone }}</p>@endif
+        @if($contact-> {{ __('email)') }} <p>{{ $contact->email }}</p>@endif
     </div>
-    <div class="rt">POS Invoice</div>
+    <div class="rt"> {{ __('POS Invoice') }} </div>
     <div class="rm">
         <div class="fl">
             <span>Bill No. : <strong>{{ $order->invoice_id }}</strong></span>
@@ -357,8 +356,7 @@
         @if($order->shipping && $order->shipping->name)
         <div class="fl"><span>Buyer &nbsp;&nbsp;: <strong>{{ $order->shipping->name }}</strong></span></div>
         @endif
-        @if($order->shipping && $order->shipping->phone)
-        <div class="fl"><span>Phone &nbsp;&nbsp;: {{ $order->shipping->phone }}</span></div>
+        @if($order->shipping && $order->shipping-> {{ __('phone)') }} <div class="fl"><span>Phone &nbsp;&nbsp;: {{ $order->shipping->phone }}</span></div>
         @endif
         @if($order->shipping && ($order->shipping->address || $order->shipping->area))
         <div class="fl"><span>Address : {{ $order->shipping->address }}{{ $order->shipping->area ? ', '.$order->shipping->area : '' }}</span></div>
@@ -368,9 +366,9 @@
         <thead>
             <tr>
                 <th style="width:14px;">#</th>
-                <th>Product</th>
+                <th> {{ __('Product') }} </th>
                 <th style="width:22px;text-align:center;">{{ __('Qty') }}</th>
-                <th style="width:44px;" class="r">Rate</th>
+                <th style="width:44px;" class="r"> {{ __('Rate') }} </th>
                 <th style="width:48px;" class="r">{{ __('Total') }}</th>
             </tr>
         </thead>
@@ -404,7 +402,7 @@
     </table>
     <div class="rs"><span>{{ __('Subtotal') }}</span><span>{{ number_format($sub,2) }}</span></div>
     @if($order->discount > 0)<div class="rs"><span>Discount (–)</span><span>{{ number_format($order->discount,2) }}</span></div>@endif
-    @if($order->shipping_charge > 0)<div class="rs"><span>Delivery (+)</span><span>{{ number_format($order->shipping_charge,2) }}</span></div>@endif
+    @if($order->shipping_charge > 0)<div class="rs"><span> {{ __('Delivery (+)') }} </span><span>{{ number_format($order->shipping_charge,2) }}</span></div>@endif
     <div class="rtotal">
         <span>Total &nbsp; {{ $tqty }} {{ $tqty>1?'Nos':'No' }}</span>
         <span>&#2547; {{ number_format($ftotal,2) }}</span>
@@ -422,13 +420,13 @@
         @if($trkId)<div class="fl"><span>Tracking &nbsp;:</span><span>{{ $trkId }}</span></div>@endif
         @if($order->courier_sent_at)<div class="fl"><span>Sent &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:</span><span>{{ \Carbon\Carbon::parse($order->courier_sent_at)->format('d M Y') }}</span></div>@endif
         @endif
-        <div class="ptotal"><span>Total Paid</span><span>&#2547; {{ number_format($ftotal,2) }}</span></div>
+        <div class="ptotal"><span> {{ __('Total Paid') }} </span><span>&#2547; {{ number_format($ftotal,2) }}</span></div>
     </div>
     <hr class="dash">
     <div class="rs"><span>Order Status :</span><span><strong>{{ $order->status ? $order->status->name : 'Processing' }}</strong></span></div>
     <div class="rf">
-        <div class="ty">Thank You!</div>
-        <div>Visit Again!</div>
+        <div class="ty"> {{ __('Thank You!') }} </div>
+        <div> {{ __('Visit Again!') }} </div>
         <small>* Computer generated invoice. No signature required.</small>
     </div>
 </div>

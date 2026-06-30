@@ -93,8 +93,8 @@
     <div class="row mb-3 mt-3">
         <div class="col-12 d-flex justify-content-between align-items-center">
             <div>
-                <h4 class="page-title mb-0" style="font-weight: 700; color: #2d3436;">Create New Pixel</h4>
-                <p class="text-muted font-size-13 mb-0">Add Facebook/Google tracking pixel.</p>
+                <h4 class="page-title mb-0" style="font-weight: 700; color: #2d3436;"> {{ __('Create New Pixel') }} </h4>
+                <p class="text-muted font-size-13 mb-0"> {{ __('Add Facebook/Google tracking pixel.') }} </p>
             </div>
             <a href="{{route('pixels.index')}}" class="btn btn-light rounded-pill border shadow-sm px-4">
                 <i class="fe-arrow-left me-1"></i> Back to List
@@ -107,14 +107,14 @@
             <div class="card">
                 <div class="card-header">
                     <div class="header-icon"><i class="fe-code"></i></div>
-                    <h5 class="card-title">Pixel Configuration</h5>
+                    <h5 class="card-title"> {{ __('Pixel Configuration') }} </h5>
                 </div>
                 <div class="card-body">
                     <form action="{{route('pixels.store')}}" method="POST" data-parsley-validate>
                         @csrf
                         
                         <div class="form-group mb-4">
-                            <label for="code" class="form-label">Pixel ID / Code <span class="text-danger">*</span></label>
+                            <label for="code" class="form-label"> {{ __('Pixel ID / Code') }} <span class="text-danger">*</span></label>
                             <input type="text" class="form-control form-control-lg @error('code') is-invalid @enderror" 
                                    name="code" value="{{ old('code') }}" id="code" 
                                    placeholder="e.g. 123456789012345" required>
@@ -131,8 +131,8 @@
                         <div class="form-group mb-4">
                             <div class="d-flex justify-content-between align-items-center border p-3 rounded bg-light">
                                 <div>
-                                    <label class="form-label mb-0 text-dark">Active Status</label>
-                                    <small class="d-block text-muted">Enable tracking immediately?</small>
+                                    <label class="form-label mb-0 text-dark"> {{ __('Active Status') }} </label>
+                                    <small class="d-block text-muted"> {{ __('Enable tracking immediately?') }} </small>
                                 </div>
                                 <label class="switch">
                                     <input type="checkbox" name="status" value="1" checked>

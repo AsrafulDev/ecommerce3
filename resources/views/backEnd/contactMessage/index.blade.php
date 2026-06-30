@@ -11,7 +11,7 @@
 
 <div class="card">
     <div class="card-header">
-        <h4>Contact Messages</h4>
+        <h4> {{ __('Contact Messages') }} </h4>
     </div>
 
     <div class="card-body">
@@ -21,11 +21,11 @@
                 <thead>
                     <tr>
                         <th>#</th>
-                        <th>Full Name</th>
-                        <th>Mobile</th>
+                        <th> {{ __('Full Name') }} </th>
+                        <th> {{ __('Mobile') }} </th>
                         <th>{{ __('Email') }}</th>
                         <th>{{ __('Subject') }}</th>
-                        <th>Message</th>
+                        <th> {{ __('Message') }} </th>
                         <th width="120">{{ __('Action') }}</th>
                     </tr>
                 </thead>
@@ -52,7 +52,7 @@
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="7" class="text-center">No messages found</td>
+                        <td colspan="7" class="text-center"> {{ __('No messages found') }} </td>
                     </tr>
                     @endforelse
                 </tbody>

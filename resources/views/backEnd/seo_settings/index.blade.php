@@ -134,8 +134,8 @@
                              class="header-img-shadow me-3 rounded-circle" 
                              style="width: 48px; height: 48px; object-fit: cover;">
                         <div>
-                            <h5 class="mb-0 fw-bold text-dark">SEO Configuration</h5>
-                            <small class="text-muted">Optimize your site for search engines</small>
+                            <h5 class="mb-0 fw-bold text-dark"> {{ __('SEO Configuration') }} </h5>
+                            <small class="text-muted"> {{ __('Optimize your site for search engines') }} </small>
                         </div>
                     </div>
                 </div>
@@ -150,7 +150,7 @@
                     <form action="{{ route('admin.seo_settings.update') }}" method="POST">
                         @csrf
                         
-                        <h6 class="text-primary fw-bold mb-3 text-uppercase small ls-1"><i class="fas fa-layer-group me-2"></i>General Meta</h6>
+                        <h6 class="text-primary fw-bold mb-3 text-uppercase small ls-1"><i class="fas fa-layer-group me-2"></i> {{ __('General Meta') }} </h6>
                         
                         <div class="mb-4">
                             <label class="form-label">{{ __('Meta Title') }}</label>
@@ -172,22 +172,22 @@
                         </div>
 
                         <div class="mb-4">
-                            <label class="form-label">Keywords / Tags</label>
+                            <label class="form-label"> {{ __('Keywords / Tags') }} </label>
                             <div class="input-group">
                                 <span class="input-group-text bg-light border-end-0"><i class="fas fa-tags text-muted"></i></span>
                                 <input type="text" name="meta_tags" class="form-control border-start-0" 
                                        value="{{ old('meta_tags', $seo->meta_tags ?? '') }}" 
                                        placeholder="seo, laravel, optimization (comma separated)">
                             </div>
-                            <small class="text-muted mt-1" style="font-size: 11px;">Separate keywords with commas.</small>
+                            <small class="text-muted mt-1" style="font-size: 11px;"> {{ __('Separate keywords with commas.') }} </small>
                         </div>
 
                         <hr class="my-4 border-light">
 
-                        <h6 class="text-primary fw-bold mb-3 text-uppercase small ls-1"><i class="fab fa-google me-2"></i>Webmaster Tools</h6>
+                        <h6 class="text-primary fw-bold mb-3 text-uppercase small ls-1"><i class="fab fa-google me-2"></i> {{ __('Webmaster Tools') }} </h6>
                         
                         <div class="mb-4">
-                            <label class="form-label">Google Search Console Verification</label>
+                            <label class="form-label"> {{ __('Google Search Console Verification') }} </label>
                             <div class="input-group">
                                 <span class="input-group-text bg-white"><i class="fas fa-key text-muted"></i></span>
                                 <input type="text" name="search_console_verification" class="form-control"
@@ -229,11 +229,11 @@
                 </div>
 
                 <div class="mt-5 p-3 bg-light rounded-3 border border-light">
-                    <h6 class="fw-bold text-dark mb-2"><i class="far fa-lightbulb text-warning me-2"></i>Pro Tips</h6>
+                    <h6 class="fw-bold text-dark mb-2"><i class="far fa-lightbulb text-warning me-2"></i> {{ __('Pro Tips') }} </h6>
                     <ul class="mb-0 ps-3 text-muted small" style="line-height: 1.6;">
-                        <li>Keep <strong>{{ __('Title') }}</strong> under 60 characters for best visibility.</li>
-                        <li>Keep <strong>{{ __('Description') }}</strong> between 150-160 characters.</li>
-                        <li>Use relevant keywords in the beginning of your title.</li>
+                        <li> {{ __('Keep') }} <strong>{{ __('Title') }}</strong> {{ __('under 60 characters for best visibility.') }} </li>
+                        <li> {{ __('Keep') }} <strong>{{ __('Description') }}</strong> {{ __('between 150-160 characters.') }} </li>
+                        <li> {{ __('Use relevant keywords in the beginning of your title.') }} </li>
                     </ul>
                 </div>
             </div>

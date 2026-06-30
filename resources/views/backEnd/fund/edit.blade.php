@@ -41,8 +41,8 @@
                         <div class="mb-3">
                             <label class="form-label fw-semibold">Direction / ধরণ *</label>
                             <select name="direction" class="form-select @error('direction') is-invalid @enderror" required>
-                                <option value="in" {{ old('direction', $transaction->direction) == 'in' ? 'selected' : '' }}>IN (+)</option>
-                                <option value="out" {{ old('direction', $transaction->direction) == 'out' ? 'selected' : '' }}>OUT (-)</option>
+                                <option value="in" {{ old('direction', $transaction->direction) == 'in' ? 'selected' : '' }}> {{ __('IN (+)') }} </option>
+                                <option value="out" {{ old('direction', $transaction->direction) == 'out' ? 'selected' : '' }}> {{ __('OUT (-)') }} </option>
                             </select>
                             @error('direction')
                             <span class="invalid-feedback">{{ $message }}</span>
@@ -50,13 +50,13 @@
                         </div>
 
                         <div class="mb-3">
-                            <label class="form-label fw-semibold">Source</label>
+                            <label class="form-label fw-semibold"> {{ __('Source') }} </label>
                             <input type="text" 
                                    name="source" 
                                    class="form-control" 
                                    value="{{ old('source', $transaction->source) }}" 
                                    readonly>
-                            <small class="text-muted">Source cannot be changed</small>
+                            <small class="text-muted"> {{ __('Source cannot be changed') }} </small>
                         </div>
 
                         <div class="mb-3">
@@ -74,7 +74,7 @@
                         </div>
 
                         <div class="mb-3">
-                            <label class="form-label fw-semibold">Note (optional)</label>
+                            <label class="form-label fw-semibold"> {{ __('Note (optional)') }} </label>
                             <textarea name="note" 
                                       class="form-control" 
                                       rows="3" 

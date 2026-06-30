@@ -49,8 +49,8 @@
     {{-- PAGE HEADER --}}
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
-            <h4 class="mb-1 fw-bold text-dark">Edit Reseller</h4>
-            <p class="text-muted small mb-0">Update reseller profile and account status.</p>
+            <h4 class="mb-1 fw-bold text-dark"> {{ __('Edit Reseller') }} </h4>
+            <p class="text-muted small mb-0"> {{ __('Update reseller profile and account status.') }} </p>
         </div>
         <a href="{{ route('admin.resellers.index') }}" class="btn btn-white border shadow-sm rounded-pill px-4">
             <i data-feather="arrow-left" class="me-1" style="width: 16px;"></i> Back to List
@@ -69,32 +69,32 @@
                 {{-- Personal Information --}}
                 <div class="card card-modern">
                     <div class="card-header-modern">
-                        <h5 class="section-title"><i data-feather="user" class="text-primary" style="width: 18px;"></i> Reseller Information</h5>
+                        <h5 class="section-title"><i data-feather="user" class="text-primary" style="width: 18px;"></i> {{ __('Reseller Information') }} </h5>
                     </div>
                     <div class="card-body p-4">
                         <div class="row g-4">
                             <div class="col-md-6">
-                                <label class="form-label-custom">Full Name <span class="text-danger">*</span></label>
+                                <label class="form-label-custom"> {{ __('Full Name') }} <span class="text-danger">*</span></label>
                                 <input type="text" class="form-control form-control-custom @error('name') is-invalid @enderror" name="name" value="{{ $reseller->name }}" required>
                                 @error('name') <span class="invalid-feedback">{{ $message }}</span> @enderror
                             </div>
                             
                             <div class="col-md-6">
-                                <label class="form-label-custom">Shop Name</label>
+                                <label class="form-label-custom"> {{ __('Shop Name') }} </label>
                                 <input type="text" class="form-control form-control-custom @error('shop_name') is-invalid @enderror" name="shop_name" value="{{ $reseller->shop_name }}">
                                 @error('shop_name') <span class="invalid-feedback">{{ $message }}</span> @enderror
                             </div>
 
                             <div class="col-md-6">
-                                <label class="form-label-custom">Email Address <span class="text-danger">*</span></label>
+                                <label class="form-label-custom"> {{ __('Email Address') }} <span class="text-danger">*</span></label>
                                 <input type="email" class="form-control form-control-custom @error('email') is-invalid @enderror" name="email" value="{{ $reseller->email }}" required>
                                 @error('email') <span class="invalid-feedback">{{ $message }}</span> @enderror
                             </div>
 
                             <div class="col-md-6">
-                                <label class="form-label-custom">Phone Number</label>
+                                <label class="form-label-custom"> {{ __('Phone Number') }} </label>
                                 <input type="text" class="form-control form-control-custom" value="{{ $reseller->phone ?? 'N/A' }}" readonly disabled>
-                                <small class="text-muted">Phone number cannot be changed directly.</small>
+                                <small class="text-muted"> {{ __('Phone number cannot be changed directly.') }} </small>
                             </div>
                         </div>
                     </div>
@@ -103,21 +103,21 @@
                 {{-- Status & Verification --}}
                 <div class="card card-modern">
                     <div class="card-header-modern">
-                        <h5 class="section-title"><i data-feather="shield" class="text-info" style="width: 18px;"></i> Account Status</h5>
+                        <h5 class="section-title"><i data-feather="shield" class="text-info" style="width: 18px;"></i> {{ __('Account Status') }} </h5>
                     </div>
                     <div class="card-body p-4">
                         <div class="row g-4 align-items-center">
                             <div class="col-md-6">
-                                <label class="form-label-custom">Active Status</label>
+                                <label class="form-label-custom"> {{ __('Active Status') }} </label>
                                 <select class="form-select form-select-custom" name="status">
                                     <option value="1" {{ $reseller->status == 1 ? 'selected' : '' }}>{{ __('Active') }}</option>
                                     <option value="0" {{ $reseller->status == 0 ? 'selected' : '' }}>{{ __('Inactive') }}</option>
                                 </select>
                             </div>
                             <div class="col-md-6">
-                                <label class="form-label-custom d-block">Verification Status</label>
+                                <label class="form-label-custom d-block"> {{ __('Verification Status') }} </label>
                                 @if($reseller->verification_status == 'approved')
-                                    <span class="badge bg-success verification-badge"><i class="mdi mdi-check-decagram"></i> Verified</span>
+                                    <span class="badge bg-success verification-badge"><i class="mdi mdi-check-decagram"></i> {{ __('Verified') }} </span>
                                 @elseif($reseller->verification_status == 'rejected')
                                     <span class="badge bg-danger verification-badge">{{ __('Rejected') }}</span>
                                 @else
@@ -136,11 +136,11 @@
                 {{-- Wallet Info --}}
                 <div class="card card-modern">
                     <div class="card-header-modern">
-                        <h5 class="section-title"><i data-feather="credit-card" class="text-success" style="width: 18px;"></i> Financials</h5>
+                        <h5 class="section-title"><i data-feather="credit-card" class="text-success" style="width: 18px;"></i> {{ __('Financials') }} </h5>
                     </div>
                     <div class="card-body p-4">
                         <div class="wallet-card text-center">
-                            <label class="form-label-custom mb-1 text-muted">Current Wallet Balance</label>
+                            <label class="form-label-custom mb-1 text-muted"> {{ __('Current Wallet Balance') }} </label>
                             <h3 class="mb-0 text-dark fw-bold">৳{{ number_format($reseller->wallet_balance ?? 0, 2) }}</h3>
                         </div>
                     </div>
@@ -149,7 +149,7 @@
                 {{-- Security --}}
                 <div class="card card-modern">
                     <div class="card-header-modern">
-                        <h5 class="section-title"><i data-feather="lock" class="text-danger" style="width: 18px;"></i> Security</h5>
+                        <h5 class="section-title"><i data-feather="lock" class="text-danger" style="width: 18px;"></i> {{ __('Security') }} </h5>
                     </div>
                     <div class="card-body p-4">
                         <div class="mb-3">

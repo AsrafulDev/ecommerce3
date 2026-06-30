@@ -91,14 +91,14 @@
                 
                 {{-- Report Type --}}
                 <div class="col-md-3">
-                    <label class="form-label-custom">Filter By</label>
+                    <label class="form-label-custom"> {{ __('Filter By') }} </label>
                     <div class="input-group">
                         <span class="input-group-text bg-white border-end-0"><i data-feather="filter" style="width:16px;"></i></span>
                         <select name="type" class="form-select form-select-custom border-start-0" id="report-type">
-                            <option value="today" {{ $type=='today' ? 'selected' : '' }}>Today</option>
-                            <option value="month" {{ $type=='month' ? 'selected' : '' }}>Monthly</option>
-                            <option value="year"  {{ $type=='year'  ? 'selected' : '' }}>Yearly</option>
-                            <option value="range" {{ $type=='range' ? 'selected' : '' }}>Custom Date Range</option>
+                            <option value="today" {{ $type=='today' ? 'selected' : '' }}> {{ __('Today') }} </option>
+                            <option value="month" {{ $type=='month' ? 'selected' : '' }}> {{ __('Monthly') }} </option>
+                            <option value="year"  {{ $type=='year'  ? 'selected' : '' }}> {{ __('Yearly') }} </option>
+                            <option value="range" {{ $type=='range' ? 'selected' : '' }}> {{ __('Custom Date Range') }} </option>
                         </select>
                     </div>
                 </div>
@@ -121,12 +121,12 @@
                 </div>
 
                 <div class="col-md-2 type-range" style="display:none;">
-                    <label class="form-label-custom">Start Date</label>
+                    <label class="form-label-custom"> {{ __('Start Date') }} </label>
                     <input type="date" name="from_date" class="form-control form-control-custom" value="{{ request('from_date') }}">
                 </div>
 
                 <div class="col-md-2 type-range" style="display:none;">
-                    <label class="form-label-custom">End Date</label>
+                    <label class="form-label-custom"> {{ __('End Date') }} </label>
                     <input type="date" name="to_date" class="form-control form-control-custom" value="{{ request('to_date') }}">
                 </div>
 
@@ -152,7 +152,7 @@
                     <i data-feather="shopping-bag"></i>
                 </div>
                 <div>
-                    <div class="stat-label">Total Orders</div>
+                    <div class="stat-label"> {{ __('Total Orders') }} </div>
                     <h3 class="stat-value">{{ $totalOrders }}</h3>
                 </div>
             </div>
@@ -165,7 +165,7 @@
                     <span class="fw-bold">৳</span>
                 </div>
                 <div>
-                    <div class="stat-label">Revenue</div>
+                    <div class="stat-label"> {{ __('Revenue') }} </div>
                     <h3 class="stat-value">{{ number_format($totalAmount, 2) }}</h3>
                 </div>
             </div>
@@ -178,7 +178,7 @@
                     <i data-feather="tag"></i>
                 </div>
                 <div>
-                    <div class="stat-label">Discount Given</div>
+                    <div class="stat-label"> {{ __('Discount Given') }} </div>
                     <h3 class="stat-value">{{ number_format($totalDiscount, 2) }}</h3>
                 </div>
             </div>
@@ -191,7 +191,7 @@
                     <i data-feather="truck"></i>
                 </div>
                 <div>
-                    <div class="stat-label">Shipping Cost</div>
+                    <div class="stat-label"> {{ __('Shipping Cost') }} </div>
                     <h3 class="stat-value">{{ number_format($totalShipping, 2) }}</h3>
                 </div>
             </div>
@@ -201,7 +201,7 @@
     {{-- ORDER TABLE --}}
     <div class="card card-modern">
         <div class="card-header border-bottom bg-white py-3">
-            <h5 class="mb-0 fw-bold text-dark">Detailed Order List</h5>
+            <h5 class="mb-0 fw-bold text-dark"> {{ __('Detailed Order List') }} </h5>
         </div>
 
         <div class="table-responsive" id="order-table">
@@ -210,8 +210,8 @@
                     <tr>
                         <th width="5%">#</th>
                         <th width="15%">{{ __('Invoice') }}</th>
-                        <th width="20%">Customer</th>
-                        <th width="15%" class="text-end">Total Amount</th>
+                        <th width="20%"> {{ __('Customer') }} </th>
+                        <th width="15%" class="text-end"> {{ __('Total Amount') }} </th>
                         <th width="10%" class="text-end">{{ __('Discount') }}</th>
                         <th width="10%" class="text-end">{{ __('Shipping') }}</th>
                         <th width="10%">{{ __('Status') }}</th>
@@ -262,8 +262,8 @@
                         <td colspan="8" class="text-center py-5">
                             <div class="d-flex flex-column align-items-center">
                                 <img src="https://cdn-icons-png.flaticon.com/512/7486/7486744.png" width="50" class="opacity-25 mb-2">
-                                <p class="text-muted fw-bold mb-0">No orders found</p>
-                                <small class="text-muted">Try changing the filter parameters.</small>
+                                <p class="text-muted fw-bold mb-0"> {{ __('No orders found') }} </p>
+                                <small class="text-muted"> {{ __('Try changing the filter parameters.') }} </small>
                             </div>
                         </td>
                     </tr>

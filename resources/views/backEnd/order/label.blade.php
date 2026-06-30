@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Shipping Labels</title>
+    <title> {{ __('Shipping Labels') }} </title>
     <style>
         * { margin:0; padding:0; box-sizing:border-box; }
 
@@ -156,7 +156,7 @@
         {{-- TOP: FROM + Invoice --}}
         <div class="lbl-top">
             <div>
-                <div class="from-tag">From</div>
+                <div class="from-tag"> {{ __('From') }} </div>
                 <div class="from-name">{{ $generalsetting->name }}</div>
                 <div class="from-cont">
                     {{ $contact->phone ?? '' }}
@@ -172,7 +172,7 @@
 
         {{-- TO: Recipient --}}
         <div class="lbl-to">
-            <div class="to-tag">&#9658; Ship To</div>
+            <div class="to-tag"> {{ __('&#9658; Ship To') }} </div>
             @if($order->shipping)
                 <div class="to-name">{{ $order->shipping->name ?? '—' }}</div>
                 <div class="to-phone">&#128222; {{ $order->shipping->phone ?? '' }}</div>
@@ -221,7 +221,7 @@
         {{-- Bottom: Courier + Amount --}}
         <div class="lbl-bottom">
             <div class="lbl-courier">
-                <div class="c-tag">&#128666; Courier</div>
+                <div class="c-tag"> {{ __('&#128666; Courier') }} </div>
                 <div class="c-name {{ $cClass }}">
                     @if($courier === 'steadfast') &#128309; Steadfast
                     @elseif($courier === 'pathao') &#128311; Pathao

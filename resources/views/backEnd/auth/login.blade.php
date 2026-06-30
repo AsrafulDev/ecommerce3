@@ -60,20 +60,20 @@
                         <div class="mb-5 text-center">
                                                             <img src="{{asset($generalsetting->dark_logo)}}" class="mw-100 mb-4" height="40">
                                                         <h1 class="h3 text-primary mb-0">Welcome to {{$generalsetting->name}}</h1>
-                            <p>Login to your account.</p>
+                            <p> {{ __('Login to your account.') }} </p>
                         </div>
                         
                         {{-- Show error messages --}}
                         @if(session('error'))
                             <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                                <strong>Error!</strong> {{ session('error') }}
+                                <strong> {{ __('Error!') }} </strong> {{ session('error') }}
                                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="{{ __('Close') }}"></button>
                             </div>
                         @endif
                         
                         @if($errors->any())
                             <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                                <strong>Error!</strong>
+                                <strong> {{ __('Error!') }} </strong>
                                 <ul class="mb-0">
                                     @foreach($errors->all() as $error)
                                         <li>{{ $error }}</li>
@@ -121,7 +121,7 @@
                                 </div>
                                                                     <div class="col-sm-6">
                                         <div class="text-right">
-                                            <a href="{{ route('admin.password.request') }}" class="text-reset fs-14">Forgot password ?</a>
+                                            <a href="{{ route('admin.password.request') }}" class="text-reset fs-14"> {{ __('Forgot password ?') }} </a>
                                         </div>
                                     </div>
                                                             </div>

@@ -55,8 +55,8 @@
     {{-- HEADER --}}
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
-            <h4 class="mb-1 fw-bold text-dark">Edit Employee</h4>
-            <p class="text-muted small mb-0">Update employee profile and information.</p>
+            <h4 class="mb-1 fw-bold text-dark"> {{ __('Edit Employee') }} </h4>
+            <p class="text-muted small mb-0"> {{ __('Update employee profile and information.') }} </p>
         </div>
         <a href="{{ route('admin.employees.index') }}" class="btn btn-white border shadow-sm rounded-pill px-4">
             <i data-feather="arrow-left" class="me-1" style="width: 16px;"></i> Back to List
@@ -82,14 +82,14 @@
                     <div class="card-body p-4">
                         <div class="row g-4">
                             <div class="col-md-6">
-                                <label class="form-label-custom">Employee ID</label>
+                                <label class="form-label-custom"> {{ __('Employee ID') }} </label>
                                 <input type="text" class="form-control form-control-custom" value="{{ $employee->employee_id }}" disabled>
                             </div>
 
                             <div class="col-md-6">
-                                <label class="form-label-custom">Linked User Account</label>
+                                <label class="form-label-custom"> {{ __('Linked User Account') }} </label>
                                 <select name="user_id" class="form-control select2">
-                                    <option value="">No User Linked</option>
+                                    <option value=""> {{ __('No User Linked') }} </option>
                                     @foreach($availableUsers as $user)
                                         <option value="{{ $user->id }}" {{ $employee->user_id == $user->id ? 'selected' : '' }}>
                                             {{ $user->name }} ({{ $user->email }})
@@ -99,44 +99,44 @@
                             </div>
 
                             <div class="col-md-6">
-                                <label class="form-label-custom">Full Name <span class="text-danger">*</span></label>
+                                <label class="form-label-custom"> {{ __('Full Name') }} <span class="text-danger">*</span></label>
                                 <input type="text" name="name" class="form-control form-control-custom @error('name') is-invalid @enderror" value="{{ old('name', $employee->name) }}" required>
                                 @error('name') <span class="invalid-feedback">{{ $message }}</span> @enderror
                             </div>
                             
                             <div class="col-md-6">
-                                <label class="form-label-custom">Email Address <span class="text-danger">*</span></label>
+                                <label class="form-label-custom"> {{ __('Email Address') }} <span class="text-danger">*</span></label>
                                 <input type="email" name="email" class="form-control form-control-custom @error('email') is-invalid @enderror" value="{{ old('email', $employee->email) }}" required>
                                 @error('email') <span class="invalid-feedback">{{ $message }}</span> @enderror
                             </div>
 
                             <div class="col-md-6">
-                                <label class="form-label-custom">Phone Number</label>
+                                <label class="form-label-custom"> {{ __('Phone Number') }} </label>
                                 <input type="text" name="phone" class="form-control form-control-custom" value="{{ old('phone', $employee->phone) }}">
                             </div>
 
                             <div class="col-md-6">
-                                <label class="form-label-custom">Joining Date <span class="text-danger">*</span></label>
+                                <label class="form-label-custom"> {{ __('Joining Date') }} <span class="text-danger">*</span></label>
                                 <input type="date" name="joining_date" class="form-control form-control-custom @error('joining_date') is-invalid @enderror" value="{{ old('joining_date', $employee->joining_date->format('Y-m-d')) }}" required>
                                 @error('joining_date') <span class="invalid-feedback">{{ $message }}</span> @enderror
                             </div>
 
                             <div class="col-md-6">
-                                <label class="form-label-custom">Department</label>
+                                <label class="form-label-custom"> {{ __('Department') }} </label>
                                 <input type="text" name="department" class="form-control form-control-custom" value="{{ old('department', $employee->department) }}">
                             </div>
 
                             <div class="col-md-6">
-                                <label class="form-label-custom">Designation</label>
+                                <label class="form-label-custom"> {{ __('Designation') }} </label>
                                 <input type="text" name="designation" class="form-control form-control-custom" value="{{ old('designation', $employee->designation) }}">
                             </div>
 
                             <div class="col-md-6">
-                                <label class="form-label-custom">Employment Status <span class="text-danger">*</span></label>
+                                <label class="form-label-custom"> {{ __('Employment Status') }} <span class="text-danger">*</span></label>
                                 <select name="status" class="form-select form-select-custom" required>
                                     <option value="active" {{ $employee->status == 'active' ? 'selected' : '' }}>{{ __('Active') }}</option>
                                     <option value="inactive" {{ $employee->status == 'inactive' ? 'selected' : '' }}>{{ __('Inactive') }}</option>
-                                    <option value="terminated" {{ $employee->status == 'terminated' ? 'selected' : '' }}>Terminated</option>
+                                    <option value="terminated" {{ $employee->status == 'terminated' ? 'selected' : '' }}> {{ __('Terminated') }} </option>
                                 </select>
                             </div>
                         </div>
@@ -163,12 +163,12 @@
                         </div>
 
                         <div class="mb-3">
-                            <label class="form-label-custom">Bank Name</label>
+                            <label class="form-label-custom"> {{ __('Bank Name') }} </label>
                             <input type="text" name="bank_name" class="form-control form-control-custom" value="{{ old('bank_name', $employee->bank_name) }}">
                         </div>
 
                         <div class="mb-3">
-                            <label class="form-label-custom">Bank Account No.</label>
+                            <label class="form-label-custom"> {{ __('Bank Account No.') }} </label>
                             <input type="text" name="bank_account" class="form-control form-control-custom" value="{{ old('bank_account', $employee->bank_account) }}">
                         </div>
                     </div>
@@ -183,7 +183,7 @@
                     </div>
                     <div class="card-body p-4">
                         <div class="mb-3">
-                            <label class="form-label-custom">NID Number</label>
+                            <label class="form-label-custom"> {{ __('NID Number') }} </label>
                             <input type="text" name="nid" class="form-control form-control-custom" value="{{ old('nid', $employee->nid) }}">
                         </div>
 
@@ -193,7 +193,7 @@
                         </div>
 
                         <div class="mb-3">
-                            <label class="form-label-custom">Additional Notes</label>
+                            <label class="form-label-custom"> {{ __('Additional Notes') }} </label>
                             <textarea name="notes" class="form-control form-control-custom" rows="2">{{ old('notes', $employee->notes) }}</textarea>
                         </div>
                     </div>

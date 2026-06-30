@@ -44,11 +44,10 @@
     <div class="row">
         <div class="col-12">
             <div class="page-title-box d-flex align-items-center justify-content-between py-3">
-                <h4 class="page-title mb-0">Wholesale Products</h4>
+                <h4 class="page-title mb-0"> {{ __('Wholesale Products') }} </h4>
                 <div class="page-title-right">
                     <a href="{{route('products.create')}}" class="btn btn-danger rounded-pill shadow-sm">
-                        <i class="fe-plus me-1"></i> Add New Product
-                    </a>
+                        <i class="fe-plus me-1"></i> {{ __('Add New Product') }} </a>
                 </div>
             </div>
         </div>
@@ -111,7 +110,7 @@
                                     @endif
                                     <div class="col-12">
                                         <select name="status" class="form-control form-control-sm" onchange="this.form.submit()">
-                                            <option value="">All Status</option>
+                                            <option value=""> {{ __('All Status') }} </option>
                                             <option value="1" {{ request('status') == '1' ? 'selected' : '' }}>{{ __('Active') }}</option>
                                             <option value="0" {{ request('status') == '0' ? 'selected' : '' }}>{{ __('Inactive') }}</option>
                                         </select>
@@ -131,14 +130,14 @@
                                         </div>
                                     </th>
                                     <th>{{ __('Image') }}</th>
-                                    <th>Product Name</th>
+                                    <th> {{ __('Product Name') }} </th>
                                     <th>{{ __('Category') }}</th>
                                     <th>{{ __('Vendor') }}</th>
-                                    <th>Wholesale Tiers</th>
+                                    <th> {{ __('Wholesale Tiers') }} </th>
                                     <th>{{ __('Price') }}</th>
                                     <th>{{ __('Stock') }}</th>
                                     <th>{{ __('Status') }}</th>
-                                    <th>Actions</th>
+                                    <th> {{ __('Actions') }} </th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -163,13 +162,13 @@
                                         <span class="badge badge-soft-info">{{ $product->category->name ?? 'N/A' }}</span>
                                     </td>
                                     <td>
-                                        <span class="badge badge-soft-secondary">Inhouse</span>
+                                        <span class="badge badge-soft-secondary"> {{ __('Inhouse') }} </span>
                                     </td>
                                     <td>
                                         @if($product->wholesalePrices && $product->wholesalePrices->count() > 0)
                                             <span class="badge badge-soft-success">{{ $product->wholesalePrices->count() }} Tier(s)</span>
                                         @else
-                                            <span class="badge badge-soft-warning">No Tiers</span>
+                                            <span class="badge badge-soft-warning"> {{ __('No Tiers') }} </span>
                                         @endif
                                     </td>
                                     <td>
@@ -204,7 +203,7 @@
                                     <td colspan="10" class="text-center py-4">
                                         <div class="text-muted">
                                             <i class="fe-package" style="font-size: 48px; opacity: 0.3;"></i>
-                                            <p class="mt-2 mb-0">No wholesale products found</p>
+                                            <p class="mt-2 mb-0"> {{ __('No wholesale products found') }} </p>
                                         </div>
                                     </td>
                                 </tr>

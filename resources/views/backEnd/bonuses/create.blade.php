@@ -50,19 +50,18 @@
                     {{-- Header --}}
                     <div class="card-header-modern">
                         <div>
-                            <h5 class="mb-1 fw-bold text-dark">Award Bonus</h5>
-                            <p class="text-muted small mb-0">Add incentive or festival bonus for an employee.</p>
+                            <h5 class="mb-1 fw-bold text-dark"> {{ __('Award Bonus') }} </h5>
+                            <p class="text-muted small mb-0"> {{ __('Add incentive or festival bonus for an employee.') }} </p>
                         </div>
                         <a href="{{ route('admin.bonuses.index') }}" class="btn btn-light btn-sm rounded-pill px-3">
-                            <i data-feather="list" style="width:14px;" class="me-1"></i> History
-                        </a>
+                            <i data-feather="list" style="width:14px;" class="me-1"></i> {{ __('History') }} </a>
                     </div>
 
                     <div class="card-body p-4">
                         
                         {{-- Employee Select --}}
                         <div class="mb-4">
-                            <label class="form-label-custom">Select Employee <span class="text-danger">*</span></label>
+                            <label class="form-label-custom"> {{ __('Select Employee') }} <span class="text-danger">*</span></label>
                             <select name="employee_id" class="form-control select2 form-select-custom @error('employee_id') is-invalid @enderror" required>
                                 <option value="">-- Choose Employee --</option>
                                 @foreach($employees as $emp)
@@ -77,7 +76,7 @@
                         {{-- Type & Amount --}}
                         <div class="row g-3 mb-4">
                             <div class="col-md-6">
-                                <label class="form-label-custom">Bonus Type <span class="text-danger">*</span></label>
+                                <label class="form-label-custom"> {{ __('Bonus Type') }} <span class="text-danger">*</span></label>
                                 <input type="text" name="bonus_type" class="form-control form-control-custom @error('bonus_type') is-invalid @enderror" 
                                        value="{{ old('bonus_type') }}" placeholder="e.g. Eid Bonus, Performance" required>
                                 @error('bonus_type') <span class="text-danger small">{{ $message }}</span> @enderror
@@ -95,24 +94,24 @@
 
                         {{-- Salary Month --}}
                         <div class="mb-4">
-                            <label class="form-label-custom">Applicable Month (Optional)</label>
+                            <label class="form-label-custom"> {{ __('Applicable Month (Optional)') }} </label>
                             <div class="input-group">
                                 <span class="input-group-text bg-white border-end-0 text-muted"><i data-feather="calendar" style="width:16px;"></i></span>
                                 <input type="month" name="salary_month" class="form-control form-control-custom border-start-0" 
                                        value="{{ old('salary_month') }}">
                             </div>
-                            <small class="text-muted ms-1">Leave blank if this bonus is not linked to specific salary month.</small>
+                            <small class="text-muted ms-1"> {{ __('Leave blank if this bonus is not linked to specific salary month.') }} </small>
                         </div>
 
                         {{-- Reason --}}
                         <div class="mb-4">
-                            <label class="form-label-custom">Reason / Description</label>
+                            <label class="form-label-custom"> {{ __('Reason / Description') }} </label>
                             <textarea name="reason" class="form-control form-control-custom" rows="2" placeholder="Why is this bonus being given?">{{ old('reason') }}</textarea>
                         </div>
 
                         {{-- Notes --}}
                         <div class="mb-4">
-                            <label class="form-label-custom">Private Notes</label>
+                            <label class="form-label-custom"> {{ __('Private Notes') }} </label>
                             <textarea name="notes" class="form-control form-control-custom" rows="2" placeholder="Internal remarks...">{{ old('notes') }}</textarea>
                         </div>
 

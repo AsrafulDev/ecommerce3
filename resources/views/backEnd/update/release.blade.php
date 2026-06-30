@@ -138,21 +138,21 @@
                             @csrf
 
                             <div class="mb-3">
-                                <label class="form-label-modern">Version Number <span class="text-danger">*</span></label>
+                                <label class="form-label-modern"> {{ __('Version Number') }} <span class="text-danger">*</span></label>
                                 <input type="text" name="version" 
                                        class="form-control form-control-modern @error('version') is-invalid @enderror" 
                                        value="{{ old('version') }}" 
                                        placeholder="e.g., 1.1.0" 
                                        pattern="^\d+\.\d+\.\d+$"
                                        required>
-                                <small class="text-muted">Format: X.X.X (e.g., 1.1.0)</small>
+                                <small class="text-muted"> {{ __('Format: X.X.X (e.g., 1.1.0)') }} </small>
                                 @error('version')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
                             </div>
 
                             <div class="mb-3">
-                                <label class="form-label-modern">Release Date <span class="text-danger">*</span></label>
+                                <label class="form-label-modern"> {{ __('Release Date') }} <span class="text-danger">*</span></label>
                                 <input type="date" name="release_date" 
                                        class="form-control form-control-modern @error('release_date') is-invalid @enderror" 
                                        value="{{ old('release_date', date('Y-m-d')) }}" 
@@ -174,12 +174,12 @@
                             </div>
 
                             <div class="mb-3">
-                                <label class="form-label-modern">Update File (ZIP) <span class="text-danger">*</span></label>
+                                <label class="form-label-modern"> {{ __('Update File (ZIP)') }} <span class="text-danger">*</span></label>
                                 <input type="file" name="update_file" 
                                        class="form-control form-control-modern @error('update_file') is-invalid @enderror" 
                                        accept=".zip"
                                        required>
-                                <small class="text-muted">Maximum file size: 100MB</small>
+                                <small class="text-muted"> {{ __('Maximum file size: 100MB') }} </small>
                                 @error('update_file')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
@@ -208,7 +208,7 @@
             <div class="col-lg-8">
                 <div class="card card-modern h-100">
                     <div class="card-header-modern d-flex justify-content-between align-items-center">
-                        <span>Released Versions</span>
+                        <span> {{ __('Released Versions') }} </span>
                         <span class="badge bg-light text-dark border">{{ $versions->count() }} Versions</span>
                     </div>
                     
@@ -218,11 +218,11 @@
                                 <thead>
                                     <tr>
                                         <th width="15%">{{ __('Version') }}</th>
-                                        <th width="15%">Release Date</th>
+                                        <th width="15%"> {{ __('Release Date') }} </th>
                                         <th width="30%">{{ __('Changelog') }}</th>
-                                        <th width="10%">File Size</th>
+                                        <th width="10%"> {{ __('File Size') }} </th>
                                         <th width="10%">{{ __('Status') }}</th>
-                                        <th width="20%" class="text-end">Actions</th>
+                                        <th width="20%" class="text-end"> {{ __('Actions') }} </th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -231,7 +231,7 @@
                                             <td>
                                                 <span class="fw-bold text-primary">{{ $version->version }}</span>
                                                 @if($version->requires_migration)
-                                                    <br><small class="text-warning"><i class="fas fa-database"></i> Migration</small>
+                                                    <br><small class="text-warning"><i class="fas fa-database"></i> {{ __('Migration') }} </small>
                                                 @endif
                                             </td>
                                             <td>{{ $version->release_date->format('M d, Y') }}</td>
@@ -276,7 +276,7 @@
                                         <tr>
                                             <td colspan="6" class="text-center text-muted py-4">
                                                 <i class="fas fa-inbox fa-2x mb-2"></i>
-                                                <p class="mb-0">No versions released yet</p>
+                                                <p class="mb-0"> {{ __('No versions released yet') }} </p>
                                             </td>
                                         </tr>
                                     @endforelse

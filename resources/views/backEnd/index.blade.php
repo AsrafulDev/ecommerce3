@@ -5,7 +5,7 @@
 @section('content')
 <div class="card">
     <div class="card-header">
-        <h4>Contact Messages</h4>
+        <h4> {{ __('Contact Messages') }} </h4>
     </div>
 
     <div class="card-body">
@@ -13,11 +13,11 @@
             <thead>
                 <tr>
                     <th>#</th>
-                    <th>Full Name</th>
-                    <th>Mobile</th>
+                    <th> {{ __('Full Name') }} </th>
+                    <th> {{ __('Mobile') }} </th>
                     <th>{{ __('Email') }}</th>
                     <th>{{ __('Subject') }}</th>
-                    <th>Message</th>
+                    <th> {{ __('Message') }} </th>
                     <th>{{ __('Status') }}</th>
                     <th width="120">{{ __('Action') }}</th>
                 </tr>
@@ -35,7 +35,7 @@
                         @if($row->status == 0)
                             <span class="badge badge-warning">{{ __('Pending') }}</span>
                         @else
-                            <span class="badge badge-success">Seen</span>
+                            <span class="badge badge-success"> {{ __('Seen') }} </span>
                         @endif
                     </td>
                     <td>
@@ -60,7 +60,7 @@
 
                 @if($messages->count() == 0)
                 <tr>
-                    <td colspan="8" class="text-center">No messages found</td>
+                    <td colspan="8" class="text-center"> {{ __('No messages found') }} </td>
                 </tr>
                 @endif
             </tbody>

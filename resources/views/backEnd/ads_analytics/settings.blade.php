@@ -40,8 +40,8 @@
             <i class="fe-facebook"></i>
           </div>
           <div>
-            <h5 class="mb-0 text-white fw-semibold">Facebook Ads Manager</h5>
-            <small class="text-white-50">Meta Ads API Configuration</small>
+            <h5 class="mb-0 text-white fw-semibold"> {{ __('Facebook Ads Manager') }} </h5>
+            <small class="text-white-50"> {{ __('Meta Ads API Configuration') }} </small>
           </div>
         </div>
         <div class="d-flex align-items-center gap-3">
@@ -68,8 +68,7 @@
             </div>
             <div class="col-md-6">
               <label class="modern-label" for="facebook_access_token">
-                <i class="fe-key me-1"></i>Access Token
-                <span class="field-tooltip" title="Long-lived System User Token or User Access Token from Meta">?</span>
+                <i class="fe-key me-1"></i> {{ __('Access Token') }} <span class="field-tooltip" title="Long-lived System User Token or User Access Token from Meta">?</span>
               </label>
               <div class="modern-input-group input-group">
                 <span class="input-group-text"><i class="fe-lock"></i></span>
@@ -92,8 +91,7 @@
             </div>
             <div class="col-md-6">
               <label class="modern-label" for="facebook_app_secret">
-                <i class="fe-shield me-1"></i>App Secret
-                <span class="field-tooltip" title="Your Facebook App Secret from the Meta Developer Portal">?</span>
+                <i class="fe-shield me-1"></i> {{ __('App Secret') }} <span class="field-tooltip" title="Your Facebook App Secret from the Meta Developer Portal">?</span>
               </label>
               <div class="modern-input-group input-group">
                 <span class="input-group-text"><i class="fe-eye-off"></i></span>
@@ -106,7 +104,7 @@
           </div>
           <div class="help-block">
             <i class="fe-info text-primary me-1"></i>
-            <strong>Where to find:</strong> Facebook Developers → App → Marketing API → System User Token or User Access Token
+            <strong> {{ __('Where to find:') }} </strong> Facebook Developers → App → Marketing API → System User Token or User Access Token
           </div>
         </div>
       </div>
@@ -120,8 +118,8 @@
             <i class="fe-globe"></i>
           </div>
           <div>
-            <h5 class="mb-0 text-white fw-semibold">Google Ads</h5>
-            <small class="text-white-50">Google Ads API Configuration</small>
+            <h5 class="mb-0 text-white fw-semibold"> {{ __('Google Ads') }} </h5>
+            <small class="text-white-50"> {{ __('Google Ads API Configuration') }} </small>
           </div>
         </div>
         <div class="d-flex align-items-center gap-3">
@@ -145,12 +143,11 @@
                 <input type="text" id="google_ad_account_id" name="google_ad_account_id" class="form-control modern-input" value="{{ optional($settings['google'] ?? null)->ad_account_id ?? '' }}" placeholder="1234567890">
                 <button type="button" class="copy-btn" data-copy="{{ optional($settings['google'] ?? null)->ad_account_id ?? '' }}" title="Copy to clipboard"><i class="fe-copy"></i></button>
               </div>
-              <small class="text-muted">Format: 123-456-7890</small>
+              <small class="text-muted"> {{ __('Format: 123-456-7890') }} </small>
             </div>
             <div class="col-md-6">
               <label class="modern-label" for="google_client_id">
-                <i class="fe-user me-1"></i>Client ID
-                <span class="field-tooltip" title="OAuth 2.0 Client ID from Google Cloud Console">?</span>
+                <i class="fe-user me-1"></i> {{ __('Client ID') }} <span class="field-tooltip" title="OAuth 2.0 Client ID from Google Cloud Console">?</span>
               </label>
               <div class="modern-input-group input-group">
                 <span class="input-group-text"><i class="fe-file-text"></i></span>
@@ -160,8 +157,7 @@
             </div>
             <div class="col-md-6">
               <label class="modern-label" for="google_client_secret">
-                <i class="fe-shield me-1"></i>Client Secret
-                <span class="field-tooltip" title="OAuth 2.0 Client Secret from Google Cloud Console">?</span>
+                <i class="fe-shield me-1"></i> {{ __('Client Secret') }} <span class="field-tooltip" title="OAuth 2.0 Client Secret from Google Cloud Console">?</span>
               </label>
               <div class="modern-input-group input-group">
                 <span class="input-group-text"><i class="fe-lock"></i></span>
@@ -185,7 +181,7 @@
           </div>
           <div class="help-block">
             <i class="fe-info text-danger me-1"></i>
-            <strong>Where to find:</strong> Google Cloud Console → OAuth 2.0 credentials. Application verification required for Google Ads API.
+            <strong> {{ __('Where to find:') }} </strong> Google Cloud Console → OAuth 2.0 credentials. Application verification required for Google Ads API.
           </div>
         </div>
       </div>
@@ -199,8 +195,8 @@
             <i class="fe-video"></i>
           </div>
           <div>
-            <h5 class="mb-0 text-white fw-semibold">TikTok Ads</h5>
-            <small class="text-white-50">TikTok for Business API Configuration</small>
+            <h5 class="mb-0 text-white fw-semibold"> {{ __('TikTok Ads') }} </h5>
+            <small class="text-white-50"> {{ __('TikTok for Business API Configuration') }} </small>
           </div>
         </div>
         <div class="d-flex align-items-center gap-3">
@@ -227,8 +223,7 @@
             </div>
             <div class="col-md-6">
               <label class="modern-label" for="tiktok_access_token">
-                <i class="fe-key me-1"></i>Access Token
-                <span class="field-tooltip" title="API Access Token from TikTok for Business">?</span>
+                <i class="fe-key me-1"></i> {{ __('Access Token') }} <span class="field-tooltip" title="API Access Token from TikTok for Business">?</span>
               </label>
               <div class="modern-input-group input-group">
                 <span class="input-group-text"><i class="fe-lock"></i></span>
@@ -241,7 +236,7 @@
           </div>
           <div class="help-block">
             <i class="fe-info text-dark me-1"></i>
-            <strong>Where to find:</strong> TikTok for Business → Tools → API → Create Access Token
+            <strong> {{ __('Where to find:') }} </strong> TikTok for Business → Tools → API → Create Access Token
           </div>
         </div>
       </div>
@@ -269,7 +264,7 @@
         </div>
         <button type="submit" class="btn btn-modern-save" id="saveBtn">
           <span class="spinner"></span>
-          <span class="btn-text"><i class="fe-save"></i> Save Settings</span>
+          <span class="btn-text"><i class="fe-save"></i> {{ __('Save Settings') }} </span>
         </button>
       </div>
     </div>

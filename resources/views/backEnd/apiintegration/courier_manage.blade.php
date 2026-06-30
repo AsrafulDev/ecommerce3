@@ -142,8 +142,8 @@
     
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
-            <h4 class="fw-bold text-dark m-0" style="font-size: 22px;">Courier Integration</h4>
-            <span class="text-muted">Manage API keys for courier services</span>
+            <h4 class="fw-bold text-dark m-0" style="font-size: 22px;"> {{ __('Courier Integration') }} </h4>
+            <span class="text-muted"> {{ __('Manage API keys for courier services') }} </span>
         </div>
     </div>
 
@@ -153,8 +153,8 @@
             <div class="card courier-card">
                 <div class="card-header-custom header-steadfast">
                     <div>
-                        <h5 class="card-title">Steadfast Courier</h5>
-                        <small class="text-muted">Fast & Reliable Delivery</small>
+                        <h5 class="card-title"> {{ __('Steadfast Courier') }} </h5>
+                        <small class="text-muted"> {{ __('Fast & Reliable Delivery') }} </small>
                     </div>
                     <div class="courier-icon-box">
                         <img src="{{ asset('public/frontEnd/images/stade.svg') }}" alt="Steadfast">
@@ -176,7 +176,7 @@
                         </div>
 
                         <div class="mb-4">
-                            <label class="form-label">Secret Key <span class="text-danger">*</span></label>
+                            <label class="form-label"> {{ __('Secret Key') }} <span class="text-danger">*</span></label>
                             <input type="text" class="form-control @error('secret_key') is-invalid @enderror" 
                                    name="secret_key" value="{{ $steadfast->secret_key }}" required />
                             @error('secret_key')
@@ -187,7 +187,7 @@
                         <div class="status-wrapper">
                             <div class="d-flex align-items-center">
                                 <i class="fas fa-shipping-fast me-2 text-danger"></i>
-                                <span class="fw-bold text-dark" style="font-size: 14px;">Service Status</span>
+                                <span class="fw-bold text-dark" style="font-size: 14px;"> {{ __('Service Status') }} </span>
                             </div>
                             <div class="form-check form-switch">
                                 <input class="form-check-input" type="checkbox" name="status" value="1" 
@@ -208,8 +208,8 @@
             <div class="card courier-card">
                 <div class="card-header-custom" style="background: linear-gradient(135deg, #e0f2fe 0%, #fff 100%); border-left: 5px solid #0ea5e9;">
                     <div>
-                        <h5 class="card-title">Pathao Courier</h5>
-                        <small class="text-muted">Fast Delivery Service</small>
+                        <h5 class="card-title"> {{ __('Pathao Courier') }} </h5>
+                        <small class="text-muted"> {{ __('Fast Delivery Service') }} </small>
                     </div>
                     <div class="courier-icon-box">
                        <img src="https://merchant.pathao.com/assets/logo_pathao_courier.a3ef9b7c.svg" alt="Pathao">
@@ -230,7 +230,7 @@
                         </div>
 
                         <div class="mb-3">
-                            <label class="form-label">Client ID <span class="text-danger">*</span></label>
+                            <label class="form-label"> {{ __('Client ID') }} <span class="text-danger">*</span></label>
                             <input type="text" class="form-control @error('client_id') is-invalid @enderror" 
                                    name="client_id" value="{{ $pathao->client_id ?? '' }}" 
                                    placeholder="Enter Pathao Client ID" required />
@@ -240,7 +240,7 @@
                         </div>
 
                         <div class="mb-3">
-                            <label class="form-label">Client Secret <span class="text-danger">*</span></label>
+                            <label class="form-label"> {{ __('Client Secret') }} <span class="text-danger">*</span></label>
                             <input type="password" class="form-control @error('client_secret') is-invalid @enderror" 
                                    name="client_secret" value="{{ $pathao->client_secret ?? '' }}" 
                                    placeholder="Enter Pathao Client Secret" required />
@@ -250,7 +250,7 @@
                         </div>
 
                         <div class="mb-3">
-                            <label class="form-label">Username/Email <span class="text-danger">*</span></label>
+                            <label class="form-label"> {{ __('Username/Email') }} <span class="text-danger">*</span></label>
                             <input type="text" class="form-control @error('username') is-invalid @enderror" 
                                    name="username" value="{{ $pathao->username ?? '' }}" 
                                    placeholder="test@pathao.com (Sandbox) or your email (Production)" required />
@@ -272,7 +272,7 @@
                         </div>
 
                         <div class="mb-3">
-                            <label class="form-label">Access Token</label>
+                            <label class="form-label"> {{ __('Access Token') }} </label>
                             <div class="input-group">
                                 <input type="text" class="form-control" 
                                        value="{{ $pathao->token ?? '' }}" 
@@ -282,13 +282,13 @@
                                     <i class="fe-refresh-cw"></i> Generate
                                 </button>
                             </div>
-                            <small class="text-muted">Token will be auto-generated when you save Client ID & Secret</small>
+                            <small class="text-muted"> {{ __('Token will be auto-generated when you save Client ID & Secret') }} </small>
                         </div>
 
                         <div class="status-wrapper">
                             <div class="d-flex align-items-center">
                                 <i class="fe-truck me-2 text-info"></i>
-                                <span class="fw-bold text-dark" style="font-size: 14px;">Service Status</span>
+                                <span class="fw-bold text-dark" style="font-size: 14px;"> {{ __('Service Status') }} </span>
                             </div>
                             <div class="form-check form-switch">
                                 <input class="form-check-input" type="checkbox" name="status" value="1" 
@@ -310,8 +310,8 @@
             <div class="card courier-card">
                 <div class="card-header-custom header-redx">
                     <div>
-                        <h5 class="card-title">RedX Courier</h5>
-                        <small class="text-muted">Reliable Delivery Service</small>
+                        <h5 class="card-title"> {{ __('RedX Courier') }} </h5>
+                        <small class="text-muted"> {{ __('Reliable Delivery Service') }} </small>
                     </div>
                     <div class="courier-icon-box">
                         <img src="https://redx.com.bd/images/logo.png" alt="RedX" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22%3E%3Ctext x=%2250%22 y=%2250%22 font-size=%2240%22 text-anchor=%22middle%22 dominant-baseline=%22middle%22 fill=%22%23f59e0b%22%3ERedX%3C/text%3E%3C/svg%3E'">
@@ -325,7 +325,7 @@
                         <input type="hidden" name="type" value="redx">
 
                         <div class="mb-3">
-                            <label class="form-label">Base URL <span class="text-danger">*</span></label>
+                            <label class="form-label"> {{ __('Base URL') }} <span class="text-danger">*</span></label>
                             @php
                                 // Get current URL and normalize for comparison (remove https://)
                                 $currentUrl = $redx->url ?? '';
@@ -333,10 +333,10 @@
                                 $currentUrlNormalized = rtrim($currentUrlNormalized, '/');
                             @endphp
                             <select class="form-control" name="url" id="redx_url" required>
-                                <option value="sandbox.redx.com.bd/v1.0.0-beta" {{ $currentUrlNormalized == 'sandbox.redx.com.bd/v1.0.0-beta' || strpos($currentUrlNormalized, 'sandbox.redx.com.bd') !== false ? 'selected' : '' }}>Sandbox (Testing)</option>
-                                <option value="openapi.redx.com.bd/v1.0.0-beta" {{ $currentUrlNormalized == 'openapi.redx.com.bd/v1.0.0-beta' || strpos($currentUrlNormalized, 'openapi.redx.com.bd') !== false ? 'selected' : '' }}>Production (Live)</option>
+                                <option value="sandbox.redx.com.bd/v1.0.0-beta" {{ $currentUrlNormalized == 'sandbox.redx.com.bd/v1.0.0-beta' || strpos($currentUrlNormalized, 'sandbox.redx.com.bd') !== false ? 'selected' : '' }}> {{ __('Sandbox (Testing)') }} </option>
+                                <option value="openapi.redx.com.bd/v1.0.0-beta" {{ $currentUrlNormalized == 'openapi.redx.com.bd/v1.0.0-beta' || strpos($currentUrlNormalized, 'openapi.redx.com.bd') !== false ? 'selected' : '' }}> {{ __('Production (Live)') }} </option>
                             </select>
-                            <small class="text-muted">Select Sandbox for testing or Production for live operations</small>
+                            <small class="text-muted"> {{ __('Select Sandbox for testing or Production for live operations') }} </small>
                             @if(!empty($currentUrl))
                                 <small class="text-info d-block mt-1">
                                     <i class="fe-info"></i> Current: {{ $currentUrl }}
@@ -345,14 +345,14 @@
                         </div>
 
                         <div class="mb-3">
-                            <label class="form-label">API Access Token <span class="text-danger">*</span></label>
+                            <label class="form-label"> {{ __('API Access Token') }} <span class="text-danger">*</span></label>
                             <input type="text" class="form-control @error('token') is-invalid @enderror" 
                                    name="token" value="{{ $redx->token ?? '' }}" 
                                    placeholder="Enter RedX API Access Token (without Bearer prefix)" required />
                             <small class="text-muted">
-                                <strong>Important:</strong> Enter token only (without "Bearer " prefix).<br>
-                                • For <strong>Sandbox</strong>: Use Sandbox token from RedX Sandbox dashboard<br>
-                                • For <strong>Production</strong>: Use Production token from RedX OpenAPI dashboard<br>
+                                <strong>Important:</strong> {{ __('Enter token only (without "Bearer " prefix).') }} <br>
+                                • For <strong> {{ __('Sandbox') }} </strong>: Use Sandbox token from RedX Sandbox dashboard<br>
+                                • For <strong> {{ __('Production') }} </strong>: Use Production token from RedX OpenAPI dashboard<br>
                                 <span class="text-danger">⚠️ Token must match selected environment (Sandbox/Production)</span>
                             </small>
                             @error('token')
@@ -361,7 +361,7 @@
                         </div>
 
                         <div class="mb-3">
-                            <label class="form-label">Webhook Callback URL <small class="text-muted">(Optional)</small></label>
+                            <label class="form-label"> {{ __('Webhook Callback URL') }} <small class="text-muted">(Optional)</small></label>
                             <div class="input-group">
                                 <input type="text" class="form-control" 
                                        name="webhook_url" 
@@ -375,14 +375,14 @@
                             <small class="text-muted">
                                 <strong>Suggested URL:</strong> <code id="suggested_webhook_url">{{ config('app.url') }}/api/redx/webhook</code><br>
                                 RedX dashboard এ এই URL configure করুন। Parcel status updates automatically receive হবে।<br>
-                                <em>Leave empty if you don't want to use webhook.</em>
+                                <em> {{ __("Leave empty if you don't want to use webhook.") }} </em>
                             </small>
                         </div>
 
                         <div class="status-wrapper">
                             <div class="d-flex align-items-center">
                                 <i class="fas fa-shipping-fast me-2 text-warning"></i>
-                                <span class="fw-bold text-dark" style="font-size: 14px;">Service Status</span>
+                                <span class="fw-bold text-dark" style="font-size: 14px;"> {{ __('Service Status') }} </span>
                             </div>
                             <div class="form-check form-switch">
                                 <input class="form-check-input" type="checkbox" name="status" value="1" 
@@ -442,7 +442,7 @@
                         toastr.success(
                             '✅ Token generated successfully!' + expiryInfo + '<br>' +
                             '<small><strong>Token Preview:</strong> ' + tokenPreview + '</small><br>' +
-                            '<small>Token has been saved to database.</small>',
+                            '<small> {{ __('Token has been saved to database.') }} </small>',
                             'Pathao Token Generated',
                             {timeOut: 7000}
                         );

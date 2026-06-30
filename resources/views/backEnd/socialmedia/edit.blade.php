@@ -80,8 +80,8 @@
     
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
-            <h4 class="fw-bold m-0 text-dark">Edit Platform Connection</h4>
-            <span class="text-muted small">Update social media profile details for <b>{{ $edit_data->title }}</b></span>
+            <h4 class="fw-bold m-0 text-dark"> {{ __('Edit Platform Connection') }} </h4>
+            <span class="text-muted small"> {{ __('Update social media profile details for') }} <b>{{ $edit_data->title }}</b></span>
         </div>
         <div class="d-flex gap-2">
             <a href="{{route('socialmedias.index')}}" class="btn btn-light border fw-bold text-secondary px-3 rounded-pill">{{ __('Cancel') }}</a>
@@ -102,7 +102,7 @@
                     <div class="row g-4">
                         
                         <div class="col-md-6">
-                            <label class="form-label-custom">Platform Name *</label>
+                            <label class="form-label-custom"> {{ __('Platform Name *') }} </label>
                             <div class="input-group">
                                 <span class="input-group-text"><i class="mdi mdi-label-outline"></i></span>
                                 <input type="text" class="form-control input-clean @error('title') is-invalid @enderror" 
@@ -113,7 +113,7 @@
                         </div>
 
                         <div class="col-md-6">
-                            <label class="form-label-custom">Icon Class *</label>
+                            <label class="form-label-custom"> {{ __('Icon Class *') }} </label>
                             <div class="input-group">
                                 <span class="input-group-text"><i class="mdi mdi-emoticon-happy-outline"></i></span>
                                 <input type="text" class="form-control input-clean @error('icon') is-invalid @enderror" 
@@ -125,7 +125,7 @@
                         </div>
 
                         <div class="col-md-6">
-                            <label class="form-label-custom">Profile URL / Link *</label>
+                            <label class="form-label-custom"> {{ __('Profile URL / Link *') }} </label>
                             <div class="input-group">
                                 <span class="input-group-text"><i class="mdi mdi-link-variant"></i></span>
                                 <input type="text" class="form-control input-clean @error('link') is-invalid @enderror" 
@@ -136,7 +136,7 @@
                         </div>
 
                         <div class="col-md-6">
-                            <label class="form-label-custom">Brand Theme Color *</label>
+                            <label class="form-label-custom"> {{ __('Brand Theme Color *') }} </label>
                             <div class="input-group">
                                 <span class="input-group-text"><i class="mdi mdi-palette-outline"></i></span>
                                 <input type="color" class="form-control input-clean color-input-wrapper @error('color') is-invalid @enderror" 
@@ -148,8 +148,8 @@
                         <div class="col-12">
                             <div class="status-toggle-box">
                                 <div class="status-text">
-                                    <h6 class="d-flex align-items-center"><i class="mdi mdi-eye-outline me-2 text-primary"></i> Publication Status</h6>
-                                    <small>Enable or disable this link on the website</small>
+                                    <h6 class="d-flex align-items-center"><i class="mdi mdi-eye-outline me-2 text-primary"></i> {{ __('Publication Status') }} </h6>
+                                    <small> {{ __('Enable or disable this link on the website') }} </small>
                                 </div>
                                 <div class="form-check form-switch">
                                     {{-- Hidden input to ensure status=0 is sent when checkbox is unchecked --}}

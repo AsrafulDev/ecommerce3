@@ -146,14 +146,14 @@
     
     <div class="row align-items-center mb-4">
         <div class="col">
-            <h2 class="h3 mb-0 text-gray-800">Refund Management</h2>
-            <p class="text-muted text-small mb-0">Manage and track all refund requests</p>
+            <h2 class="h3 mb-0 text-gray-800"> {{ __('Refund Management') }} </h2>
+            <p class="text-muted text-small mb-0"> {{ __('Manage and track all refund requests') }} </p>
         </div>
         <div class="col-auto">
             <nav aria-label="breadcrumb">
                 <ol class="breadcrumb bg-transparent p-0 m-0">
                     <li class="breadcrumb-item"><a href="#">{{ __('Home') }}</a></li>
-                    <li class="breadcrumb-item active" aria-current="page">Refunds</li>
+                    <li class="breadcrumb-item active" aria-current="page"> {{ __('Refunds') }} </li>
                 </ol>
             </nav>
         </div>
@@ -174,7 +174,7 @@
                             </div>
                             <div class="col-md-3">
                                 <select name="status" class="form-select search-modern" onchange="this.form.submit()">
-                                    <option value="">All Statuses</option>
+                                    <option value=""> {{ __('All Statuses') }} </option>
                                     @foreach($statuses as $status)
                                         <option value="{{ $status }}" {{ request('status') == $status ? 'selected' : '' }}>{{ ucfirst($status) }}</option>
                                     @endforeach
@@ -192,10 +192,10 @@
                             <thead>
                                 <tr>
                                     <th>#</th>
-                                    <th>Refund Info</th>
-                                    <th>Customer</th>
+                                    <th> {{ __('Refund Info') }} </th>
+                                    <th> {{ __('Customer') }} </th>
                                     <th>{{ __('Amount') }}</th>
-                                    <th>Method</th>
+                                    <th> {{ __('Method') }} </th>
                                     <th>{{ __('Status') }}</th>
                                     <th>{{ __('Date') }}</th>
                                     <th class="text-end">{{ __('Action') }}</th>
@@ -257,7 +257,7 @@
                                             @elseif($refund->status == 'rejected')
                                                 <span class="badge-modern badge-rejected">{{ __('Rejected') }}</span>
                                             @elseif($refund->status == 'processed')
-                                                <span class="badge-modern badge-processed">Processed</span>
+                                                <span class="badge-modern badge-processed"> {{ __('Processed') }} </span>
                                             @endif
                                         </td>
 
@@ -272,22 +272,18 @@
                                                 </button>
                                                 <div class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
                                                     <a class="dropdown-item" href="{{ route('admin.refunds.show', $refund->id) }}">
-                                                        <i class="fe-eye me-2"></i> View Details
-                                                    </a>
+                                                        <i class="fe-eye me-2"></i> {{ __('View Details') }} </a>
                                                     
                                                     @if($refund->status == 'pending')
                                                         <div class="dropdown-divider"></div>
                                                         <button type="button" class="dropdown-item text-success" data-bs-toggle="modal" data-bs-target="#approveModal{{ $refund->id }}">
-                                                            <i class="fe-check me-2"></i> Approve
-                                                        </button>
+                                                            <i class="fe-check me-2"></i> {{ __('Approve') }} </button>
                                                         <button type="button" class="dropdown-item text-danger" data-bs-toggle="modal" data-bs-target="#rejectModal{{ $refund->id }}">
-                                                            <i class="fe-x me-2"></i> Reject
-                                                        </button>
+                                                            <i class="fe-x me-2"></i> {{ __('Reject') }} </button>
                                                     @elseif($refund->status == 'approved')
                                                         <div class="dropdown-divider"></div>
                                                         <button type="button" class="dropdown-item text-primary" data-bs-toggle="modal" data-bs-target="#processModal{{ $refund->id }}">
-                                                            <i class="fe-check-circle me-2"></i> Process Payment
-                                                        </button>
+                                                            <i class="fe-check-circle me-2"></i> {{ __('Process Payment') }} </button>
                                                     @endif
                                                 </div>
                                             </div>
@@ -296,7 +292,7 @@
                                 @empty
                                     <tr>
                                         <td colspan="8" class="text-center py-5">
-                                            <h6 class="text-muted">No refund requests found!</h6>
+                                            <h6 class="text-muted"> {{ __('No refund requests found!') }} </h6>
                                         </td>
                                     </tr>
                                 @endforelse
@@ -309,9 +305,9 @@
                         <ul class="modern-pagination">
                             {{-- Previous --}}
                             @if ($data->onFirstPage())
-                                <li class="modern-page-item disabled"><span class="modern-page-link modern-page-link-text"><i class="fe-arrow-left me-1"></i> Prev</span></li>
+                                <li class="modern-page-item disabled"><span class="modern-page-link modern-page-link-text"><i class="fe-arrow-left me-1"></i> {{ __('Prev') }} </span></li>
                             @else
-                                <li class="modern-page-item"><a class="modern-page-link modern-page-link-text" href="{{ $data->previousPageUrl() }}" rel="prev"><i class="fe-arrow-left me-1"></i> Prev</a></li>
+                                <li class="modern-page-item"><a class="modern-page-link modern-page-link-text" href="{{ $data->previousPageUrl() }}" rel="prev"><i class="fe-arrow-left me-1"></i> {{ __('Prev') }} </a></li>
                             @endif
 
                             {{-- Numbers --}}
@@ -348,21 +344,21 @@
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header border-0 pb-0">
-                    <h5 class="modal-title">Approve Refund</h5>
+                    <h5 class="modal-title"> {{ __('Approve Refund') }} </h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <form action="{{ route('admin.refunds.approve', $refund->id) }}" method="POST">
                     @csrf
                     <div class="modal-body">
-                        <p class="text-muted mb-3">Approve refund of <strong>৳{{ number_format($refund->amount + $refund->shipping_charge, 2) }}</strong>?</p>
+                        <p class="text-muted mb-3"> {{ __('Approve refund of') }} <strong>৳{{ number_format($refund->amount + $refund->shipping_charge, 2) }}</strong>?</p>
                         <div class="form-group">
-                            <label class="form-label text-small fw-bold">Admin Note (Optional)</label>
+                            <label class="form-label text-small fw-bold"> {{ __('Admin Note (Optional)') }} </label>
                             <textarea name="admin_note" class="form-control bg-light border-0" rows="2">{{ $refund->admin_note }}</textarea>
                         </div>
                     </div>
                     <div class="modal-footer border-0 pt-0">
                         <button type="button" class="btn btn-link text-muted" data-bs-dismiss="modal">{{ __('Cancel') }}</button>
-                        <button type="submit" class="btn btn-success px-4">Approve</button>
+                        <button type="submit" class="btn btn-success px-4"> {{ __('Approve') }} </button>
                     </div>
                 </form>
             </div>
@@ -373,20 +369,20 @@
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header border-0 pb-0">
-                    <h5 class="modal-title text-danger">Reject Refund</h5>
+                    <h5 class="modal-title text-danger"> {{ __('Reject Refund') }} </h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <form action="{{ route('admin.refunds.reject', $refund->id) }}" method="POST">
                     @csrf
                     <div class="modal-body">
                         <div class="form-group">
-                            <label class="form-label text-small fw-bold">Rejection Reason <span class="text-danger">*</span></label>
+                            <label class="form-label text-small fw-bold"> {{ __('Rejection Reason') }} <span class="text-danger">*</span></label>
                             <textarea name="admin_note" class="form-control bg-light border-0" rows="3" required>{{ $refund->admin_note }}</textarea>
                         </div>
                     </div>
                     <div class="modal-footer border-0 pt-0">
                         <button type="button" class="btn btn-link text-muted" data-bs-dismiss="modal">{{ __('Cancel') }}</button>
-                        <button type="submit" class="btn btn-danger px-4">Reject</button>
+                        <button type="submit" class="btn btn-danger px-4"> {{ __('Reject') }} </button>
                     </div>
                 </form>
             </div>
@@ -397,33 +393,33 @@
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header border-0 pb-0">
-                    <h5 class="modal-title">Process Payment</h5>
+                    <h5 class="modal-title"> {{ __('Process Payment') }} </h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <form action="{{ route('admin.refunds.process', $refund->id) }}" method="POST">
                     @csrf
                     <div class="modal-body">
                         <div class="mb-3">
-                            <label class="form-label text-small fw-bold">Transaction ID <span class="text-danger">*</span></label>
+                            <label class="form-label text-small fw-bold"> {{ __('Transaction ID') }} <span class="text-danger">*</span></label>
                             <input type="text" name="transaction_id" class="form-control bg-light border-0" required>
                         </div>
                         <div class="mb-3">
-                            <label class="form-label text-small fw-bold">Method</label>
+                            <label class="form-label text-small fw-bold"> {{ __('Method') }} </label>
                             <select name="refund_method" class="form-select bg-light border-0">
-                                <option value="bkash">bKash</option>
-                                <option value="nagad">Nagad</option>
-                                <option value="bank">Bank Transfer</option>
-                                <option value="manual">Cash/Manual</option>
+                                <option value="bkash"> {{ __('bKash') }} </option>
+                                <option value="nagad"> {{ __('Nagad') }} </option>
+                                <option value="bank"> {{ __('Bank Transfer') }} </option>
+                                <option value="manual"> {{ __('Cash/Manual') }} </option>
                             </select>
                         </div>
                         <div class="mb-3">
-                            <label class="form-label text-small fw-bold">Account Info</label>
+                            <label class="form-label text-small fw-bold"> {{ __('Account Info') }} </label>
                             <input type="text" name="refund_account" class="form-control bg-light border-0" value="{{ $refund->refund_account }}">
                         </div>
                     </div>
                     <div class="modal-footer border-0 pt-0">
                         <button type="button" class="btn btn-link text-muted" data-bs-dismiss="modal">{{ __('Cancel') }}</button>
-                        <button type="submit" class="btn btn-primary px-4">Complete</button>
+                        <button type="submit" class="btn btn-primary px-4"> {{ __('Complete') }} </button>
                     </div>
                 </form>
             </div>

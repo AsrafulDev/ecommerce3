@@ -173,7 +173,7 @@
 
   {{-- Header --}}
   <div class="page-header-modern mb-3">
-    <h4 class="fw-bold">Hi! Welcome To Dashboard</h4>
+    <h4 class="fw-bold"> {{ __('Hi! Welcome To Dashboard') }} </h4>
     <p class="text-muted">Home → Sales Dashboard</p>
   </div>
 
@@ -185,7 +185,7 @@
     </div>
     <div class="hero-profit">
       <div class="profit-value">TK {{ number_format($today_profit ?? 0,2) }}</div>
-      <div class="profit-label">Today's Profit</div>
+      <div class="profit-label"> {{ __("Today's Profit") }} </div>
     </div>
   </div>
 
@@ -195,7 +195,7 @@
       <div class="dash-card">
         <div class="card-icon orders" data-feather="shopping-cart"></div>
         <div class="card-info">
-          <div class="card-label">Total Orders</div>
+          <div class="card-label"> {{ __('Total Orders') }} </div>
           <div class="card-value">{{ number_format($total_order ?? 0) }}</div>
         </div>
       </div>
@@ -204,7 +204,7 @@
       <div class="dash-card">
         <div class="card-icon fund" data-feather="dollar-sign"></div>
         <div class="card-info">
-          <div class="card-label">Fund Balance</div>
+          <div class="card-label"> {{ __('Fund Balance') }} </div>
           <div class="card-value">TK {{ number_format($fund_balance ?? 0,2) }}</div>
         </div>
       </div>
@@ -213,7 +213,7 @@
       <div class="dash-card">
         <div class="card-icon expenses" data-feather="trending-down"></div>
         <div class="card-info">
-          <div class="card-label">Total Expenses</div>
+          <div class="card-label"> {{ __('Total Expenses') }} </div>
           <div class="card-value">TK {{ number_format($total_expenses ?? 0,2) }}</div>
         </div>
       </div>
@@ -222,7 +222,7 @@
       <div class="dash-card">
         <div class="card-icon delivery" data-feather="truck"></div>
         <div class="card-info">
-          <div class="card-label">Delivered Orders</div>
+          <div class="card-label"> {{ __('Delivered Orders') }} </div>
           <div class="card-value">{{ number_format($total_delivery ?? 0) }}</div>
         </div>
       </div>
@@ -256,14 +256,12 @@
     <div class="col-lg-8">
       <div class="chart-modern">
         <div class="chart-title">
-          <span class="title-dot blue"></span>
-          Recent Orders
-        </div>
+          <span class="title-dot blue"></span> {{ __('Recent Orders') }} </div>
         <div class="table-responsive">
           <table class="table table-modern">
             <thead>
               <tr>
-                <th>Customer</th>
+                <th> {{ __('Customer') }} </th>
                 <th>{{ __('Invoice') }}</th>
                 <th>{{ __('Status') }}</th>
                 <th>{{ __('Date') }}</th>
@@ -276,7 +274,7 @@
                 <td>#{{ $order->invoice_id ?? '-' }}</td>
                 <td>
                   @if(($order->order_status ?? 0) == 5)
-                    <span class="badge bg-success badge-dash">Delivered</span>
+                    <span class="badge bg-success badge-dash"> {{ __('Delivered') }} </span>
                   @elseif(($order->order_status ?? 0) == 1)
                     <span class="badge bg-info badge-dash">{{ __('Pending') }}</span>
                   @else
@@ -287,7 +285,7 @@
               </tr>
             @empty
               <tr>
-                <td colspan="4" class="text-center text-muted py-3">No recent orders found</td>
+                <td colspan="4" class="text-center text-muted py-3"> {{ __('No recent orders found') }} </td>
               </tr>
             @endforelse
             </tbody>
@@ -308,7 +306,7 @@
               <div class="cust-phone">{{ $cust->phone ?? 'N/A' }}</div>
             </li>
           @empty
-            <li class="text-muted text-center py-3">No customers found</li>
+            <li class="text-muted text-center py-3"> {{ __('No customers found') }} </li>
           @endforelse
         </ul>
       </div>

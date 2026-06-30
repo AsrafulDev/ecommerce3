@@ -85,7 +85,7 @@
     
     <div class="row mb-3 mt-3">
         <div class="col-12 d-flex justify-content-between align-items-center">
-            <h4 class="page-title mb-0" style="font-weight: 700; color: #2d3436;">Customer Profile</h4>
+            <h4 class="page-title mb-0" style="font-weight: 700; color: #2d3436;"> {{ __('Customer Profile') }} </h4>
             
             <div class="d-flex gap-2">
                 <a href="{{route('customers.index')}}" class="btn btn-light rounded-pill border shadow-sm">
@@ -124,10 +124,10 @@
                     </div>
 
                     <div class="text-start mt-4">
-                        <h6 class="text-uppercase text-muted font-size-12 mb-3">Personal Information</h6>
+                        <h6 class="text-uppercase text-muted font-size-12 mb-3"> {{ __('Personal Information') }} </h6>
                         
                         <div class="info-list-item">
-                            <span class="info-label">Mobile</span>
+                            <span class="info-label"> {{ __('Mobile') }} </span>
                             <span class="info-value">{{$profile->phone}}</span>
                         </div>
                         <div class="info-list-item">
@@ -139,11 +139,11 @@
                             <span class="info-value">{{$profile->address}}</span>
                         </div>
                         <div class="info-list-item">
-                            <span class="info-label">District</span>
+                            <span class="info-label"> {{ __('District') }} </span>
                             <span class="info-value">{{$profile->district}}</span>
                         </div>
                         <div class="info-list-item">
-                            <span class="info-label">Upazila/Area</span>
+                            <span class="info-label"> {{ __('Upazila/Area') }} </span>
                             <span class="info-value">{{$profile->area}}</span>
                         </div>
                     </div>
@@ -170,9 +170,9 @@
                                     <thead>
                                         <tr>
                                             <th>{{ __('SL') }}</th>
-                                            <th>Invoice ID</th>
-                                            <th>Date & Time</th>
-                                            <th>Shipping Method</th>
+                                            <th> {{ __('Invoice ID') }} </th>
+                                            <th> {{ __('Date & Time') }} </th>
+                                            <th> {{ __('Shipping Method') }} </th>
                                             <th>{{ __('Amount') }}</th>
                                             <th>{{ __('Status') }}</th>
                                         </tr>

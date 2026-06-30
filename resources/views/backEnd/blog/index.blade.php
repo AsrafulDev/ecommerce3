@@ -87,10 +87,9 @@
     
     <div class="row mb-3 mt-3">
         <div class="col-12 d-flex justify-content-between align-items-center">
-            <h4 class="page-title mb-0" style="font-weight: 700; color: #2d3436;">Blog Posts</h4>
+            <h4 class="page-title mb-0" style="font-weight: 700; color: #2d3436;"> {{ __('Blog Posts') }} </h4>
             <a href="{{ route('admin.blog.create') }}" class="btn btn-primary rounded-pill shadow-sm px-4">
-                <i class="fe-plus me-1"></i> Add New Blog
-            </a>
+                <i class="fe-plus me-1"></i> {{ __('Add New Blog') }} </a>
         </div>
     </div>
 

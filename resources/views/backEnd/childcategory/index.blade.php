@@ -73,7 +73,7 @@
     
     <div class="row mb-3 mt-3">
         <div class="col-12 d-flex justify-content-between align-items-center">
-            <h4 class="page-title mb-0" style="font-weight: 700; color: #2d3436;">Childcategories</h4>
+            <h4 class="page-title mb-0" style="font-weight: 700; color: #2d3436;"> {{ __('Childcategories') }} </h4>
             <a href="{{route('childcategories.create')}}" class="btn btn-primary rounded-pill shadow-sm px-4">
                 <i class="fe-plus me-1"></i> Add Childcategory
             </a>
@@ -88,8 +88,8 @@
                         <thead>
                             <tr>
                                 <th style="width: 50px;">{{ __('SL') }}</th>
-                                <th>Subcategory</th>
-                                <th>Childcategory Name</th>
+                                <th> {{ __('Subcategory') }} </th>
+                                <th> {{ __('Childcategory Name') }} </th>
                                 <th>{{ __('Status') }}</th>
                                 <th class="text-end" style="width: 150px;">{{ __('Action') }}</th>
                             </tr>
@@ -105,7 +105,7 @@
                                             <i class="fe-corner-down-right me-1"></i> {{$value->subcategory->subcategoryName}}
                                         </span>
                                     @else
-                                        <span class="badge badge-pill badge-soft-secondary">No Parent</span>
+                                        <span class="badge badge-pill badge-soft-secondary"> {{ __('No Parent') }} </span>
                                     @endif
                                 </td>
 

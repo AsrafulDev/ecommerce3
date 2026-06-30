@@ -20,7 +20,7 @@
 <div class="col-md-4 mb-3">
     <div class="card" style="background:#198754; color:#fff;">
         <div class="card-body">
-            <h5 class="mb-1" style="color:#fff !important;">Available Balance</h5>
+            <h5 class="mb-1" style="color:#fff !important;"> {{ __('Available Balance') }} </h5>
             <h2 class="mb-0" style="color:#fff !important;">{{ number_format($balance, 2) }} ৳</h2>
             <small style="color:#fff !important; opacity:0.85;">In – Out এর পার্থক্য</small>
         </div>
@@ -75,7 +75,7 @@
                             <label class="form-label">{{ __('Note') }}</label>
                             <input type="text" name="note" class="form-control" placeholder="Note (optional)">
                         </div>
-                        <button class="btn btn-primary w-100">Add Fund</button>
+                        <button class="btn btn-primary w-100"> {{ __('Add Fund') }} </button>
                     </form>
                 </div>
             </div>
@@ -99,7 +99,7 @@
                             <label class="form-label">{{ __('Note') }}</label>
                             <input type="text" name="note" class="form-control" placeholder="Note (optional)">
                         </div>
-                        <button class="btn btn-danger w-100">Withdraw</button>
+                        <button class="btn btn-danger w-100"> {{ __('Withdraw') }} </button>
                     </form>
                 </div>
             </div>
@@ -114,11 +114,11 @@
                 <div class="card-body">
                     <form action="{{ route('admin.fund.export') }}" method="GET" id="fundExportForm">
                         <div class="mb-2">
-                            <label class="form-label">Filter Type</label>
+                            <label class="form-label"> {{ __('Filter Type') }} </label>
                             <select name="filter" id="filter_type" class="form-select">
-                                <option value="year" selected>Yearly</option>
-                                <option value="month">Monthly</option>
-                                <option value="custom">Custom Date</option>
+                                <option value="year" selected> {{ __('Yearly') }} </option>
+                                <option value="month"> {{ __('Monthly') }} </option>
+                                <option value="custom"> {{ __('Custom Date') }} </option>
                             </select>
                         </div>
 
@@ -143,9 +143,9 @@
 
                         {{-- Custom date range --}}
                         <div class="mb-2 d-none" id="custom_date_fields">
-                            <label class="form-label">From Date</label>
+                            <label class="form-label"> {{ __('From Date') }} </label>
                             <input type="date" name="from_date" class="form-control mb-2">
-                            <label class="form-label">To Date</label>
+                            <label class="form-label"> {{ __('To Date') }} </label>
                             <input type="date" name="to_date" class="form-control">
                         </div>
 
@@ -175,10 +175,10 @@
                     <tr>
                         <th>#</th>
                         <th>{{ __('Type') }}</th>
-                        <th>Source</th>
+                        <th> {{ __('Source') }} </th>
                         <th>{{ __('Amount') }}</th>
                         <th>{{ __('Note') }}</th>
-                        <th>Date & Time</th>
+                        <th> {{ __('Date & Time') }} </th>
                         @php
                             // Check if current user is Admin (Super Admin or has Admin role)
                             $isAdmin = false;
@@ -195,7 +195,7 @@
                             }
                         @endphp
                         @if($isAdmin)
-                        <th>Actions</th>
+                        <th> {{ __('Actions') }} </th>
                         @endif
                     </tr>
                 </thead>
@@ -205,9 +205,9 @@
                             <td>{{ $t->id }}</td>
                             <td>
                                 @if($t->direction == 'in')
-                                    <span class="badge bg-success">IN (+)</span>
+                                    <span class="badge bg-success"> {{ __('IN (+)') }} </span>
                                 @else
-                                    <span class="badge bg-danger">OUT (-)</span>
+                                    <span class="badge bg-danger"> {{ __('OUT (-)') }} </span>
                                 @endif
                             </td>
                             <td>

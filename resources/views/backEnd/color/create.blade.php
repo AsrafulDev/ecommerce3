@@ -119,8 +119,8 @@
         <div class="col-12">
             <div class="page-title-box d-flex align-items-center justify-content-between py-4">
                 <div>
-                    <h4 class="page-title mb-1 text-dark fw-bold">Create New Color</h4>
-                    <p class="text-muted font-size-13 mb-0">Add a new color variant for your products.</p>
+                    <h4 class="page-title mb-1 text-dark fw-bold"> {{ __('Create New Color') }} </h4>
+                    <p class="text-muted font-size-13 mb-0"> {{ __('Add a new color variant for your products.') }} </p>
                 </div>
                 <div class="page-title-right">
                     <a href="{{route('colors.index')}}" class="btn btn-light rounded-pill border shadow-sm px-4">
@@ -139,13 +139,13 @@
                 <div class="card mb-4">
                     <div class="card-header">
                         <div class="header-icon"><i class="fe-droplet"></i></div>
-                        <h5 class="card-title">Color Details</h5>
+                        <h5 class="card-title"> {{ __('Color Details') }} </h5>
                     </div>
                     <div class="card-body">
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="form-group mb-4">
-                                    <label for="colorName" class="form-label">Color Name <span class="text-danger">*</span></label>
+                                    <label for="colorName" class="form-label"> {{ __('Color Name') }} <span class="text-danger">*</span></label>
                                     <input type="text" class="form-control @error('colorName') is-invalid @enderror" 
                                            name="colorName" value="{{ old('colorName') }}" id="colorName" 
                                            placeholder="e.g. Midnight Blue" required>
@@ -157,7 +157,7 @@
                             
                             <div class="col-md-6">
                                 <div class="form-group mb-4">
-                                    <label for="color" class="form-label">Color Picker <span class="text-danger">*</span></label>
+                                    <label for="color" class="form-label"> {{ __('Color Picker') }} <span class="text-danger">*</span></label>
                                     <div class="color-preview-box">
                                         <input type="color" class="form-control @error('color') is-invalid @enderror" 
                                                name="color" value="{{ old('color') }}" id="color" required 
@@ -179,13 +179,13 @@
                 <div class="card mb-4">
                     <div class="card-header">
                         <div class="header-icon"><i class="fe-settings"></i></div>
-                        <h5 class="card-title">Visibility</h5>
+                        <h5 class="card-title"> {{ __('Visibility') }} </h5>
                     </div>
                     <div class="card-body">
                         <div class="d-flex justify-content-between align-items-center mb-4 p-3 bg-light rounded border border-light">
                             <div>
-                                <h6 class="mb-1 text-dark fw-bold">Active Status</h6>
-                                <p class="text-muted font-size-12 mb-0">Enable or disable color</p>
+                                <h6 class="mb-1 text-dark fw-bold"> {{ __('Active Status') }} </h6>
+                                <p class="text-muted font-size-12 mb-0"> {{ __('Enable or disable color') }} </p>
                             </div>
                             <label class="switch">
                                 <input type="checkbox" name="status" value="1" checked>

@@ -95,7 +95,7 @@
     
     <div class="row mb-3 mt-4">
         <div class="col-12 d-flex justify-content-between align-items-center">
-            <h4 class="page-title mb-0 fw-bold">Incomplete Orders <span class="badge bg-secondary rounded-pill ms-2">{{ $orders->count() }}</span></h4>
+            <h4 class="page-title mb-0 fw-bold"> {{ __('Incomplete Orders') }} <span class="badge bg-secondary rounded-pill ms-2">{{ $orders->count() }}</span></h4>
         </div>
     </div>
 
@@ -105,11 +105,11 @@
             <thead>
                 <tr>
                     <th width="50">#</th>
-                    <th>Customer</th>
+                    <th> {{ __('Customer') }} </th>
                     <th>{{ __('Phone') }}</th>
                     <th>{{ __('Date') }}</th>
-                    <th>Total Amount</th>
-                    <th class="text-end">Actions</th>
+                    <th> {{ __('Total Amount') }} </th>
+                    <th class="text-end"> {{ __('Actions') }} </th>
                 </tr>
             </thead>
             <tbody>
@@ -168,14 +168,14 @@
                                 </div>
 
                                 <div class="col-md-8 ps-md-4">
-                                    <h6 class="text-uppercase text-muted font-size-12 mb-2">Order Items</h6>
+                                    <h6 class="text-uppercase text-muted font-size-12 mb-2"> {{ __('Order Items') }} </h6>
                                     
                                     @if(!empty($order->items) && is_array($order->items))
                                     <table class="table table-sm table-borderless mini-table mb-0">
                                         <thead>
                                             <tr>
                                                 <th>{{ __('Image') }}</th>
-                                                <th>Product Name</th>
+                                                <th> {{ __('Product Name') }} </th>
                                                 <th>{{ __('Qty') }}</th>
                                                 <th class="text-end">{{ __('Price') }}</th>
                                             </tr>
@@ -196,10 +196,10 @@
                                     @elseif($order->product_link)
                                         <div class="d-flex align-items-center bg-white p-2 border rounded">
                                             <img src="{{ asset($order->product_image) }}" style="width:50px; height:50px; object-fit:cover" class="me-2 rounded">
-                                            <a href="{{ $order->product_link }}" target="_blank" class="fw-bold">View Product</a>
+                                            <a href="{{ $order->product_link }}" target="_blank" class="fw-bold"> {{ __('View Product') }} </a>
                                         </div>
                                     @else
-                                        <span class="text-muted fst-italic">No product details found.</span>
+                                        <span class="text-muted fst-italic"> {{ __('No product details found.') }} </span>
                                     @endif
                                 </div>
                             </div>
@@ -217,7 +217,7 @@
 
     @else
     <div class="text-center py-5">
-        <h5 class="text-muted">No incomplete orders found.</h5>
+        <h5 class="text-muted"> {{ __('No incomplete orders found.') }} </h5>
     </div>
     @endif
 

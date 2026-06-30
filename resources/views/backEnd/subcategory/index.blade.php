@@ -73,7 +73,7 @@
     
     <div class="row mb-3 mt-3">
         <div class="col-12 d-flex justify-content-between align-items-center">
-            <h4 class="page-title mb-0" style="font-weight: 700; color: #2d3436;">Subcategories</h4>
+            <h4 class="page-title mb-0" style="font-weight: 700; color: #2d3436;"> {{ __('Subcategories') }} </h4>
             <a href="{{route('subcategories.create')}}" class="btn btn-primary rounded-pill shadow-sm px-4">
                 <i class="fe-plus me-1"></i> Add Subcategory
             </a>
@@ -88,8 +88,8 @@
                         <thead>
                             <tr>
                                 <th style="width: 50px;">{{ __('SL') }}</th>
-                                <th>Parent Category</th>
-                                <th>Subcategory Name</th>
+                                <th> {{ __('Parent Category') }} </th>
+                                <th> {{ __('Subcategory Name') }} </th>
                                 <th>{{ __('Status') }}</th>
                                 <th class="text-end" style="width: 150px;">{{ __('Action') }}</th>
                             </tr>
@@ -105,7 +105,7 @@
                                             <i class="fe-folder me-1"></i> {{$value->category->name}}
                                         </span>
                                     @else
-                                        <span class="badge badge-pill badge-soft-secondary">Deleted</span>
+                                        <span class="badge badge-pill badge-soft-secondary"> {{ __('Deleted') }} </span>
                                     @endif
                                 </td>
 

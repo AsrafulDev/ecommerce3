@@ -109,8 +109,8 @@
     <div class="row mb-3 mt-3">
         <div class="col-12 d-flex justify-content-between align-items-center">
             <div>
-                <h4 class="page-title mb-0" style="font-weight: 700; color: #2d3436;">Edit Customer</h4>
-                <p class="text-muted font-size-13 mb-0">Update customer information.</p>
+                <h4 class="page-title mb-0" style="font-weight: 700; color: #2d3436;"> {{ __('Edit Customer') }} </h4>
+                <p class="text-muted font-size-13 mb-0"> {{ __('Update customer information.') }} </p>
             </div>
             <a href="{{route('customers.index')}}" class="btn btn-light rounded-pill border shadow-sm px-4">
                 <i class="fe-arrow-left me-1"></i> Back to List
@@ -123,7 +123,7 @@
             <div class="card">
                 <div class="card-header">
                     <div class="header-icon"><i class="fe-user-check"></i></div>
-                    <h5 class="card-title">Customer Details</h5>
+                    <h5 class="card-title"> {{ __('Customer Details') }} </h5>
                 </div>
                 <div class="card-body">
                     <form action="{{route('customers.update')}}" method="POST" enctype="multipart/form-data" data-parsley-validate>
@@ -135,21 +135,21 @@
                                 <div class="row">
                                     <div class="col-md-6">
                                         <div class="form-group mb-4">
-                                            <label class="form-label">Full Name <span class="text-danger">*</span></label>
+                                            <label class="form-label"> {{ __('Full Name') }} <span class="text-danger">*</span></label>
                                             <input type="text" class="form-control" name="name" value="{{ $edit_data->name }}" required>
                                             @error('name') <div class="text-danger small mt-1">{{ $message }}</div> @enderror
                                         </div>
                                     </div>
                                     <div class="col-md-6">
                                         <div class="form-group mb-4">
-                                            <label class="form-label">Phone Number <span class="text-danger">*</span></label>
+                                            <label class="form-label"> {{ __('Phone Number') }} <span class="text-danger">*</span></label>
                                             <input type="text" class="form-control" name="phone" value="{{ $edit_data->phone }}" required>
                                             @error('phone') <div class="text-danger small mt-1">{{ $message }}</div> @enderror
                                         </div>
                                     </div>
                                     <div class="col-md-6">
                                         <div class="form-group mb-4">
-                                            <label class="form-label">Email Address <span class="text-danger">*</span></label>
+                                            <label class="form-label"> {{ __('Email Address') }} <span class="text-danger">*</span></label>
                                             <input type="email" class="form-control" name="email" value="{{ $edit_data->email }}" required>
                                             @error('email') <div class="text-danger small mt-1">{{ $message }}</div> @enderror
                                         </div>
@@ -163,7 +163,7 @@
                                     </div>
                                     <div class="col-md-12">
                                         <div class="form-group mb-4">
-                                            <label class="form-label">Full Address <span class="text-danger">*</span></label>
+                                            <label class="form-label"> {{ __('Full Address') }} <span class="text-danger">*</span></label>
                                             <input type="text" class="form-control" name="address" value="{{ $edit_data->address }}" required>
                                             @error('address') <div class="text-danger small mt-1">{{ $message }}</div> @enderror
                                         </div>
@@ -174,7 +174,7 @@
                             <div class="col-md-4">
                                 <div class="card bg-light border-0">
                                     <div class="card-body text-center">
-                                        <label class="form-label mb-3">Profile Picture</label>
+                                        <label class="form-label mb-3"> {{ __('Profile Picture') }} </label>
                                         
                                         <div class="mx-auto image-preview-container">
                                             <img src="{{asset($edit_data->image)}}" alt="user-image" id="preview-image">
@@ -182,7 +182,7 @@
                                         
                                         <div class="mt-3">
                                             <input type="file" class="form-control form-control-sm" name="image" id="upload-image">
-                                            <small class="text-muted d-block mt-2">Allowed: jpg, jpeg, png</small>
+                                            <small class="text-muted d-block mt-2"> {{ __('Allowed: jpg, jpeg, png') }} </small>
                                         </div>
                                         @error('image') <div class="text-danger small mt-1">{{ $message }}</div> @enderror
 
@@ -190,8 +190,8 @@
 
                                         <div class="d-flex justify-content-between align-items-center">
                                             <div>
-                                                <h6 class="mb-0 fw-bold">Active Status</h6>
-                                                <small class="text-muted">Enable account access</small>
+                                                <h6 class="mb-0 fw-bold"> {{ __('Active Status') }} </h6>
+                                                <small class="text-muted"> {{ __('Enable account access') }} </small>
                                             </div>
                                             <label class="switch">
                                                 <input type="checkbox" name="status" value="1" @if($edit_data->status==1) checked @endif>

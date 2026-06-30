@@ -36,11 +36,11 @@
                     <div class="d-flex align-items-center mb-3">
                         <span class="backup-icon me-3">💾</span>
                         <div>
-                            <h5 class="mb-0">Full Site Backup</h5>
-                            <small class="text-muted">Database + Uploads + Settings</small>
+                            <h5 class="mb-0"> {{ __('Full Site Backup') }} </h5>
+                            <small class="text-muted"> {{ __('Database + Uploads + Settings') }} </small>
                         </div>
                     </div>
-                    <p class="text-muted small">Creates a complete ZIP backup of your entire site including all database tables, uploaded files, and settings.</p>
+                    <p class="text-muted small"> {{ __('Creates a complete ZIP backup of your entire site including all database tables, uploaded files, and settings.') }} </p>
                     <form action="{{ route('backup.create') }}" method="POST">
                         @csrf
                         <button type="submit" class="btn btn-primary w-100">
@@ -57,8 +57,8 @@
                     <div class="d-flex align-items-center mb-3">
                         <span class="backup-icon me-3">📥</span>
                         <div>
-                            <h5 class="mb-0">Restore Backup</h5>
-                            <small class="text-muted">Upload a backup ZIP to restore</small>
+                            <h5 class="mb-0"> {{ __('Restore Backup') }} </h5>
+                            <small class="text-muted"> {{ __('Upload a backup ZIP to restore') }} </small>
                         </div>
                     </div>
                     <p class="text-muted small">Upload a previously created backup ZIP file. ⚠️ This will replace ALL current data.</p>
@@ -66,7 +66,7 @@
                         @csrf
                         <div class="file-drop-area mb-3" onclick="document.getElementById('backup_file').click()">
                             <i class="mdi mdi-cloud-upload fs-1 text-muted"></i>
-                            <p class="mb-0 mt-2">Click to select backup ZIP</p>
+                            <p class="mb-0 mt-2"> {{ __('Click to select backup ZIP') }} </p>
                             <input type="file" name="backup_file" id="backup_file" class="d-none" accept=".zip" required onchange="this.parentNode.querySelector('p').textContent = this.files[0].name">
                         </div>
                         <button type="submit" class="btn btn-danger w-100" onclick="return confirm('⚠️ This will replace ALL current data. Continue?')">
@@ -86,8 +86,8 @@
                     <div class="d-flex align-items-center mb-3">
                         <span class="backup-icon me-3">🎨</span>
                         <div>
-                            <h5 class="mb-0">Theme Export / Import</h5>
-                            <small class="text-muted">Colors, logos, typography settings</small>
+                            <h5 class="mb-0"> {{ __('Theme Export / Import') }} </h5>
+                            <small class="text-muted"> {{ __('Colors, logos, typography settings') }} </small>
                         </div>
                     </div>
                     <div class="d-flex gap-2">
@@ -112,8 +112,8 @@
                     <div class="d-flex align-items-center mb-3">
                         <span class="backup-icon me-3">📐</span>
                         <div>
-                            <h5 class="mb-0">Layout Export / Import</h5>
-                            <small class="text-muted">Homepage layout sections & order</small>
+                            <h5 class="mb-0"> {{ __('Layout Export / Import') }} </h5>
+                            <small class="text-muted"> {{ __('Homepage layout sections & order') }} </small>
                         </div>
                     </div>
                     <form action="{{ route('layout.import') }}" method="POST" enctype="multipart/form-data">
@@ -159,8 +159,7 @@
                                     <a href="{{ route('preset.download', $slug) }}" class="btn btn-sm btn-outline-primary w-100" title="Download preset ZIP">
                                         <i class="mdi mdi-download"></i>{{ __('Download') }}</a>
                                     <a href="{{ route('preset.restore-theme', $slug) }}" class="btn btn-sm btn-outline-warning w-100" title="Apply colors & logos">
-                                        <i class="mdi mdi-palette"></i> Theme
-                                    </a>
+                                        <i class="mdi mdi-palette"></i> {{ __('Theme') }} </a>
                                     <a href="{{ route('preset.restore-layout', $slug) }}" class="btn btn-sm btn-outline-success w-100" title="Create layout from preset">
                                         <i class="mdi mdi-view-dashboard"></i> Layout
                                     </a>
@@ -185,10 +184,10 @@
                         <table class="table table-sm table-hover">
                             <thead>
                                 <tr>
-                                    <th>Filename</th>
+                                    <th> {{ __('Filename') }} </th>
                                     <th>{{ __('Size') }}</th>
                                     <th>{{ __('Date') }}</th>
-                                    <th class="text-end">Actions</th>
+                                    <th class="text-end"> {{ __('Actions') }} </th>
                                 </tr>
                             </thead>
                             <tbody>

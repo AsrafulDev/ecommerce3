@@ -115,8 +115,8 @@
         <div class="col-12">
             <div class="page-title-box d-flex align-items-center justify-content-between py-4">
                 <div>
-                    <h4 class="page-title mb-1 text-dark fw-bold">Create Subcategory</h4>
-                    <p class="text-muted font-size-13 mb-0">Manage your product hierarchy efficiently.</p>
+                    <h4 class="page-title mb-1 text-dark fw-bold"> {{ __('Create Subcategory') }} </h4>
+                    <p class="text-muted font-size-13 mb-0"> {{ __('Manage your product hierarchy efficiently.') }} </p>
                 </div>
                 <div class="page-title-right">
                     <a href="{{route('subcategories.index')}}" class="btn btn-light rounded-pill border shadow-sm px-4">
@@ -136,13 +136,13 @@
                 <div class="card">
                     <div class="card-header">
                         <div class="header-icon"><i class="fe-grid"></i></div>
-                        <h5 class="card-title">Basic Information</h5>
+                        <h5 class="card-title"> {{ __('Basic Information') }} </h5>
                     </div>
                     <div class="card-body">
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="form-group mb-4">
-                                    <label for="category_id" class="form-label">Parent Category <span class="text-danger">*</span></label>
+                                    <label for="category_id" class="form-label"> {{ __('Parent Category') }} <span class="text-danger">*</span></label>
                                     <select class="form-control select2 @error('category_id') is-invalid @enderror" 
                                             id="category_id" name="category_id" data-placeholder="Select a category..." required>
                                         <option value="">{{ __('Select Category') }}</option>
@@ -157,7 +157,7 @@
                             </div>
                             <div class="col-md-6">
                                 <div class="form-group mb-4">
-                                    <label for="subcategoryName" class="form-label">Subcategory Name <span class="text-danger">*</span></label>
+                                    <label for="subcategoryName" class="form-label"> {{ __('Subcategory Name') }} <span class="text-danger">*</span></label>
                                     <input type="text" class="form-control @error('subcategoryName') is-invalid @enderror" 
                                            name="subcategoryName" value="{{ old('subcategoryName') }}" 
                                            placeholder="e.g. Smart Watches" required>
@@ -173,7 +173,7 @@
                 <div class="card">
                     <div class="card-header">
                         <div class="header-icon"><i class="fe-search"></i></div>
-                        <h5 class="card-title">SEO Configuration</h5>
+                        <h5 class="card-title"> {{ __('SEO Configuration') }} </h5>
                     </div>
                     <div class="card-body">
                         <div class="form-group mb-4">
@@ -202,13 +202,13 @@
                 <div class="card">
                     <div class="card-header">
                         <div class="header-icon"><i class="fe-settings"></i></div>
-                        <h5 class="card-title">Visibility</h5>
+                        <h5 class="card-title"> {{ __('Visibility') }} </h5>
                     </div>
                     <div class="card-body">
                         <div class="d-flex justify-content-between align-items-center mb-4 p-3 bg-light rounded border border-light">
                             <div>
                                 <h6 class="mb-1 text-dark fw-bold">{{ __('Status') }}</h6>
-                                <p class="text-muted font-size-12 mb-0">Enable or disable category</p>
+                                <p class="text-muted font-size-12 mb-0"> {{ __('Enable or disable category') }} </p>
                             </div>
                             <label class="switch">
                                 <input type="checkbox" name="status" value="1" checked>
@@ -227,7 +227,7 @@
                         <div class="d-flex align-items-start">
                             <i class="fe-info font-size-24 me-3 text-white-50"></i>
                             <div>
-                                <h5 class="card-title text-white mb-2">Pro Tip</h5>
+                                <h5 class="card-title text-white mb-2"> {{ __('Pro Tip') }} </h5>
                                 <p class="card-text text-white-50 font-size-13">
                                     Subcategories help organize your products better. Ensure you choose the correct Parent Category for better SEO structure.
                                 </p>

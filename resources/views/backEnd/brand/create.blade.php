@@ -125,7 +125,7 @@
     
     <div class="row align-items-center mb-3 mt-3">
         <div class="col-6">
-            <h4 class="m-0 font-weight-bold text-dark">Add New Brand</h4>
+            <h4 class="m-0 font-weight-bold text-dark"> {{ __('Add New Brand') }} </h4>
         </div>
         <div class="col-6 text-end">
             <a href="{{route('brands.index')}}" class="btn btn-outline-secondary btn-sm rounded-pill px-3">
@@ -141,11 +141,11 @@
                 
                 <div class="card">
                     <div class="card-header">
-                        <h5 class="card-title">Basic Information</h5>
+                        <h5 class="card-title"> {{ __('Basic Information') }} </h5>
                     </div>
                     <div class="card-body">
                         <div class="form-group mb-0">
-                            <label for="name" class="form-label">Brand Name <span class="text-danger">*</span></label>
+                            <label for="name" class="form-label"> {{ __('Brand Name') }} <span class="text-danger">*</span></label>
                             <input type="text" class="form-control @error('name') is-invalid @enderror" 
                                    name="name" value="{{ old('name') }}" id="name" 
                                    placeholder="e.g. Nike" required autofocus>
@@ -158,13 +158,13 @@
 
                 <div class="card">
                     <div class="card-header">
-                        <h5 class="card-title">Publish</h5>
+                        <h5 class="card-title"> {{ __('Publish') }} </h5>
                     </div>
                     <div class="card-body">
                         <div class="status-box">
                             <div>
-                                <h6 class="mb-0 fw-bold text-dark font-size-14">Active Status</h6>
-                                <small class="text-muted" style="font-size: 11px;">Enable this brand on website</small>
+                                <h6 class="mb-0 fw-bold text-dark font-size-14"> {{ __('Active Status') }} </h6>
+                                <small class="text-muted" style="font-size: 11px;"> {{ __('Enable this brand on website') }} </small>
                             </div>
                             <label class="switch">
                                 <input type="checkbox" name="status" value="1" checked>
@@ -186,7 +186,7 @@
             <div class="col-lg-4">
                 <div class="card">
                     <div class="card-header">
-                        <h5 class="card-title">Brand Logo</h5>
+                        <h5 class="card-title"> {{ __('Brand Logo') }} </h5>
                     </div>
                     <div class="card-body">
                         <div class="logo-upload-box" onclick="document.getElementById('image').click()">
@@ -196,7 +196,7 @@
                             
                             <div id="upload_placeholder" class="upload-placeholder">
                                 <i class="fe-image"></i>
-                                <p>Click to upload logo</p>
+                                <p> {{ __('Click to upload logo') }} </p>
                                 <small class="text-muted d-block mt-1">(PNG, JPG, WEBP)</small>
                             </div>
                         </div>

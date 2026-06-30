@@ -114,8 +114,8 @@
         <div class="col-12">
             <div class="page-title-box d-flex align-items-center justify-content-between py-4">
                 <div>
-                    <h4 class="page-title mb-1 text-dark fw-bold">Create Childcategory</h4>
-                    <p class="text-muted font-size-13 mb-0">Add a new level to your product hierarchy.</p>
+                    <h4 class="page-title mb-1 text-dark fw-bold"> {{ __('Create Childcategory') }} </h4>
+                    <p class="text-muted font-size-13 mb-0"> {{ __('Add a new level to your product hierarchy.') }} </p>
                 </div>
                 <div class="page-title-right">
                     <a href="{{route('childcategories.index')}}" class="btn btn-light rounded-pill border shadow-sm px-4">
@@ -135,15 +135,15 @@
                 <div class="card mb-4">
                     <div class="card-header">
                         <div class="header-icon"><i class="fe-git-merge"></i></div>
-                        <h5 class="card-title">General Information</h5>
+                        <h5 class="card-title"> {{ __('General Information') }} </h5>
                     </div>
                     <div class="card-body">
                         
                         <div class="form-group mb-4">
-                            <label for="subcategory_id" class="form-label">Parent Subcategory <span class="text-danger">*</span></label>
+                            <label for="subcategory_id" class="form-label"> {{ __('Parent Subcategory') }} <span class="text-danger">*</span></label>
                             <select class="form-control select2 @error('subcategory_id') is-invalid @enderror" 
                                     id="subcategory_id" name="subcategory_id" required>
-                                <option value="">Select Subcategory</option>
+                                <option value=""> {{ __('Select Subcategory') }} </option>
                                 @foreach ($menucategories as $category)
                                     <optgroup label="{{ $category->name }}">
                                         @foreach ($category->subcategories as $subcat)
@@ -158,7 +158,7 @@
                         </div>
 
                         <div class="form-group mb-4">
-                            <label for="childcategoryName" class="form-label">Childcategory Name <span class="text-danger">*</span></label>
+                            <label for="childcategoryName" class="form-label"> {{ __('Childcategory Name') }} <span class="text-danger">*</span></label>
                             <input type="text" class="form-control @error('childcategoryName') is-invalid @enderror" 
                                    name="childcategoryName" value="{{ old('childcategoryName') }}" 
                                    id="childcategoryName" placeholder="e.g. T-Shirts, Wireless Mouse" required>
@@ -172,7 +172,7 @@
                 <div class="card mb-4">
                     <div class="card-header">
                         <div class="header-icon"><i class="fe-search"></i></div>
-                        <h5 class="card-title">SEO Configuration</h5>
+                        <h5 class="card-title"> {{ __('SEO Configuration') }} </h5>
                     </div>
                     <div class="card-body">
                         <div class="form-group mb-4">
@@ -201,13 +201,13 @@
                 <div class="card mb-4">
                     <div class="card-header">
                         <div class="header-icon"><i class="fe-settings"></i></div>
-                        <h5 class="card-title">Visibility</h5>
+                        <h5 class="card-title"> {{ __('Visibility') }} </h5>
                     </div>
                     <div class="card-body">
                         <div class="d-flex justify-content-between align-items-center mb-4 p-3 bg-light rounded border border-light">
                             <div>
                                 <h6 class="mb-1 text-dark fw-bold">{{ __('Status') }}</h6>
-                                <p class="text-muted font-size-12 mb-0">Enable or disable category</p>
+                                <p class="text-muted font-size-12 mb-0"> {{ __('Enable or disable category') }} </p>
                             </div>
                             <label class="switch">
                                 <input type="checkbox" name="status" value="1" checked>

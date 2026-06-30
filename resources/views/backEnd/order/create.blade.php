@@ -196,7 +196,7 @@
     <div class="row mb-2">
         <div class="col-12">
             <div class="d-flex justify-content-between align-items-center">
-                <h4 class="mb-0">Point of Sale</h4>
+                <h4 class="mb-0"> {{ __('Point of Sale') }} </h4>
                 <form method="get" action="{{route('admin.order.cart_clear')}}" class="d-inline">
                     @csrf
                     <button type="submit" class="btn btn-sm btn-outline-danger rounded-pill delete-confirm" title="Clear Cart">
@@ -215,11 +215,11 @@
                 {{-- POS HEADER STRIP --}}
                 <div class="pos-header-bar mb-3">
                     <div>
-                        <h5>Shop Store</h5>
-                        <small class="pos-badge-soft">Walk-in Customer POS</small>
+                        <h5> {{ __('Shop Store') }} </h5>
+                        <small class="pos-badge-soft"> {{ __('Walk-in Customer POS') }} </small>
                     </div>
                     <div class="text-end">
-                        <div style="font-size:12px;opacity:.8;">Session</div>
+                        <div style="font-size:12px;opacity:.8;"> {{ __('Session') }} </div>
                         <div style="font-weight:600;">SL-{{ date('dmy-His') }}</div>
                     </div>
                 </div>
@@ -230,7 +230,7 @@
                         <thead>
                             <tr>
                                 <th>{{ __('Image') }}</th>
-                                <th>Item</th>
+                                <th> {{ __('Item') }} </th>
                                 <th>{{ __('Qty') }}</th>
                                 <th>{{ __('Price') }}</th>
                                 <th>{{ __('Subtotal') }}</th>
@@ -265,7 +265,7 @@
 
                     {{-- CUSTOMER --}}
                     <div class="col-md-6">
-                        <div class="pos-section-title">Customer</div>
+                        <div class="pos-section-title"> {{ __('Customer') }} </div>
 
                         <div class="mb-2">
                             <input type="text"
@@ -311,7 +311,7 @@
 
                     {{-- SUMMARY --}}
                     <div class="col-md-6">
-                        <div class="pos-section-title">Summary</div>
+                        <div class="pos-section-title"> {{ __('Summary') }} </div>
 
                         @php
                             $subtotal = Cart::instance('pos_shopping')->subtotal();
@@ -324,11 +324,11 @@
 
                         <table class="table table-borderless pos-summary-table mb-2" id="cart_details">
                             <tr>
-                                <td>Sub Total</td>
+                                <td> {{ __('Sub Total') }} </td>
                                 <td class="text-end">৳{{$subtotal}}</td>
                             </tr>
                             <tr>
-                                <td>Shipping Fee</td>
+                                <td> {{ __('Shipping Fee') }} </td>
                                 <td class="text-end">৳{{$shipping}}</td>
                             </tr>
                             <tr>
@@ -336,7 +336,7 @@
                                 <td class="text-end">৳{{$couponDiscount}}</td>
                             </tr>
                             <tr>
-                                <td>Grand Total</td>
+                                <td> {{ __('Grand Total') }} </td>
                                 <td class="text-end pos-grand-total">৳{{$grand}}</td>
                             </tr>
                         </table>

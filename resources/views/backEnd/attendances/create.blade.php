@@ -69,8 +69,8 @@
                     {{-- Header --}}
                     <div class="card-header-modern">
                         <div>
-                            <h5 class="mb-1 fw-bold text-dark">Mark Attendance</h5>
-                            <p class="text-muted small mb-0">Record daily attendance for an employee.</p>
+                            <h5 class="mb-1 fw-bold text-dark"> {{ __('Mark Attendance') }} </h5>
+                            <p class="text-muted small mb-0"> {{ __('Record daily attendance for an employee.') }} </p>
                         </div>
                         <a href="{{ route('admin.attendances.index') }}" class="btn btn-light btn-sm rounded-pill px-3">
                             <i data-feather="list" style="width:14px;" class="me-1"></i> List
@@ -81,7 +81,7 @@
                         
                         {{-- Employee Select --}}
                         <div class="mb-4">
-                            <label class="form-label-custom">Select Employee <span class="text-danger">*</span></label>
+                            <label class="form-label-custom"> {{ __('Select Employee') }} <span class="text-danger">*</span></label>
                             <select name="employee_id" class="form-control select2 form-select-custom @error('employee_id') is-invalid @enderror" required>
                                 <option value="">-- Choose Employee --</option>
                                 @foreach($employees as $emp)
@@ -95,7 +95,7 @@
 
                         {{-- Date --}}
                         <div class="mb-4">
-                            <label class="form-label-custom">Attendance Date <span class="text-danger">*</span></label>
+                            <label class="form-label-custom"> {{ __('Attendance Date') }} <span class="text-danger">*</span></label>
                             <div class="input-group">
                                 <span class="input-group-text bg-white border-end-0 text-muted"><i data-feather="calendar" style="width:16px;"></i></span>
                                 <input type="date" name="attendance_date" class="form-control form-control-custom border-start-0 @error('attendance_date') is-invalid @enderror" 
@@ -121,26 +121,26 @@
                             <label class="form-label-custom d-block mb-2">{{ __('Status') }}<span class="text-danger">*</span></label>
                             <div class="status-group">
                                 <input type="radio" name="status" id="st_present" value="present" class="status-input" {{ old('status') == 'present' ? 'checked' : '' }}>
-                                <label for="st_present" class="status-label">Present</label>
+                                <label for="st_present" class="status-label"> {{ __('Present') }} </label>
 
                                 <input type="radio" name="status" id="st_late" value="late" class="status-input" {{ old('status') == 'late' ? 'checked' : '' }}>
-                                <label for="st_late" class="status-label">Late</label>
+                                <label for="st_late" class="status-label"> {{ __('Late') }} </label>
 
                                 <input type="radio" name="status" id="st_half" value="half_day" class="status-input" {{ old('status') == 'half_day' ? 'checked' : '' }}>
-                                <label for="st_half" class="status-label">Half Day</label>
+                                <label for="st_half" class="status-label"> {{ __('Half Day') }} </label>
 
                                 <input type="radio" name="status" id="st_absent" value="absent" class="status-input" {{ old('status') == 'absent' ? 'checked' : '' }}>
-                                <label for="st_absent" class="status-label">Absent</label>
+                                <label for="st_absent" class="status-label"> {{ __('Absent') }} </label>
 
                                 <input type="radio" name="status" id="st_holiday" value="holiday" class="status-input" {{ old('status') == 'holiday' ? 'checked' : '' }}>
-                                <label for="st_holiday" class="status-label">Holiday</label>
+                                <label for="st_holiday" class="status-label"> {{ __('Holiday') }} </label>
                             </div>
                             @error('status') <span class="text-danger small mt-1 d-block">{{ $message }}</span> @enderror
                         </div>
 
                         {{-- Notes --}}
                         <div class="mb-4">
-                            <label class="form-label-custom">Notes (Optional)</label>
+                            <label class="form-label-custom"> {{ __('Notes (Optional)') }} </label>
                             <textarea name="notes" class="form-control form-control-custom" rows="2" placeholder="Any remarks regarding attendance...">{{ old('notes') }}</textarea>
                         </div>
 

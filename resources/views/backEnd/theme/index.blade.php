@@ -200,13 +200,12 @@
     {{-- Page Header --}}
     <div class="page-header d-flex justify-content-between align-items-center">
         <div>
-            <h4><i class="mdi mdi-palette-advanced me-2"></i> Theme Manager</h4>
+            <h4><i class="mdi mdi-palette-advanced me-2"></i> {{ __('Theme Manager') }} </h4>
             <p>Manage 20+ color themes — Apply, Edit, Duplicate, or Create new themes</p>
         </div>
         <div>
             <a href="{{ route('themes.create') }}" class="btn btn-light rounded-pill px-4 fw-bold shadow-sm">
-                <i class="fe-plus me-1"></i> Create Theme
-            </a>
+                <i class="fe-plus me-1"></i> {{ __('Create Theme') }} </a>
         </div>
     </div>
 
@@ -312,8 +311,8 @@
         @empty
         <div class="col-12 text-center py-5">
             <i class="mdi mdi-palette-swatch-outline" style="font-size:48px;color:#cbd5e1;"></i>
-            <h5 class="mt-3 text-muted">No themes yet</h5>
-            <a href="{{ route('themes.create') }}" class="btn btn-primary rounded-pill mt-2">Create Your First Theme</a>
+            <h5 class="mt-3 text-muted"> {{ __('No themes yet') }} </h5>
+            <a href="{{ route('themes.create') }}" class="btn btn-primary rounded-pill mt-2"> {{ __('Create Your First Theme') }} </a>
         </div>
         @endforelse
     </div>

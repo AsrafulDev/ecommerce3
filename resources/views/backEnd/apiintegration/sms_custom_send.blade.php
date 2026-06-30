@@ -100,7 +100,7 @@
         <div class="sms-card">
             <div class="sms-card-header d-flex justify-content-between align-items-center">
                 <div>
-                    <h4>Send Custom SMS</h4>
+                    <h4> {{ __('Send Custom SMS') }} </h4>
                     <p class="text-muted small mb-0">কাস্টম এবং বাল্ক এসএমএস পাঠানোর প্রফেশনাল প্যানেল</p>
                 </div>
                 <i class="fe-mail fs-2 text-muted"></i>
@@ -116,7 +116,7 @@
                     
                     <div class="mb-4">
                         <div class="d-flex justify-content-between align-items-center mb-2">
-                            <label class="mb-0">Recipient Numbers</label>
+                            <label class="mb-0"> {{ __('Recipient Numbers') }} </label>
                             <span class="badge-soft badge-soft-primary" id="number_count">0 Numbers Detected</span>
                         </div>
                         <textarea name="phone" id="phone_input" class="form-control form-control-minimal" rows="4" 
@@ -150,7 +150,7 @@
         </div>
 
         <p class="text-center text-muted mt-4 small">
-            Powered by <strong>Creative Design SMS Gateway</strong>
+            Powered by <strong> {{ __('Creative Design SMS Gateway') }} </strong>
         </p>
     </div>
 </div>

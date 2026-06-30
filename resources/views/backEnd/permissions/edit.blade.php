@@ -85,8 +85,8 @@
     <div class="row mb-3 mt-3">
         <div class="col-12 d-flex justify-content-between align-items-center">
             <div>
-                <h4 class="page-title mb-0" style="font-weight: 700; color: #2d3436;">Edit Permission</h4>
-                <p class="text-muted font-size-13 mb-0">Update system access control definition.</p>
+                <h4 class="page-title mb-0" style="font-weight: 700; color: #2d3436;"> {{ __('Edit Permission') }} </h4>
+                <p class="text-muted font-size-13 mb-0"> {{ __('Update system access control definition.') }} </p>
             </div>
             <a href="{{route('permissions.index')}}" class="btn btn-light rounded-pill border shadow-sm px-4">
                 <i class="fe-arrow-left me-1"></i> Back to List
@@ -99,7 +99,7 @@
             <div class="card">
                 <div class="card-header">
                     <div class="header-icon"><i class="fe-edit"></i></div>
-                    <h5 class="card-title">Update Permission</h5>
+                    <h5 class="card-title"> {{ __('Update Permission') }} </h5>
                 </div>
                 <div class="card-body">
                     <form action="{{route('permissions.update')}}" method="POST" data-parsley-validate>
@@ -107,12 +107,12 @@
                         <input type="hidden" name="hidden_id" value="{{$edit_data->id}}">
                         
                         <div class="form-group mb-4">
-                            <label for="name" class="form-label">Permission Name <span class="text-danger">*</span></label>
+                            <label for="name" class="form-label"> {{ __('Permission Name') }} <span class="text-danger">*</span></label>
                             <input type="text" class="form-control form-control-lg @error('name') is-invalid @enderror" 
                                    name="name" value="{{ $edit_data->name }}" id="name" required>
                             
                             <small class="text-muted d-block mt-2">
-                                <i class="fe-info"></i> Make sure the permission name follows your naming convention (e.g., <code>blog-edit</code>).
+                                <i class="fe-info"></i> {{ __('Make sure the permission name follows your naming convention (e.g.,') }} <code> {{ __('blog-edit') }} </code>).
                             </small>
 
                             @error('name')
@@ -122,8 +122,7 @@
 
                         <div class="text-end">
                             <button type="submit" class="btn btn-submit">
-                                <i class="fe-check-circle me-1"></i> Update Permission
-                            </button>
+                                <i class="fe-check-circle me-1"></i> {{ __('Update Permission') }} </button>
                         </div>
 
                     </form>

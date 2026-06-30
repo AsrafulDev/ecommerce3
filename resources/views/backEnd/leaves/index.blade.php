@@ -87,7 +87,7 @@
             <h4 class="mb-1 fw-bold text-dark">
                 <i data-feather="calendar" class="text-primary me-2"></i> Leave Management
             </h4>
-            <p class="text-muted small mb-0">Track and manage employee leave requests.</p>
+            <p class="text-muted small mb-0"> {{ __('Track and manage employee leave requests.') }} </p>
         </div>
         <a href="{{ route('admin.leaves.create') }}" class="btn btn-primary px-4 py-2 rounded-pill shadow-sm">
             <i data-feather="plus-circle" class="me-1" style="width: 16px;"></i> Add New Leave
@@ -103,7 +103,7 @@
                     <div class="col-md-3">
                         <label class="form-label small fw-bold text-muted text-uppercase mb-1">{{ __('Employee') }}</label>
                         <select name="employee_id" class="form-control select2 form-select-modern">
-                            <option value="">All Employees</option>
+                            <option value=""> {{ __('All Employees') }} </option>
                             @foreach($employees as $emp)
                                 <option value="{{ $emp->id }}" {{ request('employee_id') == $emp->id ? 'selected' : '' }}>
                                     {{ $emp->name }} ({{ $emp->employee_id }})
@@ -114,19 +114,19 @@
                     <div class="col-md-2">
                         <label class="form-label small fw-bold text-muted text-uppercase mb-1">{{ __('Status') }}</label>
                         <select name="status" class="form-select form-select-modern">
-                            <option value="">All Status</option>
+                            <option value=""> {{ __('All Status') }} </option>
                             <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }}>{{ __('Pending') }}</option>
                             <option value="approved" {{ request('status') == 'approved' ? 'selected' : '' }}>{{ __('Approved') }}</option>
                             <option value="rejected" {{ request('status') == 'rejected' ? 'selected' : '' }}>{{ __('Rejected') }}</option>
                         </select>
                     </div>
                     <div class="col-md-2">
-                        <label class="form-label small fw-bold text-muted text-uppercase mb-1">Leave Type</label>
+                        <label class="form-label small fw-bold text-muted text-uppercase mb-1"> {{ __('Leave Type') }} </label>
                         <select name="leave_type" class="form-select form-select-modern">
-                            <option value="">All Types</option>
-                            <option value="sick" {{ request('leave_type') == 'sick' ? 'selected' : '' }}>Sick</option>
-                            <option value="casual" {{ request('leave_type') == 'casual' ? 'selected' : '' }}>Casual</option>
-                            <option value="annual" {{ request('leave_type') == 'annual' ? 'selected' : '' }}>Annual</option>
+                            <option value=""> {{ __('All Types') }} </option>
+                            <option value="sick" {{ request('leave_type') == 'sick' ? 'selected' : '' }}> {{ __('Sick') }} </option>
+                            <option value="casual" {{ request('leave_type') == 'casual' ? 'selected' : '' }}> {{ __('Casual') }} </option>
+                            <option value="annual" {{ request('leave_type') == 'annual' ? 'selected' : '' }}> {{ __('Annual') }} </option>
                         </select>
                     </div>
                     <div class="col-md-3 d-flex gap-2">
@@ -145,12 +145,12 @@
                 <thead>
                     <tr>
                         <th width="5%">#</th>
-                        <th width="20%">Employee Details</th>
-                        <th width="15%">Leave Type</th>
-                        <th width="20%">Duration</th>
-                        <th width="10%">Days</th>
+                        <th width="20%"> {{ __('Employee Details') }} </th>
+                        <th width="15%"> {{ __('Leave Type') }} </th>
+                        <th width="20%"> {{ __('Duration') }} </th>
+                        <th width="10%"> {{ __('Days') }} </th>
                         <th width="15%">{{ __('Status') }}</th>
-                        <th width="15%" class="text-end">Actions</th>
+                        <th width="15%" class="text-end"> {{ __('Actions') }} </th>
                     </tr>
                 </thead>
                 <tbody>
@@ -206,20 +206,20 @@
                                     <div class="modal-dialog modal-dialog-centered">
                                         <div class="modal-content border-0 shadow-lg">
                                             <div class="modal-header border-bottom-0 pb-0">
-                                                <h5 class="modal-title text-danger fw-bold">Reject Leave Request</h5>
+                                                <h5 class="modal-title text-danger fw-bold"> {{ __('Reject Leave Request') }} </h5>
                                                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                                             </div>
                                             <form action="{{ route('admin.leaves.reject', $leave->id) }}" method="POST">
                                                 @csrf
                                                 <div class="modal-body text-start">
                                                     <div class="mb-3">
-                                                        <label class="form-label small fw-bold text-muted">Reason for Rejection <span class="text-danger">*</span></label>
+                                                        <label class="form-label small fw-bold text-muted"> {{ __('Reason for Rejection') }} <span class="text-danger">*</span></label>
                                                         <textarea name="admin_note" class="form-control" rows="3" required placeholder="Enter rejection reason..."></textarea>
                                                     </div>
                                                 </div>
                                                 <div class="modal-footer border-top-0 pt-0">
                                                     <button type="button" class="btn btn-light btn-sm" data-bs-dismiss="modal">{{ __('Cancel') }}</button>
-                                                    <button type="submit" class="btn btn-danger btn-sm px-4">Confirm Reject</button>
+                                                    <button type="submit" class="btn btn-danger btn-sm px-4"> {{ __('Confirm Reject') }} </button>
                                                 </div>
                                             </form>
                                         </div>
@@ -232,8 +232,8 @@
                         <tr>
                             <td colspan="7" class="text-center py-5">
                                 <img src="https://cdn-icons-png.flaticon.com/512/7486/7486744.png" width="60" class="mb-3 opacity-25">
-                                <p class="text-muted fw-bold mb-0">No leave requests found</p>
-                                <small class="text-muted">Adjust filters or add a new request.</small>
+                                <p class="text-muted fw-bold mb-0"> {{ __('No leave requests found') }} </p>
+                                <small class="text-muted"> {{ __('Adjust filters or add a new request.') }} </small>
                             </td>
                         </tr>
                     @endforelse

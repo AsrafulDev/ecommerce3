@@ -32,7 +32,7 @@
 <div class="col-md-3 mb-3">
     <div class="card bg-success text-white" style="color:#fff !important;">
         <div class="card-body" style="color:#fff !important;">
-            <h5 class="mb-1" style="color:#fff !important;">Available Balance</h5>
+            <h5 class="mb-1" style="color:#fff !important;"> {{ __('Available Balance') }} </h5>
             <h2 class="mb-0" style="color:#fff !important;">{{ number_format($balance, 2) }} ৳</h2>
             <small class="opacity-75 d-block mt-1" style="color:#fff !important;">
                 বর্তমানে তহবিলে অবশিষ্ট ব্যালেন্স
@@ -100,7 +100,7 @@
                         @csrf
 
                         <div class="mb-3">
-                            <label class="form-label">Title *</label>
+                            <label class="form-label"> {{ __('Title *') }} </label>
                             <input type="text"
                                    name="title"
                                    class="form-control @error('title') is-invalid @enderror"
@@ -125,7 +125,7 @@
                         </div>
 
                         <div class="mb-3">
-                            <label class="form-label">Date *</label>
+                            <label class="form-label"> {{ __('Date *') }} </label>
                             <input type="date"
                                    name="expense_date"
                                    class="form-control @error('expense_date') is-invalid @enderror"
@@ -137,7 +137,7 @@
                         </div>
 
                         <div class="mb-3">
-                            <label class="form-label">Category (optional)</label>
+                            <label class="form-label"> {{ __('Category (optional)') }} </label>
                             <input type="text"
                                    name="category"
                                    class="form-control"
@@ -145,7 +145,7 @@
                         </div>
 
                         <div class="mb-3">
-                            <label class="form-label">Note (optional)</label>
+                            <label class="form-label"> {{ __('Note (optional)') }} </label>
                             <textarea name="note"
                                       class="form-control"
                                       rows="3">{{ old('note') }}</textarea>
@@ -169,13 +169,13 @@
                 <div class="card-body">
                     <form action="{{ route('admin.expenses.export') }}" method="GET" target="_blank">
                         <div class="mb-3">
-                            <label class="form-label">From Date</label>
+                            <label class="form-label"> {{ __('From Date') }} </label>
                             <input type="date" name="from_date" class="form-control"
                                    value="{{ request('from_date') }}">
                         </div>
 
                         <div class="mb-3">
-                            <label class="form-label">To Date</label>
+                            <label class="form-label"> {{ __('To Date') }} </label>
                             <input type="date" name="to_date" class="form-control"
                                    value="{{ request('to_date') }}">
                         </div>
@@ -211,7 +211,7 @@
                     <th class="text-end">Amount (৳)</th>
                     <th>{{ __('Note') }}</th>
                     @if($isAdmin)
-                    <th>Actions</th>
+                    <th> {{ __('Actions') }} </th>
                     @endif
                 </tr>
                 </thead>

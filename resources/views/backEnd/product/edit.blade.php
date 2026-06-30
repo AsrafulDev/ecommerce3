@@ -59,10 +59,10 @@
                 
                 <div class="card mb-4">
                     <div class="card-body">
-                        <div class="section-title"><i class="fe-info me-1"></i> Basic Information</div>
+                        <div class="section-title"><i class="fe-info me-1"></i> {{ __('Basic Information') }} </div>
 
                         <div class="form-group mb-3">
-                            <label for="name" class="form-label">Product Name *</label>
+                            <label for="name" class="form-label"> {{ __('Product Name *') }} </label>
                             <input type="text" class="form-control @error('name') is-invalid @enderror"
                                    name="name" value="{{$edit_data->name }}" id="name" required />
                             @error('name')
@@ -72,11 +72,11 @@
 
                         <div class="row">
                             <div class="col-md-4 mb-3">
-                                <label for="category_id" class="form-label">Categories *</label>
+                                <label for="category_id" class="form-label"> {{ __('Categories *') }} </label>
                                 <select class="form-control form-select select2 @error('category_id') is-invalid @enderror"
                                         name="category_id" id="category_id" required>
                                     <optgroup>
-                                        <option value="">Select..</option>
+                                        <option value=""> {{ __('Select..') }} </option>
                                         @foreach($categories as $category)
                                             <option value="{{$category->id}}" @if($edit_data->category_id==$category->id) selected @endif>
                                                 {{$category->name}}
@@ -95,11 +95,11 @@
                             </div>
 
                             <div class="col-md-4 mb-3">
-                                <label for="subcategory_id" class="form-label">SubCategories</label>
+                                <label for="subcategory_id" class="form-label"> {{ __('SubCategories') }} </label>
                                 <select class="form-control form-select select2 @error('subcategory_id') is-invalid @enderror"
                                         id="subcategory_id" name="subcategory_id">
                                     <optgroup>
-                                        <option value="">Select..</option>
+                                        <option value=""> {{ __('Select..') }} </option>
                                         @foreach($subcategory as $value)
                                             <option value="{{$value->id}}" @if($edit_data->subcategory_id==$value->id) selected @endif>
                                                 {{$value->subcategoryName}}
@@ -113,11 +113,11 @@
                             </div>
 
                             <div class="col-md-4 mb-3">
-                                <label for="childcategory_id" class="form-label">Child Categories</label>
+                                <label for="childcategory_id" class="form-label"> {{ __('Child Categories') }} </label>
                                 <select class="form-control form-select select2 @error('childcategory_id') is-invalid @enderror"
                                         id="childcategory_id" name="childcategory_id">
                                     <optgroup>
-                                        <option value="">Select..</option>
+                                        <option value=""> {{ __('Select..') }} </option>
                                         @foreach($childcategory as $value)
                                             <option value="{{$value->id}}" @if($edit_data->childcategory_id==$value->id) selected @endif>
                                                 {{$value->childcategoryName}}
@@ -156,7 +156,7 @@
                 <div class="card mb-4">
                     <div class="card-body">
                         <div class="form-group mb-3">
-                            <label class="d-block form-label">Wholesale Product</label>
+                            <label class="d-block form-label"> {{ __('Wholesale Product') }} </label>
                             <label class="switch">
                                 <input type="checkbox" value="1" name="is_wholesale" id="is_wholesale" {{ old('is_wholesale', $edit_data->is_wholesale ?? 0) ? 'checked' : '' }}>
                                 <span class="slider round"></span>
@@ -169,8 +169,8 @@
                 <div id="wholesale_area" style="{{ old('is_wholesale', $edit_data->is_wholesale ?? 0) ? 'display:block;' : 'display:none;' }}" class="card mb-4">
                     <div class="card-body">
                         <div class="section-title d-flex justify-content-between align-items-center">
-                            <span><i class="fe-dollar-sign me-1"></i> Wholesale Pricing Tiers</span>
-                            <button type="button" class="btn btn-sm btn-success add-wholesale-tier rounded-pill px-3"><i class="fa fa-plus me-1"></i> Add New Tier</button>
+                            <span><i class="fe-dollar-sign me-1"></i> {{ __('Wholesale Pricing Tiers') }} </span>
+                            <button type="button" class="btn btn-sm btn-success add-wholesale-tier rounded-pill px-3"><i class="fa fa-plus me-1"></i> {{ __('Add New Tier') }} </button>
                         </div>
                         
                         <div id="wholesale-wrapper">
@@ -179,22 +179,22 @@
                                     <div class="variant-card">
                                         <div class="row align-items-end">
                                             <div class="col-md-3 mb-2">
-                                                <label class="form-label">Min Quantity</label>
+                                                <label class="form-label"> {{ __('Min Quantity') }} </label>
                                                 <input type="number" name="wholesale_price[{{ $key }}][min_quantity]" class="form-control" 
                                                        value="{{ old('wholesale_price.'.$key.'.min_quantity', $tier->min_quantity) }}">
                                             </div>
                                             <div class="col-md-3 mb-2">
-                                                <label class="form-label">Max Quantity</label>
+                                                <label class="form-label"> {{ __('Max Quantity') }} </label>
                                                 <input type="number" name="wholesale_price[{{ $key }}][max_quantity]" class="form-control" 
                                                        value="{{ old('wholesale_price.'.$key.'.max_quantity', $tier->max_quantity) }}" placeholder="Optional">
                                             </div>
                                             <div class="col-md-2 mb-2">
-                                                <label class="form-label">Wholesale Price</label>
+                                                <label class="form-label"> {{ __('Wholesale Price') }} </label>
                                                 <input type="number" step="0.01" name="wholesale_price[{{ $key }}][wholesale_price]" class="form-control" 
                                                        value="{{ old('wholesale_price.'.$key.'.wholesale_price', $tier->wholesale_price) }}">
                                             </div>
                                             <div class="col-md-2 mb-2">
-                                                <label class="form-label">Stock Qty</label>
+                                                <label class="form-label"> {{ __('Stock Qty') }} </label>
                                                 <input type="number" name="wholesale_price[{{ $key }}][stock]" class="form-control" 
                                                        value="{{ old('wholesale_price.'.$key.'.stock', $tier->stock ?? 0) }}" placeholder="0">
                                             </div>
@@ -212,19 +212,19 @@
                                 <div class="variant-card">
                                     <div class="row align-items-end">
                                         <div class="col-md-3 mb-2">
-                                            <label class="form-label">Min Quantity</label>
+                                            <label class="form-label"> {{ __('Min Quantity') }} </label>
                                             <input type="number" name="wholesale_price[0][min_quantity]" class="form-control" placeholder="e.g. 10">
                                         </div>
                                         <div class="col-md-3 mb-2">
-                                            <label class="form-label">Max Quantity</label>
+                                            <label class="form-label"> {{ __('Max Quantity') }} </label>
                                             <input type="number" name="wholesale_price[0][max_quantity]" class="form-control" placeholder="e.g. 50 (optional)">
                                         </div>
                                         <div class="col-md-2 mb-2">
-                                            <label class="form-label">Wholesale Price</label>
+                                            <label class="form-label"> {{ __('Wholesale Price') }} </label>
                                             <input type="number" step="0.01" name="wholesale_price[0][wholesale_price]" class="form-control" placeholder="0.00">
                                         </div>
                                         <div class="col-md-2 mb-2">
-                                            <label class="form-label">Stock Qty</label>
+                                            <label class="form-label"> {{ __('Stock Qty') }} </label>
                                             <input type="number" name="wholesale_price[0][stock]" class="form-control" placeholder="0">
                                         </div>
                                         <div class="col-md-2 mb-2">
@@ -241,8 +241,8 @@
                 <div class="card mb-4" id="variant_section" style="{{ $hasVariants ? '' : 'display:none;' }}">
                     <div class="card-body">
                         <div class="section-title d-flex justify-content-between align-items-center">
-                            <span><i class="fe-layers me-1"></i> Product Variants (Color & Size)</span>
-                            <button type="button" class="btn btn-sm btn-success add-variant rounded-pill px-3"><i class="fa fa-plus me-1"></i> Add Variant</button>
+                            <span><i class="fe-layers me-1"></i> {{ __('Product Variants (Color & Size)') }} </span>
+                            <button type="button" class="btn btn-sm btn-success add-variant rounded-pill px-3"><i class="fa fa-plus me-1"></i> {{ __('Add Variant') }} </button>
                         </div>
 
                         <div id="variant-wrapper">
@@ -263,7 +263,7 @@
                                         <div class="col-md-2 mb-2">
                                             <label class="form-label">{{ __('Color') }}</label>
                                             <select name="variant_price[{{ $variantIndex }}][color_id]" class="form-control select2 variant-color-select">
-                                                <option value="">Select Color (Optional)</option>
+                                                <option value=""> {{ __('Select Color (Optional)') }} </option>
                                                 @foreach($totalcolors as $color)
                                                     <option value="{{ $color->id }}" {{ $vpColorId == $color->id ? 'selected' : '' }}>
                                                         {{ $color->colorName ?? $color->name }}
@@ -275,7 +275,7 @@
                                         <div class="col-md-2 mb-2">
                                             <label class="form-label">{{ __('Size') }}</label>
                                             <select name="variant_price[{{ $variantIndex }}][size_id]" class="form-control select2 variant-size-select">
-                                                <option value="">Select Size (Optional)</option>
+                                                <option value=""> {{ __('Select Size (Optional)') }} </option>
                                                 @foreach($totalsizes as $size)
                                                     <option value="{{ $size->id }}" {{ $vpSizeId == $size->id ? 'selected' : '' }}>
                                                         {{ $size->sizeName ?? $size->name }}
@@ -297,7 +297,7 @@
                                         </div>
 
                                         <div class="col-md-2 mb-2">
-                                            <label class="form-label">Variant Image</label>
+                                            <label class="form-label"> {{ __('Variant Image') }} </label>
                                             @php
                                                 $matchImg = $edit_data->images->filter(function($img) use ($vp) {
                                                     return ($img->color_id == $vp->color_id || (empty($img->color_id) && empty($vp->color_id)))
@@ -351,7 +351,7 @@
                                         <div class="col-md-3 mb-2">
                                             <label class="form-label">{{ __('Color') }}<small class="text-muted">(Optional)</small></label>
                                             <select name="variant_price[0][color_id]" class="form-control select2 variant-color-select">
-                                                <option value="">Select Color (Optional)</option>
+                                                <option value=""> {{ __('Select Color (Optional)') }} </option>
                                                 @foreach($totalcolors as $color)
                                                     <option value="{{ $color->id }}">{{ $color->colorName ?? $color->name }}</option>
                                                 @endforeach
@@ -361,7 +361,7 @@
                                         <div class="col-md-3 mb-2">
                                             <label class="form-label">{{ __('Size') }}<small class="text-muted">(Optional)</small></label>
                                             <select name="variant_price[0][size_id]" class="form-control select2 variant-size-select">
-                                                <option value="">Select Size (Optional)</option>
+                                                <option value=""> {{ __('Select Size (Optional)') }} </option>
                                                 @foreach($totalsizes as $size)
                                                     <option value="{{ $size->id }}">{{ $size->sizeName ?? $size->name }}</option>
                                                 @endforeach
@@ -380,7 +380,7 @@
                                         </div>
 
                                         <div class="col-md-2 mb-2">
-                                            <label class="form-label">Variant Image</label>
+                                            <label class="form-label"> {{ __('Variant Image') }} </label>
                                             <div class="variant-img-upload">
                                                 <input type="file" name="variant_image[0][image]" class="form-control form-control-sm variant-img-input" accept="image/*">
                                                 <div class="variant-img-preview mt-1" style="display:none;">
@@ -413,7 +413,7 @@
                 {{-- SEO CONFIG CARD --}}
                 <div class="card mb-4">
                     <div class="card-body">
-                        <div class="section-title"><i class="fe-search me-1"></i> SEO Configuration</div>
+                        <div class="section-title"><i class="fe-search me-1"></i> {{ __('SEO Configuration') }} </div>
                         
                         <div class="row">
                             <div class="col-md-6 mb-3">
@@ -437,7 +437,7 @@
                             </div>
 
                             <div class="col-md-12 mb-3">
-                                <label for="meta_image" class="form-label">Meta Image (og:image)</label>
+                                <label for="meta_image" class="form-label"> {{ __('Meta Image (og:image)') }} </label>
                                 <input type="file" name="meta_image" id="meta_image" class="form-control">
 
                                 @if(!empty($edit_data->meta_image))
@@ -457,10 +457,10 @@
                 {{-- PRICING & INVENTORY CARD --}}
                 <div class="card mb-4">
                     <div class="card-body">
-                        <div class="section-title"><i class="fe-dollar-sign me-1"></i> Pricing & Inventory</div>
+                        <div class="section-title"><i class="fe-dollar-sign me-1"></i> {{ __('Pricing & Inventory') }} </div>
 
                         <div class="form-group mb-3">
-                            <label for="purchase_price" class="form-label">Purchase Price <small class="text-muted">(Optional)</small></label>
+                            <label for="purchase_price" class="form-label"> {{ __('Purchase Price') }} <small class="text-muted">(Optional)</small></label>
                             <input type="text" class="form-control border-primary @error('purchase_price') is-invalid @enderror"
                                    name="purchase_price" value="{{ $edit_data->purchase_price}}" id="purchase_price" placeholder="0" />
                             @error('purchase_price')
@@ -470,7 +470,7 @@
 
                         <div class="row">
                             <div class="col-md-6 mb-3">
-                                <label for="old_price" class="form-label">Old Price</label>
+                                <label for="old_price" class="form-label"> {{ __('Old Price') }} </label>
                                 <input type="text" class="form-control @error('old_price') is-invalid @enderror"
                                        name="old_price" value="{{ $edit_data->old_price }}" id="old_price" />
                                 @error('old_price')
@@ -479,7 +479,7 @@
                             </div>
 
                             <div class="col-md-6 mb-3">
-                                <label for="new_price" class="form-label">New Price <small class="text-muted">(Optional)</small></label>
+                                <label for="new_price" class="form-label"> {{ __('New Price') }} <small class="text-muted">(Optional)</small></label>
                                 <input type="text" class="form-control font-weight-bold @error('new_price') is-invalid @enderror"
                                        name="new_price" value="{{ $edit_data->new_price }}" id="new_price" placeholder="0" />
                                 @error('new_price')
@@ -489,10 +489,10 @@
                         </div>
 
                         <div class="form-group mb-3">
-                            <label for="reseller_price" class="form-label">Reseller Price</label>
+                            <label for="reseller_price" class="form-label"> {{ __('Reseller Price') }} </label>
                             <input type="text" step="0.01" class="form-control @error('reseller_price') is-invalid @enderror"
                                    name="reseller_price" value="{{ old('reseller_price', $edit_data->reseller_price) }}" id="reseller_price" placeholder="Reseller price (optional)" />
-                            <small class="text-muted">Special price for resellers. Leave empty if not applicable.</small>
+                            <small class="text-muted"> {{ __('Special price for resellers. Leave empty if not applicable.') }} </small>
                             @error('reseller_price')
                             <span class="invalid-feedback" role="alert"><strong>{{ $message }}</strong></span>
                             @enderror
@@ -500,7 +500,7 @@
 
                         <div class="row">
                             <div class="col-md-6 mb-3">
-                                <label for="stock" class="form-label">Total Stock <small class="text-muted">(Optional)</small></label>
+                                <label for="stock" class="form-label"> {{ __('Total Stock') }} <small class="text-muted">(Optional)</small></label>
                                 <input type="text" class="form-control @error('stock') is-invalid @enderror"
                                        name="stock" value="{{ $edit_data->stock }}" id="stock" placeholder="0" />
                                 @error('stock')
@@ -518,7 +518,7 @@
                             <label for="brand_id" class="form-label">{{ __('Brand') }}</label>
                             <select class="form-control select2 @error('brand_id') is-invalid @enderror"
                                     name="brand_id">
-                                <option value="">Select..</option>
+                                <option value=""> {{ __('Select..') }} </option>
                                 @foreach($brands as $value)
                                     <option value="{{$value->id}}" @if($edit_data->brand_id==$value->id) selected @endif>
                                         {{$value->name}}
@@ -535,10 +535,10 @@
                 {{-- MEDIA CARD --}}
                 <div class="card mb-4">
                     <div class="card-body">
-                        <div class="section-title"><i class="fe-image me-1"></i> Media & Video</div>
+                        <div class="section-title"><i class="fe-image me-1"></i> {{ __('Media & Video') }} </div>
 
                         <div class="form-group mb-3">
-                            <label class="form-label">Product Gallery Images</label>
+                            <label class="form-label"> {{ __('Product Gallery Images') }} </label>
                             <div class="increment-wrapper">
                                 <div class="control-group increment mb-2 image-row">
                                     <div class="row align-items-end g-2">
@@ -587,7 +587,7 @@
                             @php $colorSizeImages = $edit_data->images->filter(fn($img) => $img->color_id || $img->size_id); @endphp
                             @if($colorSizeImages->isNotEmpty())
                             <div class="mt-3">
-                                <label class="form-label small text-muted">Color/Size Images</label>
+                                <label class="form-label small text-muted"> {{ __('Color/Size Images') }} </label>
                                 <div class="d-flex flex-wrap gap-2">
                                     @foreach($colorSizeImages as $img)
                                         <div class="position-relative">
@@ -682,10 +682,10 @@
                 {{-- PRODUCT SETTINGS CARD --}}
                 <div class="card mb-4">
                     <div class="card-body">
-                        <div class="section-title"><i class="fe-settings me-1"></i> Product Settings</div>
+                        <div class="section-title"><i class="fe-settings me-1"></i> {{ __('Product Settings') }} </div>
 
                         <div class="form-group mb-3">
-                            <label for="product_type" class="form-label">Product Type</label>
+                            <label for="product_type" class="form-label"> {{ __('Product Type') }} </label>
                             <select class="form-control bg-light" id="product_type" name="product_type">
                                 <option value="simple" {{ $currentType === 'simple' ? 'selected' : '' }}>📦 Simple Product</option>
                                 <option value="variable" {{ $currentType === 'variable' ? 'selected' : '' }}>🎨 Variable Product</option>
@@ -701,9 +701,9 @@
                             <label class="form-label d-flex align-items-center gap-2">
                                 <input type="checkbox" id="enable_variants" {{ $hasVariants ? 'checked' : '' }} 
                                        onchange="toggleVariantSection()" style="width:18px;height:18px;">
-                                <span>Enable Product Variants (Color & Size)</span>
+                                <span> {{ __('Enable Product Variants (Color & Size)') }} </span>
                             </label>
-                            <small class="text-muted d-block">Check this to add multiple variations with different prices, stock & images per Color/Size combination.</small>
+                            <small class="text-muted d-block"> {{ __('Check this to add multiple variations with different prices, stock & images per Color/Size combination.') }} </small>
                         </div>
 
                         {{-- DIGITAL PRODUCT CHECKBOX --}}
@@ -712,15 +712,15 @@
                             <label class="form-label d-flex align-items-center gap-2">
                                 <input type="checkbox" id="is_digital_check" name="is_digital_check" {{ $isDigital ? 'checked' : '' }} 
                                        onchange="toggleDigitalSection()" style="width:18px;height:18px;">
-                                <span>Digital / Downloadable Product</span>
+                                <span> {{ __('Digital / Downloadable Product') }} </span>
                             </label>
-                            <small class="text-muted d-block">No shipping required. Customers can download the product after purchase.</small>
+                            <small class="text-muted d-block"> {{ __('No shipping required. Customers can download the product after purchase.') }} </small>
                         </div>
 
                         {{-- ADVANCE PAYMENT (PHYSICAL) --}}
                         <div id="advance_area" style="{{ $isDigital ? 'display:none;' : 'display:block;' }}">
                             <div class="form-group mb-3">
-                                <label for="advance_amount" class="form-label">Advance Payment</label>
+                                <label for="advance_amount" class="form-label"> {{ __('Advance Payment') }} </label>
                                 <input type="text" class="form-control @error('advance_amount') is-invalid @enderror"
                                        name="advance_amount" id="advance_amount"
                                        value="{{ old('advance_amount', $edit_data->advance_amount) }}" />
@@ -732,13 +732,13 @@
 
                         {{-- FREE DELIVERY --}}
                         <div class="form-group mb-3">
-                            <label class="form-label">Free Delivery</label>
+                            <label class="form-label"> {{ __('Free Delivery') }} </label>
                             <div class="d-flex align-items-center">
                                 <label class="switch me-3">
                                     <input type="checkbox" value="1" name="free_delivery" {{ old('free_delivery', $edit_data->free_delivery) ? 'checked' : '' }}>
                                     <span class="slider round"></span>
                                 </label>
-                                <small class="text-muted">Enable free delivery for this product (No shipping charge will be applied)</small>
+                                <small class="text-muted"> {{ __('Enable free delivery for this product (No shipping charge will be applied)') }} </small>
                             </div>
                         </div>
 
@@ -748,19 +748,19 @@
                                 @if($edit_data->digital_file)
                                     <label class="form-label d-block text-truncate">Current: <code>{{ $edit_data->digital_file }}</code></label>
                                 @endif
-                                <label for="digital_file" class="form-label">Change Digital File</label>
+                                <label for="digital_file" class="form-label"> {{ __('Change Digital File') }} </label>
                                 <input type="file" class="form-control" name="digital_file" id="digital_file">
                             </div>
 
                             <div class="row">
                                 <div class="col-6">
-                                    <label class="form-label"><small>Limit</small></label>
+                                    <label class="form-label"><small> {{ __('Limit') }} </small></label>
                                     <input type="number" class="form-control form-control-sm"
                                            name="download_limit" id="download_limit"
                                            value="{{ old('download_limit', $edit_data->download_limit ?? 5) }}" min="1">
                                 </div>
                                 <div class="col-6">
-                                    <label class="form-label"><small>Days Exp.</small></label>
+                                    <label class="form-label"><small> {{ __('Days Exp.') }} </small></label>
                                     <input type="number" class="form-control form-control-sm"
                                            name="download_expire_days" id="download_expire_days"
                                            value="{{ old('download_expire_days', $edit_data->download_expire_days ?? 7) }}" min="1">
@@ -796,13 +796,13 @@
 
                           
                             <div class="col-12 mb-2 text-start">
-                                <label for="sold" class="form-label">Sold Count</label>
+                                <label for="sold" class="form-label"> {{ __('Sold Count') }} </label>
                                 <input type="text" class="form-control @error('sold') is-invalid @enderror"
                                        name="sold" value="{{ $edit_data->sold }}" id="sold" />
                             </div>
                         </div>
 
-                        <button type="submit" class="btn btn-success btn-lg w-100 shadow rounded-pill"><i class="fe-check-circle me-1"></i> Update Product</button>
+                        <button type="submit" class="btn btn-success btn-lg w-100 shadow rounded-pill"><i class="fe-check-circle me-1"></i> {{ __('Update Product') }} </button>
 
                     </div>
                 </div>
@@ -851,7 +851,7 @@
                 success: function (res) {
                     if (res) {
                         $("#subcategory_id").empty();
-                        $("#subcategory_id").append('<option value="0">Choose...</option>');
+                        $("#subcategory_id").append('<option value="0"> {{ __('Choose...') }} </option>');
                         $.each(res, function (key, value) {
                             $("#subcategory_id").append('<option value="' + key + '">' + value + "</option>");
                         });
@@ -874,7 +874,7 @@
                 success: function (res) {
                     if (res) {
                         $("#childcategory_id").empty();
-                        $("#childcategory_id").append('<option value="0">Choose...</option>');
+                        $("#childcategory_id").append('<option value="0"> {{ __('Choose...') }} </option>');
                         $.each(res, function (key, value) {
                             $("#childcategory_id").append('<option value="' + key + '">' + value + "</option>");
                         });

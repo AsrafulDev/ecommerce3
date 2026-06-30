@@ -105,7 +105,7 @@
                     <div>
                         <div class="stats-label text-success">This Year ({{ $currentYear }})</div>
                         <div class="stats-value">{{ number_format($yearlyTotal, 2) }} ৳</div>
-                        <div class="stats-sub">Total Purchase</div>
+                        <div class="stats-sub"> {{ __('Total Purchase') }} </div>
                     </div>
                 </div>
             </div>
@@ -120,7 +120,7 @@
                             {{ \Carbon\Carbon::createFromDate(now()->year, $currentMonth, 1)->format('F') }}
                         </div>
                         <div class="stats-value">{{ number_format($monthlyTotal, 2) }} ৳</div>
-                        <div class="stats-sub">Monthly Purchase</div>
+                        <div class="stats-sub"> {{ __('Monthly Purchase') }} </div>
                     </div>
                 </div>
             </div>
@@ -133,7 +133,7 @@
                     <div>
                         <div class="stats-label text-primary">Today ({{ now()->format('d M') }})</div>
                         <div class="stats-value">{{ number_format($todayTotal, 2) }} ৳</div>
-                        <div class="stats-sub">Daily Purchase</div>
+                        <div class="stats-sub"> {{ __('Daily Purchase') }} </div>
                     </div>
                 </div>
             </div>
@@ -144,9 +144,9 @@
                 <div class="card-body stats-card">
                     <div class="stats-icon bg-soft-danger"><i class="fe-alert-circle"></i></div>
                     <div>
-                        <div class="stats-label text-danger">Supplier Due</div>
+                        <div class="stats-label text-danger"> {{ __('Supplier Due') }} </div>
                         <div class="stats-value">{{ number_format($totalDue, 2) }} ৳</div>
-                        <div class="stats-sub">Total Liability</div>
+                        <div class="stats-sub"> {{ __('Total Liability') }} </div>
                     </div>
                 </div>
             </div>
@@ -157,14 +157,14 @@
         <div class="col-lg-8 mb-4">
             <div class="card mb-4">
                 <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary"><i class="fe-plus-circle me-1"></i> New Purchase Entry</h6>
+                    <h6 class="m-0 font-weight-bold text-primary"><i class="fe-plus-circle me-1"></i> {{ __('New Purchase Entry') }} </h6>
                 </div>
                 <div class="card-body">
                     <form action="{{ route('purchases.store') }}" method="POST">
                         @csrf
                         <div class="row">
                             <div class="col-md-4 mb-3">
-                                <label class="form-label">Supplier *</label>
+                                <label class="form-label"> {{ __('Supplier *') }} </label>
                                 <select name="supplier_id" class="form-control form-select" required>
                                     <option value="">-- Select Supplier --</option>
                                     @foreach($suppliers as $s)
@@ -173,11 +173,11 @@
                                 </select>
                             </div>
                             <div class="col-md-4 mb-3">
-                                <label class="form-label">Invoice No *</label>
+                                <label class="form-label"> {{ __('Invoice No *') }} </label>
                                 <input type="text" name="invoice_no" class="form-control" value="{{ 'PUR-'.time() }}" required readonly style="background-color: #f8f9fc;">
                             </div>
                             <div class="col-md-4 mb-3">
-                                <label class="form-label">Date *</label>
+                                <label class="form-label"> {{ __('Date *') }} </label>
                                 <input type="date" name="purchase_date" class="form-control" value="{{ now()->format('Y-m-d') }}" required>
                             </div>
                         </div>
@@ -187,7 +187,7 @@
 
                         <div class="row">
                             <div class="col-md-6 mb-3">
-                                <label class="form-label">Product *</label>
+                                <label class="form-label"> {{ __('Product *') }} </label>
                                 <select name="product_id" class="form-control form-select" required>
                                     <option value="">-- Select Product --</option>
                                     @foreach($products as $p)
@@ -199,7 +199,7 @@
                             <input type="hidden" name="variant_price_id" value="">
 
                             <div class="col-md-3 mb-3">
-                                <label class="form-label">Quantity *</label>
+                                <label class="form-label"> {{ __('Quantity *') }} </label>
                                 <input type="number" name="qty" class="form-control" min="1" value="1" required>
                             </div>
                             <div class="col-md-3 mb-3">
@@ -214,13 +214,13 @@
                                 <input type="number" step="0.01" name="discount" class="form-control" value="0">
                             </div>
                             <div class="col-md-3 mb-3">
-                                <label class="form-label">Shipping Cost</label>
+                                <label class="form-label"> {{ __('Shipping Cost') }} </label>
                                 <input type="number" step="0.01" name="shipping_cost" class="form-control" value="0">
                             </div>
                             <div class="col-md-3 mb-3">
-                                <label class="form-label text-success fw-bold">Paid Amount</label>
+                                <label class="form-label text-success fw-bold"> {{ __('Paid Amount') }} </label>
                                 <input type="number" step="0.01" name="paid_amount" class="form-control border-success" value="0">
-                                <small class="text-muted" style="font-size:10px;">Deducted from fund</small>
+                                <small class="text-muted" style="font-size:10px;"> {{ __('Deducted from fund') }} </small>
                             </div>
                             <div class="col-md-3 mb-3">
                                 <label class="form-label">{{ __('Note') }}</label>
@@ -241,21 +241,21 @@
         <div class="col-lg-4 mb-4">
             <div class="card h-100">
                 <div class="card-header py-3 bg-white">
-                    <h6 class="m-0 font-weight-bold text-dark"><i class="fe-download me-1"></i> Export Report</h6>
+                    <h6 class="m-0 font-weight-bold text-dark"><i class="fe-download me-1"></i> {{ __('Export Report') }} </h6>
                 </div>
                 <div class="card-body">
                     <form action="{{ route('purchases.export') }}" method="GET" target="_blank">
                         <div class="mb-3">
-                            <label class="form-label">Filter by Month/Year</label>
+                            <label class="form-label"> {{ __('Filter by Month/Year') }} </label>
                             <div class="input-group">
                                 <input type="number" name="month" class="form-control" placeholder="Month (1-12)" value="{{ request('month') }}">
                                 <input type="number" name="year" class="form-control" placeholder="{{ __('Year') }}" value="{{ request('year') }}">
                             </div>
                         </div>
                         <div class="mb-3">
-                            <label class="form-label">Date Range</label>
+                            <label class="form-label"> {{ __('Date Range') }} </label>
                             <div class="input-group">
-                                <span class="input-group-text bg-light border-end-0">From</span>
+                                <span class="input-group-text bg-light border-end-0"> {{ __('From') }} </span>
                                 <input type="date" name="from_date" class="form-control" value="{{ request('from_date') }}">
                             </div>
                             <div class="input-group mt-2">
@@ -276,7 +276,7 @@
 
     <div class="card shadow mb-4">
         <div class="card-header py-3 d-flex justify-content-between align-items-center">
-            <h6 class="m-0 font-weight-bold text-primary"><i class="fe-list me-1"></i> Recent Purchase History</h6>
+            <h6 class="m-0 font-weight-bold text-primary"><i class="fe-list me-1"></i> {{ __('Recent Purchase History') }} </h6>
         </div>
         <div class="card-body p-0">
             <div id="purchase-table-wrapper" class="table-responsive">
@@ -288,9 +288,9 @@
                             <th width="15%">{{ __('Invoice') }}</th>
                             <th width="15%">{{ __('Supplier') }}</th>
                             <th class="text-end" width="10%">{{ __('Total') }}</th>
-                            <th class="text-end" width="10%">Paid</th>
+                            <th class="text-end" width="10%"> {{ __('Paid') }} </th>
                             <th class="text-end" width="10%">Due</th>
-                            <th class="text-center" width="23%">Actions</th>
+                            <th class="text-center" width="23%"> {{ __('Actions') }} </th>
                         </tr>
                     </thead>
                     <tbody>
@@ -325,7 +325,7 @@
                                     <div class="fw-bold text-secondary">{{ $p->supplier->name }}</div>
                                     <small class="text-muted">{{ $p->supplier->phone }}</small>
                                 @else
-                                    <span class="text-danger">Deleted</span>
+                                    <span class="text-danger"> {{ __('Deleted') }} </span>
                                 @endif
                             </td>
                             <td class="text-end fw-bold">{{ number_format($p->grand_total,2) }}</td>
@@ -347,7 +347,7 @@
                                             </button>
                                         </form>
                                     @else
-                                        <span class="badge bg-success bg-soft-success text-success border border-success px-2">Paid</span>
+                                        <span class="badge bg-success bg-soft-success text-success border border-success px-2"> {{ __('Paid') }} </span>
                                     @endif
 
                                     @if($isAdmin)
@@ -369,7 +369,7 @@
                         <tr>
                             <td colspan="8" class="text-center py-5">
                                 <img src="https://cdn-icons-png.flaticon.com/512/4076/4076432.png" width="60" class="mb-3 opacity-50">
-                                <p class="text-muted mb-0">No purchase records found.</p>
+                                <p class="text-muted mb-0"> {{ __('No purchase records found.') }} </p>
                             </td>
                         </tr>
                     @endforelse

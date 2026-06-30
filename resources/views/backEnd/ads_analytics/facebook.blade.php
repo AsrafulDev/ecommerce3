@@ -15,46 +15,46 @@
 <div class="container-fluid py-3">
   <div class="d-flex justify-content-between align-items-center mb-4">
     <div>
-      <h4 class="fw-bold mb-1"><i class="fe-facebook text-primary me-2"></i> Facebook Ads Result</h4>
-      <small class="text-muted">Live performance data from Facebook Ads Manager</small>
+      <h4 class="fw-bold mb-1"><i class="fe-facebook text-primary me-2"></i> {{ __('Facebook Ads Result') }} </h4>
+      <small class="text-muted"> {{ __('Live performance data from Facebook Ads Manager') }} </small>
     </div>
     <div>
-      <span class="badge bg-success me-2"><i class="fe-radio"></i> Live</span>
+      <span class="badge bg-success me-2"><i class="fe-radio"></i> {{ __('Live') }} </span>
       <a href="{{ route('admin.ads_analytics.facebook', ['refresh' => 1]) }}" class="btn btn-sm btn-primary">
         <i class="fe-refresh-cw"></i>{{ __('Refresh') }}</a>
-      <a href="{{ route('admin.ads_analytics.dashboard') }}" class="btn btn-sm btn-outline-secondary">Overview</a>
+      <a href="{{ route('admin.ads_analytics.dashboard') }}" class="btn btn-sm btn-outline-secondary"> {{ __('Overview') }} </a>
       <a href="{{ route('admin.ads_analytics.settings') }}" class="btn btn-sm btn-outline-secondary">{{ __('Settings') }}</a>
     </div>
   </div>
 
   <div class="ads-card">
     @if(($facebook['success'] ?? false))
-      <h5 class="fw-bold mb-4">Today's Performance</h5>
+      <h5 class="fw-bold mb-4"> {{ __("Today's Performance") }} </h5>
       <div class="metric-row">
         <div class="metric-item">
           <div class="metric-value">{{ number_format($facebook['spend'] ?? 0, 2) }}</div>
-          <div class="metric-label">Spend</div>
+          <div class="metric-label"> {{ __('Spend') }} </div>
         </div>
         <div class="metric-item">
           <div class="metric-value">{{ number_format($facebook['clicks'] ?? 0) }}</div>
-          <div class="metric-label">Clicks</div>
+          <div class="metric-label"> {{ __('Clicks') }} </div>
         </div>
         <div class="metric-item">
           <div class="metric-value">{{ number_format($facebook['impressions'] ?? 0) }}</div>
-          <div class="metric-label">Impressions</div>
+          <div class="metric-label"> {{ __('Impressions') }} </div>
         </div>
         <div class="metric-item">
           <div class="metric-value">{{ number_format($facebook['reach'] ?? 0) }}</div>
-          <div class="metric-label">Reach</div>
+          <div class="metric-label"> {{ __('Reach') }} </div>
         </div>
         <div class="metric-item">
           <div class="metric-value">{{ number_format($facebook['conversions'] ?? 0) }}</div>
-          <div class="metric-label">Conversions</div>
+          <div class="metric-label"> {{ __('Conversions') }} </div>
         </div>
       </div>
     @else
       <p class="text-muted mb-3">{{ $facebook['message'] ?? 'Configure Facebook API in Settings' }}</p>
-      <a href="{{ route('admin.ads_analytics.settings') }}" class="btn btn-primary">Configure API</a>
+      <a href="{{ route('admin.ads_analytics.settings') }}" class="btn btn-primary"> {{ __('Configure API') }} </a>
     @endif
   </div>
 </div>

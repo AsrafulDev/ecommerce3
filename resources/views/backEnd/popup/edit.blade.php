@@ -63,8 +63,8 @@
     {{-- Page Header --}}
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
-            <h4 class="fw-bold mb-0 text-dark">Edit Campaign</h4>
-            <small class="text-muted">Update your popup details and media</small>
+            <h4 class="fw-bold mb-0 text-dark"> {{ __('Edit Campaign') }} </h4>
+            <small class="text-muted"> {{ __('Update your popup details and media') }} </small>
         </div>
         <a href="{{ route('admin.popup.index') }}" class="btn btn-light border text-muted fw-bold">
             <i class="fas fa-arrow-left me-1"></i> Back to List
@@ -91,31 +91,31 @@
             <div class="col-lg-8">
                 <div class="card edit-card h-100">
                     <div class="card-header bg-white border-bottom py-3">
-                        <h6 class="mb-0 fw-bold text-dark"><i class="fas fa-edit me-2 text-primary"></i>Text Content</h6>
+                        <h6 class="mb-0 fw-bold text-dark"><i class="fas fa-edit me-2 text-primary"></i> {{ __('Text Content') }} </h6>
                     </div>
                     <div class="card-body p-4">
                         
                         <div class="mb-4">
-                            <label class="form-label">Campaign Title</label>
+                            <label class="form-label"> {{ __('Campaign Title') }} </label>
                             <input type="text" class="form-control form-control-lg" name="title" value="{{ $edit->title }}" placeholder="Ex: Summer Sale (অপশনাল)">
                             <small class="text-muted" style="font-size: 11px;">শুধু ইমেইজ বানারের জন্য খালি রাখতে পারেন।</small>
                         </div>
 
                         <div class="mb-4">
-                            <label class="form-label">Description / Headline</label>
+                            <label class="form-label"> {{ __('Description / Headline') }} </label>
                             <textarea class="form-control" name="description" rows="5" placeholder="Enter details...">{{ $edit->description }}</textarea>
                         </div>
 
                         <div class="row">
                             <div class="col-md-6 mb-3">
-                                <label class="form-label">Button Text</label>
+                                <label class="form-label"> {{ __('Button Text') }} </label>
                                 <div class="input-group">
                                     <span class="input-group-text bg-light"><i class="fas fa-mouse-pointer text-muted"></i></span>
                                     <input type="text" class="form-control" name="btn_text" value="{{ $edit->btn_text }}">
                                 </div>
                             </div>
                             <div class="col-md-6 mb-3">
-                                <label class="form-label">Button Link</label>
+                                <label class="form-label"> {{ __('Button Link') }} </label>
                                 <div class="input-group">
                                     <span class="input-group-text bg-light"><i class="fas fa-link text-muted"></i></span>
                                     <input type="text" class="form-control" name="link" value="{{ $edit->link }}">
@@ -124,7 +124,7 @@
                         </div>
 
                         <div class="mb-3">
-                            <label class="form-label">Footer/End Text (Optional)</label>
+                            <label class="form-label"> {{ __('Footer/End Text (Optional)') }} </label>
                             <input type="text" class="form-control" name="offer_end_text" value="{{ $edit->offer_end_text }}" placeholder="Ex: Offer ends soon...">
                         </div>
 
@@ -138,12 +138,12 @@
                 {{-- Publish Card --}}
                 <div class="card edit-card mb-4">
                     <div class="card-header bg-white border-bottom py-3">
-                        <h6 class="mb-0 fw-bold text-dark"><i class="fas fa-rocket me-2 text-success"></i>Publish Settings</h6>
+                        <h6 class="mb-0 fw-bold text-dark"><i class="fas fa-rocket me-2 text-success"></i> {{ __('Publish Settings') }} </h6>
                     </div>
                     <div class="card-body p-4">
                         <input type="hidden" name="status" value="0">
                         <div class="d-flex justify-content-between align-items-center mb-4">
-                            <label class="form-label mb-0 text-dark">Campaign Status</label>
+                            <label class="form-label mb-0 text-dark"> {{ __('Campaign Status') }} </label>
                             <div class="form-check form-switch">
                                 <input class="form-check-input" type="checkbox" name="status" value="1" id="statusSwitch" {{ $edit->status == 1 ? 'checked' : '' }} style="width: 3em; height: 1.5em; cursor: pointer;">
                             </div>
@@ -157,18 +157,17 @@
                 {{-- Image Card --}}
                 <div class="card edit-card">
                     <div class="card-header bg-white border-bottom py-3">
-                        <h6 class="mb-0 fw-bold text-dark"><i class="far fa-image me-2 text-info"></i>Visual Media</h6>
+                        <h6 class="mb-0 fw-bold text-dark"><i class="far fa-image me-2 text-info"></i> {{ __('Visual Media') }} </h6>
                     </div>
                     <div class="card-body p-4 text-center">
-                        <label class="form-label d-block text-start mb-2">Popup Image</label>
+                        <label class="form-label d-block text-start mb-2"> {{ __('Popup Image') }} </label>
                         
                         <div class="image-upload-container" onclick="document.getElementById('editImageInput').click()">
                             <img id="editImgPreview" src="{{ url('public/'.$edit->image) }}" class="current-img-preview" alt="Popup Image">
                             
                             <div class="upload-btn-overlay">
                                 <span class="badge bg-light text-dark border px-3 py-2" style="cursor: pointer;">
-                                    <i class="fas fa-camera me-1"></i> Change Image
-                                </span>
+                                    <i class="fas fa-camera me-1"></i> {{ __('Change Image') }} </span>
                             </div>
                             
                             <input type="file" name="image" id="editImageInput" class="d-none" accept="image/*" onchange="previewEditImage(this)">

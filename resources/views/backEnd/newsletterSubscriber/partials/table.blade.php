@@ -4,7 +4,7 @@
         <tr>
             <th>#</th>
             <th>{{ __('Email') }}</th>
-            <th>Subscribed At</th>
+            <th> {{ __('Subscribed At') }} </th>
             <th width="120">{{ __('Action') }}</th>
         </tr>
     </thead>
@@ -27,7 +27,7 @@
         </tr>
         @empty
         <tr>
-            <td colspan="4" class="text-center">No subscribers yet</td>
+            <td colspan="4" class="text-center"> {{ __('No subscribers yet') }} </td>
         </tr>
         @endforelse
     </tbody>

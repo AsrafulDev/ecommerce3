@@ -95,7 +95,7 @@
             <h4 class="mb-1 fw-bold text-dark">
                 <i data-feather="users" class="text-primary me-2"></i> Manage Resellers
             </h4>
-            <p class="text-muted small mb-0">Overview of all registered resellers and partners.</p>
+            <p class="text-muted small mb-0"> {{ __('Overview of all registered resellers and partners.') }} </p>
         </div>
         <div>
             {{-- Add create button if needed --}}
@@ -131,13 +131,13 @@
                 <thead>
                     <tr>
                         <th width="5%">#</th>
-                        <th width="20%">Reseller Profile</th>
-                        <th width="15%">Shop Info</th>
-                        <th width="15%">Contact</th>
-                        <th width="10%">Wallet</th>
-                        <th width="10%">Verification</th>
+                        <th width="20%"> {{ __('Reseller Profile') }} </th>
+                        <th width="15%"> {{ __('Shop Info') }} </th>
+                        <th width="15%"> {{ __('Contact') }} </th>
+                        <th width="10%"> {{ __('Wallet') }} </th>
+                        <th width="10%"> {{ __('Verification') }} </th>
                         <th width="10%">{{ __('Status') }}</th>
-                        <th width="10%" class="text-end">Actions</th>
+                        <th width="10%" class="text-end"> {{ __('Actions') }} </th>
                     </tr>
                 </thead>
                 <tbody>
@@ -180,7 +180,7 @@
                         {{-- Verification --}}
                         <td>
                             @if($reseller->verification_status == 'approved')
-                                <span class="badge-soft badge-verified"><span class="status-dot"></span> Verified</span>
+                                <span class="badge-soft badge-verified"><span class="status-dot"></span> {{ __('Verified') }} </span>
                             @elseif($reseller->verification_status == 'rejected')
                                 <span class="badge-soft badge-rejected"><span class="status-dot"></span>{{ __('Rejected') }}</span>
                             @else

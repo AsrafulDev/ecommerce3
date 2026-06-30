@@ -86,7 +86,7 @@
             <h4 class="mb-1 fw-bold text-gray-800">
                 <i data-feather="activity" class="text-primary me-1"></i> Purchase Logs
             </h4>
-            <p class="text-muted small mb-0">Audit trail of edited and deleted purchase records.</p>
+            <p class="text-muted small mb-0"> {{ __('Audit trail of edited and deleted purchase records.') }} </p>
         </div>
         <a href="{{ route('purchases.index') }}" class="btn btn-white border shadow-sm rounded-pill px-3">
             <i data-feather="arrow-left" class="me-1"></i> Back to Purchases
@@ -102,7 +102,7 @@
                 </div>
                 <div>
                     <h3 class="mb-0 fw-bold text-dark">{{ $total_edits }}</h3>
-                    <small class="text-muted text-uppercase fw-bold">Total Edited Records</small>
+                    <small class="text-muted text-uppercase fw-bold"> {{ __('Total Edited Records') }} </small>
                 </div>
             </div>
         </div>
@@ -113,7 +113,7 @@
                 </div>
                 <div>
                     <h3 class="mb-0 fw-bold text-dark">{{ $total_deletes }}</h3>
-                    <small class="text-muted text-uppercase fw-bold">Total Deleted Records</small>
+                    <small class="text-muted text-uppercase fw-bold"> {{ __('Total Deleted Records') }} </small>
                 </div>
             </div>
         </div>
@@ -127,19 +127,19 @@
             <form method="GET" action="{{ route('purchases.logs') }}">
                 <div class="row g-3 align-items-end">
                     <div class="col-md-3">
-                        <label class="form-label small fw-bold text-muted">Action Type</label>
+                        <label class="form-label small fw-bold text-muted"> {{ __('Action Type') }} </label>
                         <select name="action" class="form-select">
-                            <option value="">All Actions</option>
+                            <option value=""> {{ __('All Actions') }} </option>
                             <option value="edit" {{ request('action') == 'edit' ? 'selected' : '' }}>{{ __('Edit') }}</option>
                             <option value="delete" {{ request('action') == 'delete' ? 'selected' : '' }}>{{ __('Delete') }}</option>
                         </select>
                     </div>
                     <div class="col-md-3">
-                        <label class="form-label small fw-bold text-muted">From Date</label>
+                        <label class="form-label small fw-bold text-muted"> {{ __('From Date') }} </label>
                         <input type="date" name="from_date" class="form-control" value="{{ request('from_date') }}">
                     </div>
                     <div class="col-md-3">
-                        <label class="form-label small fw-bold text-muted">To Date</label>
+                        <label class="form-label small fw-bold text-muted"> {{ __('To Date') }} </label>
                         <input type="date" name="to_date" class="form-control" value="{{ request('to_date') }}">
                     </div>
                     <div class="col-md-3 d-flex gap-2">
@@ -161,11 +161,11 @@
                         <tr>
                             <th width="5%">#</th>
                             <th width="10%">{{ __('Action') }}</th>
-                            <th width="15%">Reference</th>
-                            <th width="20%">Previous Data</th>
-                            <th width="20%">New Data</th>
-                            <th width="15%">Fund Impact</th>
-                            <th width="15%">User & Time</th>
+                            <th width="15%"> {{ __('Reference') }} </th>
+                            <th width="20%"> {{ __('Previous Data') }} </th>
+                            <th width="20%"> {{ __('New Data') }} </th>
+                            <th width="15%"> {{ __('Fund Impact') }} </th>
+                            <th width="15%"> {{ __('User & Time') }} </th>
                         </tr>
                     </thead>
                     <tbody>
@@ -181,8 +181,7 @@
                                         </span>
                                     @else
                                         <span class="badge badge-soft-danger px-3 py-2 rounded-pill">
-                                            <i data-feather="trash" style="width:10px;"></i> Deleted
-                                        </span>
+                                            <i data-feather="trash" style="width:10px;"></i> {{ __('Deleted') }} </span>
                                     @endif
                                 </td>
 
@@ -222,7 +221,7 @@
                                             <li><span class="data-label">Total:</span> <span class="data-value">{{ number_format($log->new_grand_total, 2) }}</span></li>
                                         </ul>
                                     @else
-                                        <span class="text-muted small fst-italic">Record Deleted</span>
+                                        <span class="text-muted small fst-italic"> {{ __('Record Deleted') }} </span>
                                     @endif
                                 </td>
 
@@ -245,7 +244,7 @@
                                                 <i data-feather="arrow-down-right" style="width:12px;"></i> {{ number_format(abs($diff), 2) }}
                                             </span>
                                         @else
-                                            <span class="badge bg-light text-muted border">No Change</span>
+                                            <span class="badge bg-light text-muted border"> {{ __('No Change') }} </span>
                                         @endif
                                     </div>
                                 </td>
@@ -274,8 +273,8 @@
                             <tr>
                                 <td colspan="7" class="text-center py-5">
                                     <img src="https://cdn-icons-png.flaticon.com/512/7486/7486744.png" width="60" class="mb-3 opacity-25">
-                                    <p class="text-muted fw-bold">No Activity Logs Found</p>
-                                    <small class="text-muted">Try changing the date filter or action type.</small>
+                                    <p class="text-muted fw-bold"> {{ __('No Activity Logs Found') }} </p>
+                                    <small class="text-muted"> {{ __('Try changing the date filter or action type.') }} </small>
                                 </td>
                             </tr>
                         @endforelse

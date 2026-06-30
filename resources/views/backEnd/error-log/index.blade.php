@@ -6,7 +6,7 @@
     <div class="row">
         <div class="col-12">
             <div class="page-title-box d-flex align-items-center justify-content-between py-3">
-                <h4 class="page-title mb-0">Laravel Error Log</h4>
+                <h4 class="page-title mb-0"> {{ __('Laravel Error Log') }} </h4>
                 <div class="page-title-right">
                     <form action="{{ route('error-log.test') }}" method="POST" class="d-inline">
                         @csrf
@@ -65,12 +65,12 @@
                                 <span class="badge bg-secondary ms-1">Level: {{ $logLevel ?? 'debug' }}</span>
                             @endif
                             @if(isset($configCached) && $configCached)
-                                <span class="badge bg-warning text-dark ms-1">Config cached</span>
+                                <span class="badge bg-warning text-dark ms-1"> {{ __('Config cached') }} </span>
                             @endif
                         </p>
                         @if(isset($configCached) && $configCached)
                             <div class="alert alert-warning py-2 small mb-2">
-                                Config ক্যাশ করা আছে। লগ না দেখা গেলে <code>php artisan config:clear</code> চালান।
+                                Config ক্যাশ করা আছে। লগ না দেখা গেলে <code> {{ __('php artisan config:clear') }} </code> চালান।
                             </div>
                         @endif
                         <pre class="bg-dark text-light p-3 rounded" style="max-height:70vh;overflow:auto;font-size:12px;white-space:pre-wrap;word-wrap:break-word;">{{ $content ?: 'লগ ফাইল খালি' }}</pre>

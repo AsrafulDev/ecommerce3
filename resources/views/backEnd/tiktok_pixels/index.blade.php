@@ -36,11 +36,10 @@
                     </span>
                     Pixel Management
                 </h4>
-                <p class="text-muted font-size-13 mb-0">Manage your TikTok tracking pixels.</p>
+                <p class="text-muted font-size-13 mb-0"> {{ __('Manage your TikTok tracking pixels.') }} </p>
             </div>
             <a href="{{route('tiktok.pixels.create')}}" class="btn btn-dark rounded-pill shadow-sm px-4">
-                <i class="fe-plus me-1"></i> Add TikTok Pixel
-            </a>
+                <i class="fe-plus me-1"></i> {{ __('Add TikTok Pixel') }} </a>
         </div>
     </div>
 
@@ -52,7 +51,7 @@
                         <thead>
                             <tr>
                                 <th style="width: 50px;">{{ __('SL') }}</th>
-                                <th>TikTok Pixel ID</th>
+                                <th> {{ __('TikTok Pixel ID') }} </th>
                                 <th>{{ __('Status') }}</th>
                                 <th class="text-end" style="width: 150px;">{{ __('Action') }}</th>
                             </tr>

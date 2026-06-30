@@ -98,7 +98,7 @@
                             <tr>
                                 <th style="width: 50px;">{{ __('SL') }}</th>
                                 <th>{{ __('Image') }}</th>
-                                <th>Category Name</th>
+                                <th> {{ __('Category Name') }} </th>
                                 <th>{{ __('Status') }}</th>
                                 <th class="text-end" style="width: 150px;">{{ __('Action') }}</th>
                             </tr>

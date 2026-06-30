@@ -37,14 +37,12 @@
     <div class="row">
         <div class="col-12">
             <div class="page-title-box d-flex align-items-center justify-content-between py-3">
-                <h4 class="page-title mb-0">Vendor Product Management</h4>
+                <h4 class="page-title mb-0"> {{ __('Vendor Product Management') }} </h4>
                 <div class="page-title-right">
                     <a href="{{route('products.pending')}}" class="btn btn-warning rounded-pill shadow-sm me-2">
-                        <i class="fe-clock me-1"></i> Pending Products
-                    </a>
+                        <i class="fe-clock me-1"></i> {{ __('Pending Products') }} </a>
                     <a href="{{route('products.create')}}" class="btn btn-danger rounded-pill shadow-sm">
-                        <i class="fe-plus me-1"></i> Add New Product
-                    </a>
+                        <i class="fe-plus me-1"></i> {{ __('Add New Product') }} </a>
                 </div>
             </div>
         </div>
@@ -103,12 +101,12 @@
                                     </th>
                                     <th>{{ __('SL') }}</th>
                                     <th>{{ __('Image') }}</th>
-                                    <th style="width: 250px;">Product Name</th>
-                                    <th>Category/Vendor</th>
-                                    <th>Price & Stock</th>
-                                    <th>Features</th>
+                                    <th style="width: 250px;"> {{ __('Product Name') }} </th>
+                                    <th> {{ __('Category/Vendor') }} </th>
+                                    <th> {{ __('Price & Stock') }} </th>
+                                    <th> {{ __('Features') }} </th>
                                     <th>{{ __('Status') }}</th>
-                                    <th>Approval</th>
+                                    <th> {{ __('Approval') }} </th>
                                     <th class="text-center">{{ __('Action') }}</th>
                                 </tr>
                             </thead>
@@ -137,12 +135,11 @@
                                     <td>
                                         <p class="m-0 fw-bold text-muted font-size-12">{{$value->category ? $value->category->name : 'No Category'}}</p>
                                         <small class="text-primary font-size-11">
-                                            <i class="fe-user me-1"></i>Admin
-                                        </small>
+                                            <i class="fe-user me-1"></i> {{ __('Admin') }} </small>
                                     </td>
                                     <td>
                                         <div class="fw-bold text-dark">৳{{ number_format($value->new_price, 2) }}</div>
-                                        <small class="text-muted">Stock: <span class="{{ $value->stock <= 5 ? 'text-danger fw-bold' : '' }}">{{$value->stock}}</span></small>
+                                        <small class="text-muted">Stock: <span class="{{ $value-> {{ __('stock') }} <= 5 ? 'text-danger fw-bold' : '' }}">{{$value->stock}}</span></small>
                                     </td>
                                     <td>
                                         <div class="d-flex flex-column gap-1">

@@ -59,9 +59,8 @@
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
             <h4 class="mb-1 fw-bold text-dark">
-                <i data-feather="box" class="text-primary me-2"></i> Stock Report
-            </h4>
-            <p class="text-muted small mb-0">Live inventory status and valuation.</p>
+                <i data-feather="box" class="text-primary me-2"></i> {{ __('Stock Report') }} </h4>
+            <p class="text-muted small mb-0"> {{ __('Live inventory status and valuation.') }} </p>
         </div>
         <div>
             <a href="{{ route('admin.reports.stock',['export'=>'csv']) }}" class="btn btn-custom-outline shadow-sm">
@@ -76,7 +75,7 @@
         <div class="col-md-4">
             <div class="stat-card">
                 <div>
-                    <div class="stat-title">Total Items</div>
+                    <div class="stat-title"> {{ __('Total Items') }} </div>
                     <h3 class="stat-value">{{ $products->total() }}</h3> {{-- Use total() for pagination count --}}
                 </div>
                 <div class="stat-icon-box bg-light-primary">
@@ -89,7 +88,7 @@
         <div class="col-md-4">
             <div class="stat-card">
                 <div>
-                    <div class="stat-title">Stock Quantity</div>
+                    <div class="stat-title"> {{ __('Stock Quantity') }} </div>
                     <h3 class="stat-value">{{ number_format($totalStockQty) }}</h3>
                 </div>
                 <div class="stat-icon-box bg-light-info">
@@ -102,7 +101,7 @@
         <div class="col-md-4">
             <div class="stat-card">
                 <div>
-                    <div class="stat-title">Inventory Value</div>
+                    <div class="stat-title"> {{ __('Inventory Value') }} </div>
                     <h3 class="stat-value">৳{{ number_format($totalStockValue, 2) }}</h3>
                 </div>
                 <div class="stat-icon-box bg-light-success">
@@ -116,7 +115,7 @@
     <div id="stock-table-wrapper">
         <div class="card card-modern">
             <div class="card-header border-bottom bg-white py-3">
-                <h5 class="mb-0 fw-bold text-dark">Current Inventory List</h5>
+                <h5 class="mb-0 fw-bold text-dark"> {{ __('Current Inventory List') }} </h5>
             </div>
             
             <div class="table-responsive">
@@ -124,11 +123,11 @@
                     <thead>
                         <tr>
                             <th width="5%">#</th>
-                            <th width="35%">Product Name</th>
+                            <th width="35%"> {{ __('Product Name') }} </th>
                             <th width="15%" class="text-end">{{ __('In Stock') }}</th>
-                            <th width="15%" class="text-end">Purchase Cost</th>
-                            <th width="15%" class="text-end">Selling Price</th>
-                            <th width="15%" class="text-end">Total Value</th>
+                            <th width="15%" class="text-end"> {{ __('Purchase Cost') }} </th>
+                            <th width="15%" class="text-end"> {{ __('Selling Price') }} </th>
+                            <th width="15%" class="text-end"> {{ __('Total Value') }} </th>
                         </tr>
                     </thead>
                     <tbody>
@@ -158,7 +157,7 @@
                             <td colspan="6" class="text-center py-5">
                                 <div class="d-flex flex-column align-items-center">
                                     <img src="https://cdn-icons-png.flaticon.com/512/7486/7486744.png" width="50" class="opacity-25 mb-2">
-                                    <p class="text-muted fw-bold mb-0">No products found</p>
+                                    <p class="text-muted fw-bold mb-0"> {{ __('No products found') }} </p>
                                 </div>
                             </td>
                         </tr>

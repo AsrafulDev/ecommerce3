@@ -151,7 +151,7 @@
                 <div class="card-body">
                     <div class="d-flex align-items-center mb-3">
                         <div class="flex-grow-1">
-                            <h5 class="mt-0 mb-1">Brand Information</h5>
+                            <h5 class="mt-0 mb-1"> {{ __('Brand Information') }} </h5>
                             <p class="text-muted mb-0">
                                 <i class="fe-box me-1"></i> {{ $product->brand ? $product->brand->name : 'No Brand' }}
                             </p>
@@ -161,15 +161,15 @@
                     <hr>
                     <div class="d-flex align-items-center">
                         <div class="flex-grow-1">
-                            <h5 class="mt-0 mb-1">Product Type</h5>
+                            <h5 class="mt-0 mb-1"> {{ __('Product Type') }} </h5>
                             <p class="text-muted mb-0">
                                 @if($product->is_digital)
-                                    <span class="badge badge-soft-primary"><i class="fe-file-text me-1"></i>Digital Product</span>
+                                    <span class="badge badge-soft-primary"><i class="fe-file-text me-1"></i> {{ __('Digital Product') }} </span>
                                 @else
-                                    <span class="badge badge-soft-info"><i class="fe-package me-1"></i>Physical Product</span>
+                                    <span class="badge badge-soft-info"><i class="fe-package me-1"></i> {{ __('Physical Product') }} </span>
                                 @endif
                                 @if($product->is_wholesale)
-                                    <span class="badge badge-soft-success ms-1"><i class="fe-layers me-1"></i>Wholesale Product</span>
+                                    <span class="badge badge-soft-success ms-1"><i class="fe-layers me-1"></i> {{ __('Wholesale Product') }} </span>
                                 @endif
                             </p>
                         </div>
@@ -191,11 +191,11 @@
                         @endif
 
                         @if($product->topsale == 1)
-                            <span class="badge badge-soft-warning px-2 py-1 ms-1"><i class="fe-zap"></i> Hot Deal</span>
+                            <span class="badge badge-soft-warning px-2 py-1 ms-1"><i class="fe-zap"></i> {{ __('Hot Deal') }} </span>
                         @endif
 
                         @if($product->feature_product == 1)
-                            <span class="badge badge-soft-primary px-2 py-1 ms-1"><i class="fe-star"></i> Featured</span>
+                            <span class="badge badge-soft-primary px-2 py-1 ms-1"><i class="fe-star"></i> {{ __('Featured') }} </span>
                         @endif
                     </div>
 
@@ -212,24 +212,24 @@
                     <div class="stock-box mt-3 mb-4">
                         <div class="row align-items-center">
                             <div class="col-md-6">
-                                <p class="mb-1 text-muted fw-bold">Current Stock</p>
-                                <h4 class="mb-0 {{ $product->stock <= 5 ? 'text-danger' : 'text-success' }}">
+                                <p class="mb-1 text-muted fw-bold"> {{ __('Current Stock') }} </p>
+                                <h4 class="mb-0 {{ $product-> {{ __('stock') }} <= 5 ? 'text-danger' : 'text-success' }}">
                                     {{ $product->stock }} <small class="font-size-14 text-muted">{{ $product->pro_unit ?? 'pcs' }}</small>
                                 </h4>
                             </div>
                             <div class="col-md-6 border-start">
-                                <p class="mb-1 text-muted fw-bold">Purchase Price</p>
+                                <p class="mb-1 text-muted fw-bold"> {{ __('Purchase Price') }} </p>
                                 <h5 class="mb-0 text-dark">৳{{ number_format($product->purchase_price, 2) }}</h5>
                             </div>
                         </div>
                     </div>
 
-                    <h5 class="font-size-15 mb-3 text-uppercase text-muted">Specifications</h5>
+                    <h5 class="font-size-15 mb-3 text-uppercase text-muted"> {{ __('Specifications') }} </h5>
                     <div class="table-responsive">
                         <table class="table table-nowrap table-bordered mb-0">
                             <tbody>
                                 <tr>
-                                    <th>Product Code</th>
+                                    <th> {{ __('Product Code') }} </th>
                                     <td>#{{ $product->product_code ?? 'N/A' }}</td>
                                 </tr>
                                 <tr>
@@ -246,26 +246,26 @@
                                 </tr>
                                 @if($product->is_digital)
                                 <tr>
-                                    <th>Digital File</th>
+                                    <th> {{ __('Digital File') }} </th>
                                     <td>
                                         @if($product->digital_file)
-                                            <a href="#" class="text-primary"><i class="fe-download me-1"></i> Download File</a>
+                                            <a href="#" class="text-primary"><i class="fe-download me-1"></i> {{ __('Download File') }} </a>
                                         @else
-                                            <span class="text-muted">No file uploaded</span>
+                                            <span class="text-muted"> {{ __('No file uploaded') }} </span>
                                         @endif
                                     </td>
                                 </tr>
                                 @endif
                                 @if($product->is_wholesale && $product->wholesalePrices && $product->wholesalePrices->count() > 0)
                                 <tr>
-                                    <th>Wholesale Pricing Tiers</th>
+                                    <th> {{ __('Wholesale Pricing Tiers') }} </th>
                                     <td>
                                         <div class="table-responsive">
                                             <table class="table table-sm table-bordered mb-0">
                                                 <thead>
                                                     <tr>
-                                                        <th>Min Qty</th>
-                                                        <th>Max Qty</th>
+                                                        <th> {{ __('Min Qty') }} </th>
+                                                        <th> {{ __('Max Qty') }} </th>
                                                         <th>{{ __('Price') }}</th>
                                                         <th>{{ __('Stock') }}</th>
                                                     </tr>
@@ -287,7 +287,7 @@
                                 @endif
                                 @if($product->variantPrices && $product->variantPrices->count() > 0)
                                 <tr>
-                                    <th>Product Variants</th>
+                                    <th> {{ __('Product Variants') }} </th>
                                     <td>
                                         <div class="table-responsive">
                                             <table class="table table-sm table-bordered mb-0">
@@ -315,7 +315,7 @@
                                 </tr>
                                 @endif
                                 <tr>
-                                    <th>Short Note</th>
+                                    <th> {{ __('Short Note') }} </th>
                                     <td>{{ $product->note ?? 'N/A' }}</td>
                                 </tr>
                             </tbody>
@@ -328,7 +328,7 @@
                             @if($product->description)
                                 {!! $product->description !!}
                             @else
-                                <span class="text-muted font-italic">No description available.</span>
+                                <span class="text-muted font-italic"> {{ __('No description available.') }} </span>
                             @endif
                         </div>
                     </div>
@@ -338,7 +338,7 @@
                     @endphp
                     @if($showVideoType === 'youtube' && $product->pro_video)
                     <div class="mt-4">
-                        <h5 class="font-size-15 mb-2">Product Video</h5>
+                        <h5 class="font-size-15 mb-2"> {{ __('Product Video') }} </h5>
                         <a href="https://www.youtube.com/watch?v={{ $product->pro_video }}" target="_blank"
                            class="btn btn-outline-danger btn-sm">
                             <i class="fa fa-youtube-play me-1"></i> YouTube-এ দেখুন
@@ -352,7 +352,7 @@
                     </div>
                     @elseif($showVideoType === 'upload' && $product->pro_video_path)
                     <div class="mt-4">
-                        <h5 class="font-size-15 mb-2">Product Video <span class="badge bg-primary" style="font-size:11px;">Hosted</span></h5>
+                        <h5 class="font-size-15 mb-2"> {{ __('Product Video') }} <span class="badge bg-primary" style="font-size:11px;"> {{ __('Hosted') }} </span></h5>
                         <video width="100%" height="250" controls
                                style="border-radius:8px;background:#000;display:block;">
                             <source src="{{ asset($product->pro_video_path) }}" type="video/mp4">

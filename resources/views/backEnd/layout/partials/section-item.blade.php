@@ -33,7 +33,7 @@
             @if($ls->section->preview_image)
                 <img src="{{ asset($ls->section->preview_image) }}" alt="{{ $ls->section->name }}">
             @else
-                <span><i class="mdi mdi-camera me-1"></i> Screenshot placeholder</span>
+                <span><i class="mdi mdi-camera me-1"></i> {{ __('Screenshot placeholder') }} </span>
             @endif
         </div>
 
@@ -44,39 +44,38 @@
                 <input type="hidden" name="id" value="{{ $ls->id }}">
                 <div class="row g-2">
                     <div class="col-md-4">
-                        <label class="form-label-pro" style="font-size:10px;">Columns</label>
+                        <label class="form-label-pro" style="font-size:10px;"> {{ __('Columns') }} </label>
                         <select name="columns_config" class="form-select form-select-sm">
-                            <option value="col-sm-12" {{ $ls->columns_config == 'col-sm-12' ? 'selected' : '' }}>Full Width (1 col)</option>
-                            <option value="col-sm-6" {{ $ls->columns_config == 'col-sm-6' ? 'selected' : '' }}>Half (2 cols)</option>
-                            <option value="col-sm-4" {{ $ls->columns_config == 'col-sm-4' ? 'selected' : '' }}>One Third (3 cols)</option>
-                            <option value="col-sm-3" {{ $ls->columns_config == 'col-sm-3' ? 'selected' : '' }}>One Quarter (4 cols)</option>
-                            <option value="col-sm-8" {{ $ls->columns_config == 'col-sm-8' ? 'selected' : '' }}>Two Thirds</option>
+                            <option value="col-sm-12" {{ $ls->columns_config == 'col-sm-12' ? 'selected' : '' }}> {{ __('Full Width (1 col)') }} </option>
+                            <option value="col-sm-6" {{ $ls->columns_config == 'col-sm-6' ? 'selected' : '' }}> {{ __('Half (2 cols)') }} </option>
+                            <option value="col-sm-4" {{ $ls->columns_config == 'col-sm-4' ? 'selected' : '' }}> {{ __('One Third (3 cols)') }} </option>
+                            <option value="col-sm-3" {{ $ls->columns_config == 'col-sm-3' ? 'selected' : '' }}> {{ __('One Quarter (4 cols)') }} </option>
+                            <option value="col-sm-8" {{ $ls->columns_config == 'col-sm-8' ? 'selected' : '' }}> {{ __('Two Thirds') }} </option>
                         </select>
                     </div>
                     <div class="col-md-8">
-                        <label class="form-label-pro" style="font-size:10px;">Responsive Visibility</label>
+                        <label class="form-label-pro" style="font-size:10px;"> {{ __('Responsive Visibility') }} </label>
                         <div class="d-flex gap-3">
                             <div class="form-check form-check-inline">
                                 <input class="form-check-input" type="checkbox" name="visible_desktop" value="1" 
                                     {{ ($ls->breakpoints['desktop'] ?? true) ? 'checked' : '' }}>
-                                <label class="form-check-label small">Desktop</label>
+                                <label class="form-check-label small"> {{ __('Desktop') }} </label>
                             </div>
                             <div class="form-check form-check-inline">
                                 <input class="form-check-input" type="checkbox" name="visible_tablet" value="1"
                                     {{ ($ls->breakpoints['tablet'] ?? true) ? 'checked' : '' }}>
-                                <label class="form-check-label small">Tablet</label>
+                                <label class="form-check-label small"> {{ __('Tablet') }} </label>
                             </div>
                             <div class="form-check form-check-inline">
                                 <input class="form-check-input" type="checkbox" name="visible_mobile" value="1"
                                     {{ ($ls->breakpoints['mobile'] ?? true) ? 'checked' : '' }}>
-                                <label class="form-check-label small">Mobile</label>
+                                <label class="form-check-label small"> {{ __('Mobile') }} </label>
                             </div>
                         </div>
                     </div>
                     <div class="col-12 mt-2">
                         <button type="submit" class="btn btn-sm btn-dark rounded-pill px-4">
-                            <i class="fe-check me-1"></i> Save Settings
-                        </button>
+                            <i class="fe-check me-1"></i> {{ __('Save Settings') }} </button>
                     </div>
                 </div>
             </form>
