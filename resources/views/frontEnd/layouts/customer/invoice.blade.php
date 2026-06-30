@@ -88,7 +88,7 @@
 
             <div class="col-sm-12">
 
-                <div id="invoice-pdf-area" class="invoice-innter" style="width: 900px;margin: 0 auto;background: #f9f9f9;overflow: hidden;padding: 30px;padding-top: 0;">
+                <div id="invoice-pdf-area" class="invoice-innter" style="max-width: 900px;margin: 0 auto;background: #fff;overflow: hidden;padding: 30px;padding-top: 0;">
 
                     {{-- ===================== INVOICE HEADER ===================== --}}
                     <table style="width:100%">
@@ -292,11 +292,21 @@ function downloadPDF() {
     const element = document.getElementById('invoice-pdf-area');
     const invoice_id = "{{ $order->invoice_id }}";
     const opt = {
-        margin: [10, 10, 10, 10],
+        margin: [5, 5, 5, 5],
         filename: 'Invoice-' + invoice_id + '.pdf',
-        image: { type: 'jpeg', quality: 0.98 },
-        html2canvas: { scale: 2, useCORS: true },
-        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+        image: { type: 'jpeg', quality: 0.95 },
+        html2canvas: { 
+            scale: 2, 
+            useCORS: true,
+            scrollY: 0,
+            windowWidth: element.scrollWidth
+        },
+        jsPDF: { 
+            unit: 'mm', 
+            format: 'a4', 
+            orientation: 'portrait' 
+        },
+        pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
     };
     html2pdf().set(opt).from(element).save();
 }
