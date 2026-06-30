@@ -160,7 +160,7 @@
                 <div class="from-name">{{ $generalsetting->name }}</div>
                 <div class="from-cont">
                     {{ $contact->phone ?? '' }}
-                    @if($contact->address) &middot; {{ Str::limit($contact->address,35) }}@endif
+                    @if($contact && $contact->address) &middot; {{ Str::limit($contact->address,35) }}@endif
                 </div>
             </div>
             <div class="inv-block">

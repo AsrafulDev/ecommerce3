@@ -146,7 +146,7 @@
                                     <div class="sidebar-info">
                                         <div class="sidebar-info-item">
                                             <i data-feather="map-pin"></i>
-                                            <span>{{ $contact->address }}</span>
+                                            <span>{{ $contact->address ?? chr(39).chr(39) }}</span>
                                         </div>
                                         <div class="sidebar-info-item">
                                             <i data-feather="phone-call"></i>
@@ -154,7 +154,7 @@
                                         </div>
                                         <div class="sidebar-info-item">
                                             <i data-feather="mail"></i>
-                                            <span>{{ $contact->email }}</span>
+                                            <span>{{ $contact->email ?? chr(39).chr(39) }}</span>
                                         </div>
                                     </div>
                                 </div>
