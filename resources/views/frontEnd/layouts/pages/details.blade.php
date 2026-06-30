@@ -516,7 +516,7 @@ if (typeof ttq !== 'undefined') {
         <div class="row">
             <div class="col-sm-8">
                 <div class="description tab-content details-action-box" id="description">
-                    <h2>{{ __('Details\') }}</h2>
+                    <h2>{{ __('Details') }}</h2>
                     <p>{!! $details->description !!}</p>
                 </div>
                 <div class="tab-content details-action-box" id="writeReview">

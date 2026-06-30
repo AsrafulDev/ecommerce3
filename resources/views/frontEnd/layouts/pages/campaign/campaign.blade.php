@@ -498,7 +498,7 @@
                     <div class="col-sm-12">
                         <div class="card">
                             <div class="card-body">
-                                <h2>{{ __('Details\') }}</h2>
+                                <h2>{{ __('Details') }}</h2>
                                 {!! $campaign_data->short_description !!}
                                 <br>
                                 <br>
