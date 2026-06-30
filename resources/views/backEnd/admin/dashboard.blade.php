@@ -297,7 +297,7 @@
       <div class="chart-modern">
         <div class="chart-title">
           <span class="title-dot purple"></span>
-          Recent Customers
+          {{ __('Recent Customers') }}
         </div>
         <ul class="customer-list">
           @forelse($latest_customer ?? [] as $cust)
