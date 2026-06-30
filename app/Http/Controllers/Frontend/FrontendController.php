@@ -1254,4 +1254,19 @@ $brands = Brand::where('status', 1)
 
         return view('frontEnd.layouts.pages.wholesale_products', compact('products', 'categories'));
     }
+
+    /**
+     * 📄 Public invoice download — no auth required (linked from order tracking)
+     */
+    public function orderInvoice($id)
+    {
+        $order = \App\Models\Order::where('id', $id)
+            ->with(['orderdetails.size', 'orderdetails.color', 'payment', 'shipping'])
+            ->firstOrFail();
+
+        $generalsetting = \App\Models\GeneralSetting::where('status', 1)->first();
+        $contact = \App\Models\Contact::where('status', 1)->first();
+
+        return view('frontEnd.layouts.customer.invoice', compact('order', 'generalsetting', 'contact'));
+    }
 }

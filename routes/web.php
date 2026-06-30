@@ -339,6 +339,10 @@ Route::get('lang/{locale}', function ($locale) {
     return redirect()->back();
 })->name('lang.switch');
 
+// 📄 Public Invoice Download (no auth needed — from order tracking)
+Route::get('order/invoice/{id}', [App\Http\Controllers\Frontend\FrontendController::class, 'orderInvoice'])
+    ->name('customer.order_invoice_download');
+
 Route::group(['namespace'=>'Frontend', 'middleware' => ['ipcheck','check_refer']], function() {
     Route::get('/', [FrontendController::class, 'index'])->name('home');
 	

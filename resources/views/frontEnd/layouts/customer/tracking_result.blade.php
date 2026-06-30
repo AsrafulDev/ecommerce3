@@ -361,10 +361,13 @@
                                 </div>
                             </div>
                             
-                            {{-- Print Button --}}
+                            {{-- Download Invoice button — opens detailed invoice in new tab --}}
                             <div class="text-end mt-4">
-                                <button onclick="window.print()" class="btn-print">
-                                    <i class="fas fa-print me-1"></i> Print Invoice
+                                <a href="{{ route('customer.order_invoice_download', $value->id) }}" target="_blank" class="btn-print">
+                                    <i class="fas fa-download me-1"></i> Download Invoice
+                                </a>
+                                <button onclick="window.print()" class="btn-print ms-2">
+                                    <i class="fas fa-print me-1"></i> Print
                                 </button>
                             </div>
                         </div>
