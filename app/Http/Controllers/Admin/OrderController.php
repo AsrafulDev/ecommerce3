@@ -941,16 +941,19 @@ class OrderController extends Controller
         $order->save();
 
         // Handle fund transaction if status changed to completed (6)
+        // Only if no fund transaction already exists for this order (avoid double-crediting POS)
         if ($newStatus == 6 && $oldStatus != 6) {
-            FundTransaction::create([
-                'direction'  => 'in',
-                'source'     => 'sale',
-                'source_id'  => $order->id,
-                'amount'     => $order->amount,
-                'note'       => 'Order complete (#' . $order->invoice_id . ') - Manual update',
-                'created_by' => auth()->id(),
-            ]);
-
+            $existingTx = FundTransaction::where('source', 'sale')->where('source_id', $order->id)->exists();
+            if (!$existingTx) {
+                FundTransaction::create([
+                    'direction'  => 'in',
+                    'source'     => 'sale',
+                    'source_id'  => $order->id,
+                    'amount'     => $order->amount,
+                    'note'       => 'Order complete (#' . $order->invoice_id . ') - Manual update',
+                    'created_by' => auth()->id(),
+                ]);
+            }
         }
 
         // Handle stock change
@@ -1880,6 +1883,16 @@ class OrderController extends Controller
 
         // নতুন অর্ডার প্লেস করলে স্টক কমানো (oldStatus = 0, newStatus = 1)
         $this->handleStockChange($order, 0, (int) $order->order_status);
+
+        // 💰 POS অর্ডার হলে ফান্ডে টাকা যোগ করুন
+        FundTransaction::create([
+            'direction' => 'in',
+            'source'    => 'sale',
+            'source_id' => $order->id,
+            'amount'    => $order->amount,
+            'note'      => 'POS Order #' . $order->invoice_id,
+            'created_by'=> auth()->id(),
+        ]);
 
         Cart::instance('pos_shopping')->destroy();
         Session::forget(['pos_shipping', 'pos_discount', 'pos_coupon_code']);
