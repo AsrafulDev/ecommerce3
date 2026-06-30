@@ -6,7 +6,7 @@
             <div class="col-sm-12">
                 <div class="sec_title">
                     <h5 class="text-center text-light py-2" style="background-color:var(--secondary-color)">
-                        সম্মানীত কাষ্টমারদের পজিটিভ রিভিউ
+                        {{ __('Customer Reviews') }}
                     </h5>
                 </div>
             </div>

@@ -168,7 +168,7 @@
 
                     {{-- Phone Input --}}
                     <div class="custom-input-group">
-                        <label for="phone">মোবাইল নাম্বার</label>
+                        <label for="phone">{{ __('Mobile Number') }}</label>
                         <i class="fas fa-phone-alt input-icon"></i>
                         <input type="tel" id="phone" 
                                class="custom-input @error('phone') is-invalid @enderror" 

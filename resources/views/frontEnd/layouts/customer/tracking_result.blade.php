@@ -248,7 +248,7 @@
                     <div class="not-found-card">
                         <img src="https://cdn-icons-png.flaticon.com/512/2748/2748558.png" width="80" class="mb-4 opacity-50" alt="No Data">
                         <h4 class="text-dark fw-bold mb-2">অর্ডার খুঁজে পাওয়া যায়নি</h4>
-                        <p class="text-muted">আপনার ইনভয়েস আইডি অথবা ফোন নম্বরটি সঠিক কিনা যাচাই করুন।</p>
+                        <p class="text-muted">আপনার {{ __('Invoice ID') }} {{ __('Or') }} ফোন নম্বরটি সঠিক কিনা যাচাই করুন।</p>
                         <a href="{{ route('customer.order_track') }}" class="btn-retry">
                             আবার চেষ্টা করুন
                         </a>

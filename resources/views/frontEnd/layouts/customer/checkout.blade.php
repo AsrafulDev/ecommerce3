@@ -501,7 +501,7 @@ if (typeof ttq !== 'undefined') {
                                 </div>
                                 <div class="col-md-6">
                                     <div class="form-group">
-                                        <label class="form-label-custom">মোবাইল নাম্বার *</label>
+                                        <label class="form-label-custom">{{ __('Mobile Number') }} *</label>
                                         <input type="text" name="phone" class="form-control-custom" minlength="11" maxlength="11" pattern="0[0-9]+" 
                                             value="{{ Auth::guard('customer')->user()->phone ?? old('phone') }}" placeholder="017xxxxxxxx" required>
                                     </div>
@@ -741,7 +741,7 @@ if (typeof ttq !== 'undefined') {
                                     @if($discount > 0)
                                         <div class="total-row text-success"><span>{{ __('Coupon Discount') }}</span> <span id="discountAmount">- ৳ {{ number_format($discount, 2) }}</span></div>
                                     @endif
-                                    <div class="total-row final"><span>সর্বমোট</span> <span id="grandTotalAmount">৳ {{ number_format($grand_total, 2) }}</span></div>
+                                    <div class="total-row final"><span>{{ __('Total') }}</span> <span id="grandTotalAmount">৳ {{ number_format($grand_total, 2) }}</span></div>
 
                                     @if($hasAdvance)
                                         <div class="advance-alert">

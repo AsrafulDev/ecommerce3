@@ -19,7 +19,7 @@
       <li><p>৳{{$value->price}}</p><button class="remove-cart cart_remove" data-id="{{$value->rowId}}"><i data-feather="x"></i></button></li>
     @endforeach
     </ul>
-    <p><strong>সর্বমোট : ৳{{$subtotal}}</strong></p>
+    <p><strong>{{ __('Total') }} : ৳{{$subtotal}}</strong></p>
     <a href="{{route('customer.checkout')}}" class="go_cart">{{ __('Order Now') }}</a>
   </div>
 

@@ -65,7 +65,7 @@
         </tr>
         @endif
          <tr>
-          <th colspan="3" class="text-end px-4">সর্বমোট</th>
+          <th colspan="3" class="text-end px-4">{{ __('Total') }}</th>
           <td>
            <span id="grand_total"><span class="alinur">৳ </span><strong>{{$subtotal+$shipping-Session::get('discount', 0)}}</strong></span>
           </td>

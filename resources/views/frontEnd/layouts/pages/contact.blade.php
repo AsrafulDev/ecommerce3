@@ -181,7 +181,7 @@
                                             <input type="text" name="full_name" class="form-control" placeholder="আপনার নাম" required>
                                         </div>
                                         <div class="col-md-6">
-                                            <label class="form-label fw-bold small">মোবাইল নাম্বার *</label>
+                                            <label class="form-label fw-bold small">{{ __('Mobile Number') }} *</label>
                                             <input type="text" name="mobile" class="form-control" placeholder="০১xxx-xxxxxx" required>
                                         </div>
                                         <div class="col-12">

@@ -1,5 +1,5 @@
 @extends('frontEnd.layouts.master')
-@section('title','Track Your Order')
+@section('title','{{ __('Track Your Order') }}')
 @php
     $generalsetting = \App\Models\GeneralSetting::first();
 @endphp
@@ -202,8 +202,8 @@
                 <div class="circle-deco circle-1"></div>
                 <div class="circle-deco circle-2"></div>
 
-                <h2>Track Your Order</h2>
-                <p><span style="color: white;">কোথাও যাওয়ার প্রয়োজন নেই। ঘরে বসেই এক ক্লিকে জানুন আপনার পণ্য এখন কোথায় আছে।</span></p>
+                <h2>{{ __('Track Your Order') }}</h2>
+                <p><span style="color: white;">{{ __('Track from home description') }}</span></p>
                 
                 {{-- হাই কোয়ালিটি 3D ইলাস্ট্রেশন --}}
                 <img src="{{ asset('public/frontEnd/images/7486744.png') }}" alt="Delivery Tracking" class="track-img">
@@ -212,8 +212,8 @@
             {{-- ডান পাশ: ইনপুট ফর্ম --}}
             <div class="track-right">
                 <div>
-                    <h3 class="form-title">অর্ডার স্ট্যাটাস</h3>
-                    <p class="form-subtitle">ট্র্যাক করতে আপনার ফোন নাম্বার অথবা ইনভয়েস আইডি দিন</p>
+                    <h3 class="form-title">{{ __('Order Status') }}</h3>
+                    <p class="form-subtitle">{{ __('Enter phone or invoice ID to track') }}</p>
                 </div>
                 
                 {{-- আপনার আগের রাউট এবং মেথড ঠিক রাখা হয়েছে --}}
@@ -221,7 +221,7 @@
                     
                     {{-- Phone Input --}}
                     <div>
-                        <label class="input-label">মোবাইল নাম্বার</label>
+                        <label class="input-label">{{ __('Mobile Number') }}</label>
                         <div class="input-wrapper">
                             <input type="number" name="phone" 
                                    class="modern-input @error('phone') is-invalid @enderror" 
@@ -235,11 +235,11 @@
                     </div>
 
                     {{-- OR Divider --}}
-                    <div class="or-divider"><span>অথবা</span></div>
+                    <div class="or-divider"><span>{{ __('Or') }}</span></div>
 
                     {{-- Invoice Input --}}
                     <div>
-                        <label class="input-label">ইনভয়েস আইডি</label>
+                        <label class="input-label">{{ __('Invoice ID') }}</label>
                         <div class="input-wrapper">
                             <input type="text" name="invoice_id" 
                                    class="modern-input @error('invoice_id') is-invalid @enderror" 
@@ -254,7 +254,7 @@
 
                     {{-- Submit Button --}}
                     <button type="submit" class="modern-btn mt-4">
-                        ট্র্যাক করুন <i class="fas fa-search ms-2"></i>
+                        {{ __('Track Now') }} <i class="fas fa-search ms-2"></i>
                     </button>
 
                 </form>

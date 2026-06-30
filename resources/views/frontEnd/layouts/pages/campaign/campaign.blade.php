@@ -715,7 +715,7 @@
                                           </td>
                                          </tr>
                                          <tr>
-                                          <th colspan="2" class="text-end px-4">সর্বমোট</th>
+                                          <th colspan="2" class="text-end px-4">{{ __('Total') }}</th>
                                           <td>
                                            <span id="grand_total"><span class="alinur">৳ </span><strong>{{$subtotal+$shipping}}</strong></span>
                                           </td>

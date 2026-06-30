@@ -223,11 +223,11 @@
                     
                     {{-- ফোন নাম্বার --}}
                     <div class="custom-input-group">
-                        <label for="login">মোবাইল নাম্বার বা ইমেইল</label>
+                        <label for="login">{{ __('Mobile Number') }} বা ইমেইল</label>
                         <input type="text" id="login" 
                                class="custom-input @error('login') is-invalid @enderror" 
                                name="login" value="{{ old('login') }}" 
-                               placeholder="017xxxxxxxx অথবা email@example.com" required>
+                               placeholder="017xxxxxxxx {{ __('Or') }} email@example.com" required>
                         @error('login')
                             <span class="text-danger small mt-1 d-block">{{ $message }}</span>
                         @enderror

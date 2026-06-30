@@ -42,7 +42,7 @@
 @if(!$cartContent->isEmpty())
 <div class="sidebar-cart-footer">
     <div class="sidebar-cart-total">
-        <span class="sidebar-cart-total-label">সর্বমোট</span>
+        <span class="sidebar-cart-total-label">{{ __('Total') }}</span>
         <span class="sidebar-cart-total-amount">৳ {{ number_format($subtotal, 0) }}</span>
     </div>
     <a href="{{ route('customer.checkout') }}" class="sidebar-cart-checkout-btn" style="background: var(--primary-color);">{{ __('Order Now') }}</a>

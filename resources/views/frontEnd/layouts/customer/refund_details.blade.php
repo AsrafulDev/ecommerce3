@@ -262,7 +262,7 @@ $totalOrderAmount = \App\Models\Order::where('customer_id', $customerId)->sum('a
                                     <p class="font-semibold text-gray-800">{{ $refund->order->created_at->format('d M, Y') }}</p>
                                 </div>
                                 <div>
-                                    <p class="text-xs text-gray-500 uppercase mb-1">অর্ডার স্ট্যাটাস</p>
+                                    <p class="text-xs text-gray-500 uppercase mb-1">{{ __('Order Status') }}</p>
                                     <span class="inline-block bg-gray-100 text-gray-700 px-3 py-1 rounded-full text-sm font-semibold">
                                         {{ $refund->order->status ? $refund->order->status->name : 'N/A' }}
                                     </span>
