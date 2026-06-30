@@ -367,9 +367,9 @@ $darkLogo = $siteName->dark_logo ?? null;
                                 <div class="flex flex-col sm:flex-row gap-2">
                                     <a href="{{ route('product', $product->slug ?? $product->id) }}" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white text-xs sm:text-sm font-semibold py-2 sm:py-2.5 px-3 sm:px-4 rounded-lg text-center transition duration-200 flex items-center justify-center gap-1 sm:gap-2 shadow-sm hover:shadow-md">
                                         <i class="fas fa-shopping-cart text-[10px] sm:text-xs"></i>
-                                        <span class="whitespace-nowrap">অর্ডার করুন</span>
+                                        <span class="whitespace-nowrap">{{ __('Order Now') }}</span>
                                     </a>
-                                    <button onclick="addToCart({{ $product->id }})" class="w-full sm:w-auto bg-gray-100 hover:bg-indigo-600 hover:text-white text-gray-600 sm:w-11 h-9 sm:h-11 rounded-lg flex items-center justify-center transition duration-200 border border-gray-200 hover:border-indigo-600" title="কার্টে যোগ করুন">
+                                    <button onclick="addToCart({{ $product->id }})" class="w-full sm:w-auto bg-gray-100 hover:bg-indigo-600 hover:text-white text-gray-600 sm:w-11 h-9 sm:h-11 rounded-lg flex items-center justify-center transition duration-200 border border-gray-200 hover:border-indigo-600" title="{{ __('Add to Cart') }}">
                                         <i class="fas fa-cart-plus text-xs sm:text-sm"></i>
                                     </button>
                                 </div>

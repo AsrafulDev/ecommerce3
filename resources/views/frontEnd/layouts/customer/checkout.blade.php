@@ -739,7 +739,7 @@ if (typeof ttq !== 'undefined') {
                                     <div class="total-row"><span>সাবটোটাল</span> <span id="subtotalAmount">৳ {{ number_format($subtotal, 2) }}</span></div>
                                     <div class="total-row"><span>ডেলিভারি চার্জ</span> <span id="shippingAmount">৳ {{ number_format($shipping, 2) }}</span></div>
                                     @if($discount > 0)
-                                        <div class="total-row text-success"><span>কুপন ছাড়</span> <span id="discountAmount">- ৳ {{ number_format($discount, 2) }}</span></div>
+                                        <div class="total-row text-success"><span>{{ __('Coupon Discount') }}</span> <span id="discountAmount">- ৳ {{ number_format($discount, 2) }}</span></div>
                                     @endif
                                     <div class="total-row final"><span>সর্বমোট</span> <span id="grandTotalAmount">৳ {{ number_format($grand_total, 2) }}</span></div>
 

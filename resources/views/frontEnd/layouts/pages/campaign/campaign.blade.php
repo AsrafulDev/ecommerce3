@@ -422,7 +422,7 @@
                                 <div class="banner_t">
                                     <h2>{{$campaign_data->banner_title}}</h2>
                                     
-                                    <a href="#order_form" class="cam_order_now" id="cam_order_now"><i class="fa-solid fa-cart-shopping"></i> অর্ডার করুন </a>
+                                    <a href="#order_form" class="cam_order_now" id="cam_order_now"><i class="fa-solid fa-cart-shopping"></i>{{ __('Order Now') }}</a>
                                     <p class="megaoffer_btn">মেগা অফার {{$subtotal}} Tk টাকা</p>
                                 </div>
                             </div>
@@ -498,7 +498,7 @@
                     <div class="col-sm-12">
                         <div class="card">
                             <div class="card-body">
-                                <h2>বিস্তারিত</h2>
+                                <h2>{{ __('Details\') }}</h2>
                                 {!! $campaign_data->short_description !!}
                                 <br>
                                 <br>

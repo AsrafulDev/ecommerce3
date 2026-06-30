@@ -204,7 +204,7 @@ $totalOrderAmount = \App\Models\Order::where('customer_id', $customerId)->sum('a
 
                                         <td class="pr-6 text-right">
                                             <div class="flex items-center justify-end gap-2">
-                                                <a href="{{ route('customer.refunds.show', $refund->id) }}" class="text-indigo-600 hover:text-indigo-700 p-2 hover:bg-indigo-50 rounded-lg transition" title="বিস্তারিত দেখুন">
+                                                <a href="{{ route('customer.refunds.show', $refund->id) }}" class="text-indigo-600 hover:text-indigo-700 p-2 hover:bg-indigo-50 rounded-lg transition" title="{{ __('View Details') }}">
                                                     <i class="fas fa-eye"></i>
                                                 </a>
                                                 

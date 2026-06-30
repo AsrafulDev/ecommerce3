@@ -612,7 +612,7 @@
                                                         @endforeach
                                                     </ul>
                                                     <p><strong>সর্বমোট : ৳{{$subtotal}}</strong></p>
-                                                    <a href="{{route('customer.checkout')}}" class="go_cart"> অর্ডার করুন </a>
+                                                    <a href="{{route('customer.checkout')}}" class="go_cart">{{ __('Order Now') }}</a>
                                                 </div>
                                             </li>
                                         </ul>
@@ -792,7 +792,7 @@
         </footer>
 
         {{-- Floating Cart - ক্লিক করলে ডান দিকের সাইডবার কার্ট ওপেন হবে --}}
-        <a href="javascript:void(0)" class="floating-cart-widget" id="floatingCartBtn" title="কার্ট দেখুন">
+        <a href="javascript:void(0)" class="floating-cart-widget" id="floatingCartBtn" title="{{ __('View Cart') }}">
             <i class="fa-solid fa-cart-shopping"></i>
             <span class="floating-cart-badge mobilecart-qty">{{ Cart::instance('shopping')->count() }}</span>
         </a>

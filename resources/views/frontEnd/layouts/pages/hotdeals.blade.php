@@ -68,9 +68,7 @@
                                             @php 
                                                 $discount=(((($value->old_price)-($value->new_price))*100) / ($value->old_price));
                                             @endphp 
-                                            <p>{{ number_format($discount, 0) }}%</p>
-                                            ছাড়
-                                        </span>
+                                            <p>{{ number_format($discount, 0) }}%</p>{{ __('Sale') }}</span>
                                     </div>
                                 </div>
                             </div>
@@ -126,9 +124,7 @@
                         @if (!$value->prosizes->isEmpty() || !$value->procolors->isEmpty())
                             {{-- ভ্যারিয়েন্ট আছে: দুই বাটনই ডিটেইলস পেজে নেবে --}}
                             <div class="pro_btn">
-                                <a href="{{ route('product', $value->slug) }}" class="order-btn-link">
-                                    অর্ডার করুন
-                                </a>
+                                <a href="{{ route('product', $value->slug) }}" class="order-btn-link">{{ __('Order Now') }}</a>
 
                                 <a href="{{ route('product', $value->slug) }}" class="cart-icon-link">
                                     <i class="fa-solid fa-cart-shopping"></i>
@@ -143,9 +139,7 @@
                                     <input type="hidden" name="id" value="{{ $value->id }}" />
                                     <input type="hidden" name="qty" value="1" />
                                     <input type="hidden" name="order_now" value="1">
-                                    <button type="submit" class="order-btn">
-                                        অর্ডার করুন
-                                    </button>
+                                    <button type="submit" class="order-btn">{{ __('Order Now') }}</button>
                                 </form>
 
                                 {{-- কার্ট আইকন বাটন --}}

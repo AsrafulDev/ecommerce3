@@ -15,9 +15,7 @@
                                 $discount = (((($product->old_price)-($product->new_price))*100) / ($product->old_price)); 
                             @endphp 
                             {{ number_format($discount, 0) }}%
-                        </p>
-                        ছাড়
-                    </span>
+                        </p>{{ __('Sale') }}</span>
                 </div>
             </div>
         </div>
@@ -50,7 +48,7 @@
     @if (!$product->prosizes->isEmpty() || !$product->procolors->isEmpty() || (!is_null($product->stock) && $product->stock < 1))
         <div class="pro_btn">
             <a href="{{ route('product', $product->slug) }}" class="order-btn-link">
-                অর্ডার করুন
+                {{ __('Order Now') }}
             </a>
             <a href="{{ route('product', $product->slug) }}" class="cart-icon-link">
                 <i class="fa-solid fa-cart-shopping"></i>
@@ -63,7 +61,7 @@
                 <input type="hidden" name="id" value="{{ $product->id }}" />
                 <input type="hidden" name="qty" value="1" />
                 <input type="hidden" name="order_now" value="1">
-                <button type="submit" class="order-btn">অর্ডার করুন</button>
+                <button type="submit" class="order-btn">{{ __('Order Now') }}</button>
             </form>
             <form action="{{ route('cart.store') }}" method="POST" class="ajax-cart-form">
                 @csrf

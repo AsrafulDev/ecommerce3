@@ -190,9 +190,7 @@ if (typeof ttq !== 'undefined') {
                                         <div class="sale-badge-inner">
                                             <div class="sale-badge-box">
                                                 <span class="sale-badge-text">
-                                                    <p> @php $discount=(((($details->old_price)-($details->new_price))*100) / ($details->old_price)) @endphp {{ number_format($discount, 0) }}%</p>
-                                                    ছাড়
-                                                </span>
+                                                    <p> @php $discount=(((($details->old_price)-($details->new_price))*100) / ($details->old_price)) @endphp {{ number_format($discount, 0) }}%</p>{{ __('Sale') }}</span>
                                             </div>
                                         </div>
                                     </div>
@@ -275,7 +273,7 @@ if (typeof ttq !== 'undefined') {
                                             <a class="all-reviews-button" href="#writeReview">See Reviews</a>
                                             </div>
                                             <div class="product-code">
-                                                <p><span>প্রোডাক্ট কোড : </span>{{ $details->product_code }}</p>
+                                                <p><span>{{ __('Product Code') }} : </span>{{ $details->product_code }}</p>
                                             </div>
 
                                             {{-- ⭐⭐ এখানে Product Type দেখানো হচ্ছে ⭐⭐ --}}
@@ -432,8 +430,8 @@ if (typeof ttq !== 'undefined') {
                                                                 </div>
                                                             </div>
                                                             <div class="d-flex single_product col-sm-12">
-                                                  <input type="submit" class="btn px-4 add_cart_btn" onclick="return sendSuccess();" name="add_cart" value="কার্টে যোগ করুন" />
-<input type="submit" class="btn px-4 order_now_btn order_now_btn_m" onclick="return sendSuccess();" name="order_now" value="অর্ডার করুন" />
+                                                  <input type="submit" class="btn px-4 add_cart_btn" onclick="return sendSuccess();" name="add_cart" value="{{ __('Add to Cart') }}" />
+<input type="submit" class="btn px-4 order_now_btn order_now_btn_m" onclick="return sendSuccess();" name="order_now" value="{{ __('Order Now') }}" />
                                                             </div>
                                                         </div>
                                                         <div class="mt-md-2 mt-2">
@@ -451,7 +449,7 @@ if (typeof ttq !== 'undefined') {
                                                                 href="https://api.whatsapp.com/send?phone={{ $contact->whatsapp ?? '8801519607646' }}&text=হ্যালো, আমি এই পণ্যটির ব্যাপারে জানতে চাই: {{ urlencode(Request::url()) }}"
                                                                 target="_blank">
                                                                 <i class="fa fa-whatsapp"></i>
-                                                                এই পণ্যটি সম্পর্কে জিজ্ঞাসা করুন
+                                                                {{ __('Ask about this product') }}
                                                             </a>
                                                         </h4>
                                                     </div>
@@ -518,7 +516,7 @@ if (typeof ttq !== 'undefined') {
         <div class="row">
             <div class="col-sm-8">
                 <div class="description tab-content details-action-box" id="description">
-                    <h2>বিস্তারিত</h2>
+                    <h2>{{ __('Details\') }}</h2>
                     <p>{!! $details->description !!}</p>
                 </div>
                 <div class="tab-content details-action-box" id="writeReview">
@@ -634,9 +632,7 @@ if (typeof ttq !== 'undefined') {
                                     <div class="sale-badge-box">
                                         <span class="sale-badge-text">
                                             <p>@php $discount=(((($value->old_price)-($value->new_price))*100) / ($value->old_price)) @endphp 
-                                               {{ number_format($discount, 0) }}%</p>
-                                            ছাড়
-                                        </span>
+                                               {{ number_format($discount, 0) }}%</p>{{ __('Sale') }}</span>
                                     </div>
                                 </div>
                             </div>
@@ -687,9 +683,7 @@ if (typeof ttq !== 'undefined') {
                         <div class="pro_btn">
 
                             <a href="{{ route('product', $value->slug) }}" 
-                                class="order-btn-link order-btn">
-                                অর্ডার করুন
-                            </a>
+                                class="order-btn-link order-btn">{{ __('Order Now') }}</a>
 
                             <a href="{{ route('product', $value->slug) }}" 
                                 class="cart-icon-link cart-icon-btn">
@@ -709,9 +703,7 @@ if (typeof ttq !== 'undefined') {
                                 <input type="hidden" name="qty" value="1">
                                 <input type="hidden" name="order_now" value="1">
 
-                                <button type="submit" class="order-btn">
-                                    অর্ডার করুন
-                                </button>
+                                <button type="submit" class="order-btn">{{ __('Order Now') }}</button>
                             </form>
 
                             {{-- Add to Cart --}}

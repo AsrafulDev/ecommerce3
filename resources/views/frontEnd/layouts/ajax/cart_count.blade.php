@@ -20,7 +20,7 @@
     @endforeach
     </ul>
     <p><strong>সর্বমোট : ৳{{$subtotal}}</strong></p>
-    <a href="{{route('customer.checkout')}}" class="go_cart">  অর্ডার করুন </a>
+    <a href="{{route('customer.checkout')}}" class="go_cart">{{ __('Order Now') }}</a>
   </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/feather-icons/4.29.0/feather.min.js"></script>

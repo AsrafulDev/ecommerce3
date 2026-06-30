@@ -58,7 +58,7 @@
          </tr>
          @if(Session::get('discount', 0) > 0)
          <tr>
-            <th colspan="3" class="text-end px-4">কুপন ছাড়</th>
+            <th colspan="3" class="text-end px-4">{{ __('Coupon Discount') }}</th>
             <td>
                 <span id="discount"><span class="alinur">৳ </span><strong>{{ Session::get('discount', 0) }}</strong></span>
             </td>

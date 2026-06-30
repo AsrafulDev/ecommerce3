@@ -2,7 +2,7 @@
     <button type="button" class="sidebar-cart-close" onclick="closeSidebarCart()" aria-label="বন্ধ করুন">
         <i class="fa-solid fa-times"></i>
     </button>
-    <h3 class="sidebar-cart-title">আমার কার্ট</h3>
+    <h3 class="sidebar-cart-title">{{ __('My Cart') }}</h3>
 </div>
 <div class="sidebar-cart-body">
     @if($cartContent->isEmpty())
@@ -45,6 +45,6 @@
         <span class="sidebar-cart-total-label">সর্বমোট</span>
         <span class="sidebar-cart-total-amount">৳ {{ number_format($subtotal, 0) }}</span>
     </div>
-    <a href="{{ route('customer.checkout') }}" class="sidebar-cart-checkout-btn" style="background: var(--primary-color);">অর্ডার করুন</a>
+    <a href="{{ route('customer.checkout') }}" class="sidebar-cart-checkout-btn" style="background: var(--primary-color);">{{ __('Order Now') }}</a>
 </div>
 @endif
