@@ -342,9 +342,9 @@
 <div class="pos-receipt">
     <div class="rh">
         <div class="shop">{{ $generalsetting->name }}</div>
-        @if($contact-> {{ __('address)') }} <p>{{ $contact->address }}</p>@endif
-        @if($contact-> {{ __('phone)') }} <p>Phone: {{ $contact->phone }}</p>@endif
-        @if($contact-> {{ __('email)') }} <p>{{ $contact->email }}</p>@endif
+        @if($contact->address <p>{{ $contact->address }}</p>@endif
+        @if($contact->phone <p>Phone: {{ $contact->phone }}</p>@endif
+        @if($contact->email <p>{{ $contact->email }}</p>@endif
     </div>
     <div class="rt"> {{ __('POS Invoice') }} </div>
     <div class="rm">

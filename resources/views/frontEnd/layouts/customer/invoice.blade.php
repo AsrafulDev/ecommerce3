@@ -119,9 +119,9 @@
                                 <div class="invoice_form">
                                     <p><strong>Invoice From:</strong></p>
                                     <p>{{$generalsetting->name}}</p>
-                                    <p>{{$contact->phone}}</p>
-                                    <p>{{$contact->email}}</p>
-                                    <p>{{$contact->address}}</p>
+                                    <p>{{ $contact->phone ?? '' }}</p>
+                                    <p>{{ $contact->email ?? '' }}</p>
+                                    <p>{{ $contact->address ?? '' }}</p>
                                     
                                     @if(!empty($order->order_note) || !empty($order->note))
                                         <p style="font-size:16px; line-height:1.8; color:#222; margin-top: 10px;">
