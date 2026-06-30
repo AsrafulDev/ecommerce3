@@ -138,8 +138,8 @@
                     <img src="{{asset($generalsetting->white_logo)}}" alt="Logo">
                     <div class="info-val">
                         <strong>{{$generalsetting->name}}</strong><br>
-                        <span class="text-muted small">{{$contact->address}}</span><br>
-                        <span class="text-muted small">Phone: {{$contact->phone}}</span>
+                        <span class="text-muted small">{{ $contact->address ?? '' }}</span><br>
+                        <span class="text-muted small">Phone: {{ $contact->phone ?? '' }}</span>
                     </div>
                 </div>
                 <div class="text-end">
