@@ -65,7 +65,6 @@
         margin: 0 auto; 
         border-radius: 12px; 
         box-shadow: 0 5px 15px rgba(0,0,0,0.05); 
-        overflow: hidden; 
         padding: 30px;
     }
     #invoice-pdf-area table { width: 100%; border-collapse: collapse; }
@@ -153,14 +152,13 @@
                             </td>
 
                             <td style="width:60%;float: left;">
-                                <div class="invoice-bar" style="background:#00aef0; transform: skew(38deg); padding: 20px 60px; margin-left: 65px;">
-                                    <p style="font-size: 30px; color: #fff; transform: skew(-38deg); text-align: right; font-weight: bold;">{{ __('Invoice') }}</p>
+                                <div class="invoice-bar" style="background:#00aef0; padding: 15px 30px; border-radius: 4px;">
+                                    <p style="font-size: 30px; color: #fff; text-align: right; font-weight: bold; margin: 0;">{{ __('Invoice') }}</p>
                                 </div>
 
-                                <div class="invoice-bar" style="background:#fff; transform: skew(36deg); width: 80%; margin-left: 182px; padding: 12px 32px; margin-top: 6px;text-align:right">
-                                   <p style="transform: skew(-36deg);display:inline-block">Invoice Date: <strong>{{$order->created_at->format('d-m-y')}}</strong></p>
-                                   <br>
-                                   <p style="transform: skew(-36deg);display:inline-block">Invoice No: <strong>{{$order->invoice_id}}</strong></p>
+                                <div class="invoice-bar" style="background:#f0f8ff; padding: 12px 20px; margin-top: 6px; text-align:right; border-radius: 4px;">
+                                   <p style="display:inline-block; margin: 0 10px;">Invoice Date: <strong>{{$order->created_at->format('d-m-y')}}</strong></p>
+                                   <p style="display:inline-block; margin: 0 10px;">Invoice No: <strong>{{$order->invoice_id}}</strong></p>
                                 </div>
 
                                 <div class="invoice_to" style="padding-top: 20px;">
