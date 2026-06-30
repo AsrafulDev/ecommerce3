@@ -1,5 +1,5 @@
 @extends('frontEnd.layouts.master')
-@section('title','{{ __('Track Your Order') }}')
+@section('title', __('Track Your Order'))
 @php
     $generalsetting = \App\Models\GeneralSetting::first();
 @endphp
