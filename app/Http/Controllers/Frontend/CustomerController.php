@@ -211,6 +211,7 @@ class CustomerController extends Controller
         $customer_info = Customer::where('phone', $phone)->first();
 
         if(!$customer_info){
+            Log::warning('Forgot password — phone not found', ['phone' => $phone, 'ip' => $request->ip()]);
             Toastr::error('Your phone number not found');
             return back();
         }
@@ -224,9 +225,19 @@ class CustomerController extends Controller
         $otp = $customer_info->forgot;
         $name = $customer_info->name;
         
+        Log::info('Forgot password OTP generated', [
+            'customer_id' => $customer_info->id,
+            'phone' => $phone,
+            'otp' => $otp,
+            'ip' => $request->ip()
+        ]);
+        
         if($sms_gateway) {
             $message = "Dear $name!\r\nYour forgot password verify OTP is $otp \r\nThank you for using $site_setting->name";
             $this->sendSms($sms_gateway, $phone, $message);
+            Log::info('Forgot OTP SMS sent', ['phone' => $phone]);
+        } else {
+            Log::warning('Forgot OTP — no SMS gateway configured for forgot password', ['phone' => $phone]);
         }
 
         Session::put('verify_phone', $phone);
@@ -240,6 +251,7 @@ class CustomerController extends Controller
         $customer_info = Customer::where('phone', $phone)->first();
 
         if(!$customer_info){
+            Log::warning('Forgot OTP resend failed — customer not found', ['phone' => $phone]);
             Toastr::error('Something went wrong');
             return redirect()->route('customer.forgot.password');
         }
@@ -249,12 +261,22 @@ class CustomerController extends Controller
         $name = $customer_info->name;
         $otp = $customer_info->forgot;
 
+        Log::info('Forgot OTP resent', [
+            'customer_id' => $customer_info->id,
+            'phone' => $phone,
+            'otp' => $otp,
+            'ip' => $request->ip()
+        ]);
+
         $site_setting = GeneralSetting::where('status', 1)->first();
         $sms_gateway = SmsGateway::where(['status'=> 1])->first();
 
         if($sms_gateway) {
             $message = "Dear $name!\r\nYour forgot password verify OTP is $otp \r\nThank you for using $site_setting->name";
             $this->sendSms($sms_gateway, $phone, $message);
+            Log::info('Forgot OTP SMS sent', ['phone' => $phone]);
+        } else {
+            Log::warning('Forgot OTP — no active SMS gateway', ['phone' => $phone]);
         }
 
         Toastr::success('Success','Resend code send successfully');
