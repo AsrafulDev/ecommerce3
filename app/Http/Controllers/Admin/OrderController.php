@@ -441,7 +441,7 @@ class OrderController extends Controller
             });
             
             if (!$order_status) {
-                return redirect()->route('admin.order.index')->with('error', 'Order status not found.');
+                return redirect()->route('admin.orders', 'all')->with('error', 'Order status not found.');
             }
             
             $show_data = Order::where(['order_status' => $order_status->id])
