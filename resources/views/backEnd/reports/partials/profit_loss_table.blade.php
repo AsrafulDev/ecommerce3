@@ -2,7 +2,7 @@
     <thead class="table-light">
         <tr>
             <th>#</th>
-            <th>Date</th>
+            <th>{{ __('Date') }}</th>
             <th class="text-end">Sales</th>
             <th class="text-end">COGS</th>
             <th class="text-end">Expense</th>

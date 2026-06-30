@@ -608,7 +608,7 @@ if (typeof ttq !== 'undefined') {
                     <div class="payment-content">
                         <img src="{{ asset('public/frontEnd/images/shurjoPay.png') }}" class="pay-logo" alt="ShurjoPay">
                         <div class="pay-info">
-                            <strong>Online Payment</strong>
+                            <strong>{{ __('Online Payment') }}</strong>
                             <small>ShurjoPay (Card/Mobile Banking)</small>
                         </div>
                     </div>

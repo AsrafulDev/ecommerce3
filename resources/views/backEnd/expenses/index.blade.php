@@ -205,11 +205,11 @@
                 <thead class="table-light">
                 <tr>
                     <th>#</th>
-                    <th>Date</th>
-                    <th>Title</th>
-                    <th>Category</th>
+                    <th>{{ __('Date') }}</th>
+                    <th>{{ __('Title') }}</th>
+                    <th>{{ __('Category') }}</th>
                     <th class="text-end">Amount (৳)</th>
-                    <th>Note</th>
+                    <th>{{ __('Note') }}</th>
                     @if($isAdmin)
                     <th>Actions</th>
                     @endif
@@ -234,13 +234,13 @@
                         @if($isAdmin)
                         <td>
                             <div class="d-flex gap-2">
-                                <a href="{{ route('admin.expenses.edit', $exp->id) }}" class="btn btn-sm btn-outline-primary" title="Edit">
+                                <a href="{{ route('admin.expenses.edit', $exp->id) }}" class="btn btn-sm btn-outline-primary" title="{{ __('Edit') }}">
                                     <i class="fe-edit"></i>
                                 </a>
                                 <form method="POST" action="{{ route('admin.expenses.destroy', $exp->id) }}" class="d-inline delete-form">
                                     @csrf
                                     @method('DELETE')
-                                    <button type="submit" class="btn btn-sm btn-outline-danger delete-confirm" title="Delete" onclick="return confirm('Are you sure you want to delete this expense?');">
+                                    <button type="submit" class="btn btn-sm btn-outline-danger delete-confirm" title="{{ __('Delete') }}" onclick="return confirm('Are you sure you want to delete this expense?');">
                                         <i class="fe-trash-2"></i>
                                     </button>
                                 </form>

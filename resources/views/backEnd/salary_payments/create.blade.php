@@ -138,7 +138,7 @@
                         {{-- Method & Transaction --}}
                         <div class="row g-3 mb-4">
                             <div class="col-md-6">
-                                <label class="form-label-custom">Payment Method <span class="text-danger">*</span></label>
+                                <label class="form-label-custom">{{ __('Payment Method') }}<span class="text-danger">*</span></label>
                                 <select name="payment_method" class="form-select form-select-custom @error('payment_method') is-invalid @enderror" required>
                                     <option value="bank_transfer" {{ old('payment_method') == 'bank_transfer' ? 'selected' : '' }}>Bank Transfer</option>
                                     <option value="cash" {{ old('payment_method') == 'cash' ? 'selected' : '' }}>Cash</option>
@@ -167,7 +167,7 @@
 
                         {{-- Notes --}}
                         <div class="mb-4">
-                            <label class="form-label-custom">Notes</label>
+                            <label class="form-label-custom">{{ __('Notes') }}</label>
                             <textarea name="notes" class="form-control form-control-custom" rows="2" placeholder="Any comments...">{{ old('notes') }}</textarea>
                         </div>
 
@@ -185,7 +185,7 @@
                             <button type="submit" class="btn btn-primary py-2 fw-bold shadow-sm">
                                 <i data-feather="check-circle" class="me-1" style="width: 16px;"></i> Confirm Payment
                             </button>
-                            <a href="{{ route('admin.salary_payments.index') }}" class="btn btn-light py-2">Cancel</a>
+                            <a href="{{ route('admin.salary_payments.index') }}" class="btn btn-light py-2">{{ __('Cancel') }}</a>
                         </div>
 
                     </div>

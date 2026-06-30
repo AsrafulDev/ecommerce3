@@ -72,8 +72,7 @@
         <div class="col-12 d-flex justify-content-between align-items-center">
             <h4 class="page-title mb-0" style="font-weight: 700; color: #333;">Banner Management</h4>
             <a href="{{route('banners.create')}}" class="btn btn-primary rounded-pill px-4 shadow-sm">
-                <i class="fe-plus me-1"></i> Create New
-            </a>
+                <i class="fe-plus me-1"></i>{{ __('Create New') }}</a>
         </div>
     </div>
     
@@ -84,11 +83,11 @@
                     <table id="datatable-buttons" class="table table-hover dt-responsive nowrap w-100">
                         <thead>
                             <tr>
-                                <th width="5%">SL</th>
-                                <th width="20%">Image</th>
-                                <th width="25%">Category</th>
-                                <th width="15%">Status</th>
-                                <th width="15%" class="text-end">Action</th>
+                                <th width="5%">{{ __('SL') }}</th>
+                                <th width="20%">{{ __('Image') }}</th>
+                                <th width="25%">{{ __('Category') }}</th>
+                                <th width="15%">{{ __('Status') }}</th>
+                                <th width="15%" class="text-end">{{ __('Action') }}</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -104,24 +103,22 @@
                                 <td>
                                     @if($value->status==1)
                                         <span class="badge bg-soft-success text-success status-badge">
-                                            <i class="mdi mdi-circle-medium me-1"></i>Active
-                                        </span> 
+                                            <i class="mdi mdi-circle-medium me-1"></i>{{ __('Active') }}</span> 
                                     @else 
                                         <span class="badge bg-soft-danger text-danger status-badge">
-                                            <i class="mdi mdi-circle-medium me-1"></i>Inactive
-                                        </span> 
+                                            <i class="mdi mdi-circle-medium me-1"></i>{{ __('Inactive') }}</span> 
                                     @endif
                                 </td>
                                 <td class="text-end">
                                     <div class="d-flex justify-content-end">
-                                        <a href="{{route('banners.edit',$value->id)}}" class="action-btn text-primary" title="Edit">
+                                        <a href="{{route('banners.edit',$value->id)}}" class="action-btn text-primary" title="{{ __('Edit') }}">
                                             <i class="fe-edit-1" style="font-size: 18px;"></i>
                                         </a>
 
                                         <form method="post" action="{{route('banners.destroy')}}" class="delete-form">        
                                             @csrf
                                             <input type="hidden" value="{{$value->id}}" name="hidden_id">
-                                            <button type="submit" class="action-btn text-danger" title="Delete">
+                                            <button type="submit" class="action-btn text-danger" title="{{ __('Delete') }}">
                                                 <i class="fe-trash-2" style="font-size: 18px;"></i>
                                             </button>
                                         </form>

@@ -17,32 +17,32 @@
             </div>
             {{-- Quick Links --}}
             <div class="col-lg-2 col-md-6">
-                <h6 class="text-uppercase mb-3">Quick Links</h6>
+                <h6 class="text-uppercase mb-3">{{ __('Quick Links') }}</h6>
                 <ul class="list-unstyled small">
-                    <li class="mb-1"><a href="{{ route('home') }}" class="text-white-50 text-decoration-none">Home</a></li>
+                    <li class="mb-1"><a href="{{ route('home') }}" class="text-white-50 text-decoration-none">{{ __('Home') }}</a></li>
                     <li class="mb-1"><a href="{{ route('shop') }}" class="text-white-50 text-decoration-none">Shop</a></li>
-                    <li class="mb-1"><a href="{{ route('hotdeals') }}" class="text-white-50 text-decoration-none">Hot Deals</a></li>
-                    <li class="mb-1"><a href="{{ route('brands') }}" class="text-white-50 text-decoration-none">Brands</a></li>
-                    <li class="mb-1"><a href="{{ route('blog.details') }}" class="text-white-50 text-decoration-none">Blog</a></li>
+                    <li class="mb-1"><a href="{{ route('hotdeals') }}" class="text-white-50 text-decoration-none">{{ __('Hot Deals') }}</a></li>
+                    <li class="mb-1"><a href="{{ route('brands') }}" class="text-white-50 text-decoration-none">{{ __('Brands') }}</a></li>
+                    <li class="mb-1"><a href="{{ route('blog.details') }}" class="text-white-50 text-decoration-none">{{ __('Blog') }}</a></li>
                 </ul>
             </div>
             {{-- Customer Service --}}
             <div class="col-lg-2 col-md-6">
-                <h6 class="text-uppercase mb-3">Support</h6>
+                <h6 class="text-uppercase mb-3">{{ __('Support') }}</h6>
                 <ul class="list-unstyled small">
-                    <li class="mb-1"><a href="{{ route('contact') }}" class="text-white-50 text-decoration-none">Contact Us</a></li>
-                    <li class="mb-1"><a href="#" class="text-white-50 text-decoration-none">FAQ</a></li>
-                    <li class="mb-1"><a href="#" class="text-white-50 text-decoration-none">Shipping</a></li>
+                    <li class="mb-1"><a href="{{ route('contact') }}" class="text-white-50 text-decoration-none">{{ __('Contact Us') }}</a></li>
+                    <li class="mb-1"><a href="#" class="text-white-50 text-decoration-none">{{ __('FAQ') }}</a></li>
+                    <li class="mb-1"><a href="#" class="text-white-50 text-decoration-none">{{ __('Shipping') }}</a></li>
                     <li class="mb-1"><a href="#" class="text-white-50 text-decoration-none">Returns</a></li>
                 </ul>
             </div>
             {{-- Newsletter --}}
             <div class="col-lg-5 col-md-6">
-                <h6 class="text-uppercase mb-3">Newsletter</h6>
+                <h6 class="text-uppercase mb-3">{{ __('Newsletter') }}</h6>
                 <p class="small text-white-50">Subscribe for exclusive offers & updates.</p>
                 <form class="d-flex gap-2">
                     <input type="email" class="form-control form-control-sm bg-dark border-0 text-white" placeholder="Your email">
-                    <button class="btn btn-sm text-white" style="background:var(--primary-color);">Subscribe</button>
+                    <button class="btn btn-sm text-white" style="background:var(--primary-color);">{{ __('Subscribe') }}</button>
                 </form>
             </div>
         </div>

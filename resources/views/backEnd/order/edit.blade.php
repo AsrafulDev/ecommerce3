@@ -32,7 +32,7 @@
                 <div class="page-title-right">
                     <form method="get" action="{{route('admin.order.cart_clear')}}" class="d-inline">
                         @csrf
-                        <button type="submit" class="btn btn-danger rounded-pill delete-confirm" title="Delete">
+                        <button type="submit" class="btn btn-danger rounded-pill delete-confirm" title="{{ __('Delete') }}">
                             <i class="fas fa-trash-alt"></i> Cart Clear
                         </button>
                     </form>
@@ -69,15 +69,15 @@
                             <table class="table table-bordered table-responsive-sm">
                                 <thead>
                                     <tr>
-                                        <th>Image</th>
-                                        <th>Name</th>
-										  <th>Color</th>
-										  <th>Size</th>
-                                        <th>Qty</th>
+                                        <th>{{ __('Image') }}</th>
+                                        <th>{{ __('Name') }}</th>
+										  <th>{{ __('Color') }}</th>
+										  <th>{{ __('Size') }}</th>
+                                        <th>{{ __('Qty') }}</th>
                                         <th>Sell Price</th>
-                                        <th>Discount</th>
+                                        <th>{{ __('Discount') }}</th>
                                         <th>Sub Total</th>
-                                        <th>Action</th>
+                                        <th>{{ __('Action') }}</th>
                                     </tr>
                                 </thead>
                                 <tbody id="cartTable">
@@ -118,7 +118,7 @@
                                     <input type="number" id="phone" class="form-control" placeholder="Customer Number" name="phone" value="{{$shippinginfo->phone}}" required>
                                 </div>
                                 <div class="col-sm-12 mb-3">
-                                    <input type="text" id="address" class="form-control" placeholder="Address" name="address" value="{{$shippinginfo->address}}" required>
+                                    <input type="text" id="address" class="form-control" placeholder="{{ __('Address') }}" name="address" value="{{$shippinginfo->address}}" required>
                                 </div>
                                 <div class="col-sm-12 mb-3">
                                     <select id="area" class="form-control" name="area" required>
@@ -169,11 +169,11 @@
                 <td>{{ $shipping }}</td>
             </tr>
             <tr>
-                <td>Discount</td>
+                <td>{{ __('Discount') }}</td>
                 <td>{{ $total_discount }}</td>
             </tr>
             <tr>
-                <td><strong>Total</strong></td>
+                <td><strong>{{ __('Total') }}</strong></td>
                 <td><strong>{{ $total }}</strong></td>
             </tr>
 
@@ -209,10 +209,10 @@
                                         <label class="form-label">Payment Status</label>
                                         <div class="input-group">
                                             <select id="payment_status_{{ $order->id }}" class="form-select">
-                                                <option value="pending" {{ $order->payment_status == 'pending' ? 'selected' : '' }}>Pending</option>
+                                                <option value="pending" {{ $order->payment_status == 'pending' ? 'selected' : '' }}>{{ __('Pending') }}</option>
                                                 <option value="paid" {{ $order->payment_status == 'paid' ? 'selected' : '' }}>Paid</option>
                                                 <option value="unpaid" {{ $order->payment_status == 'unpaid' ? 'selected' : '' }}>Unpaid</option>
-                                                <option value="failed" {{ $order->payment_status == 'failed' ? 'selected' : '' }}>Failed</option>
+                                                <option value="failed" {{ $order->payment_status == 'failed' ? 'selected' : '' }}>{{ __('Failed') }}</option>
                                             </select>
                                             <button type="button" class="btn btn-success" onclick="updatePaymentStatus({{ $order->id }})">
                                                 <i class="fa fa-check"></i>

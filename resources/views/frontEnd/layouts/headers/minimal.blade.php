@@ -9,11 +9,11 @@
             <img src="{{ asset($generalsetting->dark_logo ?: 'public/assets/images/CurlBazar.png' ?? 'public/assets/images/CurlBazar.png') }}" alt="Logo" style="max-height:35px;">
         </a>
         <nav class="minimal-nav d-none d-md-flex gap-4">
-            <a href="{{ route('home') }}" class="text-decoration-none fw-bold">Home</a>
+            <a href="{{ route('home') }}" class="text-decoration-none fw-bold">{{ __('Home') }}</a>
             <a href="{{ route('shop') }}" class="text-decoration-none">Shop</a>
             <a href="{{ route('hotdeals') }}" class="text-decoration-none">Deals</a>
-            <a href="{{ route('brands') }}" class="text-decoration-none">Brands</a>
-            <a href="{{ route('blog.details') }}" class="text-decoration-none">Blog</a>
+            <a href="{{ route('brands') }}" class="text-decoration-none">{{ __('Brands') }}</a>
+            <a href="{{ route('blog.details') }}" class="text-decoration-none">{{ __('Blog') }}</a>
         </nav>
         <div class="d-flex gap-3 align-items-center">
             <button class="btn btn-link text-dark p-0 d-md-none" onclick="document.querySelector('.minimal-nav').classList.toggle('d-none')">

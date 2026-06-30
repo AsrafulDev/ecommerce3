@@ -562,7 +562,12 @@
                                     <div class="header-list-items">
                                         <ul>
                                             <li class="track_btn">
-                                                <a href="{{route('customer.order_track')}}"> <i class="fa fa-truck"></i>Track Order</a>
+                                                <a href="{{route('customer.order_track')}}"> <i class="fa fa-truck"></i>{{ __('Track Order') }}</a>
+                                            </li>
+                                            <li class="track_btn lang-switch">
+                                                <a href="{{ route('lang.switch', app()->getLocale() == 'en' ? 'bn' : 'en') }}" title="Switch Language">
+                                                    <i class="fa fa-language"></i> {{ app()->getLocale() == 'en' ? 'বাংলা' : 'English' }}
+                                                </a>
                                             </li>
                                             @if(Auth::guard('customer')->user())
                                             <li class="for_order">
@@ -1131,7 +1136,7 @@
             <div class="icon_box">
                 <i class="fa-solid fa-bars"></i>
             </div>
-            <span class="nav_text">Category</span>
+            <span class="nav_text">{{ __('Category') }}</span>
         </a>
 
         <a href="{{route('customer.order_track')}}" class="nav_item {{ Route::is('customer.order_track') ? 'active' : '' }}">
@@ -1160,14 +1165,14 @@
                 <div class="icon_box">
                     <i class="fa-solid fa-user"></i>
                 </div>
-                <span class="nav_text">Account</span>
+                <span class="nav_text">{{ __('Account') }}</span>
             </a>
         @else
             <a href="{{route('customer.login')}}" class="nav_item {{ Route::is('customer.login') ? 'active' : '' }}">
                 <div class="icon_box">
                     <i class="fa-solid fa-right-to-bracket"></i>
                 </div>
-                <span class="nav_text">Login</span>
+                <span class="nav_text">{{ __('Login') }}</span>
             </a>
         @endif
     </div>
@@ -1768,7 +1773,7 @@
                         <a href="https://wa.me/${whatsappNumber}?text=আমি একই পণ্য পুনরায় অর্ডার করতে চাই, অনুগ্রহ করে সাহায্য করুন।" target="_blank" class="btn-whatsapp-custom">
                             <i class="fab fa-whatsapp"></i> CONTACT ON WHATSAPP
                         </a>
-                        <button onclick="Swal.close()" class="btn-close-custom">Close</button>
+                        <button onclick="Swal.close()" class="btn-close-custom">{{ __('Close') }}</button>
                     </div>
                 </div>
             `,

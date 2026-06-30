@@ -8,7 +8,7 @@
                     <h3 class="section-title-header">
                         <div class="timer_inner">
                             <div class="">
-                                <span class="section-title-name">Flash Sale </span>
+                                <span class="section-title-name">{{ __('Flash Sale') }}</span>
                             </div>
                             <div class="">
                                 <div class="offer_timer" id="flash_sale_timer"></div>

@@ -158,9 +158,7 @@
             <span class="text-muted small">Upload visual content & configure settings</span>
         </div>
         <div class="d-flex gap-2">
-            <a href="{{route('banners.index')}}" class="btn btn-light border fw-bold text-secondary px-3">
-                Cancel
-            </a>
+            <a href="{{route('banners.index')}}" class="btn btn-light border fw-bold text-secondary px-3">{{ __('Cancel') }}</a>
             <button type="submit" form="bannerForm" class="btn btn-primary fw-bold px-4 shadow-sm">
                 <i class="fe-plus me-1"></i> Create Banner
             </button>
@@ -185,7 +183,7 @@
                         <img id="realPreview" src="#" class="real-view-image" alt="Banner Preview">
                         
                         <label class="upload-overlay-btn" for="imageUpload">
-                            <i class="fe-upload-cloud"></i> <span>Upload Image</span>
+                            <i class="fe-upload-cloud"></i> <span>{{ __('Upload Image') }}</span>
                         </label>
                         <input type="file" name="image" id="imageUpload" class="d-none" accept="image/*" onchange="updateCanvas(this)" required>
                     </div>

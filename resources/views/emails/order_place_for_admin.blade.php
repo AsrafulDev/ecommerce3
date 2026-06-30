@@ -22,8 +22,8 @@
        <thead>
            <tr>
                <td style="border:1px solid #ddd;padding:10px;font-weight:800">Product</td>
-               <td style="border:1px solid #ddd;padding:10px;font-weight:800">Quantity</td>
-               <td style="border:1px solid #ddd;padding:10px;font-weight:800">Price</td>
+               <td style="border:1px solid #ddd;padding:10px;font-weight:800">{{ __('Quantity') }}</td>
+               <td style="border:1px solid #ddd;padding:10px;font-weight:800">{{ __('Price') }}</td>
            </tr>
        </thead>
        <tbody>
@@ -40,7 +40,7 @@
     <table style="width:100%;border: 0px ;padding:0 30px">
        <tbody>
             <tr>
-                <td style="border:1px solid #ddd;padding:10px;width:33.33%;border-top: 0px solid #fff;border-right: 0px solid #fff;font-weight:800">Subtotal</td>
+                <td style="border:1px solid #ddd;padding:10px;width:33.33%;border-top: 0px solid #fff;border-right: 0px solid #fff;font-weight:800">{{ __('Subtotal') }}</td>
                 <td style="border:1px solid #ddd;padding:10px;width:33.33%;border-top: 0px solid #fff;border-left: 0px solid #fff;"></td>
                 <td style="border:1px solid #ddd;padding:10px;width:33.33%;border-top: 0px solid #fff;">{{$order->amount - ($order->shipping_charge+$order->discount)}}</td>
             </tr>
@@ -56,7 +56,7 @@
             </tr>
             
             <tr>
-                <td style="border:1px solid #ddd;padding:10px;width:33.33%;border-top: 0px solid #fff;border-right: 0px solid #fff;font-weight:800">Total</td>
+                <td style="border:1px solid #ddd;padding:10px;width:33.33%;border-top: 0px solid #fff;border-right: 0px solid #fff;font-weight:800">{{ __('Total') }}</td>
                 <td style="border:1px solid #ddd;padding:10px;width:33.33%;border-top: 0px solid #fff;border-left: 0px solid #fff;"></td>
                 <td style="border:1px solid #ddd;padding:10px;width:33.33%;border-top: 0px solid #fff;">{{$order->amount}}</td>
             </tr>

@@ -161,9 +161,9 @@
             <tr>
                 <th style="width:14px;">#</th>
                 <th>Product</th>
-                <th style="width:22px;text-align:center;">Qty</th>
+                <th style="width:22px;text-align:center;">{{ __('Qty') }}</th>
                 <th style="width:44px;" class="r">Rate</th>
-                <th style="width:48px;" class="r">Total</th>
+                <th style="width:48px;" class="r">{{ __('Total') }}</th>
             </tr>
         </thead>
         <tbody>
@@ -200,7 +200,7 @@
     </table>
 
     {{-- Summary --}}
-    <div class="rs"><span>Subtotal</span><span>{{ number_format($subtotal, 2) }}</span></div>
+    <div class="rs"><span>{{ __('Subtotal') }}</span><span>{{ number_format($subtotal, 2) }}</span></div>
     @if($order->discount > 0)
     <div class="rs"><span>Discount (–)</span><span>{{ number_format($order->discount, 2) }}</span></div>
     @endif

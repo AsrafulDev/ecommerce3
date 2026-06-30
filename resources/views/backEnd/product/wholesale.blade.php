@@ -100,7 +100,7 @@
                                     @if($categories && $categories->count() > 0)
                                     <div class="col-12">
                                         <select name="category_id" class="form-control form-control-sm" onchange="this.form.submit()">
-                                            <option value="">All Categories</option>
+                                            <option value="">{{ __('All Categories') }}</option>
                                             @foreach($categories as $category)
                                                 <option value="{{ $category->id }}" {{ request('category_id') == $category->id ? 'selected' : '' }}>
                                                     {{ $category->name }}
@@ -112,8 +112,8 @@
                                     <div class="col-12">
                                         <select name="status" class="form-control form-control-sm" onchange="this.form.submit()">
                                             <option value="">All Status</option>
-                                            <option value="1" {{ request('status') == '1' ? 'selected' : '' }}>Active</option>
-                                            <option value="0" {{ request('status') == '0' ? 'selected' : '' }}>Inactive</option>
+                                            <option value="1" {{ request('status') == '1' ? 'selected' : '' }}>{{ __('Active') }}</option>
+                                            <option value="0" {{ request('status') == '0' ? 'selected' : '' }}>{{ __('Inactive') }}</option>
                                         </select>
                                     </div>
                                 </div>
@@ -130,14 +130,14 @@
                                             <input class="form-check-input" type="checkbox" id="checkAll">
                                         </div>
                                     </th>
-                                    <th>Image</th>
+                                    <th>{{ __('Image') }}</th>
                                     <th>Product Name</th>
-                                    <th>Category</th>
-                                    <th>Vendor</th>
+                                    <th>{{ __('Category') }}</th>
+                                    <th>{{ __('Vendor') }}</th>
                                     <th>Wholesale Tiers</th>
-                                    <th>Price</th>
-                                    <th>Stock</th>
-                                    <th>Status</th>
+                                    <th>{{ __('Price') }}</th>
+                                    <th>{{ __('Stock') }}</th>
+                                    <th>{{ __('Status') }}</th>
                                     <th>Actions</th>
                                 </tr>
                             </thead>
@@ -190,10 +190,10 @@
                                     </td>
                                     <td>
                                         <div class="d-flex gap-1">
-                                            <a href="{{ route('products.show', $product->id) }}" class="btn btn-sm btn-action btn-edit" title="View">
+                                            <a href="{{ route('products.show', $product->id) }}" class="btn btn-sm btn-action btn-edit" title="{{ __('View') }}">
                                                 <i class="fe-eye"></i>
                                             </a>
-                                            <a href="{{ route('products.edit', $product->id) }}" class="btn btn-sm btn-action btn-edit" title="Edit">
+                                            <a href="{{ route('products.edit', $product->id) }}" class="btn btn-sm btn-action btn-edit" title="{{ __('Edit') }}">
                                                 <i class="fe-edit"></i>
                                             </a>
                                         </div>

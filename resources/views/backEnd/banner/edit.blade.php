@@ -144,13 +144,11 @@
     
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
-            <h4 class="fw-bold m-0 text-dark">Edit Banner</h4>
+            <h4 class="fw-bold m-0 text-dark">{{ __('Edit Banner') }}</h4>
             <span class="text-muted small">Update visual content & links</span>
         </div>
         <div class="d-flex gap-2">
-            <a href="{{route('banners.index')}}" class="btn btn-light border fw-bold text-secondary px-3">
-                Cancel
-            </a>
+            <a href="{{route('banners.index')}}" class="btn btn-light border fw-bold text-secondary px-3">{{ __('Cancel') }}</a>
             <button type="submit" form="bannerForm" class="btn btn-primary fw-bold px-4 shadow-sm">
                 <i class="fe-save me-1"></i> Save Changes
             </button>

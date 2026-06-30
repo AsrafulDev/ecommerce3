@@ -123,7 +123,7 @@
                             <button type="submit" class="btn btn-primary px-4">
                                 <i data-feather="save" class="me-1"></i> Update Changes
                             </button>
-                            <a href="{{ route('purchases.index') }}" class="btn btn-light px-4">Cancel</a>
+                            <a href="{{ route('purchases.index') }}" class="btn btn-light px-4">{{ __('Cancel') }}</a>
                         </div>
 
                     </div>
@@ -151,11 +151,11 @@
                     </div>
                     <div class="card-body">
                         <div class="mb-3">
-                            <div class="info-label">Name</div>
+                            <div class="info-label">{{ __('Name') }}</div>
                             <div class="info-value text-dark">{{ $purchase->supplier->name ?? 'N/A' }}</div>
                         </div>
                         <div class="mb-0">
-                            <div class="info-label">Phone</div>
+                            <div class="info-label">{{ __('Phone') }}</div>
                             <div class="text-secondary">{{ $purchase->supplier->phone ?? 'N/A' }}</div>
                         </div>
                     </div>
@@ -167,7 +167,7 @@
                         <div class="d-flex align-items-start mb-3">
                             <i data-feather="clock" class="text-muted me-2 mt-1" style="width:16px;"></i>
                             <div>
-                                <div class="info-label">Created At</div>
+                                <div class="info-label">{{ __('Created At') }}</div>
                                 <div class="small text-dark">{{ $purchase->created_at->format('d M Y, h:i A') }}</div>
                             </div>
                         </div>
@@ -176,7 +176,7 @@
                         <div class="d-flex align-items-start">
                             <i data-feather="refresh-cw" class="text-muted me-2 mt-1" style="width:16px;"></i>
                             <div>
-                                <div class="info-label">Last Updated</div>
+                                <div class="info-label">{{ __('Last Updated') }}</div>
                                 <div class="small text-dark">{{ $purchase->updated_at->format('d M Y, h:i A') }}</div>
                             </div>
                         </div>

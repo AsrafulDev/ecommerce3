@@ -183,7 +183,7 @@
                         </div>
 
                         <hr class="sidebar-divider my-3">
-                        <h6 class="text-xs font-weight-bold text-uppercase text-gray-500 mb-3">Product Details</h6>
+                        <h6 class="text-xs font-weight-bold text-uppercase text-gray-500 mb-3">{{ __('Product Details') }}</h6>
 
                         <div class="row">
                             <div class="col-md-6 mb-3">
@@ -210,7 +210,7 @@
 
                         <div class="row">
                             <div class="col-md-3 mb-3">
-                                <label class="form-label">Discount</label>
+                                <label class="form-label">{{ __('Discount') }}</label>
                                 <input type="number" step="0.01" name="discount" class="form-control" value="0">
                             </div>
                             <div class="col-md-3 mb-3">
@@ -223,7 +223,7 @@
                                 <small class="text-muted" style="font-size:10px;">Deducted from fund</small>
                             </div>
                             <div class="col-md-3 mb-3">
-                                <label class="form-label">Note</label>
+                                <label class="form-label">{{ __('Note') }}</label>
                                 <input type="text" name="note" class="form-control" placeholder="Optional">
                             </div>
                         </div>
@@ -249,7 +249,7 @@
                             <label class="form-label">Filter by Month/Year</label>
                             <div class="input-group">
                                 <input type="number" name="month" class="form-control" placeholder="Month (1-12)" value="{{ request('month') }}">
-                                <input type="number" name="year" class="form-control" placeholder="Year" value="{{ request('year') }}">
+                                <input type="number" name="year" class="form-control" placeholder="{{ __('Year') }}" value="{{ request('year') }}">
                             </div>
                         </div>
                         <div class="mb-3">
@@ -284,10 +284,10 @@
                     <thead>
                         <tr>
                             <th class="text-center" width="5%">#</th>
-                            <th width="12%">Date</th>
-                            <th width="15%">Invoice</th>
-                            <th width="15%">Supplier</th>
-                            <th class="text-end" width="10%">Total</th>
+                            <th width="12%">{{ __('Date') }}</th>
+                            <th width="15%">{{ __('Invoice') }}</th>
+                            <th width="15%">{{ __('Supplier') }}</th>
+                            <th class="text-end" width="10%">{{ __('Total') }}</th>
                             <th class="text-end" width="10%">Paid</th>
                             <th class="text-end" width="10%">Due</th>
                             <th class="text-center" width="23%">Actions</th>
@@ -333,7 +333,7 @@
                             <td class="text-end text-danger">{{ number_format($p->due_amount,2) }}</td>
                             <td class="text-center">
                                 <div class="d-flex justify-content-center align-items-center gap-1">
-                                    <a href="{{ route('purchases.invoice',$p->id) }}" class="btn btn-action btn-outline-secondary" target="_blank" title="Invoice">
+                                    <a href="{{ route('purchases.invoice',$p->id) }}" class="btn btn-action btn-outline-secondary" target="_blank" title="{{ __('Invoice') }}">
                                         <i class="fe-file-text"></i>
                                     </a>
 
@@ -351,13 +351,13 @@
                                     @endif
 
                                     @if($isAdmin)
-                                        <a href="{{ route('purchases.edit', $p->id) }}" class="btn btn-action btn-outline-primary ms-1" title="Edit">
+                                        <a href="{{ route('purchases.edit', $p->id) }}" class="btn btn-action btn-outline-primary ms-1" title="{{ __('Edit') }}">
                                             <i class="fe-edit"></i>
                                         </a>
                                         <form method="POST" action="{{ route('purchases.destroy', $p->id) }}" class="d-inline delete-form">
                                             @csrf
                                             @method('DELETE')
-                                            <button type="submit" class="btn btn-action btn-outline-danger delete-confirm ms-1" title="Delete" onclick="return confirm('Confirm delete? This affects stock & fund.');">
+                                            <button type="submit" class="btn btn-action btn-outline-danger delete-confirm ms-1" title="{{ __('Delete') }}" onclick="return confirm('Confirm delete? This affects stock & fund.');">
                                                 <i class="fe-trash-2"></i>
                                             </button>
                                         </form>

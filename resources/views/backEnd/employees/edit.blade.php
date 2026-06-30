@@ -134,8 +134,8 @@
                             <div class="col-md-6">
                                 <label class="form-label-custom">Employment Status <span class="text-danger">*</span></label>
                                 <select name="status" class="form-select form-select-custom" required>
-                                    <option value="active" {{ $employee->status == 'active' ? 'selected' : '' }}>Active</option>
-                                    <option value="inactive" {{ $employee->status == 'inactive' ? 'selected' : '' }}>Inactive</option>
+                                    <option value="active" {{ $employee->status == 'active' ? 'selected' : '' }}>{{ __('Active') }}</option>
+                                    <option value="inactive" {{ $employee->status == 'inactive' ? 'selected' : '' }}>{{ __('Inactive') }}</option>
                                     <option value="terminated" {{ $employee->status == 'terminated' ? 'selected' : '' }}>Terminated</option>
                                 </select>
                             </div>
@@ -188,7 +188,7 @@
                         </div>
 
                         <div class="mb-3">
-                            <label class="form-label-custom">Address</label>
+                            <label class="form-label-custom">{{ __('Address') }}</label>
                             <textarea name="address" class="form-control form-control-custom" rows="2">{{ old('address', $employee->address) }}</textarea>
                         </div>
 
@@ -204,7 +204,7 @@
                     <button type="submit" class="btn btn-primary py-2 fw-bold shadow-sm">
                         <i data-feather="save" class="me-1" style="width: 16px;"></i> Update Employee
                     </button>
-                    <a href="{{ route('admin.employees.index') }}" class="btn btn-light py-2">Cancel</a>
+                    <a href="{{ route('admin.employees.index') }}" class="btn btn-light py-2">{{ __('Cancel') }}</a>
                 </div>
 
             </div>

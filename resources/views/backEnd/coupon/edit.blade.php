@@ -50,19 +50,18 @@
                     {{-- Header --}}
                     <div class="card-header-modern">
                         <div>
-                            <h5 class="mb-1 fw-bold text-dark">Edit Coupon</h5>
+                            <h5 class="mb-1 fw-bold text-dark">{{ __('Edit Coupon') }}</h5>
                             <p class="text-muted small mb-0">Update discount details and validity.</p>
                         </div>
                         <a href="{{ route('admin.coupons.index') }}" class="btn btn-light btn-sm rounded-pill px-3">
-                            <i data-feather="x" style="width:14px;"></i> Cancel
-                        </a>
+                            <i data-feather="x" style="width:14px;"></i>{{ __('Cancel') }}</a>
                     </div>
 
                     <div class="card-body p-4">
                         
                         {{-- Coupon Code --}}
                         <div class="mb-4">
-                            <label class="form-label-custom">Coupon Code <span class="text-danger">*</span></label>
+                            <label class="form-label-custom">{{ __('Coupon Code') }}<span class="text-danger">*</span></label>
                             <div class="input-group">
                                 <span class="input-group-text bg-white border-end-0 text-muted border-start-custom" style="border-radius: 10px 0 0 10px; border: 1px solid #e2e8f0; border-right: 0;">
                                     <i data-feather="tag" style="width:16px;"></i>
@@ -107,10 +106,10 @@
                                 </div>
                             </div>
                             <div class="col-md-6">
-                                <label class="form-label-custom">Status</label>
+                                <label class="form-label-custom">{{ __('Status') }}</label>
                                 <select name="status" class="form-select form-select-custom">
-                                    <option value="1" {{ $coupon->status == 1 ? 'selected' : '' }}>Active</option>
-                                    <option value="0" {{ $coupon->status == 0 ? 'selected' : '' }}>Inactive</option>
+                                    <option value="1" {{ $coupon->status == 1 ? 'selected' : '' }}>{{ __('Active') }}</option>
+                                    <option value="0" {{ $coupon->status == 0 ? 'selected' : '' }}>{{ __('Inactive') }}</option>
                                 </select>
                             </div>
                         </div>

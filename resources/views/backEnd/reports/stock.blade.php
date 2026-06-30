@@ -125,7 +125,7 @@
                         <tr>
                             <th width="5%">#</th>
                             <th width="35%">Product Name</th>
-                            <th width="15%" class="text-end">In Stock</th>
+                            <th width="15%" class="text-end">{{ __('In Stock') }}</th>
                             <th width="15%" class="text-end">Purchase Cost</th>
                             <th width="15%" class="text-end">Selling Price</th>
                             <th width="15%" class="text-end">Total Value</th>

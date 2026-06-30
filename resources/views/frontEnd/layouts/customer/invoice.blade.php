@@ -81,8 +81,7 @@
 
             <div class="col-sm-6 text-end">
                 <button onclick="printFunction()" class="no-print invoice_btn btn btn-primary">
-                    <i class="fa fa-print"></i> Print
-                </button>
+                    <i class="fa fa-print"></i>{{ __('Print') }}</button>
             </div>
 
             <div class="col-sm-12">
@@ -134,7 +133,7 @@
 
                             <td style="width:60%;float: left;">
                                 <div class="invoice-bar" style="background:#00aef0; transform: skew(38deg); padding: 20px 60px; margin-left: 65px;">
-                                    <p style="font-size: 30px; color: #fff; transform: skew(-38deg); text-align: right; font-weight: bold;">Invoice</p>
+                                    <p style="font-size: 30px; color: #fff; transform: skew(-38deg); text-align: right; font-weight: bold;">{{ __('Invoice') }}</p>
                                 </div>
 
                                 <div class="invoice-bar" style="background:#fff; transform: skew(36deg); width: 80%; margin-left: 182px; padding: 12px 32px; margin-top: 6px;text-align:right">
@@ -158,11 +157,11 @@
                     <table class="table" style="margin-top: 30px;">
                         <thead style="background: #00aef0; color: #fff;">
                             <tr>
-                                <th>SL</th>
+                                <th>{{ __('SL') }}</th>
                                 <th>Product</th>
-                                <th>Price</th>
-                                <th>Qty</th>
-                                <th>Total</th>
+                                <th>{{ __('Price') }}</th>
+                                <th>{{ __('Qty') }}</th>
+                                <th>{{ __('Total') }}</th>
                             </tr>
                         </thead>
 
@@ -268,7 +267,7 @@
 
                         <div class="terms-condition" style="overflow: hidden; width: 100%; text-align: center; padding: 20px 0;">
                             <h5 style="font-style: italic;">
-                                <a href="{{route('page',['slug'=>'terms-condition'])}}">Terms & Conditions</a>
+                                <a href="{{route('page',['slug'=>'terms-condition'])}}">{{ __('Terms & Conditions') }}</a>
                             </h5>
                             <p style="text-align: center; font-style: italic; font-size: 15px;">* This is a computer generated invoice.</p>
                         </div>

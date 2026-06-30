@@ -178,7 +178,7 @@
 
             <div class="card-modern">
                 <div class="card-header-modern">
-                    <h5 class="section-title"><i class="fe-shopping-bag me-2 text-muted"></i> Order Details</h5>
+                    <h5 class="section-title"><i class="fe-shopping-bag me-2 text-muted"></i>{{ __('Order Details') }}</h5>
                     <a href="{{ route('admin.order.invoice', ['invoice_id' => $refund->order->invoice_id]) }}" target="_blank" class="btn btn-sm btn-outline-primary rounded-pill">
                         View Invoice <i class="fe-external-link ms-1"></i>
                     </a>
@@ -190,7 +190,7 @@
                             <span class="value-text fw-bold">#{{ $refund->order->invoice_id }}</span>
                         </div>
                         <div class="col-md-4">
-                            <span class="label-text">Order Date</span>
+                            <span class="label-text">{{ __('Order Date') }}</span>
                             <span class="value-text">{{ $refund->order->created_at->format('d M, Y') }}</span>
                         </div>
                         <div class="col-md-4">
@@ -204,9 +204,9 @@
                             <thead>
                                 <tr>
                                     <th>Product Name</th>
-                                    <th class="text-center">Qty</th>
+                                    <th class="text-center">{{ __('Qty') }}</th>
                                     <th class="text-end">Unit Price</th>
-                                    <th class="text-end">Total</th>
+                                    <th class="text-end">{{ __('Total') }}</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -357,7 +357,7 @@
                     </div>
                 </div>
                 <div class="modal-footer border-top-0 pt-0">
-                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">{{ __('Cancel') }}</button>
                     <button type="submit" class="btn btn-success px-4">Approve</button>
                 </div>
             </form>
@@ -381,7 +381,7 @@
                     </div>
                 </div>
                 <div class="modal-footer border-top-0 pt-0">
-                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">{{ __('Cancel') }}</button>
                     <button type="submit" class="btn btn-danger px-4">Reject</button>
                 </div>
             </form>
@@ -416,7 +416,7 @@
                             </select>
                         </div>
                         <div class="col-md-6 mb-3">
-                            <label class="label-text">Amount</label>
+                            <label class="label-text">{{ __('Amount') }}</label>
                             <input type="text" class="form-control form-control-modern bg-light" value="৳{{ number_format($refund->amount + $refund->shipping_charge, 2) }}" readonly>
                         </div>
                     </div>
@@ -427,7 +427,7 @@
                     </div>
                 </div>
                 <div class="modal-footer border-top-0 pt-0">
-                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">{{ __('Cancel') }}</button>
                     <button type="submit" class="btn btn-primary px-4">Complete Payment</button>
                 </div>
             </form>

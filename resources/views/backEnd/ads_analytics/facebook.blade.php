@@ -21,10 +21,9 @@
     <div>
       <span class="badge bg-success me-2"><i class="fe-radio"></i> Live</span>
       <a href="{{ route('admin.ads_analytics.facebook', ['refresh' => 1]) }}" class="btn btn-sm btn-primary">
-        <i class="fe-refresh-cw"></i> Refresh
-      </a>
+        <i class="fe-refresh-cw"></i>{{ __('Refresh') }}</a>
       <a href="{{ route('admin.ads_analytics.dashboard') }}" class="btn btn-sm btn-outline-secondary">Overview</a>
-      <a href="{{ route('admin.ads_analytics.settings') }}" class="btn btn-sm btn-outline-secondary">Settings</a>
+      <a href="{{ route('admin.ads_analytics.settings') }}" class="btn btn-sm btn-outline-secondary">{{ __('Settings') }}</a>
     </div>
   </div>
 

@@ -87,11 +87,11 @@
                     <table id="datatable-buttons" class="table table-hover w-100 dt-responsive nowrap">
                         <thead>
                             <tr>
-                                <th style="width: 50px;">SL</th>
+                                <th style="width: 50px;">{{ __('SL') }}</th>
                                 <th>Parent Category</th>
                                 <th>Subcategory Name</th>
-                                <th>Status</th>
-                                <th class="text-end" style="width: 150px;">Action</th>
+                                <th>{{ __('Status') }}</th>
+                                <th class="text-end" style="width: 150px;">{{ __('Action') }}</th>
                             </tr>
                         </thead>                
                         <tbody>
@@ -115,9 +115,9 @@
                                 
                                 <td>
                                     @if($value->status==1)
-                                        <span class="badge badge-pill badge-soft-success">Active</span> 
+                                        <span class="badge badge-pill badge-soft-success">{{ __('Active') }}</span> 
                                     @else 
-                                        <span class="badge badge-pill badge-soft-danger">Inactive</span> 
+                                        <span class="badge badge-pill badge-soft-danger">{{ __('Inactive') }}</span> 
                                     @endif
                                 </td>
 
@@ -143,7 +143,7 @@
                                         @endif
 
                                         {{-- Edit --}}
-                                        <a href="{{route('subcategories.edit',$value->id)}}" class="action-btn btn-edit" title="Edit">
+                                        <a href="{{route('subcategories.edit',$value->id)}}" class="action-btn btn-edit" title="{{ __('Edit') }}">
                                             <i class="fe-edit"></i>
                                         </a>
 
@@ -151,7 +151,7 @@
                                         <form method="post" action="{{ route('subcategories.destroy') }}" class="d-inline">
                                             @csrf
                                             <input type="hidden" name="id" value="{{ $value->id }}">
-                                            <button type="submit" class="action-btn btn-delete delete-confirm" title="Delete">
+                                            <button type="submit" class="action-btn btn-delete delete-confirm" title="{{ __('Delete') }}">
                                                 <i class="fe-trash-2"></i>
                                             </button>
                                         </form>

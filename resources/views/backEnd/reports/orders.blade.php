@@ -105,12 +105,12 @@
 
                 {{-- Dynamic Inputs --}}
                 <div class="col-md-2 type-month type-year" style="display:none;">
-                    <label class="form-label-custom">Year</label>
+                    <label class="form-label-custom">{{ __('Year') }}</label>
                     <input type="number" name="year" class="form-control form-control-custom" value="{{ request('year', now()->year) }}" placeholder="YYYY">
                 </div>
 
                 <div class="col-md-2 type-month" style="display:none;">
-                    <label class="form-label-custom">Month</label>
+                    <label class="form-label-custom">{{ __('Month') }}</label>
                     <select name="month" class="form-select form-select-custom">
                         @for($m=1; $m<=12; $m++)
                             <option value="{{ $m }}" {{ request('month', now()->month) == $m ? 'selected' : '' }}>
@@ -209,13 +209,13 @@
                 <thead>
                     <tr>
                         <th width="5%">#</th>
-                        <th width="15%">Invoice</th>
+                        <th width="15%">{{ __('Invoice') }}</th>
                         <th width="20%">Customer</th>
                         <th width="15%" class="text-end">Total Amount</th>
-                        <th width="10%" class="text-end">Discount</th>
-                        <th width="10%" class="text-end">Shipping</th>
-                        <th width="10%">Status</th>
-                        <th width="15%">Date</th>
+                        <th width="10%" class="text-end">{{ __('Discount') }}</th>
+                        <th width="10%" class="text-end">{{ __('Shipping') }}</th>
+                        <th width="10%">{{ __('Status') }}</th>
+                        <th width="15%">{{ __('Date') }}</th>
                     </tr>
                 </thead>
                 <tbody>

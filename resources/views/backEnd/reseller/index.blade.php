@@ -116,9 +116,9 @@
                         </div>
                     </div>
                     <div class="col-md-3">
-                        <button type="submit" class="btn btn-primary fw-bold px-4">Search</button>
+                        <button type="submit" class="btn btn-primary fw-bold px-4">{{ __('Search') }}</button>
                         @if(request('keyword'))
-                            <a href="{{ route('admin.resellers.index') }}" class="btn btn-light border ms-2">Clear</a>
+                            <a href="{{ route('admin.resellers.index') }}" class="btn btn-light border ms-2">{{ __('Clear') }}</a>
                         @endif
                     </div>
                 </div>
@@ -136,7 +136,7 @@
                         <th width="15%">Contact</th>
                         <th width="10%">Wallet</th>
                         <th width="10%">Verification</th>
-                        <th width="10%">Status</th>
+                        <th width="10%">{{ __('Status') }}</th>
                         <th width="10%" class="text-end">Actions</th>
                     </tr>
                 </thead>
@@ -182,18 +182,18 @@
                             @if($reseller->verification_status == 'approved')
                                 <span class="badge-soft badge-verified"><span class="status-dot"></span> Verified</span>
                             @elseif($reseller->verification_status == 'rejected')
-                                <span class="badge-soft badge-rejected"><span class="status-dot"></span> Rejected</span>
+                                <span class="badge-soft badge-rejected"><span class="status-dot"></span>{{ __('Rejected') }}</span>
                             @else
-                                <span class="badge-soft badge-pending"><span class="status-dot"></span> Pending</span>
+                                <span class="badge-soft badge-pending"><span class="status-dot"></span>{{ __('Pending') }}</span>
                             @endif
                         </td>
 
                         {{-- Status --}}
                         <td>
                             @if($reseller->status == 1)
-                                <span class="badge bg-success small">Active</span>
+                                <span class="badge bg-success small">{{ __('Active') }}</span>
                             @else
-                                <span class="badge bg-danger small">Inactive</span>
+                                <span class="badge bg-danger small">{{ __('Inactive') }}</span>
                             @endif
                         </td>
 
@@ -216,7 +216,7 @@
                                 </form>
 
                                 {{-- Edit --}}
-                                <a href="{{ route('admin.resellers.edit', $reseller->id) }}" class="btn-icon btn-edit" title="Edit Profile">
+                                <a href="{{ route('admin.resellers.edit', $reseller->id) }}" class="btn-icon btn-edit" title="{{ __('Edit Profile') }}">
                                     <i data-feather="edit-2" style="width:14px;"></i>
                                 </a>
 
@@ -238,8 +238,7 @@
 
         {{-- PAGINATION --}}
         <div class="p-4 border-top d-flex justify-content-between align-items-center bg-white rounded-bottom">
-            <small class="text-muted">
-                Showing <strong>{{ $resellers->firstItem() }}</strong> to <strong>{{ $resellers->lastItem() }}</strong> of <strong>{{ $resellers->total() }}</strong> resellers
+            <small class="text-muted">{{ __('Showing') }}<strong>{{ $resellers->firstItem() }}</strong>{{ __('to') }}<strong>{{ $resellers->lastItem() }}</strong>{{ __('of') }}<strong>{{ $resellers->total() }}</strong> resellers
             </small>
             <div>
                 {{ $resellers->links('pagination::bootstrap-4') }}

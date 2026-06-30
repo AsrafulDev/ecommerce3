@@ -180,7 +180,7 @@
                     
                     <div class="col-sm-12">
                         <div class="form-group mb-3">
-                            <label for="note" class="form-label">Note</label>
+                            <label for="note" class="form-label">{{ __('Note') }}</label>
                             <input type="text" class="form-control @error('note') is-invalid @enderror" name="note" value="{{ $edit_data->note }}" id="note">
                             @error('note')
                                 <span class="invalid-feedback" role="alert">
@@ -192,7 +192,7 @@
                     
                     <div class="col-sm-12">
                         <div class="form-group mb-3">
-                            <label for="billing_details" class="form-label">Billing Details</label>
+                            <label for="billing_details" class="form-label">{{ __('Billing Details') }}</label>
                             <input type="text" class="form-control @error('billing_details') is-invalid @enderror" name="billing_details" value="{{ $edit_data->billing_details }}" id="billing_details">
                             @error('billing_details')
                                 <span class="invalid-feedback" role="alert">
@@ -344,7 +344,7 @@
 
                     <div class="col-sm-12 mb-3">
                         <div class="form-group">
-                            <label for="description" class="form-label">Description</label>
+                            <label for="description" class="form-label">{{ __('Description') }}</label>
                             <textarea name="description"  rows="6" class="summernote form-control @error('description') is-invalid @enderror">{{$edit_data->description}}</textarea>
                             @error('description')
                                 <span class="invalid-feedback" role="alert">
@@ -357,7 +357,7 @@
 
                     <div class="col-sm-6 mb-3">
                         <div class="form-group">
-                            <label for="status" class="d-block">Status</label>
+                            <label for="status" class="d-block">{{ __('Status') }}</label>
                             <label class="switch">
                                 <input type="checkbox" value="1" name="status" @if($edit_data->status==1)checked @endif>
                                 <span class="slider round"></span>

@@ -33,7 +33,7 @@
 							<div class="card-body">
 								<div class="mb-5 text-center">
 									<img src="{{asset($generalsetting->dark_logo)}}" class="mw-100 mb-4" height="40">
-									<h1 class="h3 text-primary mb-0">Reset Password</h1>
+									<h1 class="h3 text-primary mb-0">{{ __('Reset Password') }}</h1>
 									<p>Enter your new password below</p>
 								</div>
 
@@ -42,7 +42,7 @@
 									<input type="hidden" name="token" value="{{ $token }}">
 
 									<div class="form-group">
-										<input id="email" type="email" name="email" value="{{ old('email') }}" class="form-control @error('email') is-invalid @enderror" placeholder="Email" required>
+										<input id="email" type="email" name="email" value="{{ old('email') }}" class="form-control @error('email') is-invalid @enderror" placeholder="{{ __('Email') }}" required>
 										@error('email')
 											<span class="invalid-feedback" role="alert">
 												<strong>{{ $message }}</strong>
@@ -51,7 +51,7 @@
 									</div>
 
 									<div class="form-group">
-										<input id="password" type="password" name="password" class="form-control @error('password') is-invalid @enderror" placeholder="New Password" required>
+										<input id="password" type="password" name="password" class="form-control @error('password') is-invalid @enderror" placeholder="{{ __('New Password') }}" required>
 										@error('password')
 											<span class="invalid-feedback" role="alert">
 												<strong>{{ $message }}</strong>
@@ -60,12 +60,10 @@
 									</div>
 
 									<div class="form-group">
-										<input id="password-confirm" type="password" name="password_confirmation" class="form-control" placeholder="Confirm Password" required>
+										<input id="password-confirm" type="password" name="password_confirmation" class="form-control" placeholder="{{ __('Confirm Password') }}" required>
 									</div>
 
-									<button type="submit" class="btn btn-primary btn-lg btn-block">
-										Reset Password
-									</button>
+									<button type="submit" class="btn btn-primary btn-lg btn-block">{{ __('Reset Password') }}</button>
 								</form>
 								
 								<div class="mt-3 text-center">

@@ -45,7 +45,7 @@
             <div class="page-title-box d-flex align-items-center justify-content-between py-3">
                 <h4 class="page-title mb-0">Edit Product: {{ $edit_data->name }}</h4>
                 <div class="page-title-right">
-                    <a href="{{route('inhouse.products.index')}}" class="btn btn-primary rounded-pill px-4 shadow-sm"><i class="fe-list me-1"></i> Manage Products</a>
+                    <a href="{{route('inhouse.products.index')}}" class="btn btn-primary rounded-pill px-4 shadow-sm"><i class="fe-list me-1"></i>{{ __('Manage Products') }}</a>
                 </div>
             </div>
         </div>
@@ -132,7 +132,7 @@
                         </div>
 
                         <div class="form-group mb-3">
-                            <label for="description" class="form-label">Description</label>
+                            <label for="description" class="form-label">{{ __('Description') }}</label>
                             <textarea name="description" rows="6"
                                       class="summernote form-control @error('description') is-invalid @enderror">
                                 {{$edit_data->description}}
@@ -143,7 +143,7 @@
                         </div>
 
                         <div class="form-group mb-0">
-                            <label for="note" class="form-label">Note</label>
+                            <label for="note" class="form-label">{{ __('Note') }}</label>
                             <textarea name="note" rows="2"
                                       class="form-control @error('note') is-invalid @enderror">{{$edit_data->note}}</textarea>
                             @error('note')
@@ -261,7 +261,7 @@
                                 <div class="variant-card variant-item">
                                     <div class="row align-items-end">
                                         <div class="col-md-2 mb-2">
-                                            <label class="form-label">Color</label>
+                                            <label class="form-label">{{ __('Color') }}</label>
                                             <select name="variant_price[{{ $variantIndex }}][color_id]" class="form-control select2 variant-color-select">
                                                 <option value="">Select Color (Optional)</option>
                                                 @foreach($totalcolors as $color)
@@ -273,7 +273,7 @@
                                         </div>
 
                                         <div class="col-md-2 mb-2">
-                                            <label class="form-label">Size</label>
+                                            <label class="form-label">{{ __('Size') }}</label>
                                             <select name="variant_price[{{ $variantIndex }}][size_id]" class="form-control select2 variant-size-select">
                                                 <option value="">Select Size (Optional)</option>
                                                 @foreach($totalsizes as $size)
@@ -285,13 +285,13 @@
                                         </div>
 
                                         <div class="col-md-2 mb-2">
-                                            <label class="form-label">Price</label>
+                                            <label class="form-label">{{ __('Price') }}</label>
                                             <input type="number" step="0.01" name="variant_price[{{ $variantIndex }}][price]"
-                                                   value="{{ $vp->price }}" class="form-control" placeholder="Enter Price">
+                                                   value="{{ $vp->price }}" class="form-control" placeholder="{{ __('Enter Price') }}">
                                         </div>
 
                                         <div class="col-md-2 mb-2">
-                                            <label class="form-label">Stock</label>
+                                            <label class="form-label">{{ __('Stock') }}</label>
                                             <input type="number" name="variant_price[{{ $variantIndex }}][stock]"
                                                    value="{{ $vp->stock }}" class="form-control" placeholder="0">
                                         </div>
@@ -318,7 +318,7 @@
                                                 <input type="file" name="variant_image[{{ $variantIndex }}][image]" class="form-control form-control-sm variant-img-input" accept="image/*">
                                                 <div class="variant-img-preview mt-1" style="display:none;">
                                                     <img src="" alt="Preview" class="rounded border" style="max-width:60px;max-height:60px;object-fit:cover;">
-                                                    <button type="button" class="btn btn-sm btn-danger variant-img-clear ms-1" title="Remove"><i class="fe-x"></i></button>
+                                                    <button type="button" class="btn btn-sm btn-danger variant-img-clear ms-1" title="{{ __('Remove') }}"><i class="fe-x"></i></button>
                                                 </div>
                                             </div>
                                         </div>
@@ -349,7 +349,7 @@
                                 <div class="variant-card variant-item">
                                     <div class="row align-items-end">
                                         <div class="col-md-3 mb-2">
-                                            <label class="form-label">Color <small class="text-muted">(Optional)</small></label>
+                                            <label class="form-label">{{ __('Color') }}<small class="text-muted">(Optional)</small></label>
                                             <select name="variant_price[0][color_id]" class="form-control select2 variant-color-select">
                                                 <option value="">Select Color (Optional)</option>
                                                 @foreach($totalcolors as $color)
@@ -359,7 +359,7 @@
                                         </div>
 
                                         <div class="col-md-3 mb-2">
-                                            <label class="form-label">Size <small class="text-muted">(Optional)</small></label>
+                                            <label class="form-label">{{ __('Size') }}<small class="text-muted">(Optional)</small></label>
                                             <select name="variant_price[0][size_id]" class="form-control select2 variant-size-select">
                                                 <option value="">Select Size (Optional)</option>
                                                 @foreach($totalsizes as $size)
@@ -369,13 +369,13 @@
                                         </div>
 
                                         <div class="col-md-2 mb-2">
-                                            <label class="form-label">Price <small class="text-muted">(Optional)</small></label>
+                                            <label class="form-label">{{ __('Price') }}<small class="text-muted">(Optional)</small></label>
                                             <input type="number" step="0.01" name="variant_price[0][price]"
-                                                   class="form-control" placeholder="Enter Price">
+                                                   class="form-control" placeholder="{{ __('Enter Price') }}">
                                         </div>
 
                                         <div class="col-md-2 mb-2">
-                                            <label class="form-label">Stock</label>
+                                            <label class="form-label">{{ __('Stock') }}</label>
                                             <input type="number" name="variant_price[0][stock]" class="form-control" placeholder="0">
                                         </div>
 
@@ -385,7 +385,7 @@
                                                 <input type="file" name="variant_image[0][image]" class="form-control form-control-sm variant-img-input" accept="image/*">
                                                 <div class="variant-img-preview mt-1" style="display:none;">
                                                     <img src="" alt="Preview" class="rounded border" style="max-width:60px;max-height:60px;object-fit:cover;">
-                                                    <button type="button" class="btn btn-sm btn-danger variant-img-clear ms-1" title="Remove"><i class="fe-x"></i></button>
+                                                    <button type="button" class="btn btn-sm btn-danger variant-img-clear ms-1" title="{{ __('Remove') }}"><i class="fe-x"></i></button>
                                                 </div>
                                             </div>
                                         </div>
@@ -417,21 +417,21 @@
                         
                         <div class="row">
                             <div class="col-md-6 mb-3">
-                                <label for="meta_title" class="form-label">Meta Title</label>
+                                <label for="meta_title" class="form-label">{{ __('Meta Title') }}</label>
                                 <input type="text" name="meta_title" id="meta_title" class="form-control"
                                        value="{{ $edit_data->meta_title ?? $edit_data->name }}"
                                        placeholder="Enter meta title">
                             </div>
 
                             <div class="col-md-6 mb-3">
-                                <label for="meta_keywords" class="form-label">Meta Keywords</label>
+                                <label for="meta_keywords" class="form-label">{{ __('Meta Keywords') }}</label>
                                 <input type="text" name="meta_keywords" id="meta_keywords" class="form-control"
                                        value="{{ $edit_data->meta_keywords ?? '' }}"
                                        placeholder="meta1, meta2, meta3">
                             </div>
 
                             <div class="col-md-12 mb-3">
-                                <label for="meta_description" class="form-label">Meta Description</label>
+                                <label for="meta_description" class="form-label">{{ __('Meta Description') }}</label>
                                 <textarea name="meta_description" id="meta_description" class="form-control" rows="3"
                                           placeholder="Enter short SEO description...">{{ $edit_data->meta_description ?? \Illuminate\Support\Str::limit(strip_tags($edit_data->description), 160) }}</textarea>
                             </div>
@@ -508,14 +508,14 @@
                                 @enderror
                             </div>
                             <div class="col-md-6 mb-3">
-                                <label for="pro_unit" class="form-label">Unit</label>
+                                <label for="pro_unit" class="form-label">{{ __('Unit') }}</label>
                                 <input type="text" class="form-control @error('pro_unit') is-invalid @enderror"
                                        name="pro_unit" value="{{ $edit_data->pro_unit }}" id="pro_unit" />
                             </div>
                         </div>
 
                         <div class="form-group mb-3">
-                            <label for="brand_id" class="form-label">Brand</label>
+                            <label for="brand_id" class="form-label">{{ __('Brand') }}</label>
                             <select class="form-control select2 @error('brand_id') is-invalid @enderror"
                                     name="brand_id">
                                 <option value="">Select..</option>
@@ -543,7 +543,7 @@
                                 <div class="control-group increment mb-2 image-row">
                                     <div class="row align-items-end g-2">
                                         <div class="col-md-10">
-                                            <label class="form-label small">Image</label>
+                                            <label class="form-label small">{{ __('Image') }}</label>
                                             <input type="file" name="image[]" class="form-control form-control-sm @error('image') is-invalid @enderror" accept="image/*" />
                                         </div>
                                         <div class="col-md-2">
@@ -561,7 +561,7 @@
                                 <div class="control-group mt-2 image-row">
                                     <div class="row align-items-end g-2">
                                         <div class="col-md-10">
-                                            <label class="form-label small">Image</label>
+                                            <label class="form-label small">{{ __('Image') }}</label>
                                             <input type="file" name="image[]" class="form-control form-control-sm" accept="image/*" />
                                         </div>
                                         <div class="col-md-2">
@@ -771,7 +771,7 @@
                         {{-- FLAGS & SWITCHES --}}
                         <div class="row text-center mb-3">
                             <div class="col-3 mb-2">
-                                <label for="status" class="d-block form-label">Status</label>
+                                <label for="status" class="d-block form-label">{{ __('Status') }}</label>
                                 <label class="switch">
                                     <input type="checkbox" value="1" name="status" @if($edit_data->status==1) checked @endif>
                                     <span class="slider round"></span>
@@ -779,7 +779,7 @@
                             </div>
 
                             <div class="col-3 mb-2">
-                                <label for="topsale" class="d-block form-label">Hot Deals</label>
+                                <label for="topsale" class="d-block form-label">{{ __('Hot Deals') }}</label>
                                 <label class="switch">
                                     <input type="checkbox" value="1" name="topsale" @if($edit_data->topsale==1) checked @endif>
                                     <span class="slider round"></span>
@@ -787,7 +787,7 @@
                             </div>
 
                             <div class="col-3 mb-2">
-                                <label for="flashsale" class="d-block form-label">Flash Sale</label>
+                                <label for="flashsale" class="d-block form-label">{{ __('Flash Sale') }}</label>
                                 <label class="switch">
                                     <input type="checkbox" value="1" name="flashsale" @if($edit_data->flashsale==1) checked @endif>
                                     <span class="slider round"></span>

@@ -95,12 +95,12 @@
                 </div>
 
                 <div class="col-md-2 type-month type-year" style="display:none;">
-                    <label class="form-label-custom">Year</label>
+                    <label class="form-label-custom">{{ __('Year') }}</label>
                     <input type="number" name="year" class="form-control form-control-custom" value="{{ request('year', now()->year) }}">
                 </div>
 
                 <div class="col-md-2 type-month" style="display:none;">
-                    <label class="form-label-custom">Month</label>
+                    <label class="form-label-custom">{{ __('Month') }}</label>
                     <select name="month" class="form-select form-select-custom">
                         @for($m=1; $m<=12; $m++)
                             <option value="{{ $m }}" {{ request('month', now()->month) == $m ? 'selected' : '' }}>

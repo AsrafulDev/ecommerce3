@@ -167,7 +167,7 @@
                         <input type="hidden" name="id" value="{{ $steadfast->id }}">
 
                         <div class="mb-3">
-                            <label class="form-label">API Key <span class="text-danger">*</span></label>
+                            <label class="form-label">{{ __('API Key') }}<span class="text-danger">*</span></label>
                             <input type="text" class="form-control @error('api_key') is-invalid @enderror" 
                                    name="api_key" value="{{ $steadfast->api_key }}" required />
                             @error('api_key')
@@ -223,7 +223,7 @@
                         <input type="hidden" name="type" value="pathao">
 
                         <div class="mb-3">
-                            <label class="form-label">API URL <span class="text-danger">*</span></label>
+                            <label class="form-label">{{ __('API URL') }}<span class="text-danger">*</span></label>
                             <input type="text" class="form-control" name="url" 
                                    value="{{ $pathao->url ?? 'https://api-hermes.pathao.com' }}" 
                                    placeholder="https://api-hermes.pathao.com" required />
@@ -261,7 +261,7 @@
                         </div>
 
                         <div class="mb-3">
-                            <label class="form-label">Password <span class="text-danger">*</span></label>
+                            <label class="form-label">{{ __('Password') }}<span class="text-danger">*</span></label>
                             <input type="password" class="form-control @error('password') is-invalid @enderror" 
                                    name="password" value="{{ $pathao->password ?? '' }}" 
                                    placeholder="lovePathao (Sandbox) or your password (Production)" required />

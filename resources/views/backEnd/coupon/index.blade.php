@@ -80,8 +80,7 @@
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
             <h4 class="mb-1 fw-bold text-dark">
-                <i data-feather="tag" class="text-primary me-2"></i> Manage Coupons
-            </h4>
+                <i data-feather="tag" class="text-primary me-2"></i>{{ __('Manage Coupons') }}</h4>
             <p class="text-muted small mb-0">Create and manage discount codes for customers.</p>
         </div>
         <a href="{{ route('admin.coupons.create') }}" class="btn btn-primary px-4 py-2 rounded-pill shadow-sm">
@@ -95,12 +94,12 @@
                 <thead>
                     <tr>
                         <th width="5%">#</th>
-                        <th width="20%">Coupon Code</th>
+                        <th width="20%">{{ __('Coupon Code') }}</th>
                         <th width="15%">Discount Type</th>
                         <th width="10%">Value</th>
                         <th width="15%">Min Purchase</th>
                         <th width="20%">Validity Period</th>
-                        <th width="10%">Status</th>
+                        <th width="10%">{{ __('Status') }}</th>
                         <th width="10%" class="text-end">Actions</th>
                     </tr>
                 </thead>
@@ -166,16 +165,16 @@
                                 @if($isExpired)
                                     <span class="badge-soft badge-expired">Expired</span>
                                 @elseif($coupon->status)
-                                    <span class="badge-soft badge-active">Active</span>
+                                    <span class="badge-soft badge-active">{{ __('Active') }}</span>
                                 @else
-                                    <span class="badge-soft badge-inactive">Inactive</span>
+                                    <span class="badge-soft badge-inactive">{{ __('Inactive') }}</span>
                                 @endif
                             </td>
 
                             {{-- Actions --}}
                             <td class="text-end">
                                 <div class="d-flex justify-content-end gap-1">
-                                    <a href="{{ route('admin.coupons.edit', $coupon->id) }}" class="btn-icon btn-edit" title="Edit">
+                                    <a href="{{ route('admin.coupons.edit', $coupon->id) }}" class="btn-icon btn-edit" title="{{ __('Edit') }}">
                                         <i data-feather="edit-2" style="width:14px;"></i>
                                     </a>
                                     
@@ -183,7 +182,7 @@
                                           onsubmit="return confirm('Are you sure you want to delete this coupon?');">
                                         @csrf
                                         @method('DELETE')
-                                        <button type="submit" class="btn-icon btn-delete" title="Delete">
+                                        <button type="submit" class="btn-icon btn-delete" title="{{ __('Delete') }}">
                                             <i data-feather="trash-2" style="width:14px;"></i>
                                         </button>
                                     </form>

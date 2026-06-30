@@ -306,7 +306,7 @@ $totalOrderAmount = \App\Models\Order::where('customer_id', $customerId)->sum('a
                                                     @if($paid_amount >= $grand_total)
                                                         <span class="bg-green-100 text-green-700 px-2 py-0.5 rounded text-xs font-semibold">Paid</span>
                                                     @elseif($is_failed)
-                                                        <span class="bg-red-100 text-red-700 px-2 py-0.5 rounded text-xs font-semibold">Failed</span>
+                                                        <span class="bg-red-100 text-red-700 px-2 py-0.5 rounded text-xs font-semibold">{{ __('Failed') }}</span>
                                                     @elseif($paid_amount > 0)
                                                         <span class="bg-blue-100 text-blue-700 px-2 py-0.5 rounded text-xs font-semibold">Partial</span>
                                                     @else
@@ -333,13 +333,13 @@ $totalOrderAmount = \App\Models\Order::where('customer_id', $customerId)->sum('a
                                                 @if($hasDigitalProduct && $show_download)
                                                     @foreach($digitalDownloads as $dl)
                                                         <a href="{{ route('digital.download', $dl->token) }}" 
-                                                           class="bg-green-500 hover:bg-green-600 text-white text-xs px-3 py-2 rounded-lg transition" target="_blank" title="Download">
+                                                           class="bg-green-500 hover:bg-green-600 text-white text-xs px-3 py-2 rounded-lg transition" target="_blank" title="{{ __('Download') }}">
                                                             <i class="fas fa-download"></i>
                                                         </a>
                                                     @endforeach
                                                 @endif
                                                 @if($canRefund)
-                                                    <a href="{{ route('customer.refunds.create', $value->id) }}" class="bg-yellow-500 hover:bg-yellow-600 text-white text-xs px-3 py-2 rounded-lg transition" title="Request Refund">
+                                                    <a href="{{ route('customer.refunds.create', $value->id) }}" class="bg-yellow-500 hover:bg-yellow-600 text-white text-xs px-3 py-2 rounded-lg transition" title="{{ __('Request Refund') }}">
                                                         <i class="fas fa-undo"></i>
                                                     </a>
                                                 @elseif($existingRefund)

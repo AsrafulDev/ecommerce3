@@ -53,9 +53,9 @@
             <div class="row">
                 <div class="col-sm-12">
                     <div class="category-breadcrumb d-flex align-items-center">
-                        <a href="{{ route('home') }}">Home</a>
+                        <a href="{{ route('home') }}">{{ __('Home') }}</a>
                         <span>/</span>
-                        <a href="{{ route('blogs') }}">Blog</a>
+                        <a href="{{ route('blogs') }}">{{ __('Blog') }}</a>
                         <span>/</span>
                         <strong>{{ Str::limit($blog->title, 40) }}</strong>
                     </div>
@@ -98,9 +98,7 @@
             <div class="col-md-4">
 
                 <div class="card">
-                    <div class="card-header">
-                        Latest Blogs
-                    </div>
+                    <div class="card-header">{{ __('Latest Blogs') }}</div>
 
                     <ul class="list-group list-group-flush">
 

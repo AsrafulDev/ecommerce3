@@ -126,7 +126,7 @@
                         </div>
 
                         <div class="mb-4">
-                            <label class="form-label-modern">Address</label>
+                            <label class="form-label-modern">{{ __('Address') }}</label>
                             <textarea name="address" class="form-control form-control-modern" rows="3" 
                                       placeholder="Full address here...">{{ old('address', $supplier->address ?? '') }}</textarea>
                         </div>
@@ -160,7 +160,7 @@
                                     <th width="5%">#</th>
                                     <th width="25%">Supplier Info</th>
                                     <th width="20%">Contact</th>
-                                    <th width="20%">Address</th>
+                                    <th width="20%">{{ __('Address') }}</th>
                                     <th width="15%">Due Amount</th>
                                     <th width="15%" class="text-end">Actions</th>
                                 </tr>
@@ -193,7 +193,7 @@
                                             @endif
                                         </td>
                                         <td class="text-end">
-                                            <a href="{{ route('admin.suppliers.edit', $s->id) }}" class="btn-icon btn-edit me-1" title="Edit">
+                                            <a href="{{ route('admin.suppliers.edit', $s->id) }}" class="btn-icon btn-edit me-1" title="{{ __('Edit') }}">
                                                 <i data-feather="edit-2" style="width:16px;"></i>
                                             </a>
                                             
@@ -201,7 +201,7 @@
                                                   onsubmit="return confirm('Are you sure? This will delete all history related to this supplier.');">
                                                 @csrf
                                                 @method('DELETE')
-                                                <button type="submit" class="btn-icon btn-delete" title="Delete">
+                                                <button type="submit" class="btn-icon btn-delete" title="{{ __('Delete') }}">
                                                     <i data-feather="trash-2" style="width:16px;"></i>
                                                 </button>
                                             </form>

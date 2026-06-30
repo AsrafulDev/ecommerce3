@@ -78,9 +78,7 @@
             <span class="text-muted small">Update your website information and legal content</span>
         </div>
         <div class="d-flex gap-2">
-            <a href="{{route('pages.index')}}" class="btn btn-light border fw-bold text-secondary px-3">
-                Cancel
-            </a>
+            <a href="{{route('pages.index')}}" class="btn btn-light border fw-bold text-secondary px-3">{{ __('Cancel') }}</a>
             <button type="submit" form="pageEditForm" class="btn btn-primary fw-bold px-4 shadow-sm">
                 <i class="fe-save me-1"></i> Update Changes
             </button>

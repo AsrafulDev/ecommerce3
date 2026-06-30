@@ -190,9 +190,7 @@
                             </button>
 
                             <a href="{{ route('admin.expenses.index') }}"
-                               class="btn btn-outline-secondary">
-                                Cancel
-                            </a>
+                               class="btn btn-outline-secondary">{{ __('Cancel') }}</a>
                         </div>
 
                     </form>
@@ -221,8 +219,8 @@
                             <thead class="table-light">
                             <tr>
                                 <th style="width:60px;">#</th>
-                                <th style="width:130px;">Date</th>
-                                <th>Title</th>
+                                <th style="width:130px;">{{ __('Date') }}</th>
+                                <th>{{ __('Title') }}</th>
                                 <th class="text-end" style="width:120px;">Amount (৳)</th>
                             </tr>
                             </thead>

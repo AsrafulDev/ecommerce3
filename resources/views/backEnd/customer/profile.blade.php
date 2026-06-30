@@ -131,11 +131,11 @@
                             <span class="info-value">{{$profile->phone}}</span>
                         </div>
                         <div class="info-list-item">
-                            <span class="info-label">Email</span>
+                            <span class="info-label">{{ __('Email') }}</span>
                             <span class="info-value">{{$profile->email}}</span>
                         </div>
                         <div class="info-list-item">
-                            <span class="info-label">Address</span>
+                            <span class="info-label">{{ __('Address') }}</span>
                             <span class="info-value">{{$profile->address}}</span>
                         </div>
                         <div class="info-list-item">
@@ -158,8 +158,7 @@
                     <ul class="nav nav-tabs nav-bordered mb-3">
                         <li class="nav-item">
                             <a href="#orders" data-bs-toggle="tab" aria-expanded="true" class="nav-link active">
-                                <i class="fe-shopping-bag me-1"></i> Order History
-                            </a>
+                                <i class="fe-shopping-bag me-1"></i>{{ __('Order History') }}</a>
                         </li>
                         {{-- You can add more tabs here like 'Transactions', 'Reviews' etc --}}
                     </ul>
@@ -170,12 +169,12 @@
                                 <table id="datatable-buttons" class="table table-hover dt-responsive nowrap w-100">
                                     <thead>
                                         <tr>
-                                            <th>SL</th>
+                                            <th>{{ __('SL') }}</th>
                                             <th>Invoice ID</th>
                                             <th>Date & Time</th>
                                             <th>Shipping Method</th>
-                                            <th>Amount</th>
-                                            <th>Status</th>
+                                            <th>{{ __('Amount') }}</th>
+                                            <th>{{ __('Status') }}</th>
                                         </tr>
                                     </thead>
                                     <tbody>

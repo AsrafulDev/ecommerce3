@@ -100,7 +100,7 @@
     
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
-            <h4 class="fw-bold m-0 text-dark">General Settings</h4>
+            <h4 class="fw-bold m-0 text-dark">{{ __('General Settings') }}</h4>
             <span class="text-muted small">Update site identity, appearance and business rules</span>
         </div>
     </div>
@@ -123,6 +123,22 @@
                         <div class="col-md-6 mb-3">
                             <label class="form-label-pro">FB Page Username</label>
                             <input type="text" name="facebook_page_username" class="form-control custom-input" value="{{ $edit_data->facebook_page_username }}" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label-pro">{{ __('Default Language') }}</label>
+                            <select name="default_language" class="form-control custom-input">
+                                <option value="en" {{ ($edit_data->default_language ?? 'en') == 'en' ? 'selected' : '' }}>English</option>
+                                <option value="bn" {{ ($edit_data->default_language ?? 'en') == 'bn' ? 'selected' : '' }}>বাংলা (Bangla)</option>
+                            </select>
+                            <small class="text-muted">Frontend & customer-facing language</small>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label-pro">{{ __('Admin Language') }}</label>
+                            <select name="admin_language" class="form-control custom-input">
+                                <option value="en" {{ ($edit_data->admin_language ?? 'en') == 'en' ? 'selected' : '' }}>English</option>
+                                <option value="bn" {{ ($edit_data->admin_language ?? 'en') == 'bn' ? 'selected' : '' }}>বাংলা (Bangla)</option>
+                            </select>
+                            <small class="text-muted">Admin panel language</small>
                         </div>
                         <div class="col-12 mb-3">
                             <label class="form-label-pro">Top Headline / Scrolling News</label>

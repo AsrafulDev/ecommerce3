@@ -341,7 +341,7 @@
                             <div class="row justify-content-end">
                                 <div class="col-md-5">
                                     <div class="summary-row">
-                                        <span>Subtotal</span>
+                                        <span>{{ __('Subtotal') }}</span>
                                         <span>{{ number_format($subtotal, 0) }} ৳</span>
                                     </div>
                                     <div class="summary-row">
@@ -350,7 +350,7 @@
                                     </div>
                                     @if($value->discount > 0)
                                     <div class="summary-row text-danger">
-                                        <span>Discount</span>
+                                        <span>{{ __('Discount') }}</span>
                                         <span>(-) {{ number_format($value->discount, 0) }} ৳</span>
                                     </div>
                                     @endif

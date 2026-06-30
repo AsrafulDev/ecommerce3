@@ -121,7 +121,7 @@
             <div class="breadcrumbs-area clearfix">
                 <h4 class="page-title pull-left">Cron Job ম্যানেজমেন্ট</h4>
                 <ul class="breadcrumbs pull-left">
-                    <li><a href="{{ route('admin.dashboard') }}">Dashboard</a></li>
+                    <li><a href="{{ route('admin.dashboard') }}">{{ __('Dashboard') }}</a></li>
                     <li><span>Cron Jobs</span></li>
                 </ul>
             </div>

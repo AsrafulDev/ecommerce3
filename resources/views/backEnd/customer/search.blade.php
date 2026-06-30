@@ -6,7 +6,7 @@
                     <thead class="table-light">
                         <tr>
                             <th class="border-top-0">Customer Name</th>
-                            <th class="border-top-0 text-end">Action</th>
+                            <th class="border-top-0 text-end">{{ __('Action') }}</th>
                         </tr>
                     </thead>
                     <tbody>

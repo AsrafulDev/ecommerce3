@@ -251,7 +251,7 @@
                 {{-- Active overlay --}}
                 @if($isActive)
                 <div class="position-absolute top-0 end-0 m-2">
-                    <span class="badge-default"><i class="fe-check me-1"></i> Active</span>
+                    <span class="badge-default"><i class="fe-check me-1"></i>{{ __('Active') }}</span>
                 </div>
                 @endif
             </div>
@@ -273,7 +273,7 @@
                         <h5 class="theme-name">{{ $theme->name }}</h5>
                         <div class="theme-meta">
                             @if(!$theme->is_active)
-                                <span class="badge badge-inactive">Inactive</span>
+                                <span class="badge badge-inactive">{{ __('Inactive') }}</span>
                             @endif
                             <span>{{ $theme->layout_style ?? 'contained' }}</span>
                             <span class="mx-1">·</span>
@@ -286,16 +286,14 @@
                 <div class="theme-actions">
                     @if(!$isActive)
                     <a href="{{ route('themes.apply', $theme->id) }}" class="btn-sm-custom btn-apply" onclick="return confirm('Apply &quot;{{ $theme->name }}&quot; theme?')">
-                        <i class="fe-check me-1"></i> Apply
-                    </a>
+                        <i class="fe-check me-1"></i>{{ __('Apply') }}</a>
                     @else
                     <button class="btn-sm-custom btn-apply applied" disabled>
                         <i class="fe-check me-1"></i> Applied
                     </button>
                     @endif
                     <a href="{{ route('themes.edit', $theme->id) }}" class="btn-sm-custom" style="background:#f1f5f9;color:#475569;">
-                        <i class="fe-edit-2 me-1"></i> Edit
-                    </a>
+                        <i class="fe-edit-2 me-1"></i>{{ __('Edit') }}</a>
                     <a href="{{ route('themes.duplicate', $theme->id) }}" class="btn-sm-custom" style="background:#f1f5f9;color:#475569;">
                         <i class="fe-copy me-1"></i>
                     </a>

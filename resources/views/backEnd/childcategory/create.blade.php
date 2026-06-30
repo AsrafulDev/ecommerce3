@@ -176,7 +176,7 @@
                     </div>
                     <div class="card-body">
                         <div class="form-group mb-4">
-                            <label for="meta_title" class="form-label">Meta Title</label>
+                            <label for="meta_title" class="form-label">{{ __('Meta Title') }}</label>
                             <input type="text" class="form-control @error('meta_title') is-invalid @enderror" 
                                    name="meta_title" value="{{ old('meta_title') }}" placeholder="SEO Title">
                             @error('meta_title')
@@ -185,7 +185,7 @@
                         </div>
 
                         <div class="form-group mb-0">
-                            <label for="meta_description" class="form-label">Meta Description</label>
+                            <label for="meta_description" class="form-label">{{ __('Meta Description') }}</label>
                             <textarea class="summernote form-control @error('meta_description') is-invalid @enderror" 
                                       name="meta_description">{{ old('meta_description') }}</textarea>
                             @error('meta_description')
@@ -206,7 +206,7 @@
                     <div class="card-body">
                         <div class="d-flex justify-content-between align-items-center mb-4 p-3 bg-light rounded border border-light">
                             <div>
-                                <h6 class="mb-1 text-dark fw-bold">Status</h6>
+                                <h6 class="mb-1 text-dark fw-bold">{{ __('Status') }}</h6>
                                 <p class="text-muted font-size-12 mb-0">Enable or disable category</p>
                             </div>
                             <label class="switch">

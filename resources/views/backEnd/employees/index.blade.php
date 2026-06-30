@@ -142,14 +142,14 @@
                     <div class="col-md-2">
                         <select name="status" class="form-select form-select-clean">
                             <option value="">All Status</option>
-                            <option value="active" {{ request('status') == 'active' ? 'selected' : '' }}>Active</option>
-                            <option value="inactive" {{ request('status') == 'inactive' ? 'selected' : '' }}>Inactive</option>
+                            <option value="active" {{ request('status') == 'active' ? 'selected' : '' }}>{{ __('Active') }}</option>
+                            <option value="inactive" {{ request('status') == 'inactive' ? 'selected' : '' }}>{{ __('Inactive') }}</option>
                             <option value="terminated" {{ request('status') == 'terminated' ? 'selected' : '' }}>Terminated</option>
                         </select>
                     </div>
                     <div class="col-md-4 d-flex gap-2">
-                        <button type="submit" class="btn btn-dark px-4 flex-grow-1">Filter</button>
-                        <a href="{{ route('admin.employees.index') }}" class="btn btn-light border px-3" title="Reset">
+                        <button type="submit" class="btn btn-dark px-4 flex-grow-1">{{ __('Filter') }}</button>
+                        <a href="{{ route('admin.employees.index') }}" class="btn btn-light border px-3" title="{{ __('Reset') }}">
                             <i data-feather="refresh-cw" style="width:16px;"></i>
                         </a>
                     </div>
@@ -165,8 +165,8 @@
                         <th width="30%">Employee Details</th>
                         <th width="20%">Role & Dept</th>
                         <th width="15%">Contact</th>
-                        <th width="15%">Salary</th>
-                        <th width="10%">Status</th>
+                        <th width="15%">{{ __('Salary') }}</th>
+                        <th width="10%">{{ __('Status') }}</th>
                         <th width="10%" class="text-end">Actions</th>
                     </tr>
                 </thead>
@@ -213,9 +213,9 @@
                             {{-- Status --}}
                             <td>
                                 @if($employee->status == 'active')
-                                    <span class="status-badge status-active"><span class="status-dot"></span> Active</span>
+                                    <span class="status-badge status-active"><span class="status-dot"></span>{{ __('Active') }}</span>
                                 @elseif($employee->status == 'inactive')
-                                    <span class="status-badge status-inactive"><span class="status-dot"></span> Inactive</span>
+                                    <span class="status-badge status-inactive"><span class="status-dot"></span>{{ __('Inactive') }}</span>
                                 @else
                                     <span class="status-badge status-terminated"><span class="status-dot"></span> Terminated</span>
                                 @endif
@@ -233,7 +233,7 @@
                                     <form action="{{ route('admin.employees.destroy', $employee->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Are you sure you want to delete this employee?');">
                                         @csrf
                                         @method('DELETE')
-                                        <button type="submit" class="btn-icon btn-delete" title="Delete">
+                                        <button type="submit" class="btn-icon btn-delete" title="{{ __('Delete') }}">
                                             <i data-feather="trash-2" style="width: 16px;"></i>
                                         </button>
                                     </form>
@@ -255,8 +255,7 @@
 
         {{-- PAGINATION --}}
         <div class="p-4 border-top d-flex justify-content-between align-items-center">
-            <small class="text-muted">
-                Showing <strong>{{ $employees->firstItem() }}</strong> to <strong>{{ $employees->lastItem() }}</strong> of <strong>{{ $employees->total() }}</strong> results
+            <small class="text-muted">{{ __('Showing') }}<strong>{{ $employees->firstItem() }}</strong>{{ __('to') }}<strong>{{ $employees->lastItem() }}</strong>{{ __('of') }}<strong>{{ $employees->total() }}</strong> results
             </small>
             <div>
                 {{ $employees->links('pagination::bootstrap-4') }}

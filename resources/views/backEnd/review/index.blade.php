@@ -114,12 +114,12 @@
                     <table id="datatable-buttons" class="table table-hover w-100 dt-responsive nowrap">
                         <thead>
                             <tr>
-                                <th style="width: 50px;">SL</th>
+                                <th style="width: 50px;">{{ __('SL') }}</th>
                                 <th>Customer Info</th>
                                 <th style="width: 30%;">Review</th>
                                 <th>Rating</th>
-                                <th>Status</th>
-                                <th class="text-end" style="width: 120px;">Action</th>
+                                <th>{{ __('Status') }}</th>
+                                <th class="text-end" style="width: 120px;">{{ __('Action') }}</th>
                             </tr>
                         </thead>                
                         <tbody>
@@ -156,9 +156,9 @@
 
                                 <td>
                                     @if($value->status == 'active')
-                                        <span class="badge badge-pill badge-soft-success">Published</span> 
+                                        <span class="badge badge-pill badge-soft-success">{{ __('Published') }}</span> 
                                     @else 
-                                        <span class="badge badge-pill badge-soft-danger">Pending</span> 
+                                        <span class="badge badge-pill badge-soft-danger">{{ __('Pending') }}</span> 
                                     @endif
                                 </td>
 
@@ -184,7 +184,7 @@
                                         @endif
 
                                         {{-- Edit --}}
-                                        <a href="{{route('reviews.edit',$value->id)}}" class="action-btn btn-edit" title="Edit">
+                                        <a href="{{route('reviews.edit',$value->id)}}" class="action-btn btn-edit" title="{{ __('Edit') }}">
                                             <i class="fe-edit"></i>
                                         </a>
 
@@ -192,7 +192,7 @@
                                         <form method="post" action="{{ route('reviews.destroy') }}" class="d-inline">
                                             @csrf
                                             <input type="hidden" name="hidden_id" value="{{ $value->id }}">
-                                            <button type="submit" class="action-btn btn-delete delete-confirm" title="Delete">
+                                            <button type="submit" class="action-btn btn-delete delete-confirm" title="{{ __('Delete') }}">
                                                 <i class="fe-trash-2"></i>
                                             </button>
                                         </form>

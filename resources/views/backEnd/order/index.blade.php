@@ -21,9 +21,9 @@
                         <div class="col-sm-8">
                             <ul class="action2-btn list-unstyled d-flex gap-2 p-0 m-0">
                                 <li><a data-bs-toggle="modal" data-bs-target="#asignUser" class="btn rounded-pill btn-success"><i class="fe-plus"></i> Assign</a></li>
-                                <li><a data-bs-toggle="modal" data-bs-target="#changeStatus" class="btn rounded-pill btn-primary"><i class="fe-plus"></i> Status</a></li>
-                                <li><a href="{{ route('admin.order.bulk_destroy') }}" class="btn rounded-pill btn-danger order_delete"><i class="fe-plus"></i> Delete</a></li>
-                                <li><a href="{{ route('admin.order.order_print') }}" class="btn rounded-pill btn-info multi_order_print"><i class="fe-printer"></i> Print</a></li>
+                                <li><a data-bs-toggle="modal" data-bs-target="#changeStatus" class="btn rounded-pill btn-primary"><i class="fe-plus"></i>{{ __('Status') }}</a></li>
+                                <li><a href="{{ route('admin.order.bulk_destroy') }}" class="btn rounded-pill btn-danger order_delete"><i class="fe-plus"></i>{{ __('Delete') }}</a></li>
+                                <li><a href="{{ route('admin.order.order_print') }}" class="btn rounded-pill btn-info multi_order_print"><i class="fe-printer"></i>{{ __('Print') }}</a></li>
                                 <li><a href="{{ route('admin.order.order_print') }}" class="btn rounded-pill btn-secondary multi_label_print"><i class="fe-tag"></i> Label</a></li>
                                 @if($steadfast)
                                     <li><a href="{{ route('admin.bulk_courier', 'steadfast') }}?status=5" class="btn rounded-pill btn-info multi_order_courier"><i class="fe-truck"></i> Steadfast</a></li>
@@ -39,8 +39,8 @@
                         <div class="col-sm-4">
                             <form class="custom_form" method="GET">
                                 <div class="form-group d-flex">
-                                    <input type="text" name="keyword" placeholder="Search" class="form-control me-2" value="{{ request('keyword') }}">
-                                    <button class="btn rounded-pill btn-info">Search</button>
+                                    <input type="text" name="keyword" placeholder="{{ __('Search') }}" class="form-control me-2" value="{{ request('keyword') }}">
+                                    <button class="btn rounded-pill btn-info">{{ __('Search') }}</button>
                                 </div>
                             </form>
                         </div>
@@ -57,17 +57,17 @@
                                             </label>
                                         </div>
                                     </th>
-                                    <th style="width:2%;">SL</th>
-                                    <th style="width:8%;">Action</th>
-                                    <th style="width:8%;">Invoice</th>
-                                    <th style="width:10%;">Date</th>
-                                    <th style="width:10%;">Name</th>
-                                    <th style="width:8%;">Type</th>
+                                    <th style="width:2%;">{{ __('SL') }}</th>
+                                    <th style="width:8%;">{{ __('Action') }}</th>
+                                    <th style="width:8%;">{{ __('Invoice') }}</th>
+                                    <th style="width:10%;">{{ __('Date') }}</th>
+                                    <th style="width:10%;">{{ __('Name') }}</th>
+                                    <th style="width:8%;">{{ __('Type') }}</th>
                                     <th style="width:8%;">IP</th>
                                     <th style="width:10%;">Order Note</th>
                                     <th style="width:10%;">Admin Note</th>
-                                    <th style="width:10%;">Amount</th>
-                                    <th style="width:10%;">Status</th>
+                                    <th style="width:10%;">{{ __('Amount') }}</th>
+                                    <th style="width:10%;">{{ __('Status') }}</th>
                                     <th style="width:12%;">Courier</th>
                                     <th>Track</th>
                                     <th>Fraud Check</th>
@@ -80,13 +80,13 @@
                                         <td>{{ $loop->iteration }}</td>
                                         <td>
                                             <div class="button-list custom-btn-list">
-                                                <a href="{{ route('admin.order.invoice', ['invoice_id' => $value->invoice_id]) }}" title="Invoice"><i class="fe-eye"></i></a>
+                                                <a href="{{ route('admin.order.invoice', ['invoice_id' => $value->invoice_id]) }}" title="{{ __('Invoice') }}"><i class="fe-eye"></i></a>
                                                 <a href="{{ route('admin.order.process', ['invoice_id' => $value->invoice_id]) }}" title="Process"><i class="fe-settings"></i></a>
-                                                <a href="{{ route('admin.order.edit', ['invoice_id' => $value->invoice_id]) }}" title="Edit"><i class="fe-edit"></i></a>
+                                                <a href="{{ route('admin.order.edit', ['invoice_id' => $value->invoice_id]) }}" title="{{ __('Edit') }}"><i class="fe-edit"></i></a>
                                                 <form method="post" action="{{ route('admin.order.destroy') }}" class="d-inline">
                                                     @csrf
                                                     <input type="hidden" value="{{ $value->id }}" name="id">
-                                                    <button type="submit" title="Delete" class="delete-confirm btn btn-link p-0" style="color:inherit;"><i class="fe-trash-2"></i></button>
+                                                    <button type="submit" title="{{ __('Delete') }}" class="delete-confirm btn btn-link p-0" style="color:inherit;"><i class="fe-trash-2"></i></button>
                                                 </form>
                                             </div>
                                         </td>
@@ -311,7 +311,7 @@
     <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title">Assign User</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{{ __('Close') }}"></button>
       </div>
       <form action="{{ route('admin.order.assign') }}" id="order_assign">
         <div class="modal-body">
@@ -325,8 +325,8 @@
             </div>
         </div>
         <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-            <button type="submit" class="btn btn-success">Submit</button>
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ __('Close') }}</button>
+            <button type="submit" class="btn btn-success">{{ __('Submit') }}</button>
         </div>
       </form>
     </div>
@@ -338,12 +338,12 @@
     <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title">Change Status</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{{ __('Close') }}"></button>
       </div>
       <form action="{{ route('admin.order.status') }}" id="order_status_form" novalidate>
         <div class="modal-body">
             <div class="form-group">
-                <label class="form-label">Select Status <span class="text-danger">*</span></label>
+                <label class="form-label">{{ __('Select Status') }}<span class="text-danger">*</span></label>
                 <select name="order_status" id="order_status" class="form-control">
                     <option value="">Select Status..</option>
                     @if(isset($orderstatus) && $orderstatus->count() > 0)
@@ -359,7 +359,7 @@
             </div>
         </div>
         <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ __('Close') }}</button>
             <button type="submit" class="btn btn-success">Update Status</button>
         </div>
       </form>
@@ -372,7 +372,7 @@
     <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title">Pathao Courier</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{{ __('Close') }}"></button>
       </div>
       <form action="{{ route('admin.order.pathao') }}" id="order_sendto_pathao" method="POST">
       @csrf
@@ -391,7 +391,7 @@
         </div>
 
         <div class="form-group mt-3">
-          <label for="pathaocity" class="form-label">City</label>
+          <label for="pathaocity" class="form-label">{{ __('City') }}</label>
            <select name="pathaocity" id="pathaocity" class="chosen-select pathaocity form-control" style="width:100%" >
              <option value="">Select City...</option>
              @if(isset($pathaocities['data']['data']))
@@ -413,8 +413,8 @@
         </div>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-        <button type="submit" class="btn btn-success">Submit</button>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ __('Close') }}</button>
+        <button type="submit" class="btn btn-success">{{ __('Submit') }}</button>
       </div>
       </form>
     </div>
@@ -425,8 +425,8 @@
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title" id="noteModalLabel">Note</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        <h5 class="modal-title" id="noteModalLabel">{{ __('Note') }}</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{{ __('Close') }}"></button>
       </div>
 
       <div class="modal-body">
@@ -434,14 +434,14 @@
         <input type="hidden" id="note_type">
 
         <div class="form-group">
-            <label id="note_label">Note</label>
+            <label id="note_label">{{ __('Note') }}</label>
             <textarea id="note_modal_text" class="form-control" rows="5" placeholder="Write note here..."></textarea>
         </div>
       </div>
 
       <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-        <button type="button" class="btn btn-success" id="saveNoteBtn">Save</button>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ __('Close') }}</button>
+        <button type="button" class="btn btn-success" id="saveNoteBtn">{{ __('Save') }}</button>
       </div>
     </div>
   </div>
@@ -530,7 +530,7 @@
                     <span class="badge bg-secondary float-end">কোন তথ্য নেই</span>
                 </div>
                 <div class="alert alert-light text-center py-3" style="border:1px solid #ddd;">
-                    <h5 class="text-muted mb-0">😕 কোনো তথ্য খুঁজে পাওয়া যায়নি</h5>
+                    <h5 class="text-muted mb-0">😕 No data found</h5>
                     <small>এই কাস্টমারের সম্পর্কে কোনো তথ্য পাওয়া যায়নি। অতিরিক্ত সতর্কতার জন্য নিজের যাচাই করুন।</small>
                 </div>
             </div>`;
@@ -712,7 +712,7 @@ $(document).ready(function(){
                 $("#fraudModalBody").html(`
                     <div class="text-center p-5">
                         <div class="spinner-border text-primary" role="status">
-                            <span class="visually-hidden">Loading...</span>
+                            <span class="visually-hidden">{{ __('Loading...') }}</span>
                         </div>
                         <p class="mt-3">ফ্রড চেক করা হচ্ছে... অনুগ্রহ করে অপেক্ষা করুন।</p>
                     </div>

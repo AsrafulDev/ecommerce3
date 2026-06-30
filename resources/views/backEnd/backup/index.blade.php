@@ -24,7 +24,7 @@
 <div class="container-fluid">
     <div class="row mb-4">
         <div class="col-sm-12">
-            <h4 class="page-title"><i class="mdi mdi-backup-restore text-primary"></i> Backup & Restore</h4>
+            <h4 class="page-title"><i class="mdi mdi-backup-restore text-primary"></i>{{ __('Backup & Restore') }}</h4>
         </div>
     </div>
 
@@ -157,8 +157,7 @@
                                 <strong class="d-block small mt-1">{{ $meta['name'] }}</strong>
                                 <div class="d-grid gap-1 mt-2">
                                     <a href="{{ route('preset.download', $slug) }}" class="btn btn-sm btn-outline-primary w-100" title="Download preset ZIP">
-                                        <i class="mdi mdi-download"></i> Download
-                                    </a>
+                                        <i class="mdi mdi-download"></i>{{ __('Download') }}</a>
                                     <a href="{{ route('preset.restore-theme', $slug) }}" class="btn btn-sm btn-outline-warning w-100" title="Apply colors & logos">
                                         <i class="mdi mdi-palette"></i> Theme
                                     </a>
@@ -187,8 +186,8 @@
                             <thead>
                                 <tr>
                                     <th>Filename</th>
-                                    <th>Size</th>
-                                    <th>Date</th>
+                                    <th>{{ __('Size') }}</th>
+                                    <th>{{ __('Date') }}</th>
                                     <th class="text-end">Actions</th>
                                 </tr>
                             </thead>

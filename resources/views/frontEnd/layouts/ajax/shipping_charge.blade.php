@@ -15,19 +15,19 @@
                 <td>{{Cart::instance('shopping')->count()}} (qty)</td>
             </tr>
             <tr>
-                <td>Total</td>
+                <td>{{ __('Total') }}</td>
                 <td>৳{{$subtotal}}</td>
             </tr>
             <tr>
-                <td>Shipping</td>
+                <td>{{ __('Shipping') }}</td>
                 <td>৳{{$shipping}}</td>
             </tr>
             <tr>
-                <td>Discount</td>
+                <td>{{ __('Discount') }}</td>
                 <td>৳{{$discount}}</td>
             </tr>
             <tr>
-                <td>Total</td>
+                <td>{{ __('Total') }}</td>
                 <td>৳{{($subtotal+$shipping) - $discount}}</td>
             </tr>
         </tbody>

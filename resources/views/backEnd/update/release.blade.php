@@ -163,7 +163,7 @@
                             </div>
 
                             <div class="mb-3">
-                                <label class="form-label-modern">Changelog</label>
+                                <label class="form-label-modern">{{ __('Changelog') }}</label>
                                 <textarea name="changelog" 
                                           class="form-control form-control-modern @error('changelog') is-invalid @enderror" 
                                           rows="4" 
@@ -217,11 +217,11 @@
                             <table class="table table-modern mb-0">
                                 <thead>
                                     <tr>
-                                        <th width="15%">Version</th>
+                                        <th width="15%">{{ __('Version') }}</th>
                                         <th width="15%">Release Date</th>
-                                        <th width="30%">Changelog</th>
+                                        <th width="30%">{{ __('Changelog') }}</th>
                                         <th width="10%">File Size</th>
-                                        <th width="10%">Status</th>
+                                        <th width="10%">{{ __('Status') }}</th>
                                         <th width="20%" class="text-end">Actions</th>
                                     </tr>
                                 </thead>
@@ -249,9 +249,9 @@
                                             </td>
                                             <td>
                                                 @if($version->is_active)
-                                                    <span class="badge-status badge-active">Active</span>
+                                                    <span class="badge-status badge-active">{{ __('Active') }}</span>
                                                 @else
-                                                    <span class="badge-status badge-inactive">Inactive</span>
+                                                    <span class="badge-status badge-inactive">{{ __('Inactive') }}</span>
                                                 @endif
                                             </td>
                                             <td class="text-end">
@@ -266,7 +266,7 @@
                                                       onsubmit="return confirm('Are you sure you want to delete version {{ $version->version }}? This will also delete the update file.');">
                                                     @csrf
                                                     @method('DELETE')
-                                                    <button type="submit" class="btn-icon btn-delete" title="Delete">
+                                                    <button type="submit" class="btn-icon btn-delete" title="{{ __('Delete') }}">
                                                         <i class="fas fa-trash"></i>
                                                     </button>
                                                 </form>

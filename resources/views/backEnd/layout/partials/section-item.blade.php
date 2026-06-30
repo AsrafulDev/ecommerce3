@@ -16,13 +16,13 @@
         <button type="button" class="btn-ghost toggle-visibility" title="Toggle visibility">
             <i class="fe-{{ $ls->is_visible ? 'eye' : 'eye-off' }}"></i>
         </button>
-        <button type="button" class="btn-ghost toggle-settings" title="Settings">
+        <button type="button" class="btn-ghost toggle-settings" title="{{ __('Settings') }}">
             <i class="fe-settings"></i>
         </button>
         <button type="button" class="btn-ghost capture-section-btn" title="Capture screenshot" style="color:#8b5cf6;">
             <i class="mdi mdi-camera"></i>
         </button>
-        <button type="button" class="btn-ghost remove-section" title="Remove" style="color:#ef4444;">
+        <button type="button" class="btn-ghost remove-section" title="{{ __('Remove') }}" style="color:#ef4444;">
             <i class="fe-trash-2"></i>
         </button>
     </div>

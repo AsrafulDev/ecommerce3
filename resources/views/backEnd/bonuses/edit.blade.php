@@ -58,8 +58,7 @@
                             <p class="text-muted small mb-0">Modify existing bonus details.</p>
                         </div>
                         <a href="{{ route('admin.bonuses.index') }}" class="btn btn-light btn-sm rounded-pill px-3">
-                            <i data-feather="x" style="width:14px;"></i> Close
-                        </a>
+                            <i data-feather="x" style="width:14px;"></i>{{ __('Close') }}</a>
                     </div>
 
                     <div class="card-body p-4">
@@ -80,7 +79,7 @@
                                 @error('bonus_type') <span class="text-danger small">{{ $message }}</span> @enderror
                             </div>
                             <div class="col-md-6">
-                                <label class="form-label-custom">Amount <span class="text-danger">*</span></label>
+                                <label class="form-label-custom">{{ __('Amount') }}<span class="text-danger">*</span></label>
                                 <div class="input-group">
                                     <span class="input-group-text input-group-text-custom">৳</span>
                                     <input type="number" step="0.01" name="amount" class="form-control form-control-custom border-start-0 ps-2 @error('amount') is-invalid @enderror" 
@@ -117,7 +116,7 @@
                             <button type="submit" class="btn btn-primary py-2 fw-bold shadow-sm">
                                 <i data-feather="save" class="me-1" style="width: 16px;"></i> Update Changes
                             </button>
-                            <a href="{{ route('admin.bonuses.index') }}" class="btn btn-light py-2">Cancel</a>
+                            <a href="{{ route('admin.bonuses.index') }}" class="btn btn-light py-2">{{ __('Cancel') }}</a>
                         </div>
 
                     </div>

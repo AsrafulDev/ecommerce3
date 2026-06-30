@@ -115,7 +115,7 @@
                     <!-- col end -->
                     <div class="col-sm-6 mb-3">
                         <div class="form-group">
-                            <label for="status" class="d-block">Status</label>
+                            <label for="status" class="d-block">{{ __('Status') }}</label>
                             <label class="switch">
                               <input type="checkbox" value="1" name="status" checked>
                               <span class="slider round"></span>

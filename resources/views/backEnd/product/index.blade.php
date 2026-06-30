@@ -101,15 +101,15 @@
                                             <input type="checkbox" class="form-check-input checkall" id="parentCheck">
                                         </div>
                                     </th>
-                                    <th>SL</th>
-                                    <th>Image</th>
+                                    <th>{{ __('SL') }}</th>
+                                    <th>{{ __('Image') }}</th>
                                     <th style="width: 250px;">Product Name</th>
                                     <th>Category/Vendor</th>
                                     <th>Price & Stock</th>
                                     <th>Features</th>
-                                    <th>Status</th>
+                                    <th>{{ __('Status') }}</th>
                                     <th>Approval</th>
-                                    <th class="text-center">Action</th>
+                                    <th class="text-center">{{ __('Action') }}</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -156,9 +156,9 @@
                                     </td>
                                     <td>
                                         @if($value->status==1)
-                                            <span class="badge bg-success shadow-sm px-2 py-1">Active</span>
+                                            <span class="badge bg-success shadow-sm px-2 py-1">{{ __('Active') }}</span>
                                         @else
-                                            <span class="badge bg-danger shadow-sm px-2 py-1">Inactive</span>
+                                            <span class="badge bg-danger shadow-sm px-2 py-1">{{ __('Inactive') }}</span>
                                         @endif
                                     </td>
                                     <td>
@@ -189,12 +189,12 @@
                                                 </form>
                                             @endif
 
-                                            <a href="{{route('products.edit',$value->id)}}" class="btn-action btn-edit" title="Edit"><i class="fe-edit"></i></a>
+                                            <a href="{{route('products.edit',$value->id)}}" class="btn-action btn-edit" title="{{ __('Edit') }}"><i class="fe-edit"></i></a>
 
                                             <form method="post" action="{{route('products.destroy')}}" class="d-inline">        
                                                 @csrf
                                                 <input type="hidden" value="{{$value->id}}" name="hidden_id">
-                                                <button type="submit" class="delete-confirm btn-action btn-delete" title="Delete"><i class="fe-trash-2"></i></button>
+                                                <button type="submit" class="delete-confirm btn-action btn-delete" title="{{ __('Delete') }}"><i class="fe-trash-2"></i></button>
                                             </form>
                                         </div>
                                     </td>

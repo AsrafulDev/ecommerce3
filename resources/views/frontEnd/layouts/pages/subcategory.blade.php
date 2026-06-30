@@ -33,7 +33,7 @@
             <div class="row">
                 <div class="col-sm-6">
                     <div class="category-breadcrumb d-flex align-items-center">
-                        <a href="{{ route('home') }}">Home</a>
+                        <a href="{{ route('home') }}">{{ __('Home') }}</a>
                         <span>/</span>
                         <strong>{{ $subcategory->subcategoryName }}</strong>
                     </div>
@@ -75,7 +75,7 @@
         <div class="row">
             <div class="col-sm-3 filter_sidebar">
                 
-                <div class="filter_close"><i class="fa fa-long-arrow-left"></i> Filter</div>
+                <div class="filter_close"><i class="fa fa-long-arrow-left"></i>{{ __('Filter') }}</div>
                 <form action="" class="attribute-submit">
                     <div class="sidebar_item wraper__item">
                         <div class="accordion" id="category_sidebar">
@@ -108,9 +108,7 @@
                             <div class="accordion-item">
                                 <h2 class="accordion-header">
                                     <button class="accordion-button" type="button" data-bs-toggle="collapse"
-                                        data-bs-target="#collapsePrice" aria-expanded="true" aria-controls="collapseOne">
-                                        Price
-                                    </button>
+                                        data-bs-target="#collapsePrice" aria-expanded="true" aria-controls="collapseOne">{{ __('Price') }}</button>
                                 </h2>
                                 <div id="collapsePrice" class="accordion-collapse collapse show"
                                     data-bs-parent="#price_sidebar">
@@ -147,9 +145,7 @@
                                 <h2 class="accordion-header">
                                     <button class="accordion-button" type="button" data-bs-toggle="collapse"
                                         data-bs-target="#collapseFilter" aria-expanded="true"
-                                        aria-controls="collapseOne">
-                                        Filter
-                                    </button>
+                                        aria-controls="collapseOne">{{ __('Filter') }}</button>
                                 </h2>
                                 <div id="collapseFilter" class="accordion-collapse collapse show"
                                     data-bs-parent="#filter_sidebar">

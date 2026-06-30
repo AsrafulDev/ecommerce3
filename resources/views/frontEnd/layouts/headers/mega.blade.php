@@ -18,8 +18,7 @@
             <ul class="d-flex list-unstyled mb-0">
                 <li class="dropdown-mega position-relative">
                     <a href="#" class="d-block text-white px-4 py-3 text-decoration-none fw-bold" style="background:var(--primary-color);">
-                        <i class="fa-solid fa-bars me-2"></i>All Categories
-                    </a>
+                        <i class="fa-solid fa-bars me-2"></i>{{ __('All Categories') }}</a>
                     <div class="mega-dropdown position-absolute bg-white shadow-lg rounded" style="display:none;left:0;min-width:700px;z-index:999;">
                         <div class="row g-0 p-3">
                             @foreach(($menucategories ?? collect())->take(6) as $cat)
@@ -33,10 +32,10 @@
                         </div>
                     </div>
                 </li>
-                <li><a href="{{ route('home') }}" class="d-block text-white px-3 py-3 text-decoration-none">Home</a></li>
+                <li><a href="{{ route('home') }}" class="d-block text-white px-3 py-3 text-decoration-none">{{ __('Home') }}</a></li>
                 <li><a href="{{ route('shop') }}" class="d-block text-white-50 px-3 py-3 text-decoration-none">Shop</a></li>
                 <li><a href="{{ route('hotdeals') }}" class="d-block text-white-50 px-3 py-3 text-decoration-none">Deals</a></li>
-                <li><a href="{{ route('brands') }}" class="d-block text-white-50 px-3 py-3 text-decoration-none">Brands</a></li>
+                <li><a href="{{ route('brands') }}" class="d-block text-white-50 px-3 py-3 text-decoration-none">{{ __('Brands') }}</a></li>
             </ul>
         </div>
     </nav>

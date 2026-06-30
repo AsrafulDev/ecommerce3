@@ -175,7 +175,7 @@
 
                     <div class="col-sm-12">
                         <div class="form-group mb-3">
-                            <label for="note" class="form-label">Note</label>
+                            <label for="note" class="form-label">{{ __('Note') }}</label>
                             <input type="text" class="form-control @error('note') is-invalid @enderror" name="note" value="{{ old('note') }}" id="note">
                             @error('note')
                                 <span class="invalid-feedback" role="alert">
@@ -187,7 +187,7 @@
 
                     <div class="col-sm-12">
                         <div class="form-group mb-3">
-                            <label for="billing_details" class="form-label">Billing Details</label>
+                            <label for="billing_details" class="form-label">{{ __('Billing Details') }}</label>
                             <input type="text" class="form-control @error('billing_details') is-invalid @enderror" name="billing_details" value="{{ old('billing_details') }}" id="billing_details">
                             @error('billing_details')
                                 <span class="invalid-feedback" role="alert">

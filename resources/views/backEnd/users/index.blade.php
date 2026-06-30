@@ -75,8 +75,7 @@
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
             <h4 class="mb-1 fw-bold text-dark">
-                <i data-feather="users" class="text-primary me-2"></i> Manage Users
-            </h4>
+                <i data-feather="users" class="text-primary me-2"></i>{{ __('Manage Users') }}</h4>
             <p class="text-muted small mb-0">Overview of all registered users and their roles.</p>
         </div>
         <a href="{{ route('users.create') }}" class="btn btn-primary px-4 py-2 rounded-pill shadow-sm">
@@ -93,7 +92,7 @@
                         <th width="5%">#</th>
                         <th width="30%">User Name</th>
                         <th width="30%">Email Address</th>
-                        <th width="15%">Status</th>
+                        <th width="15%">{{ __('Status') }}</th>
                         <th width="20%" class="text-end">Actions</th>
                     </tr>
                 </thead>
@@ -132,9 +131,9 @@
                             {{-- Status --}}
                             <td>
                                 @if($value->status == 1)
-                                    <span class="badge-soft badge-active"><span class="status-dot"></span> Active</span>
+                                    <span class="badge-soft badge-active"><span class="status-dot"></span>{{ __('Active') }}</span>
                                 @else
-                                    <span class="badge-soft badge-inactive"><span class="status-dot"></span> Inactive</span>
+                                    <span class="badge-soft badge-inactive"><span class="status-dot"></span>{{ __('Inactive') }}</span>
                                 @endif
                             </td>
 
@@ -153,7 +152,7 @@
                                     </form>
 
                                     {{-- Edit --}}
-                                    <a href="{{ route('users.edit', $value->id) }}" class="btn-icon btn-edit" title="Edit">
+                                    <a href="{{ route('users.edit', $value->id) }}" class="btn-icon btn-edit" title="{{ __('Edit') }}">
                                         <i data-feather="edit-2" style="width:14px;"></i>
                                     </a>
 
@@ -161,7 +160,7 @@
                                     <form method="post" action="{{ route('users.destroy') }}" class="d-inline">
                                         @csrf
                                         <input type="hidden" value="{{ $value->id }}" name="hidden_id">
-                                        <button type="submit" class="btn-icon btn-delete delete-confirm" title="Delete">
+                                        <button type="submit" class="btn-icon btn-delete delete-confirm" title="{{ __('Delete') }}">
                                             <i data-feather="trash-2" style="width:14px;"></i>
                                         </button>
                                     </form>

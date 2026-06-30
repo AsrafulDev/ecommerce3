@@ -117,7 +117,7 @@
             {{-- Right Column --}}
             <div>
                 <div class="info-item mb-4">
-                    <span class="label">Payment Method</span>
+                    <span class="label">{{ __('Payment Method') }}</span>
                     <div class="d-flex align-items-center gap-2">
                         <span class="value">{{ ucfirst(str_replace('_', ' ', $payment->payment_method)) }}</span>
                         @if($payment->payment_method == 'bank') <i data-feather="briefcase" class="text-muted" style="width:16px;"></i>

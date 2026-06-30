@@ -112,9 +112,9 @@
                             <span class="input-group-text bg-white border-end-0"><i data-feather="search" style="width: 16px;"></i></span>
                             <input type="text" name="keyword" class="form-control form-control-modern border-start-0" 
                                    placeholder="Search name, shop, email..." value="{{ request('keyword') }}">
-                            <button type="submit" class="btn btn-primary fw-bold">Search</button>
+                            <button type="submit" class="btn btn-primary fw-bold">{{ __('Search') }}</button>
                             @if(request('keyword') || request('status'))
-                                <a href="{{ route('admin.reseller.verification.index') }}" class="btn btn-light border" title="Reset">
+                                <a href="{{ route('admin.reseller.verification.index') }}" class="btn btn-light border" title="{{ __('Reset') }}">
                                     <i data-feather="refresh-cw" style="width: 14px;"></i>
                                 </a>
                             @endif
@@ -134,8 +134,8 @@
                         <th width="20%">Contact Info</th>
                         <th width="15%">Documents</th>
                         <th width="15%">Request Date</th>
-                        <th width="10%">Status</th>
-                        <th width="10%" class="text-end">Action</th>
+                        <th width="10%">{{ __('Status') }}</th>
+                        <th width="10%" class="text-end">{{ __('Action') }}</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -192,11 +192,11 @@
                             {{-- Status --}}
                             <td>
                                 @if($reseller->verification_status == 'approved')
-                                    <span class="badge-soft badge-approved"><span class="status-dot"></span> Approved</span>
+                                    <span class="badge-soft badge-approved"><span class="status-dot"></span>{{ __('Approved') }}</span>
                                 @elseif($reseller->verification_status == 'rejected')
-                                    <span class="badge-soft badge-rejected"><span class="status-dot"></span> Rejected</span>
+                                    <span class="badge-soft badge-rejected"><span class="status-dot"></span>{{ __('Rejected') }}</span>
                                 @else
-                                    <span class="badge-soft badge-pending"><span class="status-dot"></span> Pending</span>
+                                    <span class="badge-soft badge-pending"><span class="status-dot"></span>{{ __('Pending') }}</span>
                                 @endif
                             </td>
 
@@ -214,8 +214,7 @@
 
         {{-- PAGINATION --}}
         <div class="p-4 border-top d-flex justify-content-between align-items-center bg-white rounded-bottom">
-            <small class="text-muted">
-                Showing <strong>{{ $resellers->firstItem() }}</strong> to <strong>{{ $resellers->lastItem() }}</strong> of <strong>{{ $resellers->total() }}</strong> requests
+            <small class="text-muted">{{ __('Showing') }}<strong>{{ $resellers->firstItem() }}</strong>{{ __('to') }}<strong>{{ $resellers->lastItem() }}</strong>{{ __('of') }}<strong>{{ $resellers->total() }}</strong> requests
             </small>
             <div>
                 {{ $resellers->links('pagination::bootstrap-4') }}

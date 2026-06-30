@@ -7,7 +7,7 @@
     <div class="card">
         <div class="card-header d-flex justify-content-between">
             <h4 class="mb-0">Purchase Invoice #{{ $purchase->invoice_no }}</h4>
-            <a href="javascript:window.print()" class="btn btn-sm btn-primary">Print</a>
+            <a href="javascript:window.print()" class="btn btn-sm btn-primary">{{ __('Print') }}</a>
         </div>
         <div class="card-body">
 
@@ -29,7 +29,7 @@
                 <tr>
                     <th>#</th>
                     <th>Product</th>
-                    <th class="text-end">Qty</th>
+                    <th class="text-end">{{ __('Qty') }}</th>
                     <th class="text-end">Unit Cost</th>
                     <th class="text-end">Line Total</th>
                 </tr>
@@ -51,15 +51,15 @@
                 <div class="col-md-4">
                     <table class="table table-sm">
                         <tr>
-                            <th>Subtotal</th>
+                            <th>{{ __('Subtotal') }}</th>
                             <td class="text-end">{{ number_format($purchase->subtotal,2) }} ৳</td>
                         </tr>
                         <tr>
-                            <th>Discount</th>
+                            <th>{{ __('Discount') }}</th>
                             <td class="text-end">{{ number_format($purchase->discount,2) }} ৳</td>
                         </tr>
                         <tr>
-                            <th>Shipping</th>
+                            <th>{{ __('Shipping') }}</th>
                             <td class="text-end">{{ number_format($purchase->shipping_cost,2) }} ৳</td>
                         </tr>
                         <tr>

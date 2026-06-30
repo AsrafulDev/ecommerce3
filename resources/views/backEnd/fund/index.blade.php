@@ -66,13 +66,13 @@
                         <div class="mb-2">
                             <label class="form-label">Amount (৳)</label>
                             <input type="number" name="amount" class="form-control @error('amount') is-invalid @enderror"
-                                   placeholder="Amount" step="0.01" min="1" required>
+                                   placeholder="{{ __('Amount') }}" step="0.01" min="1" required>
                             @error('amount')
                                 <small class="text-danger">{{ $message }}</small>
                             @enderror
                         </div>
                         <div class="mb-2">
-                            <label class="form-label">Note</label>
+                            <label class="form-label">{{ __('Note') }}</label>
                             <input type="text" name="note" class="form-control" placeholder="Note (optional)">
                         </div>
                         <button class="btn btn-primary w-100">Add Fund</button>
@@ -93,10 +93,10 @@
                         <div class="mb-2">
                             <label class="form-label">Amount (৳)</label>
                             <input type="number" name="amount" class="form-control"
-                                   placeholder="Amount" step="0.01" min="1" required>
+                                   placeholder="{{ __('Amount') }}" step="0.01" min="1" required>
                         </div>
                         <div class="mb-2">
-                            <label class="form-label">Note</label>
+                            <label class="form-label">{{ __('Note') }}</label>
                             <input type="text" name="note" class="form-control" placeholder="Note (optional)">
                         </div>
                         <button class="btn btn-danger w-100">Withdraw</button>
@@ -124,14 +124,14 @@
 
                         {{-- Year field --}}
                         <div class="mb-2" id="year_field">
-                            <label class="form-label">Year</label>
+                            <label class="form-label">{{ __('Year') }}</label>
                             <input type="number" name="year" class="form-control"
                                    value="{{ $currentYear }}" min="2000" max="2100">
                         </div>
 
                         {{-- Month field --}}
                         <div class="mb-2 d-none" id="month_field">
-                            <label class="form-label">Month</label>
+                            <label class="form-label">{{ __('Month') }}</label>
                             <select name="month" class="form-select">
                                 @for($m=1;$m<=12;$m++)
                                     <option value="{{ $m }}" {{ $m == $currentMonth ? 'selected' : '' }}>
@@ -174,10 +174,10 @@
                 <thead>
                     <tr>
                         <th>#</th>
-                        <th>Type</th>
+                        <th>{{ __('Type') }}</th>
                         <th>Source</th>
-                        <th>Amount</th>
-                        <th>Note</th>
+                        <th>{{ __('Amount') }}</th>
+                        <th>{{ __('Note') }}</th>
                         <th>Date & Time</th>
                         @php
                             // Check if current user is Admin (Super Admin or has Admin role)
@@ -232,13 +232,13 @@
                             @if($isAdmin)
                             <td>
                                 <div class="d-flex gap-2">
-                                    <a href="{{ route('admin.fund.edit', $t->id) }}" class="btn btn-sm btn-outline-primary" title="Edit">
+                                    <a href="{{ route('admin.fund.edit', $t->id) }}" class="btn btn-sm btn-outline-primary" title="{{ __('Edit') }}">
                                         <i class="fe-edit"></i>
                                     </a>
                                     <form method="POST" action="{{ route('admin.fund.destroy', $t->id) }}" class="d-inline delete-form">
                                         @csrf
                                         @method('DELETE')
-                                        <button type="submit" class="btn btn-sm btn-outline-danger delete-confirm" title="Delete" onclick="return confirm('Are you sure you want to delete this transaction?');">
+                                        <button type="submit" class="btn btn-sm btn-outline-danger delete-confirm" title="{{ __('Delete') }}" onclick="return confirm('Are you sure you want to delete this transaction?');">
                                             <i class="fe-trash-2"></i>
                                         </button>
                                     </form>

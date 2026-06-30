@@ -19,11 +19,9 @@
           <span id="liveStatus">Live</span>
         </span>
         <a href="{{ route('admin.ads_analytics.dashboard', ['refresh' => 1]) }}" class="btn btn-light btn-sm rounded-pill px-3">
-          <i class="fe-refresh-cw me-1"></i>Refresh
-        </a>
+          <i class="fe-refresh-cw me-1"></i>{{ __('Refresh') }}</a>
         <a href="{{ route('admin.ads_analytics.settings') }}" class="btn btn-outline-light btn-sm rounded-pill px-3">
-          <i class="fe-settings me-1"></i>Settings
-        </a>
+          <i class="fe-settings me-1"></i>{{ __('Settings') }}</a>
       </div>
     </div>
   </div>
@@ -49,7 +47,7 @@
           <i class="fe-message-circle"></i>
         </div>
         <div>
-          <div class="stat-label">Messages</div>
+          <div class="stat-label">{{ __('Messages') }}</div>
           <div class="d-flex align-items-center gap-3 mt-1">
             <div>
               <span class="stat-value" id="totalMessages">{{ number_format($totalMessages ?? 0) }}</span>
@@ -245,7 +243,7 @@
 
   {{-- Footer Info --}}
   <div class="dashboard-footer d-flex flex-wrap justify-content-between align-items-center mt-4">
-    <span><i class="fe-info me-1"></i>Data cached every 5 minutes. Click <strong>Refresh</strong> for fresh data.</span>
+    <span><i class="fe-info me-1"></i>Data cached every 5 minutes. Click <strong>{{ __('Refresh') }}</strong> for fresh data.</span>
     <span class="small">Configure API credentials in Settings</span>
   </div>
 </div>

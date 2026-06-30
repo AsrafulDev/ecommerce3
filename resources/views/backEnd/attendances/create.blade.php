@@ -107,18 +107,18 @@
                         {{-- Time Inputs --}}
                         <div class="row g-3 mb-4">
                             <div class="col-6">
-                                <label class="form-label-custom">Check In</label>
+                                <label class="form-label-custom">{{ __('Check In') }}</label>
                                 <input type="time" name="check_in" class="form-control form-control-custom" value="{{ old('check_in') }}">
                             </div>
                             <div class="col-6">
-                                <label class="form-label-custom">Check Out</label>
+                                <label class="form-label-custom">{{ __('Check Out') }}</label>
                                 <input type="time" name="check_out" class="form-control form-control-custom" value="{{ old('check_out') }}">
                             </div>
                         </div>
 
                         {{-- Visual Status Selection --}}
                         <div class="mb-4">
-                            <label class="form-label-custom d-block mb-2">Status <span class="text-danger">*</span></label>
+                            <label class="form-label-custom d-block mb-2">{{ __('Status') }}<span class="text-danger">*</span></label>
                             <div class="status-group">
                                 <input type="radio" name="status" id="st_present" value="present" class="status-input" {{ old('status') == 'present' ? 'checked' : '' }}>
                                 <label for="st_present" class="status-label">Present</label>
@@ -149,7 +149,7 @@
                             <button type="submit" class="btn btn-primary py-2 fw-bold shadow-sm">
                                 <i data-feather="check-circle" class="me-1" style="width: 16px;"></i> Submit Attendance
                             </button>
-                            <a href="{{ route('admin.attendances.index') }}" class="btn btn-light py-2">Cancel</a>
+                            <a href="{{ route('admin.attendances.index') }}" class="btn btn-light py-2">{{ __('Cancel') }}</a>
                         </div>
 
                     </div>

@@ -105,7 +105,7 @@
             <form method="GET" action="{{ route('admin.salaries.index') }}">
                 <div class="row g-3 align-items-end">
                     <div class="col-md-3">
-                        <label class="form-label small fw-bold text-muted text-uppercase mb-1">Employee</label>
+                        <label class="form-label small fw-bold text-muted text-uppercase mb-1">{{ __('Employee') }}</label>
                         <select name="employee_id" class="form-control select2 form-select-modern">
                             <option value="">All Employees</option>
                             @foreach($employees as $emp)
@@ -116,21 +116,21 @@
                         </select>
                     </div>
                     <div class="col-md-2">
-                        <label class="form-label small fw-bold text-muted text-uppercase mb-1">Month</label>
+                        <label class="form-label small fw-bold text-muted text-uppercase mb-1">{{ __('Month') }}</label>
                         <input type="month" name="month" class="form-control form-control-modern" value="{{ request('month') }}">
                     </div>
                     <div class="col-md-2">
-                        <label class="form-label small fw-bold text-muted text-uppercase mb-1">Status</label>
+                        <label class="form-label small fw-bold text-muted text-uppercase mb-1">{{ __('Status') }}</label>
                         <select name="status" class="form-select form-select-modern">
                             <option value="">All Status</option>
-                            <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }}>Pending</option>
+                            <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }}>{{ __('Pending') }}</option>
                             <option value="calculated" {{ request('status') == 'calculated' ? 'selected' : '' }}>Calculated</option>
                             <option value="paid" {{ request('status') == 'paid' ? 'selected' : '' }}>Paid</option>
                         </select>
                     </div>
                     <div class="col-md-3 d-flex gap-2">
-                        <button type="submit" class="btn btn-dark w-100 fw-bold">Filter</button>
-                        <a href="{{ route('admin.salaries.index') }}" class="btn btn-light border px-3" title="Reset">
+                        <button type="submit" class="btn btn-dark w-100 fw-bold">{{ __('Filter') }}</button>
+                        <a href="{{ route('admin.salaries.index') }}" class="btn btn-light border px-3" title="{{ __('Reset') }}">
                             <i data-feather="refresh-cw" style="width:16px;"></i>
                         </a>
                     </div>
@@ -145,11 +145,11 @@
                     <tr>
                         <th width="5%">#</th>
                         <th width="20%">Employee Details</th>
-                        <th width="10%">Month</th>
+                        <th width="10%">{{ __('Month') }}</th>
                         <th width="20%">Attendance Summary</th>
                         <th width="15%">Gross Salary</th>
                         <th width="15%">Net Payable</th>
-                        <th width="10%">Status</th>
+                        <th width="10%">{{ __('Status') }}</th>
                         <th width="5%" class="text-end">Actions</th>
                     </tr>
                 </thead>
@@ -185,7 +185,7 @@
                                 @elseif($salary->status == 'calculated')
                                     <span class="badge-soft badge-calculated">Calculated</span>
                                 @else
-                                    <span class="badge-soft badge-pending">Pending</span>
+                                    <span class="badge-soft badge-pending">{{ __('Pending') }}</span>
                                 @endif
                             </td>
                             <td class="text-end">
@@ -216,8 +216,7 @@
 
         {{-- PAGINATION --}}
         <div class="p-4 border-top d-flex justify-content-between align-items-center bg-white rounded-bottom">
-            <small class="text-muted">
-                Showing <strong>{{ $salaries->firstItem() }}</strong> to <strong>{{ $salaries->lastItem() }}</strong> of <strong>{{ $salaries->total() }}</strong> records
+            <small class="text-muted">{{ __('Showing') }}<strong>{{ $salaries->firstItem() }}</strong>{{ __('to') }}<strong>{{ $salaries->lastItem() }}</strong>{{ __('of') }}<strong>{{ $salaries->total() }}</strong> records
             </small>
             <div>
                 {{ $salaries->links('pagination::bootstrap-4') }}
@@ -252,7 +251,7 @@
                     </div>
                 </div>
                 <div class="modal-footer border-top-0 pt-0">
-                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">{{ __('Cancel') }}</button>
                     <button type="submit" class="btn btn-primary px-4">Calculate</button>
                 </div>
             </form>
@@ -280,7 +279,7 @@
                     </div>
                 </div>
                 <div class="modal-footer border-top-0 pt-0">
-                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">{{ __('Cancel') }}</button>
                     <button type="submit" class="btn btn-primary px-4">Start Calculation</button>
                 </div>
             </form>

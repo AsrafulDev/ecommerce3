@@ -15,11 +15,11 @@
                     <th>#</th>
                     <th>Full Name</th>
                     <th>Mobile</th>
-                    <th>Email</th>
-                    <th>Subject</th>
+                    <th>{{ __('Email') }}</th>
+                    <th>{{ __('Subject') }}</th>
                     <th>Message</th>
-                    <th>Status</th>
-                    <th width="120">Action</th>
+                    <th>{{ __('Status') }}</th>
+                    <th width="120">{{ __('Action') }}</th>
                 </tr>
             </thead>
             <tbody>
@@ -33,7 +33,7 @@
                     <td>{{ Str::limit($row->details, 50) }}</td>
                     <td>
                         @if($row->status == 0)
-                            <span class="badge badge-warning">Pending</span>
+                            <span class="badge badge-warning">{{ __('Pending') }}</span>
                         @else
                             <span class="badge badge-success">Seen</span>
                         @endif
@@ -42,9 +42,7 @@
                         {{-- Status --}}
                         <form action="{{ route('admin.contact.messages.status',$row->id) }}" method="POST" style="display:inline">
                             @csrf
-                            <button class="btn btn-sm btn-info">
-                                Status
-                            </button>
+                            <button class="btn btn-sm btn-info">{{ __('Status') }}</button>
                         </form>
 
                         {{-- Delete --}}
@@ -54,9 +52,7 @@
                               onsubmit="return confirm('Are you sure?')">
                             @csrf
                             @method('DELETE')
-                            <button class="btn btn-sm btn-danger">
-                                Delete
-                            </button>
+                            <button class="btn btn-sm btn-danger">{{ __('Delete') }}</button>
                         </form>
                     </td>
                 </tr>

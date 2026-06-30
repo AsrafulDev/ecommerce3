@@ -96,9 +96,7 @@
                                 Update Transaction
                             </button>
 
-                            <a href="{{ route('admin.fund.index') }}" class="btn btn-outline-secondary">
-                                Cancel
-                            </a>
+                            <a href="{{ route('admin.fund.index') }}" class="btn btn-outline-secondary">{{ __('Cancel') }}</a>
                         </div>
 
                     </form>

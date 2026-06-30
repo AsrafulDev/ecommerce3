@@ -115,11 +115,11 @@
                             <table id="datatable-buttons" class="table table-hover w-100 dt-responsive nowrap">
                                 <thead>
                                     <tr>
-                                        <th style="width: 50px;">SL</th>
-                                        <th>Name</th>
+                                        <th style="width: 50px;">{{ __('SL') }}</th>
+                                        <th>{{ __('Name') }}</th>
                                         <th>Contact Info</th>
-                                        <th>Status</th>
-                                        <th class="text-end" style="width: 180px;">Action</th>
+                                        <th>{{ __('Status') }}</th>
+                                        <th class="text-end" style="width: 180px;">{{ __('Action') }}</th>
                                     </tr>
                                 </thead>                
                                 <tbody>
@@ -142,7 +142,7 @@
                                         
                                         <td>
                                             @if($value->status=='active')
-                                                <span class="badge badge-pill badge-soft-success">Active</span> 
+                                                <span class="badge badge-pill badge-soft-success">{{ __('Active') }}</span> 
                                             @else 
                                                 <span class="badge badge-pill badge-soft-danger">{{ ucfirst($value->status) }}</span> 
                                             @endif

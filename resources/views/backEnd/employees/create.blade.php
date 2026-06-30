@@ -160,7 +160,7 @@
                             </div>
 
                             <div class="col-md-6">
-                                <label class="form-label-custom">Address</label>
+                                <label class="form-label-custom">{{ __('Address') }}</label>
                                 <input type="text" name="address" class="form-control form-control-custom" value="{{ old('address') }}" placeholder="Full address">
                             </div>
 
@@ -228,7 +228,7 @@
                             <button type="submit" class="btn btn-primary py-2 fw-bold shadow-sm">
                                 <i data-feather="save" class="me-1" style="width: 16px;"></i> Save Employee
                             </button>
-                            <a href="{{ route('admin.employees.index') }}" class="btn btn-light py-2">Cancel</a>
+                            <a href="{{ route('admin.employees.index') }}" class="btn btn-light py-2">{{ __('Cancel') }}</a>
                         </div>
 
                     </div>

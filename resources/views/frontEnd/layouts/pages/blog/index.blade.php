@@ -61,9 +61,9 @@
             <div class="row">
                 <div class="col-sm-12">
                     <div class="category-breadcrumb d-flex align-items-center">
-                        <a href="{{ route('home') }}">Home</a>
+                        <a href="{{ route('home') }}">{{ __('Home') }}</a>
                         <span>/</span>
-                        <strong>Blog</strong>
+                        <strong>{{ __('Blog') }}</strong>
                     </div>
                 </div>
             </div>
@@ -107,9 +107,7 @@
 
                         <div class="text-center mt-3">
                             <a href="{{ route('blog.details', $blog->slug) }}"
-                               class="btn btn-sm btn-outline-primary read-more-btn">
-                                Read More
-                            </a>
+                               class="btn btn-sm btn-outline-primary read-more-btn">{{ __('Read More') }}</a>
                         </div>
 
                     </div>

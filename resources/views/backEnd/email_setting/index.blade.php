@@ -153,7 +153,7 @@
                             </div>
 
                             <div class="col-md-6">
-                                <label class="form-label">Mail Host <span class="text-danger">*</span></label>
+                                <label class="form-label">{{ __('Mail Host') }}<span class="text-danger">*</span></label>
                                 <div class="input-group">
                                     <span class="input-group-text bg-light border-end-0 text-muted"><i class="fas fa-server"></i></span>
                                     <input type="text" name="MAIL_HOST" class="form-control border-start-0" 
@@ -162,7 +162,7 @@
                             </div>
 
                             <div class="col-md-6">
-                                <label class="form-label">Mail Port <span class="text-danger">*</span></label>
+                                <label class="form-label">{{ __('Mail Port') }}<span class="text-danger">*</span></label>
                                 <div class="input-group">
                                     <span class="input-group-text bg-light border-end-0 text-muted"><i class="fas fa-plug"></i></span>
                                     <select name="MAIL_PORT" class="form-select border-start-0" required>
@@ -180,7 +180,7 @@
                                     <select name="MAIL_ENCRYPTION" class="form-select border-start-0" required>
                                         <option value="ssl" {{ ($mail['MAIL_ENCRYPTION'] ?? '') == 'ssl' ? 'selected' : '' }}>SSL (Secure Sockets Layer)</option>
                                         <option value="tls" {{ ($mail['MAIL_ENCRYPTION'] ?? '') == 'tls' ? 'selected' : '' }}>TLS (Transport Layer Security)</option>
-                                        <option value="null" {{ ($mail['MAIL_ENCRYPTION'] ?? '') == 'null' ? 'selected' : '' }}>None</option>
+                                        <option value="null" {{ ($mail['MAIL_ENCRYPTION'] ?? '') == 'null' ? 'selected' : '' }}>{{ __('None') }}</option>
                                     </select>
                                 </div>
                             </div>

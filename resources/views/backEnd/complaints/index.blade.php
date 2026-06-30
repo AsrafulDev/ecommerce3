@@ -112,11 +112,11 @@
                     <table id="datatable-buttons" class="table table-hover w-100 dt-responsive nowrap">
                         <thead>
                             <tr>
-                                <th style="width: 50px;">SL</th>
-                                <th>Order ID</th>
+                                <th style="width: 50px;">{{ __('SL') }}</th>
+                                <th>{{ __('Order ID') }}</th>
                                 <th>Customer Info</th>
-                                <th style="width: 25%;">Description</th>
-                                <th>Image</th>
+                                <th style="width: 25%;">{{ __('Description') }}</th>
+                                <th>{{ __('Image') }}</th>
                                 <th>Current Status</th>
                                 <th style="width: 200px;">Update Status / Action</th>
                             </tr>
@@ -155,9 +155,9 @@
 
                                 <td>
                                     @if($complaint->status === 'pending')
-                                        <span class="badge badge-pill badge-soft-warning">Pending</span>
+                                        <span class="badge badge-pill badge-soft-warning">{{ __('Pending') }}</span>
                                     @elseif($complaint->status === 'processing')
-                                        <span class="badge badge-pill badge-soft-info">Processing</span>
+                                        <span class="badge badge-pill badge-soft-info">{{ __('Processing') }}</span>
                                     @else
                                         <span class="badge badge-pill badge-soft-success">Resolved</span>
                                     @endif
@@ -169,11 +169,11 @@
                                         <form action="{{ route('backEnd.complaints.status', $complaint->id) }}" method="POST" class="d-flex align-items-center gap-1">
                                             @csrf
                                             <select name="status" class="form-select form-select-sm" style="width: 110px; font-size: 12px;">
-                                                <option value="pending" {{ $complaint->status == 'pending' ? 'selected' : '' }}>Pending</option>
-                                                <option value="processing" {{ $complaint->status == 'processing' ? 'selected' : '' }}>Processing</option>
+                                                <option value="pending" {{ $complaint->status == 'pending' ? 'selected' : '' }}>{{ __('Pending') }}</option>
+                                                <option value="processing" {{ $complaint->status == 'processing' ? 'selected' : '' }}>{{ __('Processing') }}</option>
                                                 <option value="resolved" {{ $complaint->status == 'resolved' ? 'selected' : '' }}>Resolved</option>
                                             </select>
-                                            <button type="submit" class="action-btn btn-update change-confirm" title="Update">
+                                            <button type="submit" class="action-btn btn-update change-confirm" title="{{ __('Update') }}">
                                                 <i class="fe-check"></i>
                                             </button>
                                         </form>
@@ -182,7 +182,7 @@
                                         <form action="{{ route('backEnd.complaints.destroy', $complaint->id) }}" method="POST" class="d-inline">
                                             @csrf
                                             @method('DELETE')
-                                            <button type="submit" class="action-btn btn-delete delete-confirm" title="Delete">
+                                            <button type="submit" class="action-btn btn-delete delete-confirm" title="{{ __('Delete') }}">
                                                 <i class="fe-trash-2"></i>
                                             </button>
                                         </form>

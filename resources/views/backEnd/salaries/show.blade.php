@@ -118,7 +118,7 @@
                     <div class="info-value">{{ $salary->working_days }} Days</div>
                 </div>
                 <div class="col-md-4">
-                    <div class="info-label">Attendance</div>
+                    <div class="info-label">{{ __('Attendance') }}</div>
                     <div class="info-value text-success">P: {{ $salary->present_days }} <span class="text-muted mx-1">|</span> <span class="text-danger">A: {{ $salary->absent_days }}</span></div>
                 </div>
             </div>
@@ -139,11 +139,11 @@
                         <span class="amount">৳{{ number_format($salary->allowance, 2) }}</span>
                     </div>
                     <div class="breakdown-row">
-                        <span>Bonus</span>
+                        <span>{{ __('Bonus') }}</span>
                         <span class="amount">৳{{ number_format($salary->bonus, 2) }}</span>
                     </div>
                     <div class="breakdown-row">
-                        <span>Overtime</span>
+                        <span>{{ __('Overtime') }}</span>
                         <span class="amount">৳{{ number_format($salary->overtime, 2) }}</span>
                     </div>
                     

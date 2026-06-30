@@ -184,7 +184,7 @@
         </div>
         <div>
             <span class="badge bg-dark rounded-pill px-3 py-2 me-2" id="sectionCount">{{ $layout->sections->count() }} sections</span>
-            <a href="{{ route('layouts.index') }}" class="btn btn-outline-secondary rounded-pill px-3 me-2">Back</a>
+            <a href="{{ route('layouts.index') }}" class="btn btn-outline-secondary rounded-pill px-3 me-2">{{ __('Back') }}</a>
             <a href="{{ route('layouts.edit', $layout->id) }}" class="btn btn-light rounded-pill px-3">Edit Name</a>
         </div>
     </div>

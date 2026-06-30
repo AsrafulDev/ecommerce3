@@ -14,7 +14,7 @@
 
             <div class="col-sm-9">
                 <div class="customer-content">
-                   <h5 class="account-title" style="color:#000;">Request Refund</h5>
+                   <h5 class="account-title" style="color:#000;">{{ __('Request Refund') }}</h5>
 
                    <div class="card">
                        <div class="card-header bg-primary text-white">
@@ -44,8 +44,8 @@
                                    <thead>
                                        <tr>
                                            <th>Product</th>
-                                           <th>Qty</th>
-                                           <th>Price</th>
+                                           <th>{{ __('Qty') }}</th>
+                                           <th>{{ __('Price') }}</th>
                                        </tr>
                                    </thead>
                                    <tbody>

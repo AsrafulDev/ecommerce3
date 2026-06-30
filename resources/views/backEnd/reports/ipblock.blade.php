@@ -208,10 +208,10 @@
                         <table id="datatable-buttons" class="table table-hover w-100 dt-responsive nowrap">
                             <thead>
                                 <tr>
-                                    <th style="width: 50px;">SL</th>
+                                    <th style="width: 50px;">{{ __('SL') }}</th>
                                     <th>IP Address</th>
                                     <th>Reason</th>
-                                    <th class="text-end" style="width: 100px;">Action</th>
+                                    <th class="text-end" style="width: 100px;">{{ __('Action') }}</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -224,14 +224,14 @@
                                     <td>{{$value->reason}}</td>
                                     <td class="text-end">
                                         <div class="d-inline-flex gap-2">
-                                            <a href="javascript:void(0);" class="action-btn btn-edit" data-bs-toggle="modal" data-bs-target="#ipEdit{{$value->id}}" title="Edit">
+                                            <a href="javascript:void(0);" class="action-btn btn-edit" data-bs-toggle="modal" data-bs-target="#ipEdit{{$value->id}}" title="{{ __('Edit') }}">
                                                 <i class="fe-edit"></i>
                                             </a>
 
                                             <form method="post" action="{{route('customers.ipblock.destroy')}}" class="d-inline">
                                                 @csrf
                                                 <input type="hidden" value="{{$value->id}}" name="id">
-                                                <button type="submit" class="action-btn btn-delete delete-confirm" title="Delete">
+                                                <button type="submit" class="action-btn btn-delete delete-confirm" title="{{ __('Delete') }}">
                                                     <i class="fe-trash-2"></i>
                                                 </button>
                                             </form>
@@ -254,7 +254,7 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title text-dark fw-bold">Edit IP Block</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{{ __('Close') }}"></button>
             </div>
             <div class="modal-body p-4">
                 <form action="{{route('customers.ipblock.update')}}" method="POST" data-parsley-validate>

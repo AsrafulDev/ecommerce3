@@ -83,11 +83,11 @@
                         <table class="table table-pro mb-0">
                             <thead>
                                 <tr>
-                                    <th width="5%">SL</th>
-                                    <th width="15%">Preview</th>
+                                    <th width="5%">{{ __('SL') }}</th>
+                                    <th width="15%">{{ __('Preview') }}</th>
                                     <th width="25%">Campaign Title</th>
                                     <th width="30%">Offer Details</th>
-                                    <th width="10%">Status</th>
+                                    <th width="10%">{{ __('Status') }}</th>
                                     <th width="15%" class="text-end">Actions</th>
                                 </tr>
                             </thead>
@@ -121,12 +121,12 @@
                                     </td>
                                     <td class="text-end">
                                         <div class="d-flex justify-content-end gap-2">
-                                            <a href="{{ route('admin.popup.edit', $value->id) }}" class="btn btn-outline-primary btn-sm px-2" title="Edit">
+                                            <a href="{{ route('admin.popup.edit', $value->id) }}" class="btn btn-outline-primary btn-sm px-2" title="{{ __('Edit') }}">
                                                 <i class="fas fa-edit"></i>
                                             </a>
                                             <form action="{{ route('admin.popup.destroy', $value->id) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this popup?');">
                                                 @csrf
-                                                <button type="submit" class="btn btn-outline-danger btn-sm px-2" title="Delete">
+                                                <button type="submit" class="btn btn-outline-danger btn-sm px-2" title="{{ __('Delete') }}">
                                                     <i class="fas fa-trash-alt"></i>
                                                 </button>
                                             </form>
@@ -157,7 +157,7 @@
             
             <div class="modal-header border-bottom-0 pb-0">
                 <h5 class="modal-title fw-bold">🚀 নিউ পপআপ এড করুন</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{{ __('Close') }}"></button>
             </div>
 
             <form action="{{ route('admin.popup.store') }}" method="POST" enctype="multipart/form-data">
@@ -237,7 +237,7 @@
                 </div>
 
                 <div class="modal-footer border-top-0 pt-0 pb-4 pe-4">
-                    <button type="button" class="btn btn-light text-muted fw-bold" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-light text-muted fw-bold" data-bs-dismiss="modal">{{ __('Cancel') }}</button>
                     <button type="submit" class="btn btn-primary px-4 fw-bold shadow-sm">
                         <i class="fas fa-save me-2"></i> Save Popup
                     </button>

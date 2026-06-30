@@ -31,9 +31,9 @@
         <div class="d-flex flex-column gap-1 mt-2">
             @if($hasSizes)
             <div>
-                <label class="form-label small text-muted mb-0" style="font-size:11px">Size</label>
+                <label class="form-label small text-muted mb-0" style="font-size:11px">{{ __('Size') }}</label>
                 <select class="form-select form-select-sm cart-size-selector" data-id="{{ $value->rowId }}" data-product-id="{{ $value->id }}" style="min-width:100px">
-                    <option value="">Select</option>
+                    <option value="">{{ __('Select') }}</option>
                     @foreach($sizesList as $s)
                     <option value="{{ $s->id }}" {{ $currentSizeId == $s->id ? 'selected' : '' }}>{{ $s->sizeName ?? $s->size_name ?? 'N/A' }}</option>
                     @endforeach
@@ -42,9 +42,9 @@
             @endif
             @if($hasColors)
             <div>
-                <label class="form-label small text-muted mb-0" style="font-size:11px">Color</label>
+                <label class="form-label small text-muted mb-0" style="font-size:11px">{{ __('Color') }}</label>
                 <select class="form-select form-select-sm cart-color-selector" data-id="{{ $value->rowId }}" data-product-id="{{ $value->id }}" style="min-width:100px">
-                    <option value="">Select</option>
+                    <option value="">{{ __('Select') }}</option>
                     @foreach($colorsList as $c)
                     <option value="{{ $c->id }}" {{ $currentColorId == $c->id ? 'selected' : '' }}>{{ $c->colorName ?? $c->color_name ?? 'N/A' }}</option>
                     @endforeach

@@ -84,9 +84,7 @@
             <span class="text-muted small">Update social media profile details for <b>{{ $edit_data->title }}</b></span>
         </div>
         <div class="d-flex gap-2">
-            <a href="{{route('socialmedias.index')}}" class="btn btn-light border fw-bold text-secondary px-3 rounded-pill">
-                Cancel
-            </a>
+            <a href="{{route('socialmedias.index')}}" class="btn btn-light border fw-bold text-secondary px-3 rounded-pill">{{ __('Cancel') }}</a>
             <button type="submit" form="socialEditForm" class="btn btn-primary fw-bold px-4 shadow-sm rounded-pill">
                 <i class="mdi mdi-check-circle-outline me-1"></i> Update Platform
             </button>

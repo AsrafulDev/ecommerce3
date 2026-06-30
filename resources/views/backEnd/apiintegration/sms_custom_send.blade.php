@@ -128,7 +128,7 @@
 
                     <div class="mb-4">
                         <div class="d-flex justify-content-between align-items-center mb-2">
-                            <label class="mb-0">Your Message</label>
+                            <label class="mb-0">{{ __('Your Message') }}</label>
                             <span class="badge-soft badge-soft-info" id="sms_parts">1 SMS Part</span>
                         </div>
                         <textarea name="message" id="sms_message" class="form-control form-control-minimal" rows="5" 

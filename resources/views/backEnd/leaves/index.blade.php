@@ -101,7 +101,7 @@
             <form method="GET" action="{{ route('admin.leaves.index') }}">
                 <div class="row g-3 align-items-end">
                     <div class="col-md-3">
-                        <label class="form-label small fw-bold text-muted text-uppercase mb-1">Employee</label>
+                        <label class="form-label small fw-bold text-muted text-uppercase mb-1">{{ __('Employee') }}</label>
                         <select name="employee_id" class="form-control select2 form-select-modern">
                             <option value="">All Employees</option>
                             @foreach($employees as $emp)
@@ -112,12 +112,12 @@
                         </select>
                     </div>
                     <div class="col-md-2">
-                        <label class="form-label small fw-bold text-muted text-uppercase mb-1">Status</label>
+                        <label class="form-label small fw-bold text-muted text-uppercase mb-1">{{ __('Status') }}</label>
                         <select name="status" class="form-select form-select-modern">
                             <option value="">All Status</option>
-                            <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }}>Pending</option>
-                            <option value="approved" {{ request('status') == 'approved' ? 'selected' : '' }}>Approved</option>
-                            <option value="rejected" {{ request('status') == 'rejected' ? 'selected' : '' }}>Rejected</option>
+                            <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }}>{{ __('Pending') }}</option>
+                            <option value="approved" {{ request('status') == 'approved' ? 'selected' : '' }}>{{ __('Approved') }}</option>
+                            <option value="rejected" {{ request('status') == 'rejected' ? 'selected' : '' }}>{{ __('Rejected') }}</option>
                         </select>
                     </div>
                     <div class="col-md-2">
@@ -130,8 +130,8 @@
                         </select>
                     </div>
                     <div class="col-md-3 d-flex gap-2">
-                        <button type="submit" class="btn btn-dark w-100 fw-bold">Filter</button>
-                        <a href="{{ route('admin.leaves.index') }}" class="btn btn-light border px-3" title="Reset">
+                        <button type="submit" class="btn btn-dark w-100 fw-bold">{{ __('Filter') }}</button>
+                        <a href="{{ route('admin.leaves.index') }}" class="btn btn-light border px-3" title="{{ __('Reset') }}">
                             <i data-feather="refresh-cw" style="width:16px;"></i>
                         </a>
                     </div>
@@ -149,7 +149,7 @@
                         <th width="15%">Leave Type</th>
                         <th width="20%">Duration</th>
                         <th width="10%">Days</th>
-                        <th width="15%">Status</th>
+                        <th width="15%">{{ __('Status') }}</th>
                         <th width="15%" class="text-end">Actions</th>
                     </tr>
                 </thead>
@@ -176,11 +176,11 @@
                             <td class="fw-bold">{{ $leave->total_days }}</td>
                             <td>
                                 @if($leave->status == 'approved')
-                                    <span class="badge-soft badge-approved"><span class="status-dot"></span> Approved</span>
+                                    <span class="badge-soft badge-approved"><span class="status-dot"></span>{{ __('Approved') }}</span>
                                 @elseif($leave->status == 'rejected')
-                                    <span class="badge-soft badge-rejected"><span class="status-dot"></span> Rejected</span>
+                                    <span class="badge-soft badge-rejected"><span class="status-dot"></span>{{ __('Rejected') }}</span>
                                 @else
-                                    <span class="badge-soft badge-pending"><span class="status-dot"></span> Pending</span>
+                                    <span class="badge-soft badge-pending"><span class="status-dot"></span>{{ __('Pending') }}</span>
                                 @endif
                             </td>
                             <td class="text-end">
@@ -196,7 +196,7 @@
                                             <i data-feather="x" style="width:14px;"></i>
                                         </button>
                                     @endif
-                                    <a href="{{ route('admin.leaves.edit', $leave->id) }}" class="btn-icon btn-edit" title="Edit">
+                                    <a href="{{ route('admin.leaves.edit', $leave->id) }}" class="btn-icon btn-edit" title="{{ __('Edit') }}">
                                         <i data-feather="edit-2" style="width:14px;"></i>
                                     </a>
                                 </div>
@@ -218,7 +218,7 @@
                                                     </div>
                                                 </div>
                                                 <div class="modal-footer border-top-0 pt-0">
-                                                    <button type="button" class="btn btn-light btn-sm" data-bs-dismiss="modal">Cancel</button>
+                                                    <button type="button" class="btn btn-light btn-sm" data-bs-dismiss="modal">{{ __('Cancel') }}</button>
                                                     <button type="submit" class="btn btn-danger btn-sm px-4">Confirm Reject</button>
                                                 </div>
                                             </form>
@@ -243,8 +243,7 @@
 
         {{-- PAGINATION --}}
         <div class="p-4 border-top d-flex justify-content-between align-items-center bg-white rounded-bottom">
-            <small class="text-muted">
-                Showing <strong>{{ $leaves->firstItem() }}</strong> to <strong>{{ $leaves->lastItem() }}</strong> of <strong>{{ $leaves->total() }}</strong> records
+            <small class="text-muted">{{ __('Showing') }}<strong>{{ $leaves->firstItem() }}</strong>{{ __('to') }}<strong>{{ $leaves->lastItem() }}</strong>{{ __('of') }}<strong>{{ $leaves->total() }}</strong> records
             </small>
             <div>
                 {{ $leaves->links('pagination::bootstrap-4') }}

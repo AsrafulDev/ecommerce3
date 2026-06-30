@@ -42,14 +42,14 @@
   <table class="table table-bordered align-middle">
     <thead class="bg-light">
         <tr>
-            <th>SL</th>
-            <th>Image</th>
+            <th>{{ __('SL') }}</th>
+            <th>{{ __('Image') }}</th>
             <th>Product</th>
-            <th>Color</th>
-            <th>Size</th>
-            <th>Price</th>
-            <th>Qty</th>
-            <th>Total</th>
+            <th>{{ __('Color') }}</th>
+            <th>{{ __('Size') }}</th>
+            <th>{{ __('Price') }}</th>
+            <th>{{ __('Qty') }}</th>
+            <th>{{ __('Total') }}</th>
         </tr>
     </thead>
     <tbody>
@@ -167,14 +167,13 @@
                                     <label class="payment-label">Payment Status:</label>
                                     <div class="d-flex align-items-center">
                                         <select id="payment_status_{{ $data->id }}" class="form-select form-select-sm w-auto">
-                                            <option value="pending" {{ ($paymentInfo->payment_status ?? '') == 'pending' ? 'selected' : '' }}>Pending</option>
+                                            <option value="pending" {{ ($paymentInfo->payment_status ?? '') == 'pending' ? 'selected' : '' }}>{{ __('Pending') }}</option>
                                             <option value="paid" {{ ($paymentInfo->payment_status ?? '') == 'paid' ? 'selected' : '' }}>Paid</option>
                                             <option value="unpaid" {{ ($paymentInfo->payment_status ?? '') == 'unpaid' ? 'selected' : '' }}>Unpaid</option>
-                                            <option value="failed" {{ ($paymentInfo->payment_status ?? '') == 'failed' ? 'selected' : '' }}>Failed</option>
+                                            <option value="failed" {{ ($paymentInfo->payment_status ?? '') == 'failed' ? 'selected' : '' }}>{{ __('Failed') }}</option>
                                         </select>
                                         <button type="button" class="btn btn-success btn-sm ms-2" onclick="updatePaymentStatus({{ $data->id }})">
-                                            <i class="fa fa-check"></i> Update
-                                        </button>
+                                            <i class="fa fa-check"></i>{{ __('Update') }}</button>
                                     </div>
                                 </div>
                             </div>
@@ -221,7 +220,7 @@
 
                     <div class="col-sm-12 mt-3">
                         <div class="form-group mb-3">
-                            <label for="category_id" class="form-label">Order Status</label>
+                            <label for="category_id" class="form-label">{{ __('Order Status') }}</label>
                             <select class="form-control select2-multiple" name="status" data-toggle="select2" required>
                                 <option value="">Select..</option>
                                 @foreach($orderstatus as $value)

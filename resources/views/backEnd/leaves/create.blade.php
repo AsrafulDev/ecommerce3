@@ -124,7 +124,7 @@
                             <button type="submit" class="btn btn-primary py-2 fw-bold shadow-sm">
                                 <i data-feather="send" class="me-1" style="width: 16px;"></i> Submit Request
                             </button>
-                            <a href="{{ route('admin.leaves.index') }}" class="btn btn-light py-2">Cancel</a>
+                            <a href="{{ route('admin.leaves.index') }}" class="btn btn-light py-2">{{ __('Cancel') }}</a>
                         </div>
 
                     </div>

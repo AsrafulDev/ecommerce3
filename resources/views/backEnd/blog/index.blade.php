@@ -101,11 +101,11 @@
                     <table id="datatable-buttons" class="table table-hover w-100 dt-responsive nowrap">
                         <thead>
                             <tr>
-                                <th style="width: 50px;">SL</th>
-                                <th>Image</th>
-                                <th>Title</th>
-                                <th>Status</th>
-                                <th class="text-end" style="width: 150px;">Action</th>
+                                <th style="width: 50px;">{{ __('SL') }}</th>
+                                <th>{{ __('Image') }}</th>
+                                <th>{{ __('Title') }}</th>
+                                <th>{{ __('Status') }}</th>
+                                <th class="text-end" style="width: 150px;">{{ __('Action') }}</th>
                             </tr>
                         </thead>                
                         <tbody>
@@ -127,23 +127,23 @@
                                 
                                 <td>
                                     @if($blog->status == 1)
-                                        <span class="badge badge-pill badge-soft-success">Active</span> 
+                                        <span class="badge badge-pill badge-soft-success">{{ __('Active') }}</span> 
                                     @else 
-                                        <span class="badge badge-pill badge-soft-danger">Inactive</span> 
+                                        <span class="badge badge-pill badge-soft-danger">{{ __('Inactive') }}</span> 
                                     @endif
                                 </td>
 
                                 <td class="text-end">
                                     <div class="d-inline-flex gap-2">
                                         {{-- Edit --}}
-                                        <a href="{{ route('admin.blog.edit',$blog->id) }}" class="action-btn btn-edit" title="Edit">
+                                        <a href="{{ route('admin.blog.edit',$blog->id) }}" class="action-btn btn-edit" title="{{ __('Edit') }}">
                                             <i class="fe-edit"></i>
                                         </a>
 
                                         {{-- Delete --}}
                                         <a href="{{ route('admin.blog.delete',$blog->id) }}" 
                                            onclick="return confirm('Are you sure you want to delete this blog?')" 
-                                           class="action-btn btn-delete" title="Delete">
+                                           class="action-btn btn-delete" title="{{ __('Delete') }}">
                                             <i class="fe-trash-2"></i>
                                         </a>
                                     </div>

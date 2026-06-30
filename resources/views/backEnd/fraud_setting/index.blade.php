@@ -145,7 +145,7 @@
                     <div>
                         <strong>সফল হয়েছে!</strong> {{ session('success') ?? session('message') }}
                     </div>
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="{{ __('Close') }}"></button>
                 </div>
             @endif
 
@@ -156,7 +156,7 @@
                             <li>{{ $error }}</li>
                         @endforeach
                     </ul>
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="{{ __('Close') }}"></button>
                 </div>
             @endif
 
@@ -216,10 +216,10 @@
                                 <small class="text-muted">API তে ফোন পাঠানোর প্যারামিটার নাম</small>
                             </div>
                             <div class="col-md-4">
-                                <label class="fw-bold text-dark mb-1 d-block">API Key</label>
+                                <label class="fw-bold text-dark mb-1 d-block">{{ __('API Key') }}</label>
                                 <input type="text" name="duplicate_order_api_key" class="form-control form-control-lg-custom" 
                                        value="{{ old('duplicate_order_api_key', $data->duplicate_order_api_key ?? '') }}"
-                                       placeholder="API Key">
+                                       placeholder="{{ __('API Key') }}">
                             </div>
                         </div>
 

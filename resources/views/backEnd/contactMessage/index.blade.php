@@ -23,10 +23,10 @@
                         <th>#</th>
                         <th>Full Name</th>
                         <th>Mobile</th>
-                        <th>Email</th>
-                        <th>Subject</th>
+                        <th>{{ __('Email') }}</th>
+                        <th>{{ __('Subject') }}</th>
                         <th>Message</th>
-                        <th width="120">Action</th>
+                        <th width="120">{{ __('Action') }}</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -46,7 +46,7 @@
                                   style="display:inline-block">
                                 @csrf
                                 @method('DELETE')
-                                <button class="btn btn-sm btn-danger">Delete</button>
+                                <button class="btn btn-sm btn-danger">{{ __('Delete') }}</button>
                             </form>
                         </td>
                     </tr>

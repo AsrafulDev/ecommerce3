@@ -99,7 +99,7 @@
             <form method="GET" action="{{ route('admin.salary_payments.index') }}">
                 <div class="row g-3 align-items-end">
                     <div class="col-md-3">
-                        <label class="form-label small fw-bold text-muted text-uppercase mb-1">Employee</label>
+                        <label class="form-label small fw-bold text-muted text-uppercase mb-1">{{ __('Employee') }}</label>
                         <select name="employee_id" class="form-control select2 form-select-modern">
                             <option value="">All Employees</option>
                             @foreach($employees as $emp)
@@ -110,21 +110,21 @@
                         </select>
                     </div>
                     <div class="col-md-2">
-                        <label class="form-label small fw-bold text-muted text-uppercase mb-1">Month</label>
+                        <label class="form-label small fw-bold text-muted text-uppercase mb-1">{{ __('Month') }}</label>
                         <input type="month" name="month" class="form-control form-control-modern" value="{{ request('month') }}">
                     </div>
                     <div class="col-md-2">
-                        <label class="form-label small fw-bold text-muted text-uppercase mb-1">Status</label>
+                        <label class="form-label small fw-bold text-muted text-uppercase mb-1">{{ __('Status') }}</label>
                         <select name="status" class="form-select form-select-modern">
                             <option value="">All Status</option>
-                            <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }}>Pending</option>
+                            <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }}>{{ __('Pending') }}</option>
                             <option value="paid" {{ request('status') == 'paid' ? 'selected' : '' }}>Paid</option>
-                            <option value="failed" {{ request('status') == 'failed' ? 'selected' : '' }}>Failed</option>
+                            <option value="failed" {{ request('status') == 'failed' ? 'selected' : '' }}>{{ __('Failed') }}</option>
                         </select>
                     </div>
                     <div class="col-md-3 d-flex gap-2">
-                        <button type="submit" class="btn btn-dark w-100 fw-bold">Filter</button>
-                        <a href="{{ route('admin.salary_payments.index') }}" class="btn btn-light border px-3" title="Reset">
+                        <button type="submit" class="btn btn-dark w-100 fw-bold">{{ __('Filter') }}</button>
+                        <a href="{{ route('admin.salary_payments.index') }}" class="btn btn-light border px-3" title="{{ __('Reset') }}">
                             <i data-feather="refresh-cw" style="width:16px;"></i>
                         </a>
                     </div>
@@ -140,11 +140,11 @@
                         <th width="5%">#</th>
                         <th width="15%">Txn ID</th>
                         <th width="20%">Employee Details</th>
-                        <th width="15%">Month</th>
-                        <th width="15%">Amount</th>
+                        <th width="15%">{{ __('Month') }}</th>
+                        <th width="15%">{{ __('Amount') }}</th>
                         <th width="15%">Method</th>
-                        <th width="10%">Status</th>
-                        <th width="5%" class="text-end">View</th>
+                        <th width="10%">{{ __('Status') }}</th>
+                        <th width="5%" class="text-end">{{ __('View') }}</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -184,9 +184,9 @@
                                 @if($payment->status == 'paid')
                                     <span class="badge-soft badge-paid"><span class="status-dot"></span> Paid</span>
                                 @elseif($payment->status == 'failed')
-                                    <span class="badge-soft badge-failed"><span class="status-dot"></span> Failed</span>
+                                    <span class="badge-soft badge-failed"><span class="status-dot"></span>{{ __('Failed') }}</span>
                                 @else
-                                    <span class="badge-soft badge-pending"><span class="status-dot"></span> Pending</span>
+                                    <span class="badge-soft badge-pending"><span class="status-dot"></span>{{ __('Pending') }}</span>
                                 @endif
                             </td>
                             <td class="text-end">
@@ -210,8 +210,7 @@
 
         {{-- PAGINATION --}}
         <div class="p-4 border-top d-flex justify-content-between align-items-center bg-white rounded-bottom">
-            <small class="text-muted">
-                Showing <strong>{{ $payments->firstItem() }}</strong> to <strong>{{ $payments->lastItem() }}</strong> of <strong>{{ $payments->total() }}</strong> transactions
+            <small class="text-muted">{{ __('Showing') }}<strong>{{ $payments->firstItem() }}</strong>{{ __('to') }}<strong>{{ $payments->lastItem() }}</strong>{{ __('of') }}<strong>{{ $payments->total() }}</strong> transactions
             </small>
             <div>
                 {{ $payments->links('pagination::bootstrap-4') }}

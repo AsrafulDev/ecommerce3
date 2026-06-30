@@ -17,8 +17,7 @@
           </p>
         </div>
         <a href="{{ route('admin.ads_analytics.dashboard') }}" class="btn btn-outline-secondary rounded-pill px-4">
-          <i class="fe-arrow-left me-1"></i> Dashboard
-        </a>
+          <i class="fe-arrow-left me-1"></i>{{ __('Dashboard') }}</a>
       </div>
     </div>
   </div>
@@ -48,7 +47,7 @@
         <div class="d-flex align-items-center gap-3">
           <div class="form-check form-switch modern-switch" onclick="event.stopPropagation();">
             <input class="form-check-input" type="checkbox" role="switch" id="facebook_active" name="facebook_is_active" value="1" {{ $fbActive ? 'checked' : '' }} onchange="updateProgress()">
-            <label class="form-check-label text-white" for="facebook_active">Active</label>
+            <label class="form-check-label text-white" for="facebook_active">{{ __('Active') }}</label>
           </div>
           <i class="fe-chevron-down collapse-chevron" id="fbChevron"></i>
         </div>
@@ -128,7 +127,7 @@
         <div class="d-flex align-items-center gap-3">
           <div class="form-check form-switch modern-switch" onclick="event.stopPropagation();">
             <input class="form-check-input" type="checkbox" role="switch" id="google_active" name="google_is_active" value="1" {{ $googleActive ? 'checked' : '' }} onchange="updateProgress()">
-            <label class="form-check-label text-white" for="google_active">Active</label>
+            <label class="form-check-label text-white" for="google_active">{{ __('Active') }}</label>
           </div>
           <i class="fe-chevron-down collapse-chevron" id="googleChevron"></i>
         </div>
@@ -207,7 +206,7 @@
         <div class="d-flex align-items-center gap-3">
           <div class="form-check form-switch modern-switch" onclick="event.stopPropagation();">
             <input class="form-check-input" type="checkbox" role="switch" id="tiktok_active" name="tiktok_is_active" value="1" {{ $tiktokActive ? 'checked' : '' }} onchange="updateProgress()">
-            <label class="form-check-label text-white" for="tiktok_active">Active</label>
+            <label class="form-check-label text-white" for="tiktok_active">{{ __('Active') }}</label>
           </div>
           <i class="fe-chevron-down collapse-chevron" id="tiktokChevron"></i>
         </div>

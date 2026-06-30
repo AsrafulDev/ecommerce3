@@ -229,11 +229,11 @@
                     <table class="table table-bordered table-sm mb-0 pos-cart-table">
                         <thead>
                             <tr>
-                                <th>Image</th>
+                                <th>{{ __('Image') }}</th>
                                 <th>Item</th>
-                                <th>Qty</th>
-                                <th>Price</th>
-                                <th>Subtotal</th>
+                                <th>{{ __('Qty') }}</th>
+                                <th>{{ __('Price') }}</th>
+                                <th>{{ __('Subtotal') }}</th>
                                 <th></th>
                             </tr>
                         </thead>
@@ -289,7 +289,7 @@
                             <input type="text"
                                    id="address"
                                    class="form-control form-control-sm @error('address') is-invalid @enderror"
-                                   placeholder="Address"
+                                   placeholder="{{ __('Address') }}"
                                    name="address" required>
                             @error('address')<span class="invalid-feedback"><strong>{{ $message }}</strong></span>@enderror
                         </div>
@@ -358,7 +358,7 @@
 
                 {{-- SEARCH BAR --}}
                 <div class="mb-2">
-                    <div class="pos-section-title">Products</div>
+                    <div class="pos-section-title">{{ __('Products') }}</div>
                     <div class="pos-search-bar position-relative">
                         <span class="icon"><i class="fa fa-search"></i></span>
                         <input type="text"

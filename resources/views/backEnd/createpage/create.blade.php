@@ -78,9 +78,7 @@
             <span class="text-muted small">Publish dynamic content and legal pages</span>
         </div>
         <div class="d-flex gap-2">
-            <a href="{{route('pages.index')}}" class="btn btn-light border fw-bold text-secondary px-3">
-                Cancel
-            </a>
+            <a href="{{route('pages.index')}}" class="btn btn-light border fw-bold text-secondary px-3">{{ __('Cancel') }}</a>
             <button type="submit" form="pageCreateForm" class="btn btn-primary fw-bold px-4 shadow-sm">
                 <i class="fe-plus me-1"></i> Create Page
             </button>

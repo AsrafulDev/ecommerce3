@@ -264,9 +264,9 @@
             <thead>
               <tr>
                 <th>Customer</th>
-                <th>Invoice</th>
-                <th>Status</th>
-                <th>Date</th>
+                <th>{{ __('Invoice') }}</th>
+                <th>{{ __('Status') }}</th>
+                <th>{{ __('Date') }}</th>
               </tr>
             </thead>
             <tbody>
@@ -278,9 +278,9 @@
                   @if(($order->order_status ?? 0) == 5)
                     <span class="badge bg-success badge-dash">Delivered</span>
                   @elseif(($order->order_status ?? 0) == 1)
-                    <span class="badge bg-info badge-dash">Pending</span>
+                    <span class="badge bg-info badge-dash">{{ __('Pending') }}</span>
                   @else
-                    <span class="badge bg-warning badge-dash">Processing</span>
+                    <span class="badge bg-warning badge-dash">{{ __('Processing') }}</span>
                   @endif
                 </td>
                 <td class="text-muted">{{ optional($order->created_at)->format('d M Y') }}</td>

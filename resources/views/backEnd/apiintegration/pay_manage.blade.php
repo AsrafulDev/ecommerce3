@@ -158,7 +158,7 @@
                                 <input type="text" class="form-control" name="username" value="{{ $bkash->username }}" required />
                             </div>
                             <div class="col-md-6 mb-3">
-                                <label class="form-label">Password</label>
+                                <label class="form-label">{{ __('Password') }}</label>
                                 <input type="text" class="form-control" name="password" value="{{ $bkash->password }}" required />
                             </div>
                         </div>
@@ -227,7 +227,7 @@
 
                         <div class="row">
                             <div class="col-md-6 mb-3">
-                                <label class="form-label">Password</label>
+                                <label class="form-label">{{ __('Password') }}</label>
                                 <input type="text" class="form-control" name="password" value="{{ $shurjopay->password }}" required />
                             </div>
                             <div class="col-md-6 mb-3">
@@ -283,7 +283,7 @@
                         <input type="hidden" name="id" value="{{ $uddoktapay->id ?? '' }}">
                         
                         <div class="mb-3">
-                            <label class="form-label">API Key</label>
+                            <label class="form-label">{{ __('API Key') }}</label>
                             <input type="text" class="form-control" name="app_key" value="{{ $uddoktapay->app_key ?? '' }}" placeholder="UDDOKTAPAY_API_KEY" required />
                         </div>
 
@@ -330,13 +330,13 @@
                         <input type="hidden" name="id" value="{{ $aamarpay->id ?? '' }}">
                         
                         <div class="mb-3">
-                            <label class="form-label">Store ID</label>
+                            <label class="form-label">{{ __('Store ID') }}</label>
                             <input type="text" class="form-control" name="app_key" value="{{ $aamarpay->app_key ?? '' }}" placeholder="aamarpaytest (Sandbox)" required />
                             <small class="text-muted">Store ID is stored in App Key field</small>
                         </div>
 
                         <div class="mb-3">
-                            <label class="form-label">Signature Key</label>
+                            <label class="form-label">{{ __('Signature Key') }}</label>
                             <input type="text" class="form-control" name="app_secret" value="{{ $aamarpay->app_secret ?? '' }}" placeholder="dbb74894e82415a2f7ff0ec3a97e4183 (Sandbox)" required />
                             <small class="text-muted">Signature Key is stored in App Secret field</small>
                         </div>

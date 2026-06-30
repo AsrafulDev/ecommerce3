@@ -42,7 +42,7 @@
             <small class="text-muted">Use: {name}, {price}, {link}, {description}</small>
           </div>
         </div>
-        <button type="submit" class="btn btn-primary mt-3"><i class="fe-save"></i> Save</button>
+        <button type="submit" class="btn btn-primary mt-3"><i class="fe-save"></i>{{ __('Save') }}</button>
       </div>
     </div>
   </form>

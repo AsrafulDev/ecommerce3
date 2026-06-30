@@ -29,11 +29,11 @@
         <div class="card-body">
             <form method="GET" action="{{ route('admin.fund.logs') }}" class="row g-3">
                 <div class="col-md-3">
-                    <label class="form-label">Action</label>
+                    <label class="form-label">{{ __('Action') }}</label>
                     <select name="action" class="form-select">
                         <option value="">All Actions</option>
-                        <option value="edit" {{ request('action') == 'edit' ? 'selected' : '' }}>Edit</option>
-                        <option value="delete" {{ request('action') == 'delete' ? 'selected' : '' }}>Delete</option>
+                        <option value="edit" {{ request('action') == 'edit' ? 'selected' : '' }}>{{ __('Edit') }}</option>
+                        <option value="delete" {{ request('action') == 'delete' ? 'selected' : '' }}>{{ __('Delete') }}</option>
                     </select>
                 </div>
                 <div class="col-md-3">
@@ -45,8 +45,8 @@
                     <input type="date" name="to_date" class="form-control" value="{{ request('to_date') }}">
                 </div>
                 <div class="col-md-3 d-flex align-items-end gap-2">
-                    <button type="submit" class="btn btn-primary">Filter</button>
-                    <a href="{{ route('admin.fund.logs') }}" class="btn btn-outline-secondary">Clear</a>
+                    <button type="submit" class="btn btn-primary">{{ __('Filter') }}</button>
+                    <a href="{{ route('admin.fund.logs') }}" class="btn btn-outline-secondary">{{ __('Clear') }}</a>
                 </div>
             </form>
         </div>
@@ -82,12 +82,12 @@
                 <thead>
                     <tr>
                         <th>#</th>
-                        <th>Action</th>
+                        <th>{{ __('Action') }}</th>
                         <th>Transaction ID</th>
                         <th>Old Values</th>
                         <th>New Values</th>
                         <th>Balance Change</th>
-                        <th>Description</th>
+                        <th>{{ __('Description') }}</th>
                         <th>Performed By</th>
                         <th>Date & Time</th>
                     </tr>
@@ -98,9 +98,9 @@
                             <td>{{ $log->id }}</td>
                             <td>
                                 @if($log->action == 'edit')
-                                    <span class="badge bg-warning">Edit</span>
+                                    <span class="badge bg-warning">{{ __('Edit') }}</span>
                                 @else
-                                    <span class="badge bg-danger">Delete</span>
+                                    <span class="badge bg-danger">{{ __('Delete') }}</span>
                                 @endif
                             </td>
                             <td>

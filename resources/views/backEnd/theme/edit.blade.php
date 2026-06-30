@@ -161,7 +161,7 @@
                  style="border:1px solid var(--pv-border, #dee2e6);">
                 <div class="preview-header" id="pvHeader" style="background:var(--pv-header-bg, #ffffff);">
                     <span id="pvHeaderText" style="color:var(--pv-header-text, #212529);font-weight:700;font-size:14px;">My Store</span>
-                    <span class="preview-btn" id="pvButton" style="background:var(--pv-button-bg, #0d6efd);color:var(--pv-button-text, #ffffff);">Shop Now</span>
+                    <span class="preview-btn" id="pvButton" style="background:var(--pv-button-bg, #0d6efd);color:var(--pv-button-text, #ffffff);">{{ __('Shop Now') }}</span>
                 </div>
                 <div class="preview-body" id="pvBody" style="background:var(--pv-body-bg, #ffffff);">
                     <h5 id="pvHeading" style="color:var(--pv-heading, #111111);font-weight:700;">Summer Collection 2026</h5>
@@ -190,7 +190,7 @@
                                 <input type="text" name="slug" class="custom-input" value="{{ old('slug', $edit_data->slug ?? '') }}" required maxlength="120">
                             </div>
                             <div class="col-12">
-                                <label class="form-label-pro">Description</label>
+                                <label class="form-label-pro">{{ __('Description') }}</label>
                                 <textarea name="description" class="custom-input" rows="2">{{ old('description', $edit_data->description ?? '') }}</textarea>
                             </div>
                             <div class="col-md-6">
@@ -200,15 +200,15 @@
                             <div class="col-md-3">
                                 <label class="form-label-pro">Active?</label>
                                 <select name="is_active" class="custom-input">
-                                    <option value="1" {{ old('is_active', $edit_data->is_active ?? true) ? 'selected' : '' }}>Yes</option>
-                                    <option value="0" {{ old('is_active', $edit_data->is_active ?? true) ? '' : 'selected' }}>No</option>
+                                    <option value="1" {{ old('is_active', $edit_data->is_active ?? true) ? 'selected' : '' }}>{{ __('Yes') }}</option>
+                                    <option value="0" {{ old('is_active', $edit_data->is_active ?? true) ? '' : 'selected' }}>{{ __('No') }}</option>
                                 </select>
                             </div>
                             <div class="col-md-3">
                                 <label class="form-label-pro">Set as Default?</label>
                                 <select name="is_default" class="custom-input">
-                                    <option value="1" {{ old('is_default', $edit_data->is_default ?? false) ? 'selected' : '' }}>Yes</option>
-                                    <option value="0" {{ old('is_default', $edit_data->is_default ?? false) ? '' : 'selected' }}>No</option>
+                                    <option value="1" {{ old('is_default', $edit_data->is_default ?? false) ? 'selected' : '' }}>{{ __('Yes') }}</option>
+                                    <option value="0" {{ old('is_default', $edit_data->is_default ?? false) ? '' : 'selected' }}>{{ __('No') }}</option>
                                 </select>
                             </div>
                         </div>
@@ -424,7 +424,7 @@
                 <i class="mdi mdi-content-save-all me-2"></i> 
                 {{ $edit_data ? 'Update Theme' : 'Create Theme' }}
             </button>
-            <a href="{{ route('themes.index') }}" class="btn btn-light rounded-pill px-4 ms-2 fw-bold">Cancel</a>
+            <a href="{{ route('themes.index') }}" class="btn btn-light rounded-pill px-4 ms-2 fw-bold">{{ __('Cancel') }}</a>
         </div>
     </form>
 </div>

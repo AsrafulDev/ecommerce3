@@ -164,7 +164,7 @@
                 </div>
             </div>
             <div class="inv-block">
-                <div class="inv-tag">Invoice</div>
+                <div class="inv-tag">{{ __('Invoice') }}</div>
                 <div class="inv-num">#{{ $order->invoice_id }}</div>
                 <div class="inv-date">{{ $order->created_at->format('d M Y') }}</div>
             </div>
@@ -236,7 +236,7 @@
                 @endif
             </div>
             <div class="lbl-amount">
-                <div class="a-tag">Total</div>
+                <div class="a-tag">{{ __('Total') }}</div>
                 <div class="a-val">&#2547;{{ number_format($order->amount,0) }}</div>
                 <div class="a-qty">{{ $totalQty }} {{ $totalQty>1?'pcs':'pc' }}</div>
             </div>

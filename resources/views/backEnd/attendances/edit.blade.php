@@ -74,8 +74,7 @@
                             <p class="text-muted small mb-0">Update employee attendance record.</p>
                         </div>
                         <a href="{{ route('admin.attendances.index') }}" class="btn btn-light btn-sm rounded-pill px-3">
-                            <i data-feather="x" style="width:14px;"></i> Close
-                        </a>
+                            <i data-feather="x" style="width:14px;"></i>{{ __('Close') }}</a>
                     </div>
 
                     <div class="card-body p-4">
@@ -90,7 +89,7 @@
                                 <small class="text-muted">ID: {{ $attendance->employee->employee_id }}</small>
                             </div>
                             <div class="ms-auto text-end">
-                                <small class="text-muted d-block">Date</small>
+                                <small class="text-muted d-block">{{ __('Date') }}</small>
                                 <span class="fw-bold text-dark">{{ $attendance->attendance_date->format('d M, Y') }}</span>
                             </div>
                         </div>
@@ -148,7 +147,7 @@
                             <button type="submit" class="btn btn-primary py-2 fw-bold shadow-sm">
                                 <i data-feather="check-circle" class="me-1" style="width: 16px;"></i> Update Attendance
                             </button>
-                            <a href="{{ route('admin.attendances.index') }}" class="btn btn-light py-2">Cancel</a>
+                            <a href="{{ route('admin.attendances.index') }}" class="btn btn-light py-2">{{ __('Cancel') }}</a>
                         </div>
 
                     </div>

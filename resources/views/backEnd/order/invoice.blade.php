@@ -84,12 +84,12 @@
                                     <p><strong>Payment Gateway:</strong> {{ ucfirst($order->payment_gateway ?? 'N/A') }}</p>
                                     <p><strong>Payment Status:</strong></p>
                                     <select id="payment_status_{{ $order->id }}" class="form-control no-print" style="width:auto; display:inline-block;">
-                                        <option value="pending" {{ $order->payment_status == 'pending' ? 'selected' : '' }}>Pending</option>
+                                        <option value="pending" {{ $order->payment_status == 'pending' ? 'selected' : '' }}>{{ __('Pending') }}</option>
                                         <option value="paid" {{ $order->payment_status == 'paid' ? 'selected' : '' }}>Paid</option>
                                         <option value="unpaid" {{ $order->payment_status == 'unpaid' ? 'selected' : '' }}>Unpaid</option>
-                                        <option value="failed" {{ $order->payment_status == 'failed' ? 'selected' : '' }}>Failed</option>
+                                        <option value="failed" {{ $order->payment_status == 'failed' ? 'selected' : '' }}>{{ __('Failed') }}</option>
                                     </select>
-                                    <button class="btn btn-sm btn-success no-print" onclick="updatePaymentStatus({{ $order->id }})">Update</button>
+                                    <button class="btn btn-sm btn-success no-print" onclick="updatePaymentStatus({{ $order->id }})">{{ __('Update') }}</button>
                                 </div>
                                 
                                 <!-- ✅ Order Status Change (Manual) -->
@@ -142,7 +142,7 @@
 
                             <td  style="width:60%;float: left;">
                                 <div class="invoice-bar" style=" background: #4DBC60; transform: skew(38deg); width: 100%; margin-left: 65px; padding: 20px 60px; ">
-                                    <p style="font-size: 30px; color: #fff; transform: skew(-38deg); text-transform: uppercase; text-align: right; font-weight: bold;">Invoice</p>
+                                    <p style="font-size: 30px; color: #fff; transform: skew(-38deg); text-transform: uppercase; text-align: right; font-weight: bold;">{{ __('Invoice') }}</p>
                                 </div>
                                 <div class="invoice-bar" style="background: #fff; transform: skew(36deg); width: 72%; margin-left: 182px; padding: 12px 32px; margin-top: 6px;">
                                     <p style="font-size: 15px; color: #222;font-weight:bold; transform: skew(-36deg); text-align: right; padding-right: 18px">Invoice ID : <strong>#{{$order->invoice_id}}</strong></p>
@@ -162,11 +162,11 @@
                     <table class="table" style="margin-top: 30px;margin-bottom: 0;">
                         <thead style="background: #4DBC60; color: #fff;">
                             <tr>
-                                <th>SL</th>
+                                <th>{{ __('SL') }}</th>
                                 <th>Product</th>
-                                <th>Price</th>
-                                <th>Qty</th>
-                                <th>Total</th>
+                                <th>{{ __('Price') }}</th>
+                                <th>{{ __('Qty') }}</th>
+                                <th>{{ __('Total') }}</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -315,7 +315,7 @@
 
 
                         <div class="terms-condition" style="overflow: hidden; width: 100%; text-align: center; padding: 20px 0; border-top: 1px solid #ddd;">
-                            <h5 style="font-style: italic;"><a href="{{route('page',['slug'=>'terms-condition'])}}">Terms & Conditions</a></h5>
+                            <h5 style="font-style: italic;"><a href="{{route('page',['slug'=>'terms-condition'])}}">{{ __('Terms & Conditions') }}</a></h5>
                             <p style="text-align: center; font-style: italic; font-size: 15px; margin-top: 10px;">* This is a computer generated invoice, does not require any signature.</p>
                         </div>
                     </div>
@@ -369,9 +369,9 @@
             <tr>
                 <th style="width:14px;">#</th>
                 <th>Product</th>
-                <th style="width:22px;text-align:center;">Qty</th>
+                <th style="width:22px;text-align:center;">{{ __('Qty') }}</th>
                 <th style="width:44px;" class="r">Rate</th>
-                <th style="width:48px;" class="r">Total</th>
+                <th style="width:48px;" class="r">{{ __('Total') }}</th>
             </tr>
         </thead>
         <tbody>
@@ -402,7 +402,7 @@
             @endforeach
         </tbody>
     </table>
-    <div class="rs"><span>Subtotal</span><span>{{ number_format($sub,2) }}</span></div>
+    <div class="rs"><span>{{ __('Subtotal') }}</span><span>{{ number_format($sub,2) }}</span></div>
     @if($order->discount > 0)<div class="rs"><span>Discount (–)</span><span>{{ number_format($order->discount,2) }}</span></div>@endif
     @if($order->shipping_charge > 0)<div class="rs"><span>Delivery (+)</span><span>{{ number_format($order->shipping_charge,2) }}</span></div>@endif
     <div class="rtotal">

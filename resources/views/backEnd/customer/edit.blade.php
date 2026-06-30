@@ -156,7 +156,7 @@
                                     </div>
                                     <div class="col-md-6">
                                         <div class="form-group mb-4">
-                                            <label class="form-label">Password <span class="text-muted font-weight-normal">(Leave blank to keep current)</span></label>
+                                            <label class="form-label">{{ __('Password') }}<span class="text-muted font-weight-normal">(Leave blank to keep current)</span></label>
                                             <input type="password" class="form-control" name="password" placeholder="********">
                                             @error('password') <div class="text-danger small mt-1">{{ $message }}</div> @enderror
                                         </div>

@@ -149,10 +149,10 @@
                         <table id="datatable-buttons" class="table table-pro mb-0 w-100">
                             <thead>
                                 <tr>
-                                    <th width="5%">SL</th>
+                                    <th width="5%">{{ __('SL') }}</th>
                                     <th width="15%">Platform</th>
                                     <th width="40%">Name / Title</th>
-                                    <th width="15%">Status</th>
+                                    <th width="15%">{{ __('Status') }}</th>
                                     <th width="15%" class="text-end">Actions</th>
                                 </tr>
                             </thead>
@@ -171,12 +171,10 @@
                                     <td>
                                         @if($value->status == 1)
                                             <span class="status-badge status-active">
-                                                <i class="mdi mdi-check-circle me-1"></i> Active
-                                            </span>
+                                                <i class="mdi mdi-check-circle me-1"></i>{{ __('Active') }}</span>
                                         @else
                                             <span class="status-badge status-inactive">
-                                                <i class="mdi mdi-alert-circle me-1"></i> Inactive
-                                            </span>
+                                                <i class="mdi mdi-alert-circle me-1"></i>{{ __('Inactive') }}</span>
                                         @endif
                                     </td>
                                     <td class="text-end">

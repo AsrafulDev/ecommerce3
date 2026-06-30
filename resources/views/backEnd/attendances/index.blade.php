@@ -86,8 +86,7 @@
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
             <h4 class="mb-1 fw-bold text-dark">
-                <i data-feather="clock" class="text-primary me-2"></i> Attendance
-            </h4>
+                <i data-feather="clock" class="text-primary me-2"></i>{{ __('Attendance') }}</h4>
             <p class="text-muted small mb-0">Track and manage employee attendance records.</p>
         </div>
         <a href="{{ route('admin.attendances.create') }}" class="btn btn-primary px-4 py-2 rounded-pill shadow-sm">
@@ -102,7 +101,7 @@
             <form method="GET" action="{{ route('admin.attendances.index') }}">
                 <div class="row g-3 align-items-end">
                     <div class="col-md-3">
-                        <label class="form-label small fw-bold text-muted text-uppercase mb-1">Employee</label>
+                        <label class="form-label small fw-bold text-muted text-uppercase mb-1">{{ __('Employee') }}</label>
                         <select name="employee_id" class="form-control select2 form-select-modern">
                             <option value="">All Employees</option>
                             @foreach($employees as $emp)
@@ -113,15 +112,15 @@
                         </select>
                     </div>
                     <div class="col-md-2">
-                        <label class="form-label small fw-bold text-muted text-uppercase mb-1">Date</label>
+                        <label class="form-label small fw-bold text-muted text-uppercase mb-1">{{ __('Date') }}</label>
                         <input type="date" name="date" class="form-control form-control-modern" value="{{ request('date') }}">
                     </div>
                     <div class="col-md-2">
-                        <label class="form-label small fw-bold text-muted text-uppercase mb-1">Month</label>
+                        <label class="form-label small fw-bold text-muted text-uppercase mb-1">{{ __('Month') }}</label>
                         <input type="month" name="month" class="form-control form-control-modern" value="{{ request('month') }}">
                     </div>
                     <div class="col-md-2">
-                        <label class="form-label small fw-bold text-muted text-uppercase mb-1">Status</label>
+                        <label class="form-label small fw-bold text-muted text-uppercase mb-1">{{ __('Status') }}</label>
                         <select name="status" class="form-select form-select-modern">
                             <option value="">All Status</option>
                             <option value="present" {{ request('status') == 'present' ? 'selected' : '' }}>Present</option>
@@ -131,8 +130,8 @@
                         </select>
                     </div>
                     <div class="col-md-3 d-flex gap-2">
-                        <button type="submit" class="btn btn-dark w-100 fw-bold">Filter</button>
-                        <a href="{{ route('admin.attendances.index') }}" class="btn btn-light border px-3" title="Reset">
+                        <button type="submit" class="btn btn-dark w-100 fw-bold">{{ __('Filter') }}</button>
+                        <a href="{{ route('admin.attendances.index') }}" class="btn btn-light border px-3" title="{{ __('Reset') }}">
                             <i data-feather="refresh-cw" style="width:16px;"></i>
                         </a>
                     </div>
@@ -147,10 +146,10 @@
                     <tr>
                         <th width="5%">#</th>
                         <th width="25%">Employee Details</th>
-                        <th width="15%">Date</th>
-                        <th width="15%">Check In</th>
-                        <th width="15%">Check Out</th>
-                        <th width="15%">Status</th>
+                        <th width="15%">{{ __('Date') }}</th>
+                        <th width="15%">{{ __('Check In') }}</th>
+                        <th width="15%">{{ __('Check Out') }}</th>
+                        <th width="15%">{{ __('Status') }}</th>
                         <th width="10%" class="text-end">Actions</th>
                     </tr>
                 </thead>
@@ -188,14 +187,14 @@
                             </td>
                             <td class="text-end">
                                 <div class="d-flex justify-content-end gap-1">
-                                    <a href="{{ route('admin.attendances.edit', $attendance->id) }}" class="btn-icon btn-edit" title="Edit">
+                                    <a href="{{ route('admin.attendances.edit', $attendance->id) }}" class="btn-icon btn-edit" title="{{ __('Edit') }}">
                                         <i data-feather="edit-2" style="width:14px;"></i>
                                     </a>
                                     <form action="{{ route('admin.attendances.destroy', $attendance->id) }}" method="POST" class="d-inline" 
                                           onsubmit="return confirm('Are you sure you want to delete this record?');">
                                         @csrf
                                         @method('DELETE')
-                                        <button type="submit" class="btn-icon btn-delete" title="Delete">
+                                        <button type="submit" class="btn-icon btn-delete" title="{{ __('Delete') }}">
                                             <i data-feather="trash-2" style="width:14px;"></i>
                                         </button>
                                     </form>
@@ -217,8 +216,7 @@
 
         {{-- PAGINATION --}}
         <div class="p-4 border-top d-flex justify-content-between align-items-center bg-white rounded-bottom">
-            <small class="text-muted">
-                Showing <strong>{{ $attendances->firstItem() }}</strong> to <strong>{{ $attendances->lastItem() }}</strong> of <strong>{{ $attendances->total() }}</strong> records
+            <small class="text-muted">{{ __('Showing') }}<strong>{{ $attendances->firstItem() }}</strong>{{ __('to') }}<strong>{{ $attendances->lastItem() }}</strong>{{ __('of') }}<strong>{{ $attendances->total() }}</strong> records
             </small>
             <div>
                 {{ $attendances->links('pagination::bootstrap-4') }}

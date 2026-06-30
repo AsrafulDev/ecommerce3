@@ -83,10 +83,9 @@
     
     <div class="row mb-3 mt-3">
         <div class="col-12 d-flex justify-content-between align-items-center">
-            <h4 class="page-title mb-0" style="font-weight: 700; color: #2d3436;">Categories</h4>
+            <h4 class="page-title mb-0" style="font-weight: 700; color: #2d3436;">{{ __('Categories') }}</h4>
             <a href="{{route('categories.create')}}" class="btn btn-primary rounded-pill shadow-sm px-4">
-                <i class="fe-plus me-1"></i> Add Category
-            </a>
+                <i class="fe-plus me-1"></i>{{ __('Add Category') }}</a>
         </div>
     </div>
 
@@ -97,11 +96,11 @@
                     <table id="datatable-buttons" class="table table-hover w-100 dt-responsive nowrap">
                         <thead>
                             <tr>
-                                <th style="width: 50px;">SL</th>
-                                <th>Image</th>
+                                <th style="width: 50px;">{{ __('SL') }}</th>
+                                <th>{{ __('Image') }}</th>
                                 <th>Category Name</th>
-                                <th>Status</th>
-                                <th class="text-end" style="width: 150px;">Action</th>
+                                <th>{{ __('Status') }}</th>
+                                <th class="text-end" style="width: 150px;">{{ __('Action') }}</th>
                             </tr>
                         </thead>                
                         <tbody>
@@ -124,9 +123,9 @@
 
                                 <td>
                                     @if($value->status==1)
-                                        <span class="badge badge-pill badge-soft-success">Active</span> 
+                                        <span class="badge badge-pill badge-soft-success">{{ __('Active') }}</span> 
                                     @else 
-                                        <span class="badge badge-pill badge-soft-danger">Inactive</span> 
+                                        <span class="badge badge-pill badge-soft-danger">{{ __('Inactive') }}</span> 
                                     @endif
                                 </td>
 
@@ -152,7 +151,7 @@
                                         @endif
 
                                         {{-- Edit --}}
-                                        <a href="{{route('categories.edit',$value->id)}}" class="action-btn btn-edit" title="Edit">
+                                        <a href="{{route('categories.edit',$value->id)}}" class="action-btn btn-edit" title="{{ __('Edit') }}">
                                             <i class="fe-edit"></i>
                                         </a>
 
@@ -161,7 +160,7 @@
                                         <form method="post" action="{{route('categories.destroy')}}" class="d-inline">        
                                             @csrf
                                             <input type="hidden" value="{{$value->id}}" name="hidden_id">
-                                            <button type="submit" class="action-btn btn-delete delete-confirm" title="Delete">
+                                            <button type="submit" class="action-btn btn-delete delete-confirm" title="{{ __('Delete') }}">
                                                 <i class="fe-trash-2"></i>
                                             </button>
                                         </form>

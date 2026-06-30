@@ -331,6 +331,14 @@ Route::get('/admin/sms/custom-send', [App\Http\Controllers\Admin\ApiIntegrationC
 Route::post('/admin/sms/custom-send', [App\Http\Controllers\Admin\ApiIntegrationController::class, 'sms_custom_send'])->middleware(['auth:admin', 'admin', 'demo_mode'])->name('admin.sms.custom.send');
 
 
+// 🌐 Language Switcher
+Route::get('lang/{locale}', function ($locale) {
+    if (in_array($locale, ['en', 'bn'])) {
+        session(['locale' => $locale]);
+    }
+    return redirect()->back();
+})->name('lang.switch');
+
 Route::group(['namespace'=>'Frontend', 'middleware' => ['ipcheck','check_refer']], function() {
     Route::get('/', [FrontendController::class, 'index'])->name('home');
 	

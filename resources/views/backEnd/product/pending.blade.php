@@ -144,13 +144,13 @@
                     <table class="table table-hover mb-0">
                         <thead>
                             <tr>
-                                <th style="width: 50px;">SL</th>
-                                <th style="width: 30%;">Product Details</th>
+                                <th style="width: 50px;">{{ __('SL') }}</th>
+                                <th style="width: 30%;">{{ __('Product Details') }}</th>
                                 <th>Vendor Info</th>
-                                <th>Category</th>
-                                <th>Price</th>
-                                <th>Stock</th>
-                                <th>Status</th>
+                                <th>{{ __('Category') }}</th>
+                                <th>{{ __('Price') }}</th>
+                                <th>{{ __('Stock') }}</th>
+                                <th>{{ __('Status') }}</th>
                                 <th class="text-end" style="width: 200px;">Actions</th>
                             </tr>
                         </thead>
@@ -188,14 +188,13 @@
                                     @if($value->stock > 0)
                                         <span class="badge badge-soft-success">{{$value->stock}}</span>
                                     @else
-                                        <span class="badge badge-soft-danger">Out of Stock</span>
+                                        <span class="badge badge-soft-danger">{{ __('Out of Stock') }}</span>
                                     @endif
                                 </td>
 
                                 <td>
                                     <span class="badge badge-pill badge-soft-warning">
-                                        <i class="fe-clock me-1"></i> Pending
-                                    </span>
+                                        <i class="fe-clock me-1"></i>{{ __('Pending') }}</span>
                                 </td>
 
                                 <td class="text-end">
@@ -225,7 +224,7 @@
                                             <div class="modal-content">
                                                 <div class="modal-header">
                                                     <h5 class="modal-title text-danger"><i class="fe-alert-triangle me-2"></i>Reject Product</h5>
-                                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{{ __('Close') }}"></button>
                                                 </div>
                                                 <form method="POST" action="{{ route('products.reject') }}">
                                                     @csrf
@@ -239,7 +238,7 @@
                                                         </div>
                                                     </div>
                                                     <div class="modal-footer bg-light">
-                                                        <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                                        <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">{{ __('Cancel') }}</button>
                                                         <button type="submit" class="btn btn-sm btn-danger">Confirm Rejection</button>
                                                     </div>
                                                 </form>

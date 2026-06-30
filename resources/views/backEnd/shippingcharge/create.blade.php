@@ -70,9 +70,7 @@
             <span class="text-muted small">Define new delivery area and its cost</span>
         </div>
         <div class="d-flex gap-2">
-            <a href="{{route('shippingcharges.index')}}" class="btn btn-light border fw-bold text-secondary px-3">
-                Cancel
-            </a>
+            <a href="{{route('shippingcharges.index')}}" class="btn btn-light border fw-bold text-secondary px-3">{{ __('Cancel') }}</a>
             <button type="submit" form="shippingCreateForm" class="btn btn-primary fw-bold px-4 shadow-sm">
                 <i class="fe-plus me-1"></i> Save Configuration
             </button>

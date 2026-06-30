@@ -86,11 +86,11 @@
                     <tr>
                         <th width="5%">#</th>
                         <th width="20%">Reseller Details</th>
-                        <th width="15%">Amount</th>
+                        <th width="15%">{{ __('Amount') }}</th>
                         <th width="10%">Method</th>
                         <th width="20%">Account Info</th>
                         <th width="15%">Request Date</th>
-                        <th width="10%">Status</th>
+                        <th width="10%">{{ __('Status') }}</th>
                         <th width="5%" class="text-end">Actions</th>
                     </tr>
                 </thead>
@@ -146,14 +146,14 @@
                             {{-- Status --}}
                             <td>
                                 @if($row->status === 'approved')
-                                    <span class="badge-soft badge-approved"><span class="status-dot"></span> Approved</span>
+                                    <span class="badge-soft badge-approved"><span class="status-dot"></span>{{ __('Approved') }}</span>
                                     @if($row->processed_at)
                                         <div class="small text-muted mt-1" style="font-size: 10px;">{{ $row->processed_at->format('d M, Y') }}</div>
                                     @endif
                                 @elseif($row->status === 'rejected')
-                                    <span class="badge-soft badge-rejected"><span class="status-dot"></span> Rejected</span>
+                                    <span class="badge-soft badge-rejected"><span class="status-dot"></span>{{ __('Rejected') }}</span>
                                 @else
-                                    <span class="badge-soft badge-pending"><span class="status-dot"></span> Pending</span>
+                                    <span class="badge-soft badge-pending"><span class="status-dot"></span>{{ __('Pending') }}</span>
                                 @endif
                             </td>
 
@@ -203,7 +203,7 @@
                                                     </div>
                                                 </div>
                                                 <div class="modal-footer border-top-0 pt-0">
-                                                    <button type="button" class="btn btn-light btn-sm" data-bs-dismiss="modal">Cancel</button>
+                                                    <button type="button" class="btn btn-light btn-sm" data-bs-dismiss="modal">{{ __('Cancel') }}</button>
                                                     <button type="submit" class="btn btn-success btn-sm px-4">Confirm Approve</button>
                                                 </div>
                                             </form>
@@ -232,7 +232,7 @@
                                                     </div>
                                                 </div>
                                                 <div class="modal-footer border-top-0 pt-0">
-                                                    <button type="button" class="btn btn-light btn-sm" data-bs-dismiss="modal">Cancel</button>
+                                                    <button type="button" class="btn btn-light btn-sm" data-bs-dismiss="modal">{{ __('Cancel') }}</button>
                                                     <button type="submit" class="btn btn-danger btn-sm px-4">Confirm Reject</button>
                                                 </div>
                                             </form>
@@ -249,8 +249,7 @@
 
         {{-- Pagination --}}
         <div class="p-4 border-top d-flex justify-content-between align-items-center bg-white rounded-bottom">
-            <small class="text-muted">
-                Showing <strong>{{ $data->firstItem() }}</strong> to <strong>{{ $data->lastItem() }}</strong> of <strong>{{ $data->total() }}</strong> requests
+            <small class="text-muted">{{ __('Showing') }}<strong>{{ $data->firstItem() }}</strong>{{ __('to') }}<strong>{{ $data->lastItem() }}</strong>{{ __('of') }}<strong>{{ $data->total() }}</strong> requests
             </small>
             <div>
                 {{ $data->links('pagination::bootstrap-4') }}

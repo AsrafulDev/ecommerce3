@@ -105,7 +105,7 @@
     <div class="row">
         <div class="col-12">
             <div class="page-title-box d-flex align-items-center justify-content-between py-3">
-                <h4 class="page-title mb-0">Product Details</h4>
+                <h4 class="page-title mb-0">{{ __('Product Details') }}</h4>
                 <div class="page-title-right gap-2 d-flex">
                     <form action="{{ route('admin.facebook_page.post_product', $product->id) }}" method="POST" class="d-inline">
                         @csrf
@@ -114,8 +114,7 @@
                         </button>
                     </form>
                     <a href="{{route('products.edit', $product->id)}}" class="btn btn-info rounded-pill shadow-sm">
-                        <i class="fe-edit me-1"></i> Edit Product
-                    </a>
+                        <i class="fe-edit me-1"></i>{{ __('Edit Product') }}</a>
                     <a href="{{route('inhouse.products.index')}}" class="btn btn-secondary rounded-pill shadow-sm">
                         <i class="fe-arrow-left me-1"></i> Back to List
                     </a>
@@ -182,9 +181,9 @@
                     
                     <div class="mb-3">
                         @if($product->status == 1)
-                            <span class="badge badge-soft-success px-2 py-1">Active</span>
+                            <span class="badge badge-soft-success px-2 py-1">{{ __('Active') }}</span>
                         @else
-                            <span class="badge badge-soft-danger px-2 py-1">Inactive</span>
+                            <span class="badge badge-soft-danger px-2 py-1">{{ __('Inactive') }}</span>
                         @endif
 
                         @if($product->topsale == 1)
@@ -230,7 +229,7 @@
                                     <td>#{{ $product->product_code }}</td>
                                 </tr>
                                 <tr>
-                                    <th>Category</th>
+                                    <th>{{ __('Category') }}</th>
                                     <td>
                                         {{ $product->category ? $product->category->name : 'N/A' }}
                                         @if($product->subcategory)
@@ -262,7 +261,7 @@
                     </div>
 
                     <div class="mt-4">
-                        <h5 class="font-size-15 mb-3 text-uppercase text-muted">Description</h5>
+                        <h5 class="font-size-15 mb-3 text-uppercase text-muted">{{ __('Description') }}</h5>
                         <div class="p-3 border rounded bg-light">
                             @if($product->description)
                                 {!! $product->description !!}

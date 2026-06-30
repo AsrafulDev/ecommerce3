@@ -135,12 +135,10 @@
                                     @csrf
                                     <button type="submit" class="btn btn-sm btn-primary rounded-pill"
                                             onclick="return confirm('Import 「{{ $preset['name'] }}」? This will replace all existing data.')">
-                                        <i class="mdi mdi-upload me-1"></i> Import
-                                    </button>
+                                        <i class="mdi mdi-upload me-1"></i>{{ __('Import') }}</button>
                                 </form>
                                 <a href="{{ $preset['live_url'] }}" target="_blank" class="btn btn-sm btn-outline-secondary rounded-pill">
-                                    <i class="mdi mdi-open-in-new me-1"></i> Preview
-                                </a>
+                                    <i class="mdi mdi-open-in-new me-1"></i>{{ __('Preview') }}</a>
                             </div>
                         </div>
                     </div>
@@ -237,10 +235,10 @@
                 <table class="table table-hover align-middle mb-0">
                     <thead>
                         <tr>
-                            <th>Name</th>
-                            <th>Size</th>
-                            <th>Date</th>
-                            <th>Action</th>
+                            <th>{{ __('Name') }}</th>
+                            <th>{{ __('Size') }}</th>
+                            <th>{{ __('Date') }}</th>
+                            <th>{{ __('Action') }}</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -255,14 +253,12 @@
                                     <input type="hidden" name="demo_file" value="preset">
                                     <input type="hidden" name="preset_path" value="{{ $preset['path'] }}">
                                     <button type="submit" class="btn btn-sm btn-outline-success rounded-pill">
-                                        <i class="mdi mdi-upload me-1"></i> Import
-                                    </button>
+                                        <i class="mdi mdi-upload me-1"></i>{{ __('Import') }}</button>
                                 </form>
                                 <a href="{{ route('demo.delete-preset', basename($preset['name'])) }}" 
                                    class="btn btn-sm btn-outline-danger rounded-pill"
                                    onclick="return confirm('Delete this preset?')">
-                                    <i class="mdi mdi-delete me-1"></i> Delete
-                                </a>
+                                    <i class="mdi mdi-delete me-1"></i>{{ __('Delete') }}</a>
                             </td>
                         </tr>
                         @endforeach

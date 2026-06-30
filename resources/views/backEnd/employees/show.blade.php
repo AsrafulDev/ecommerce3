@@ -128,11 +128,9 @@
         <h4 class="mb-0 text-dark fw-bold">Employee Profile</h4>
         <div>
             <a href="{{ route('admin.employees.index') }}" class="btn btn-outline-secondary btn-sm me-2">
-                <i data-feather="arrow-left" class="me-1" style="width:14px;"></i> Back
-            </a>
+                <i data-feather="arrow-left" class="me-1" style="width:14px;"></i>{{ __('Back') }}</a>
             <a href="{{ route('admin.employees.edit', $employee->id) }}" class="btn btn-dark btn-sm">
-                <i data-feather="edit" class="me-1" style="width:14px;"></i> Edit Profile
-            </a>
+                <i data-feather="edit" class="me-1" style="width:14px;"></i>{{ __('Edit Profile') }}</a>
         </div>
     </div>
 
@@ -152,7 +150,7 @@
                     @if($employee->status == 'active')
                         <span class="badge bg-success px-3 py-1 rounded-pill">Active Employee</span>
                     @elseif($employee->status == 'inactive')
-                        <span class="badge bg-warning text-dark px-3 py-1 rounded-pill">Inactive</span>
+                        <span class="badge bg-warning text-dark px-3 py-1 rounded-pill">{{ __('Inactive') }}</span>
                     @else
                         <span class="badge bg-danger px-3 py-1 rounded-pill">Terminated</span>
                     @endif
@@ -168,11 +166,11 @@
                         <span class="val-text">{{ $employee->department ?? 'N/A' }}</span>
                     </li>
                     <li>
-                        <span class="label-text"><i data-feather="phone" style="width:14px;" class="me-2"></i>Phone</span>
+                        <span class="label-text"><i data-feather="phone" style="width:14px;" class="me-2"></i>{{ __('Phone') }}</span>
                         <span class="val-text">{{ $employee->phone ?? 'N/A' }}</span>
                     </li>
                     <li>
-                        <span class="label-text"><i data-feather="mail" style="width:14px;" class="me-2"></i>Email</span>
+                        <span class="label-text"><i data-feather="mail" style="width:14px;" class="me-2"></i>{{ __('Email') }}</span>
                         <span class="val-text" style="font-size:13px;">{{ $employee->email }}</span>
                     </li>
                     <li>
@@ -254,7 +252,7 @@
                             <div class="overview-value">{{ $employee->nid ?? 'N/A' }}</div>
                         </div>
                         <div class="col-md-6 overview-item">
-                            <div class="overview-label">Address</div>
+                            <div class="overview-label">{{ __('Address') }}</div>
                             <div class="overview-value">{{ $employee->address ?? 'N/A' }}</div>
                         </div>
                     </div>
@@ -277,10 +275,10 @@
                         <table class="table table-hover table-striped">
                             <thead class="table-light">
                                 <tr>
-                                    <th>Date</th>
-                                    <th>Check In</th>
-                                    <th>Check Out</th>
-                                    <th>Status</th>
+                                    <th>{{ __('Date') }}</th>
+                                    <th>{{ __('Check In') }}</th>
+                                    <th>{{ __('Check Out') }}</th>
+                                    <th>{{ __('Status') }}</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -310,10 +308,10 @@
                         <table class="table table-bordered table-sm">
                             <thead class="bg-light">
                                 <tr>
-                                    <th>Month</th>
+                                    <th>{{ __('Month') }}</th>
                                     <th>Work Days</th>
                                     <th>Net Salary</th>
-                                    <th>Status</th>
+                                    <th>{{ __('Status') }}</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -341,9 +339,9 @@
                             <thead class="bg-light">
                                 <tr>
                                     <th>ID</th>
-                                    <th>Date</th>
-                                    <th>Amount</th>
-                                    <th>Month</th>
+                                    <th>{{ __('Date') }}</th>
+                                    <th>{{ __('Amount') }}</th>
+                                    <th>{{ __('Month') }}</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -367,10 +365,10 @@
                         <table class="table table-hover">
                             <thead class="table-light">
                                 <tr>
-                                    <th>Type</th>
+                                    <th>{{ __('Type') }}</th>
                                     <th>Date Range</th>
                                     <th>Days</th>
-                                    <th>Status</th>
+                                    <th>{{ __('Status') }}</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -382,9 +380,9 @@
                                         </td>
                                         <td>{{ $leave->total_days }}</td>
                                         <td>
-                                            @if($leave->status == 'approved') <span class="badge bg-success">Approved</span>
-                                            @elseif($leave->status == 'rejected') <span class="badge bg-danger">Rejected</span>
-                                            @else <span class="badge bg-warning text-dark">Pending</span> @endif
+                                            @if($leave->status == 'approved') <span class="badge bg-success">{{ __('Approved') }}</span>
+                                            @elseif($leave->status == 'rejected') <span class="badge bg-danger">{{ __('Rejected') }}</span>
+                                            @else <span class="badge bg-warning text-dark">{{ __('Pending') }}</span> @endif
                                         </td>
                                     </tr>
                                 @empty

@@ -107,14 +107,14 @@
                                             <input type="checkbox" class="form-check-input checkall" id="parentCheck">
                                         </div>
                                     </th>
-                                    <th>SL</th>
-                                    <th>Image</th>
+                                    <th>{{ __('SL') }}</th>
+                                    <th>{{ __('Image') }}</th>
                                     <th style="width: 250px;">Product Info</th>
-                                    <th>Category</th>
+                                    <th>{{ __('Category') }}</th>
                                     <th>Price & Stock</th>
                                     <th>Features</th>
-                                    <th>Status</th>
-                                    <th class="text-center">Action</th>
+                                    <th>{{ __('Status') }}</th>
+                                    <th class="text-center">{{ __('Action') }}</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -172,9 +172,9 @@
 
                                     <td>
                                         @if($value->status==1)
-                                            <span class="badge badge-soft-success px-2 py-1">Active</span>
+                                            <span class="badge badge-soft-success px-2 py-1">{{ __('Active') }}</span>
                                         @else
-                                            <span class="badge badge-soft-danger px-2 py-1">Inactive</span>
+                                            <span class="badge badge-soft-danger px-2 py-1">{{ __('Inactive') }}</span>
                                         @endif
                                     </td>
 
@@ -196,7 +196,7 @@
                                             @endif
 
                                             {{-- Edit --}}
-                                            <a href="{{route('products.edit',$value->id)}}" class="btn-action btn-edit" title="Edit">
+                                            <a href="{{route('products.edit',$value->id)}}" class="btn-action btn-edit" title="{{ __('Edit') }}">
                                                 <i class="fe-edit"></i>
                                             </a>
 
@@ -204,7 +204,7 @@
                                             <form method="post" action="{{route('products.destroy')}}" class="d-inline" onsubmit="return confirm('Are you sure?');">        
                                                 @csrf
                                                 <input type="hidden" value="{{$value->id}}" name="hidden_id">
-                                                <button type="submit" class="btn-action btn-delete" title="Delete">
+                                                <button type="submit" class="btn-action btn-delete" title="{{ __('Delete') }}">
                                                     <i class="fe-trash-2"></i>
                                                 </button>
                                             </form>

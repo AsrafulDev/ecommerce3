@@ -129,8 +129,7 @@
         </div>
         <div class="col-6 text-end">
             <a href="{{route('brands.index')}}" class="btn btn-outline-secondary btn-sm rounded-pill px-3">
-                <i class="fe-arrow-left me-1"></i> Back
-            </a>
+                <i class="fe-arrow-left me-1"></i>{{ __('Back') }}</a>
         </div>
     </div>
 

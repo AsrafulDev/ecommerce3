@@ -92,9 +92,9 @@
                     <table id="datatable-buttons" class="table table-hover w-100 dt-responsive nowrap">
                         <thead>
                             <tr>
-                                <th style="width: 50px;">SL</th>
+                                <th style="width: 50px;">{{ __('SL') }}</th>
                                 <th>Role Name</th>
-                                <th class="text-end" style="width: 150px;">Action</th>
+                                <th class="text-end" style="width: 150px;">{{ __('Action') }}</th>
                             </tr>
                         </thead>                
                         <tbody>
@@ -145,7 +145,7 @@
                                             <form method="post" action="{{ route('roles.destroy') }}" class="d-inline">
                                                 @csrf
                                                 <input type="hidden" value="{{ $value->id }}" name="hidden_id">
-                                                <button type="submit" class="action-btn btn-delete delete-confirm" title="Delete">
+                                                <button type="submit" class="action-btn btn-delete delete-confirm" title="{{ __('Delete') }}">
                                                     <i class="fe-trash-2"></i>
                                                 </button>
                                             </form>

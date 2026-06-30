@@ -69,7 +69,7 @@
                         
                         {{-- Coupon Code Section --}}
                         <div class="mb-4">
-                            <label class="form-label-custom">Coupon Code <span class="text-danger">*</span></label>
+                            <label class="form-label-custom">{{ __('Coupon Code') }}<span class="text-danger">*</span></label>
                             <div class="input-group">
                                 <span class="input-group-text bg-white border-end-0 text-muted border-start-custom" style="border-radius: 10px 0 0 10px; border: 1px solid #e2e8f0; border-right: 0;">
                                     <i data-feather="tag" style="width:16px;"></i>
@@ -133,7 +133,7 @@
                             <button type="submit" class="btn btn-primary py-2 fw-bold shadow-sm">
                                 <i data-feather="check-circle" class="me-1" style="width: 16px;"></i> Create Coupon
                             </button>
-                            <a href="{{ route('admin.coupons.index') }}" class="btn btn-light py-2">Cancel</a>
+                            <a href="{{ route('admin.coupons.index') }}" class="btn btn-light py-2">{{ __('Cancel') }}</a>
                         </div>
 
                     </div>

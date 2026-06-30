@@ -153,7 +153,7 @@
                         <h6 class="text-primary fw-bold mb-3 text-uppercase small ls-1"><i class="fas fa-layer-group me-2"></i>General Meta</h6>
                         
                         <div class="mb-4">
-                            <label class="form-label">Meta Title</label>
+                            <label class="form-label">{{ __('Meta Title') }}</label>
                             <input type="text" id="inputTitle" name="meta_title" 
                                    class="form-control" 
                                    value="{{ old('meta_title', $seo->meta_title ?? '') }}" 
@@ -163,7 +163,7 @@
                         </div>
 
                         <div class="mb-4">
-                            <label class="form-label">Meta Description</label>
+                            <label class="form-label">{{ __('Meta Description') }}</label>
                             <textarea id="inputDesc" name="meta_description" rows="4" 
                                       class="form-control" 
                                       placeholder="Write a compelling description..."
@@ -231,8 +231,8 @@
                 <div class="mt-5 p-3 bg-light rounded-3 border border-light">
                     <h6 class="fw-bold text-dark mb-2"><i class="far fa-lightbulb text-warning me-2"></i>Pro Tips</h6>
                     <ul class="mb-0 ps-3 text-muted small" style="line-height: 1.6;">
-                        <li>Keep <strong>Title</strong> under 60 characters for best visibility.</li>
-                        <li>Keep <strong>Description</strong> between 150-160 characters.</li>
+                        <li>Keep <strong>{{ __('Title') }}</strong> under 60 characters for best visibility.</li>
+                        <li>Keep <strong>{{ __('Description') }}</strong> between 150-160 characters.</li>
                         <li>Use relevant keywords in the beginning of your title.</li>
                     </ul>
                 </div>

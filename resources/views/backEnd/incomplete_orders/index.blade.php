@@ -106,8 +106,8 @@
                 <tr>
                     <th width="50">#</th>
                     <th>Customer</th>
-                    <th>Phone</th>
-                    <th>Date</th>
+                    <th>{{ __('Phone') }}</th>
+                    <th>{{ __('Date') }}</th>
                     <th>Total Amount</th>
                     <th class="text-end">Actions</th>
                 </tr>
@@ -147,7 +147,7 @@
                             <form action="{{ route('admin.incomplete-orders.destroy', $order->id) }}" method="POST" onsubmit="return confirm('Delete permanently?');">
                                 @csrf
                                 @method('DELETE')
-                                <button type="submit" class="btn btn-icon btn-delete" title="Delete">
+                                <button type="submit" class="btn btn-icon btn-delete" title="{{ __('Delete') }}">
                                     <i class="fe-trash-2"></i>
                                 </button>
                             </form>
@@ -160,7 +160,7 @@
                         <div class="details-box">
                             <div class="row">
                                 <div class="col-md-4 border-end">
-                                    <h6 class="text-uppercase text-muted font-size-12">Shipping Address</h6>
+                                    <h6 class="text-uppercase text-muted font-size-12">{{ __('Shipping Address') }}</h6>
                                     <p class="mb-0 text-dark">
                                         <i class="fe-map-pin me-1 text-primary"></i> 
                                         {{ $order->address ?? 'No address provided' }}
@@ -174,10 +174,10 @@
                                     <table class="table table-sm table-borderless mini-table mb-0">
                                         <thead>
                                             <tr>
-                                                <th>Image</th>
+                                                <th>{{ __('Image') }}</th>
                                                 <th>Product Name</th>
-                                                <th>Qty</th>
-                                                <th class="text-end">Price</th>
+                                                <th>{{ __('Qty') }}</th>
+                                                <th class="text-end">{{ __('Price') }}</th>
                                             </tr>
                                         </thead>
                                         <tbody>

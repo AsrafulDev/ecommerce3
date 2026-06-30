@@ -34,9 +34,9 @@
                         <div class="col-md-6">
                             <p><strong>Status:</strong> 
                                 @if($reseller->status == 1)
-                                    <span class="badge bg-success">Active</span>
+                                    <span class="badge bg-success">{{ __('Active') }}</span>
                                 @else
-                                    <span class="badge bg-danger">Inactive</span>
+                                    <span class="badge bg-danger">{{ __('Inactive') }}</span>
                                 @endif
                             </p>
                             <p><strong>Wallet Balance:</strong> ৳{{ number_format($reseller->wallet_balance ?? 0, 2) }}</p>
@@ -55,11 +55,11 @@
                         <div class="col-md-6">
                             <p><strong>Current Status:</strong>
                                 @if($reseller->verification_status == 'approved')
-                                    <span class="badge bg-success">Approved</span>
+                                    <span class="badge bg-success">{{ __('Approved') }}</span>
                                 @elseif($reseller->verification_status == 'rejected')
-                                    <span class="badge bg-danger">Rejected</span>
+                                    <span class="badge bg-danger">{{ __('Rejected') }}</span>
                                 @else
-                                    <span class="badge bg-warning">Pending</span>
+                                    <span class="badge bg-warning">{{ __('Pending') }}</span>
                                 @endif
                             </p>
                             @if($reseller->verified_at)

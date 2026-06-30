@@ -8,7 +8,7 @@
             <div class="col-sm-12">
                 <div class="custom-breadcrumb">
                     <ul>
-                        <li><a href="{{route('home')}}">Home </a></li>
+                        <li><a href="{{route('home')}}">{{ __('Home') }}</a></li>
                         <li>
                             <a><i class="fa-solid fa-angles-right"></i> </a>
                         </li>
@@ -46,12 +46,12 @@
                             <table class="table">
                                 <thead>
                                     <tr>
-                                        <th>Image</th>
+                                        <th>{{ __('Image') }}</th>
                                         <th>Product</th>
-                                        <th>Price</th>
-                                        <th>Qty</th>
-                                        <th>Total</th>
-                                        <th>Remove</th>
+                                        <th>{{ __('Price') }}</th>
+                                        <th>{{ __('Qty') }}</th>
+                                        <th>{{ __('Total') }}</th>
+                                        <th>{{ __('Remove') }}</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -93,7 +93,7 @@
                 <div class="coupon-form">
                     <form action="">
                         <input type="text" placeholder="apply coupon" id="cartCoupon" />
-                        <button type="submit" id="applyCouponBtn">Apply</button>
+                        <button type="submit" id="applyCouponBtn">{{ __('Apply') }}</button>
                     </form>
                 </div>
             </div>
@@ -108,19 +108,19 @@
                                 <td>{{ $cartCount }} (qty)</td>
                             </tr>
                             <tr>
-                                <td>Total</td>
+                                <td>{{ __('Total') }}</td>
                                 <td>৳{{ $subtotal }}</td>
                             </tr>
                             <tr>
-                                <td>Shipping</td>
+                                <td>{{ __('Shipping') }}</td>
                                 <td>৳{{ $shipping }}</td>
                             </tr>
                             <tr>
-                                <td>Discount</td>
+                                <td>{{ __('Discount') }}</td>
                                 <td>৳{{ $discount }}</td>
                             </tr>
                             <tr>
-                                <td>Total</td>
+                                <td>{{ __('Total') }}</td>
                                 <td>৳{{ $grandTotal }}</td>
                             </tr>
                         </tbody>

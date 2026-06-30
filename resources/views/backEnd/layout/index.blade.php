@@ -80,10 +80,10 @@
                 <div class="d-flex align-items-center gap-2">
                     <h5 class="fw-bold mb-1" style="color:#0f172a;">{{ $layout->name }}</h5>
                     @if($isActive)
-                    <span class="badge bg-primary rounded-pill px-3" style="font-size:10px;font-weight:700;">Active</span>
+                    <span class="badge bg-primary rounded-pill px-3" style="font-size:10px;font-weight:700;">{{ __('Active') }}</span>
                     @endif
                     @if($layout->is_default)
-                    <span class="badge bg-secondary rounded-pill px-3" style="font-size:10px;font-weight:700;">Default</span>
+                    <span class="badge bg-secondary rounded-pill px-3" style="font-size:10px;font-weight:700;">{{ __('Default') }}</span>
                     @endif
                 </div>
                 <div class="text-muted small">
@@ -100,15 +100,13 @@
             <div class="d-flex gap-2 align-items-center">
                 @if(!$isActive)
                 <a href="{{ route('layouts.apply', $layout->id) }}" class="btn btn-sm btn-outline-dark rounded-pill px-3" onclick="return confirm('Apply &quot;{{ $layout->name }}&quot; layout?')">
-                    <i class="fe-check me-1"></i> Apply
-                </a>
+                    <i class="fe-check me-1"></i>{{ __('Apply') }}</a>
                 @endif
                 <a href="{{ route('layouts.builder', $layout->id) }}" class="btn btn-sm btn-primary rounded-pill px-3">
                     <i class="mdi mdi-drag me-1"></i> Builder
                 </a>
                 <a href="{{ route('layouts.edit', $layout->id) }}" class="btn btn-sm btn-light rounded-pill px-3">
-                    <i class="fe-edit-2 me-1"></i> Edit
-                </a>
+                    <i class="fe-edit-2 me-1"></i>{{ __('Edit') }}</a>
                 @if(!$isActive)
                 <form action="{{ route('layouts.destroy') }}" method="POST" class="d-inline">
                     @csrf

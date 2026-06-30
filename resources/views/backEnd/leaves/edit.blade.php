@@ -57,8 +57,7 @@
                             <p class="text-muted small mb-0">Modify leave details for an employee.</p>
                         </div>
                         <a href="{{ route('admin.leaves.index') }}" class="btn btn-light btn-sm rounded-pill px-3">
-                            <i data-feather="x" style="width:14px;"></i> Cancel
-                        </a>
+                            <i data-feather="x" style="width:14px;"></i>{{ __('Cancel') }}</a>
                     </div>
 
                     <div class="card-body p-4">

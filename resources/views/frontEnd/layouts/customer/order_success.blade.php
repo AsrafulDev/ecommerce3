@@ -110,11 +110,9 @@
     <div class="container no-print mb-4">
         <div class="d-flex justify-content-center gap-2">
             <a href="{{route('customer.orders')}}" class="btn btn-dark btn-sm rounded-pill px-4">
-               <i class="fa fa-arrow-left me-1"></i> Back
-            </a>
+               <i class="fa fa-arrow-left me-1"></i>{{ __('Back') }}</a>
             <button onclick="downloadPDF()" class="btn btn-primary btn-sm rounded-pill px-4 shadow-sm">
-                <i class="fa fa-download me-1"></i> Download Invoice
-            </button>
+                <i class="fa fa-download me-1"></i>{{ __('Download Invoice') }}</button>
         </div>
     </div>
 
@@ -176,9 +174,9 @@
                     <thead>
                         <tr>
                             <th>Product Description</th>
-                            <th class="text-center">Price</th>
-                            <th class="text-center">Qty</th>
-                            <th class="text-end">Total</th>
+                            <th class="text-center">{{ __('Price') }}</th>
+                            <th class="text-center">{{ __('Qty') }}</th>
+                            <th class="text-end">{{ __('Total') }}</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -213,7 +211,7 @@
             <div class="sum-wrapper">
                 <div class="sum-box">
                     <div class="sum-row">
-                        <span class="text-muted">Subtotal</span>
+                        <span class="text-muted">{{ __('Subtotal') }}</span>
                         <span>৳{{number_format($subtotal, 2)}}</span>
                     </div>
                     <div class="sum-row">
@@ -222,7 +220,7 @@
                     </div>
                     @if($order->discount > 0)
                     <div class="sum-row text-danger">
-                        <span>Discount</span>
+                        <span>{{ __('Discount') }}</span>
                         <span>-৳{{number_format($order->discount, 2)}}</span>
                     </div>
                     @endif

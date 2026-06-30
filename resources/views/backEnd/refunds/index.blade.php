@@ -152,7 +152,7 @@
         <div class="col-auto">
             <nav aria-label="breadcrumb">
                 <ol class="breadcrumb bg-transparent p-0 m-0">
-                    <li class="breadcrumb-item"><a href="#">Home</a></li>
+                    <li class="breadcrumb-item"><a href="#">{{ __('Home') }}</a></li>
                     <li class="breadcrumb-item active" aria-current="page">Refunds</li>
                 </ol>
             </nav>
@@ -182,8 +182,7 @@
                             </div>
                             <div class="col-md-5 text-end">
                                 <a href="{{ route('admin.refunds.index') }}" class="btn btn-light rounded-pill px-4">
-                                    <i class="fe-refresh-cw me-1"></i> Reset
-                                </a>
+                                    <i class="fe-refresh-cw me-1"></i>{{ __('Reset') }}</a>
                             </div>
                         </div>
                     </form>
@@ -195,11 +194,11 @@
                                     <th>#</th>
                                     <th>Refund Info</th>
                                     <th>Customer</th>
-                                    <th>Amount</th>
+                                    <th>{{ __('Amount') }}</th>
                                     <th>Method</th>
-                                    <th>Status</th>
-                                    <th>Date</th>
-                                    <th class="text-end">Action</th>
+                                    <th>{{ __('Status') }}</th>
+                                    <th>{{ __('Date') }}</th>
+                                    <th class="text-end">{{ __('Action') }}</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -252,11 +251,11 @@
 
                                         <td>
                                             @if($refund->status == 'pending')
-                                                <span class="badge-modern badge-pending">Pending</span>
+                                                <span class="badge-modern badge-pending">{{ __('Pending') }}</span>
                                             @elseif($refund->status == 'approved')
-                                                <span class="badge-modern badge-approved">Approved</span>
+                                                <span class="badge-modern badge-approved">{{ __('Approved') }}</span>
                                             @elseif($refund->status == 'rejected')
-                                                <span class="badge-modern badge-rejected">Rejected</span>
+                                                <span class="badge-modern badge-rejected">{{ __('Rejected') }}</span>
                                             @elseif($refund->status == 'processed')
                                                 <span class="badge-modern badge-processed">Processed</span>
                                             @endif
@@ -328,9 +327,9 @@
 
                             {{-- Next --}}
                             @if ($data->hasMorePages())
-                                <li class="modern-page-item"><a class="modern-page-link modern-page-link-text" href="{{ $data->nextPageUrl() }}" rel="next">Next <i class="fe-arrow-right ms-1"></i></a></li>
+                                <li class="modern-page-item"><a class="modern-page-link modern-page-link-text" href="{{ $data->nextPageUrl() }}" rel="next">{{ __('Next') }}<i class="fe-arrow-right ms-1"></i></a></li>
                             @else
-                                <li class="modern-page-item disabled"><span class="modern-page-link modern-page-link-text">Next <i class="fe-arrow-right ms-1"></i></span></li>
+                                <li class="modern-page-item disabled"><span class="modern-page-link modern-page-link-text">{{ __('Next') }}<i class="fe-arrow-right ms-1"></i></span></li>
                             @endif
                         </ul>
                     </div>
@@ -362,7 +361,7 @@
                         </div>
                     </div>
                     <div class="modal-footer border-0 pt-0">
-                        <button type="button" class="btn btn-link text-muted" data-bs-dismiss="modal">Cancel</button>
+                        <button type="button" class="btn btn-link text-muted" data-bs-dismiss="modal">{{ __('Cancel') }}</button>
                         <button type="submit" class="btn btn-success px-4">Approve</button>
                     </div>
                 </form>
@@ -386,7 +385,7 @@
                         </div>
                     </div>
                     <div class="modal-footer border-0 pt-0">
-                        <button type="button" class="btn btn-link text-muted" data-bs-dismiss="modal">Cancel</button>
+                        <button type="button" class="btn btn-link text-muted" data-bs-dismiss="modal">{{ __('Cancel') }}</button>
                         <button type="submit" class="btn btn-danger px-4">Reject</button>
                     </div>
                 </form>
@@ -423,7 +422,7 @@
                         </div>
                     </div>
                     <div class="modal-footer border-0 pt-0">
-                        <button type="button" class="btn btn-link text-muted" data-bs-dismiss="modal">Cancel</button>
+                        <button type="button" class="btn btn-link text-muted" data-bs-dismiss="modal">{{ __('Cancel') }}</button>
                         <button type="submit" class="btn btn-primary px-4">Complete</button>
                     </div>
                 </form>

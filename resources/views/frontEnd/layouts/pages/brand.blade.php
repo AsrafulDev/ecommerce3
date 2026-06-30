@@ -14,7 +14,7 @@
             <div class="row">
                 <div class="col-sm-6">
                     <div class="category-breadcrumb d-flex align-items-center">
-                        <a href="{{ route('home') }}">Home</a>
+                        <a href="{{ route('home') }}">{{ __('Home') }}</a>
                         <span>/</span>
                         <strong>{{ $brand->name }}</strong>
                     </div>

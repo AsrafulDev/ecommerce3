@@ -102,7 +102,7 @@
             <form method="GET" action="{{ route('admin.bonuses.index') }}">
                 <div class="row g-3 align-items-end">
                     <div class="col-md-3">
-                        <label class="form-label small fw-bold text-muted text-uppercase mb-1">Employee</label>
+                        <label class="form-label small fw-bold text-muted text-uppercase mb-1">{{ __('Employee') }}</label>
                         <select name="employee_id" class="form-control select2 form-select-modern">
                             <option value="">All Employees</option>
                             @foreach($employees as $emp)
@@ -113,11 +113,11 @@
                         </select>
                     </div>
                     <div class="col-md-2">
-                        <label class="form-label small fw-bold text-muted text-uppercase mb-1">Status</label>
+                        <label class="form-label small fw-bold text-muted text-uppercase mb-1">{{ __('Status') }}</label>
                         <select name="status" class="form-select form-select-modern">
                             <option value="">All Status</option>
-                            <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }}>Pending</option>
-                            <option value="approved" {{ request('status') == 'approved' ? 'selected' : '' }}>Approved</option>
+                            <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }}>{{ __('Pending') }}</option>
+                            <option value="approved" {{ request('status') == 'approved' ? 'selected' : '' }}>{{ __('Approved') }}</option>
                             <option value="paid" {{ request('status') == 'paid' ? 'selected' : '' }}>Paid</option>
                         </select>
                     </div>
@@ -126,8 +126,8 @@
                         <input type="text" name="bonus_type" class="form-control form-control-modern" placeholder="e.g. Eid Bonus" value="{{ request('bonus_type') }}">
                     </div>
                     <div class="col-md-4 d-flex gap-2">
-                        <button type="submit" class="btn btn-dark w-100 fw-bold">Filter</button>
-                        <a href="{{ route('admin.bonuses.index') }}" class="btn btn-light border px-3" title="Reset">
+                        <button type="submit" class="btn btn-dark w-100 fw-bold">{{ __('Filter') }}</button>
+                        <a href="{{ route('admin.bonuses.index') }}" class="btn btn-light border px-3" title="{{ __('Reset') }}">
                             <i data-feather="refresh-cw" style="width:16px;"></i>
                         </a>
                     </div>
@@ -143,9 +143,9 @@
                         <th width="5%">#</th>
                         <th width="20%">Employee Details</th>
                         <th width="15%">Bonus Type</th>
-                        <th width="15%">Amount</th>
-                        <th width="15%">Month</th>
-                        <th width="15%">Status</th>
+                        <th width="15%">{{ __('Amount') }}</th>
+                        <th width="15%">{{ __('Month') }}</th>
+                        <th width="15%">{{ __('Status') }}</th>
                         <th width="15%" class="text-end">Actions</th>
                     </tr>
                 </thead>
@@ -172,9 +172,9 @@
                                 @if($bonus->status == 'paid')
                                     <span class="badge-soft badge-paid"><span class="status-dot"></span> Paid</span>
                                 @elseif($bonus->status == 'approved')
-                                    <span class="badge-soft badge-approved"><span class="status-dot"></span> Approved</span>
+                                    <span class="badge-soft badge-approved"><span class="status-dot"></span>{{ __('Approved') }}</span>
                                 @else
-                                    <span class="badge-soft badge-pending"><span class="status-dot"></span> Pending</span>
+                                    <span class="badge-soft badge-pending"><span class="status-dot"></span>{{ __('Pending') }}</span>
                                 @endif
                             </td>
                             <td class="text-end">
@@ -198,7 +198,7 @@
                                         </form>
                                     @endif
                                     
-                                    <a href="{{ route('admin.bonuses.edit', $bonus->id) }}" class="btn-icon btn-edit" title="Edit">
+                                    <a href="{{ route('admin.bonuses.edit', $bonus->id) }}" class="btn-icon btn-edit" title="{{ __('Edit') }}">
                                         <i data-feather="edit-2" style="width:14px;"></i>
                                     </a>
                                 </div>
@@ -220,7 +220,7 @@
                                                     </div>
                                                 </div>
                                                 <div class="modal-footer border-top-0 pt-0">
-                                                    <button type="button" class="btn btn-light btn-sm" data-bs-dismiss="modal">Cancel</button>
+                                                    <button type="button" class="btn btn-light btn-sm" data-bs-dismiss="modal">{{ __('Cancel') }}</button>
                                                     <button type="submit" class="btn btn-danger btn-sm px-4">Confirm Reject</button>
                                                 </div>
                                             </form>
@@ -245,8 +245,7 @@
 
         {{-- PAGINATION --}}
         <div class="p-4 border-top d-flex justify-content-between align-items-center bg-white rounded-bottom">
-            <small class="text-muted">
-                Showing <strong>{{ $bonuses->firstItem() }}</strong> to <strong>{{ $bonuses->lastItem() }}</strong> of <strong>{{ $bonuses->total() }}</strong> records
+            <small class="text-muted">{{ __('Showing') }}<strong>{{ $bonuses->firstItem() }}</strong>{{ __('to') }}<strong>{{ $bonuses->lastItem() }}</strong>{{ __('of') }}<strong>{{ $bonuses->total() }}</strong> records
             </small>
             <div>
                 {{ $bonuses->links('pagination::bootstrap-4') }}

@@ -114,9 +114,9 @@
                     <table id="datatable-buttons" class="table table-pro dt-responsive nowrap w-100">
                         <thead>
                             <tr>
-                                <th width="10%">SL</th>
+                                <th width="10%">{{ __('SL') }}</th>
                                 <th width="50%">Category Name</th>
-                                <th width="20%">Status</th>
+                                <th width="20%">{{ __('Status') }}</th>
                                 <th width="20%" class="text-end">Actions</th>
                             </tr>
                         </thead>
@@ -132,24 +132,22 @@
                                 <td>
                                     @if($value->status==1)
                                         <span class="status-badge status-active">
-                                            <i class="mdi mdi-check-circle me-1"></i> Active
-                                        </span> 
+                                            <i class="mdi mdi-check-circle me-1"></i>{{ __('Active') }}</span> 
                                     @else 
                                         <span class="status-badge status-inactive">
-                                            <i class="mdi mdi-close-circle me-1"></i> Inactive
-                                        </span> 
+                                            <i class="mdi mdi-close-circle me-1"></i>{{ __('Inactive') }}</span> 
                                     @endif
                                 </td>
                                 <td class="text-end">
                                     <div class="d-flex justify-content-end">
-                                        <a href="{{route('banner_category.edit',$value->id)}}" class="btn-action btn-edit" title="Edit">
+                                        <a href="{{route('banner_category.edit',$value->id)}}" class="btn-action btn-edit" title="{{ __('Edit') }}">
                                             <i class="fe-edit-1" style="font-size: 16px;"></i>
                                         </a>
 
                                         <form action="{{ route('banner_category.destroy') }}" method="POST" class="delete-form d-inline">
                                             @csrf
                                             <input type="hidden" name="hidden_id" value="{{$value->id}}">
-                                            <button type="submit" class="btn-action btn-delete" title="Delete">
+                                            <button type="submit" class="btn-action btn-delete" title="{{ __('Delete') }}">
                                                 <i class="fe-trash-2" style="font-size: 16px;"></i>
                                             </button>
                                         </form>

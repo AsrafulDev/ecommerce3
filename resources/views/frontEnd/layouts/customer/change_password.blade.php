@@ -17,7 +17,7 @@
             <div class="col-sm-9">
                 <div class="customer-content checkout-shipping account-card">
 
-                    <h5 class="account-title">Change Password</h5>
+                    <h5 class="account-title">{{ __('Change Password') }}</h5>
                     <div class="account-divider"></div>
 
                     <form action="{{ route('customer.password_update') }}"

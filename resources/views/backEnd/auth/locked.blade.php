@@ -51,7 +51,7 @@
                                 <form method="POST" action="{{route('unlocked')}}" >
                                     @csrf
                                     <div class="mb-3">
-                                        <label for="password" class="form-label">Password</label>
+                                        <label for="password" class="form-label">{{ __('Password') }}</label>
                                         <div class="input-group input-group-merge">
                                             <input type="password" id="password" class="form-control @error('password') is-invalid @enderror" name="password" value="{{ old('password') }}" required autocomplete="password" autofocus placeholder="Enter your password">
                                             <div class="input-group-text" data-password="false">

@@ -218,7 +218,7 @@ if (typeof ttq !== 'undefined') {
                                 <div class="details_right">
                                     <div class="breadcrumb">
                                         <ul>
-                                            <li><a href="{{ url('/') }}">Home</a></li>
+                                            <li><a href="{{ url('/') }}">{{ __('Home') }}</a></li>
                                             <li><span>/</span></li>
                                             <li><a
                                                     href="{{ url('/category/' . $details->category->slug) }}">{{ $details->category->name }}</a>
@@ -301,9 +301,9 @@ if (typeof ttq !== 'undefined') {
                                                     <table class="table table-bordered table-hover mb-0" style="background: #fff;">
                                                         <thead style="background: #f8f9fa;">
                                                             <tr>
-                                                                <th style="padding: 12px; font-size: 14px; font-weight: 600;">Quantity</th>
-                                                                <th style="padding: 12px; font-size: 14px; font-weight: 600;">Price</th>
-                                                                <th style="padding: 12px; font-size: 14px; font-weight: 600;">Stock</th>
+                                                                <th style="padding: 12px; font-size: 14px; font-weight: 600;">{{ __('Quantity') }}</th>
+                                                                <th style="padding: 12px; font-size: 14px; font-weight: 600;">{{ __('Price') }}</th>
+                                                                <th style="padding: 12px; font-size: 14px; font-weight: 600;">{{ __('Stock') }}</th>
                                                             </tr>
                                                         </thead>
                                                         <tbody>
@@ -498,7 +498,7 @@ if (typeof ttq !== 'undefined') {
                             <a href="#specification" target="_self">Specification</a>
                         </li> --}}
                         <li>
-                            <a href="#description" target="_self">Description</a>
+                            <a href="#description" target="_self">{{ __('Description') }}</a>
                         </li>
                         {{-- <li>
                             <a href="#question" target="_self">Questions (0)</a>
@@ -742,7 +742,7 @@ if (typeof ttq !== 'undefined') {
         <div class="modal-content">
             <div class="modal-header">
                 <h1 class="modal-title fs-5" id="exampleModalLabel">Your review</h1>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{{ __('Close') }}"></button>
             </div>
             <div class="modal-body">
                 <div class="insert-review">

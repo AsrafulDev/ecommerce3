@@ -66,13 +66,11 @@
     
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
-            <h4 class="fw-bold m-0 text-dark">Edit Category</h4>
+            <h4 class="fw-bold m-0 text-dark">{{ __('Edit Category') }}</h4>
             <span class="text-muted small">Modify placement category details</span>
         </div>
         <div class="d-flex gap-2">
-            <a href="{{route('banner_category.index')}}" class="btn btn-light border fw-bold text-secondary px-3">
-                Cancel
-            </a>
+            <a href="{{route('banner_category.index')}}" class="btn btn-light border fw-bold text-secondary px-3">{{ __('Cancel') }}</a>
             <button type="submit" form="editCategoryForm" class="btn btn-primary fw-bold px-4 shadow-sm">
                 <i class="fe-save me-1"></i> Update Category
             </button>

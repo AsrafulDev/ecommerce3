@@ -161,14 +161,14 @@ $totalOrderAmount = \App\Models\Order::where('customer_id', $customerId)->sum('a
                             <div class="w-12 h-12 rounded-full bg-indigo-600 text-white flex items-center justify-center font-bold shadow-lg">
                                 <i class="fas fa-check"></i>
                             </div>
-                            <span class="text-xs font-semibold text-indigo-600 mt-2">Pending</span>
+                            <span class="text-xs font-semibold text-indigo-600 mt-2">{{ __('Pending') }}</span>
                         </div>
                         
                         <div class="flex flex-col items-center relative z-10">
                             <div class="w-12 h-12 rounded-full {{ in_array($refund->status, ['approved', 'processed']) ? 'bg-indigo-600' : 'bg-gray-300' }} text-white flex items-center justify-center font-bold shadow-lg">
                                 <i class="fas fa-check"></i>
                             </div>
-                            <span class="text-xs font-semibold {{ in_array($refund->status, ['approved', 'processed']) ? 'text-indigo-600' : 'text-gray-400' }} mt-2">Approved</span>
+                            <span class="text-xs font-semibold {{ in_array($refund->status, ['approved', 'processed']) ? 'text-indigo-600' : 'text-gray-400' }} mt-2">{{ __('Approved') }}</span>
                         </div>
                         
                         <div class="flex flex-col items-center relative z-10">

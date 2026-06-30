@@ -63,7 +63,7 @@
         <div class="row">
             <div class="col-sm-12">
                 <div class="category-breadcrumb d-flex align-items-center justify-content-center mb-2">
-                    <a href="{{ route('home') }}">Home</a>
+                    <a href="{{ route('home') }}">{{ __('Home') }}</a>
                     <span class="mx-2">/</span>
                     <strong>All Brands</strong>
                 </div>

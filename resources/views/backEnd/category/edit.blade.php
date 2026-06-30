@@ -152,7 +152,7 @@
                     </div>
                     <div class="card-body">
                         <div class="form-group mb-3">
-                            <label for="meta_title" class="form-label">Meta Title</label>
+                            <label for="meta_title" class="form-label">{{ __('Meta Title') }}</label>
                             <input type="text" class="form-control @error('meta_title') is-invalid @enderror" 
                                    name="meta_title" value="{{ $edit_data->meta_title }}" id="meta_title">
                             @error('meta_title')
@@ -161,7 +161,7 @@
                         </div>
 
                         <div class="form-group mb-0">
-                            <label for="meta_description" class="form-label">Meta Description</label>
+                            <label for="meta_description" class="form-label">{{ __('Meta Description') }}</label>
                             <textarea class="summernote form-control @error('meta_description') is-invalid @enderror" 
                                       name="meta_description" id="meta_description">{!! $edit_data->meta_description !!}</textarea>
                             @error('meta_description')

@@ -18,9 +18,9 @@
                 <thead>
                     <tr>
                         <th>#</th>
-                        <th>Email</th>
+                        <th>{{ __('Email') }}</th>
                         <th>Subscribed At</th>
-                        <th width="120">Action</th>
+                        <th width="120">{{ __('Action') }}</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -36,7 +36,7 @@
                                   style="display:inline-block">
                                 @csrf
                                 @method('DELETE')
-                                <button class="btn btn-sm btn-danger" type="submit">Delete</button>
+                                <button class="btn btn-sm btn-danger" type="submit">{{ __('Delete') }}</button>
                             </form>
                         </td>
                     </tr>

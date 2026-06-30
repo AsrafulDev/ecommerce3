@@ -12,14 +12,13 @@
             </div>
             <div class="d-flex gap-2 align-items-center">
                 @guest('customer')
-                    <a href="{{ route('customer.login') }}" class="text-white small text-decoration-none">Login</a>
+                    <a href="{{ route('customer.login') }}" class="text-white small text-decoration-none">{{ __('Login') }}</a>
                     <span class="text-white-50">|</span>
-                    <a href="{{ route('customer.register') }}" class="text-white small text-decoration-none">Register</a>
+                    <a href="{{ route('customer.register') }}" class="text-white small text-decoration-none">{{ __('Register') }}</a>
                 @endguest
                 @auth('customer')
                     <a href="{{ route('customer.account') }}" class="text-white small text-decoration-none">
-                        <i class="fa-solid fa-user"></i> My Account
-                    </a>
+                        <i class="fa-solid fa-user"></i>{{ __('My Account') }}</a>
                 @endauth
             </div>
         </div>
@@ -42,7 +41,7 @@
                 <div class="col-lg-5 col-md-6 d-none d-md-block">
                     <form action="{{ route('search') }}" method="GET" class="header-search-form">
                         <div class="input-group">
-                            <input type="text" name="q" class="form-control" placeholder="Search products..." 
+                            <input type="text" name="q" class="form-control" placeholder="{{ __('Search products...') }}" 
                                    style="border-radius: 25px 0 0 25px; border: 2px solid var(--primary-color);">
                             <button class="btn text-white" type="submit" 
                                     style="background:var(--primary-color); border-radius: 0 25px 25px 0;">
@@ -71,12 +70,12 @@
         <nav class="header-nav" style="background:var(--primary-color);">
             <div class="container">
                 <ul class="nav-list d-flex list-unstyled mb-0">
-                    <li><a href="{{ route('home') }}" class="text-white px-3 py-2 d-block">Home</a></li>
+                    <li><a href="{{ route('home') }}" class="text-white px-3 py-2 d-block">{{ __('Home') }}</a></li>
                     <li><a href="{{ route('shop') }}" class="text-white px-3 py-2 d-block">Shop</a></li>
-                    <li><a href="{{ route('hotdeals') }}" class="text-white px-3 py-2 d-block">Hot Deals</a></li>
-                    <li><a href="{{ route('flashsales') }}" class="text-white px-3 py-2 d-block">Flash Sale</a></li>
-                    <li><a href="{{ route('brands') }}" class="text-white px-3 py-2 d-block">Brands</a></li>
-                    <li><a href="{{ route('blog.details') }}" class="text-white px-3 py-2 d-block">Blog</a></li>
+                    <li><a href="{{ route('hotdeals') }}" class="text-white px-3 py-2 d-block">{{ __('Hot Deals') }}</a></li>
+                    <li><a href="{{ route('flashsales') }}" class="text-white px-3 py-2 d-block">{{ __('Flash Sale') }}</a></li>
+                    <li><a href="{{ route('brands') }}" class="text-white px-3 py-2 d-block">{{ __('Brands') }}</a></li>
+                    <li><a href="{{ route('blog.details') }}" class="text-white px-3 py-2 d-block">{{ __('Blog') }}</a></li>
                     <li><a href="{{ route('contact') }}" class="text-white px-3 py-2 d-block">Contact</a></li>
                 </ul>
             </div>

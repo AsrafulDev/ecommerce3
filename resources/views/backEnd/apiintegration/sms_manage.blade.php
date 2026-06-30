@@ -142,8 +142,8 @@
                 </div>
                 <div class="page-title-right">
                     <ol class="breadcrumb m-0">
-                        <li class="breadcrumb-item"><a href="javascript: void(0);">Dashboard</a></li>
-                        <li class="breadcrumb-item active">SMS Settings</li>
+                        <li class="breadcrumb-item"><a href="javascript: void(0);">{{ __('Dashboard') }}</a></li>
+                        <li class="breadcrumb-item active">{{ __('SMS Settings') }}</li>
                     </ol>
                 </div>
             </div>
@@ -163,7 +163,7 @@
                     <input type="hidden" name="id" value="{{$sms->id}}">
 
                     <div class="form-group mb-4">
-                        <label for="api_key" class="form-label font-weight-bold">API Key <span class="text-danger">*</span></label>
+                        <label for="api_key" class="form-label font-weight-bold">{{ __('API Key') }}<span class="text-danger">*</span></label>
                         <div class="input-group">
                             <div class="input-group-prepend">
                                 <span class="input-group-text"><i class="fas fa-key"></i></span>
@@ -179,7 +179,7 @@
                     </div>
 
                     <div class="form-group mb-4">
-                        <label for="url" class="form-label font-weight-bold">API URL <span class="text-danger">*</span></label>
+                        <label for="url" class="form-label font-weight-bold">{{ __('API URL') }}<span class="text-danger">*</span></label>
                         <div class="input-group">
                             <div class="input-group-prepend">
                                 <span class="input-group-text"><i class="fas fa-link"></i></span>
@@ -273,7 +273,7 @@
                         <div class="col-md-6 mb-3">
                             <div class="d-flex justify-content-between align-items-center border p-3 rounded">
                                 <div>
-                                    <h6 class="mb-1">Forgot Password</h6>
+                                    <h6 class="mb-1">{{ __('Forgot Password') }}</h6>
                                     <small class="text-muted">OTP for password reset</small>
                                 </div>
                                 <label class="switch">
@@ -328,7 +328,7 @@
                             <tr>
                                 <th>Parameter</th>
                                 <th>Value</th>
-                                <th>Description</th>
+                                <th>{{ __('Description') }}</th>
                             </tr>
                         </thead>
                         <tbody>

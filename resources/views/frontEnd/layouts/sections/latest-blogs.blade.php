@@ -57,7 +57,7 @@
             <div class="col-sm-12">
                 <div class="sec_title">
                     <h3 class="section-title-header">
-                        <span class="section-title-name">Latest Blogs</span>
+                        <span class="section-title-name">{{ __('Latest Blogs') }}</span>
                         <a href="{{ route('blogs') }}" class="view_more_btn">View All</a>
                     </h3>
                 </div>
@@ -100,9 +100,7 @@
 
                         <div class="text-center mt-3">
                             <a href="{{ route('blog.details', $blog->slug) }}"
-                               class="btn btn-sm btn-outline-primary read-more-btn">
-                                Read More
-                            </a>
+                               class="btn btn-sm btn-outline-primary read-more-btn">{{ __('Read More') }}</a>
                         </div>
 
                     </div>

@@ -130,8 +130,8 @@
                         <label class="form-label small fw-bold text-muted">Action Type</label>
                         <select name="action" class="form-select">
                             <option value="">All Actions</option>
-                            <option value="edit" {{ request('action') == 'edit' ? 'selected' : '' }}>Edit</option>
-                            <option value="delete" {{ request('action') == 'delete' ? 'selected' : '' }}>Delete</option>
+                            <option value="edit" {{ request('action') == 'edit' ? 'selected' : '' }}>{{ __('Edit') }}</option>
+                            <option value="delete" {{ request('action') == 'delete' ? 'selected' : '' }}>{{ __('Delete') }}</option>
                         </select>
                     </div>
                     <div class="col-md-3">
@@ -144,8 +144,7 @@
                     </div>
                     <div class="col-md-3 d-flex gap-2">
                         <button type="submit" class="btn btn-primary flex-grow-1">
-                            <i data-feather="filter" class="me-1" style="width:14px;"></i> Filter
-                        </button>
+                            <i data-feather="filter" class="me-1" style="width:14px;"></i>{{ __('Filter') }}</button>
                         <a href="{{ route('purchases.logs') }}" class="btn btn-light border">
                             <i data-feather="refresh-cw" style="width:14px;"></i>
                         </a>
@@ -161,7 +160,7 @@
                     <thead>
                         <tr>
                             <th width="5%">#</th>
-                            <th width="10%">Action</th>
+                            <th width="10%">{{ __('Action') }}</th>
                             <th width="15%">Reference</th>
                             <th width="20%">Previous Data</th>
                             <th width="20%">New Data</th>

@@ -110,8 +110,8 @@
                             <div class="col-md-6">
                                 <label class="form-label-custom">Active Status</label>
                                 <select class="form-select form-select-custom" name="status">
-                                    <option value="1" {{ $reseller->status == 1 ? 'selected' : '' }}>Active</option>
-                                    <option value="0" {{ $reseller->status == 0 ? 'selected' : '' }}>Inactive</option>
+                                    <option value="1" {{ $reseller->status == 1 ? 'selected' : '' }}>{{ __('Active') }}</option>
+                                    <option value="0" {{ $reseller->status == 0 ? 'selected' : '' }}>{{ __('Inactive') }}</option>
                                 </select>
                             </div>
                             <div class="col-md-6">
@@ -119,9 +119,9 @@
                                 @if($reseller->verification_status == 'approved')
                                     <span class="badge bg-success verification-badge"><i class="mdi mdi-check-decagram"></i> Verified</span>
                                 @elseif($reseller->verification_status == 'rejected')
-                                    <span class="badge bg-danger verification-badge">Rejected</span>
+                                    <span class="badge bg-danger verification-badge">{{ __('Rejected') }}</span>
                                 @else
-                                    <span class="badge bg-warning text-dark verification-badge">Pending</span>
+                                    <span class="badge bg-warning text-dark verification-badge">{{ __('Pending') }}</span>
                                 @endif
                             </div>
                         </div>
@@ -153,12 +153,12 @@
                     </div>
                     <div class="card-body p-4">
                         <div class="mb-3">
-                            <label class="form-label-custom">New Password</label>
+                            <label class="form-label-custom">{{ __('New Password') }}</label>
                             <input type="password" class="form-control form-control-custom @error('password') is-invalid @enderror" name="password" placeholder="Leave blank to keep current">
                             @error('password') <span class="invalid-feedback">{{ $message }}</span> @enderror
                         </div>
                         <div class="mb-3">
-                            <label class="form-label-custom">Confirm Password</label>
+                            <label class="form-label-custom">{{ __('Confirm Password') }}</label>
                             <input type="password" class="form-control form-control-custom" name="password_confirmation" placeholder="Retype password">
                         </div>
                         

@@ -23,14 +23,14 @@
 							<div class="card-body">
 								<div class="mb-5 text-center">
 									<img src="{{asset($generalsetting->dark_logo)}}" class="mw-100 mb-4" height="40">
-									<h1 class="h3 text-primary mb-0">Forgot Password</h1>
+									<h1 class="h3 text-primary mb-0">{{ __('Forgot Password') }}</h1>
 									<p>Enter your email to reset password</p>
 								</div>
 
 								<form method="POST" action="{{ route('admin.password.email') }}">
 									@csrf
 									<div class="form-group">
-										<input id="email" type="email" name="email" class="form-control @error('email') is-invalid @enderror" placeholder="Enter Email" required autofocus>
+										<input id="email" type="email" name="email" class="form-control @error('email') is-invalid @enderror" placeholder="{{ __('Enter Email') }}" required autofocus>
 										@error('email')
 											<span class="invalid-feedback" role="alert">
 												<strong>{{ $message }}</strong>
