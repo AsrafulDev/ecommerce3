@@ -156,9 +156,9 @@
                                     <p style="font-size: 30px; color: #fff; text-align: right; font-weight: bold; margin: 0;">{{ __('Invoice') }}</p>
                                 </div>
 
-                                <div class="invoice-bar" style="background:#f0f8ff; padding: 12px 20px; margin-top: 6px; text-align:right; border-radius: 4px;">
-                                   <p style="display:inline-block; margin: 0 10px;">Invoice Date: <strong>{{$order->created_at->format('d-m-y')}}</strong></p>
-                                   <p style="display:inline-block; margin: 0 10px;">Invoice No: <strong>{{$order->invoice_id}}</strong></p>
+                                <div class="invoice-bar" style="background:#e8f4fd; padding: 12px 20px; margin-top: 6px; text-align:right; border-radius: 4px; border: 1px solid #b8d8f0;">
+                                   <p style="display:inline-block; margin: 0 10px; font-size: 15px; color: #1a3a5c;">Invoice Date: <strong style="color: #0d6efd;">{{$order->created_at->format('d-m-y')}}</strong></p>
+                                   <p style="display:inline-block; margin: 0 10px; font-size: 15px; color: #1a3a5c;">Invoice No: <strong style="color: #0d6efd;">{{$order->invoice_id}}</strong></p>
                                 </div>
 
                                 <div class="invoice_to" style="padding-top: 20px;">
