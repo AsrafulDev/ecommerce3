@@ -12,7 +12,7 @@
 
         <link rel="shortcut icon" href="{{asset($generalsetting->favicon)}}" alt="{{$generalsetting->name}} Favicon" />
         <meta name="author" content="Creative Design" />
-        <link rel="canonical" href="https://creativedesign.com.bd" />
+        <link rel="canonical" href="{{ __('https://') }}creativedesign.com.bd" />
         @stack('seo') 
         @stack('css')
         <link rel="stylesheet" href="{{asset('public/frontEnd/css/bootstrap.min.css')}}" />
@@ -38,16 +38,16 @@
         <script>
             window.dataLayer = window.dataLayer || [];
             window.dataLayer.push({
-                pageType: '{{ $pageType ?? (\Illuminate\Support\Facades\Route::currentRouteName() ?? "general") }}',
-                pageTitle: '{{ addslashes($generalsetting->name ?? "") }}',
-                siteName: '{{ addslashes($generalsetting->name ?? "") }}',
+                pageType: '{{ $pageType ?? (\Illuminate\Support\Facades\Route::currentRoute{{ __('Name') }}() ?? "general") }}',
+                page{{ __('Title') }}: '{{ addslashes($generalsetting->name ?? "") }}',
+                site{{ __('Name') }}: '{{ addslashes($generalsetting->name ?? "") }}',
                 currency: 'BDT',
                 language: 'bn'
             });
             @stack('dataLayer')
         </script>
 		
-		{{-- 🎨 Theme CSS Variables — injected from active theme --}}
+		{{-- 🎨 Theme CSS {{ __('Variable') }}s — injected from active theme --}}
 		<style>
             :root {
                 --primary-color: {{ $activeTheme->primary_color ?? '#0d6efd' }};
@@ -70,7 +70,7 @@
                 --sale-badge-text: {{ $activeTheme->sale_badge_text ?? '#ffffff' }};
                 --font-family: {{ $activeTheme->font_family ?? "'Roboto', sans-serif" }};
                 --heading-font: {{ $activeTheme->heading_font ?? "'Jost', sans-serif" }};
-                --body-font-size: {{ $activeTheme->body_font_size ?? '14px' }};
+                --body-font-size: {{ $activeTheme->body_font_size ?? '{{ __('14px') }}' }};
                 --border-radius: {{ $activeTheme->border_radius ?? '8px' }};
                 --card-shadow: {{ $activeTheme->card_shadow ?? '0 2px 8px rgba(0,0,0,0.08)' }};
                 --layout-style: {{ $activeTheme->layout_style ?? 'contained' }};
@@ -89,7 +89,7 @@
             !(function (f, b, e, v, n, t, s) {
                 if (f.fbq) return;
                 n = f.fbq = function () {
-                    n.callMethod ? n.callMethod.apply(n, arguments) : n.queue.push(arguments);
+                    n.call{{ __('Method') }} ? n.call{{ __('Method') }}.apply(n, arguments) : n.queue.push(arguments);
                 };
                 if (!f._fbq) f._fbq = n;
                 n.push = n;
@@ -99,33 +99,33 @@
                 t = b.createElement(e);
                 t.async = !0;
                 t.src = v;
-                s = b.getElementsByTagName(e)[0];
-                s.parentNode.insertBefore(t, s);
-            })(window, document, "script", "https://connect.facebook.net/en_US/fbevents.js");
+                s = b.getElementsByTag{{ __('Name') }}(e)[0];
+                s.parentNode.insert{{ __('Before') }}(t, s);
+            })(window, document, "script", "{{ __('https://') }}connect.facebook.net/en_US/fbevents.js");
             fbq("init", "{{{$pixel->code}}}");
             fbq("track", "PageView");
         </script>
         <noscript>
-            <img height="1" width="1" style="display: none;" src="https://www.facebook.com/tr?id={{{$pixel->code}}}&ev=PageView&noscript=1" />
+            <img height="1" width="1" style="display: none;" src="{{ __('https://') }}www.facebook.com/tr?id={{{$pixel->code}}}&ev=PageView&noscript=1" />
         </noscript>
         <!-- End Facebook Pixel Code -->
         @endforeach
         
         @foreach($gtm_code as $gtm)
-        <!-- Google Tag Manager -->
+        <!-- {{ __('Google {{ __('Tag {{ __('Manage') }}r') }}') }} -->
         <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
-        new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+        new {{ __('Date') }}().getTime(),event:'gtm.js'});var f=d.getElementsByTag{{ __('Name') }}(s)[0],
         j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
-        'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+        '{{ __('https://') }}www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insert{{ __('Before') }}(j,f);
         })(window,document,'script','dataLayer','{{ str_starts_with($gtm->code, "GTM-") ? $gtm->code : "GTM-".$gtm->code }}');</script>
-        <!-- End Google Tag Manager -->
+        <!-- End {{ __('Google {{ __('Tag {{ __('Manage') }}r') }}') }} -->
         @endforeach
 
         @foreach($tiktok_pixels as $tp)
         <!-- TikTok Pixel -->
         <script>
             !function (w, d, t) {
-                w.TiktokAnalyticsObject=t;var ttq=w[t]=w[t]||[];ttq.methods=["page","track","identify","instances","debug","on","off","once","ready","alias","group","enableCookie","disableCookie"],ttq.setAndDefer=function(t,e){t[e]=function(){t.push([e].concat(Array.prototype.slice.call(arguments,0)))}};for(var i=0;i<ttq.methods.length;i++)ttq.setAndDefer(ttq,ttq.methods[i]);ttq.instance=function(t){for(var e=ttq._i[t]||[],n=0;n<ttq.methods.length;n++)ttq.setAndDefer(e,ttq.methods[n]);return e},ttq.load=function(e,n){var i="https://analytics.tiktok.com/i18n/pixel/events.js";ttq._i=ttq._i||{},ttq._i[e]=[],ttq._i[e]._u=i,ttq._t=ttq._t||{},ttq._t[e]=+new Date,ttq._o=ttq._o||{},ttq._o[e]=n||{};var o=document.createElement("script");o.type="text/javascript",o.async=!0,o.src=i+"?sdkid="+e+"&lib="+t;var a=document.getElementsByTagName("script")[0];a.parentNode.insertBefore(o,a)};
+                w.TiktokAnalyticsObject=t;var ttq=w[t]=w[t]||[];ttq.methods=["page","track","identify","instances","debug","on","off","once","ready","alias","group","enableCookie","disableCookie"],ttq.setAndDefer=function(t,e){t[e]=function(){t.push([e].concat(Array.prototype.slice.call(arguments,0)))}};for(var i=0;i<ttq.methods.length;i++)ttq.setAndDefer(ttq,ttq.methods[i]);ttq.instance=function(t){for(var e=ttq._i[t]||[],n=0;n<ttq.methods.length;n++)ttq.setAndDefer(e,ttq.methods[n]);return e},ttq.load=function(e,n){var i="{{ __('https://') }}analytics.tiktok.com/i18n/pixel/events.js";ttq._i=ttq._i||{},ttq._i[e]=[],ttq._i[e]._u=i,ttq._t=ttq._t||{},ttq._t[e]=+new {{ __('Date') }},ttq._o=ttq._o||{},ttq._o[e]=n||{};var o=document.createElement("script");o.type="text/javascript",o.async=!0,o.src=i+"?sdkid="+e+"&lib="+t;var a=document.getElementsByTag{{ __('Name') }}("script")[0];a.parentNode.insert{{ __('Before') }}(o,a)};
                 ttq.load('{{ $tp->code }}');
                 ttq.page();
             }(window, document, 'ttq');
@@ -159,7 +159,7 @@
                     display: none;
                 }
             }
-            .stock-out-overlay {
+            .{{ __('stock') }}-out-overlay {
                 position: absolute;
                 top: 50%;
                 left: 0;
@@ -184,7 +184,7 @@
             }
             
             .social_list .fa-facebook-f:hover {
-                background-color: #2d4373;  /* Darker Facebook blue on hover */
+                background-color: #2d4373;  /* {{ __('Dark') }}er Facebook blue on hover */
             }
             
             /* Twitter icon */
@@ -197,7 +197,7 @@
             .social_list .fa-twitter:hover {
                 padding:5px 8px;
                 color:white;
-                background-color: #0c85d0;  /* Darker Twitter blue on hover */
+                background-color: #0c85d0;  /* {{ __('Dark') }}er Twitter blue on hover */
             }
             
             /* Instagram icon */
@@ -210,29 +210,29 @@
             .social_list .fa-instagram:hover {
                 padding:5px 8px;
                 color:white;
-                background-color: #bc2a8d;  /* Darker Instagram purple-pink on hover */
+                background-color: #bc2a8d;  /* {{ __('Dark') }}er Instagram purple-pink on hover */
             }
             
-            /* LinkedIn icon */
+            /* {{ __('Link') }}edIn icon */
             .social_list .fa-linkedin {
                 padding:5px 8px;
                 color:white;
-                background-color: #0077b5;  /* LinkedIn blue */
+                background-color: #0077b5;  /* {{ __('Link') }}edIn blue */
             }
             
             .social_list .fa-linkedin:hover {
-                background-color: #005983;  /* Darker LinkedIn blue on hover */
+                background-color: #005983;  /* {{ __('Dark') }}er {{ __('Link') }}edIn blue on hover */
             }
             
-            /* WhatsApp icon */
+            /* {{ __('WhatsApp') }} icon */
             .social_list .fa-whatsapp {
                 padding:5px 8px;
                 color:white;
-                background-color: #25d366;  /* WhatsApp green */
+                background-color: #25d366;  /* {{ __('WhatsApp') }} green */
             }
             
             .social_list .fa-whatsapp:hover {
-                background-color: #128c7e;  /* Darker WhatsApp green on hover */
+                background-color: #128c7e;  /* {{ __('Dark') }}er {{ __('WhatsApp') }} green on hover */
             }
             
             /* YouTube icon */
@@ -243,11 +243,11 @@
             }
             
             .social_list .fa-youtube:hover {
-                background-color: #cc0000;  /* Darker YouTube red on hover */
+                background-color: #cc0000;  /* {{ __('Dark') }}er YouTube red on hover */
             }
 
             /* Footer Background Fix - Ensure footer always displays correctly on all pages */
-            /* Note: Footer colors are set via inline styles and style.blade.php */
+            /* {{ __('Note') }}: Footer colors are set via inline styles and style.blade.php */
             footer {
                 position: relative !important;
                 z-index: 999 !important;
@@ -263,13 +263,13 @@
                 background-color: transparent !important;
             }
             
-            /* Prevent body background from affecting footer */
+            /* {{ __('Prev') }}ent body background from affecting footer */
             body {
                 background: transparent !important;
                 background-color: transparent !important;
             }
 
-            /* App Store Badges Styles */
+            /* App {{ __('Store') }} Badges Styles */
             .app-badges {
                 display: flex;
                 flex-direction: row;
@@ -319,7 +319,7 @@
                 }
             }
 
-            /* Newsletter Subscribe Styles */
+            /* {{ __('{{ __('New') }}sletter Subscribe') }} Styles */
             .footer-newsletter {
                 margin: 15px 0 25px 0;
                 padding: 15px;
@@ -327,7 +327,7 @@
                 border: none;
             }
             
-            /* Newsletter Title Color - White */
+            /* {{ __('New') }}sletter {{ __('Title') }} {{ __('Color') }} - White */
             .footer-menu .title.stay_conn a {
                 color: var(--footer-text) !important;
             }
@@ -356,7 +356,7 @@
                 border: none;
                 border-radius: 50px 0 0 50px;
                 color: #fff;
-                font-size: 14px;
+                font-size: {{ __('14px') }};
                 transition: all 0.3s ease;
             }
 
@@ -393,7 +393,7 @@
                 font-size: 16px;
             }
 
-            /* Responsive Styles for Newsletter */
+            /* Responsive Styles for {{ __('New') }}sletter */
             @media (max-width: 768px) {
                 .footer-newsletter {
                     margin: 12px 0 15px 0;
@@ -425,7 +425,7 @@
 
                 .newsletter-btn {
                     padding: 10px 15px;
-                    font-size: 14px;
+                    font-size: {{ __('14px') }};
                 }
             }
 
@@ -450,7 +450,7 @@
     </head>
     <body class="gotop">
        
-        @php $subtotal = Cart::instance('shopping')->subtotal(); @endphp
+        @php $sub{{ __('total') }} = {{ __('Cart') }}::instance('shopping')->sub{{ __('total') }}(); @endphp
         <div class="mobile-menu">
                 <div class="mobile-menu-logo">
                     <div class="logo-image">
@@ -475,13 +475,13 @@
                         <ul class="second-nav" style="display: none;">
                             @foreach($scategory->subcategories as $subcategory)
                             <li class="parent-subcategory">
-                                <a href="{{url('subcategory/'.$subcategory->slug)}}" class="menu-subcategory-name">{{$subcategory->subcategoryName}}</a>
+                                <a href="{{url('subcategory/'.$subcategory->slug)}}" class="menu-subcategory-name">{{$subcategory->subcategory{{ __('Name') }}}}</a>
                                 @if($subcategory->childcategories->count() > 0)
                                 <span class="menu-subcategory-toggle"><i class="fa fa-chevron-down"></i></span>
                                 @endif
                                 <ul class="third-nav" style="display: none;">
                                     @foreach($subcategory->childcategories as $childcat)
-                                    <li class="childcategory"><a href="{{url('products/'.$childcat->slug)}}" class="menu-childcategory-name">{{$childcat->childcategoryName}}</a></li>
+                                    <li class="childcategory"><a href="{{url('products/'.$childcat->slug)}}" class="menu-childcategory-name">{{$childcat->childcategory{{ __('Name') }}}}</a></li>
                                     @endforeach
                                 </ul>
                             </li>
@@ -494,7 +494,7 @@
         <header id="navbar_top">
             <div class="top_header" style="background-color:var(--secondary-color)">
                     <div class="container d-flex align-items-center">
-                        <!-- Hotline button on the left side -->
+                        <!-- {{ __('Hotline') }} button on the left side -->
                         <a href="tel:{{ $contact->hotline ?? '01XXX-XXXXXX' }}" class="text-center bg-light px-2 d-none d-sm-block fw-bold fs-4" style="color:var(--primary-color,#13027D);min-width:270px;">
                             <i class="fa-solid fa-headset"></i> {{ $contact->hotline ?? '01XXX-XXXXXX' }}
                         </a>
@@ -521,7 +521,7 @@
     <div class="menu-bag">
     <a href="{{ route('customer.checkout') }}" class="margin-shopping">
         <i class="fa-solid fa-cart-shopping"></i>
-        <span class="mobilecart-qty">{{ Cart::instance('shopping')->count() }}</span>
+        <span class="mobilecart-qty">{{ {{ __('Cart') }}::instance('shopping')->count() }}</span>
     </a>
 </div>
 
@@ -530,7 +530,7 @@
 
             <div class="mobile-search">
                 <form action="{{route('search')}}">
-                    <input type="text" placeholder="Search Product ... " value="" class="msearch_keyword msearch_click" name="keyword" />
+                    <input type="text" placeholder="{{ __('Search {{ __('Product') }} ...') }} " value="" class="msearch_keyword msearch_click" name="keyword" />
                     <button><i data-feather="search"></i></button>
                 </form>
                 <div class="search_result"></div>
@@ -552,7 +552,7 @@
                                     </div>
                                     <div class="main-search">
                                         <form action="{{route('search')}}">
-                                            <input type="text" placeholder="Search Product..." class="search_keyword search_click" name="keyword" />
+                                            <input type="text" placeholder="{{ __('Search {{ __('Product') }}...') }}" class="search_keyword search_click" name="keyword" />
                                             <button>
                                                 <i data-feather="search"></i>
                                             </button>
@@ -562,11 +562,11 @@
                                     <div class="header-list-items">
                                         <ul>
                                             <li class="track_btn">
-                                                <a href="{{route('customer.order_track')}}"> <i class="fa fa-truck"></i>{{ __('Track Order') }}</a>
+                                                <a href="{{route('customer.order_track')}}"> <i class="fa fa-truck"></i>{{ __('{{ __('Track') }} Order') }}</a>
                                             </li>
                                             <li class="track_btn lang-switch">
                                                 <a href="{{ route('lang.switch', app()->getLocale() == 'en' ? 'bn' : 'en') }}" title="Switch Language">
-                                                    <i class="fa fa-language"></i> {{ app()->getLocale() == 'en' ? 'বাংলা' : 'English' }}
+                                                    <i class="fa fa-language"></i> {{ app()->getLocale() == 'en' ? 'বাংলা' : '{{ __('English') }}' }}
                                                 </a>
                                             </li>
                                             @if(Auth::guard('customer')->user())
@@ -594,12 +594,12 @@
                                                 <a href="{{route('customer.checkout')}}">
                                                     <p class="margin-shopping">
                                                         <i class="fa-solid fa-cart-shopping"></i>
-                                                        <span>{{Cart::instance('shopping')->count()}}</span>
+                                                        <span>{{{{ __('Cart') }}::instance('shopping')->count()}}</span>
                                                     </p>
                                                 </a>
                                                 <div class="cshort-summary">
                                                     <ul>
-                                                        @foreach(Cart::instance('shopping')->content() as $key=>$value)
+                                                        @foreach({{ __('Cart') }}::instance('shopping')->content() as $key=>$value)
                                                         <li>
                                                             <a href=""><img src="{{asset($value->options->image)}}" alt="" /></a>
                                                         </li>
@@ -611,8 +611,8 @@
                                                         </li>
                                                         @endforeach
                                                     </ul>
-                                                    <p><strong>সর্বমোট : ৳{{$subtotal}}</strong></p>
-                                                    <a href="{{route('customer.checkout')}}" class="go_cart"> অর্ডার করুন </a>
+                                                    <p><strong>{{ __('Total') }} : ৳{{$sub{{ __('total') }}}}</strong></p>
+                                                    <a href="{{route('customer.checkout')}}" class="go_cart"> {{ __('Order Now') }} </a>
                                                 </div>
                                             </li>
                                         </ul>
@@ -642,14 +642,14 @@
                                                 @foreach ($scategory->subcategories as $subcat)
                                                 <li class="Cat_list cat_list_hover">
                                                     <a href="{{ url('subcategory/' . $subcat->slug) }}">
-                                                        <span>{{ Str::limit($subcat->subcategoryName, 25) }}</span>
+                                                        <span>{{ Str::limit($subcat->subcategory{{ __('Name') }}, 25) }}</span>
                                                         @if($subcat->childcategories->count() > 0)<i class="fa-solid fa-chevron-right cat_down"></i>@endif
                                                     </a>
                                                     @if($subcat->childcategories->count() > 0)
                                                     <ul class="child_menu">
                                                         @foreach($subcat->childcategories as $childcat)
                                                         <li class="child_main">
-                                                            <a href="{{ url('products/'.$childcat->slug) }}">{{ $childcat->childcategoryName }}</a>
+                                                            <a href="{{ url('products/'.$childcat->slug) }}">{{ $childcat->childcategory{{ __('Name') }} }}</a>
                                                             
                                                         </li>
                                                         @endforeach
@@ -686,13 +686,13 @@
                                 <p>{{ optional($generalsetting)->footer_about_text ?? 'আপনার ব্যবসার ডিজিটাল পার্টনার। আমরা বিশ্বাস করি গুণগত মান এবং গ্রাহক সন্তুষ্টিতে। প্রযুক্তির সাথে এগিয়ে চলুন আমাদের সাথে।' }}</p>
                                 <a href="tel:{{ $contact->hotline ?? '01XXX-XXXXXX' }}" class="footer-hotlint">{{ $contact->hotline ?? '01XXX-XXXXXX' }}</a>
                                 
-                                <!-- App Store Buttons -->
+                                <!-- App {{ __('Store') }} Buttons -->
                                 <div class="app-badges mt-3">
                                     <a href="{{ optional($generalsetting)->google_play_link ?? '#' }}" class="app-badge-btn" target="_blank" rel="noopener">
                                         <img src="/public/assets/images/play.svg" alt="Get it on Google Play" style="height: 35px !important; max-height: 35px !important; width: auto !important; max-width: 140px !important;">
                                     </a>
                                     <a href="{{ optional($generalsetting)->app_store_link ?? '#' }}" class="app-badge-btn" target="_blank" rel="noopener">
-                                        <img src="/public/assets/images/app.png" alt="Download on the App Store" style="height: 35px !important; max-height: 35px !important; width: auto !important; max-width: 140px !important;">
+                                        <img src="/public/assets/images/app.png" alt="Download on the App {{ __('Store') }}" style="height: 35px !important; max-height: 35px !important; width: auto !important; max-width: 140px !important;">
                                     </a>
                                 </div>
                             </div>
@@ -701,12 +701,12 @@
                         <div class="col-sm-3 mb-3 mb-sm-0 col-6">
                             <div class="footer-menu">
                                 <ul>
-                                    <li class="title"><a>Useful Link</a></li>
+                                    <li class="title"><a>{{ __('{{ __('Use') }}ful {{ __('Link') }}') }}</a></li>
                                     <li>
-                                        <a href="{{route('shop')}}"> All Products</a>
+                                        <a href="{{route('shop')}}"> {{ __('All {{ __('Product') }}s') }}</a>
                                     </li>
 									     <li>
-                                        <a href="{{route('complaint')}}"> Complaints</a>
+                                        <a href="{{route('complaint')}}"> {{ __('Complaints') }}</a>
                                     </li>
                                     @foreach($pages as $page)
                                     <li><a href="{{route('page',['slug'=>$page->slug])}}">{{$page->name}}</a></li>
@@ -718,9 +718,9 @@
                         <div class="col-sm-2 mb-3 mb-sm-0 col-6">
                             <div class="footer-menu">
                                 <ul>
-                                    <li class="title"><a>Link</a></li>
+                                    <li class="title"><a>{{ __('Link') }}</a></li>
                                      <li>
-                                        <a href="{{route('shop')}}">All Products</a>
+                                        <a href="{{route('shop')}}">{{ __('All {{ __('Product') }}s') }}</a>
                                     </li>
                                     @foreach($pagesright as $key=>$value)
                                     <li>
@@ -734,22 +734,22 @@
                         <!-- col end -->
                         <div class="col-sm-3 mb-3 mb-sm-0">
                             <div class="footer-menu">
-                                <!-- Newsletter Subscribe Section -->
+                                <!-- {{ __('{{ __('New') }}sletter Subscribe') }} Section -->
                                 <ul>
-                                    <li class="title stay_conn"><a>Newsletter Subscribe</a></li>
+                                    <li class="title stay_conn"><a>{{ __('{{ __('New') }}sletter Subscribe') }}</a></li>
                                 </ul>
                                 <div class="footer-newsletter" style="background: transparent; background-color: transparent; padding: 0;">
-                                    <form action="{{ route('frontend.newsletter.subscribe') }}" method="POST" class="modern-subscribe">
+                                    <form action="{{ route('frontend.newsletter.subscribe') }}" method={{ __('"{{ __('POST') }}"') }} class="modern-subscribe">
                                         @csrf
                                         <div class="input-group newsletter-input-group" style="background: transparent; background-color: transparent; border: none;">
-                                            <input type="email" name="email" class="form-control newsletter-input" placeholder="Enter your email..." required style="background: var(--primary-color); background-color: var(--primary-color);">
-                                            <button class="btn btn-primary newsletter-btn" type="submit" style="background: #dc3545; background-color: #dc3545;">
+                                            <input type="email" name="email" class="form-control newsletter-input" placeholder="{{ __('Enter your email...') }}" required style="background: var(--primary-color); background-color: var(--primary-color);">
+                                            <button class="btn btn-primary newsletter-btn" type="{{ __('submit') }}" style="background: #dc3545; background-color: #dc3545;">
                                                 <i class="fas fa-paper-plane"></i>
                                             </button>
                                         </div>
                                     </form>
                                 </div>
-                                <!-- Newsletter End -->
+                                <!-- {{ __('New') }}sletter End -->
                                 
                                 <!-- Follow Us Section -->
                               
@@ -777,11 +777,11 @@
                         
                         <span style="margin: 0 5px;">|</span>
                         
-                        <span>Website Designed by:</span>
+                        <span>{{ __('Website Designed by') }}:</span>
 
-                        <a href="https://www.curlware.com" target="_blank" style="display: inline-flex; align-items: center; text-decoration: none; color: var(--copyright-text); margin-left: 5px;">
-                            <img src="{{ asset('public/assets/images/curlware.svg') }}" alt="Curlware" style="height: 24px; margin-right: 5px;">
-                            <strong>Curlware</strong>
+                        <a href="{{ __('https://') }}www.curlware.com" target="_blank" style="display: inline-flex; align-items: center; text-decoration: none; color: var(--copyright-text); margin-left: 5px;">
+                            <img src="{{ asset('public/assets/images/curlware.svg') }}" alt="{{ __('Curlware') }}" style="height: 24px; margin-right: 5px;">
+                            <strong>{{ __('Curlware') }}</strong>
                         </a>
                     </p>
                 </div>
@@ -791,16 +791,16 @@
 </div>
         </footer>
 
-        {{-- Floating Cart - ক্লিক করলে ডান দিকের সাইডবার কার্ট ওপেন হবে --}}
-        <a href="javascript:void(0)" class="floating-cart-widget" id="floatingCartBtn" title="কার্ট দেখুন">
+        {{-- Floating {{ __('Cart') }} - ক্লিক করলে ডান দিকের সাইডবার কার্ট ওপেন হবে --}}
+        <a href="javascript:void(0)" class="floating-cart-widget" id="floating{{ __('Cart') }}Btn" title="কার্ট {{ __('View') }}">
             <i class="fa-solid fa-cart-shopping"></i>
-            <span class="floating-cart-badge mobilecart-qty">{{ Cart::instance('shopping')->count() }}</span>
+            <span class="floating-cart-badge mobilecart-qty">{{ {{ __('Cart') }}::instance('shopping')->count() }}</span>
         </a>
 
-        {{-- Sidebar Cart Drawer - ডান দিক থেকে স্লাইড আউট --}}
-        <div id="sidebarCartOverlay" class="sidebar-cart-overlay" onclick="closeSidebarCart()"></div>
-        <div id="sidebarCartDrawer" class="sidebar-cart-drawer">
-            <div id="sidebarCartContent">
+        {{-- Sidebar {{ __('Cart') }} Drawer - ডান দিক থেকে স্লাইড আউট --}}
+        <div id="sidebar{{ __('Cart') }}Overlay" class="sidebar-cart-overlay" onclick="closeSidebar{{ __('Cart') }}()"></div>
+        <div id="sidebar{{ __('Cart') }}Drawer" class="sidebar-cart-drawer">
+            <div id="sidebar{{ __('Cart') }}Content">
                 {{-- AJAX দিয়ে লোড হবে --}}
             </div>
         </div>
@@ -893,7 +893,7 @@
             .sidebar-cart-drawer.active {
                 transform: translateX(0);
             }
-            #sidebarCartContent {
+            #sidebar{{ __('Cart') }}Content {
                 height: 100%;
                 overflow-y: auto;
                 overflow-x: hidden;
@@ -959,7 +959,7 @@
                 text-decoration: none;
                 display: block;
                 margin-bottom: 4px;
-                font-size: 14px;
+                font-size: {{ __('14px') }};
                 line-height: 1.3;
             }
             .sidebar-cart-item-title:hover { color: var(--primary-color); }
@@ -983,7 +983,7 @@
                 color: var(--primary-color);
                 cursor: pointer;
                 padding: 4px;
-                font-size: 14px;
+                font-size: {{ __('14px') }};
             }
             .sidebar-cart-item-remove:hover { opacity: 0.85; }
             .sidebar-cart-qty {
@@ -1020,7 +1020,7 @@
                 align-items: center;
                 justify-content: center;
                 font-weight: 600;
-                font-size: 14px;
+                font-size: {{ __('14px') }};
                 background: #fff;
             }
             .sidebar-cart-empty {
@@ -1038,17 +1038,17 @@
                 border-top: 1px solid #eee;
                 background: #fff;
             }
-            .sidebar-cart-total {
+            .sidebar-cart-{{ __('total') }} {
                 display: flex;
                 justify-content: space-between;
                 align-items: baseline;
                 margin-bottom: 12px;
             }
-            .sidebar-cart-total-label {
-                font-size: 14px;
+            .sidebar-cart-{{ __('total') }}-label {
+                font-size: {{ __('14px') }};
                 color: #666;
             }
-            .sidebar-cart-total-amount {
+            .sidebar-cart-{{ __('total') }}-amount {
                 font-size: 20px;
                 font-weight: 700;
                 color: #222;
@@ -1056,7 +1056,7 @@
             .sidebar-cart-checkout-btn {
                 display: block;
                 width: 100%;
-                padding: 14px 24px;
+                padding: {{ __('14px') }} 24px;
                 color: #fff !important;
                 text-align: center;
                 font-weight: 600;
@@ -1074,7 +1074,7 @@
                     width: 100%;
                     max-width: 100%;
                 }
-                .sidebar-cart-header { padding: 14px 16px; }
+                .sidebar-cart-header { padding: {{ __('14px') }} 16px; }
                 .sidebar-cart-body { padding: 12px; }
                 .sidebar-cart-item { padding: 10px; }
                 .sidebar-cart-item-img { width: 60px; height: 72px; }
@@ -1106,28 +1106,28 @@
         </style>
 
         <script>
-        function openSidebarCart() {
-            document.getElementById("sidebarCartOverlay").classList.add("active");
-            document.getElementById("sidebarCartDrawer").classList.add("active");
+        function openSidebar{{ __('Cart') }}() {
+            document.getElementById("sidebar{{ __('Cart') }}Overlay").classList.add("active");
+            document.getElementById("sidebar{{ __('Cart') }}Drawer").classList.add("active");
             document.body.style.overflow = "hidden";
-            if (typeof sidebarCartRefresh === "function") sidebarCartRefresh();
+            if (typeof sidebar{{ __('Cart') }}Refresh === "function") sidebar{{ __('Cart') }}Refresh();
         }
-        function closeSidebarCart() {
-            document.getElementById("sidebarCartOverlay").classList.remove("active");
-            document.getElementById("sidebarCartDrawer").classList.remove("active");
+        function closeSidebar{{ __('Cart') }}() {
+            document.getElementById("sidebar{{ __('Cart') }}Overlay").classList.remove("active");
+            document.getElementById("sidebar{{ __('Cart') }}Drawer").classList.remove("active");
             document.body.style.overflow = "";
         }
-        function sidebarCartRefresh() {
+        function sidebar{{ __('Cart') }}Refresh() {
             $.get("{{ route('cart.sidebar') }}", function(html) {
-                $("#sidebarCartContent").html(html);
+                $("#sidebar{{ __('Cart') }}Content").html(html);
                 if (typeof feather !== "undefined") feather.replace();
             });
         }
-        document.getElementById("floatingCartBtn") && document.getElementById("floatingCartBtn").addEventListener("click", function(e) {
+        document.getElementById("floating{{ __('Cart') }}Btn") && document.getElementById("floating{{ __('Cart') }}Btn").addEventListener("click", function(e) {
             e.preventDefault();
-            openSidebarCart();
+            openSidebar{{ __('Cart') }}();
         });
-        document.getElementById("sidebarCartOverlay") && document.getElementById("sidebarCartOverlay").addEventListener("click", closeSidebarCart);
+        document.getElementById("sidebar{{ __('Cart') }}Overlay") && document.getElementById("sidebar{{ __('Cart') }}Overlay").addEventListener("click", closeSidebar{{ __('Cart') }});
         </script>
 
        <div class="mobile_bottom_nav">
@@ -1136,14 +1136,14 @@
             <div class="icon_box">
                 <i class="fa-solid fa-bars"></i>
             </div>
-            <span class="nav_text">{{ __('Category') }}</span>
+            <span class="nav_text">{{ __('{{ __('Category') }}') }}</span>
         </a>
 
         <a href="{{route('customer.order_track')}}" class="nav_item {{ Route::is('customer.order_track') ? 'active' : '' }}">
             <div class="icon_box">
                 <i class="fa fa-truck"></i>
             </div>
-            <span class="nav_text">Tracking</span>
+            <span class="nav_text">{{ __('{{ __('Track') }}ing') }}</span>
         </a>
 
         <div class="nav_item home_wrapper">
@@ -1155,9 +1155,9 @@
         <a href="{{route('customer.checkout')}}" class="nav_item {{ Route::is('customer.checkout') ? 'active' : '' }}">
             <div class="icon_box">
                 <i class="fa-solid fa-cart-shopping"></i>
-                <span class="cart_badge mobilecart-qty">{{Cart::instance('shopping')->count()}}</span>
+                <span class="cart_badge mobilecart-qty">{{{{ __('Cart') }}::instance('shopping')->count()}}</span>
             </div>
-            <span class="nav_text">Cart</span>
+            <span class="nav_text">{{ __('Cart') }}</span>
         </a>
 
         @if(Auth::guard('customer')->user())
@@ -1178,7 +1178,7 @@
     </div>
 </div>
 <style>
-/* --- Mobile Bottom Navigation Styles --- */
+/* --- {{ __('Mobile') }} Bottom Navigation Styles --- */
 .mobile_bottom_nav {
     position: fixed;
     bottom: 0;
@@ -1188,7 +1188,7 @@
     box-shadow: 0 -5px 20px rgba(0, 0, 0, 0.1);
     z-index: 9999;
     padding: 10px 0;
-    border-radius: 20px 20px 0 0; /* উপরের কোনা গুলো একটু গোল হবে */
+    border-radius: 20px 20px 0 0; /* {{ __('bn_34b62149') }} কোনা গুলো একটু গোল হবে */
     display: none; /* ডেস্কটপে হাইড থাকবে */
 }
 
@@ -1265,7 +1265,7 @@
     color: #fff;
 }
 
-/* --- Cart Badge Style --- */
+/* --- {{ __('Cart') }} Badge Style --- */
 .cart_badge {
     position: absolute;
     top: -8px;
@@ -1293,14 +1293,14 @@
 
   <!-- Chat Options -->
   <div class="chat-options" id="chatOptions">
-          <a href="https://m.me/{{$generalsetting->facebook_page_username}}" target="_blank" class="chat-btn messenger" title="Messenger">
+          <a href="{{ __('https://') }}m.me/{{$generalsetting->facebook_page_username}}" target="_blank" class="chat-btn messenger" title="Messenger">
       <i class="fab fa-facebook-messenger"></i>
     </a>
-          <a href="https://wa.me/{{ $contact->whatsapp ?? '8801519607646' }}" target="_blank" class="chat-btn whatsapp" title="WhatsApp">
+          <a href="{{ __('https://') }}wa.me/{{ $contact->whatsapp ?? '8801519607646' }}" target="_blank" class="chat-btn whatsapp" title="{{ __('WhatsApp') }}">
       <i class="fab fa-whatsapp"></i>
     </a>
-    <a href="tel:{{ $contact->hotline ?? '01XXX-XXXXXX' }}" class="chat-btn hotline" title="Hotline">
-      <i class="fas fa-phone"></i>
+    <a href="tel:{{ $contact->hotline ?? '01XXX-XXXXXX' }}" class="chat-btn hotline" title="{{ __('Hotline') }}">
+      <i class="fas fa-{{ __('phone') }}"></i>
     </a>
 
 
@@ -1308,7 +1308,7 @@
 </div>
 
 <!-- Font Awesome CDN -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<link rel="stylesheet" href="{{ __('https://') }}cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
 <style>
 /* Floating Container */
@@ -1368,7 +1368,7 @@
   transform: translateY(-3px);
 }
 
-/* Button Colors */
+/* Button {{ __('{{ __('Color') }}s') }} */
 .chat-btn.whatsapp { background: #25D366; }
 .chat-btn.messenger { background: #0084FF; }
 .chat-btn.instagram { background: #E1306C; }
@@ -1400,16 +1400,16 @@
 
 </style>
 @php
-    $popup = App\Models\Popup::where('status', 1)->latest()->first();
-    // শুধু ইমেইজ দেখাবে যখন বর্ণনা ও লিংক খালি — btn_text ইগনোর (ডিফল্ট "Shop Now" থাকলেও)
+    $popup = App\Models\Popup::w{{ __('here') }}('status', 1)->latest()->first();
+    // শুধু ইমেইজ দেখাবে যখন {{ __('bn_194465af') }} ও লিংক খালি — btn_text ইগনোর (ডিফল্ট "{{ __('Shop') }} Now" থাকলেও)
     $popupImageOnly = $popup && !trim($popup->description ?? '') && !trim($popup->link ?? '');
 @endphp
 @if($popup)
-<div class="modal fade pop-banner-modal" id="popShopModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="true" style="z-index: 10000;">
+<div class="modal fade pop-banner-modal" id="pop{{ __('Shop') }}Modal" tabindex="-1" aria-hidden="true" data-bs-backdrop="true" style="z-index: 10000;">
     <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable {{ $popupImageOnly ? 'pop-banner-dialog' : 'modal-lg' }}">
         <div class="modal-content ps-content {{ $popupImageOnly ? 'ps-content-image-only' : '' }}">
-            <button type="button" class="ps-close pop-banner-close" data-bs-dismiss="modal" aria-label="বন্ধ করুন">
-                <span aria-hidden="true">&times;</span>
+            <button type="button" class="ps-close pop-banner-close" data-bs-dismiss="modal" aria-label="{{ __('Close') }} করুন">
+                <span aria-hidden="true">{{ __('&times') }};</span>
             </button>
             
             @if($popupImageOnly)
@@ -1438,14 +1438,14 @@
                     @endif
 
                     <a href="{{ $popup->link ?? '#' }}" class="ps-btn">
-                        {{ $popup->btn_text ?? 'Shop the Sale' }}
+                        {{ $popup->btn_text ?? '{{ __('Shop') }} the Sale' }}
                     </a>
 
                     <div class="ps-footer">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-box-seam" viewBox="0 0 16 16">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="current{{ __('Color') }}" class="bi bi-box-seam" viewBox="0 0 16 16">
                           <path d="M8.186 1.113a.5.5 0 0 0-.372 0L1.846 3.5l2.404.961L10.404 2l-2.218-.887zm3.564 1.426L5.596 5 8 5.961 14.154 3.5l-2.404-.961zm3.25 1.7-6.5 2.6v7.922l6.5-2.6V4.24zM7.5 14.762V6.838L1 4.239v7.923l6.5 2.6zM7.443.184a1.5 1.5 0 0 1 1.114 0l7.129 2.852A.5.5 0 0 1 16 3.5v8.662a1 1 0 0 1-.629.928l-7.185 2.874a.5.5 0 0 1-.372 0L.63 13.09a1 1 0 0 1-.63-.928V3.5a.5.5 0 0 1 .314-.464L7.443.184z"/>
                         </svg>
-                        <span>POWERED BY <strong>{{ $generalsetting->name ?? 'CommerceGurus' }}</strong></span>
+                        <span>{{ __('POWERED BY') }} <strong>{{ $generalsetting->name ?? 'CommerceGurus' }}</strong></span>
                     </div>
                 </div>
 
@@ -1466,7 +1466,7 @@
         overflow: hidden;
         background-color: #fff;
         box-shadow: 0 15px 50px rgba(0,0,0,0.3);
-        max-width: 850px; /* Width matching the reference */
+        max-width: 850px; /* {{ __('Width') }} matching the reference */
         margin: 0 auto;
     }
 
@@ -1491,7 +1491,7 @@
     /* Brand: Serif, Reddish-Brown */
     .ps-brand {
         color: #b93a3a; /* Exact color from image */
-        font-family: 'Georgia', 'Times New Roman', serif;
+        font-family: 'Georgia', '{{ __('Times') }} {{ __('New') }} Roman', serif;
         font-weight: 700;
         font-size: 38px;
         margin-bottom: 15px;
@@ -1516,16 +1516,16 @@
         margin-top: 10px;
     }
 
-    /* Deadline Text: Small, Gray */
+    /* {{ __('Deadline') }} {{ __('Text') }}: Small, Gray */
     .ps-deadline {
         color: #888;
-        font-size: 14px;
+        font-size: {{ __('14px') }};
         margin-bottom: 30px;
     }
 
-    /* Button: Dark, Rectangular */
+    /* Button: {{ __('Dark') }}, Rectangular */
     .ps-btn {
-        background-color: #2c3e50; /* Dark Charcoal */
+        background-color: #2c3e50; /* {{ __('Dark') }} Charcoal */
         color: #fff !important;
         text-decoration: none;
         padding: 15px 30px;
@@ -1590,11 +1590,11 @@
     }
 
     /* === Fabrilife-style promo popup (ইমেইজ-অনলি) === */
-    body:has(#popShopModal.show) .modal-backdrop {
+    body:has(#pop{{ __('Shop') }}Modal.show) .modal-backdrop {
         opacity: 0.72 !important;
         background-color: #0d0d0d !important;
-        backdrop-filter: blur(6px);
-        -webkit-backdrop-filter: blur(6px);
+        backdrop-{{ __('filter') }}: blur(6px);
+        -webkit-backdrop-{{ __('filter') }}: blur(6px);
     }
 
     .pop-banner-modal .modal-dialog.pop-banner-dialog {
@@ -1692,10 +1692,10 @@
         overflow: hidden;
     }
 
-    /* Mobile Responsive */
+    /* {{ __('Mobile') }} Responsive */
     @media (max-width: 768px) {
         .ps-layout {
-            flex-direction: column-reverse; /* Image Top, Text Bottom */
+            flex-direction: column-reverse; /* Image Top, {{ __('Text') }} Bottom */
         }
         .ps-text-section { width: 100%; padding: 30px; }
         .ps-image-section { width: 100%; height: 250px; }
@@ -1715,33 +1715,33 @@
         // ৩ ঘন্টা পর পর দেখাবে
         const hoursToWait = 3;  
         // সাইটে ঢোকার ২ সেকেন্ড পর দেখাবে
-        const delayInSeconds = 2; 
+        const delayIn{{ __('Seconds') }} = 2; 
 
-        const timeLimit = hoursToWait * 60 * 60 * 1000;
-        const lastShown = localStorage.getItem('popupLastShown');
-        const now = new Date().getTime();
+        const time{{ __('Limit') }} = hoursToWait * 60 * 60 * 1000;
+        const lastShown = localStorage.get{{ __('Item') }}('popupLastShown');
+        const now = new {{ __('Date') }}().getTime();
 
-        if (!lastShown || (now - lastShown > timeLimit)) {
+        if (!lastShown || (now - lastShown > time{{ __('Limit') }})) {
             setTimeout(function() {
-                // Try opening with jQuery (Standard for Laravel themes)
+                // Try opening with jQuery (Standard for {{ __('Laravel') }} themes)
                 if (typeof jQuery != 'undefined') {
-                    $('#popShopModal').modal('show');
+                    $('#pop{{ __('Shop') }}Modal').modal('show');
                 } 
                 // Try opening with Bootstrap 5
                 else if (typeof bootstrap != 'undefined') {
-                    var myModal = new bootstrap.Modal(document.getElementById('popShopModal'));
+                    var myModal = new bootstrap.Modal(document.getElementById('pop{{ __('Shop') }}Modal'));
                     myModal.show();
                 }
 
-                localStorage.setItem('popupLastShown', now);
-            }, delayInSeconds * 1000);
+                localStorage.set{{ __('Item') }}('popupLastShown', now);
+            }, delayIn{{ __('Seconds') }} * 1000);
         }
     });
 </script>
 @endif
 
-        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+        <link rel="stylesheet" href="{{ __('https://') }}cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+<script src="{{ __('https://') }}cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 @if(session('show_order_limit_modal'))
 <script>
@@ -1756,28 +1756,28 @@
                     <div class="modal-header-custom">
                         <div class="header-left">
                             <i class="fas fa-exclamation-triangle header-icon"></i>
-                            <span>Duplicate Order Detective Alert</span>
+                            <span>{{ __('Duplicate Order Detective Alert') }}</span>
                         </div>
                         <i class="fas fa-times close-icon" onclick="Swal.close()"></i>
                     </div>
 
                     <div class="modal-body-custom">
                         <p>
-                            <img src="https://img.icons8.com/emoji/48/000000/warning-emoji.png" style="width: 20px; vertical-align: text-bottom;"> 
-                            <b>সতর্কতা!</b> আপনি ইতিমধ্যে এই পণ্যটির জন্য অর্ডার দিয়েছেন। নির্দিষ্ট সময়ের মধ্যে একই পণ্যের পুনরায় অর্ডার দেওয়া অনুমোদিত নয়। 
-                            👉 আপনি যদি সত্যিই আবার অর্ডার করতে চান, তাহলে নিচে দেওয়া WhatsApp নম্বরে যোগাযোগ করুন:
+                            <img src="{{ __('https://') }}img.icons8.com/emoji/48/000000/warning-emoji.png" style="width: 20px; vertical-align: text-bottom;"> 
+                            <b>{{ __('bn_698a7cc6') }}</b> আপনি ইতিমধ্যে এই পণ্যটির জন্য অর্ডার দিয়েছেন। নির্দিষ্ট সময়ের মধ্যে একই পণ্যের পুনরায় অর্ডার দেওয়া অনুমোদিত নয়। 
+                            👉 আপনি যদি সত্যিই আবার অর্ডার করতে চান, তাহলে নিচে দেওয়া {{ __('WhatsApp') }} নম্বরে যোগাযোগ করুন:
                         </p>
                     </div>
 
                     <div class="modal-footer-custom">
-                        <a href="https://wa.me/${whatsappNumber}?text=আমি একই পণ্য পুনরায় অর্ডার করতে চাই, অনুগ্রহ করে সাহায্য করুন।" target="_blank" class="btn-whatsapp-custom">
+                        <a href="{{ __('https://') }}wa.me/${whatsappNumber}?text=আমি একই পণ্য পুনরায় অর্ডার করতে চাই, অনুগ্রহ করে সাহায্য করুন।" target="_blank" class="btn-whatsapp-custom">
                             <i class="fab fa-whatsapp"></i> CONTACT ON WHATSAPP
                         </a>
                         <button onclick="Swal.close()" class="btn-close-custom">{{ __('Close') }}</button>
                     </div>
                 </div>
             `,
-            showConfirmButton: false, // ডিফল্ট বাটন বন্ধ রাখা হয়েছে
+            showConfirmButton: false, // ডিফল্ট বাটন {{ __('Close') }} রাখা হয়েছে
             background: 'transparent', // ডিফল্ট ব্যাকগ্রাউন্ড রিমুভ
             customClass: {
                 popup: 'swal-no-padding'
@@ -1884,7 +1884,7 @@
         padding: 10px 30px;
         border-radius: 50px;
         font-weight: bold;
-        font-size: 14px;
+        font-size: {{ __('14px') }};
         border: none;
         cursor: pointer;
         box-shadow: 0 4px 6px rgba(0,0,0,0.1);
@@ -1932,23 +1932,23 @@ document.getElementById("chatToggle").addEventListener("click", function() {
         <script>
             new WOW().init();
         </script>
-        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css" />
-        <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+        <link rel="stylesheet" href="{{ __('https://') }}cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css" />
+        <script src="{{ __('https://') }}cdn.jsdelivr.net/npm/flatpickr"></script>
 
         <!-- feather icon -->
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/feather-icons/4.29.0/feather.min.js"></script>
+        <script src="{{ __('https://') }}cdnjs.cloudflare.com/ajax/libs/feather-icons/4.29.0/feather.min.js"></script>
         <script>
             feather.replace();
         </script>
         <script src="{{asset('public/backEnd/')}}/assets/js/toastr.min.js"></script>
-        {!! Toastr::message() !!} @stack('script')
+        {!! Toastr::{{ __('message') }}() !!} @stack('script')
         <script>
             $(".quick_view").on("click", function () {
                 var id = $(this).data("id");
                 $("#loading").show();
-                if (id) {
+                if ({{ __('id)') }} {
                     $.ajax({
-                        type: "GET",
+                        type: "{{ __('GET') }}",
                         data: { id: id },
                         url: "{{route('quickview')}}",
                         success: function (data) {
@@ -1966,7 +1966,7 @@ document.getElementById("chatToggle").addEventListener("click", function() {
         <!-- quick view end -->
         <!-- cart js start -->
         <script>
-            function runFlyToCart($sourceEl, onComplete) {
+            function runFlyTo{{ __('Cart') }}($sourceEl, on{{ __('Complete') }}) {
                 var $flyImg;
                 if ($sourceEl && $sourceEl.closest && $sourceEl.closest('.variant-modal-content').length)
                     $flyImg = $sourceEl.closest('.variant-modal-content').find('.variant-modal-img img').first();
@@ -1974,13 +1974,13 @@ document.getElementById("chatToggle").addEventListener("click", function() {
                     $flyImg = ($sourceEl && $sourceEl.closest) ? $sourceEl.closest('.product_item, .wist_item, .search-item, .quick-product, .product-section, .main-details-page, .details-action-box, .block__single, form').find('.pro_img img, .quick-product-img img, .details_slider img, .block__pic, .dimage_item img').first() : null;
                 if (!$flyImg || !$flyImg.length) $flyImg = $('.product_item .pro_img img, .wist_item .pro_img img').first();
                 if (!$flyImg || !$flyImg.length) $flyImg = $('.details_slider img, .block__pic, .dimage_item img, #details_slider_main img').first();
-                if (!$flyImg.length) { if (typeof onComplete === 'function') onComplete(); return; }
+                if (!$flyImg.length) { if (typeof on{{ __('Complete') }} === 'function') on{{ __('Complete') }}(); return; }
                 var rect = $flyImg[0].getBoundingClientRect();
                 var $clone = $flyImg.clone().addClass('fly-to-cart-img').css({
                     position: 'fixed', width: 90, height: 110,
                     left: rect.left, top: rect.top, margin: 0, padding: 0, zIndex: 99999
                 }).appendTo('body');
-                var $target = $('#floatingCartBtn, .floating-cart-widget').first();
+                var $target = $('#floating{{ __('Cart') }}Btn, .floating-cart-widget').first();
                 if (!$target.length || !$target.is(':visible')) $target = $('.mobile_bottom_nav .cart_badge').closest('a').first();
                 if (!$target.length) $target = $('.menu-bag a').first();
                 var destRect = $target.length && $target.is(':visible') ? $target[0].getBoundingClientRect() : { left: $(window).width() - 60, top: $(window).height() / 2 - 40 };
@@ -1993,18 +1993,18 @@ document.getElementById("chatToggle").addEventListener("click", function() {
                     $(this).animate({ left: endLeft, top: endTop, width: endW, height: endH, opacity: 0.6 }, 350, 'swing', function() {
                         $clone.remove();
                         if ($target && $target.length) { $target.addClass('cart-bump-animate'); setTimeout(function() { $target.removeClass('cart-bump-animate'); }, 450); }
-                        if (typeof onComplete === 'function') onComplete();
+                        if (typeof on{{ __('Complete') }} === 'function') on{{ __('Complete') }}();
                     });
                 });
             }
-            function fireAddToCartEvent(el, id, qty, name, price, category) {
+            function fireAddTo{{ __('Cart') }}Event(el, id, qty, name, price, category) {
                 qty = parseInt(qty) || 1;
                 price = parseFloat(price) || 0;
-                var item = { item_id: String(id), item_name: name || '', price: price, quantity: qty, item_category: category || '' };
+                var item = { item_id: {{ __('String') }}({{ __('id)') }}, item_name: name || '', price: price, quantity: qty, item_category: category || '' };
                 window.dataLayer = window.dataLayer || [];
                 window.dataLayer.push({ event: 'add_to_cart', ecommerce: { currency: 'BDT', value: price * qty, items: [item] } });
-                if (typeof fbq === 'function') fbq('track', 'AddToCart', { content_ids: [String(id)], content_name: name, content_type: 'product', value: price * qty, currency: 'BDT', num_items: qty });
-                if (typeof ttq !== 'undefined') ttq.track('AddToCart', { content_type: 'product', content_id: String(id), content_name: name, value: price * qty, currency: 'BDT', quantity: qty });
+                if (typeof fbq === 'function') fbq('track', 'AddTo{{ __('Cart') }}', { content_ids: [{{ __('String') }}({{ __('id)') }}], content_name: name, content_type: 'product', value: price * qty, currency: 'BDT', num_items: qty });
+                if (typeof ttq !== 'undefined') ttq.track('AddTo{{ __('Cart') }}', { content_type: 'product', content_id: {{ __('String') }}({{ __('id)') }}, content_name: name, value: price * qty, currency: 'BDT', quantity: qty });
             }
             $(document).on("click", ".addcartbutton", function (e) {
                 e.preventDefault();
@@ -2014,108 +2014,108 @@ document.getElementById("chatToggle").addEventListener("click", function() {
                 var name = $btn.data("name") || $btn.closest('.product_item, .wist_item, .search-item').find('.pro_name a, .product-name a').first().text().trim();
                 var price = parseFloat($btn.data("price")) || parseFloat($btn.closest('.product_item, .wist_item, .search-item').find('.pro_price span, .pro_price p, .price').first().text().replace(/[^\d.]/g, '')) || 0;
                 var category = $btn.data("category") || '';
-                if (id) {
+                if ({{ __('id)') }} {
                     $.ajax({
                         cache: "false",
-                        type: "GET",
+                        type: "{{ __('GET') }}",
                         url: "{{url('add-to-cart')}}/" + id + "/" + qty,
                         dataType: "json",
                         success: function (data) {
                             if (data) {
-                                fireAddToCartEvent(null, id, qty, name, price, category);
-                                toastr.success('কার্টে যোগ হয়েছে!', 'সফল');
+                                fireAddTo{{ __('Cart') }}Event(null, id, qty, name, price, category);
+                                toastr.success('কার্টে যোগ হয়েছে!', '{{ __('bn_fbbc3031') }}');
                                 cart_count();
                                 mobile_cart();
-                                if (typeof sidebarCartRefresh === "function") sidebarCartRefresh();
-                                runFlyToCart($btn, function() { if (typeof openSidebarCart === "function") openSidebarCart(); });
+                                if (typeof sidebar{{ __('Cart') }}Refresh === "function") sidebar{{ __('Cart') }}Refresh();
+                                runFlyTo{{ __('Cart') }}($btn, function() { if (typeof openSidebar{{ __('Cart') }} === "function") openSidebar{{ __('Cart') }}(); });
                             }
                         },
                     });
                 }
             });
-            /* Form submit interceptor - কার্ট ফর্ম সাবমিট হলে AJAX দিয়ে পাঠাবে, পেজ রিলোড হবে না */
-            $(document).on("submit", "form.ajax-cart-form:not(#productDetailsCartForm), form[action*='cart/store']:not(#productDetailsCartForm)", function (e) {
+            /* Form {{ __('submit') }} interceptor - কার্ট ফর্ম সাবমিট হলে AJAX দিয়ে পাঠাবে, পেজ রিলোড হবে না */
+            $(document).on("{{ __('submit') }}", "form.ajax-cart-form:not(#productDetails{{ __('Cart') }}Form), form[action*='cart/store']:not(#productDetails{{ __('Cart') }}Form)", function (e) {
                 var $form = $(this);
-                if ($form.hasClass('cart-ajax-submit')) return;
+                if ($form.hasClass('cart-ajax-{{ __('submit') }}')) return;
                 e.preventDefault();
                 var id = $form.find("input[name=id]").val();
                 var qty = $form.find("input[name=qty]").val() || 1;
                 var hasOrderNow = false;
-                if (e.originalEvent && e.originalEvent.submitter && e.originalEvent.submitter.name === 'order_now') {
+                if (e.originalEvent && e.originalEvent.{{ __('submit') }}ter && e.originalEvent.{{ __('submit') }}ter.name === 'order_now') {
                     hasOrderNow = true;
                 } else {
                     hasOrderNow = !!$form.find("input[name=order_now]").val();
                 }
                 var name = $form.closest('.product_item, .wist_item, .search-item').find('.pro_name a, .product-name a').first().text().trim();
                 if (!name) name = $form.closest('.details-action-box, .product-details-area, .block__single').find('h1, h2, .product-title').first().text().trim() || '';
-                var priceText = $form.closest('.product_item, .wist_item').find('.pro_price p, .pro_price span').first().text();
-                if (!priceText) priceText = $form.closest('.details-action-box, .block__single').find('.details-price, .block__price, .price').first().text() || '';
-                var price = parseFloat(String(priceText).replace(/[^\d.]/g, '')) || 0;
+                var price{{ __('Text') }} = $form.closest('.product_item, .wist_item').find('.pro_price p, .pro_price span').first().text();
+                if (!price{{ __('Text') }}) price{{ __('Text') }} = $form.closest('.details-action-box, .block__single').find('.details-price, .block__price, .price').first().text() || '';
+                var price = parseFloat({{ __('String') }}(price{{ __('Text') }}).replace(/[^\d.]/g, '')) || 0;
                 var category = $form.closest('.product_item, .wist_item').find('[data-category]').data('category') || '';
-                $form.addClass('cart-ajax-submit');
+                $form.addClass('cart-ajax-{{ __('submit') }}');
                 $.ajax({
-                    type: "POST",
+                    type: {{ __('"{{ __('POST') }}"') }},
                     data: $form.serialize(),
                     url: $form.attr('action'),
-                    headers: { 'X-Requested-With': 'XMLHttpRequest' },
+                    headers: { 'X-{{ __('Requested') }}-With': 'XMLHttpRequest' },
                     success: function (data) {
                         if (data && data.success) {
-                            fireAddToCartEvent(null, id, qty, name, price, category);
-                            toastr.success('কার্টে যোগ হয়েছে!', 'সফল');
+                            fireAddTo{{ __('Cart') }}Event(null, id, qty, name, price, category);
+                            toastr.success('কার্টে যোগ হয়েছে!', '{{ __('bn_fbbc3031') }}');
                             cart_count();
                             mobile_cart();
-                            if (typeof sidebarCartRefresh === "function") sidebarCartRefresh();
+                            if (typeof sidebar{{ __('Cart') }}Refresh === "function") sidebar{{ __('Cart') }}Refresh();
                             var checkoutUrl = (data.redirect) ? data.redirect : "{{ route('customer.checkout') }}";
                             if (data.redirect || hasOrderNow) {
                                 window.location.href = checkoutUrl;
                             } else {
-                                runFlyToCart($form, function() { if (typeof openSidebarCart === "function") openSidebarCart(); });
+                                runFlyTo{{ __('Cart') }}($form, function() { if (typeof openSidebar{{ __('Cart') }} === "function") openSidebar{{ __('Cart') }}(); });
                             }
                         } else {
-                            $form[0].submit();
+                            $form[0].{{ __('submit') }}();
                         }
                     },
                     error: function() {
-                        $form[0].submit();
+                        $form[0].{{ __('submit') }}();
                     },
-                    complete: function() { $form.removeClass('cart-ajax-submit'); }
+                    complete: function() { $form.removeClass('cart-ajax-{{ __('submit') }}'); }
                 });
                 return false;
             });
             $(document).on("click", ".cart_store", function (e) {
                 var $btn = $(this);
                 var $form = $btn.closest('form');
-                if ($form.length && $form.attr('action') && !$form.hasClass('cart-ajax-submit')) {
+                if ($form.length && $form.attr('action') && !$form.hasClass('cart-ajax-{{ __('submit') }}')) {
                     var id = $btn.data("id") || $form.find("input[name=id]").val();
                     var qty = $form.find("input[name=qty]").val() || 1;
                     var name = $btn.data("name") || $form.closest('.product_item, .wist_item, .product-cart, .quick-view-content, .quick-product').find('.name, .pro_name a').first().text().trim();
-                    var priceText = $form.closest('.product_item, .wist_item, .product-cart, .quick-view-content, .quick-product').find('.details-price, .pro_price span').first().text();
-                    var price = parseFloat($btn.data("price")) || parseFloat(String(priceText).replace(/[^\d.]/g, '')) || 0;
-                    var category = $btn.data("category") || $form.closest('.quick-product').find('.delivery_details td').first().text().replace('Category:','').trim() || '';
-                    if (id) {
+                    var price{{ __('Text') }} = $form.closest('.product_item, .wist_item, .product-cart, .quick-view-content, .quick-product').find('.details-price, .pro_price span').first().text();
+                    var price = parseFloat($btn.data("price")) || parseFloat({{ __('String') }}(price{{ __('Text') }}).replace(/[^\d.]/g, '')) || 0;
+                    var category = $btn.data("category") || $form.closest('.quick-product').find('.delivery_details td').first().text().replace('{{ __('Category') }}:','').trim() || '';
+                    if ({{ __('id)') }} {
                         e.preventDefault();
-                        $form.addClass('cart-ajax-submit');
+                        $form.addClass('cart-ajax-{{ __('submit') }}');
                         $.ajax({
-                            type: "POST",
+                            type: {{ __('"{{ __('POST') }}"') }},
                             data: $form.serialize(),
                             url: $form.attr('action'),
-                            headers: { 'X-Requested-With': 'XMLHttpRequest' },
+                            headers: { 'X-{{ __('Requested') }}-With': 'XMLHttpRequest' },
                             success: function (data) {
                                 if (data && data.success) {
-                                    fireAddToCartEvent(null, id, qty, name, price, category);
-                                    toastr.success('কার্টে যোগ হয়েছে!', 'সফল');
+                                    fireAddTo{{ __('Cart') }}Event(null, id, qty, name, price, category);
+                                    toastr.success('কার্টে যোগ হয়েছে!', '{{ __('bn_fbbc3031') }}');
                                     cart_count();
                                     mobile_cart();
-                                    if (typeof sidebarCartRefresh === "function") sidebarCartRefresh();
-                                    runFlyToCart($btn, function() { if (typeof openSidebarCart === "function") openSidebarCart(); });
+                                    if (typeof sidebar{{ __('Cart') }}Refresh === "function") sidebar{{ __('Cart') }}Refresh();
+                                    runFlyTo{{ __('Cart') }}($btn, function() { if (typeof openSidebar{{ __('Cart') }} === "function") openSidebar{{ __('Cart') }}(); });
                                 } else {
-                                    $form[0].submit();
+                                    $form[0].{{ __('submit') }}();
                                 }
                             },
                             error: function() {
-                                $form[0].submit();
+                                $form[0].{{ __('submit') }}();
                             },
-                            complete: function() { $form.removeClass('cart-ajax-submit'); }
+                            complete: function() { $form.removeClass('cart-ajax-{{ __('submit') }}'); }
                         });
                     }
                 }
@@ -2123,9 +2123,9 @@ document.getElementById("chatToggle").addEventListener("click", function() {
 
             $(document).on("click", ".cart_remove", function () {
                 var id = $(this).data("id");
-                if (id) {
+                if ({{ __('id)') }} {
                     $.ajax({
-                        type: "GET",
+                        type: "{{ __('GET') }}",
                         data: { id: id },
                         url: "{{route('cart.remove')}}",
                         success: function (data) {
@@ -2134,7 +2134,7 @@ document.getElementById("chatToggle").addEventListener("click", function() {
                                 cart_count();
                                 mobile_cart();
                                 cart_summary();
-                                if (typeof sidebarCartRefresh === "function") sidebarCartRefresh();
+                                if (typeof sidebar{{ __('Cart') }}Refresh === "function") sidebar{{ __('Cart') }}Refresh();
                             }
                         },
                     });
@@ -2143,9 +2143,9 @@ document.getElementById("chatToggle").addEventListener("click", function() {
 
             $(document).on("click", ".cart_increment", function () {
                 var id = $(this).data("id");
-                if (id) {
+                if ({{ __('id)') }} {
                     $.ajax({
-                        type: "GET",
+                        type: "{{ __('GET') }}",
                         data: { id: id },
                         url: "{{route('cart.increment')}}",
                         success: function (data) {
@@ -2153,7 +2153,7 @@ document.getElementById("chatToggle").addEventListener("click", function() {
                                 $(".cartlist").html(data);
                                 cart_count();
                                 mobile_cart();
-                                if (typeof sidebarCartRefresh === "function") sidebarCartRefresh();
+                                if (typeof sidebar{{ __('Cart') }}Refresh === "function") sidebar{{ __('Cart') }}Refresh();
                             }
                         },
                     });
@@ -2162,9 +2162,9 @@ document.getElementById("chatToggle").addEventListener("click", function() {
 
             $(document).on("click", ".cart_decrement", function () {
                 var id = $(this).data("id");
-                if (id) {
+                if ({{ __('id)') }} {
                     $.ajax({
-                        type: "GET",
+                        type: "{{ __('GET') }}",
                         data: { id: id },
                         url: "{{route('cart.decrement')}}",
                         success: function (data) {
@@ -2172,7 +2172,7 @@ document.getElementById("chatToggle").addEventListener("click", function() {
                                 $(".cartlist").html(data);
                                 cart_count();
                                 mobile_cart();
-                                if (typeof sidebarCartRefresh === "function") sidebarCartRefresh();
+                                if (typeof sidebar{{ __('Cart') }}Refresh === "function") sidebar{{ __('Cart') }}Refresh();
                             }
                         },
                     });
@@ -2181,7 +2181,7 @@ document.getElementById("chatToggle").addEventListener("click", function() {
 
             function cart_count() {
                 $.ajax({
-                    type: "GET",
+                    type: "{{ __('GET') }}",
                     url: "{{route('cart.count')}}",
                     success: function (data) {
                         if (data) {
@@ -2194,7 +2194,7 @@ document.getElementById("chatToggle").addEventListener("click", function() {
             }
             function mobile_cart() {
                 $.ajax({
-                    type: "GET",
+                    type: "{{ __('GET') }}",
                     url: "{{route('mobile.cart.count')}}",
                     success: function (data) {
                         if (data) {
@@ -2207,7 +2207,7 @@ document.getElementById("chatToggle").addEventListener("click", function() {
             }
             function cart_summary() {
                 $.ajax({
-                    type: "GET",
+                    type: "{{ __('GET') }}",
                     url: "{{route('shipping.charge')}}",
                     dataType: "html",
                     success: function (response) {
@@ -2221,7 +2221,7 @@ document.getElementById("chatToggle").addEventListener("click", function() {
             $(".search_click").on("keyup change", function () {
                 var keyword = $(".search_keyword").val();
                 $.ajax({
-                    type: "GET",
+                    type: "{{ __('GET') }}",
                     data: { keyword: keyword },
                     url: "{{route('livesearch')}}",
                     success: function (products) {
@@ -2236,7 +2236,7 @@ document.getElementById("chatToggle").addEventListener("click", function() {
             $(".msearch_click").on("keyup change", function () {
                 var keyword = $(".msearch_keyword").val();
                 $.ajax({
-                    type: "GET",
+                    type: "{{ __('GET') }}",
                     data: { keyword: keyword },
                     url: "{{route('livesearch')}}",
                     success: function (products) {
@@ -2257,15 +2257,15 @@ document.getElementById("chatToggle").addEventListener("click", function() {
             $(".district").on("change", function () {
                 var id = $(this).val();
                 $.ajax({
-                    type: "GET",
+                    type: "{{ __('GET') }}",
                     data: { id: id },
                     url: "{{route('districts')}}",
                     success: function (res) {
                         if (res) {
                             $(".area").empty();
-                            $(".area").append('<option value="">Select..</option>');
+                            $(".area").append('<option value="">{{ __('Select..') }}</option>');
                             $.each(res, function (key, value) {
-                                $(".area").append('<option value="' + key + '" >' + value + "</option>");
+                                $(".area").append('<option value="' + key + '" >{{ __("' + value + "") }}</option>");
                             });
                         } else {
                             $(".area").empty();
@@ -2291,7 +2291,7 @@ document.getElementById("chatToggle").addEventListener("click", function() {
                 $(".mobile-menu").removeClass("active");
             });
 
-            $(".mobile-filter-toggle").on("click", function () {
+            $(".mobile-{{ __('filter') }}-toggle").on("click", function () {
                 $("#page-overlay").show();
                 $(".feature-products").addClass("active");
             });
@@ -2322,18 +2322,18 @@ document.getElementById("chatToggle").addEventListener("click", function() {
         </script>
 
         <script>
-            // MmenuLight শুধুমাত্র চালাবে যখন #menu element থাকে (null check)
+            // Mmenu{{ __('Light') }} শুধুমাত্র চালাবে যখন #menu element থাকে (null check)
             var menuEl = document.querySelector("#menu");
-            var menuLink = document.querySelector('a[href="#menu"]');
-            if (menuEl && menuLink) {
-                var menu = new MmenuLight(menuEl, "all");
+            var menu{{ __('Link') }} = document.querySelector('a[href="#menu"]');
+            if (menuEl && menu{{ __('Link') }}) {
+                var menu = new Mmenu{{ __('Light') }}(menuEl, "all");
                 var navigator = menu.navigation({
                     selectedClass: "Selected",
                     slidingSubmenus: true,
                     title: "ক্যাটাগরি",
                 });
                 var drawer = menu.offcanvas({});
-                menuLink.addEventListener("click", function(evnt) {
+                menu{{ __('Link') }}.addEventListener("click", function(evnt) {
                     evnt.preventDefault();
                     drawer.open();
                 });
@@ -2351,7 +2351,7 @@ document.getElementById("chatToggle").addEventListener("click", function() {
             //         }
             //     });
             // });
-            /*=== Main Menu Fixed === */
+            /*=== Main Menu {{ __('Fixed') }} === */
             // document.addEventListener("DOMContentLoaded", function () {
             //     window.addEventListener("scroll", function () {
             //         if (window.scrollY > 0) {
@@ -2366,7 +2366,7 @@ document.getElementById("chatToggle").addEventListener("click", function() {
             //         }
             //     });
             // });
-            /*=== Main Menu Fixed === */
+            /*=== Main Menu {{ __('Fixed') }} === */
 
             $(window).scroll(function () {
                 if ($(this).scrollTop() > 50) {
@@ -2383,23 +2383,23 @@ document.getElementById("chatToggle").addEventListener("click", function() {
             });
         </script>
         <script>
-            $(".filter_btn").click(function(){
-               $(".filter_sidebar").addClass('active');
+            $(".{{ __('filter') }}_btn").click(function(){
+               $(".{{ __('filter') }}_sidebar").addClass('active');
                $("body").css("overflow-y", "hidden");
             })
-            $(".filter_close").click(function(){
-               $(".filter_sidebar").removeClass('active');
+            $(".{{ __('filter') }}_close").click(function(){
+               $(".{{ __('filter') }}_sidebar").removeClass('active');
                $("body").css("overflow-y", "auto");
             })
         </script>
         <!--search ANIMAtion end-->
-        <!-- Google Tag Manager (noscript) -->
+        <!-- {{ __('Google {{ __('Tag {{ __('Manage') }}r') }}') }} (noscript) -->
         @foreach($gtm_code as $gtm)
         @php $gtmId = str_starts_with($gtm->code, 'GTM-') ? $gtm->code : 'GTM-'.$gtm->code; @endphp
-        <noscript><iframe src="https://www.googletagmanager.com/ns.html?id={{ $gtmId }}"
+        <noscript><iframe src="{{ __('https://') }}www.googletagmanager.com/ns.html?id={{ $gtmId }}"
         height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         @endforeach
-        <!-- End Google Tag Manager (noscript) -->
+        <!-- End {{ __('Google {{ __('Tag {{ __('Manage') }}r') }}') }} (noscript) -->
 		
 		
     </body>

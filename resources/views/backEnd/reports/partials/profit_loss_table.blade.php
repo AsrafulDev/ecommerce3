@@ -3,10 +3,10 @@
         <tr>
             <th>#</th>
             <th>{{ __('Date') }}</th>
-            <th class="text-end">Sales</th>
-            <th class="text-end">COGS</th>
-            <th class="text-end">Expense</th>
-            <th class="text-end">Net Profit</th>
+            <th class="text-end">{{ __('Sales') }}</th>
+            <th class="text-end">{{ __('COGS') }}</th>
+            <th class="text-end">{{ __('Expense') }}</th>
+            <th class="text-end">{{ __('Net Profit') }}</th>
         </tr>
     </thead>
     <tbody>

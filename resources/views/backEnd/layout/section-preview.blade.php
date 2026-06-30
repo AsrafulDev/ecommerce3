@@ -1,5 +1,5 @@
 @extends('backEnd.layouts.master')
-@section('title', 'Section Preview - ' . ($section->name ?? ''))
+@section('title', 'Section {{ __('Prev') }}iew - ' . ($section->name ?? ''))
 
 @section('css')
 <style>
@@ -36,7 +36,7 @@
         <code>{{ $section->slug }}</code> — 
         This preview is used for screenshot capture
     </div>
-    <div class="section-container" id="captureArea">
+    <div class="section-container" id="capture{{ __('Area') }}">
         @includeIf('frontEnd.layouts.sections.' . $section->slug)
     </div>
 </div>

@@ -1,4 +1,4 @@
-{{-- All Products Grid Section --}}
+{{-- {{ __('All {{ __('Product') }}s') }} Grid Section --}}
 @if($generalsetting->show_all_products)
 <section class="homeproduct">
     <div class="container">
@@ -8,7 +8,7 @@
                     <h3 class="section-title-header">
                         <div class="timer_inner">
                             <div class="">
-                                <span class="section-title-name">All Products</span>
+                                <span class="section-title-name">{{ __('All {{ __('Product') }}s') }}</span>
                             </div>
                         </div>
                     </h3>

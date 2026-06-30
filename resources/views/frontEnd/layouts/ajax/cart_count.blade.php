@@ -1,29 +1,29 @@
 @php
-    $subtotal = Cart::instance('shopping')->subtotal();
-    $subtotal=str_replace(',','',$subtotal);
-    $subtotal=str_replace('.00', '',$subtotal);
-    view()->share('subtotal',$subtotal);
+    $sub{{ __('total') }} = {{ __('Cart') }}::instance('shopping')->sub{{ __('total') }}();
+    $sub{{ __('total') }}=str_replace(',','',$sub{{ __('total') }});
+    $sub{{ __('total') }}=str_replace('.00', '',$sub{{ __('total') }});
+    view()->share('sub{{ __('total') }}',$sub{{ __('total') }});
 @endphp
 <a href="{{route('customer.checkout')}}">
   <p class="margin-shopping">
   <i class="fa-solid fa-cart-shopping"></i>
-  <span>{{Cart::instance('shopping')->count()}}</span>
+  <span>{{{{ __('Cart') }}::instance('shopping')->count()}}</span>
   
   </p></a>
   <div class="cshort-summary">
     <ul>
-    @foreach(Cart::instance('shopping')->content() as $key=>$value)
+    @foreach({{ __('Cart') }}::instance('shopping')->content() as $key=>$value)
       <li><a href=""><img src="{{asset($value->options->image)}}" alt=""></a></li>
       <li><a href="">{{$value->name}}</a></li>
       <li>Qty: {{$value->qty}}</li>
       <li><p>৳{{$value->price}}</p><button class="remove-cart cart_remove" data-id="{{$value->rowId}}"><i data-feather="x"></i></button></li>
     @endforeach
     </ul>
-    <p><strong>সর্বমোট : ৳{{$subtotal}}</strong></p>
-    <a href="{{route('customer.checkout')}}" class="go_cart">  অর্ডার করুন </a>
+    <p><strong>{{ __('Total') }} : ৳{{$sub{{ __('total') }}}}</strong></p>
+    <a href="{{route('customer.checkout')}}" class="go_cart">  {{ __('Order Now') }} </a>
   </div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/feather-icons/4.29.0/feather.min.js"></script>
+<script src="{{ __('https://') }}cdnjs.cloudflare.com/ajax/libs/feather-icons/4.29.0/feather.min.js"></script>
 <script>
   feather.replace()
 </script>
@@ -33,9 +33,9 @@
       $('.cart_remove').on('click',function(){
         var id = $(this).data('id');   
         $("#loading").show();
-        if(id){
+        if({{ __('id)') }}{
           $.ajax({
-             type:"GET",
+             type:"{{ __('GET') }}",
              data:{'id':id},
              url:"{{route('cart.remove')}}",
              success:function(data){               
@@ -51,7 +51,7 @@
 
       function cart_count(){
           $.ajax({
-             type:"GET",
+             type:"{{ __('GET') }}",
              url:"{{route('cart.count')}}",
              success:function(data){               
               if(data){
@@ -64,7 +64,7 @@
        };
       function cart_summary(){
           $.ajax({
-             type:"GET",
+             type:"{{ __('GET') }}",
              url:"{{route('shipping.charge')}}",
              dataType: "html",
               success: function(response){

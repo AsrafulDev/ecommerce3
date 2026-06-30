@@ -9,7 +9,7 @@
 	<link rel="shortcut icon" href="{{asset($generalsetting->favicon)}}" alt="{{$generalsetting->name}}" />
 
 	<!-- google font -->
-	<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Poppins:300,400,500,600,700">
+	<link rel="stylesheet" href="{{ __('https://') }}fonts.googleapis.com/css?family=Poppins:300,400,500,600,700">
 
 	<!-- aiz core css -->
 	<link rel="stylesheet" href="{{asset('public/backEnd/')}}/assets_login/css/vendors.css">
@@ -34,10 +34,10 @@
 								<div class="mb-5 text-center">
 									<img src="{{asset($generalsetting->dark_logo)}}" class="mw-100 mb-4" height="40">
 									<h1 class="h3 text-primary mb-0">{{ __('Reset Password') }}</h1>
-									<p>Enter your new password below</p>
+									<p>{{ __('Enter your new password below') }}</p>
 								</div>
 
-								<form method="POST" action="{{ route('admin.password.update') }}">
+								<form method={{ __('"{{ __('POST') }}"') }} action="{{ route('admin.password.update') }}">
 									@csrf
 									<input type="hidden" name="token" value="{{ $token }}">
 
@@ -51,7 +51,7 @@
 									</div>
 
 									<div class="form-group">
-										<input id="password" type="password" name="password" class="form-control @error('password') is-invalid @enderror" placeholder="{{ __('New Password') }}" required>
+										<input id="password" type="password" name="password" class="form-control @error('password') is-invalid @enderror" placeholder="{{ __('{{ __('New') }} Password') }}" required>
 										@error('password')
 											<span class="invalid-feedback" role="alert">
 												<strong>{{ $message }}</strong>
@@ -63,11 +63,11 @@
 										<input id="password-confirm" type="password" name="password_confirmation" class="form-control" placeholder="{{ __('Confirm Password') }}" required>
 									</div>
 
-									<button type="submit" class="btn btn-primary btn-lg btn-block">{{ __('Reset Password') }}</button>
+									<button type="{{ __('submit') }}" class="btn btn-primary btn-lg btn-block">{{ __('Reset Password') }}</button>
 								</form>
 								
 								<div class="mt-3 text-center">
-									<a href="{{ route('login') }}" class="text-reset fs-14">Back to Login</a>
+									<a href="{{ route('login') }}" class="text-reset fs-14">{{ __('Back to Login') }}</a>
 								</div>
 							</div>
 						</div><!-- card -->

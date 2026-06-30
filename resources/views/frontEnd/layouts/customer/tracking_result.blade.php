@@ -44,7 +44,7 @@
     }
     .status-badge {
         background: var(--secondary-color);
-        backdrop-filter: blur(5px);
+        backdrop-{{ __('filter') }}: blur(5px);
         padding: 6px 16px;
         border-radius: 4px;
         font-size: 12px;
@@ -89,7 +89,7 @@
         letter-spacing: 0.5px;
     }
     .info-content p {
-        font-size: 14px;
+        font-size: {{ __('14px') }};
         font-weight: 600;
         color: #333;
         margin: 0;
@@ -100,12 +100,12 @@
         font-size: 13px;
     }
 
-    /* ৫. প্রোডাক্ট লিস্ট */
+    /* ৫. {{ __('{{ __('Product') }}s') }} লিস্ট */
     .product-list-container {
         padding: 10px 30px 30px;
     }
     .section-title {
-        font-size: 14px;
+        font-size: {{ __('14px') }};
         font-weight: 700;
         color: #333;
         margin-bottom: 15px;
@@ -139,7 +139,7 @@
     }
     
     .prod-details h5 {
-        font-size: 14px;
+        font-size: {{ __('14px') }};
         font-weight: 600;
         color: #333;
         margin-bottom: 3px;
@@ -175,10 +175,10 @@
         display: flex;
         justify-content: space-between;
         margin-bottom: 8px;
-        font-size: 14px;
+        font-size: {{ __('14px') }};
         color: #555;
     }
-    .summary-row.total {
+    .summary-row.{{ __('total') }} {
         border-top: 1px solid #e1e1e1;
         padding-top: 12px;
         margin-top: 12px;
@@ -246,9 +246,9 @@
                 {{-- যদি কোনো অর্ডার না পাওয়া যায় --}}
                 @if($order->count() == 0)
                     <div class="not-found-card">
-                        <img src="https://cdn-icons-png.flaticon.com/512/2748/2748558.png" width="80" class="mb-4 opacity-50" alt="No Data">
-                        <h4 class="text-dark fw-bold mb-2">অর্ডার খুঁজে পাওয়া যায়নি</h4>
-                        <p class="text-muted">আপনার ইনভয়েস আইডি অথবা ফোন নম্বরটি সঠিক কিনা যাচাই করুন।</p>
+                        <img src="{{ __('https://') }}cdn-icons-png.flaticon.com/512/2748/2748558.png" width="80" class="mb-4 opacity-50" alt="No Data">
+                        <h4 class="text-dark fw-bold mb-2">{{ __('bn_149fd91d') }}</h4>
+                        <p class="text-muted">{{ __('bn_742b5e66') }}</p>
                         <a href="{{ route('customer.order_track') }}" class="btn-retry">
                             আবার চেষ্টা করুন
                         </a>
@@ -263,7 +263,7 @@
                         <div class="invoice-header">
                             <div>
                                 <div class="invoice-id">
-                                    Invoice #{{$value->invoice_id}}
+                                    {{ __('{{ __('Inv') }}oice') }} #{{$value->invoice_id}}
                                 </div>
                                 <div class="invoice-date">
                                     Placed on: {{ date('d M, Y h:i A', strtotime($value->created_at)) }}
@@ -279,15 +279,15 @@
                             <div class="info-box">
                                 <div class="info-icon"><i class="fas fa-user"></i></div>
                                 <div class="info-content">
-                                    <h6>Customer Details</h6>
+                                    <h6>{{ __('{{ __('Customer') }} Details') }}</h6>
                                     <p>{{ $value->shipping->name ?? 'Guest' }}</p>
-                                    <small>{{ $value->shipping->phone ?? $value->shipping_phone }}</small>
+                                    <small>{{ $value->shipping->{{ __('phone') }} ?? $value->shipping_{{ __('phone') }} }}</small>
                                 </div>
                             </div>
                             <div class="info-box">
                                 <div class="info-icon"><i class="fas fa-map-marker-alt"></i></div>
                                 <div class="info-content">
-                                    <h6>Delivery Address</h6>
+                                    <h6>{{ __('Delivery Address') }}</h6>
                                     <p>{{ $value->shipping->area ?? 'General' }}</p>
                                     <small>{{ Str::limit($value->shipping->address ?? '', 35) }}</small>
                                 </div>
@@ -295,35 +295,35 @@
                             <div class="info-box">
                                 <div class="info-icon"><i class="fas fa-credit-card"></i></div>
                                 <div class="info-content">
-                                    <h6>Payment Info</h6>
-                                    <p class="text-uppercase">{{ $value->payment->payment_method ?? 'COD' }}</p>
+                                    <h6>{{ __('Payment Info') }}</h6>
+                                    <p class="text-uppercase">{{ $value->payment->payment_method ?? '{{ __('COD') }}' }}</p>
                                     <small class="{{ $value->payment_status == 'paid' ? 'text-success' : 'text-danger' }}">
-                                        Status: {{ ucfirst($value->payment_status) }}
+                                        {{ __('Status') }}: {{ ucfirst($value->payment_status) }}
                                     </small>
                                 </div>
                             </div>
                         </div>
 
-                        {{-- 3. Product List --}}
+                        {{-- 3. {{ __('Product') }} List --}}
                         <div class="product-list-container">
-                            <span class="section-title">Order Items</span>
+                            <span class="section-title">{{ __('Order {{ __('{{ __('Item') }}s') }}') }}</span>
                             
                             @php
-                                $orderdetails = App\Models\OrderDetails::where('order_id', $value->id)->get();
-                                $subtotal = 0;
+                                $orderdetails = App\Models\OrderDetails::w{{ __('here') }}('order_id', $value->{{ __('id)') }}->get();
+                                $sub{{ __('total') }} = 0;
                             @endphp
 
                             @foreach($orderdetails as $product)
                             <div class="product-item">
                                 <div class="d-flex align-items-center">
                                     <div class="prod-img-box">
-                                        <img src="{{ asset($product->image->image ?? 'public/frontEnd/images/no-image.png') }}" alt="Product">
+                                        <img src="{{ asset($product->image->image ?? 'public/frontEnd/images/no-image.png') }}" alt="{{ __('Product') }}">
                                     </div>
                                     <div class="prod-details">
                                         <h5>{{ $product->product_name }}</h5>
                                         <div class="prod-meta">
                                             @if($product->product_size) <span>Size: {{ $product->product_size }}</span> @endif
-                                            @if($product->product_color) <span>Color: {{ $product->product_color }}</span> @endif
+                                            @if($product->product_color) <span>{{ __('Color') }}: {{ $product->product_color }}</span> @endif
                                         </div>
                                     </div>
                                 </div>
@@ -331,21 +331,21 @@
                                     <span class="amount">{{ number_format($product->sale_price * $product->qty, 0) }} ৳</span>
                                     <span class="qty">{{ $product->sale_price }} x {{ $product->qty }}</span>
                                 </div>
-                                @php $subtotal += ($product->sale_price * $product->qty); @endphp
+                                @php $sub{{ __('total') }} += ($product->sale_price * $product->qty); @endphp
                             </div>
                             @endforeach
                         </div>
 
-                        {{-- 4. Summary & Total --}}
+                        {{-- 4. {{ __('Summary') }} & {{ __('Total') }} --}}
                         <div class="summary-section">
                             <div class="row justify-content-end">
                                 <div class="col-md-5">
                                     <div class="summary-row">
-                                        <span>{{ __('Subtotal') }}</span>
-                                        <span>{{ number_format($subtotal, 0) }} ৳</span>
+                                        <span>{{ __('Sub{{ __('total') }}') }}</span>
+                                        <span>{{ number_format($sub{{ __('total') }}, 0) }} ৳</span>
                                     </div>
                                     <div class="summary-row">
-                                        <span>Delivery Charge</span>
+                                        <span>{{ __('Delivery Charge') }}</span>
                                         <span>(+) {{ number_format($value->shipping_charge, 0) }} ৳</span>
                                     </div>
                                     @if($value->discount > 0)
@@ -354,8 +354,8 @@
                                         <span>(-) {{ number_format($value->discount, 0) }} ৳</span>
                                     </div>
                                     @endif
-                                    <div class="summary-row total">
-                                        <span>Grand Total</span>
+                                    <div class="summary-row {{ __('total') }}">
+                                        <span>{{ __('Grand {{ __('Total') }}') }}</span>
                                         <span>{{ number_format($value->amount, 0) }} ৳</span>
                                     </div>
                                 </div>
@@ -364,7 +364,7 @@
                             {{-- Print Button --}}
                             <div class="text-end mt-4">
                                 <button onclick="window.print()" class="btn-print">
-                                    <i class="fas fa-print me-1"></i> Print Invoice
+                                    <i class="fas fa-print me-1"></i> Print {{ __('{{ __('Inv') }}oice') }}
                                 </button>
                             </div>
                         </div>

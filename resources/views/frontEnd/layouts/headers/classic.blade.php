@@ -1,4 +1,4 @@
-{{-- Header Style 1: Classic (Default) --}}
+{{-- {{ __('Header Style') }} 1: {{ __('Classic') }} (Default) --}}
 <header class="header-classic" id="mainHeader">
     {{-- Top Bar --}}
     @if(($generalsetting->header_top_bar ?? 1) == 1)
@@ -6,7 +6,7 @@
         <div class="container d-flex justify-content-between align-items-center py-1">
             <div class="d-flex gap-3">
                 <a href="tel:{{ $contact->hotline ?? '01XXX-XXXXXX' }}" class="text-white small text-decoration-none">
-                    <i class="fa-solid fa-phone"></i> {{ $contact->hotline ?? '01XXX-XXXXXX' }}
+                    <i class="fa-solid fa-{{ __('phone') }}"></i> {{ $contact->hotline ?? '01XXX-XXXXXX' }}
                 </a>
                 <span class="text-white-50 small d-none d-md-inline">{{ $generalsetting->top_headline ?? '' }}</span>
             </div>
@@ -39,11 +39,11 @@
 
                 {{-- Search --}}
                 <div class="col-lg-5 col-md-6 d-none d-md-block">
-                    <form action="{{ route('search') }}" method="GET" class="header-search-form">
+                    <form action="{{ route('search') }}" method="{{ __('GET') }}" class="header-search-form">
                         <div class="input-group">
                             <input type="text" name="q" class="form-control" placeholder="{{ __('Search products...') }}" 
                                    style="border-radius: 25px 0 0 25px; border: 2px solid var(--primary-color);">
-                            <button class="btn text-white" type="submit" 
+                            <button class="btn text-white" type="{{ __('submit') }}" 
                                     style="background:var(--primary-color); border-radius: 0 25px 25px 0;">
                                 <i class="fa-solid fa-magnifying-glass"></i>
                             </button>
@@ -51,15 +51,15 @@
                     </form>
                 </div>
 
-                {{-- Cart & Wishlist --}}
+                {{-- {{ __('Cart') }} & Wishlist --}}
                 <div class="col-lg-5 col-md-3 col-6 text-end">
                     <div class="d-flex justify-content-end align-items-center gap-3">
                         <a href="{{ route('customer.account') }}" class="text-dark position-relative" title="Account/Wishlist">
                             <i class="fa-regular fa-heart fs-5"></i>
                         </a>
-                        <a href="{{ route('customer.checkout') }}" class="text-dark position-relative" title="Cart">
+                        <a href="{{ route('customer.checkout') }}" class="text-dark position-relative" title="{{ __('Cart') }}">
                             <i class="fa-solid fa-bag-shopping fs-5"></i>
-                            <span class="cart-count-badge">{{ Cart::instance('shopping')->count() }}</span>
+                            <span class="cart-count-badge">{{ {{ __('Cart') }}::instance('shopping')->count() }}</span>
                         </a>
                     </div>
                 </div>
@@ -71,12 +71,12 @@
             <div class="container">
                 <ul class="nav-list d-flex list-unstyled mb-0">
                     <li><a href="{{ route('home') }}" class="text-white px-3 py-2 d-block">{{ __('Home') }}</a></li>
-                    <li><a href="{{ route('shop') }}" class="text-white px-3 py-2 d-block">Shop</a></li>
-                    <li><a href="{{ route('hotdeals') }}" class="text-white px-3 py-2 d-block">{{ __('Hot Deals') }}</a></li>
+                    <li><a href="{{ route('shop') }}" class="text-white px-3 py-2 d-block">{{ __('Shop') }}</a></li>
+                    <li><a href="{{ route('hotdeals') }}" class="text-white px-3 py-2 d-block">{{ __('{{ __('Hot Deal') }}s') }}</a></li>
                     <li><a href="{{ route('flashsales') }}" class="text-white px-3 py-2 d-block">{{ __('Flash Sale') }}</a></li>
                     <li><a href="{{ route('brands') }}" class="text-white px-3 py-2 d-block">{{ __('Brands') }}</a></li>
                     <li><a href="{{ route('blog.details') }}" class="text-white px-3 py-2 d-block">{{ __('Blog') }}</a></li>
-                    <li><a href="{{ route('contact') }}" class="text-white px-3 py-2 d-block">Contact</a></li>
+                    <li><a href="{{ route('contact') }}" class="text-white px-3 py-2 d-block">{{ __('Contact') }}</a></li>
                 </ul>
             </div>
         </nav>

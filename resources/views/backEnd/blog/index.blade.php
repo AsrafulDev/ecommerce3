@@ -33,10 +33,10 @@
         padding: 15px;
         border-bottom: 1px solid #f1f5f7;
         color: #313b5e;
-        font-size: 14px;
+        font-size: {{ __('14px') }};
     }
 
-    /* Blog Image */
+    /* Blog {{ __('Image *') }}/
     .blog-img {
         width: 60px;
         height: 40px;
@@ -46,11 +46,11 @@
         border: 1px solid #f1f5f7;
     }
 
-    /* Blog Title */
+    /* {{ __('Blog {{ __('Title') }}') }} */
     .blog-title {
         font-weight: 600;
         color: #343a40;
-        font-size: 14px;
+        font-size: {{ __('14px') }};
         display: block;
         max-width: 250px;
         white-space: nowrap;
@@ -87,9 +87,9 @@
     
     <div class="row mb-3 mt-3">
         <div class="col-12 d-flex justify-content-between align-items-center">
-            <h4 class="page-title mb-0" style="font-weight: 700; color: #2d3436;">Blog Posts</h4>
+            <h4 class="page-title mb-0" style="font-weight: 700; color: #2d3436;">{{ __('Blog Posts') }}</h4>
             <a href="{{ route('admin.blog.create') }}" class="btn btn-primary rounded-pill shadow-sm px-4">
-                <i class="fe-plus me-1"></i> Add New Blog
+                <i class="fe-plus me-1"></i> {{ __('Add {{ __('New') }} Blog') }}
             </a>
         </div>
     </div>
@@ -103,7 +103,7 @@
                             <tr>
                                 <th style="width: 50px;">{{ __('SL') }}</th>
                                 <th>{{ __('Image') }}</th>
-                                <th>{{ __('Title') }}</th>
+                                <th>{{ __('{{ __('Title') }}') }}</th>
                                 <th>{{ __('Status') }}</th>
                                 <th class="text-end" style="width: 150px;">{{ __('Action') }}</th>
                             </tr>
@@ -117,7 +117,7 @@
                                     @if($blog->image)
                                         <img src="{{ asset($blog->image) }}" class="blog-img" alt="Blog Image">
                                     @else
-                                        <img src="{{ asset('public/backEnd/assets/images/image-placeholder.png') }}" class="blog-img" alt="No Image">
+                                        <img src="{{ asset('public/backEnd/assets/images/image-placeholder.png') }}" class="blog-img" alt="{{ __('No Image') }}">
                                     @endif
                                 </td>
 
@@ -136,12 +136,12 @@
                                 <td class="text-end">
                                     <div class="d-inline-flex gap-2">
                                         {{-- Edit --}}
-                                        <a href="{{ route('admin.blog.edit',$blog->id) }}" class="action-btn btn-edit" title="{{ __('Edit') }}">
+                                        <a href="{{ route('admin.blog.edit',$blog->{{ __('id)') }} }}" class="action-btn btn-edit" title="{{ __('Edit') }}">
                                             <i class="fe-edit"></i>
                                         </a>
 
                                         {{-- Delete --}}
-                                        <a href="{{ route('admin.blog.delete',$blog->id) }}" 
+                                        <a href="{{ route('admin.blog.delete',$blog->{{ __('id)') }} }}" 
                                            onclick="return confirm('Are you sure you want to delete this blog?')" 
                                            class="action-btn btn-delete" title="{{ __('Delete') }}">
                                             <i class="fe-trash-2"></i>

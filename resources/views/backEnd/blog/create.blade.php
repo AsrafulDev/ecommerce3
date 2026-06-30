@@ -52,7 +52,7 @@
         border: 1px solid #eef2f7;
         padding: 12px 15px;
         border-radius: 8px;
-        font-size: 14px;
+        font-size: {{ __('14px') }};
         color: #2d3436;
         transition: all 0.3s;
     }
@@ -127,7 +127,7 @@
     input:checked + .slider:before { transform: translateX(22px); }
 
     /* Button Style */
-    .btn-submit {
+    .btn-{{ __('submit') }} {
         background: linear-gradient(45deg, #0acf97, #06b6d4);
         border: none;
         color: white;
@@ -137,7 +137,7 @@
         box-shadow: 0 4px 15px rgba(10, 207, 151, 0.3);
         transition: 0.3s;
     }
-    .btn-submit:hover {
+    .btn-{{ __('submit') }}:hover {
         transform: translateY(-2px);
         box-shadow: 0 6px 20px rgba(10, 207, 151, 0.4);
     }
@@ -151,8 +151,8 @@
         <div class="col-12">
             <div class="page-title-box d-flex align-items-center justify-content-between py-4">
                 <div>
-                    <h4 class="page-title mb-1 text-dark fw-bold">Create New Blog</h4>
-                    <p class="text-muted font-size-13 mb-0">Write engaging content for your audience.</p>
+                    <h4 class="page-title mb-1 text-dark fw-bold">{{ __('Create {{ __('New') }} Blog') }}</h4>
+                    <p class="text-muted font-size-13 mb-0">{{ __('Write engaging content for your audience.') }}</p>
                 </div>
                 <div class="page-title-right">
                     <a href="{{ route('admin.blog.index') }}" class="btn btn-light rounded-pill border shadow-sm px-4">
@@ -163,7 +163,7 @@
         </div>
     </div>
 
-    <form action="{{ route('admin.blog.store') }}" method="POST" enctype="multipart/form-data">
+    <form action="{{ route('admin.blog.store') }}" method={{ __('"{{ __('POST') }}"') }} enctype="multipart/form-data">
         @csrf
         <div class="row">
             
@@ -172,27 +172,27 @@
                 <div class="card">
                     <div class="card-header">
                         <div class="header-icon"><i class="fe-edit-3"></i></div>
-                        <h5 class="card-title">Blog Content</h5>
+                        <h5 class="card-title">{{ __('Blog Content') }}</h5>
                     </div>
                     <div class="card-body">
                         
                         <div class="form-group mb-4">
-                            <label class="form-label">Blog Title <span class="text-danger">*</span></label>
+                            <label class="form-label">{{ __('Blog {{ __('Title') }}') }} <span class="text-danger">*</span></label>
                             <input type="text" name="title" class="form-control @error('title') is-invalid @enderror" 
-                                   value="{{ old('title') }}" placeholder="Enter a catchy title" required>
+                                   value="{{ old('title') }}" placeholder="{{ __('Enter a catchy title') }}" required>
                             @error('title')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                         </div>
 
                         <div class="form-group mb-4">
-                            <label class="form-label">Short Description</label>
+                            <label class="form-label">{{ __('Short Description') }}</label>
                             <textarea name="short_description" class="form-control" rows="3" 
-                                      placeholder="Brief summary of the blog...">{{ old('short_description') }}</textarea>
+                                      placeholder="{{ __('Brief summary of the blog...') }}">{{ old('short_description') }}</textarea>
                         </div>
 
                         <div class="form-group mb-0">
-                            <label class="form-label">Full Content <span class="text-danger">*</span></label>
+                            <label class="form-label">{{ __('Full Content') }} <span class="text-danger">*</span></label>
                             <textarea name="description" class="summernote form-control @error('description') is-invalid @enderror" 
                                       required>{{ old('description') }}</textarea>
                             @error('description')
@@ -209,13 +209,13 @@
                 <div class="card mb-4">
                     <div class="card-header">
                         <div class="header-icon"><i class="fe-settings"></i></div>
-                        <h5 class="card-title">Publish</h5>
+                        <h5 class="card-title">{{ __('Publish') }}</h5>
                     </div>
                     <div class="card-body">
                         <div class="d-flex justify-content-between align-items-center mb-4 p-3 bg-light rounded border border-light">
                             <div>
-                                <h6 class="mb-1 text-dark fw-bold">Active Status</h6>
-                                <p class="text-muted font-size-12 mb-0">Publish this post?</p>
+                                <h6 class="mb-1 text-dark fw-bold">{{ __('Active {{ __('Status') }}') }}</h6>
+                                <p class="text-muted font-size-12 mb-0">{{ __('Publish') }} this post?</p>
                             </div>
                             <label class="switch">
                                 <input type="checkbox" name="status" value="1" checked>
@@ -223,7 +223,7 @@
                             </label>
                         </div>
 
-                        <button type="submit" class="btn btn-submit w-100 rounded-pill">
+                        <button type="{{ __('submit') }}" class="btn btn-{{ __('submit') }} w-100 rounded-pill">
                             <i class="fe-save me-1"></i> Save Blog
                         </button>
                     </div>
@@ -232,7 +232,7 @@
                 <div class="card">
                     <div class="card-header">
                         <div class="header-icon"><i class="fe-image"></i></div>
-                        <h5 class="card-title">Featured Image</h5>
+                        <h5 class="card-title">{{ __('{{ __('Featured') }} Image') }}</h5>
                     </div>
                     <div class="card-body">
                         <div class="image-upload-box" onclick="document.getElementById('image').click()">
@@ -240,11 +240,11 @@
                             
                             <div id="upload_placeholder" class="upload-placeholder">
                                 <i class="fe-upload-cloud"></i>
-                                <p>Click to upload image</p>
-                                <small class="text-muted d-block mt-2">JPG, PNG, WEBP (Max 2MB)</small>
+                                <p>{{ __('Click to upload image') }}</p>
+                                <small class="text-muted d-block mt-2">{{ __('JPG, PNG, WEBP (Max 2MB)') }}</small>
                             </div>
                             
-                            <img id="preview_image" class="preview-img" src="#" alt="Preview">
+                            <img id="preview_image" class="preview-img" src="#" alt="{{ __('Prev') }}iew">
                         </div>
                         @error('image')
                             <div class="text-danger small mt-2 text-center">{{ $message }}</div>
@@ -266,7 +266,7 @@
     $(document).ready(function() {
         // Initialize Summernote
         $(".summernote").summernote({
-            placeholder: "Write your blog content here...",
+            placeholder: "Write your blog content {{ __('here') }}...",
             tabsize: 2,
             height: 300,
             toolbar: [
@@ -281,7 +281,7 @@
         });
     });
 
-    // Image Upload Preview Function
+    // Image Upload {{ __('Prev') }}iew Function
     function readURL(input) {
         if (input.files && input.files[0]) {
             var reader = new FileReader();

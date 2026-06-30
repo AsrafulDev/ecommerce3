@@ -1,5 +1,5 @@
 @extends('backEnd.layouts.master')
-@section('title','Customer Profile')
+@section('title','{{ __('{{ __('Customer') }} Profile') }}')
 
 @section('css')
 <link href="{{asset('/public/backEnd/')}}/assets/libs/datatables.net-bs5/css/dataTables.bootstrap5.min.css" rel="stylesheet" type="text/css" />
@@ -32,7 +32,7 @@
     .profile-name { font-size: 20px; font-weight: 700; color: #343a40; margin-top: 15px; }
     .profile-meta { color: #98a6ad; font-size: 13px; }
 
-    /* Contact Buttons */
+    /* {{ __('Contact') }} Buttons */
     .btn-contact {
         width: 40px;
         height: 40px;
@@ -85,19 +85,19 @@
     
     <div class="row mb-3 mt-3">
         <div class="col-12 d-flex justify-content-between align-items-center">
-            <h4 class="page-title mb-0" style="font-weight: 700; color: #2d3436;">Customer Profile</h4>
+            <h4 class="page-title mb-0" style="font-weight: 700; color: #2d3436;">{{ __('{{ __('Customer') }} Profile') }}</h4>
             
             <div class="d-flex gap-2">
                 <a href="{{route('customers.index')}}" class="btn btn-light rounded-pill border shadow-sm">
                     <i class="fe-arrow-left me-1"></i> Back to List
                 </a>
                 
-                {{-- Login as Customer --}}
+                {{-- Login as {{ __('Customer') }} --}}
                 <form method="post" action="{{route('customers.adminlog')}}" target="_blank">
                     @csrf
                     <input type="hidden" value="{{$profile->id}}" name="hidden_id">        
-                    <button type="submit" class="btn btn-info rounded-pill shadow-sm" title="Login as User">
-                        <i class="fe-log-in me-1"></i> Login as User
+                    <button type="{{ __('submit') }}" class="btn btn-info rounded-pill shadow-sm" title="Login as {{ __('{{ __('Use') }}r') }}">
+                        <i class="fe-log-in me-1"></i> Login as {{ __('{{ __('Use') }}r') }}
                     </button>
                 </form>
             </div>
@@ -112,26 +112,26 @@
                     <img src="{{asset($profile->image)}}" class="profile-avatar" alt="profile-image">
                     
                     <h4 class="profile-name">{{$profile->name}}</h4>
-                    <p class="profile-meta"><i class="fe-map-pin me-1"></i> {{ $profile->area ?? 'Area' }}, {{ $profile->district ?? 'District' }}</p>
+                    <p class="profile-meta"><i class="fe-map-pin me-1"></i> {{ $profile->area ?? '{{ __('Area') }}' }}, {{ $profile->district ?? '{{ __('District') }}' }}</p>
 
                     <div class="mt-3 mb-4">
-                        <a href="tel:{{$profile->phone}}" class="btn-contact btn-contact-call" title="Call Now">
-                            <i class="fe-phone"></i>
+                        <a href="tel:{{$profile->{{ __('phone') }}}}" class="btn-contact btn-contact-call" title="Call Now">
+                            <i class="fe-{{ __('phone') }}"></i>
                         </a>
-                        <a href="mailto:{{$profile->email}}" class="btn-contact btn-contact-email" title="Send Email">
+                        <a href="mailto:{{$profile->email}}" class="btn-contact btn-contact-email" title="Send {{ __('Email') }}">
                             <i class="fe-mail"></i>
                         </a>
                     </div>
 
                     <div class="text-start mt-4">
-                        <h6 class="text-uppercase text-muted font-size-12 mb-3">Personal Information</h6>
+                        <h6 class="text-uppercase text-muted font-size-12 mb-3">{{ __('Personal Information') }}</h6>
                         
                         <div class="info-list-item">
-                            <span class="info-label">Mobile</span>
-                            <span class="info-value">{{$profile->phone}}</span>
+                            <span class="info-label">{{ __('Mobile') }}</span>
+                            <span class="info-value">{{$profile->{{ __('phone') }}}}</span>
                         </div>
                         <div class="info-list-item">
-                            <span class="info-label">{{ __('Email') }}</span>
+                            <span class="info-label">{{ __('{{ __('Email') }}') }}</span>
                             <span class="info-value">{{$profile->email}}</span>
                         </div>
                         <div class="info-list-item">
@@ -139,11 +139,11 @@
                             <span class="info-value">{{$profile->address}}</span>
                         </div>
                         <div class="info-list-item">
-                            <span class="info-label">District</span>
+                            <span class="info-label">{{ __('District') }}</span>
                             <span class="info-value">{{$profile->district}}</span>
                         </div>
                         <div class="info-list-item">
-                            <span class="info-label">Upazila/Area</span>
+                            <span class="info-label">{{ __('Upazila/{{ __('Area') }}') }}</span>
                             <span class="info-value">{{$profile->area}}</span>
                         </div>
                     </div>
@@ -160,7 +160,7 @@
                             <a href="#orders" data-bs-toggle="tab" aria-expanded="true" class="nav-link active">
                                 <i class="fe-shopping-bag me-1"></i>{{ __('Order History') }}</a>
                         </li>
-                        {{-- You can add more tabs here like 'Transactions', 'Reviews' etc --}}
+                        {{-- You can add more tabs {{ __('here') }} like 'Transactions', '{{ __('{{ __('Review') }}s') }}' etc --}}
                     </ul>
 
                     <div class="tab-content">
@@ -170,9 +170,9 @@
                                     <thead>
                                         <tr>
                                             <th>{{ __('SL') }}</th>
-                                            <th>Invoice ID</th>
-                                            <th>Date & Time</th>
-                                            <th>Shipping Method</th>
+                                            <th>{{ __('{{ __('{{ __('Inv') }}oice') }} ID') }}</th>
+                                            <th>{{ __('{{ __('Date') }} & Time') }}</th>
+                                            <th>{{ __('{{ __('Shipping') }} {{ __('Method') }}') }}</th>
                                             <th>{{ __('Amount') }}</th>
                                             <th>{{ __('Status') }}</th>
                                         </tr>
@@ -193,7 +193,7 @@
                                                 </div>
                                             </td>
 
-                                            <td>{{$value->shipping ? $value->shipping->name : 'N/A'}}</td>
+                                            <td>{{$value->shipping ? $value->shipping->name : '{{ __('N/A') }}'}}</td>
 
                                             <td>
                                                 <span class="fw-bold text-dark">৳{{ number_format($value->amount, 2) }}</span>
@@ -201,18 +201,18 @@
 
                                             <td>
                                                 @php
-                                                    $statusName = $value->status ? $value->status->name : 'Pending';
+                                                    $status{{ __('Name') }} = $value->status ? $value->status->name : 'Pending';
                                                     $badgeClass = 'badge-soft-warning'; // Default
                                                     
-                                                    if(strtolower($statusName) == 'completed' || strtolower($statusName) == 'delivered') {
+                                                    if(strtolower($status{{ __('Name') }}) == 'completed' || strtolower($status{{ __('Name') }}) == 'delivered') {
                                                         $badgeClass = 'badge-soft-success';
-                                                    } elseif(strtolower($statusName) == 'cancelled') {
+                                                    } elseif(strtolower($status{{ __('Name') }}) == 'cancelled') {
                                                         $badgeClass = 'badge-soft-danger';
-                                                    } elseif(strtolower($statusName) == 'processing') {
+                                                    } elseif(strtolower($status{{ __('Name') }}) == 'processing') {
                                                         $badgeClass = 'badge-soft-info';
                                                     }
                                                 @endphp
-                                                <span class="badge badge-pill {{ $badgeClass }}">{{ $statusName }}</span>
+                                                <span class="badge badge-pill {{ $badgeClass }}">{{ $status{{ __('Name') }} }}</span>
                                             </td>
                                         </tr>
                                         @endforeach

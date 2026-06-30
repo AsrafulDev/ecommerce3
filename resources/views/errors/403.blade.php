@@ -5,8 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Access Denied | 403</title>
     
-    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="{{ __('https://') }}fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ __('https://') }}cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -62,7 +62,7 @@
             letter-spacing: 1px;
         }
 
-        .message {
+        .{{ __('message') }} {
             font-size: 1.1rem;
             color: #4b5563;
             margin-bottom: 30px;
@@ -112,9 +112,9 @@
             4<span>0</span>3
         </div>
 
-        <h2>Access Forbidden</h2>
+        <h2>{{ __('Access Forbidden') }}</h2>
 
-        <p class="message">
+        <p class="{{ __('message') }}">
             আপনার গতিবিধী সন্দেহ জনক<br>
             আমাদের সাপোর্টে দয়া করে কথা বলুন।
         </p>

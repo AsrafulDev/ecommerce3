@@ -1,14 +1,14 @@
 @extends('backEnd.layouts.master')
 
-@section('title', 'Fund Management')
+@section('title', 'Fund {{ __('Manage') }}ment')
 
 @section('content')
 <div class="container-fluid">
 
     <div class="d-flex justify-content-between align-items-center mb-3">
-        <h3 class="mb-0">💰 Fund Management</h3>
+        <h3 class="mb-0">💰 Fund {{ __('Manage') }}ment</h3>
         <a href="{{ route('admin.fund.logs') }}" class="btn btn-info btn-sm">
-            <i data-feather="file-text" class="me-1" style="width:14px;height:14px;"></i> 
+            <i data-feather="file-text" class="me-1" style="width:{{ __('14px') }};height:{{ __('14px') }};"></i> 
             View Edit/Delete Logs & Reports
         </a>
     </div>
@@ -16,13 +16,13 @@
     {{-- Top summary cards --}}
     <div class="row mb-4">
 
-       {{-- Total Balance --}}
+       {{-- {{ __('Total') }} {{ __('Balance') }} --}}
 <div class="col-md-4 mb-3">
     <div class="card" style="background:#198754; color:#fff;">
         <div class="card-body">
-            <h5 class="mb-1" style="color:#fff !important;">Available Balance</h5>
+            <h5 class="mb-1" style="color:#fff !important;">{{ __('Available {{ __('Balance') }}') }}</h5>
             <h2 class="mb-0" style="color:#fff !important;">{{ number_format($balance, 2) }} ৳</h2>
-            <small style="color:#fff !important; opacity:0.85;">In – Out এর পার্থক্য</small>
+            <small style="color:#fff !important; opacity:0.85;">{{ __('bn_63337282') }}</small>
         </div>
     </div>
 </div>
@@ -33,7 +33,7 @@
         <div class="card-body">
             <h5 class="mb-1" style="color:#fff !important;">This Year ({{ $currentYear }})</h5>
             <h3 class="mb-0" style="color:#fff !important;">{{ number_format($yearlyAdded, 2) }} ৳</h3>
-            <small style="color:#fff !important; opacity:0.85;">এই বছরে মোট ফান্ড যোগ হয়েছে</small>
+            <small style="color:#fff !important; opacity:0.85;">{{ __('bn_47e0d2b8') }}</small>
         </div>
     </div>
 </div>
@@ -44,7 +44,7 @@
         <div class="card-body">
             <h5 class="mb-1" style="color:#fff !important;">This Month ({{ \Carbon\Carbon::create()->month($currentMonth)->format('F') }})</h5>
             <h3 class="mb-0" style="color:#fff !important;">{{ number_format($monthlyAdded, 2) }} ৳</h3>
-            <small style="color:#fff !important; opacity:0.85;">এই মাসে মোট ফান্ড যোগ হয়েছে</small>
+            <small style="color:#fff !important; opacity:0.85;">{{ __('bn_b0ecdd0f') }}</small>
         </div>
     </div>
 </div>
@@ -52,80 +52,80 @@
 
     </div>
 
-    {{-- Add / Withdraw + Export --}}
+    {{-- Add / {{ __('Withdraw') }} + Export --}}
     <div class="row mb-4">
-        {{-- Add Fund --}}
+        {{-- {{ __('Add Fund') }} --}}
         <div class="col-md-4 mb-3">
             <div class="card">
                 <div class="card-header bg-light">
-                    <strong>➕ Add Fund</strong>
+                    <strong>➕ {{ __('Add Fund') }}</strong>
                 </div>
                 <div class="card-body">
-                    <form action="{{ route('admin.fund.add') }}" method="POST">
+                    <form action="{{ route('admin.fund.add') }}" method={{ __('"{{ __('POST') }}"') }}>
                         @csrf
                         <div class="mb-2">
-                            <label class="form-label">Amount (৳)</label>
-                            <input type="number" name="amount" class="form-control @error('amount') is-invalid @enderror"
+                            <label class="form-label">{{ __('bn_31ee207e') }}</label>
+                            <input type="{{ __('number') }}" name="amount" class="form-control @error('amount') is-invalid @enderror"
                                    placeholder="{{ __('Amount') }}" step="0.01" min="1" required>
                             @error('amount')
                                 <small class="text-danger">{{ $message }}</small>
                             @enderror
                         </div>
                         <div class="mb-2">
-                            <label class="form-label">{{ __('Note') }}</label>
-                            <input type="text" name="note" class="form-control" placeholder="Note (optional)">
+                            <label class="form-label">{{ __('{{ __('Note') }}') }}</label>
+                            <input type="text" name="note" class="form-control" placeholder="{{ __('{{ __('Note') }} (optional)') }}">
                         </div>
-                        <button class="btn btn-primary w-100">Add Fund</button>
+                        <button class="btn btn-primary w-100">{{ __('Add Fund') }}</button>
                     </form>
                 </div>
             </div>
         </div>
 
-        {{-- Withdraw --}}
+        {{-- {{ __('Withdraw') }} --}}
         <div class="col-md-4 mb-3">
             <div class="card">
                 <div class="card-header bg-light">
-                    <strong>➖ Withdraw</strong>
+                    <strong>➖ {{ __('Withdraw') }}</strong>
                 </div>
                 <div class="card-body">
-                    <form action="{{ route('admin.fund.withdraw') }}" method="POST">
+                    <form action="{{ route('admin.fund.withdraw') }}" method={{ __('"{{ __('POST') }}"') }}>
                         @csrf
                         <div class="mb-2">
-                            <label class="form-label">Amount (৳)</label>
-                            <input type="number" name="amount" class="form-control"
+                            <label class="form-label">{{ __('bn_31ee207e') }}</label>
+                            <input type="{{ __('number') }}" name="amount" class="form-control"
                                    placeholder="{{ __('Amount') }}" step="0.01" min="1" required>
                         </div>
                         <div class="mb-2">
-                            <label class="form-label">{{ __('Note') }}</label>
-                            <input type="text" name="note" class="form-control" placeholder="Note (optional)">
+                            <label class="form-label">{{ __('{{ __('Note') }}') }}</label>
+                            <input type="text" name="note" class="form-control" placeholder="{{ __('{{ __('Note') }} (optional)') }}">
                         </div>
-                        <button class="btn btn-danger w-100">Withdraw</button>
+                        <button class="btn btn-danger w-100">{{ __('Withdraw') }}</button>
                     </form>
                 </div>
             </div>
         </div>
 
-        {{-- Export Report --}}
+        {{-- {{ __('Export Report') }} --}}
         <div class="col-md-4 mb-3">
             <div class="card">
                 <div class="card-header bg-light">
-                    <strong>📤 Export Report</strong>
+                    <strong>📤 {{ __('Export Report') }}</strong>
                 </div>
                 <div class="card-body">
-                    <form action="{{ route('admin.fund.export') }}" method="GET" id="fundExportForm">
+                    <form action="{{ route('admin.fund.export') }}" method="{{ __('GET') }}" id="fundExportForm">
                         <div class="mb-2">
-                            <label class="form-label">Filter Type</label>
-                            <select name="filter" id="filter_type" class="form-select">
-                                <option value="year" selected>Yearly</option>
-                                <option value="month">Monthly</option>
-                                <option value="custom">Custom Date</option>
+                            <label class="form-label">{{ __('Filter Type') }}</label>
+                            <select name="{{ __('filter') }}" id="{{ __('filter') }}_type" class="form-select">
+                                <option value="year" selected>{{ __('Yearly') }}</option>
+                                <option value="month">{{ __('Monthly') }}</option>
+                                <option value="custom">{{ __('Custom {{ __('Date') }}') }}</option>
                             </select>
                         </div>
 
                         {{-- Year field --}}
                         <div class="mb-2" id="year_field">
                             <label class="form-label">{{ __('Year') }}</label>
-                            <input type="number" name="year" class="form-control"
+                            <input type="{{ __('number') }}" name="year" class="form-control"
                                    value="{{ $currentYear }}" min="2000" max="2100">
                         </div>
 
@@ -143,9 +143,9 @@
 
                         {{-- Custom date range --}}
                         <div class="mb-2 d-none" id="custom_date_fields">
-                            <label class="form-label">From Date</label>
+                            <label class="form-label">{{ __('{{ __('From') }} {{ __('Date') }}') }}</label>
                             <input type="date" name="from_date" class="form-control mb-2">
-                            <label class="form-label">To Date</label>
+                            <label class="form-label">{{ __('To {{ __('Date') }}') }}</label>
                             <input type="date" name="to_date" class="form-control">
                         </div>
 
@@ -164,9 +164,9 @@
             <strong>🧾 Fund History</strong>
             <div>
                 <a href="{{ route('admin.fund.logs') }}" class="btn btn-sm btn-outline-info">
-                    <i data-feather="file-text" class="me-1" style="width:14px;height:14px;"></i> View Logs / Reports
+                    <i data-feather="file-text" class="me-1" style="width:{{ __('14px') }};height:{{ __('14px') }};"></i> View Logs / Reports
                 </a>
-                <small class="text-muted ms-2">সর্বশেষ ট্রান্স্যাকশন লিস্ট</small>
+                <small class="text-muted ms-2">{{ __('bn_731438eb') }}</small>
             </div>
         </div>
         <div class="card-body table-responsive">
@@ -175,27 +175,27 @@
                     <tr>
                         <th>#</th>
                         <th>{{ __('Type') }}</th>
-                        <th>Source</th>
+                        <th>{{ __('Source') }}</th>
                         <th>{{ __('Amount') }}</th>
-                        <th>{{ __('Note') }}</th>
-                        <th>Date & Time</th>
+                        <th>{{ __('{{ __('Note') }}') }}</th>
+                        <th>{{ __('{{ __('Date') }} & Time') }}</th>
                         @php
-                            // Check if current user is Admin (Super Admin or has Admin role)
+                            // {{ __('Check') }} if current user is Admin (Super Admin or has Admin role)
                             $isAdmin = false;
                             $user = Auth::guard('admin')->user();
                             if ($user) {
                                 if ($user->id == 1) {
                                     $isAdmin = true;
                                 } else {
-                                    $spatieRoles = $user->getRoleNames()->map(function($role) {
+                                    $spatie{{ __('Roles') }} = $user->getRole{{ __('Name') }}s()->map(function($role) {
                                         return strtolower($role);
                                     })->toArray();
-                                    $isAdmin = in_array('admin', $spatieRoles);
+                                    $isAdmin = in_array('admin', $spatie{{ __('Roles') }});
                                 }
                             }
                         @endphp
                         @if($isAdmin)
-                        <th>Actions</th>
+                        <th>{{ __('Actions') }}</th>
                         @endif
                     </tr>
                 </thead>
@@ -205,9 +205,9 @@
                             <td>{{ $t->id }}</td>
                             <td>
                                 @if($t->direction == 'in')
-                                    <span class="badge bg-success">IN (+)</span>
+                                    <span class="badge bg-success">{{ __('IN (+)') }}</span>
                                 @else
-                                    <span class="badge bg-danger">OUT (-)</span>
+                                    <span class="badge bg-danger">{{ __('OUT (-)') }}</span>
                                 @endif
                             </td>
                             <td>
@@ -224,7 +224,7 @@
                                 @if($t->updated_by)
                                     <br>
                                     <small class="text-muted">
-                                        <i class="fe-edit-2" style="width:12px;height:12px;"></i> Last updated: {{ $t->updated_at ? $t->updated_at->format('d M Y, h:i A') : 'N/A' }}
+                                        <i class="fe-edit-2" style="width:12px;height:12px;"></i> Last updated: {{ $t->updated_at ? $t->updated_at->format('d M Y, h:i A') : '{{ __('N/A') }}' }}
                                     </small>
                                 @endif
                             </td>
@@ -232,13 +232,13 @@
                             @if($isAdmin)
                             <td>
                                 <div class="d-flex gap-2">
-                                    <a href="{{ route('admin.fund.edit', $t->id) }}" class="btn btn-sm btn-outline-primary" title="{{ __('Edit') }}">
+                                    <a href="{{ route('admin.fund.edit', $t->{{ __('id)') }} }}" class="btn btn-sm btn-outline-primary" title="{{ __('Edit') }}">
                                         <i class="fe-edit"></i>
                                     </a>
-                                    <form method="POST" action="{{ route('admin.fund.destroy', $t->id) }}" class="d-inline delete-form">
+                                    <form method={{ __('"{{ __('POST') }}"') }} action="{{ route('admin.fund.destroy', $t->{{ __('id)') }} }}" class="d-inline delete-form">
                                         @csrf
                                         @method('DELETE')
-                                        <button type="submit" class="btn btn-sm btn-outline-danger delete-confirm" title="{{ __('Delete') }}" onclick="return confirm('Are you sure you want to delete this transaction?');">
+                                        <button type="{{ __('submit') }}" class="btn btn-sm btn-outline-danger delete-confirm" title="{{ __('Delete') }}" onclick="return confirm('Are you sure you want to delete this transaction?');">
                                             <i class="fe-trash-2"></i>
                                         </button>
                                     </form>
@@ -268,19 +268,19 @@
 
 @section('script')
 <script>
-    // Export form filter UI show/hide
+    // Export form {{ __('filter') }} UI show/hide
     (function () {
-        const filterSelect      = document.getElementById('filter_type');
+        const {{ __('filter') }}Select      = document.getElementById('{{ __('filter') }}_type');
         const yearField         = document.getElementById('year_field');
         const monthField        = document.getElementById('month_field');
-        const customDateFields  = document.getElementById('custom_date_fields');
+        const custom{{ __('Date') }}Fields  = document.getElementById('custom_date_fields');
 
         function updateFilterFields() {
-            const val = filterSelect.value;
+            const val = {{ __('filter') }}Select.value;
 
             yearField.classList.add('d-none');
             monthField.classList.add('d-none');
-            customDateFields.classList.add('d-none');
+            custom{{ __('Date') }}Fields.classList.add('d-none');
 
             if (val === 'year') {
                 yearField.classList.remove('d-none');
@@ -288,11 +288,11 @@
                 yearField.classList.remove('d-none');
                 monthField.classList.remove('d-none');
             } else if (val === 'custom') {
-                customDateFields.classList.remove('d-none');
+                custom{{ __('Date') }}Fields.classList.remove('d-none');
             }
         }
 
-        filterSelect.addEventListener('change', updateFilterFields);
+        {{ __('filter') }}Select.addEventListener('change', updateFilterFields);
         updateFilterFields(); // on page load
     })();
 </script>

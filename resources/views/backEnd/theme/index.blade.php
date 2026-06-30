@@ -1,8 +1,8 @@
 @extends('backEnd.layouts.master')
-@section('title','Theme Manager')
+@section('title','{{ __('Theme {{ __('Manage') }}r') }}')
 
 @section('css')
-<link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
+<link href="{{ __('https://') }}cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
 <style>
     :root {
         --theme-card-radius: 16px;
@@ -24,7 +24,7 @@
     .page-header p {
         color: #94a3b8;
         margin: 0;
-        font-size: 14px;
+        font-size: {{ __('14px') }};
     }
 
     /* Theme Card Grid */
@@ -53,7 +53,7 @@
         box-shadow: 0 0 0 2px rgba(59,130,246,0.2), var(--theme-card-hover-shadow);
     }
 
-    /* Preview Strip */
+    /* {{ __('Prev') }}iew Strip */
     .theme-preview {
         height: 100px;
         position: relative;
@@ -104,7 +104,7 @@
         opacity: 0.12;
     }
 
-    /* Color Swatches Row */
+    /* {{ __('Color') }} Swatches Row */
     .color-swatches {
         display: flex;
         gap: 6px;
@@ -200,22 +200,22 @@
     {{-- Page Header --}}
     <div class="page-header d-flex justify-content-between align-items-center">
         <div>
-            <h4><i class="mdi mdi-palette-advanced me-2"></i> Theme Manager</h4>
-            <p>Manage 20+ color themes — Apply, Edit, Duplicate, or Create new themes</p>
+            <h4><i class="mdi mdi-palette-advanced me-2"></i> {{ __('Theme {{ __('Manage') }}r') }}</h4>
+            <p>{{ __('Manage') }} 20+ color themes — Apply, Edit, Duplicate, or Create new themes</p>
         </div>
         <div>
             <a href="{{ route('themes.create') }}" class="btn btn-light rounded-pill px-4 fw-bold shadow-sm">
-                <i class="fe-plus me-1"></i> Create Theme
+                <i class="fe-plus me-1"></i> {{ __('Create Theme') }}
             </a>
         </div>
     </div>
 
-    {{-- Active Theme Banner --}}
+    {{-- {{ __('Active Theme') }} Banner --}}
     @if($activeTheme)
     <div class="alert alert-info d-flex align-items-center gap-3 rounded-4 border-0 shadow-sm mb-4" style="background:#eff6ff;">
         <i class="mdi mdi-check-circle text-primary fs-3"></i>
         <div>
-            <strong class="text-dark">Active Theme:</strong>
+            <strong class="text-dark">{{ __('Active Theme') }}:</strong>
             <span class="fw-bold ms-1">{{ $activeTheme->name }}</span>
             <span class="badge bg-primary ms-2" style="font-size:10px;">
                 <span class="swatch d-inline-block rounded-circle me-1" style="width:10px;height:10px;background:{{ $activeTheme->primary_color }};vertical-align:middle;"></span>
@@ -223,7 +223,7 @@
             </span>
         </div>
         <a href="{{ route('layouts.index') }}" class="btn btn-outline-primary btn-sm rounded-pill ms-auto">
-            <i class="mdi mdi-view-dashboard me-1"></i> Manage Layouts
+            <i class="mdi mdi-view-dashboard me-1"></i> {{ __('Manage') }} {{ __('Layouts') }}
         </a>
     </div>
     @endif
@@ -235,7 +235,7 @@
             $isActive = $theme->is_default;
         @endphp
         <div class="theme-card {{ $isActive ? 'active-theme' : '' }}">
-            {{-- Preview Strip with actual theme colors --}}
+            {{-- {{ __('Prev') }}iew Strip with actual theme colors --}}
             <div class="theme-preview" style="background:{{ $theme->body_bg_color ?? '#ffffff' }};">
                 <div class="brand-bar" style="background:{{ $theme->header_bg_color ?? '#ffffff' }};">
                     <span class="logo-dot" style="background:{{ $theme->primary_color }};"></span>
@@ -256,13 +256,13 @@
                 @endif
             </div>
 
-            {{-- Color swatches --}}
+            {{-- {{ __('Color') }} swatches --}}
             <div class="color-swatches">
                 <span class="swatch" style="background:{{ $theme->primary_color }}" title="Primary: {{ $theme->primary_color }}"></span>
                 <span class="swatch" style="background:{{ $theme->secondary_color }}" title="Secondary: {{ $theme->secondary_color }}"></span>
                 <span class="swatch" style="background:{{ $theme->accent_color }}" title="Accent: {{ $theme->accent_color }}"></span>
                 <span class="swatch" style="background:{{ $theme->button_bg_color }}" title="Button: {{ $theme->button_bg_color }}"></span>
-                <span class="swatch" style="background:{{ $theme->text_color }}" title="Text: {{ $theme->text_color }}"></span>
+                <span class="swatch" style="background:{{ $theme->text_color }}" title="{{ __('Text') }}: {{ $theme->text_color }}"></span>
                 <span class="swatch" style="background:{{ $theme->footer_bg_color }}" title="Footer BG: {{ $theme->footer_bg_color }}"></span>
             </div>
 
@@ -282,26 +282,26 @@
                     </div>
                 </div>
 
-                {{-- Actions --}}
+                {{-- {{ __('Actions') }} --}}
                 <div class="theme-actions">
                     @if(!$isActive)
-                    <a href="{{ route('themes.apply', $theme->id) }}" class="btn-sm-custom btn-apply" onclick="return confirm('Apply &quot;{{ $theme->name }}&quot; theme?')">
+                    <a href="{{ route('themes.apply', $theme->{{ __('id)') }} }}" class="btn-sm-custom btn-apply" onclick="return confirm('Apply &quot;{{ $theme->name }}&quot; theme?')">
                         <i class="fe-check me-1"></i>{{ __('Apply') }}</a>
                     @else
                     <button class="btn-sm-custom btn-apply applied" disabled>
                         <i class="fe-check me-1"></i> Applied
                     </button>
                     @endif
-                    <a href="{{ route('themes.edit', $theme->id) }}" class="btn-sm-custom" style="background:#f1f5f9;color:#475569;">
+                    <a href="{{ route('themes.edit', $theme->{{ __('id)') }} }}" class="btn-sm-custom" style="background:#f1f5f9;color:#475569;">
                         <i class="fe-edit-2 me-1"></i>{{ __('Edit') }}</a>
-                    <a href="{{ route('themes.duplicate', $theme->id) }}" class="btn-sm-custom" style="background:#f1f5f9;color:#475569;">
+                    <a href="{{ route('themes.duplicate', $theme->{{ __('id)') }} }}" class="btn-sm-custom" style="background:#f1f5f9;color:#475569;">
                         <i class="fe-copy me-1"></i>
                     </a>
                     @if(!$isActive)
-                    <form action="{{ route('themes.destroy') }}" method="POST" class="d-inline">
+                    <form action="{{ route('themes.destroy') }}" method={{ __('"{{ __('POST') }}"') }} class="d-inline">
                         @csrf
                         <input type="hidden" name="hidden_id" value="{{ $theme->id }}">
-                        <button type="submit" class="btn-sm-custom" style="background:#fef2f2;color:#ef4444;" onclick="return confirm('Delete &quot;{{ $theme->name }}&quot;?')">
+                        <button type="{{ __('submit') }}" class="btn-sm-custom" style="background:#fef2f2;color:#ef4444;" onclick="return confirm('Delete &quot;{{ $theme->name }}&quot;?')">
                             <i class="fe-trash-2"></i>
                         </button>
                     </form>
@@ -312,8 +312,8 @@
         @empty
         <div class="col-12 text-center py-5">
             <i class="mdi mdi-palette-swatch-outline" style="font-size:48px;color:#cbd5e1;"></i>
-            <h5 class="mt-3 text-muted">No themes yet</h5>
-            <a href="{{ route('themes.create') }}" class="btn btn-primary rounded-pill mt-2">Create Your First Theme</a>
+            <h5 class="mt-3 text-muted">{{ __('No themes yet') }}</h5>
+            <a href="{{ route('themes.create') }}" class="btn btn-primary rounded-pill mt-2">{{ __('Create Your First Theme') }}</a>
         </div>
         @endforelse
     </div>
@@ -321,7 +321,7 @@
 @endsection
 
 @section('script')
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="{{ __('https://') }}cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
     $(document).ready(function() {
         // Theme card hover color preview

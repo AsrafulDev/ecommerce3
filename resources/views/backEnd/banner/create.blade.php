@@ -15,7 +15,7 @@
     /* 2. REAL VIEW IMAGE CANVAS (FIXED) */
     .image-canvas-wrapper {
         background-color: #f1f5f9;
-        /* Checkerboard pattern for transparency */
+        /* {{ __('Check') }}erboard pattern for transparency */
         background-image:
             linear-gradient(45deg, #e2e8f0 25%, transparent 25%),
             linear-gradient(-45deg, #e2e8f0 25%, transparent 25%),
@@ -137,7 +137,7 @@
         border: 1px solid #e2e8f0;
         padding: 12px 15px;
         border-radius: 8px;
-        font-size: 14px;
+        font-size: {{ __('14px') }};
         color: #334155;
         transition: all 0.2s;
     }
@@ -154,18 +154,18 @@
     
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
-            <h4 class="fw-bold m-0 text-dark">Create New Banner</h4>
-            <span class="text-muted small">Upload visual content & configure settings</span>
+            <h4 class="fw-bold m-0 text-dark">{{ __('Create {{ __('New') }} Banner') }}</h4>
+            <span class="text-muted small">{{ __('Upload visual content & configure settings') }}</span>
         </div>
         <div class="d-flex gap-2">
             <a href="{{route('banners.index')}}" class="btn btn-light border fw-bold text-secondary px-3">{{ __('Cancel') }}</a>
-            <button type="submit" form="bannerForm" class="btn btn-primary fw-bold px-4 shadow-sm">
+            <button type="{{ __('submit') }}" form="bannerForm" class="btn btn-primary fw-bold px-4 shadow-sm">
                 <i class="fe-plus me-1"></i> Create Banner
             </button>
         </div>
     </div>
 
-    <form action="{{route('banners.store')}}" method="POST" id="bannerForm" enctype="multipart/form-data">
+    <form action="{{route('banners.store')}}" method={{ __('"{{ __('POST') }}"') }} id="bannerForm" enctype="multipart/form-data">
         @csrf
 
         <div class="row justify-content-center">
@@ -176,11 +176,11 @@
                     <div class="image-canvas-wrapper">
                         <div id="emptyState" class="empty-state-content">
                             <i class="fe-image empty-icon"></i>
-                            <h6 class="text-muted fw-bold">No Image Selected</h6>
-                            <small>Upload a banner to see preview here</small>
+                            <h6 class="text-muted fw-bold">{{ __('{{ __('No Image') }} Selected') }}</h6>
+                            <small>{{ __('Upload a banner to see preview {{ __('here') }}') }}</small>
                         </div>
 
-                        <img id="realPreview" src="#" class="real-view-image" alt="Banner Preview">
+                        <img id="real{{ __('Prev') }}iew" src="#" class="real-view-image" alt="Banner {{ __('Prev') }}iew">
                         
                         <label class="upload-overlay-btn" for="imageUpload">
                             <i class="fe-upload-cloud"></i> <span>{{ __('Upload Image') }}</span>
@@ -197,7 +197,7 @@
                         <div class="row g-4">
                             
                             <div class="col-lg-7">
-                                <label class="category-label">Select Placement Category <span class="text-danger">*</span></label>
+                                <label class="category-label">{{ __('Select Placement {{ __('Category') }}') }} <span class="text-danger">*</span></label>
                                 <div class="radio-tile-group">
                                     @foreach($categories as $cat)
                                         <label>
@@ -217,20 +217,20 @@
 
                             <div class="col-lg-5 ps-lg-4 border-start-lg">
                                 <div class="mb-4">
-                                    <label class="category-label">Destination URL <span class="text-danger">*</span></label>
+                                    <label class="category-label">{{ __('Destination URL') }} <span class="text-danger">*</span></label>
                                     <div class="input-group">
                                         <span class="input-group-text bg-white border-end-0 text-muted"><i class="fe-link"></i></span>
-                                        <input type="text" class="form-control input-clean border-start-0" name="link" value="{{ old('link') }}" placeholder="https://example.com/offer" required>
+                                        <input type="text" class="form-control input-clean border-start-0" name="link" value="{{ old('link') }}" placeholder="{{ __('{{ __('https://') }}example.com/offer') }}" required>
                                     </div>
                                     @error('link') <div class="text-danger small mt-1">{{ $message }}</div> @enderror
                                 </div>
 
                                 <div>
-                                    <label class="category-label">Publication Status</label>
+                                    <label class="category-label">{{ __('Publication {{ __('Status') }}') }}</label>
                                     <div class="d-flex align-items-center justify-content-between p-3 rounded border bg-light">
                                         <div>
-                                            <span class="fw-bold text-dark d-block" style="font-size: 14px;">Active Mode</span>
-                                            <small class="text-muted" style="font-size: 12px;">Visible immediately</small>
+                                            <span class="fw-bold text-dark d-block" style="font-size: {{ __('14px') }};">{{ __('Active Mode') }}</span>
+                                            <small class="text-muted" style="font-size: 12px;">{{ __('Visible immediately') }}</small>
                                         </div>
                                         <div class="form-check form-switch">
                                             <input class="form-check-input" type="checkbox" name="status" value="1" checked style="width: 3em; height: 1.5em; cursor:pointer;">
@@ -250,13 +250,13 @@
 
 @section('script')
 <script>
-    // Real-time Canvas Update for Create Page
+    // Real-time Canvas Update for {{ __('Create Page') }}
     function updateCanvas(input) {
         if (input.files && input.files[0]) {
             var reader = new FileReader();
             
             reader.onload = function(e) {
-                var img = document.getElementById('realPreview');
+                var img = document.getElementById('real{{ __('Prev') }}iew');
                 var emptyState = document.getElementById('emptyState');
                 
                 // Hide empty state and show image

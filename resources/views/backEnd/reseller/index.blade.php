@@ -1,5 +1,5 @@
 @extends('backEnd.layouts.master')
-@section('title', 'Manage Resellers')
+@section('title', '{{ __('Manage') }} Resellers')
 
 @section('css')
 <link href="{{asset('/public/backEnd/')}}/assets/libs/datatables.net-bs5/css/dataTables.bootstrap5.min.css" rel="stylesheet" type="text/css" />
@@ -16,7 +16,7 @@
     }
 
     /* --- Filter Section --- */
-    .filter-box {
+    .{{ __('filter') }}-box {
         background: #f8fafc;
         border-bottom: 1px solid #e2e8f0;
         padding: 1.5rem;
@@ -70,7 +70,7 @@
     .badge-verified { background: #dcfce7; color: #166534; }
     .badge-rejected { background: #fee2e2; color: #991b1b; }
     .badge-pending { background: #fef3c7; color: #92400e; }
-    .status-dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+    .status-dot { width: 6px; height: 6px; border-radius: 50%; background: current{{ __('Color') }}; }
 
     /* --- Action Buttons --- */
     .btn-icon {
@@ -93,9 +93,9 @@
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
             <h4 class="mb-1 fw-bold text-dark">
-                <i data-feather="users" class="text-primary me-2"></i> Manage Resellers
+                <i data-feather="users" class="text-primary me-2"></i> {{ __('Manage') }} Resellers
             </h4>
-            <p class="text-muted small mb-0">Overview of all registered resellers and partners.</p>
+            <p class="text-muted small mb-0">{{ __('{{ __('Overview') }} of all registered resellers and partners.') }}</p>
         </div>
         <div>
             {{-- Add create button if needed --}}
@@ -105,18 +105,18 @@
     <div class="card card-modern">
         
         {{-- SEARCH / FILTER --}}
-        <div class="filter-box">
-            <form method="GET" action="{{ route('admin.resellers.index') }}">
+        <div class="{{ __('filter') }}-box">
+            <form method="{{ __('GET') }}" action="{{ route('admin.resellers.index') }}">
                 <div class="row g-2 align-items-center">
                     <div class="col-md-5">
                         <div class="input-group">
                             <span class="input-group-text bg-white border-end-0"><i data-feather="search" style="width: 16px;"></i></span>
                             <input type="text" name="keyword" class="form-control form-control-modern border-start-0" 
-                                   placeholder="Search by name, shop, email..." value="{{ request('keyword') }}">
+                                   placeholder="{{ __('Search by name, shop, email...') }}" value="{{ request('keyword') }}">
                         </div>
                     </div>
                     <div class="col-md-3">
-                        <button type="submit" class="btn btn-primary fw-bold px-4">{{ __('Search') }}</button>
+                        <button type="{{ __('submit') }}" class="btn btn-primary fw-bold px-4">{{ __('Search') }}</button>
                         @if(request('keyword'))
                             <a href="{{ route('admin.resellers.index') }}" class="btn btn-light border ms-2">{{ __('Clear') }}</a>
                         @endif
@@ -131,13 +131,13 @@
                 <thead>
                     <tr>
                         <th width="5%">#</th>
-                        <th width="20%">Reseller Profile</th>
-                        <th width="15%">Shop Info</th>
-                        <th width="15%">Contact</th>
-                        <th width="10%">Wallet</th>
-                        <th width="10%">Verification</th>
-                        <th width="10%">{{ __('Status') }}</th>
-                        <th width="10%" class="text-end">Actions</th>
+                        <th width="20%">{{ __('Reseller Profile') }}</th>
+                        <th width="15%">{{ __('{{ __('Shop') }} Info') }}</th>
+                        <th width="15%">{{ __('Contact') }}</th>
+                        <th width="10%">{{ __('Wallet') }}</th>
+                        <th width="10%">{{ __('Verification') }}</th>
+                        <th width="10%">{{ __('{{ __('Status') }}') }}</th>
+                        <th width="10%" class="text-end">{{ __('Actions') }}</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -145,7 +145,7 @@
                     <tr>
                         <td class="text-muted">{{ $loop->iteration }}</td>
                         
-                        {{-- Reseller Profile --}}
+                        {{-- {{ __('Reseller Profile') }} --}}
                         <td>
                             <div class="d-flex align-items-center">
                                 <div class="reseller-avatar-placeholder me-3">
@@ -158,37 +158,37 @@
                             </div>
                         </td>
 
-                        {{-- Shop Info --}}
+                        {{-- {{ __('{{ __('Shop') }} Info') }} --}}
                         <td>
-                            <div class="text-dark fw-medium">{{ $reseller->shop_name ?? 'N/A' }}</div>
+                            <div class="text-dark fw-medium">{{ $reseller->shop_name ?? '{{ __('N/A') }}' }}</div>
                         </td>
 
-                        {{-- Contact --}}
+                        {{-- {{ __('Contact') }} --}}
                         <td>
                             <div class="d-flex flex-column small">
                                 <span class="text-muted"><i data-feather="mail" style="width: 12px;"></i> {{Str::limit($reseller->email, 20)}}</span>
                             </div>
                         </td>
 
-                        {{-- Wallet --}}
+                        {{-- {{ __('Wallet') }} --}}
                         <td>
                             <span class="fw-bold text-dark bg-light px-2 py-1 rounded border">
                                 ৳{{ number_format($reseller->wallet_balance ?? 0, 2) }}
                             </span>
                         </td>
 
-                        {{-- Verification --}}
+                        {{-- {{ __('Verification') }} --}}
                         <td>
                             @if($reseller->verification_status == 'approved')
-                                <span class="badge-soft badge-verified"><span class="status-dot"></span> Verified</span>
+                                <span class="badge-soft badge-verified"><span class="status-dot"></span> {{ __('Verified') }}</span>
                             @elseif($reseller->verification_status == 'rejected')
-                                <span class="badge-soft badge-rejected"><span class="status-dot"></span>{{ __('Rejected') }}</span>
+                                <span class="badge-soft badge-rejected"><span class="status-dot"></span>{{ __('{{ __('Reject') }}ed') }}</span>
                             @else
                                 <span class="badge-soft badge-pending"><span class="status-dot"></span>{{ __('Pending') }}</span>
                             @endif
                         </td>
 
-                        {{-- Status --}}
+                        {{-- {{ __('Status') }} --}}
                         <td>
                             @if($reseller->status == 1)
                                 <span class="badge bg-success small">{{ __('Active') }}</span>
@@ -197,35 +197,35 @@
                             @endif
                         </td>
 
-                        {{-- Actions --}}
+                        {{-- {{ __('Actions') }} --}}
                         <td class="text-end">
                             <div class="d-flex justify-content-end gap-1">
                                 
-                                {{-- Status Toggle --}}
-                                <form method="post" action="{{ route('admin.resellers.toggle-status', $reseller->id) }}" class="d-inline">
+                                {{-- {{ __('Status') }} Toggle --}}
+                                <form method="post" action="{{ route('admin.resellers.toggle-status', $reseller->{{ __('id)') }} }}" class="d-inline">
                                     @csrf
                                     @if($reseller->status == 1)
-                                        <button type="submit" class="btn-icon btn-toggle-on" title="Deactivate">
-                                            <i data-feather="thumbs-down" style="width:14px;"></i>
+                                        <button type="{{ __('submit') }}" class="btn-icon btn-toggle-on" title="Deactivate">
+                                            <i data-feather="thumbs-down" style="width:{{ __('14px') }};"></i>
                                         </button>
                                     @else
-                                        <button type="submit" class="btn-icon btn-toggle-off" title="Activate">
-                                            <i data-feather="thumbs-up" style="width:14px;"></i>
+                                        <button type="{{ __('submit') }}" class="btn-icon btn-toggle-off" title="Activate">
+                                            <i data-feather="thumbs-up" style="width:{{ __('14px') }};"></i>
                                         </button>
                                     @endif
                                 </form>
 
                                 {{-- Edit --}}
-                                <a href="{{ route('admin.resellers.edit', $reseller->id) }}" class="btn-icon btn-edit" title="{{ __('Edit Profile') }}">
-                                    <i data-feather="edit-2" style="width:14px;"></i>
+                                <a href="{{ route('admin.resellers.edit', $reseller->{{ __('id)') }} }}" class="btn-icon btn-edit" title="{{ __('Edit Profile') }}">
+                                    <i data-feather="edit-2" style="width:{{ __('14px') }};"></i>
                                 </a>
 
                                 {{-- Delete --}}
-                                <form method="post" action="{{ route('admin.resellers.destroy', $reseller->id) }}" class="d-inline" onsubmit="return confirm('Delete this reseller? Associated accounts will also be deleted.');">
+                                <form method="post" action="{{ route('admin.resellers.destroy', $reseller->{{ __('id)') }} }}" class="d-inline" on{{ __('submit') }}="return confirm('Delete this reseller? Associated accounts will also be deleted.');">
                                     @csrf
                                     @method('DELETE')
-                                    <button type="submit" class="btn-icon btn-delete" title="Delete Reseller">
-                                        <i data-feather="trash-2" style="width:14px;"></i>
+                                    <button type="{{ __('submit') }}" class="btn-icon btn-delete" title="Delete Reseller">
+                                        <i data-feather="trash-2" style="width:{{ __('14px') }};"></i>
                                     </button>
                                 </form>
                             </div>
@@ -238,7 +238,7 @@
 
         {{-- PAGINATION --}}
         <div class="p-4 border-top d-flex justify-content-between align-items-center bg-white rounded-bottom">
-            <small class="text-muted">{{ __('Showing') }}<strong>{{ $resellers->firstItem() }}</strong>{{ __('to') }}<strong>{{ $resellers->lastItem() }}</strong>{{ __('of') }}<strong>{{ $resellers->total() }}</strong> resellers
+            <small class="text-muted">{{ __('Showing') }}<strong>{{ $resellers->first{{ __('Item') }}() }}</strong>{{ __('to') }}<strong>{{ $resellers->last{{ __('Item') }}() }}</strong>{{ __('of') }}<strong>{{ $resellers->{{ __('total') }}() }}</strong> resellers
             </small>
             <div>
                 {{ $resellers->links('pagination::bootstrap-4') }}

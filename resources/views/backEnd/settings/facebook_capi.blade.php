@@ -43,9 +43,9 @@
     .form-control {
         background-color: #fbfcff;
         border: 1px solid #eef2f7;
-        padding: 11px 14px;
+        padding: 11px {{ __('14px') }};
         border-radius: 8px;
-        font-size: 14px;
+        font-size: {{ __('14px') }};
     }
     .form-control:focus {
         background-color: #fff;
@@ -56,7 +56,7 @@
         font-size: 12px;
         color: #95a5a6;
     }
-    .btn-submit {
+    .btn-{{ __('submit') }} {
         background: linear-gradient(45deg, #0acf97, #06b6d4);
         border: none;
         color: white;
@@ -64,9 +64,9 @@
         font-weight: 600;
         letter-spacing: .4px;
         border-radius: 40px;
-        box-shadow: 0 4px 14px rgba(10, 207, 151, 0.35);
+        box-shadow: 0 4px {{ __('14px') }} rgba(10, 207, 151, 0.35);
     }
-    .btn-submit:hover {
+    .btn-{{ __('submit') }}:hover {
         transform: translateY(-1px);
         box-shadow: 0 6px 18px rgba(10, 207, 151, 0.45);
     }
@@ -86,7 +86,7 @@
                     Facebook Conversion API Settings
                 </h4>
                 <p class="text-muted font-size-13 mb-0">
-                    এখানে Facebook CAPI এর Pixel ID এবং Access Token সংরক্ষণ করবেন।
+                    এখানে {{ __('Facebook CAPI') }} এর Pixel ID এবং {{ __('Access Token') }} সংরক্ষণ করবেন।
                 </p>
             </div>
         </div>
@@ -99,10 +99,10 @@
                     <div class="header-icon">
                         <i class="fe-share-2"></i>
                     </div>
-                    <h5 class="card-title mb-0">Credentials Configuration</h5>
+                    <h5 class="card-title mb-0">{{ __('Credentials {{ __('Configuration') }}') }}</h5>
                 </div>
                 <div class="card-body">
-                    <form action="{{ route('admin.facebook_capi.update') }}" method="POST">
+                    <form action="{{ route('admin.facebook_capi.update') }}" method={{ __('"{{ __('POST') }}"') }}>
                         @csrf
 
                         <div class="mb-3">
@@ -115,11 +115,11 @@
                                 id="pixel_id"
                                 name="pixel_id"
                                 value="{{ old('pixel_id', $setting->pixel_id ?? '') }}"
-                                placeholder="e.g. 123456789012345"
+                                placeholder="{{ __('e.g. {{ __('1234567890') }}12345') }}"
                                 required
                             >
                             <small class="small-help">
-                                Facebook Events Manager থেকে Pixel ID কপি করে এখানে পেস্ট করুন।
+                                Facebook Events {{ __('Manage') }}r থেকে Pixel ID কপি করে এখানে পেস্ট করুন।
                             </small>
                             @error('pixel_id')
                                 <div class="invalid-feedback">{{ $message }}</div>
@@ -128,14 +128,14 @@
 
                         <div class="mb-3">
                             <label class="form-label" for="access_token">
-                                Long-lived Access Token <span class="text-danger">*</span>
+                                Long-lived {{ __('Access Token') }} <span class="text-danger">*</span>
                             </label>
                             <textarea
                                 class="form-control @error('access_token') is-invalid @enderror"
                                 id="access_token"
                                 name="access_token"
                                 rows="3"
-                                placeholder="Paste your long-lived access token here"
+                                placeholder="{{ __('Paste your long-lived access token {{ __('here') }}') }}"
                                 required
                             >{{ old('access_token', $setting->access_token ?? '') }}</textarea>
                             <small class="small-help">
@@ -156,10 +156,10 @@
                                 id="test_event_code"
                                 name="test_event_code"
                                 value="{{ old('test_event_code', $setting->test_event_code ?? '') }}"
-                                placeholder="e.g. TEST1234"
+                                placeholder="{{ __('e.g. TEST1234') }}"
                             >
                             <small class="small-help">
-                                Events Manager &gt; Test Events থেকে পাওয়া Test Event Code (যদি ব্যবহার করেন)।
+                                Events {{ __('Manage') }}r &gt; Test Events থেকে পাওয়া Test Event Code (যদি ব্যব{{ __('bn_f29420ce') }} করেন)।
                             </small>
                             @error('test_event_code')
                                 <div class="invalid-feedback">{{ $message }}</div>
@@ -176,13 +176,13 @@
                                 {{ old('status', $setting->status ?? 1) ? 'checked' : '' }}
                             >
                             <label class="form-check-label" for="status">
-                                Facebook CAPI Active রাখুন
+                                {{ __('Facebook CAPI') }} Active রাখুন
                             </label>
                         </div>
 
                         <div class="text-end">
-                            <button type="submit" class="btn btn-submit">
-                                <i class="fe-save me-1"></i> Save Settings
+                            <button type="{{ __('submit') }}" class="btn btn-{{ __('submit') }}">
+                                <i class="fe-save me-1"></i> {{ __('Save Settings') }}
                             </button>
                         </div>
                     </form>

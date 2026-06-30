@@ -1,5 +1,5 @@
 @extends('backEnd.layouts.master')
-@section('title', 'Email Settings')
+@section('title', '{{ __('Email') }} Settings')
 
 @section('css')
 <style>
@@ -66,7 +66,7 @@
         border: 1px solid #e2e8f0;
         border-radius: 8px;
         padding: 12px 15px;
-        font-size: 14px;
+        font-size: {{ __('14px') }};
         color: #334155;
         transition: all 0.2s;
     }
@@ -111,8 +111,8 @@
     
     <div class="d-flex justify-content-between align-items-center mb-3">
         <div>
-            <h4 class="fw-bold text-dark m-0">System Settings</h4>
-            <span class="text-muted small">Configure application parameters</span>
+            <h4 class="fw-bold text-dark m-0">{{ __('System Settings') }}</h4>
+            <span class="text-muted small">{{ __('Configure application parameters') }}</span>
         </div>
     </div>
 
@@ -133,22 +133,22 @@
                         <i class="fas fa-envelope-open-text"></i>
                     </div>
                     <div class="header-title">
-                        <h5>Email Configuration (SMTP)</h5>
-                        <small>Set up mail server details to enable system emails</small>
+                        <h5>{{ __('{{ __('Email') }} {{ __('Configuration') }} (SMTP)') }}</h5>
+                        <small>{{ __('Set up mail server details to enable system emails') }}</small>
                     </div>
                 </div>
 
                 <div class="form-section">
-                    <form action="{{ route('email_setting.update') }}" method="POST">
+                    <form action="{{ route('email_setting.update') }}" method={{ __('"{{ __('POST') }}"') }}>
                         @csrf
 
                         <div class="row g-4">
                             <div class="col-md-6">
-                                <label class="form-label">Mailer Driver <span class="text-danger">*</span></label>
+                                <label class="form-label">{{ __('Mailer Driver') }} <span class="text-danger">*</span></label>
                                 <div class="input-group">
                                     <span class="input-group-text bg-light border-end-0 text-muted"><i class="fas fa-paper-plane"></i></span>
                                     <input type="text" name="MAIL_MAILER" class="form-control border-start-0" 
-                                           value="{{ $mail['MAIL_MAILER'] ?? '' }}" placeholder="e.g. smtp" required>
+                                           value="{{ $mail['MAIL_MAILER'] ?? '' }}" placeholder="{{ __('e.g. smtp') }}" required>
                                 </div>
                             </div>
 
@@ -157,7 +157,7 @@
                                 <div class="input-group">
                                     <span class="input-group-text bg-light border-end-0 text-muted"><i class="fas fa-server"></i></span>
                                     <input type="text" name="MAIL_HOST" class="form-control border-start-0" 
-                                           value="{{ $mail['MAIL_HOST'] ?? '' }}" placeholder="e.g. smtp.mailtrap.io" required>
+                                           value="{{ $mail['MAIL_HOST'] ?? '' }}" placeholder="{{ __('{{ __('e.g. smtp') }}.mailtrap.io') }}" required>
                                 </div>
                             </div>
 
@@ -166,27 +166,27 @@
                                 <div class="input-group">
                                     <span class="input-group-text bg-light border-end-0 text-muted"><i class="fas fa-plug"></i></span>
                                     <select name="MAIL_PORT" class="form-select border-start-0" required>
-                                        <option value="465" {{ ($mail['MAIL_PORT'] ?? '') == '465' ? 'selected' : '' }}>465 (SSL)</option>
-                                        <option value="587" {{ ($mail['MAIL_PORT'] ?? '') == '587' ? 'selected' : '' }}>587 (TLS)</option>
-                                        <option value="2525" {{ ($mail['MAIL_PORT'] ?? '') == '2525' ? 'selected' : '' }}>2525 (Alternative)</option>
+                                        <option value="465" {{ ($mail['MAIL_PORT'] ?? '') == '465' ? 'selected' : '' }}>{{ __('465 (SSL)') }}</option>
+                                        <option value="587" {{ ($mail['MAIL_PORT'] ?? '') == '587' ? 'selected' : '' }}>{{ __('587 (TLS)') }}</option>
+                                        <option value="2525" {{ ($mail['MAIL_PORT'] ?? '') == '2525' ? 'selected' : '' }}>{{ __('2525 (Alternative)') }}</option>
                                     </select>
                                 </div>
                             </div>
 
                             <div class="col-md-6">
-                                <label class="form-label">Encryption Protocol <span class="text-danger">*</span></label>
+                                <label class="form-label">{{ __('Encryption Protocol') }} <span class="text-danger">*</span></label>
                                 <div class="input-group">
                                     <span class="input-group-text bg-light border-end-0 text-muted"><i class="fas fa-lock"></i></span>
                                     <select name="MAIL_ENCRYPTION" class="form-select border-start-0" required>
-                                        <option value="ssl" {{ ($mail['MAIL_ENCRYPTION'] ?? '') == 'ssl' ? 'selected' : '' }}>SSL (Secure Sockets Layer)</option>
-                                        <option value="tls" {{ ($mail['MAIL_ENCRYPTION'] ?? '') == 'tls' ? 'selected' : '' }}>TLS (Transport Layer Security)</option>
+                                        <option value="ssl" {{ ($mail['MAIL_ENCRYPTION'] ?? '') == 'ssl' ? 'selected' : '' }}>{{ __('SSL (Secure Sockets Layer)') }}</option>
+                                        <option value="tls" {{ ($mail['MAIL_ENCRYPTION'] ?? '') == 'tls' ? 'selected' : '' }}>{{ __('TLS (Transport Layer {{ __('Security') }})') }}</option>
                                         <option value="null" {{ ($mail['MAIL_ENCRYPTION'] ?? '') == 'null' ? 'selected' : '' }}>{{ __('None') }}</option>
                                     </select>
                                 </div>
                             </div>
 
                             <div class="col-md-6">
-                                <label class="form-label">SMTP Username <span class="text-danger">*</span></label>
+                                <label class="form-label">{{ __('SMTP {{ __('{{ __('Use') }}r') }}name') }} <span class="text-danger">*</span></label>
                                 <div class="input-group">
                                     <span class="input-group-text bg-light border-end-0 text-muted"><i class="fas fa-user"></i></span>
                                     <input type="text" name="MAIL_USERNAME" class="form-control border-start-0" 
@@ -195,7 +195,7 @@
                             </div>
 
                             <div class="col-md-6">
-                                <label class="form-label">SMTP Password <span class="text-danger">*</span></label>
+                                <label class="form-label">{{ __('SMTP Password') }} <span class="text-danger">*</span></label>
                                 <div class="input-group">
                                     <span class="input-group-text bg-light border-end-0 text-muted"><i class="fas fa-key"></i></span>
                                     <input type="password" name="MAIL_PASSWORD" id="MAIL_PASSWORD" class="form-control border-start-0" 
@@ -207,27 +207,27 @@
                             </div>
 
                             <div class="col-md-6">
-                                <label class="form-label">Sender Email Address <span class="text-danger">*</span></label>
+                                <label class="form-label">{{ __('Sender {{ __('{{ __('Email') }} Address') }}') }} <span class="text-danger">*</span></label>
                                 <div class="input-group">
                                     <span class="input-group-text bg-light border-end-0 text-muted"><i class="fas fa-at"></i></span>
                                     <input type="email" name="MAIL_FROM_ADDRESS" class="form-control border-start-0" 
-                                           value="{{ $mail['MAIL_FROM_ADDRESS'] ?? '' }}" placeholder="no-reply@domain.com" required>
+                                           value="{{ $mail['MAIL_FROM_ADDRESS'] ?? '' }}" placeholder="{{ __('no-reply@domain.com') }}" required>
                                 </div>
                             </div>
 
                             <div class="col-md-6">
-                                <label class="form-label">Sender Name <span class="text-danger">*</span></label>
+                                <label class="form-label">{{ __('Sender {{ __('Name') }}') }} <span class="text-danger">*</span></label>
                                 <div class="input-group">
                                     <span class="input-group-text bg-light border-end-0 text-muted"><i class="fas fa-id-card"></i></span>
                                     <input type="text" name="MAIL_FROM_NAME" class="form-control border-start-0" 
-                                           value="{{ $mail['MAIL_FROM_NAME'] ?? '' }}" placeholder="e.g. System Admin" required>
+                                           value="{{ $mail['MAIL_FROM_NAME'] ?? '' }}" placeholder="{{ __('e.g. System Admin') }}" required>
                                 </div>
                             </div>
                         </div>
 
                         <div class="mt-5 text-end border-top pt-4">
-                            <button type="submit" class="btn-save">
-                                <i class="fas fa-save me-2"></i> Save Configuration
+                            <button type="{{ __('submit') }}" class="btn-save">
+                                <i class="fas fa-save me-2"></i> Save {{ __('Configuration') }}
                             </button>
                         </div>
 

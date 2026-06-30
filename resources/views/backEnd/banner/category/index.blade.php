@@ -1,11 +1,11 @@
 @extends('backEnd.layouts.master')
-@section('title','Category Management')
+@section('title','{{ __('Category') }} {{ __('Manage') }}ment')
 
 @section('css')
 <link href="{{asset('/public/backEnd/')}}/assets/libs/datatables.net-bs5/css/dataTables.bootstrap5.min.css" rel="stylesheet" type="text/css" />
 <link href="{{asset('/public/backEnd/')}}/assets/libs/datatables.net-responsive-bs5/css/responsive.bootstrap5.min.css" rel="stylesheet" type="text/css" />
 <link href="{{asset('/public/backEnd/')}}/assets/libs/datatables.net-buttons-bs5/css/buttons.bootstrap5.min.css" rel="stylesheet" type="text/css" />
-<link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
+<link href="{{ __('https://') }}cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
 
 <style>
     /* Professional Table Styling */
@@ -30,7 +30,7 @@
     .table-pro tbody td {
         vertical-align: middle;
         color: #334155;
-        font-size: 14px;
+        font-size: {{ __('14px') }};
         font-weight: 500;
         padding: 15px;
         border-bottom: 1px solid #f1f5f9;
@@ -40,11 +40,11 @@
         background-color: #f8fafc;
     }
 
-    /* Status Badges */
+    /* {{ __('Status') }} Badges */
     .status-badge {
         display: inline-flex;
         align-items: center;
-        padding: 6px 14px;
+        padding: 6px {{ __('14px') }};
         border-radius: 50px;
         font-size: 11px;
         font-weight: 700;
@@ -99,11 +99,11 @@
 
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
-            <h4 class="fw-bold m-0 text-dark">Category Manager</h4>
-            <span class="text-muted small">Organize and manage banner categories</span>
+            <h4 class="fw-bold m-0 text-dark">{{ __('{{ __('Category') }} {{ __('Manage') }}r') }}</h4>
+            <span class="text-muted small">{{ __('Organize and manage banner categories') }}</span>
         </div>
         <a href="{{ route('banner_category.create') }}" class="btn btn-primary rounded-pill px-4 shadow-sm fw-bold">
-            <i class="fe-plus me-1"></i> Add New Category
+            <i class="fe-plus me-1"></i> Add {{ __('New') }} {{ __('Category') }}
         </a>
     </div>
 
@@ -115,9 +115,9 @@
                         <thead>
                             <tr>
                                 <th width="10%">{{ __('SL') }}</th>
-                                <th width="50%">Category Name</th>
-                                <th width="20%">{{ __('Status') }}</th>
-                                <th width="20%" class="text-end">Actions</th>
+                                <th width="50%">{{ __('{{ __('Category') }} {{ __('Name') }}') }}</th>
+                                <th width="20%">{{ __('{{ __('Status') }}') }}</th>
+                                <th width="20%" class="text-end">{{ __('Actions') }}</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -140,14 +140,14 @@
                                 </td>
                                 <td class="text-end">
                                     <div class="d-flex justify-content-end">
-                                        <a href="{{route('banner_category.edit',$value->id)}}" class="btn-action btn-edit" title="{{ __('Edit') }}">
+                                        <a href="{{route('banner_category.edit',$value->{{ __('id)') }}}}" class="btn-action btn-edit" title="{{ __('Edit') }}">
                                             <i class="fe-edit-1" style="font-size: 16px;"></i>
                                         </a>
 
-                                        <form action="{{ route('banner_category.destroy') }}" method="POST" class="delete-form d-inline">
+                                        <form action="{{ route('banner_category.destroy') }}" method={{ __('"{{ __('POST') }}"') }} class="delete-form d-inline">
                                             @csrf
                                             <input type="hidden" name="hidden_id" value="{{$value->id}}">
-                                            <button type="submit" class="btn-action btn-delete" title="{{ __('Delete') }}">
+                                            <button type="{{ __('submit') }}" class="btn-action btn-delete" title="{{ __('Delete') }}">
                                                 <i class="fe-trash-2" style="font-size: 16px;"></i>
                                             </button>
                                         </form>
@@ -172,7 +172,7 @@
 <script src="{{asset('/public/backEnd/')}}/assets/libs/datatables.net-buttons/js/buttons.print.min.js"></script>
 <script src="{{asset('/public/backEnd/')}}/assets/js/pages/datatables.init.js"></script>
 
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="{{ __('https://') }}cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <script>
     $(document).ready(function() {
@@ -190,15 +190,15 @@
             }
         });
 
-        @if(Session::has('success'))
-            Toast.fire({ icon: 'success', title: "{{ Session::get('success') }}" });
+        @if({{ __('Session') }}::has('success'))
+            Toast.fire({ icon: 'success', title: "{{ {{ __('Session') }}::get('success') }}" });
         @endif
-        @if(Session::has('error'))
-            Toast.fire({ icon: 'error', title: "{{ Session::get('error') }}" });
+        @if({{ __('Session') }}::has('error'))
+            Toast.fire({ icon: 'error', title: "{{ {{ __('Session') }}::get('error') }}" });
         @endif
 
         // Delete Confirmation
-        $('.delete-form').on('submit', function(e) {
+        $('.delete-form').on('{{ __('submit') }}', function(e) {
             e.preventDefault();
             var form = this;
             Swal.fire({
@@ -206,12 +206,12 @@
                 text: "You won't be able to revert this!",
                 icon: 'warning',
                 showCancelButton: true,
-                confirmButtonColor: '#3085d6',
-                cancelButtonColor: '#d33',
-                confirmButtonText: 'Yes, delete it!'
+                confirmButton{{ __('Color') }}: '#3085d6',
+                cancelButton{{ __('Color') }}: '#d33',
+                confirmButton{{ __('Text') }}: 'Yes, delete it!'
             }).then((result) => {
                 if (result.isConfirmed) {
-                    form.submit();
+                    form.{{ __('submit') }}();
                 }
             });
         });

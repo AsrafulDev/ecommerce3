@@ -1,5 +1,5 @@
 @extends('backEnd.layouts.master')
-@section('title', 'TikTok Ads Result')
+@section('title', '{{ __('{{ __('TikTok Ads') }} Result') }}')
 
 @section('css')
 <style>
@@ -15,46 +15,46 @@
 <div class="container-fluid py-3">
   <div class="d-flex justify-content-between align-items-center mb-4">
     <div>
-      <h4 class="fw-bold mb-1"><i class="fe-video me-2"></i> TikTok Ads Result</h4>
-      <small class="text-muted">Live performance data from TikTok Ads</small>
+      <h4 class="fw-bold mb-1"><i class="fe-video me-2"></i> {{ __('{{ __('TikTok Ads') }} Result') }}</h4>
+      <small class="text-muted">{{ __('{{ __('Live') }} performance data from {{ __('TikTok Ads') }}') }}</small>
     </div>
     <div>
-      <span class="badge bg-success me-2"><i class="fe-radio"></i> Live</span>
+      <span class="badge bg-success me-2"><i class="fe-radio"></i> {{ __('Live') }}</span>
       <a href="{{ route('admin.ads_analytics.tiktok', ['refresh' => 1]) }}" class="btn btn-sm btn-dark">
         <i class="fe-refresh-cw"></i>{{ __('Refresh') }}</a>
-      <a href="{{ route('admin.ads_analytics.dashboard') }}" class="btn btn-sm btn-outline-secondary">Overview</a>
+      <a href="{{ route('admin.ads_analytics.dashboard') }}" class="btn btn-sm btn-outline-secondary">{{ __('Overview') }}</a>
       <a href="{{ route('admin.ads_analytics.settings') }}" class="btn btn-sm btn-outline-secondary">{{ __('Settings') }}</a>
     </div>
   </div>
 
   <div class="ads-card">
     @if(($tiktok['success'] ?? false))
-      <h5 class="fw-bold mb-4">Today's Performance</h5>
+      <h5 class="fw-bold mb-4">{{ __("{{ __('Today') }}'s Performance") }}</h5>
       <div class="metric-row">
         <div class="metric-item">
-          <div class="metric-value">${{ number_format($tiktok['spend'] ?? 0, 2) }}</div>
-          <div class="metric-label">Spend</div>
+          <div class="metric-value">{{ number_format($tiktok['spend'] ?? 0, 2) }}</div>
+          <div class="metric-label">{{ __('Spend') }}</div>
         </div>
         <div class="metric-item">
           <div class="metric-value">{{ number_format($tiktok['clicks'] ?? 0) }}</div>
-          <div class="metric-label">Clicks</div>
+          <div class="metric-label">{{ __('Clicks') }}</div>
         </div>
         <div class="metric-item">
           <div class="metric-value">{{ number_format($tiktok['impressions'] ?? 0) }}</div>
-          <div class="metric-label">Impressions</div>
+          <div class="metric-label">{{ __('Impressions') }}</div>
         </div>
         <div class="metric-item">
           <div class="metric-value">{{ number_format($tiktok['reach'] ?? 0) }}</div>
-          <div class="metric-label">Reach</div>
+          <div class="metric-label">{{ __('Reach') }}</div>
         </div>
         <div class="metric-item">
           <div class="metric-value">{{ number_format($tiktok['conversions'] ?? 0) }}</div>
-          <div class="metric-label">Conversions</div>
+          <div class="metric-label">{{ __('Conversions') }}</div>
         </div>
       </div>
     @else
-      <p class="text-muted mb-3">{{ $tiktok['message'] ?? 'Configure TikTok Ads API in Settings' }}</p>
-      <a href="{{ route('admin.ads_analytics.settings') }}" class="btn btn-dark">Configure API</a>
+      <p class="text-muted mb-3">{{ $tiktok['{{ __('message') }}'] ?? 'Configure {{ __('TikTok Ads') }} API in Settings' }}</p>
+      <a href="{{ route('admin.ads_analytics.settings') }}" class="btn btn-dark">{{ __('Configure API') }}</a>
     @endif
   </div>
 </div>

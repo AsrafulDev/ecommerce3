@@ -5,15 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <!-- CSRF Token -->
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>{{ config('app.name', 'Laravel 9 User Roles and Permissions Tutorial') }}</title>
+    <title>{{ config('app.name', '{{ __('Laravel') }} 9 {{ __('{{ __('Use') }}r') }} {{ __('Roles') }} and {{ __('Permissions') }} Tutorial') }}</title>
     <!-- Scripts -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="{{ __('https://') }}cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Fonts -->
-    <link rel="dns-prefetch" href="https://fonts.gstatic.com">
-    <link href="https://fonts.googleapis.com/css?family=Raleway:300,400,600" rel="stylesheet" type="text/css">
+    <link rel="dns-prefetch" href="{{ __('https://') }}fonts.gstatic.com">
+    <link href="{{ __('https://') }}fonts.googleapis.com/css?family=Raleway:300,400,600" rel="stylesheet" type="text/css">
     <!-- Styles -->
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.min.js"></script>
+    <script src="{{ __('https://') }}cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+    <script src="{{ __('https://') }}cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.min.js"></script>
    
 </head>
 <body>
@@ -21,7 +21,7 @@
         <nav class="navbar navbar-expand-md navbar-light navbar-laravel">
             <div class="container">
                 <a class="navbar-brand" href="{{ url('/') }}">
-                    Laravel 9 User Roles and Permissions - ItSolutionStuff.com
+                    {{ __('Laravel') }} 9 {{ __('{{ __('Use') }}r') }} {{ __('Roles') }} and {{ __('Permissions') }} - ItSolutionStuff.com
                 </a>
                 <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
@@ -34,23 +34,23 @@
 
                     <!-- Right Side Of Navbar -->
                     <ul class="navbar-nav ml-auto">
-                        <!-- Authentication Links -->
+                        <!-- Authentication {{ __('{{ __('Link') }}s') }} -->
                         @guest
                             <li><a class="nav-link" href="{{ route('login') }}">{{ __('Login') }}</a></li>
                             <li><a class="nav-link" href="{{ route('register') }}">{{ __('Register') }}</a></li>
                         @else
-                            <li><a class="nav-link" href="{{ route('users.index') }}">{{ __('Manage Users') }}</a></li>
-                            <li><a class="nav-link" href="{{ route('roles.index') }}">Manage Role</a></li>
-                            <li><a class="nav-link" href="{{ route('inhouse.products.index') }}">Manage Product</a></li>
+                            <li><a class="nav-link" href="{{ route('users.index') }}">{{ __('{{ __('Manage') }} {{ __('{{ __('{{ __('Use') }}r') }}s') }}') }}</a></li>
+                            <li><a class="nav-link" href="{{ route('roles.index') }}">{{ __('{{ __('Manage') }} Role') }}</a></li>
+                            <li><a class="nav-link" href="{{ route('inhouse.products.index') }}">{{ __('{{ __('Manage') }} {{ __('Product') }}') }}</a></li>
                             <li>
                                 <a class="dropdown-item" href="{{ route('logout') }}"
                                        onclick="event.preventDefault();
-                                                     document.getElementById('logout-form').submit();">
+                                                     document.getElementById('logout-form').{{ __('submit') }}();">
                                         {{ __('Logout') }}
                                     </a>
 
 
-                                    <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
+                                    <form id="logout-form" action="{{ route('logout') }}" method={{ __('"{{ __('POST') }}"') }} style="display: none;">
                                         @csrf
                                     </form>
                             </li>

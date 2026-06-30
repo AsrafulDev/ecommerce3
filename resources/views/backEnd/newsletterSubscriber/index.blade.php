@@ -1,14 +1,14 @@
 @extends('backEnd.layouts.master')
 
-@section('title','Newsletter Subscribers')
+@section('title','{{ __('{{ __('{{ __('New') }}sletter Subscribe') }}rs') }}')
 
 @section('content')
 <meta name="csrf-token" content="{{ csrf_token() }}">
 
 <div class="card">
     <div class="card-header">
-        <h4>Newsletter Subscribers</h4>
-        <small class="text-muted">Emails submitted from footer newsletter form</small>
+        <h4>{{ __('{{ __('{{ __('New') }}sletter Subscribe') }}rs') }}</h4>
+        <small class="text-muted">{{ __('{{ __('Email') }}s {{ __('submit') }}ted from footer newsletter form') }}</small>
     </div>
 
     <div class="card-body">
@@ -18,31 +18,31 @@
                 <thead>
                     <tr>
                         <th>#</th>
-                        <th>{{ __('Email') }}</th>
-                        <th>Subscribed At</th>
+                        <th>{{ __('{{ __('Email') }}') }}</th>
+                        <th>{{ __('Subscribed At') }}</th>
                         <th width="120">{{ __('Action') }}</th>
                     </tr>
                 </thead>
                 <tbody>
                     @forelse($subscribers as $key => $row)
                     <tr>
-                        <td>{{ $subscribers->firstItem() + $key }}</td>
+                        <td>{{ $subscribers->first{{ __('Item') }}() + $key }}</td>
                         <td>{{ $row->email }}</td>
                         <td>{{ $row->created_at->format('d M Y, h:i A') }}</td>
                         <td>
-                            <form action="{{ route('admin.newsletter.subscribers.delete', $row->id) }}"
-                                  method="POST"
-                                  class="deleteNewsletterForm"
+                            <form action="{{ route('admin.newsletter.subscribers.delete', $row->{{ __('id)') }} }}"
+                                  method={{ __('"{{ __('POST') }}"') }}
+                                  class="delete{{ __('New') }}sletterForm"
                                   style="display:inline-block">
                                 @csrf
                                 @method('DELETE')
-                                <button class="btn btn-sm btn-danger" type="submit">{{ __('Delete') }}</button>
+                                <button class="btn btn-sm btn-danger" type="{{ __('submit') }}">{{ __('Delete') }}</button>
                             </form>
                         </td>
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="4" class="text-center">No subscribers yet</td>
+                        <td colspan="4" class="text-center">{{ __('No subscribers yet') }}</td>
                     </tr>
                     @endforelse
                 </tbody>
@@ -72,13 +72,13 @@ $(document).ready(function(){
     });
 
     // Delete
-    $(document).on('submit','.deleteNewsletterForm',function(e){
+    $(document).on('{{ __('submit') }}','.delete{{ __('New') }}sletterForm',function(e){
         e.preventDefault();
         if(!confirm('Are you sure to delete this subscriber?')) return;
         let form = $(this);
         $.ajax({
             url: form.attr('action'),
-            type: 'POST',
+            type: '{{ __('POST') }}',
             data: form.serialize(),
             headers: {
                 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content'),

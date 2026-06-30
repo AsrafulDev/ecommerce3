@@ -1,5 +1,5 @@
 @extends('backEnd.layouts.master')
-@section('title','Order Status Manage')
+@section('title','{{ __('Order {{ __('Status') }}') }} {{ __('Manage') }}')
 
 @section('css')
 <link href="{{asset('/public/backEnd/')}}/assets/libs/datatables.net-bs5/css/dataTables.bootstrap5.min.css" rel="stylesheet" type="text/css" />
@@ -33,14 +33,14 @@
         padding: 15px;
         border-bottom: 1px solid #f1f5f7;
         color: #313b5e;
-        font-size: 14px;
+        font-size: {{ __('14px') }};
     }
 
-    /* Status Name Styling */
+    /* {{ __('{{ __('Status') }} {{ __('Name') }}') }} Styling */
     .status-name {
         font-weight: 600;
         color: #343a40;
-        font-size: 14px;
+        font-size: {{ __('14px') }};
     }
 
     /* Soft Badges */
@@ -74,9 +74,9 @@
     
     <div class="row mb-3 mt-3">
         <div class="col-12 d-flex justify-content-between align-items-center">
-            <h4 class="page-title mb-0" style="font-weight: 700; color: #2d3436;">Order Statuses</h4>
+            <h4 class="page-title mb-0" style="font-weight: 700; color: #2d3436;">{{ __('{{ __('Order {{ __('Status') }}') }}es') }}</h4>
             <a href="{{route('orderstatus.create')}}" class="btn btn-primary rounded-pill shadow-sm px-4">
-                <i class="fe-plus me-1"></i> Create Status
+                <i class="fe-plus me-1"></i> Create {{ __('Status') }}
             </a>
         </div>
     </div>
@@ -89,8 +89,8 @@
                         <thead>
                             <tr>
                                 <th style="width: 50px;">{{ __('SL') }}</th>
-                                <th>Status Name</th>
-                                <th>Active Status</th>
+                                <th>{{ __('{{ __('Status') }} {{ __('Name') }}') }}</th>
+                                <th>{{ __('Active {{ __('Status') }}') }}</th>
                                 <th class="text-end" style="width: 150px;">{{ __('Action') }}</th>
                             </tr>
                         </thead>                
@@ -113,12 +113,12 @@
 
                                 <td class="text-end">
                                     <div class="d-inline-flex gap-2">
-                                        {{-- Status Toggle --}}
+                                        {{-- {{ __('Status') }} Toggle --}}
                                         @if($value->status == 1)
                                             <form method="post" action="{{route('orderstatus.inactive')}}" class="d-inline"> 
                                                 @csrf
                                                 <input type="hidden" value="{{$value->id}}" name="hidden_id">        
-                                                <button type="submit" class="action-btn btn-inactive" title="Deactivate">
+                                                <button type="{{ __('submit') }}" class="action-btn btn-inactive" title="Deactivate">
                                                     <i class="fe-eye-off"></i>
                                                 </button>
                                             </form>
@@ -126,14 +126,14 @@
                                             <form method="post" action="{{route('orderstatus.active')}}" class="d-inline">
                                                 @csrf
                                                 <input type="hidden" value="{{$value->id}}" name="hidden_id">        
-                                                <button type="submit" class="action-btn btn-active" title="Activate">
+                                                <button type="{{ __('submit') }}" class="action-btn btn-active" title="Activate">
                                                     <i class="fe-eye"></i>
                                                 </button>
                                             </form>
                                         @endif
 
                                         {{-- Edit --}}
-                                        <a href="{{route('orderstatus.edit',$value->id)}}" class="action-btn btn-edit" title="{{ __('Edit') }}">
+                                        <a href="{{route('orderstatus.edit',$value->{{ __('id)') }}}}" class="action-btn btn-edit" title="{{ __('Edit') }}">
                                             <i class="fe-edit"></i>
                                         </a>
 
@@ -141,7 +141,7 @@
                                         <form method="post" action="{{ route('orderstatus.destroy') }}" class="d-inline">
                                             @csrf
                                             <input type="hidden" name="hidden_id" value="{{ $value->id }}">
-                                            <button type="submit" class="action-btn btn-delete delete-confirm" title="{{ __('Delete') }}">
+                                            <button type="{{ __('submit') }}" class="action-btn btn-delete delete-confirm" title="{{ __('Delete') }}">
                                                 <i class="fe-trash-2"></i>
                                             </button>
                                         </form>

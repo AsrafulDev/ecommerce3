@@ -47,17 +47,17 @@
         <script>
             window.dataLayer = window.dataLayer || [];
             window._campaignData = {
-                id:          {{ json_encode($camp_id) }},
+                id:          {{ json_encode($camp_{{ __('id)') }} }},
                 name:        {{ json_encode($camp_name) }},
                 slug:        {{ json_encode($camp_slug) }},
                 currency:    'BDT',
-                fb_event_id: {{ json_encode($fb_view_content_event_id) }}
+                fb_event_id: {{ json_encode($fb_view_content_event_{{ __('id)') }} }}
             };
-            window._campaignProducts = {!! json_encode($camp_products) !!};
+            window._campaign{{ __('Product') }}s = {!! json_encode($camp_products) !!};
             dataLayer.push({
                 event:         'campaign_page_loaded',
                 page_type:     'campaign_landing',
-                campaign_id:   {{ json_encode($camp_id) }},
+                campaign_id:   {{ json_encode($camp_{{ __('id)') }} }},
                 campaign_name: {{ json_encode($camp_name) }},
                 currency:      'BDT',
                 value:         {{ $camp_value }},
@@ -67,7 +67,7 @@
                 }
             });
         </script>
-        <!-- ========== Google Tag Manager ========== -->
+        <!-- ========== {{ __('Google {{ __('Tag {{ __('Manage') }}r') }}') }} ========== -->
         @foreach($gtm_code as $gtm)
         @php
             $gtm_container_id = preg_match('/^GTM-/i', trim($gtm->code))
@@ -75,12 +75,12 @@
                 : 'GTM-' . trim($gtm->code);
         @endphp
         <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
-        new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+        new {{ __('Date') }}().getTime(),event:'gtm.js'});var f=d.getElementsByTag{{ __('Name') }}(s)[0],
         j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
-        'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+        '{{ __('https://') }}www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insert{{ __('Before') }}(j,f);
         })(window,document,'script','dataLayer','{{ $gtm_container_id }}');</script>
         @endforeach
-        <!-- ========== End Google Tag Manager ========== -->
+        <!-- ========== End {{ __('Google {{ __('Tag {{ __('Manage') }}r') }}') }} ========== -->
 
         <meta name="app-url" content="{{route('campaign',$campaign_data->slug)}}" />
         <meta name="robots" content="index, follow" />
@@ -107,11 +107,11 @@
         <!-- ========== Facebook Pixel (single init) ========== -->
         @if($pixels->count() > 0)
         <script>
-            !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?
-            n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;
+            !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.call{{ __('Method') }}?
+            n.call{{ __('Method') }}.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;
             n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;
-            t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}
-            (window,document,'script','https://connect.facebook.net/en_US/fbevents.js');
+            t.src=v;s=b.getElementsByTag{{ __('Name') }}(e)[0];s.parentNode.insert{{ __('Before') }}(t,s)}
+            (window,document,'script','{{ __('https://') }}connect.facebook.net/en_US/fbevents.js');
             @foreach($pixels as $pixel)
             fbq('init', '{{{ $pixel->code }}}');
             @endforeach
@@ -123,12 +123,12 @@
                 value:        {{ $camp_value }},
                 currency:     'BDT',
                 num_items:    {{ $products->count() }}
-            }, {eventID: {{ json_encode($fb_view_content_event_id) }}});
+            }, {eventID: {{ json_encode($fb_view_content_event_{{ __('id)') }} }}});
         </script>
         @foreach($pixels as $pixel)
         <noscript>
             <img height="1" width="1" style="display:none"
-                src="https://www.facebook.com/tr?id={{{ $pixel->code }}}&ev=PageView&noscript=1" />
+                src="{{ __('https://') }}www.facebook.com/tr?id={{{ $pixel->code }}}&ev=PageView&noscript=1" />
         </noscript>
         @endforeach
         @endif
@@ -144,10 +144,10 @@
                 ttq.setAndDefer=function(t,e){t[e]=function(){t.push([e].concat(Array.prototype.slice.call(arguments,0)))}};
                 for(var i=0;i<ttq.methods.length;i++)ttq.setAndDefer(ttq,ttq.methods[i]);
                 ttq.instance=function(t){for(var e=ttq._i[t]||[],n=0;n<ttq.methods.length;n++)ttq.setAndDefer(e,ttq.methods[n]);return e};
-                ttq.load=function(e,n){var i="https://analytics.tiktok.com/i18n/pixel/events.js";
-                    ttq._i=ttq._i||{},ttq._i[e]=[],ttq._i[e]._u=i,ttq._t=ttq._t||{},ttq._t[e]=+new Date,ttq._o=ttq._o||{},ttq._o[e]=n||{};
+                ttq.load=function(e,n){var i="{{ __('https://') }}analytics.tiktok.com/i18n/pixel/events.js";
+                    ttq._i=ttq._i||{},ttq._i[e]=[],ttq._i[e]._u=i,ttq._t=ttq._t||{},ttq._t[e]=+new {{ __('Date') }},ttq._o=ttq._o||{},ttq._o[e]=n||{};
                     var o=document.createElement("script");o.type="text/javascript",o.async=!0,o.src=i+"?sdkid="+e+"&lib="+t;
-                    var a=document.getElementsByTagName("script")[0];a.parentNode.insertBefore(o,a)};
+                    var a=document.getElementsByTag{{ __('Name') }}("script")[0];a.parentNode.insert{{ __('Before') }}(o,a)};
             }(window, document, 'ttq');
             @foreach($tiktok_pixels as $tiktok)
             ttq.load('{{ $tiktok->code }}');
@@ -155,7 +155,7 @@
             ttq.page();
             ttq.track('ViewContent', {
                 content_name: {{ json_encode($camp_name) }},
-                content_id:   {{ json_encode($camp_id) }},
+                content_id:   {{ json_encode($camp_{{ __('id)') }} }},
                 content_type: 'product',
                 value:        {{ $camp_value }},
                 currency:     'BDT',
@@ -167,7 +167,7 @@
         <style>
             /* Style for selected product card */
             .selected {
-                border: 2px solid green; /* Change border color to green */
+                border: 2px solid green; /* {{ __('Change') }} border color to green */
             }
             .countdown-container {
                 text-align: center;
@@ -255,7 +255,7 @@
                 position: relative;
                 overflow: hidden;
                 border: 3px solid white; /* Initial border */
-                border-radius: 10px; /* Optional: for rounded corners */
+                border-radius: 10px; /* {{ __('Optional') }}: for rounded corners */
                 transition: color 0.3s ease; /* Transition for text color */
                 animation: border-animation 3s linear infinite; /* Animation */
             }
@@ -286,7 +286,7 @@
             }
         
             .button-animated-border:hover {
-                color: #fff; /* Change text color on hover */
+                color: #fff; /* {{ __('Change') }} text color on hover */
             }
         </style>
 
@@ -297,22 +297,22 @@
         <!-- ========== GTM noscript ========== -->
         @foreach($gtm_code as $gtm)
         @php $gtm_noscript_id = preg_match('/^GTM-/i', trim($gtm->code)) ? trim($gtm->code) : 'GTM-'.trim($gtm->code); @endphp
-        <noscript><iframe src="https://www.googletagmanager.com/ns.html?id={{ $gtm_noscript_id }}"
+        <noscript><iframe src="{{ __('https://') }}www.googletagmanager.com/ns.html?id={{ $gtm_noscript_id }}"
             height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         @endforeach
         <!-- ========== TikTok Pixel noscript ========== -->
         @if($tiktok_pixels->count() > 0)
         @foreach($tiktok_pixels as $tiktok)
         <noscript><img height="1" width="1" style="display:none" alt=""
-            src="https://analytics.tiktok.com/i18n/pixel/events.js?sdkid={{ $tiktok->code }}&noscript=1" /></noscript>
+            src="{{ __('https://') }}analytics.tiktok.com/i18n/pixel/events.js?sdkid={{ $tiktok->code }}&noscript=1" /></noscript>
         @endforeach
         @endif
 
          @php
-            $subtotal = Cart::instance('shopping')->subtotal();
-            $subtotal=str_replace(',','',$subtotal);
-            $subtotal=str_replace('.00', '',$subtotal);
-            $shipping = Session::get('shipping')?Session::get('shipping'):0;
+            $sub{{ __('total') }} = {{ __('Cart') }}::instance('shopping')->sub{{ __('total') }}();
+            $sub{{ __('total') }}=str_replace(',','',$sub{{ __('total') }});
+            $sub{{ __('total') }}=str_replace('.00', '',$sub{{ __('total') }});
+            $shipping = {{ __('Session') }}::get('shipping')?{{ __('Session') }}::get('shipping'):0;
         @endphp
         <section style="background-image: radial-gradient(at center center, #139525 28%, #0E320F 79%)">
             <div class="container py-2 py-md-4">
@@ -327,25 +327,25 @@
                                     <div class="col-3">
                                        <div class="counter-card">
                                             <div id="days"></div>
-                                            <span>Days</span>
+                                            <span>{{ __('Days') }}</span>
                                         </div> 
                                     </div>
                                     <div class="col-3">
                                         <div class="counter-card">
                                             <div id="hours"></div>
-                                            <span>Hours</span>
+                                            <span>{{ __('Hours') }}</span>
                                         </div>                                        
                                     </div>
                                     <div class="col-3">
                                         <div class="counter-card">
                                             <div id="minutes"></div>
-                                            <span>Minutes</span>
+                                            <span>{{ __('Minutes') }}</span>
                                         </div>                                    
                                     </div>
                                     <div class="col-3">
                                         <div class="counter-card">
                                             <div id="seconds"></div>
-                                            <span>Seconds</span>
+                                            <span>{{ __('Seconds') }}</span>
                                         </div>
                                     </div>
                                 </div>
@@ -422,8 +422,8 @@
                                 <div class="banner_t">
                                     <h2>{{$campaign_data->banner_title}}</h2>
                                     
-                                    <a href="#order_form" class="cam_order_now" id="cam_order_now"><i class="fa-solid fa-cart-shopping"></i> অর্ডার করুন </a>
-                                    <p class="megaoffer_btn">মেগা অফার {{$subtotal}} Tk টাকা</p>
+                                    <a href="#order_form" class="cam_order_now" id="cam_order_now"><i class="fa-solid fa-cart-shopping"></i> {{ __('Order Now') }} </a>
+                                    <p class="megaoffer_btn">মেগা অফার {{$sub{{ __('total') }}}} Tk টাকা</p>
                                 </div>
                             </div>
                         </div>
@@ -438,19 +438,19 @@
             
                 <div class="row justify-content-center gy-2 gy-md-4">
                     <div class="col-md-8">
-                        <h2 class="p-2 py-md-3 rounded text-center" style="background-color:black;border:green 2px solid;color:white;font-weight:bolder">প্রডাক্টের "ভিডিও দেখুন"</h2>
+                        <h2 class="p-2 py-md-3 rounded text-center" style="background-color:black;border:green 2px solid;color:white;font-weight:bolder">{{ __('bn_4cb8cb5c') }}</h2>
                     </div>
                     <div class="col-md-8 col-sm-12">
                         <div class="camp_vid rounded" style="border:5px solid red">
                             <iframe width="100%" height="480" 
-                            src="https://www.youtube.com/embed/{{$campaign_data->video}}" 
+                            src="{{ __('https://') }}www.youtube.com/embed/{{$campaign_data->video}}" 
                             title="{{$campaign_data->banner_title}}" frameborder="0" 
                             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen=""></iframe>
                         </div>
                     </div>
                     <div class="col-sm-12">
                         <div class="ord_btn">
-                            <a href="#order_form" class="cam_order_now" id="cam_order_now"> অর্ডার করতে ক্লিক করুন <i class="fa-solid fa-hand-point-right"></i> </a>
+                            <a href="#order_form" class="cam_order_now" id="cam_order_now"> {{ __('bn_f5edc14a') }} <i class="fa-solid fa-hand-point-right"></i> </a>
                         </div>
                     </div>
                 </div>
@@ -462,19 +462,19 @@
             <div class="container my-2 my-md-4">
                 <div class="row justify-content-center">
                     <div class="col-md-8">
-                        <h2 class="text-center p-2 p-md-4 rounded" style="background-color:#FBEFF7;border:2px dashed #F1ACE7">আমাদের থেকে বিস্তারিত জানতে এই নাম্বারে কল করুন {{$contact->phone}}</h2>
+                        <h2 class="text-center p-2 p-md-4 rounded" style="background-color:#FBEFF7;border:2px dashed #F1ACE7">আমাদের থেকে {{ __('bn_4c5d67bf') }} জানতে এই নাম্বারে কল করুন {{$contact->{{ __('phone') }}}}</h2>
                         <div class="row justify-content-center my-2 my-md-4 gy-2">
                             <div class="col-md-6 custom_btn">
                                 <div class="shadow-lg">
-                                    <a href="tel:{{$contact->phone}}" 
+                                    <a href="tel:{{$contact->{{ __('phone') }}}}" 
                                     class="btn btn-danger btn-lg d-block py-md-3 fs-2 fw-bolder button-3d button-animated-border" >
-                                        <i class="fa-solid fa-phone"></i> আমাদের কল করুন </a>
+                                        <i class="fa-solid fa-{{ __('phone') }}"></i> {{ __('bn_17b5a943') }} </a>
                                 </div>
                                 
                             </div>
                             <div class="col-md-6">
                             <div class="shadow-lg">
-                                <a href="https://wa.me/{{ $contact->whatsapp ?? '8801519607646' }}" 
+                                <a href="{{ __('https://') }}wa.me/{{ $contact->whatsapp ?? '8801519607646' }}" 
                                 class="btn btn-success btn-lg d-block py-md-3 fs-2 text-light fw-bolder button-3d button-animated-border">
                                     <i class="fa-brands fa-whatsapp"></i> হোয়াটসঅ্যাপ  
                                     </a>
@@ -498,7 +498,7 @@
                     <div class="col-sm-12">
                         <div class="card">
                             <div class="card-body">
-                                <h2>বিস্তারিত</h2>
+                                <h2>{{ __('bn_4c5d67bf') }}</h2>
                                 {!! $campaign_data->short_description !!}
                                 <br>
                                 <br>
@@ -538,7 +538,7 @@
                             </div>
                             <div class="col-sm-12">
                                 <div class="ord_btn">
-                                    <a href="#order_form" class="cam_order_now" id="cam_order_now"> অর্ডার করতে ক্লিক করুন <i class="fa-solid fa-hand-point-right"></i> </a>
+                                    <a href="#order_form" class="cam_order_now" id="cam_order_now"> {{ __('bn_f5edc14a') }} <i class="fa-solid fa-hand-point-right"></i> </a>
                                 </div>
                             </div>
                         </div>
@@ -566,7 +566,7 @@
                            </div>
                             <div class="col-sm-12">
                                 <div class="ord_btn">
-                                    <a href="#order_form" class="cam_order_now" id="cam_order_now"> অর্ডার করতে ক্লিক করুন <i class="fa-solid fa-hand-point-right"></i> </a>
+                                    <a href="#order_form" class="cam_order_now" id="cam_order_now"> {{ __('bn_f5edc14a') }} <i class="fa-solid fa-hand-point-right"></i> </a>
                                 </div>
                             </div>
                         </div>
@@ -583,7 +583,7 @@
                     <div class="col-sm-12">
                         <div class="row">
                 <div class="col-sm-12">
-                    <h2 class="campaign_offer">অফারটি সীমিত সময়ের জন্য, তাই অফার শেষ হওয়ার আগেই অর্ডার করুন</h2>
+                    <h2 class="campaign_offer">{{ __('bn_7a45ed19') }}</h2>
                     @if($campaign_data->note)
                     <p class="my-1 text-center">
                         {!! $campaign_data->note !!}
@@ -598,16 +598,16 @@
                         @if($products->count()>1)
                         <div class="card mb-2 ">
                           <div class="card-header">
-                                <h5 class="potro_font">একটি পণ্য সিলেক্ট করুনণ </h5>
+                                <h5 class="potro_font">{{ __('bn_4d2dc380') }} </h5>
                             </div>  
                              <div class="card-body">
                                 <div class="row g-2">
                                     @foreach($products as $product)
                                         <div class="col-md-3 col-6"> <!-- Adjusted column width for smaller cards -->
                                             <div class="border shadow"> <!-- Wrap the card with form-check for better usability -->
-                                                <input type="radio" class="form-check-input" name="product" id="product_{{ $product->id }}" value="{{ $product->id }}" {{ $loop->first ? 'checked' : '' }} style="display: none;" onchange="updateCart('{{ $product->id }}')">
+                                                <input type="radio" class="form-check-input" name="product" id="product_{{ $product->id }}" value="{{ $product->id }}" {{ $loop->first ? 'checked' : '' }} style="display: none;" onchange="update{{ __('Cart') }}('{{ $product->id }}')">
                                                 <label for="product_{{ $product->id }}" class="card shadow-sm product-card {{ $loop->first ? 'selected' : '' }}" style="cursor: pointer;"> <!-- Add class for styling -->
-                                                    <img src="{{ asset($product->image->image) }}" class="card-img-top" alt="{{ $product->name }}" style="height: 100px; object-fit: cover;"> <!-- Fixed height and object-fit -->
+                                                    <img src="{{ asset($product->image->image) }}" class="card-img-top" alt="{{ $product->name }}" style="height: 100px; object-fit: cover;"> <!-- {{ __('Fixed') }} height and object-fit -->
                                                     <div class="card-body p-1 text-center"> <!-- Centered text for a better layout -->
                                                         <div class="card-title">{{ Str::limit($product->name, 20) }}</div>
                                                         <div class="card-text mb-1">৳{{ $product->new_price }} <del>৳{{ $product->old_price }}</del></div>
@@ -622,27 +622,27 @@
                         @endif
                         <div class="card">
                             <div class="card-header">
-                                <h5 class="potro_font">পণ্যের বিবরণ </h5>
+                                <h5 class="potro_font">{{ __('bn_ff15722a') }} </h5>
                             </div>
                             <div class="card-body cartlist  table-responsive">
                                 <table class="cart_table table table-bordered table-striped text-center mb-0">
                                     <thead>
                                        <tr>
                                           
-                                          <th style="width: 40%;">প্রোডাক্ট</th>
-                                          <th style="width: 20%;">পরিমাণ</th>
-                                          <th style="width: 20%;">মূল্য</th>
+                                          <th style="width: 40%;">{{ __('{{ __('Product') }}s') }}</th>
+                                          <th style="width: 20%;">{{ __('Quantity') }}</th>
+                                          <th style="width: 20%;">{{ __('Price') }}</th>
                                          </tr>
                                     </thead>
     
                                     <tbody>
-                                        @foreach(Cart::instance('shopping')->content() as $value)
+                                        @foreach({{ __('Cart') }}::instance('shopping')->content() as $value)
                                         <tr>
                                           
                                             <td class="text-left">
-                                                 <a style="font-size: 14px;" href="{{route('product',$value->options->slug)}}"><img src="{{asset($value->options->image)}}" height="30" width="30"> {{Str::limit($value->name,20)}}</a>
+                                                 <a style="font-size: {{ __('14px') }};" href="{{route('product',$value->options->slug)}}"><img src="{{asset($value->options->image)}}" height="30" width="30"> {{Str::limit($value->name,20)}}</a>
                                                 @php
-                                                    $product = App\Models\Product::find($value->id);
+                                                    $product = App\Models\{{ __('Product') }}::find($value->{{ __('id)') }};
                                                 @endphp
                                              
                                                @if($product && ($product->sizes->isNotEmpty() || $product->colors->isNotEmpty()))
@@ -652,10 +652,10 @@
                                                     <div class="col-6">
                                                         
                                                         <select id="size-selector-{{ $value->rowId }}" class="form-select form-select-sm cart-size-selector" data-id="{{ $value->rowId }}">
-                                                            <option>Select an option</option>
+                                                            <option>{{ __('Select an option') }}</option>
                                                             @foreach($product->sizes as $size)
-                                                            <option value="{{ $size->sizeName }}" {{ $size->sizeName == $value->options->product_size ? 'selected' : '' }}>
-                                                                {{ $size->sizeName }}
+                                                            <option value="{{ $size->size{{ __('Name') }} }}" {{ $size->size{{ __('Name') }} == $value->options->product_size ? 'selected' : '' }}>
+                                                                {{ $size->size{{ __('Name') }} }}
                                                             </option>
                                                             @endforeach
                                                         </select>
@@ -667,18 +667,18 @@
                                                     </div>
                                                     @endif
                                                 
-                                                    <!-- Color Selector -->
+                                                    <!-- {{ __('Color') }} Selector -->
                                                     @if($product->colors->isNotEmpty())
                                                     <div class="col-6">
                                                         <select id="color-selector-{{ $value->rowId }}" class="form-select form-select-sm cart-color-selector" data-id="{{ $value->rowId }}">
-                                                            <option>Select an option</option>
+                                                            <option>{{ __('Select an option') }}</option>
                                                             @foreach($product->colors as $color)
-                                                            <option value="{{ $color->colorName }}" {{ $color->colorName == $value->options->product_color ? 'selected' : '' }}>
-                                                                {{ $color->colorName }}
+                                                            <option value="{{ $color->color{{ __('Name') }} }}" {{ $color->color{{ __('Name') }} == $value->options->product_color ? 'selected' : '' }}>
+                                                                {{ $color->color{{ __('Name') }} }}
                                                             </option>
                                                             @endforeach
                                                         </select>
-                                                        <label for="color-selector-{{ $value->rowId }}" class="form-label text-muted text-start" style="font-size: 0.875rem;">Color:
+                                                        <label for="color-selector-{{ $value->rowId }}" class="form-label text-muted text-start" style="font-size: 0.875rem;">{{ __('Color') }}:
                                                         @if($value->options->product_color)
                                                            {{ $value->options->product_color }}
                                                         @endif
@@ -703,21 +703,21 @@
                                     </tbody>
                                     <tfoot>
                                          <tr>
-                                          <th colspan="2" class="text-end px-4">মোট</th>
+                                          <th colspan="2" class="text-end px-4">{{ __('bn_70ac0f2d') }}</th>
                                           <td>
-                                           <span id="net_total"><span class="alinur">৳ </span><strong>{{$subtotal}}</strong></span>
+                                           <span id="net_{{ __('total') }}"><span class="alinur">৳ </span><strong>{{$sub{{ __('total') }}}}</strong></span>
                                           </td>
                                          </tr>
                                          <tr>
-                                          <th colspan="2" class="text-end px-4">ডেলিভারি চার্জ</th>
+                                          <th colspan="2" class="text-end px-4">{{ __('bn_99838c8f') }}</th>
                                           <td>
                                            <span id="cart_shipping_cost"><span class="alinur">৳ </span><strong>{{$shipping}}</strong></span>
                                           </td>
                                          </tr>
                                          <tr>
-                                          <th colspan="2" class="text-end px-4">সর্বমোট</th>
+                                          <th colspan="2" class="text-end px-4">{{ __('Total') }}</th>
                                           <td>
-                                           <span id="grand_total"><span class="alinur">৳ </span><strong>{{$subtotal+$shipping}}</strong></span>
+                                           <span id="grand_{{ __('total') }}"><span class="alinur">৳ </span><strong>{{$sub{{ __('total') }}+$shipping}}</strong></span>
                                           </td>
                                          </tr>
                                         </tfoot>
@@ -729,17 +729,17 @@
                 </div>
                 <div class="col-lg-5 cus-order-2">
                     <div class="checkout-shipping" id="order_form">
-                        <form action="{{route('customer.ordersave')}}" method="POST" data-parsley-validate="">
+                        <form action="{{route('customer.ordersave')}}" method={{ __('"{{ __('POST') }}"') }} data-parsley-validate="">
                         @csrf
                         <div class="card">
                             <div class="card-header">
-                                <h5 class="potro_font">আপনার ইনফরমেশন দিন  </h5>
+                                <h5 class="potro_font">{{ __('bn_51caaae2') }}  </h5>
                             </div>
                             <div class="card-body">
                                 <div class="row">
                                     <div class="col-sm-12">
                                         <div class="form-group mb-3">
-                                            <label for="name">আপনার নাম লিখুন * </label>
+                                            <label for="name">{{ __('Your {{ __('Name') }}') }} </label>
                                             <input type="text" id="name" class="form-control @error('name') is-invalid @enderror" name="name" value="{{old('name')}}" placeholder="নাম" required>
                                             @error('name')
                                                 <span class="invalid-feedback" role="alert">
@@ -751,9 +751,9 @@
                                     <!-- col-end -->
                                     <div class="col-sm-12">
                                         <div class="form-group mb-3">
-                                            <label for="phone">আপনার মোবাইল লিখুন *</label>
-                                            <input type="number" minlength="11" id="number" maxlength="11" pattern="0[0-9]+" title="please enter number only and 0 must first character" title="Please enter an 11-digit number." id="phone" class="form-control @error('phone') is-invalid @enderror" name="phone" value="{{old('phone')}}" placeholder="+৮৮ বাদে ১১ সংখ্যা "  required>
-                                            @error('phone')
+                                            <label for="{{ __('phone') }}">{{ __('Your {{ __('Phone') }}') }}</label>
+                                            <input type="{{ __('number') }}" minlength="11" id="{{ __('number') }}" maxlength="11" pattern="0[0-9]+" title="please enter {{ __('number') }} only and 0 must first character" title="Please enter an 11-digit {{ __('number') }}." id="{{ __('phone') }}" class="form-control @error('{{ __('phone') }}') is-invalid @enderror" name="{{ __('phone') }}" value="{{old('{{ __('phone') }}')}}" placeholder="+৮৮ বাদে ১১ সংখ্যা "  required>
+                                            @error('{{ __('phone') }}')
                                                 <span class="invalid-feedback" role="alert">
                                                     <strong>{{ $message }}</strong>
                                                 </span>
@@ -790,7 +790,7 @@
                                     <!-- col-end -->
                                     <div class="col-sm-12">
                                         <div class="form-group">
-                                            <button class="order_place" type="submit">অর্ডার কন্ফার্ম করুন </button>
+                                            <button class="order_place" type="{{ __('submit') }}">{{ __('bn_8cae00cf') }} </button>
                                         </div>
                                     </div>
                                 </div>
@@ -847,7 +847,7 @@
              $("#area").on("change", function () {
                 var id = $(this).val();
                 $.ajax({
-                    type: "GET",
+                    type: "{{ __('GET') }}",
                     data: { id: id },
                     url: "{{route('shipping.charge')}}",
                     dataType: "html",
@@ -861,9 +861,9 @@
             $(".cart_remove").on("click", function () {
                 var id = $(this).data("id");
                 $("#loading").show();
-                if (id) {
+                if ({{ __('id)') }} {
                     $.ajax({
-                        type: "GET",
+                        type: "{{ __('GET') }}",
                         data: { id: id },
                         url: "{{route('cart.remove')}}",
                         success: function (data) {
@@ -879,9 +879,9 @@
             $(".cart_increment").on("click", function () {
                 var id = $(this).data("id");
                 $("#loading").show();
-                if (id) {
+                if ({{ __('id)') }} {
                     $.ajax({
-                        type: "GET",
+                        type: "{{ __('GET') }}",
                         data: { id: id },
                         url: "{{route('cart.increment')}}",
                         success: function (data) {
@@ -898,9 +898,9 @@
             $(".cart_decrement").on("click", function () {
                 var id = $(this).data("id");
                 $("#loading").show();
-                if (id) {
+                if ({{ __('id)') }} {
                     $.ajax({
-                        type: "GET",
+                        type: "{{ __('GET') }}",
                         data: { id: id },
                         url: "{{route('cart.decrement')}}",
                         success: function (data) {
@@ -974,19 +974,19 @@
         </script>
         <script>
             // Update the cart and highlight the selected card
-            function updateCart(productId) {
+            function update{{ __('Cart') }}(productId) {
                 const productCards = document.querySelectorAll('.product-card');
                 productCards.forEach(card => card.classList.remove('selected'));
 
                 const selectedCard = document.getElementById(`product_${productId}`).nextElementSibling;
                 selectedCard.classList.add('selected');
 
-                // ===== AddToCart Tracking =====
-                var selProd = window._campaignProducts
-                    ? window._campaignProducts.find(function(p){ return p.id === String(productId); })
+                // ===== AddTo{{ __('Cart') }} {{ __('{{ __('Track') }}ing') }} =====
+                var selProd = window._campaign{{ __('Product') }}s
+                    ? window._campaign{{ __('Product') }}s.find(function(p){ return p.id === {{ __('String') }}(productId); })
                     : null;
                 var prodPrice = selProd ? selProd.price : 0;
-                var prodName  = selProd ? selProd.name  : '';
+                var prod{{ __('Name') }}  = selProd ? selProd.name  : '';
 
                 // GTM DataLayer — add_to_cart
                 dataLayer.push({'ecommerce': null});
@@ -996,30 +996,30 @@
                         'currency': 'BDT',
                         'value': prodPrice,
                         'items': [{
-                            'item_id':   String(productId),
-                            'item_name': prodName,
+                            'item_id':   {{ __('String') }}(productId),
+                            'item_name': prod{{ __('Name') }},
                             'price':     prodPrice,
                             'quantity':  1
                         }]
                     }
                 });
 
-                // Facebook Pixel — AddToCart
+                // Facebook Pixel — AddTo{{ __('Cart') }}
                 if (typeof fbq !== 'undefined') {
-                    fbq('track', 'AddToCart', {
-                        content_ids:  [String(productId)],
-                        content_name: prodName,
+                    fbq('track', 'AddTo{{ __('Cart') }}', {
+                        content_ids:  [{{ __('String') }}(productId)],
+                        content_name: prod{{ __('Name') }},
                         content_type: 'product',
                         value:        prodPrice,
                         currency:     'BDT'
-                    }, {eventID: 'atc_' + productId + '_' + Math.floor(Date.now()/1000)});
+                    }, {eventID: 'atc_' + productId + '_' + Math.floor({{ __('Date') }}.now()/1000)});
                 }
 
-                // TikTok Pixel — AddToCart
+                // TikTok Pixel — AddTo{{ __('Cart') }}
                 if (typeof ttq !== 'undefined') {
-                    ttq.track('AddToCart', {
-                        content_id:   String(productId),
-                        content_name: prodName,
+                    ttq.track('AddTo{{ __('Cart') }}', {
+                        content_id:   {{ __('String') }}(productId),
+                        content_name: prod{{ __('Name') }},
                         content_type: 'product',
                         value:        prodPrice,
                         currency:     'BDT',
@@ -1031,9 +1031,9 @@
                 $("#loading").show();
                 if (productId) {
                     $.ajax({
-                        type: "GET",
+                        type: "{{ __('GET') }}",
                         data: { id: productId },
-                        url: "{{route('cart.changeProduct')}}",
+                        url: "{{route('cart.change{{ __('Product') }}')}}",
                         success: function (data) {
                             if (data) {
                                 $(".cartlist").html(data);
@@ -1055,14 +1055,14 @@
         <script>
             @if($campaign_data->deadline)
             // Set the deadline from the campaign data
-            const deadline = new Date("{{ $campaign_data->deadline }}").getTime();
+            const deadline = new {{ __('Date') }}("{{ $campaign_data->deadline }}").getTime();
         
             // Update the countdown every 1 second
             const x = setInterval(function() {
                 // Get current date and time
-                const now = new Date().getTime();
+                const now = new {{ __('Date') }}().getTime();
         
-                // Calculate the distance between now and the deadline
+                // {{ __('Calculate') }} the distance between now and the deadline
                 const distance = deadline - now;
         
                 // Time calculations for days, hours, minutes and seconds
@@ -1093,12 +1093,12 @@
             
                 if (rowId) {
                     $.ajax({
-                        type: "GET", // Change to GET if your route accepts GET requests
+                        type: "{{ __('GET') }}", // {{ __('Change') }} to {{ __('GET') }} if your route accepts {{ __('GET') }} requests
                         data: {
                             'id': rowId,
-                            'product_size': selectedSize // New size to update
+                            'product_size': selectedSize // {{ __('New') }} size to update
                         },
-                        url: "{{ route('cart.update') }}", // Use the same route for updating size
+                        url: "{{ route('cart.update') }}", // {{ __('Use') }} the same route for updating size
                         success: function(data) {
                             if (data) {
                                 $(".cartlist").html(data); // Update the cart list UI with new data
@@ -1116,16 +1116,16 @@
             // Event listener for color selector change
             $('.cart-color-selector').on('change', function() {
                 var rowId = $(this).data('id'); // Get the row ID
-                var selectedColor = $(this).val(); // Get the selected color
+                var selected{{ __('Color') }} = $(this).val(); // Get the selected color
             
                 if (rowId) {
                     $.ajax({
-                        type: "GET", // Change to GET if your route accepts GET requests
+                        type: "{{ __('GET') }}", // {{ __('Change') }} to {{ __('GET') }} if your route accepts {{ __('GET') }} requests
                         data: {
                             'id': rowId,
-                            'product_color': selectedColor // New size to update
+                            'product_color': selected{{ __('Color') }} // {{ __('New') }} size to update
                         },
-                        url: "{{ route('cart.update') }}", // Use the same route for updating size
+                        url: "{{ route('cart.update') }}", // {{ __('Use') }} the same route for updating size
                         success: function(data) {
                             if (data) {
                                 $(".cartlist").html(data); // Update the cart list UI with new data
@@ -1140,14 +1140,14 @@
             });
         </script>
         <script>
-            // ========== GTM — view_item_list (সব প্রোডাক্ট) ==========
+            // ========== GTM — view_item_list (সব {{ __('{{ __('Product') }}s') }}) ==========
             dataLayer.push({'ecommerce': null});
             dataLayer.push({
                 'event': 'view_item_list',
                 'ecommerce': {
                     'currency': 'BDT',
-                    'items': window._campaignProducts
-                        ? window._campaignProducts.map(function(p, i) {
+                    'items': window._campaign{{ __('Product') }}s
+                        ? window._campaign{{ __('Product') }}s.map(function(p, i) {
                             return {item_id: p.id, item_name: p.name, price: p.price, index: i, quantity: 1};
                           })
                         : []
@@ -1155,14 +1155,14 @@
             });
 
             $(document).ready(function() {
-                // ========== InitiateCheckout + Lead — Order Form Submit ==========
-                $('form[action="{{ route("customer.ordersave") }}"]').on('submit', function() {
-                    var subtotalVal   = parseFloat($('#net_total strong').text().replace(/[^0-9.]/g, '')) || 0;
-                    var contentIds    = window._campaignProducts ? window._campaignProducts.map(function(p){ return p.id; }) : [];
-                    var icEventId     = 'ic_camp{{ $campaign_data->id }}_' + Math.floor(Date.now()/1000);
-                    var leadEventId   = 'lead_camp{{ $campaign_data->id }}_' + Math.floor(Date.now()/1000);
-                    var campItems     = window._campaignProducts
-                        ? window._campaignProducts.map(function(p, i){
+                // ========== Initiate{{ __('Check') }}out + Lead — Order Form Submit ==========
+                $('form[action="{{ route("customer.ordersave") }}"]').on('{{ __('submit') }}', function() {
+                    var sub{{ __('total') }}Val   = parseFloat($('#net_{{ __('total') }} strong').text().replace(/[^0-9.]/g, '')) || 0;
+                    var contentIds    = window._campaign{{ __('Product') }}s ? window._campaign{{ __('Product') }}s.map(function(p){ return p.id; }) : [];
+                    var icEventId     = 'ic_camp{{ $campaign_data->id }}_' + Math.floor({{ __('Date') }}.now()/1000);
+                    var leadEventId   = 'lead_camp{{ $campaign_data->id }}_' + Math.floor({{ __('Date') }}.now()/1000);
+                    var camp{{ __('{{ __('Item') }}s') }}     = window._campaign{{ __('Product') }}s
+                        ? window._campaign{{ __('Product') }}s.map(function(p, i){
                             return {item_id: p.id, item_name: p.name, price: p.price, index: i, quantity: 1};
                           })
                         : [];
@@ -1173,33 +1173,33 @@
                         'event': 'begin_checkout',
                         'ecommerce': {
                             'currency': 'BDT',
-                            'value':    subtotalVal,
-                            'items':    campItems
+                            'value':    sub{{ __('total') }}Val,
+                            'items':    camp{{ __('{{ __('Item') }}s') }}
                         }
                     });
 
-                    // Facebook Pixel — InitiateCheckout + Lead
+                    // Facebook Pixel — Initiate{{ __('Check') }}out + Lead
                     if (typeof fbq !== 'undefined') {
-                        fbq('track', 'InitiateCheckout', {
+                        fbq('track', 'Initiate{{ __('Check') }}out', {
                             content_ids:  contentIds,
                             content_type: 'product',
-                            value:        subtotalVal,
+                            value:        sub{{ __('total') }}Val,
                             currency:     'BDT',
                             num_items:    contentIds.length
                         }, {eventID: icEventId});
                         fbq('track', 'Lead', {
-                            value:        subtotalVal,
+                            value:        sub{{ __('total') }}Val,
                             currency:     'BDT',
                             content_name: {{ json_encode($camp_name) }}
                         }, {eventID: leadEventId});
                     }
 
-                    // TikTok Pixel — InitiateCheckout
+                    // TikTok Pixel — Initiate{{ __('Check') }}out
                     if (typeof ttq !== 'undefined') {
-                        ttq.track('InitiateCheckout', {
+                        ttq.track('Initiate{{ __('Check') }}out', {
                             content_ids:  contentIds,
                             content_type: 'product',
-                            value:        subtotalVal,
+                            value:        sub{{ __('total') }}Val,
                             currency:     'BDT',
                             quantity:     contentIds.length
                         });
@@ -1210,7 +1210,7 @@
                 $('.cam_order_now').on('click', function() {
                     dataLayer.push({
                         event:         'click_order_now_button',
-                        campaign_id:   {{ json_encode($camp_id) }},
+                        campaign_id:   {{ json_encode($camp_{{ __('id)') }} }},
                         campaign_name: {{ json_encode($camp_name) }}
                     });
                 });

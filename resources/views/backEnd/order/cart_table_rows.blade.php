@@ -4,49 +4,49 @@
   <td>
       <div class="fw-semibold">{{$value->name}}</div>
         @php
-            $product = \App\Models\Product::find($value->id);
+            $product = \App\Models\{{ __('Product') }}::find($value->{{ __('id)') }};
             $sizesList = collect();
             $colorsList = collect();
             if ($product) {
-                $sizeIds = \App\Models\ProductVariantPrice::where('product_id', $product->id)->whereNotNull('size_id')->pluck('size_id')->unique()->filter();
-                $colorIds = \App\Models\ProductVariantPrice::where('product_id', $product->id)->whereNotNull('color_id')->pluck('color_id')->unique()->filter();
+                $sizeIds = \App\Models\{{ __('Product') }}VariantPrice::w{{ __('here') }}('product_id', $product->{{ __('id)') }}->w{{ __('here') }}NotNull('size_id')->pluck('size_id')->unique()->{{ __('filter') }}();
+                $colorIds = \App\Models\{{ __('Product') }}VariantPrice::w{{ __('here') }}('product_id', $product->{{ __('id)') }}->w{{ __('here') }}NotNull('color_id')->pluck('color_id')->unique()->{{ __('filter') }}();
                 if ($sizeIds->isNotEmpty()) {
-                    $sizesList = \App\Models\Size::whereIn('id', $sizeIds)->get();
+                    $sizesList = \App\Models\Size::w{{ __('here') }}In('id', $sizeIds)->get();
                 }
                 if ($colorIds->isNotEmpty()) {
-                    $colorsList = \App\Models\Color::whereIn('id', $colorIds)->get();
+                    $colorsList = \App\Models\{{ __('Color') }}::w{{ __('here') }}In('id', $colorIds)->get();
                 }
                 if ($sizesList->isEmpty() && $colorsList->isEmpty()) {
                     $sizesList = $product->sizes ?? collect();
                     $colorsList = $product->colors ?? collect();
                 }
             }
-            $hasSizes = $sizesList->isNotEmpty();
-            $hasColors = $colorsList->isNotEmpty();
+            $has{{ __('Sizes') }} = $sizesList->isNotEmpty();
+            $has{{ __('{{ __('Color') }}s') }} = $colorsList->isNotEmpty();
             $currentSizeId = $value->options->size_id ?? '';
-            $currentColorId = $value->options->color_id ?? '';
+            $current{{ __('Color') }}Id = $value->options->color_id ?? '';
         @endphp
 
-       @if($hasSizes || $hasColors)
+       @if($has{{ __('Sizes') }} || $has{{ __('{{ __('Color') }}s') }})
         <div class="d-flex flex-column gap-1 mt-2">
-            @if($hasSizes)
+            @if($has{{ __('Sizes') }})
             <div>
                 <label class="form-label small text-muted mb-0" style="font-size:11px">{{ __('Size') }}</label>
                 <select class="form-select form-select-sm cart-size-selector" data-id="{{ $value->rowId }}" data-product-id="{{ $value->id }}" style="min-width:100px">
                     <option value="">{{ __('Select') }}</option>
                     @foreach($sizesList as $s)
-                    <option value="{{ $s->id }}" {{ $currentSizeId == $s->id ? 'selected' : '' }}>{{ $s->sizeName ?? $s->size_name ?? 'N/A' }}</option>
+                    <option value="{{ $s->id }}" {{ $currentSizeId == $s->id ? 'selected' : '' }}>{{ $s->size{{ __('Name') }} ?? $s->size_name ?? '{{ __('N/A') }}' }}</option>
                     @endforeach
                 </select>
             </div>
             @endif
-            @if($hasColors)
+            @if($has{{ __('{{ __('Color') }}s') }})
             <div>
-                <label class="form-label small text-muted mb-0" style="font-size:11px">{{ __('Color') }}</label>
+                <label class="form-label small text-muted mb-0" style="font-size:11px">{{ __('{{ __('Color') }}') }}</label>
                 <select class="form-select form-select-sm cart-color-selector" data-id="{{ $value->rowId }}" data-product-id="{{ $value->id }}" style="min-width:100px">
                     <option value="">{{ __('Select') }}</option>
                     @foreach($colorsList as $c)
-                    <option value="{{ $c->id }}" {{ $currentColorId == $c->id ? 'selected' : '' }}>{{ $c->colorName ?? $c->color_name ?? 'N/A' }}</option>
+                    <option value="{{ $c->id }}" {{ $current{{ __('Color') }}Id == $c->id ? 'selected' : '' }}>{{ $c->color{{ __('Name') }} ?? $c->color_name ?? '{{ __('N/A') }}' }}</option>
                     @endforeach
                 </select>
             </div>

@@ -14,7 +14,7 @@
         background-color: var(--soft-bg);
     }
 
-    /* উপরের মেনু ডিজাইন */
+    /* {{ __('bn_34b62149') }} মেনু ডিজাইন */
     .cmn_menu ul {
         display: flex;
         justify-content: center;
@@ -109,7 +109,7 @@
         background-color: #fff;
     }
 
-    .submit-btn {
+    .{{ __('submit') }}-btn {
         background: var(--complaint-red);
         color: white;
         padding: 15px;
@@ -126,7 +126,7 @@
         letter-spacing: 1px;
     }
 
-    .submit-btn:hover {
+    .{{ __('submit') }}-btn:hover {
         background: #c0392b;
         transform: translateY(-2px);
         box-shadow: 0 10px 20px rgba(231, 76, 60, 0.3);
@@ -170,12 +170,12 @@
                         <div class="col-lg-5">
                             <div class="complaint-sidebar-img">
                                 <div class="sidebar-content">
-                                    <h3 class="fw-bold mb-2">আপনার মতামত আমাদের কাছে মূল্যবান</h3>
-                                    <p class="small opacity-90"><span style="color: white;">আমাদের সেবা নিয়ে কোনো অভিযোগ থাকলে আমাদের জানান। আমরা দ্রুত ব্যবস্থা গ্রহণ করবো।</span></p>                                    
+                                    <h3 class="fw-bold mb-2">{{ __('bn_f217eca1') }}</h3>
+                                    <p class="small opacity-90"><span style="color: white;">{{ __('bn_70068b5c') }}</span></p>                                    
                                     
                                     <div class="mt-4">
                                         <div class="d-flex align-items-center gap-3 mb-2">
-                                            <i data-feather="phone-call"></i> <span>{{ $contact?->hotline ?? '01XXX-XXXXXX' }}</span>
+                                            <i data-feather="{{ __('phone') }}-call"></i> <span>{{ $contact?->hotline ?? '01XXX-XXXXXX' }}</span>
                                         </div>
                                         <div class="d-flex align-items-center gap-3">
                                             <i data-feather="mail"></i> <span>{{ $contact?->email ?? 'support@example.com' }}</span>
@@ -187,7 +187,7 @@
 
                         <div class="col-lg-7">
                             <div class="form-side">
-                                <h5 class="account-title">কমপ্লেইন জমা দিন</h5>
+                                <h5 class="account-title">{{ __('bn_666ddc8a') }}</h5>
 
                                 @if(session('success'))
                                     <div class="alert alert-success border-0 shadow-sm mb-4">
@@ -197,38 +197,38 @@
 
                                 
 
-                                <form action="{{ route('complaint.store') }}" method="POST" enctype="multipart/form-data">
+                                <form action="{{ route('complaint.store') }}" method={{ __('"{{ __('POST') }}"') }} enctype="multipart/form-data">
                                     @csrf
 
                                     <div class="row g-4">
                                         <div class="col-md-6">
-                                            <label class="form-label">আপনার নাম *</label>
+                                            <label class="form-label">{{ __('Your {{ __('Name') }}') }}</label>
                                             <input type="text" name="name" class="form-control" placeholder="নাম লিখুন" required>
                                         </div>
 
                                         <div class="col-md-6">
-                                            <label class="form-label">মোবাইল নম্বর *</label>
-                                            <input type="tel" name="phone" class="form-control" placeholder="০১xxx-xxxxxx" required maxlength="11" oninput="this.value = this.value.replace(/[^0-9]/g,'')">
+                                            <label class="form-label">{{ __('bn_651920b2') }}</label>
+                                            <input type="tel" name="{{ __('phone') }}" class="form-control" placeholder="০১xxx-xxxxxx" required maxlength="11" oninput="this.value = this.value.replace(/[^0-9]/g,'')">
                                         </div>
 
                                         <div class="col-12">
-                                            <label class="form-label">অর্ডার আইডি (যদি থাকে)</label>
+                                            <label class="form-label">{{ __('bn_e7a3ec0a') }}</label>
                                             <input type="text" name="order_id" class="form-control" placeholder="Order ID লিখুন (যদি থাকে)">
                                         </div>
 
                                         <div class="col-12">
-                                            <label class="form-label">কমপ্লেইনের বিবরণ *</label>
-                                            <textarea name="description" class="form-control" rows="4" placeholder="আপনার সমস্যাটি বিস্তারিত লিখুন..." required></textarea>
+                                            <label class="form-label">{{ __('bn_42ab6664') }}</label>
+                                            <textarea name="description" class="form-control" rows="4" placeholder="আপনার সমস্যাটি {{ __('bn_4c5d67bf') }} লিখুন..." required></textarea>
                                         </div>
 
                                         <div class="col-12">
-                                            <label class="form-label">প্রমাণস্বরূপ ছবি (ঐচ্ছিক)</label>
+                                            <label class="form-label">{{ __('bn_a5988105') }}</label>
                                             <input type="file" name="image" class="form-control">
-                                            <small class="text-muted">আপনি সমস্যার স্ক্রিনশট বা ছবি যুক্ত করতে পারেন।</small>
+                                            <small class="text-muted">{{ __('bn_c885a14d') }}</small>
                                         </div>
 
                                         <div class="col-12 mt-4">
-                                            <button type="submit" class="submit-btn w-100">
+                                            <button type="{{ __('submit') }}" class="{{ __('submit') }}-btn w-100">
                                                 কমপ্লেইন পাঠান <i data-feather="send" style="width: 18px"></i>
                                             </button>
                                         </div>
@@ -237,10 +237,10 @@
 
                                 <div class="quick-info">
                                     <div class="info-box">
-                                        <i data-feather="shield"></i> <span>নিরাপদ ডাটা</span>
+                                        <i data-feather="shield"></i> <span>{{ __('bn_0580e3b0') }}</span>
                                     </div>
                                     <div class="info-box">
-                                        <i data-feather="clock"></i> <span>২৪-৪৮ ঘণ্টার সমাধান</span>
+                                        <i data-feather="clock"></i> <span>{{ __('bn_2808321a') }}</span>
                                     </div>
                                 </div>
                             </div>
@@ -255,7 +255,7 @@
 @endsection
 
 @push('script')
-<script src="https://unpkg.com/feather-icons"></script>
+<script src="{{ __('https://') }}unpkg.com/feather-icons"></script>
 <script>
     feather.replace();
 </script>

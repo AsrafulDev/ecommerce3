@@ -1,15 +1,15 @@
-{{-- Header Style 5: Mega Menu --}}
+{{-- {{ __('Header Style') }} 5: Mega Menu --}}
 <header class="header-mega" id="mainHeader">
     <div class="bg-white border-bottom">
         <div class="container d-flex align-items-center py-2">
             <a href="{{ route('home') }}" class="me-4">
                 <img src="{{ asset($generalsetting->dark_logo ?: 'public/assets/images/CurlBazar.png' ?? 'public/assets/images/CurlBazar.png') }}" alt="Logo" style="max-height:40px;">
             </a>
-            <form action="{{ route('search') }}" method="GET" class="flex-grow-1 me-3 d-none d-md-block">
-                <div class="input-group"><input type="text" name="q" class="form-control bg-light border-0" placeholder="Search..."><button class="btn btn-dark" type="submit"><i class="fa-solid fa-search"></i></button></div>
+            <form action="{{ route('search') }}" method="{{ __('GET') }}" class="flex-grow-1 me-3 d-none d-md-block">
+                <div class="input-group"><input type="text" name="q" class="form-control bg-light border-0" placeholder="{{ __('Search...') }}"><button class="btn btn-dark" type="{{ __('submit') }}"><i class="fa-solid fa-search"></i></button></div>
             </form>
             <div class="d-flex gap-3">
-                <a href="{{ route('customer.checkout') }}" class="position-relative text-dark"><i class="fa-solid fa-cart-shopping fs-5"></i><span class="cart-count-badge">{{ Cart::instance('shopping')->count() }}</span></a>
+                <a href="{{ route('customer.checkout') }}" class="position-relative text-dark"><i class="fa-solid fa-cart-shopping fs-5"></i><span class="cart-count-badge">{{ {{ __('Cart') }}::instance('shopping')->count() }}</span></a>
             </div>
         </div>
     </div>
@@ -25,7 +25,7 @@
                             <div class="col-md-4 mb-2">
                                 <a href="{{ route('category',$cat->slug) }}" class="d-block fw-bold text-dark mb-1">{{ $cat->name }}</a>
                                 @foreach(($cat->subcategories ?? [])->take(3) as $sub)
-                                    <a href="{{ route('subcategory',$sub->slug) }}" class="d-block small text-muted ms-2">{{ $sub->subcategoryName }}</a>
+                                    <a href="{{ route('subcategory',$sub->slug) }}" class="d-block small text-muted ms-2">{{ $sub->subcategory{{ __('Name') }} }}</a>
                                 @endforeach
                             </div>
                             @endforeach
@@ -33,8 +33,8 @@
                     </div>
                 </li>
                 <li><a href="{{ route('home') }}" class="d-block text-white px-3 py-3 text-decoration-none">{{ __('Home') }}</a></li>
-                <li><a href="{{ route('shop') }}" class="d-block text-white-50 px-3 py-3 text-decoration-none">Shop</a></li>
-                <li><a href="{{ route('hotdeals') }}" class="d-block text-white-50 px-3 py-3 text-decoration-none">Deals</a></li>
+                <li><a href="{{ route('shop') }}" class="d-block text-white-50 px-3 py-3 text-decoration-none">{{ __('Shop') }}</a></li>
+                <li><a href="{{ route('hotdeals') }}" class="d-block text-white-50 px-3 py-3 text-decoration-none">{{ __('Deals') }}</a></li>
                 <li><a href="{{ route('brands') }}" class="d-block text-white-50 px-3 py-3 text-decoration-none">{{ __('Brands') }}</a></li>
             </ul>
         </div>

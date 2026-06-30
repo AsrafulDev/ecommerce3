@@ -1,5 +1,5 @@
 @extends('backEnd.layouts.master')
-@section('title', 'Employee Profile')
+@section('title', '{{ __('Employee Profile') }}')
 
 @section('css')
 <style>
@@ -47,7 +47,7 @@
         display: flex;
         justify-content: space-between;
         align-items: center;
-        font-size: 14px;
+        font-size: {{ __('14px') }};
     }
     .profile-info-list li:last-child { border-bottom: none; }
     .label-text { color: #6c757d; font-weight: 500; }
@@ -99,7 +99,7 @@
         border-radius: 0 0 8px 8px;
     }
 
-    /* --- Overview Grid --- */
+    /* --- {{ __('Overview') }} Grid --- */
     .overview-item {
         margin-bottom: 20px;
     }
@@ -125,12 +125,12 @@
 <div class="container-fluid py-4">
 
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h4 class="mb-0 text-dark fw-bold">Employee Profile</h4>
+        <h4 class="mb-0 text-dark fw-bold">{{ __('Employee Profile') }}</h4>
         <div>
             <a href="{{ route('admin.employees.index') }}" class="btn btn-outline-secondary btn-sm me-2">
-                <i data-feather="arrow-left" class="me-1" style="width:14px;"></i>{{ __('Back') }}</a>
-            <a href="{{ route('admin.employees.edit', $employee->id) }}" class="btn btn-dark btn-sm">
-                <i data-feather="edit" class="me-1" style="width:14px;"></i>{{ __('Edit Profile') }}</a>
+                <i data-feather="arrow-left" class="me-1" style="width:{{ __('14px') }};"></i>{{ __('Back') }}</a>
+            <a href="{{ route('admin.employees.edit', $employee->{{ __('id)') }} }}" class="btn btn-dark btn-sm">
+                <i data-feather="edit" class="me-1" style="width:{{ __('14px') }};"></i>{{ __('Edit Profile') }}</a>
         </div>
     </div>
 
@@ -145,36 +145,36 @@
                 </div>
                 <div class="text-center mt-3 px-3">
                     <h5 class="fw-bold mb-1">{{ $employee->name }}</h5>
-                    <p class="text-muted mb-2">{{ $employee->designation ?? 'No Designation' }}</p>
+                    <p class="text-muted mb-2">{{ $employee->designation ?? 'No {{ __('Designation') }}' }}</p>
                     
                     @if($employee->status == 'active')
-                        <span class="badge bg-success px-3 py-1 rounded-pill">Active Employee</span>
+                        <span class="badge bg-success px-3 py-1 rounded-pill">{{ __('Active Employee') }}</span>
                     @elseif($employee->status == 'inactive')
                         <span class="badge bg-warning text-dark px-3 py-1 rounded-pill">{{ __('Inactive') }}</span>
                     @else
-                        <span class="badge bg-danger px-3 py-1 rounded-pill">Terminated</span>
+                        <span class="badge bg-danger px-3 py-1 rounded-pill">{{ __('Terminated') }}</span>
                     @endif
                 </div>
 
                 <ul class="profile-info-list mt-4">
                     <li>
-                        <span class="label-text"><i data-feather="hash" style="width:14px;" class="me-2"></i>Employee ID</span>
+                        <span class="label-text"><i data-feather="hash" style="width:{{ __('14px') }};" class="me-2"></i>{{ __('Employee ID') }}</span>
                         <span class="val-text">{{ $employee->employee_id }}</span>
                     </li>
                     <li>
-                        <span class="label-text"><i data-feather="briefcase" style="width:14px;" class="me-2"></i>Department</span>
-                        <span class="val-text">{{ $employee->department ?? 'N/A' }}</span>
+                        <span class="label-text"><i data-feather="briefcase" style="width:{{ __('14px') }};" class="me-2"></i>{{ __('Department') }}</span>
+                        <span class="val-text">{{ $employee->department ?? '{{ __('N/A') }}' }}</span>
                     </li>
                     <li>
-                        <span class="label-text"><i data-feather="phone" style="width:14px;" class="me-2"></i>{{ __('Phone') }}</span>
-                        <span class="val-text">{{ $employee->phone ?? 'N/A' }}</span>
+                        <span class="label-text"><i data-feather="{{ __('phone') }}" style="width:{{ __('14px') }};" class="me-2"></i>{{ __('Phone') }}</span>
+                        <span class="val-text">{{ $employee->{{ __('phone') }} ?? '{{ __('N/A') }}' }}</span>
                     </li>
                     <li>
-                        <span class="label-text"><i data-feather="mail" style="width:14px;" class="me-2"></i>{{ __('Email') }}</span>
+                        <span class="label-text"><i data-feather="mail" style="width:{{ __('14px') }};" class="me-2"></i>{{ __('Email') }}</span>
                         <span class="val-text" style="font-size:13px;">{{ $employee->email }}</span>
                     </li>
                     <li>
-                        <span class="label-text"><i data-feather="calendar" style="width:14px;" class="me-2"></i>Joined</span>
+                        <span class="label-text"><i data-feather="calendar" style="width:{{ __('14px') }};" class="me-2"></i>{{ __('Joined') }}</span>
                         <span class="val-text">{{ $employee->joining_date->format('d M, Y') }}</span>
                     </li>
                 </ul>
@@ -190,8 +190,8 @@
                             <i data-feather="check-circle"></i>
                         </div>
                         <div>
-                            <div class="text-muted small fw-bold">ATTENDANCE</div>
-                            <div class="h5 mb-0 fw-bold">{{ $employee->attendances->where('status','present')->count() }} Days</div>
+                            <div class="text-muted small fw-bold">{{ __('ATTENDANCE') }}</div>
+                            <div class="h5 mb-0 fw-bold">{{ $employee->attendances->w{{ __('here') }}('status','present')->count() }} {{ __('Days') }}</div>
                         </div>
                     </div>
                 </div>
@@ -201,8 +201,8 @@
                             <i data-feather="coffee"></i>
                         </div>
                         <div>
-                            <div class="text-muted small fw-bold">LEAVES TAKEN</div>
-                            <div class="h5 mb-0 fw-bold">{{ $employee->leaves->where('status','approved')->sum('total_days') }} Days</div>
+                            <div class="text-muted small fw-bold">{{ __('LEAVES TAKEN') }}</div>
+                            <div class="h5 mb-0 fw-bold">{{ $employee->leaves->w{{ __('here') }}('status','approved')->sum('{{ __('total') }}_days') }} {{ __('Days') }}</div>
                         </div>
                     </div>
                 </div>
@@ -212,7 +212,7 @@
                             <i data-feather="dollar-sign"></i>
                         </div>
                         <div>
-                            <div class="text-muted small fw-bold">BASIC SALARY</div>
+                            <div class="text-muted small fw-bold">{{ __('BASIC SALARY') }}</div>
                             <div class="h5 mb-0 fw-bold">৳{{ number_format($employee->basic_salary) }}</div>
                         </div>
                     </div>
@@ -221,51 +221,51 @@
 
             <ul class="nav nav-tabs nav-tabs-custom" role="tablist">
                 <li class="nav-item">
-                    <a class="nav-link active" data-bs-toggle="tab" href="#overview">Overview</a>
+                    <a class="nav-link active" data-bs-toggle="tab" href="#overview">{{ __('Overview') }}</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" data-bs-toggle="tab" href="#attendance">Attendance Log</a>
+                    <a class="nav-link" data-bs-toggle="tab" href="#attendance">{{ __('Attendance Log') }}</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" data-bs-toggle="tab" href="#payroll">Payroll History</a>
+                    <a class="nav-link" data-bs-toggle="tab" href="#payroll">{{ __('Payroll History') }}</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" data-bs-toggle="tab" href="#leaves">Leave History</a>
+                    <a class="nav-link" data-bs-toggle="tab" href="#leaves">{{ __('Leave History') }}</a>
                 </li>
             </ul>
 
             <div class="tab-content">
                 
                 <div class="tab-pane fade show active" id="overview">
-                    <h6 class="text-primary fw-bold mb-4"><i data-feather="info" style="width:16px;" class="me-1"></i> General Information</h6>
+                    <h6 class="text-primary fw-bold mb-4"><i data-feather="info" style="width:16px;" class="me-1"></i> {{ __('General Information') }}</h6>
                     <div class="row">
                         <div class="col-md-6 overview-item">
-                            <div class="overview-label">Full Name</div>
+                            <div class="overview-label">{{ __('Full {{ __('Name') }}') }}</div>
                             <div class="overview-value">{{ $employee->name }}</div>
                         </div>
                         <div class="col-md-6 overview-item">
-                            <div class="overview-label">Linked User Account</div>
-                            <div class="overview-value">{{ $employee->user->name ?? 'Not Linked' }}</div>
+                            <div class="overview-label">{{ __('{{ __('Link') }}ed {{ __('{{ __('Use') }}r') }} Account') }}</div>
+                            <div class="overview-value">{{ $employee->user->name ?? 'Not {{ __('Link') }}ed' }}</div>
                         </div>
                         <div class="col-md-6 overview-item">
-                            <div class="overview-label">National ID (NID)</div>
-                            <div class="overview-value">{{ $employee->nid ?? 'N/A' }}</div>
+                            <div class="overview-label">{{ __('National ID (NID)') }}</div>
+                            <div class="overview-value">{{ $employee->nid ?? '{{ __('N/A') }}' }}</div>
                         </div>
                         <div class="col-md-6 overview-item">
                             <div class="overview-label">{{ __('Address') }}</div>
-                            <div class="overview-value">{{ $employee->address ?? 'N/A' }}</div>
+                            <div class="overview-value">{{ $employee->address ?? '{{ __('N/A') }}' }}</div>
                         </div>
                     </div>
 
-                    <h6 class="text-primary fw-bold mb-4 mt-3"><i data-feather="credit-card" style="width:16px;" class="me-1"></i> Banking Details</h6>
+                    <h6 class="text-primary fw-bold mb-4 mt-3"><i data-feather="credit-card" style="width:16px;" class="me-1"></i> {{ __('Banking Details') }}</h6>
                     <div class="row">
                         <div class="col-md-6 overview-item">
-                            <div class="overview-label">Bank Name</div>
-                            <div class="overview-value">{{ $employee->bank_name ?? 'N/A' }}</div>
+                            <div class="overview-label">{{ __('Bank {{ __('Name') }}') }}</div>
+                            <div class="overview-value">{{ $employee->bank_name ?? '{{ __('N/A') }}' }}</div>
                         </div>
                         <div class="col-md-6 overview-item">
-                            <div class="overview-label">Account Number</div>
-                            <div class="overview-value font-monospace">{{ $employee->bank_account ?? 'N/A' }}</div>
+                            <div class="overview-label">{{ __('Account Number') }}</div>
+                            <div class="overview-value font-monospace">{{ $employee->bank_account ?? '{{ __('N/A') }}' }}</div>
                         </div>
                     </div>
                 </div>
@@ -275,9 +275,9 @@
                         <table class="table table-hover table-striped">
                             <thead class="table-light">
                                 <tr>
-                                    <th>{{ __('Date') }}</th>
-                                    <th>{{ __('Check In') }}</th>
-                                    <th>{{ __('Check Out') }}</th>
+                                    <th>{{ __('{{ __('Date') }}') }}</th>
+                                    <th>{{ __('{{ __('Check') }} In') }}</th>
+                                    <th>{{ __('{{ __('Check') }} Out') }}</th>
                                     <th>{{ __('Status') }}</th>
                                 </tr>
                             </thead>
@@ -288,14 +288,14 @@
                                         <td>{{ $attn->check_in ?? '--:--' }}</td>
                                         <td>{{ $attn->check_out ?? '--:--' }}</td>
                                         <td>
-                                            @if($attn->status == 'present') <span class="badge bg-success">Present</span>
-                                            @elseif($attn->status == 'late') <span class="badge bg-warning text-dark">Late</span>
-                                            @elseif($attn->status == 'absent') <span class="badge bg-danger">Absent</span>
+                                            @if($attn->status == 'present') <span class="badge bg-success">{{ __('Present') }}</span>
+                                            @elseif($attn->status == 'late') <span class="badge bg-warning text-dark">{{ __('Late') }}</span>
+                                            @elseif($attn->status == 'absent') <span class="badge bg-danger">{{ __('Absent') }}</span>
                                             @else <span class="badge bg-secondary">{{ ucfirst($attn->status) }}</span> @endif
                                         </td>
                                     </tr>
                                 @empty
-                                    <tr><td colspan="4" class="text-center py-3 text-muted">No attendance data.</td></tr>
+                                    <tr><td colspan="4" class="text-center py-3 text-muted">{{ __('No attendance data.') }}</td></tr>
                                 @endforelse
                             </tbody>
                         </table>
@@ -303,14 +303,14 @@
                 </div>
 
                 <div class="tab-pane fade" id="payroll">
-                    <h6 class="fw-bold mb-3">Salary Slips</h6>
+                    <h6 class="fw-bold mb-3">{{ __('{{ __('Salary Slip') }}s') }}</h6>
                     <div class="table-responsive mb-4">
                         <table class="table table-bordered table-sm">
                             <thead class="bg-light">
                                 <tr>
                                     <th>{{ __('Month') }}</th>
-                                    <th>Work Days</th>
-                                    <th>Net Salary</th>
+                                    <th>{{ __('Work {{ __('Days') }}') }}</th>
+                                    <th>{{ __('Net Salary') }}</th>
                                     <th>{{ __('Status') }}</th>
                                 </tr>
                             </thead>
@@ -327,19 +327,19 @@
                                         </td>
                                     </tr>
                                 @empty
-                                    <tr><td colspan="4" class="text-center text-muted">No salary data.</td></tr>
+                                    <tr><td colspan="4" class="text-center text-muted">{{ __('No salary data.') }}</td></tr>
                                 @endforelse
                             </tbody>
                         </table>
                     </div>
 
-                    <h6 class="fw-bold mb-3">Payment History</h6>
+                    <h6 class="fw-bold mb-3">{{ __('Payment History') }}</h6>
                     <div class="table-responsive">
                         <table class="table table-bordered table-sm">
                             <thead class="bg-light">
                                 <tr>
                                     <th>ID</th>
-                                    <th>{{ __('Date') }}</th>
+                                    <th>{{ __('{{ __('Date') }}') }}</th>
                                     <th>{{ __('Amount') }}</th>
                                     <th>{{ __('Month') }}</th>
                                 </tr>
@@ -353,7 +353,7 @@
                                         <td>{{ $payment->payment_month }}</td>
                                     </tr>
                                 @empty
-                                    <tr><td colspan="4" class="text-center text-muted">No payment history.</td></tr>
+                                    <tr><td colspan="4" class="text-center text-muted">{{ __('No payment history.') }}</td></tr>
                                 @endforelse
                             </tbody>
                         </table>
@@ -366,8 +366,8 @@
                             <thead class="table-light">
                                 <tr>
                                     <th>{{ __('Type') }}</th>
-                                    <th>Date Range</th>
-                                    <th>Days</th>
+                                    <th>{{ __('{{ __('Date') }} Range') }}</th>
+                                    <th>{{ __('Days') }}</th>
                                     <th>{{ __('Status') }}</th>
                                 </tr>
                             </thead>
@@ -378,15 +378,15 @@
                                         <td>
                                             {{ $leave->start_date->format('d M') }} - {{ $leave->end_date->format('d M, Y') }}
                                         </td>
-                                        <td>{{ $leave->total_days }}</td>
+                                        <td>{{ $leave->{{ __('total') }}_days }}</td>
                                         <td>
-                                            @if($leave->status == 'approved') <span class="badge bg-success">{{ __('Approved') }}</span>
-                                            @elseif($leave->status == 'rejected') <span class="badge bg-danger">{{ __('Rejected') }}</span>
+                                            @if($leave->status == 'approved') <span class="badge bg-success">{{ __('{{ __('Approve') }}d') }}</span>
+                                            @elseif($leave->status == 'rejected') <span class="badge bg-danger">{{ __('{{ __('Reject') }}ed') }}</span>
                                             @else <span class="badge bg-warning text-dark">{{ __('Pending') }}</span> @endif
                                         </td>
                                     </tr>
                                 @empty
-                                    <tr><td colspan="4" class="text-center py-3 text-muted">No leave history.</td></tr>
+                                    <tr><td colspan="4" class="text-center py-3 text-muted">{{ __('No leave history.') }}</td></tr>
                                 @endforelse
                             </tbody>
                         </table>

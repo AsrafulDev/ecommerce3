@@ -1,19 +1,19 @@
 @extends('backEnd.layouts.master')
-@section('title','Expenses')
+@section('title','{{ __('{{ __('Expense') }}s') }}')
 
 @php
     use Illuminate\Support\Facades\Auth;
-    // Check if current user is Admin (Super Admin or has Admin role)
+    // {{ __('Check') }} if current user is Admin (Super Admin or has Admin role)
     $isAdmin = false;
     $user = Auth::guard('admin')->user();
     if ($user) {
         if ($user->id == 1) {
             $isAdmin = true;
         } else {
-            $spatieRoles = $user->getRoleNames()->map(function($role) {
+            $spatie{{ __('Roles') }} = $user->getRole{{ __('Name') }}s()->map(function($role) {
                 return strtolower($role);
             })->toArray();
-            $isAdmin = in_array('admin', $spatieRoles);
+            $isAdmin = in_array('admin', $spatie{{ __('Roles') }});
         }
     }
 @endphp
@@ -22,17 +22,17 @@
 <div class="container-fluid">
 
     <div class="d-flex align-items-center mb-3">
-        <h4 class="mb-0">Expenses / খরচ</h4>
+        <h4 class="mb-0">{{ __('bn_7004dd05') }}</h4>
     </div>
 
     {{-- ======= SUMMARY CARDS ======= --}}
     <div class="row mb-4">
 
-      {{-- Available Balance --}}
+      {{-- {{ __('Available {{ __('Balance') }}') }} --}}
 <div class="col-md-3 mb-3">
     <div class="card bg-success text-white" style="color:#fff !important;">
         <div class="card-body" style="color:#fff !important;">
-            <h5 class="mb-1" style="color:#fff !important;">Available Balance</h5>
+            <h5 class="mb-1" style="color:#fff !important;">{{ __('Available {{ __('Balance') }}') }}</h5>
             <h2 class="mb-0" style="color:#fff !important;">{{ number_format($balance, 2) }} ৳</h2>
             <small class="opacity-75 d-block mt-1" style="color:#fff !important;">
                 বর্তমানে তহবিলে অবশিষ্ট ব্যালেন্স
@@ -41,42 +41,42 @@
     </div>
 </div>
 
-{{-- This Year Expense --}}
+{{-- This Year {{ __('Expense') }} --}}
 <div class="col-md-3 mb-3">
     <div class="card bg-primary text-white" style="color:#fff !important;">
         <div class="card-body" style="color:#fff !important;">
             <h5 class="mb-1" style="color:#fff !important;">This Year ({{ $currentYear }})</h5>
-            <h3 class="mb-0" style="color:#fff !important;">{{ number_format($yearlyExpense, 2) }} ৳</h3>
+            <h3 class="mb-0" style="color:#fff !important;">{{ number_format($yearly{{ __('Expense') }}, 2) }} ৳</h3>
             <small class="opacity-75 d-block mt-1" style="color:#fff !important;">
-                এই বছরে মোট খরচ হয়েছে
+                এই বছরে {{ __('bn_70ac0f2d') }} খরচ {{ __('bn_290a7f61') }}েছে
             </small>
         </div>
     </div>
 </div>
 
-{{-- This Month Expense --}}
+{{-- This Month {{ __('Expense') }} --}}
 <div class="col-md-3 mb-3">
     <div class="card bg-info text-white" style="color:#fff !important;">
         <div class="card-body" style="color:#fff !important;">
             <h5 class="mb-1" style="color:#fff !important;">
-                This Month ({{ \Carbon\Carbon::createFromDate(now()->year, $currentMonth, 1)->format('F') }})
+                This Month ({{ \Carbon\Carbon::create{{ __('From') }}{{ __('Date') }}(now()->year, $currentMonth, 1)->format('F') }})
             </h5>
-            <h3 class="mb-0" style="color:#fff !important;">{{ number_format($monthlyExpense, 2) }} ৳</h3>
+            <h3 class="mb-0" style="color:#fff !important;">{{ number_format($monthly{{ __('Expense') }}, 2) }} ৳</h3>
             <small class="opacity-75 d-block mt-1" style="color:#fff !important;">
-                এই মাসে মোট খরচ হয়েছে
+                এই মাসে {{ __('bn_70ac0f2d') }} খরচ {{ __('bn_290a7f61') }}েছে
             </small>
         </div>
     </div>
 </div>
 
-{{-- Today Expense --}}
+{{-- {{ __('Today') }} {{ __('Expense') }} --}}
 <div class="col-md-3 mb-3">
     <div class="card bg-danger text-white" style="color:#fff !important;">
         <div class="card-body" style="color:#fff !important;">
-            <h5 class="mb-1" style="color:#fff !important;">Today ({{ now()->format('d M, Y') }})</h5>
-            <h3 class="mb-0" style="color:#fff !important;">{{ number_format($todayExpense, 2) }} ৳</h3>
+            <h5 class="mb-1" style="color:#fff !important;">{{ __('Today') }} ({{ now()->format('d M, Y') }})</h5>
+            <h3 class="mb-0" style="color:#fff !important;">{{ number_format($today{{ __('Expense') }}, 2) }} ৳</h3>
             <small class="opacity-75 d-block mt-1" style="color:#fff !important;">
-                আজকে মোট খরচ হয়েছে
+                আজকে {{ __('bn_70ac0f2d') }} খরচ {{ __('bn_290a7f61') }}েছে
             </small>
         </div>
     </div>
@@ -88,19 +88,19 @@
     {{-- ======= FORM & EXPORT ROW ======= --}}
     <div class="row">
 
-        {{-- Add Expense --}}
+        {{-- Add {{ __('Expense') }} --}}
         <div class="col-md-6 mb-4">
             <div class="card shadow-sm">
                 <div class="card-header">
-                    <strong>+ Add Expense</strong>
+                    <strong>{{ __('+ Add {{ __('Expense') }}') }}</strong>
                 </div>
                 <div class="card-body">
 
-                    <form action="{{ route('admin.expenses.store') }}" method="POST">
+                    <form action="{{ route('admin.expenses.store') }}" method={{ __('"{{ __('POST') }}"') }}>
                         @csrf
 
                         <div class="mb-3">
-                            <label class="form-label">Title *</label>
+                            <label class="form-label">{{ __('{{ __('Title') }} *') }}</label>
                             <input type="text"
                                    name="title"
                                    class="form-control @error('title') is-invalid @enderror"
@@ -112,8 +112,8 @@
                         </div>
 
                         <div class="mb-3">
-                            <label class="form-label">Amount (৳) *</label>
-                            <input type="number"
+                            <label class="form-label">{{ __('bn_b4e82b3d') }}</label>
+                            <input type="{{ __('number') }}"
                                    step="0.01"
                                    name="amount"
                                    class="form-control @error('amount') is-invalid @enderror"
@@ -125,7 +125,7 @@
                         </div>
 
                         <div class="mb-3">
-                            <label class="form-label">Date *</label>
+                            <label class="form-label">{{ __('{{ __('Date') }} *') }}</label>
                             <input type="date"
                                    name="expense_date"
                                    class="form-control @error('expense_date') is-invalid @enderror"
@@ -137,7 +137,7 @@
                         </div>
 
                         <div class="mb-3">
-                            <label class="form-label">Category (optional)</label>
+                            <label class="form-label">{{ __('{{ __('Category') }} (optional)') }}</label>
                             <input type="text"
                                    name="category"
                                    class="form-control"
@@ -145,14 +145,14 @@
                         </div>
 
                         <div class="mb-3">
-                            <label class="form-label">Note (optional)</label>
+                            <label class="form-label">{{ __('{{ __('Note') }} (optional)') }}</label>
                             <textarea name="note"
                                       class="form-control"
                                       rows="3">{{ old('note') }}</textarea>
                         </div>
 
-                        <button type="submit" class="btn btn-danger">
-                            Save Expense
+                        <button type="{{ __('submit') }}" class="btn btn-danger">
+                            Save {{ __('Expense') }}
                         </button>
                     </form>
 
@@ -160,27 +160,27 @@
             </div>
         </div>
 
-        {{-- Export Report --}}
+        {{-- {{ __('Export Report') }} --}}
         <div class="col-md-6 mb-4">
             <div class="card shadow-sm">
                 <div class="card-header">
-                    <strong>📤 Export Report</strong>
+                    <strong>📤 {{ __('Export Report') }}</strong>
                 </div>
                 <div class="card-body">
-                    <form action="{{ route('admin.expenses.export') }}" method="GET" target="_blank">
+                    <form action="{{ route('admin.expenses.export') }}" method="{{ __('GET') }}" target="_blank">
                         <div class="mb-3">
-                            <label class="form-label">From Date</label>
+                            <label class="form-label">{{ __('{{ __('From') }} {{ __('Date') }}') }}</label>
                             <input type="date" name="from_date" class="form-control"
                                    value="{{ request('from_date') }}">
                         </div>
 
                         <div class="mb-3">
-                            <label class="form-label">To Date</label>
+                            <label class="form-label">{{ __('To {{ __('Date') }}') }}</label>
                             <input type="date" name="to_date" class="form-control"
                                    value="{{ request('to_date') }}">
                         </div>
 
-                        <button type="submit" class="btn btn-outline-primary w-100">
+                        <button type="{{ __('submit') }}" class="btn btn-outline-primary w-100">
                             ⬇ Download CSV
                         </button>
                     </form>
@@ -193,10 +193,10 @@
     {{-- ======= HISTORY TABLE ======= --}}
     <div class="card shadow-sm mt-3">
         <div class="card-header d-flex justify-content-between align-items-center">
-            <strong>🧾 Expense History</strong>
+            <strong>🧾 {{ __('Expense') }} History</strong>
             <div>
                 <a href="{{ route('admin.expenses.logs') }}" class="btn btn-sm btn-outline-info">
-                    <i data-feather="file-text" class="me-1" style="width:14px;height:14px;"></i> View Logs / Reports
+                    <i data-feather="file-text" class="me-1" style="width:{{ __('14px') }};height:{{ __('14px') }};"></i> View Logs / Reports
                 </a>
             </div>
         </div>
@@ -205,13 +205,13 @@
                 <thead class="table-light">
                 <tr>
                     <th>#</th>
-                    <th>{{ __('Date') }}</th>
-                    <th>{{ __('Title') }}</th>
-                    <th>{{ __('Category') }}</th>
-                    <th class="text-end">Amount (৳)</th>
-                    <th>{{ __('Note') }}</th>
+                    <th>{{ __('{{ __('Date') }}') }}</th>
+                    <th>{{ __('{{ __('Title') }}') }}</th>
+                    <th>{{ __('{{ __('Category') }}') }}</th>
+                    <th class="text-end">{{ __('bn_31ee207e') }}</th>
+                    <th>{{ __('{{ __('Note') }}') }}</th>
                     @if($isAdmin)
-                    <th>Actions</th>
+                    <th>{{ __('Actions') }}</th>
                     @endif
                 </tr>
                 </thead>
@@ -234,13 +234,13 @@
                         @if($isAdmin)
                         <td>
                             <div class="d-flex gap-2">
-                                <a href="{{ route('admin.expenses.edit', $exp->id) }}" class="btn btn-sm btn-outline-primary" title="{{ __('Edit') }}">
+                                <a href="{{ route('admin.expenses.edit', $exp->{{ __('id)') }} }}" class="btn btn-sm btn-outline-primary" title="{{ __('Edit') }}">
                                     <i class="fe-edit"></i>
                                 </a>
-                                <form method="POST" action="{{ route('admin.expenses.destroy', $exp->id) }}" class="d-inline delete-form">
+                                <form method={{ __('"{{ __('POST') }}"') }} action="{{ route('admin.expenses.destroy', $exp->{{ __('id)') }} }}" class="d-inline delete-form">
                                     @csrf
                                     @method('DELETE')
-                                    <button type="submit" class="btn btn-sm btn-outline-danger delete-confirm" title="{{ __('Delete') }}" onclick="return confirm('Are you sure you want to delete this expense?');">
+                                    <button type="{{ __('submit') }}" class="btn btn-sm btn-outline-danger delete-confirm" title="{{ __('Delete') }}" onclick="return confirm('Are you sure you want to delete this expense?');">
                                         <i class="fe-trash-2"></i>
                                     </button>
                                 </form>

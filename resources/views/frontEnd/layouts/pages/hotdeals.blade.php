@@ -1,5 +1,5 @@
 @extends('frontEnd.layouts.master') 
-@section('title','Hot Deals')
+@section('title','{{ __('Hot Deal') }}s')
 
 @push('css')
 <link rel="stylesheet" href="{{asset('public/frontEnd/css/jquery-ui.css')}}" />
@@ -15,29 +15,29 @@
                     <div class="category-breadcrumb d-flex align-items-center">
                         <a href="{{ route('home') }}">{{ __('Home') }}</a>
                         <span>/</span>
-                        <strong>{{ __('Hot Deals') }}</strong>
+                        <strong>{{ __('{{ __('Hot Deal') }}s') }}</strong>
                     </div>
                 </div>
                 <div class="col-sm-6">
                     <div class="row">
                         <div class="col-sm-6">
                             <div class="showing-data">
-                                <span>Showing {{ $products->firstItem() }}-{{ $products->lastItem() }} of {{ $products->total() }} Results</span>
+                                <span>Showing {{ $products->first{{ __('Item') }}() }}-{{ $products->last{{ __('Item') }}() }} of {{ $products->{{ __('total') }}() }} Results</span>
                             </div>
                         </div>
                         <div class="col-sm-6">
-                            <div class="mobile-filter-toggle">
-                                <i class="fa fa-list-ul"></i><span>filter</span>
+                            <div class="mobile-{{ __('filter') }}-toggle">
+                                <i class="fa fa-list-ul"></i><span>{{ __('filter') }}</span>
                             </div>
                             <div class="page-sort">
                                 <form action="" class="sort-form">
                                     <select name="sort" class="form-control form-select sort">
-                                        <option value="1" @if(request()->get('sort')==1)selected @endif>Product: Latest</option>
-                                        <option value="2" @if(request()->get('sort')==2)selected @endif>Product: Oldest</option>
-                                        <option value="3" @if(request()->get('sort')==3)selected @endif>Price: High To Low</option>
-                                        <option value="4" @if(request()->get('sort')==4)selected @endif>Price: Low To High</option>
-                                        <option value="5" @if(request()->get('sort')==5)selected @endif>Name: A-Z</option>
-                                        <option value="6" @if(request()->get('sort')==6)selected @endif>Name: Z-A</option>
+                                        <option value="1" @if(request()->get('sort')==1)selected @endif>{{ __('{{ __('Product') }}: {{ __('Late') }}st') }}</option>
+                                        <option value="2" @if(request()->get('sort')==2)selected @endif>{{ __('{{ __('Product') }}: Oldest') }}</option>
+                                        <option value="3" @if(request()->get('sort')==3)selected @endif>{{ __('Price: High To Low') }}</option>
+                                        <option value="4" @if(request()->get('sort')==4)selected @endif>{{ __('Price: Low To High') }}</option>
+                                        <option value="5" @if(request()->get('sort')==5)selected @endif>{{ __('{{ __('Name') }}: A-Z') }}</option>
+                                        <option value="6" @if(request()->get('sort')==6)selected @endif>{{ __('{{ __('Name') }}: Z-A') }}</option>
                                     </select>
                                     <input type="hidden" name="min_price" value="{{request()->get('min_price')}}" />
                                     <input type="hidden" name="max_price" value="{{request()->get('max_price')}}" />
@@ -90,13 +90,13 @@
                         </div>
 
                         @php
-                            $averageRating = $value->reviews->avg('ratting'); 
-                            $filledStars = floor($averageRating);
-                            $hasHalfStar = $averageRating - $filledStars >= 0.5;
+                            $average{{ __('Rating') }} = $value->reviews->avg('ratting'); 
+                            $filledStars = floor($average{{ __('Rating') }});
+                            $hasHalfStar = $average{{ __('Rating') }} - $filledStars >= 0.5;
                             $emptyStars = 5 - $filledStars - ($hasHalfStar ? 1 : 0);
                         @endphp
 
-                        @if ($averageRating >= 0 && $averageRating <= 5)
+                        @if ($average{{ __('Rating') }} >= 0 && $average{{ __('Rating') }} <= 5)
                             {{-- Filled stars --}}
                             @for ($i = 0; $i < $filledStars; $i++)
                                 <i class="fas fa-star"></i>
@@ -112,7 +112,7 @@
                                 <i class="far fa-star"></i>
                             @endfor
                         @else
-                            <span>Invalid rating range</span>
+                            <span>{{ __('{{ __('Inv') }}alid rating range') }}</span>
                         @endif
 
                         <div class="pro_price">
@@ -127,7 +127,7 @@
                             {{-- ভ্যারিয়েন্ট আছে: দুই বাটনই ডিটেইলস পেজে নেবে --}}
                             <div class="pro_btn">
                                 <a href="{{ route('product', $value->slug) }}" class="order-btn-link">
-                                    অর্ডার করুন
+                                    {{ __('Order Now') }}
                                 </a>
 
                                 <a href="{{ route('product', $value->slug) }}" class="cart-icon-link">
@@ -137,23 +137,23 @@
                         @else
                             {{-- ভ্যারিয়েন্ট নেই: একটিতে অর্ডার Now, আরেকটিতে শুধু কার্টে যোগ --}}
                             <div class="pro_btn">
-                                {{-- অর্ডার করুন বাটন --}}
-                                <form action="{{ route('cart.store') }}" method="POST" class="ajax-cart-form">
+                                {{-- {{ __('Order Now') }} বাটন --}}
+                                <form action="{{ route('cart.store') }}" method={{ __('"{{ __('POST') }}"') }} class="ajax-cart-form">
                                     @csrf
                                     <input type="hidden" name="id" value="{{ $value->id }}" />
                                     <input type="hidden" name="qty" value="1" />
                                     <input type="hidden" name="order_now" value="1">
-                                    <button type="submit" class="order-btn">
-                                        অর্ডার করুন
+                                    <button type="{{ __('submit') }}" class="order-btn">
+                                        {{ __('Order Now') }}
                                     </button>
                                 </form>
 
                                 {{-- কার্ট আইকন বাটন --}}
-                                <form action="{{ route('cart.store') }}" method="POST" class="ajax-cart-form">
+                                <form action="{{ route('cart.store') }}" method={{ __('"{{ __('POST') }}"') }} class="ajax-cart-form">
                                     @csrf
                                     <input type="hidden" name="id" value="{{ $value->id }}" />
                                     <input type="hidden" name="qty" value="1" />
-                                    <button type="submit" class="cart-icon-btn">
+                                    <button type="{{ __('submit') }}" class="cart-icon-btn">
                                         <i class="fa-solid fa-cart-shopping"></i>
                                     </button>
                                 </form>
@@ -182,12 +182,12 @@
 <script>
     $(".sort").change(function(){
        $('#loading').show();
-       $(".sort-form").submit();
+       $(".sort-form").{{ __('submit') }}();
     })
 </script>
 <script>
     $("#simple_timer").syotimer({
-        date: new Date(2015, 0, 1),
+        date: new {{ __('Date') }}(2015, 0, 1),
         layout: "hms",
         doubleNumbers: false,
         effectType: "opacity",

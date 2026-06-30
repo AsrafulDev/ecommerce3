@@ -1,5 +1,5 @@
 @extends('backEnd.layouts.master')
-@section('title','Customer Manage')
+@section('title','{{ __('Customer') }} {{ __('Manage') }}')
 
 @section('css')
 <link href="{{asset('/public/backEnd/')}}/assets/libs/datatables.net-bs5/css/dataTables.bootstrap5.min.css" rel="stylesheet" type="text/css" />
@@ -33,14 +33,14 @@
         padding: 15px;
         border-bottom: 1px solid #f1f5f7;
         color: #313b5e;
-        font-size: 14px;
+        font-size: {{ __('14px') }};
     }
 
-    /* Customer Info Styling */
+    /* {{ __('{{ __('Customer') }} Info') }} Styling */
     .customer-name {
         font-weight: 600;
         color: #343a40;
-        font-size: 14px;
+        font-size: {{ __('14px') }};
     }
     .customer-contact {
         font-size: 12px;
@@ -75,7 +75,7 @@
     .btn-view:hover { background-color: rgba(57, 175, 209, 0.1); color: #39afd1; }
     .btn-edit:hover { background-color: rgba(114, 124, 245, 0.1); color: #727cf5; }
     
-    /* Login as User Button */
+    /* Login as {{ __('{{ __('Use') }}r') }} Button */
     .btn-login-as {
         color: #ff5b5b;
         background-color: rgba(255, 91, 91, 0.1);
@@ -97,8 +97,8 @@
     <div class="row mb-3 mt-3">
         <div class="col-12">
             <div class="page-title-box">
-                <h4 class="page-title" style="font-weight: 700; color: #2d3436;">Customer List</h4>
-                <p class="text-muted font-size-13 mb-0">Manage your customers and their account status.</p>
+                <h4 class="page-title" style="font-weight: 700; color: #2d3436;">{{ __('{{ __('Customer') }} List') }}</h4>
+                <p class="text-muted font-size-13 mb-0">{{ __('{{ __('Manage') }} your customers and their account status.') }}</p>
             </div>
         </div>
     </div>
@@ -117,8 +117,8 @@
                                     <tr>
                                         <th style="width: 50px;">{{ __('SL') }}</th>
                                         <th>{{ __('Name') }}</th>
-                                        <th>Contact Info</th>
-                                        <th>{{ __('Status') }}</th>
+                                        <th>{{ __('{{ __('Contact') }} Info') }}</th>
+                                        <th>{{ __('{{ __('Status') }}') }}</th>
                                         <th class="text-end" style="width: 180px;">{{ __('Action') }}</th>
                                     </tr>
                                 </thead>                
@@ -133,8 +133,8 @@
 
                                         <td>
                                             <div class="d-flex flex-column">
-                                                <span class="text-dark"><i class="fe-phone me-1 text-muted"></i> {{ $value->phone }}</span>
-                                                @if($value->email)
+                                                <span class="text-dark"><i class="fe-{{ __('phone') }} me-1 text-muted"></i> {{ $value->{{ __('phone') }} }}</span>
+                                                @if($value->{{ __('email)') }}
                                                     <span class="customer-contact"><i class="fe-mail me-1"></i> {{ $value->email }}</span>
                                                 @endif
                                             </div>
@@ -151,12 +151,12 @@
                                         <td class="text-end">
                                             <div class="d-inline-flex gap-2">
                                                 
-                                                {{-- Status Toggle --}}
+                                                {{-- {{ __('Status') }} Toggle --}}
                                                 @if($value->status == 'active')
                                                     <form method="post" action="{{route('customers.inactive')}}" class="d-inline"> 
                                                         @csrf
                                                         <input type="hidden" value="{{$value->id}}" name="hidden_id">        
-                                                        <button type="submit" class="action-btn btn-inactive" title="Deactivate">
+                                                        <button type="{{ __('submit') }}" class="action-btn btn-inactive" title="Deactivate">
                                                             <i class="fe-thumbs-down"></i>
                                                         </button>
                                                     </form>
@@ -164,14 +164,14 @@
                                                     <form method="post" action="{{route('customers.active')}}" class="d-inline">
                                                         @csrf
                                                         <input type="hidden" value="{{$value->id}}" name="hidden_id">        
-                                                        <button type="submit" class="action-btn btn-active" title="Activate">
+                                                        <button type="{{ __('submit') }}" class="action-btn btn-active" title="Activate">
                                                             <i class="fe-thumbs-up"></i>
                                                         </button>
                                                     </form>
                                                 @endif
 
                                                 {{-- Edit --}}
-                                                <a href="{{route('customers.edit',$value->id)}}" class="action-btn btn-edit" title="Edit Info">
+                                                <a href="{{route('customers.edit',$value->{{ __('id)') }}}}" class="action-btn btn-edit" title="Edit Info">
                                                     <i class="fe-edit"></i>
                                                 </a>
 
@@ -180,11 +180,11 @@
                                                     <i class="fe-eye"></i>
                                                 </a>
 
-                                                {{-- Login As User (Admin Log) --}}
+                                                {{-- Login As {{ __('{{ __('Use') }}r') }} (Admin Log) --}}
                                                 <form method="post" action="{{route('customers.adminlog')}}" class="d-inline" target="_blank">
                                                     @csrf
                                                     <input type="hidden" value="{{$value->id}}" name="hidden_id">
-                                                    <button type="submit" class="action-btn btn-login-as" title="Login as User">
+                                                    <button type="{{ __('submit') }}" class="action-btn btn-login-as" title="Login as {{ __('{{ __('Use') }}r') }}">
                                                         <i class="fe-log-in"></i>
                                                     </button>
                                                 </form>

@@ -1,10 +1,10 @@
 @extends('frontEnd.layouts.master')
-@section('title','Verify OTP')
+@section('title','Verify {{ __('OTP') }}')
 
 @section('content')
 {{-- CSS সরাসরি এখানে --}}
 <style>
-    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+    @import url('{{ __('https://') }}fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
 
     .modern-auth-section {
         background-color: #f0f2f5;
@@ -31,7 +31,7 @@
     .auth-image-area {
         width: 50%;
         /* সিকিউরিটি/ভেরিফিকেশন রিলেটেড একটি সুন্দর ব্যাকগ্রাউন্ড ইমেজ */
-        background-image: url('https://images.unsplash.com/photo-1563986768609-322da13575f3?q=80&w=1470&auto=format&fit=crop');
+        background-image: url('{{ __('https://') }}images.unsplash.com/photo-1563986768609-322da13575f3?q=80&w=1470&auto=format&fit=crop');
         background-size: cover;        /* পুরো বক্স কাভার করবে */
         background-position: center;   /* ছবির মাঝখান দেখাবে */
         position: relative;            /* ওভারলে-এর জন্য জরুরি */
@@ -77,12 +77,12 @@
 
     .auth-header { margin-bottom: 30px; }
     .auth-header h3 { font-weight: 700; color: #333; margin-bottom: 5px; }
-    .auth-header p { color: #888; font-size: 14px; }
+    .auth-header p { color: #888; font-size: {{ __('14px') }}; }
 
     /* ইনপুট ডিজাইন */
     .custom-input-group { position: relative; margin-bottom: 25px; }
     .custom-input-group label {
-        display: block; margin-bottom: 8px; font-weight: 600; color: #555; font-size: 14px;
+        display: block; margin-bottom: 8px; font-weight: 600; color: #555; font-size: {{ __('14px') }};
     }
     .custom-input {
         width: 100%; height: 50px; padding: 10px 20px 10px 45px; /* আইকনের জন্য বামে প্যাডিং */
@@ -98,7 +98,7 @@
     }
 
     /* সাবমিট বাটন */
-    .btn-auth-submit {
+    .btn-auth-{{ __('submit') }} {
         width: 100%; height: 50px;
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         border: none; border-radius: 10px;
@@ -106,7 +106,7 @@
         cursor: pointer; transition: 0.3s;
         text-transform: uppercase; letter-spacing: 1px;
     }
-    .btn-auth-submit:hover {
+    .btn-auth-{{ __('submit') }}:hover {
         transform: translateY(-2px);
         box-shadow: 0 5px 15px rgba(118, 75, 162, 0.3);
     }
@@ -117,7 +117,7 @@
     }
     .btn-resend {
         background: none; border: none; color: #764ba2;
-        font-weight: 700; cursor: pointer; text-decoration: none; font-size: 14px;
+        font-weight: 700; cursor: pointer; text-decoration: none; font-size: {{ __('14px') }};
         transition: 0.3s;
         padding: 0;
     }
@@ -136,42 +136,42 @@
             
             {{-- বাম পাশ: ব্যাকগ্রাউন্ড ইমেজ --}}
             <div class="auth-image-area">
-                <h2>Account Recovery</h2>
-                <p>আপনার ফোনে পাঠানো OTP কোডটি দিয়ে পাসওয়ার্ড রিসেট করুন।</p>
+                <h2>{{ __('Account Recovery') }}</h2>
+                <p>{{ __('bn_f9a9b7dc') }}</p>
             </div>
 
             {{-- ডান পাশ: ফর্ম --}}
             <div class="auth-form-area">
                 <div class="auth-header">
-                    <h3>OTP ভেরিফিকেশন 🔐</h3>
-                    <p>OTP কোড এবং নতুন পাসওয়ার্ড দিন</p>
+                    <h3>{{ __('bn_dead4985') }}</h3>
+                    <p>{{ __('bn_7ddd9288') }}</p>
                 </div>
 
                 {{-- মেইন ফর্ম --}}
-                <form action="{{route('customer.forgot.store')}}" method="POST" data-parsley-validate="">
+                <form action="{{route('customer.forgot.store')}}" method={{ __('"{{ __('POST') }}"') }} data-parsley-validate="">
                     @csrf
                     
-                    {{-- OTP Input --}}
+                    {{-- {{ __('OTP') }} Input --}}
                     <div class="custom-input-group">
-                        <label for="otp">OTP কোড</label>
+                        <label for="otp">{{ __('bn_97d59582') }}</label>
                         <i class="fas fa-key input-icon"></i>
-                        <input type="number" id="otp" 
+                        <input type="{{ __('number') }}" id="otp" 
                                class="custom-input @error('otp') is-invalid @enderror" 
                                name="otp" value="{{ old('otp') }}" 
-                               placeholder="আপনার OTP কোড লিখুন" required>
+                               placeholder="আপনার {{ __('bn_97d59582') }} লিখুন" required>
                         @error('otp')
                             <span class="text-danger small mt-1 d-block">{{ $message }}</span>
                         @enderror
                     </div>
 
-                    {{-- New Password Input --}}
+                    {{-- {{ __('New') }} Password Input --}}
                     <div class="custom-input-group">
-                        <label for="password">নতুন পাসওয়ার্ড</label>
+                        <label for="password">{{ __('Password') }}</label>
                         <i class="fas fa-lock input-icon"></i>
                         <div style="position: relative;">
                             <input type="password" id="password" 
                                    class="custom-input @error('password') is-invalid @enderror" 
-                                   name="password" placeholder="********" required>
+                                   name="password" placeholder="{{ __('********') }}" required>
                             
                             {{-- পাসওয়ার্ড দেখার আইকন --}}
                             <span onclick="showPass()" style="position: absolute; right: 15px; top: 15px; cursor: pointer; color: #999;">
@@ -185,17 +185,17 @@
 
                     {{-- সাবমিট বাটন --}}
                     <div class="form-group mb-3">
-                        <button class="btn-auth-submit"> রিসেট করুন </button>
+                        <button class="btn-auth-{{ __('submit') }}"> {{ __('bn_ecb2ceeb') }} </button>
                     </div>
                 </form>
 
                 {{-- রিসেন্ড ওটিপি সেকশন --}}
                 <div class="resend-box">
                     <p class="mb-1 text-muted small">কোড পাননি?</p>
-                    <form action="{{route('customer.forgot.resendotp')}}" method="POST">
+                    <form action="{{route('customer.forgot.resendotp')}}" method={{ __('"{{ __('POST') }}"') }}>
                         @csrf
                         <button class="btn-resend">
-                            <i data-feather="rotate-cw" style="width: 14px;"></i> Resend OTP
+                            <i data-feather="rotate-cw" style="width: {{ __('14px') }};"></i> {{ __('Resend {{ __('OTP') }}') }}
                         </button>
                     </form>
                 </div>

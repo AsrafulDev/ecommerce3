@@ -1,5 +1,5 @@
 @extends('backEnd.layouts.master')
-@section('title','Manage Reviews')
+@section('title','{{ __('Manage') }} {{ __('{{ __('Review') }}s') }}')
 
 @section('css')
 <link href="{{asset('/public/backEnd/')}}/assets/libs/datatables.net-bs5/css/dataTables.bootstrap5.min.css" rel="stylesheet" type="text/css" />
@@ -33,13 +33,13 @@
         padding: 15px;
         border-bottom: 1px solid #f1f5f7;
         color: #313b5e;
-        font-size: 14px;
+        font-size: {{ __('14px') }};
     }
 
-    /* Customer Info Styling */
+    /* {{ __('{{ __('Customer') }} Info') }} Styling */
     .customer-info h6 {
         margin: 0;
-        font-size: 14px;
+        font-size: {{ __('14px') }};
         font-weight: 600;
         color: #343a40;
     }
@@ -60,7 +60,7 @@
         margin-right: 10px;
     }
 
-    /* Rating Stars */
+    /* {{ __('Rating') }} Stars */
     .star-rating i {
         font-size: 12px;
         color: #e3e6ea; /* Default empty star */
@@ -100,9 +100,9 @@
     
     <div class="row mb-3 mt-3">
         <div class="col-12 d-flex justify-content-between align-items-center">
-            <h4 class="page-title mb-0" style="font-weight: 700; color: #2d3436;">Customer Reviews</h4>
+            <h4 class="page-title mb-0" style="font-weight: 700; color: #2d3436;">{{ __('{{ __('Customer') }} {{ __('{{ __('Review') }}s') }}') }}</h4>
             <a href="{{route('reviews.create')}}" class="btn btn-primary rounded-pill shadow-sm px-4">
-                <i class="fe-plus me-1"></i> Add Review
+                <i class="fe-plus me-1"></i> Add {{ __('Review') }}
             </a>
         </div>
     </div>
@@ -115,10 +115,10 @@
                         <thead>
                             <tr>
                                 <th style="width: 50px;">{{ __('SL') }}</th>
-                                <th>Customer Info</th>
-                                <th style="width: 30%;">Review</th>
-                                <th>Rating</th>
-                                <th>{{ __('Status') }}</th>
+                                <th>{{ __('{{ __('Customer') }} Info') }}</th>
+                                <th style="width: 30%;">{{ __('Review') }}</th>
+                                <th>{{ __('Rating') }}</th>
+                                <th>{{ __('{{ __('Status') }}') }}</th>
                                 <th class="text-end" style="width: 120px;">{{ __('Action') }}</th>
                             </tr>
                         </thead>                
@@ -156,7 +156,7 @@
 
                                 <td>
                                     @if($value->status == 'active')
-                                        <span class="badge badge-pill badge-soft-success">{{ __('Published') }}</span> 
+                                        <span class="badge badge-pill badge-soft-success">{{ __('{{ __('Publish') }}ed') }}</span> 
                                     @else 
                                         <span class="badge badge-pill badge-soft-danger">{{ __('Pending') }}</span> 
                                     @endif
@@ -164,12 +164,12 @@
 
                                 <td class="text-end">
                                     <div class="d-inline-flex gap-2">
-                                        {{-- Toggle Status --}}
+                                        {{-- Toggle {{ __('Status') }} --}}
                                         @if($value->status == 'active')
                                             <form method="post" action="{{route('reviews.inactive')}}" class="d-inline"> 
                                                 @csrf
                                                 <input type="hidden" value="{{$value->id}}" name="hidden_id">        
-                                                <button type="submit" class="action-btn btn-inactive" title="Unpublish">
+                                                <button type="{{ __('submit') }}" class="action-btn btn-inactive" title="Unpublish">
                                                     <i class="fe-eye-off"></i>
                                                 </button>
                                             </form>
@@ -177,14 +177,14 @@
                                             <form method="post" action="{{route('reviews.active')}}" class="d-inline">
                                                 @csrf
                                                 <input type="hidden" value="{{$value->id}}" name="hidden_id">        
-                                                <button type="submit" class="action-btn btn-active" title="Publish">
+                                                <button type="{{ __('submit') }}" class="action-btn btn-active" title="{{ __('Publish') }}">
                                                     <i class="fe-check-circle"></i>
                                                 </button>
                                             </form>
                                         @endif
 
                                         {{-- Edit --}}
-                                        <a href="{{route('reviews.edit',$value->id)}}" class="action-btn btn-edit" title="{{ __('Edit') }}">
+                                        <a href="{{route('reviews.edit',$value->{{ __('id)') }}}}" class="action-btn btn-edit" title="{{ __('Edit') }}">
                                             <i class="fe-edit"></i>
                                         </a>
 
@@ -192,7 +192,7 @@
                                         <form method="post" action="{{ route('reviews.destroy') }}" class="d-inline">
                                             @csrf
                                             <input type="hidden" name="hidden_id" value="{{ $value->id }}">
-                                            <button type="submit" class="action-btn btn-delete delete-confirm" title="{{ __('Delete') }}">
+                                            <button type="{{ __('submit') }}" class="action-btn btn-delete delete-confirm" title="{{ __('Delete') }}">
                                                 <i class="fe-trash-2"></i>
                                             </button>
                                         </form>

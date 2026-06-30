@@ -1,5 +1,5 @@
 @extends('backEnd.layouts.master')
-@section('title','Product Details')
+@section('title','{{ __('Product') }} Details')
 
 @section('css')
 <style>
@@ -18,7 +18,7 @@
         color: #495057;
     }
 
-    /* Product Image Section */
+    /* {{ __('Product') }} Image Section */
     .pro-img-details {
         border-radius: 10px;
         overflow: hidden;
@@ -89,8 +89,8 @@
         background-color: #f9fbfd;
     }
     
-    /* Stock Progress */
-    .stock-box {
+    /* {{ __('Stock') }} Progress */
+    .{{ __('stock') }}-box {
         background: #f8f9fa;
         padding: 15px;
         border-radius: 8px;
@@ -105,16 +105,16 @@
     <div class="row">
         <div class="col-12">
             <div class="page-title-box d-flex align-items-center justify-content-between py-3">
-                <h4 class="page-title mb-0">{{ __('Product Details') }}</h4>
+                <h4 class="page-title mb-0">{{ __('{{ __('Product') }} Details') }}</h4>
                 <div class="page-title-right gap-2 d-flex">
-                    <form action="{{ route('admin.facebook_page.post_product', $product->id) }}" method="POST" class="d-inline">
+                    <form action="{{ route('admin.facebook_page.post_product', $product->{{ __('id)') }} }}" method={{ __('"{{ __('POST') }}"') }} class="d-inline">
                         @csrf
-                        <button type="submit" class="btn btn-primary rounded-pill shadow-sm" title="Post to Facebook Page">
-                            <i class="fe-facebook me-1"></i> Post to Facebook
+                        <button type="{{ __('submit') }}" class="btn btn-primary rounded-pill shadow-sm" title="Post to Facebook Page">
+                            <i class="{{ __('fe-facebook') }} me-1"></i> Post to Facebook
                         </button>
                     </form>
-                    <a href="{{route('products.edit', $product->id)}}" class="btn btn-info rounded-pill shadow-sm">
-                        <i class="fe-edit me-1"></i>{{ __('Edit Product') }}</a>
+                    <a href="{{route('products.edit', $product->{{ __('id)') }}}}" class="btn btn-info rounded-pill shadow-sm">
+                        <i class="fe-edit me-1"></i>{{ __('Edit {{ __('Product') }}') }}</a>
                     <a href="{{route('inhouse.products.index')}}" class="btn btn-secondary rounded-pill shadow-sm">
                         <i class="fe-arrow-left me-1"></i> Back to List
                     </a>
@@ -134,7 +134,7 @@
                     
                     @if($product->images->count() > 0)
                         <div class="pro-thumb-list">
-                            {{-- Main Image Thumbnail --}}
+                            {{-- {{ __('Main Image') }} Thumbnail --}}
                             <img src="{{ asset($product->image ? $product->image->image : 'storage/uploads/placeholder.png') }}" 
                                  class="pro-thumb-img" onclick="changeImage(this.src)">
                             
@@ -151,7 +151,7 @@
                 <div class="card-body">
                     <div class="d-flex align-items-center mb-3">
                         <div class="flex-grow-1">
-                            <h5 class="mt-0 mb-1">Brand Information</h5>
+                            <h5 class="mt-0 mb-1">{{ __('Brand Information') }}</h5>
                             <p class="text-muted mb-0">
                                 <i class="fe-box me-1"></i> {{ $product->brand ? $product->brand->name : 'No Brand' }}
                             </p>
@@ -161,15 +161,15 @@
                     <hr>
                     <div class="d-flex align-items-center">
                         <div class="flex-grow-1">
-                            <h5 class="mt-0 mb-1">Product Type</h5>
+                            <h5 class="mt-0 mb-1">{{ __('{{ __('Product') }} Type') }}</h5>
                             <p class="text-muted mb-0">
                                 @if($product->is_digital)
-                                    <span class="badge badge-soft-primary"><i class="fe-file-text me-1"></i>Digital Product</span>
+                                    <span class="badge badge-soft-primary"><i class="fe-file-text me-1"></i>{{ __('Digital {{ __('Product') }}') }}</span>
                                 @else
-                                    <span class="badge badge-soft-info"><i class="fe-package me-1"></i>Physical Product</span>
+                                    <span class="badge badge-soft-info"><i class="fe-package me-1"></i>{{ __('Physical {{ __('Product') }}') }}</span>
                                 @endif
                                 @if($product->is_wholesale)
-                                    <span class="badge badge-soft-success ms-1"><i class="fe-layers me-1"></i>Wholesale Product</span>
+                                    <span class="badge badge-soft-success ms-1"><i class="fe-layers me-1"></i>{{ __('Wholesale {{ __('Product') }}') }}</span>
                                 @endif
                             </p>
                         </div>
@@ -191,11 +191,11 @@
                         @endif
 
                         @if($product->topsale == 1)
-                            <span class="badge badge-soft-warning px-2 py-1 ms-1"><i class="fe-zap"></i> Hot Deal</span>
+                            <span class="badge badge-soft-warning px-2 py-1 ms-1"><i class="fe-zap"></i> {{ __('Hot Deal') }}</span>
                         @endif
 
                         @if($product->feature_product == 1)
-                            <span class="badge badge-soft-primary px-2 py-1 ms-1"><i class="fe-star"></i> Featured</span>
+                            <span class="badge badge-soft-primary px-2 py-1 ms-1"><i class="fe-star"></i> {{ __('Featured') }}</span>
                         @endif
                     </div>
 
@@ -209,65 +209,65 @@
                         @endif
                     </div>
 
-                    <div class="stock-box mt-3 mb-4">
+                    <div class="{{ __('stock') }}-box mt-3 mb-4">
                         <div class="row align-items-center">
                             <div class="col-md-6">
-                                <p class="mb-1 text-muted fw-bold">Current Stock</p>
-                                <h4 class="mb-0 {{ $product->stock <= 5 ? 'text-danger' : 'text-success' }}">
-                                    {{ $product->stock }} <small class="font-size-14 text-muted">{{ $product->pro_unit ?? 'pcs' }}</small>
+                                <p class="mb-1 text-muted fw-bold">{{ __('{{ __('Current') }} {{ __('Stock') }}') }}</p>
+                                <h4 class="mb-0 {{ $product->{{ __('stock') }} <= 5 ? 'text-danger' : 'text-success' }}">
+                                    {{ $product->{{ __('stock') }} }} <small class="font-size-14 text-muted">{{ $product->pro_unit ?? 'pcs' }}</small>
                                 </h4>
                             </div>
                             <div class="col-md-6 border-start">
-                                <p class="mb-1 text-muted fw-bold">Purchase Price</p>
+                                <p class="mb-1 text-muted fw-bold">{{ __('Purchase Price') }}</p>
                                 <h5 class="mb-0 text-dark">৳{{ number_format($product->purchase_price, 2) }}</h5>
                             </div>
                         </div>
                     </div>
 
-                    <h5 class="font-size-15 mb-3 text-uppercase text-muted">Specifications</h5>
+                    <h5 class="font-size-15 mb-3 text-uppercase text-muted">{{ __('{{ __('Specification') }}s') }}</h5>
                     <div class="table-responsive">
                         <table class="table table-nowrap table-bordered mb-0">
                             <tbody>
                                 <tr>
-                                    <th>Product Code</th>
-                                    <td>#{{ $product->product_code ?? 'N/A' }}</td>
+                                    <th>{{ __('{{ __('Product') }} Code') }}</th>
+                                    <td>#{{ $product->product_code ?? '{{ __('N/A') }}' }}</td>
                                 </tr>
                                 <tr>
                                     <th>{{ __('Category') }}</th>
                                     <td>
-                                        {{ $product->category ? $product->category->name : 'N/A' }}
+                                        {{ $product->category ? $product->category->name : '{{ __('N/A') }}' }}
                                         @if($product->subcategory)
-                                            <i class="fe-chevron-right mx-1 font-size-10"></i> {{ $product->subcategory->subcategoryName ?? $product->subcategory->name }}
+                                            <i class="fe-chevron-right mx-1 font-size-10"></i> {{ $product->subcategory->subcategory{{ __('Name') }} ?? $product->subcategory->name }}
                                         @endif
                                         @if($product->childcategory)
-                                            <i class="fe-chevron-right mx-1 font-size-10"></i> {{ $product->childcategory->childcategoryName ?? $product->childcategory->name }}
+                                            <i class="fe-chevron-right mx-1 font-size-10"></i> {{ $product->childcategory->childcategory{{ __('Name') }} ?? $product->childcategory->name }}
                                         @endif
                                     </td>
                                 </tr>
                                 @if($product->is_digital)
                                 <tr>
-                                    <th>Digital File</th>
+                                    <th>{{ __('Digital File') }}</th>
                                     <td>
                                         @if($product->digital_file)
-                                            <a href="#" class="text-primary"><i class="fe-download me-1"></i> Download File</a>
+                                            <a href="#" class="text-primary"><i class="fe-download me-1"></i> {{ __('Download File') }}</a>
                                         @else
-                                            <span class="text-muted">No file uploaded</span>
+                                            <span class="text-muted">{{ __('No file uploaded') }}</span>
                                         @endif
                                     </td>
                                 </tr>
                                 @endif
                                 @if($product->is_wholesale && $product->wholesalePrices && $product->wholesalePrices->count() > 0)
                                 <tr>
-                                    <th>Wholesale Pricing Tiers</th>
+                                    <th>{{ __('Wholesale Pricing Tiers') }}</th>
                                     <td>
                                         <div class="table-responsive">
                                             <table class="table table-sm table-bordered mb-0">
                                                 <thead>
                                                     <tr>
-                                                        <th>Min Qty</th>
-                                                        <th>Max Qty</th>
+                                                        <th>{{ __('Min Qty') }}</th>
+                                                        <th>{{ __('Max Qty') }}</th>
                                                         <th>{{ __('Price') }}</th>
-                                                        <th>{{ __('Stock') }}</th>
+                                                        <th>{{ __('{{ __('Stock') }}') }}</th>
                                                     </tr>
                                                 </thead>
                                                 <tbody>
@@ -276,7 +276,7 @@
                                                         <td>{{ $tier->min_quantity }}</td>
                                                         <td>{{ $tier->max_quantity ?? 'Unlimited' }}</td>
                                                         <td>৳{{ number_format($tier->wholesale_price, 2) }}</td>
-                                                        <td>{{ $tier->stock ?? 0 }}</td>
+                                                        <td>{{ $tier->{{ __('stock') }} ?? 0 }}</td>
                                                     </tr>
                                                     @endforeach
                                                 </tbody>
@@ -287,7 +287,7 @@
                                 @endif
                                 @if($product->variantPrices && $product->variantPrices->count() > 0)
                                 <tr>
-                                    <th>Product Variants</th>
+                                    <th>{{ __('{{ __('Product') }} Variants') }}</th>
                                     <td>
                                         <div class="table-responsive">
                                             <table class="table table-sm table-bordered mb-0">
@@ -296,16 +296,16 @@
                                                         <th>{{ __('Color') }}</th>
                                                         <th>{{ __('Size') }}</th>
                                                         <th>{{ __('Price') }}</th>
-                                                        <th>{{ __('Stock') }}</th>
+                                                        <th>{{ __('{{ __('Stock') }}') }}</th>
                                                     </tr>
                                                 </thead>
                                                 <tbody>
                                                     @foreach($product->variantPrices as $variant)
                                                     <tr>
-                                                        <td>{{ $variant->color ? ($variant->color->colorName ?? $variant->color->name) : 'N/A' }}</td>
-                                                        <td>{{ $variant->size ? ($variant->size->sizeName ?? $variant->size->name) : 'N/A' }}</td>
+                                                        <td>{{ $variant->color ? ($variant->color->color{{ __('Name') }} ?? $variant->color->name) : '{{ __('N/A') }}' }}</td>
+                                                        <td>{{ $variant->size ? ($variant->size->size{{ __('Name') }} ?? $variant->size->name) : '{{ __('N/A') }}' }}</td>
                                                         <td>৳{{ number_format($variant->price, 2) }}</td>
-                                                        <td>{{ $variant->stock ?? 0 }}</td>
+                                                        <td>{{ $variant->{{ __('stock') }} ?? 0 }}</td>
                                                     </tr>
                                                     @endforeach
                                                 </tbody>
@@ -315,8 +315,8 @@
                                 </tr>
                                 @endif
                                 <tr>
-                                    <th>Short Note</th>
-                                    <td>{{ $product->note ?? 'N/A' }}</td>
+                                    <th>{{ __('Short {{ __('Note') }}') }}</th>
+                                    <td>{{ $product->note ?? '{{ __('N/A') }}' }}</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -328,7 +328,7 @@
                             @if($product->description)
                                 {!! $product->description !!}
                             @else
-                                <span class="text-muted font-italic">No description available.</span>
+                                <span class="text-muted font-italic">{{ __('No description available.') }}</span>
                             @endif
                         </div>
                     </div>
@@ -338,21 +338,21 @@
                     @endphp
                     @if($showVideoType === 'youtube' && $product->pro_video)
                     <div class="mt-4">
-                        <h5 class="font-size-15 mb-2">Product Video</h5>
-                        <a href="https://www.youtube.com/watch?v={{ $product->pro_video }}" target="_blank"
+                        <h5 class="font-size-15 mb-2">{{ __('{{ __('Product') }} Video') }}</h5>
+                        <a href="{{ __('https://') }}www.youtube.com/watch?v={{ $product->pro_video }}" target="_blank"
                            class="btn btn-outline-danger btn-sm">
-                            <i class="fa fa-youtube-play me-1"></i> YouTube-এ দেখুন
+                            <i class="fa fa-youtube-play me-1"></i> YouTube-এ {{ __('View') }}
                         </a>
                         <div class="mt-2">
                             <iframe width="100%" height="250"
-                                src="https://www.youtube.com/embed/{{ $product->pro_video }}"
+                                src="{{ __('https://') }}www.youtube.com/embed/{{ $product->pro_video }}"
                                 frameborder="0" allowfullscreen
                                 style="border-radius:8px;"></iframe>
                         </div>
                     </div>
                     @elseif($showVideoType === 'upload' && $product->pro_video_path)
                     <div class="mt-4">
-                        <h5 class="font-size-15 mb-2">Product Video <span class="badge bg-primary" style="font-size:11px;">Hosted</span></h5>
+                        <h5 class="font-size-15 mb-2">{{ __('{{ __('Product') }} Video') }} <span class="badge bg-primary" style="font-size:11px;">{{ __('Hosted') }}</span></h5>
                         <video width="100%" height="250" controls
                                style="border-radius:8px;background:#000;display:block;">
                             <source src="{{ asset($product->pro_video_path) }}" type="video/mp4">
@@ -368,7 +368,7 @@
 </div>
 
 <script>
-    // Simple script to change main image on click
+    // {{ __('Simple') }} script to change main image on click
     function changeImage(src) {
         document.getElementById('main_image').src = src;
     }

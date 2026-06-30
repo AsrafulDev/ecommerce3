@@ -1,5 +1,5 @@
 @extends('backEnd.layouts.master')
-@section('title', 'Manual Fraud Check')
+@section('title', '{{ __('Manual {{ __('Fraud {{ __('Check') }}') }}') }}')
 
 @section('content')
 
@@ -17,7 +17,7 @@
         margin: 20px auto;
     }
 
-    /* Courier Logo */
+    /* {{ __('Courier') }} Logo */
     .courier-logo {
         width: 60px;
         height: 45px;
@@ -26,7 +26,7 @@
         border-radius: 4px;
     }
 
-    /* Status Box */
+    /* {{ __('Status') }} Box */
     .status-box {
         padding: 12px;
         border-radius: 10px;
@@ -44,7 +44,7 @@
         color: white !important;
     }
 
-    /* Success Rate Round Badge */
+    /* Success {{ __('Rate') }} Round Badge */
     .rate-circle {
         width: 60px;
         height: 60px;
@@ -57,7 +57,7 @@
         font-weight: bold;
         color: #28a745;
         background: #e9ffe9;
-        font-size: 14px;
+        font-size: {{ __('14px') }};
     }
 </style>
 
@@ -65,21 +65,21 @@
     <div class="card shadow-sm p-4">
 
         <h4 class="text-center fw-bold mb-4">
-            আপনার যাচাই করতে চাওয়া মোবাইল নাম্বারটি দিয়ে সার্চ দিন
+            আপনার যাচাই করতে চাওয়া {{ __('{{ __('Mobile') }} Number') }}টি দিয়ে {{ __('Search') }}
         </h4>
 
         {{-- Search Box --}}
-        {{-- Route Name Fixed: admin.manual_fraud_check --}}
-        <form action="{{ route('manualFraud.check') }}" method="POST" class="text-center mb-4">
+        {{-- Route {{ __('Name') }} {{ __('Fixed') }}: admin.manual_fraud_check --}}
+        <form action="{{ route('manualFraud.check') }}" method={{ __('"{{ __('POST') }}"') }} class="text-center mb-4">
             @csrf
             <div class="input-group justify-content-center" style="max-width:400px; margin:auto;">
                 <input type="text" name="mobile" class="form-control text-center"
-                    value="{{ $mobile ?? '' }}" placeholder="017XXXXXXXX" required>
-                <button class="btn btn-success px-4">সার্চ দিন</button>
+                    value="{{ $mobile ?? '' }}" placeholder="{{ __('017XXXXXXXX') }}" required>
+                <button class="btn btn-success px-4">{{ __('Search') }}</button>
             </div>
         </form>
 
-        {{-- API Error Message --}}
+        {{-- API Error {{ __('Message') }} --}}
         @if(session('error'))
             <div class="row justify-content-center">
                 <div class="col-md-8">
@@ -99,7 +99,7 @@
                 <div class="card shadow-sm p-4">
 
                     <h5 class="fw-bold bg-success text-white py-2 rounded text-center">
-                        মোট সফলতার হার
+                        {{ __('bn_70ac0f2d') }} {{ __('bn_fbbc3031') }}তার {{ __('bn_f29420ce') }}
                     </h5>
 
                     <h3 class="text-center fw-bold text-success mt-3">
@@ -107,46 +107,46 @@
                     </h3>
 
                     @php
-                        $totalParcels = (int) ($data['total_parcels'] ?? 0);
-                        $totalDelivered = (int) ($data['total_delivered'] ?? 0);
-                        $totalCancel = (int) ($data['total_cancel'] ?? 0);
-                        $overallRate = $totalParcels > 0 ? round(($totalDelivered / $totalParcels) * 100) : null;
-                        $rateText = $overallRate !== null ? $overallRate.'%' : 'N/A';
+                        $totalParcels = (int) ($data['{{ __('total') }}_parcels'] ?? 0);
+                        $total{{ __('Delivered') }} = (int) ($data['{{ __('total') }}_delivered'] ?? 0);
+                        $totalCancel = (int) ($data['{{ __('total') }}_cancel'] ?? 0);
+                        $overall{{ __('Rate') }} = $totalParcels > 0 ? round(($total{{ __('Delivered') }} / $totalParcels) * 100) : null;
+                        $rate{{ __('Text') }} = $overall{{ __('Rate') }} !== null ? $overall{{ __('Rate') }}.'%' : '{{ __('N/A') }}';
                     @endphp
 
                     {{-- Circle --}}
-                    <div class="success-circle" style="border-color: {{ $overallRate < 50 ? '#dc3545' : ($overallRate < 80 ? '#fd7e14' : '#28a745') }}">
+                    <div class="success-circle" style="border-color: {{ $overall{{ __('Rate') }} < 50 ? '#dc3545' : ($overall{{ __('Rate') }} < 80 ? '#fd7e14' : '#28a745') }}">
                         <div class="text-center">
-                            <span class="fw-bold fs-2" style="color: {{ $overallRate < 50 ? '#dc3545' : ($overallRate < 80 ? '#fd7e14' : '#28a745') }}">
-                                {{ $rateText }}
+                            <span class="fw-bold fs-2" style="color: {{ $overall{{ __('Rate') }} < 50 ? '#dc3545' : ($overall{{ __('Rate') }} < 80 ? '#fd7e14' : '#28a745') }}">
+                                {{ $rate{{ __('Text') }} }}
                             </span>
                             <br>
                             <small class="text-muted" style="font-size: 12px;">({{ $totalParcels }} টি অর্ডার)</small>
                         </div>
                     </div>
 
-                    {{-- Rate Message (Bangla) --}}
-                    @if($overallRate !== null)
+                    {{-- {{ __('Rate') }} {{ __('Message') }} (Bangla) --}}
+                    @if($overall{{ __('Rate') }} !== null)
                         @php
-                            if ($overallRate >= 90) {
+                            if ($overall{{ __('Rate') }} >= 90) {
                                 $class = "status-green";
-                                $msg = "✔ নিরাপদ - ঝুঁকিমুক্ত অবস্থা 😎";
-                                $desc = "এই কাস্টমারের সফলতার হার চমৎকার। নিশ্চিন্তে অর্ডার প্রসেস করুন।";
+                                $msg = "✔ {{ __('bn_8704a028') }} - ঝুঁকিমুক্ত অবস্থা 😎";
+                                $desc = "এই কাস্টমারের {{ __('bn_fbbc3031') }}তার {{ __('bn_f29420ce') }} চমৎকার। নিশ্চিন্তে অর্ডার প্রসেস করুন।";
                             }
-                            elseif ($overallRate >= 70) {
+                            elseif ($overall{{ __('Rate') }} >= 70) {
                                 $class = "status-blue";
                                 $msg = "ℹ️ ভালো - তবে সতর্ক থাকুন 🙂";
-                                $desc = "সফলতার হার ভালো, তবে লোকেশন বা অন্য বিষয়গুলো চেক করে নিন।";
+                                $desc = "{{ __('bn_fbbc3031') }}তার {{ __('bn_f29420ce') }} ভালো, তবে লোকেশন বা অন্য {{ __('Subject') }}গুলো চেক করে নিন।";
                             }
-                            elseif ($overallRate >= 40) {
+                            elseif ($overall{{ __('Rate') }} >= 40) {
                                 $class = "status-orange";
-                                $msg = "⚠ ঝুঁকি আছে – কনফার্ম হয়ে নিন ⚠";
-                                $desc = "রিটার্নের হার বেশি। অবশ্যই ডেলিভারি চার্জ অগ্রিম নিন।";
+                                $msg = "⚠ ঝুঁকি আছে – কনফার্ম {{ __('bn_290a7f61') }}ে নিন ⚠";
+                                $desc = "রিটার্নের {{ __('bn_f29420ce') }} বেশি। অবশ্যই {{ __('bn_99838c8f') }} অগ্রিম নিন।";
                             }
                             else {
                                 $class = "status-red";
-                                $msg = "❗ উচ্চ ঝুঁকি – অর্ডার না নেওয়াই ভালো ❗";
-                                $desc = "এই কাস্টমারের বেশিরভাগ পার্সেল ক্যানসেল হয়। সাবধান!";
+                                $msg = "❗ {{ __('bn_8d38ebc7') }} – অর্ডার না নেওয়াই ভালো ❗";
+                                $desc = "এই কাস্টমারের বেশিরভাগ পার্সেল ক্যানসেল {{ __('bn_290a7f61') }}। সাবধান!";
                             }
                         @endphp
 
@@ -168,21 +168,21 @@
 
                             <thead>
                                 <tr>
-                                    <th>কুরিয়ার</th>
-                                    <th>মোট অর্ডার</th>
-                                    <th>সফল</th>
-                                    <th>বাতিল</th>
-                                    <th>হার</th>
+                                    <th>{{ __('bn_dec48f6e') }}</th>
+                                    <th>{{ __('Orders') }}</th>
+                                    <th>{{ __('bn_fbbc3031') }}</th>
+                                    <th>{{ __('Cancelled') }}</th>
+                                    <th>{{ __('bn_f29420ce') }}</th>
                                 </tr>
                             </thead>
 
                             <tbody>
 
                                 @php
-                                    $apiCouriers = $data['apis'] ?? [];
+                                    $api{{ __('Courier') }}s = $data['apis'] ?? [];
                                     $courierMapping = [
-                                        'Pathao'  => ['key' => 'pathao', 'name' => 'Pathao', 'logo' => 'pathao-logo.png'],
-                                        'Redex'   => ['key' => 'redx', 'name' => 'RedX', 'logo' => 'redx-logo.png'],
+                                        '{{ __('Pathao') }}'  => ['key' => 'pathao', 'name' => '{{ __('Pathao') }}', 'logo' => 'pathao-logo.png'],
+                                        'Redex'   => ['key' => 'redx', 'name' => '{{ __('RedX') }}', 'logo' => 'redx-logo.png'],
                                         'CarryBee' => ['key' => 'carrybee', 'name' => 'CarryBee', 'logo' => 'carrybee-logo.webp'],
                                     ];
 
@@ -193,13 +193,13 @@
                                     ];
                                 @endphp
 
-                                @foreach($courierMapping as $apiName => $mapped)
+                                @foreach($courierMapping as $api{{ __('Name') }} => $mapped)
 
                                     @php
-                                        $info = $apiCouriers[$apiName] ?? [];
-                                        $s = (int) ($info['total_delivered_parcels'] ?? 0);
-                                        $c = (int) ($info['total_cancelled_parcels'] ?? 0);
-                                        $t = (int) ($info['total_parcels'] ?? ($s + $c));
+                                        $info = $api{{ __('Courier') }}s[$api{{ __('Name') }}] ?? [];
+                                        $s = (int) ($info['{{ __('total') }}_delivered_parcels'] ?? 0);
+                                        $c = (int) ($info['{{ __('total') }}_cancelled_parcels'] ?? 0);
+                                        $t = (int) ($info['{{ __('total') }}_parcels'] ?? ($s + $c));
                                         $rate = $t > 0 ? round(($s/$t)*100) : 0;
                                         
                                         $logo = $myLogos[$mapped['key']] ?? null;
@@ -220,12 +220,12 @@
 
                                         <td>
                                             @php
-                                                $borderColor = $rate < 50 ? '#dc3545' : ($rate < 80 ? '#fd7e14' : '#28a745');
-                                                $bgColor     = $rate < 50 ? '#ffeeee' : ($rate < 80 ? '#fff8e1' : '#e9ffe9');
-                                                $textColor   = $rate < 50 ? '#dc3545' : ($rate < 80 ? '#fd7e14' : '#28a745');
+                                                $border{{ __('Color') }} = $rate < 50 ? '#dc3545' : ($rate < 80 ? '#fd7e14' : '#28a745');
+                                                $bg{{ __('Color') }}     = $rate < 50 ? '#ffeeee' : ($rate < 80 ? '#fff8e1' : '#e9ffe9');
+                                                $text{{ __('Color') }}   = $rate < 50 ? '#dc3545' : ($rate < 80 ? '#fd7e14' : '#28a745');
                                             @endphp
 
-                                            <div class="rate-circle" style="border-color: {{ $borderColor }}; background: {{ $bgColor }}; color: {{ $textColor }}">
+                                            <div class="rate-circle" style="border-color: {{ $border{{ __('Color') }} }}; background: {{ $bg{{ __('Color') }} }}; color: {{ $text{{ __('Color') }} }}">
                                                 {{ $rate }}%
                                             </div>
 

@@ -1,5 +1,5 @@
 @extends('backEnd.layouts.master')
-@section('title','Create Category')
+@section('title','{{ __('Create {{ __('Category') }}') }}')
 
 @section('css')
 <style>
@@ -18,7 +18,7 @@
         border: 1px solid #e2e8f0;
         padding: 12px 15px;
         border-radius: 8px;
-        font-size: 14px;
+        font-size: {{ __('14px') }};
         color: #334155;
         transition: all 0.2s;
     }
@@ -49,7 +49,7 @@
         align-items: center;
     }
     .status-text h6 {
-        font-size: 14px;
+        font-size: {{ __('14px') }};
         font-weight: 700;
         color: #334155;
         margin: 0;
@@ -66,13 +66,13 @@
     
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
-            <h4 class="fw-bold m-0 text-dark">Create Category</h4>
-            <span class="text-muted small">Add a new placement category for banners</span>
+            <h4 class="fw-bold m-0 text-dark">{{ __('Create {{ __('Category') }}') }}</h4>
+            <span class="text-muted small">{{ __('Add a new placement category for banners') }}</span>
         </div>
         <div class="d-flex gap-2">
             <a href="{{route('banner_category.index')}}" class="btn btn-light border fw-bold text-secondary px-3">{{ __('Cancel') }}</a>
-            <button type="submit" form="categoryForm" class="btn btn-primary fw-bold px-4 shadow-sm">
-                <i class="fe-plus me-1"></i> Create Category
+            <button type="{{ __('submit') }}" form="categoryForm" class="btn btn-primary fw-bold px-4 shadow-sm">
+                <i class="fe-plus me-1"></i> {{ __('Create {{ __('Category') }}') }}
             </button>
         </div>
     </div>
@@ -81,17 +81,17 @@
         <div class="col-lg-6 col-md-8">
             
             <div class="studio-card p-4">
-                <form action="{{route('banner_category.store')}}" method="POST" id="categoryForm" data-parsley-validate="">
+                <form action="{{route('banner_category.store')}}" method={{ __('"{{ __('POST') }}"') }} id="categoryForm" data-parsley-validate="">
                     @csrf
 
                     <div class="mb-4">
-                        <label for="name" class="form-label-custom">Category Name <span class="text-danger">*</span></label>
+                        <label for="name" class="form-label-custom">{{ __('{{ __('Category') }} {{ __('Name') }}') }} <span class="text-danger">*</span></label>
                         <input type="text" 
                                class="form-control input-clean @error('name') is-invalid @enderror" 
                                name="name" 
                                value="{{ old('name') }}" 
                                id="name" 
-                               placeholder="e.g. Homepage Slider, Sidebar Ad" 
+                               placeholder="{{ __('e.g. Homepage Slider, Sidebar Ad') }}" 
                                required>
                         @error('name')
                             <div class="invalid-feedback d-block mt-1">{{ $message }}</div>
@@ -99,11 +99,11 @@
                     </div>
 
                     <div class="mb-2">
-                        <label class="form-label-custom">Status Configuration</label>
+                        <label class="form-label-custom">{{ __('{{ __('Status') }} {{ __('Configuration') }}') }}</label>
                         <div class="status-toggle-box">
                             <div class="status-text">
-                                <h6>Active Status</h6>
-                                <small>Enable this category immediately</small>
+                                <h6>{{ __('Active {{ __('Status') }}') }}</h6>
+                                <small>{{ __('{{ __('Enable') }} this category immediately') }}</small>
                             </div>
                             <div class="form-check form-switch">
                                 <input class="form-check-input" type="checkbox" name="status" value="1" checked style="width: 3em; height: 1.5em; cursor:pointer;">

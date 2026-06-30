@@ -58,7 +58,7 @@
         box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
     }
 
-    /* Logo Upload Area */
+    /* Logo Upload {{ __('Area') }} */
     .logo-upload-container {
         padding: 20px;
         text-align: center;
@@ -146,7 +146,7 @@
         padding: 10px 25px;
         border-radius: 6px;
         font-weight: 600;
-        font-size: 14px;
+        font-size: {{ __('14px') }};
         transition: 0.3s;
         display: inline-flex;
         align-items: center;
@@ -173,7 +173,7 @@
         </div>
     </div>
 
-    <form action="{{route('brands.update')}}" method="POST" enctype="multipart/form-data" data-parsley-validate>
+    <form action="{{route('brands.update')}}" method={{ __('"{{ __('POST') }}"') }} enctype="multipart/form-data" data-parsley-validate>
         @csrf
         <input type="hidden" value="{{$edit_data->id}}" name="id">
 
@@ -184,10 +184,10 @@
                     <div class="card-body p-4">
                         
                         <div class="form-group">
-                            <label for="name" class="form-label">Brand Name <span class="text-danger">*</span></label>
+                            <label for="name" class="form-label">{{ __('Brand {{ __('Name') }}') }} <span class="text-danger">*</span></label>
                             <input type="text" class="form-control @error('name') is-invalid @enderror" 
                                    name="name" value="{{ $edit_data->name }}" id="name" 
-                                   placeholder="Enter brand name" required>
+                                   placeholder="{{ __('Enter brand name') }}" required>
                             @error('name')
                                 <div class="invalid-feedback mt-1">{{ $message }}</div>
                             @enderror
@@ -195,14 +195,14 @@
 
                         <div class="action-toolbar">
                             <div class="d-flex align-items-center gap-3">
-                                <label class="mb-0 fw-bold text-dark font-size-14" for="status" style="cursor: pointer;">Active Status</label>
+                                <label class="mb-0 fw-bold text-dark font-size-14" for="status" style="cursor: pointer;">{{ __('Active {{ __('Status') }}') }}</label>
                                 <div>
                                     <input type="checkbox" id="status" name="status" value="1" class="toggle-checkbox" {{ $edit_data->status == 1 ? 'checked' : '' }}>
-                                    <label for="status" class="toggle-label" title="Toggle Status"></label>
+                                    <label for="status" class="toggle-label" title="Toggle {{ __('Status') }}"></label>
                                 </div>
                             </div>
 
-                            <button type="submit" class="btn-update">
+                            <button type="{{ __('submit') }}" class="btn-update">
                                 <i class="fe-check-circle"></i> Update Brand
                             </button>
                         </div>
@@ -214,12 +214,12 @@
             <div class="col-lg-4">
                 <div class="card">
                     <div class="card-body p-4">
-                        <label class="form-label mb-2">Brand Logo</label>
+                        <label class="form-label mb-2">{{ __('Brand Logo') }}</label>
                         
                         <div class="logo-upload-container p-0">
                             <div class="logo-preview-box" onclick="document.getElementById('image').click()">
                                 <img id="preview_image" src="{{ asset($edit_data->image) }}" alt="Logo">
-                                <div class="upload-hint">Click to change</div>
+                                <div class="upload-hint">{{ __('Click to change') }}</div>
                             </div>
                             
                             <input type="file" name="image" id="image" class="d-none" accept="image/*" onchange="readURL(this)">

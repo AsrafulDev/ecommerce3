@@ -1,5 +1,5 @@
 @extends('backEnd.layouts.master')
-@section('title','Page Management')
+@section('title','Page {{ __('Manage') }}ment')
 
 @section('css')
 <link href="{{asset('/public/backEnd/')}}/assets/libs/datatables.net-bs5/css/dataTables.bootstrap5.min.css" rel="stylesheet" type="text/css" />
@@ -30,14 +30,14 @@
     .table-pro tbody td {
         vertical-align: middle;
         color: #334155;
-        font-size: 14px;
+        font-size: {{ __('14px') }};
         padding: 15px;
         border-bottom: 1px solid #f1f5f9;
     }
 
-    /* Status Pill Badges */
+    /* {{ __('Status') }} Pill Badges */
     .status-badge {
-        padding: 6px 14px;
+        padding: 6px {{ __('14px') }};
         border-radius: 50px;
         font-size: 11px;
         font-weight: 700;
@@ -111,12 +111,12 @@
     
     <div class="row align-items-center mb-4">
         <div class="col-md-6">
-            <h4 class="fw-bold text-dark m-0">Content Pages</h4>
-            <span class="text-muted small">Manage your dynamic website pages and sections</span>
+            <h4 class="fw-bold text-dark m-0">{{ __('Content Pages') }}</h4>
+            <span class="text-muted small">{{ __('{{ __('Manage') }} your dynamic website pages and sections') }}</span>
         </div>
         <div class="col-md-6 text-md-end mt-3 mt-md-0">
             <a href="{{route('pages.create')}}" class="btn btn-primary rounded-pill px-4 shadow-sm fw-bold">
-                <i class="fa fa-plus me-1"></i> Create New Page
+                <i class="fa fa-plus me-1"></i> {{ __('Create {{ __('New') }} Page') }}
             </a>
         </div>
     </div>
@@ -130,10 +130,10 @@
                             <thead>
                                 <tr>
                                     <th width="5%">{{ __('SL') }}</th>
-                                    <th width="35%">Page Name</th>
+                                    <th width="35%">{{ __('Page {{ __('Name') }}') }}</th>
                                     <th width="30%">{{ __('Title') }}</th>
-                                    <th width="15%">{{ __('Status') }}</th>
-                                    <th width="15%" class="text-end">Actions</th>
+                                    <th width="15%">{{ __('{{ __('Status') }}') }}</th>
+                                    <th width="15%" class="text-end">{{ __('Actions') }}</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -166,7 +166,7 @@
                                     <td class="text-end">
                                         <div class="d-flex justify-content-end align-items-center">
                                             
-                                            <a href="{{route('pages.edit',$value->id)}}" 
+                                            <a href="{{route('pages.edit',$value->{{ __('id)') }}}}" 
                                                class="btn-action btn-edit-modern shadow-sm" 
                                                title="{{ __('Edit Page') }}">
                                                 <i class="fa fa-pencil-alt"></i>
@@ -175,7 +175,7 @@
                                             <form method="post" action="{{route('pages.destroy')}}" class="d-inline ms-1">
                                                 @csrf
                                                 <input type="hidden" value="{{$value->id}}" name="hidden_id">
-                                                <button type="submit" class="btn-action btn-delete-modern shadow-sm delete-confirm" title="Delete Page">
+                                                <button type="{{ __('submit') }}" class="btn-action btn-delete-modern shadow-sm delete-confirm" title="Delete Page">
                                                     <i class="fa fa-trash"></i>
                                                 </button>
                                             </form>
@@ -205,7 +205,7 @@
 <script src="{{asset('/public/backEnd/')}}/assets/libs/datatables.net-buttons/js/buttons.print.min.js"></script>
 <script src="{{asset('/public/backEnd/')}}/assets/js/pages/datatables.init.js"></script>
 
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="{{ __('https://') }}cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <script>
     $(document).ready(function() {
@@ -217,12 +217,12 @@
                 text: "Confirming will permanently delete this page content.",
                 icon: 'warning',
                 showCancelButton: true,
-                confirmButtonColor: '#3085d6',
-                cancelButtonColor: '#d33',
-                confirmButtonText: 'Yes, delete it!'
+                confirmButton{{ __('Color') }}: '#3085d6',
+                cancelButton{{ __('Color') }}: '#d33',
+                confirmButton{{ __('Text') }}: 'Yes, delete it!'
             }).then((result) => {
                 if (result.isConfirmed) {
-                    form.submit();
+                    form.{{ __('submit') }}();
                 }
             });
         });

@@ -1,4 +1,4 @@
-{{-- Campaign Ads Section --}}
+{{-- {{ __('Campaign') }} Ads Section --}}
 <section>
     <div class="container">
         <div class="row">

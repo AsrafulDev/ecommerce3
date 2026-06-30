@@ -1,5 +1,5 @@
 @extends('backEnd.layouts.master')
-@section('title','Inhouse Products')
+@section('title','{{ __('Inhouse') }} {{ __('Product') }}s')
 @section('content')
 <meta name="csrf-token" content="{{ csrf_token() }}">
 
@@ -36,7 +36,7 @@
     .action2-btn { list-style: none; padding: 0; margin: 0; display: flex; gap: 8px; flex-wrap: wrap; }
     
     /* নাম এবং টেক্সট স্টাইল */
-    .product-title { font-size: 14px; font-weight: 600; color: #343a40; margin: 0; }
+    .product-title { font-size: {{ __('14px') }}; font-weight: 600; color: #343a40; margin: 0; }
     .text-small { font-size: 11px; }
 </style>
 
@@ -44,10 +44,10 @@
     <div class="row">
         <div class="col-12">
             <div class="page-title-box d-flex align-items-center justify-content-between py-3">
-                <h4 class="page-title mb-0">Inhouse Products Library</h4>
+                <h4 class="page-title mb-0">{{ __('{{ __('Inhouse') }} {{ __('Product') }}s Library') }}</h4>
                 <div class="page-title-right">
                     <a href="{{route('products.create')}}" class="btn btn-danger rounded-pill shadow-sm">
-                        <i class="fe-plus me-1"></i> Add New Product
+                        <i class="fe-plus me-1"></i> {{ __('Add {{ __('New') }} {{ __('Product') }}') }}
                     </a>
                 </div>
             </div>
@@ -87,10 +87,10 @@
                         </div>
 
                         <div class="col-lg-4 col-md-5 mt-2 mt-md-0">
-                            <form method="GET" action="{{ route('inhouse.products.index') }}">
+                            <form method="{{ __('GET') }}" action="{{ route('inhouse.products.index') }}">
                                 <div class="input-group">
-                                    <input type="text" name="keyword" class="form-control form-control-sm border-end-0" placeholder="Search by name..." value="{{ request('keyword') }}">
-                                    <button class="btn btn-sm btn-info border-start-0 px-3" type="submit">
+                                    <input type="text" name="keyword" class="form-control form-control-sm border-end-0" placeholder="{{ __('Search by name...') }}" value="{{ request('keyword') }}">
+                                    <button class="btn btn-sm btn-info border-start-0 px-3" type="{{ __('submit') }}">
                                         <i class="fe-search"></i>
                                     </button>
                                 </div>
@@ -104,16 +104,16 @@
                                 <tr>
                                     <th style="width: 40px;">
                                         <div class="form-check">
-                                            <input type="checkbox" class="form-check-input checkall" id="parentCheck">
+                                            <input type="checkbox" class="form-check-input checkall" id="parent{{ __('Check') }}">
                                         </div>
                                     </th>
                                     <th>{{ __('SL') }}</th>
                                     <th>{{ __('Image') }}</th>
-                                    <th style="width: 250px;">Product Info</th>
+                                    <th style="width: 250px;">{{ __('{{ __('Product') }} Info') }}</th>
                                     <th>{{ __('Category') }}</th>
-                                    <th>Price & Stock</th>
-                                    <th>Features</th>
-                                    <th>{{ __('Status') }}</th>
+                                    <th>{{ __('Price & {{ __('Stock') }}') }}</th>
+                                    <th>{{ __('Features') }}</th>
+                                    <th>{{ __('{{ __('Status') }}') }}</th>
                                     <th class="text-center">{{ __('Action') }}</th>
                                 </tr>
                             </thead>
@@ -125,7 +125,7 @@
                                             <input type="checkbox" class="form-check-input checkbox" value="{{$value->id}}">
                                         </div>
                                     </td>
-                                    <td>{{ $data->firstItem() + $key }}</td>
+                                    <td>{{ $data->first{{ __('Item') }}() + $key }}</td>
                                     
                                     <td>
                                         <img src="{{ asset($value->image ? $value->image->image : 'storage/uploads/placeholder.png') }}" 
@@ -148,20 +148,20 @@
 
                                     <td>
                                         <div class="fw-bold text-dark">৳{{ number_format($value->new_price, 2) }}</div>
-                                        <small class="text-muted">Stock: <span class="{{ $value->stock <= 5 ? 'text-danger' : 'text-success' }} fw-bold">{{ $value->stock ?? 0 }}</span> {{ $value->pro_unit ?? 'pcs' }}</small>
-                                        <small class="text-muted text-small">Stock: <span class="{{ $value->stock <= 5 ? 'text-danger fw-bold' : 'text-success' }}">{{$value->stock}}</span></small>
+                                        <small class="text-muted">{{ __('Stock') }}: <span class="{{ $value->{{ __('stock') }} <= 5 ? 'text-danger' : 'text-success' }} fw-bold">{{ $value->{{ __('stock') }} ?? 0 }}</span> {{ $value->pro_unit ?? 'pcs' }}</small>
+                                        <small class="text-muted text-small">{{ __('Stock') }}: <span class="{{ $value->{{ __('stock') }} <= 5 ? 'text-danger fw-bold' : 'text-success' }}">{{$value->{{ __('stock') }}}}</span></small>
                                     </td>
 
                                     <td>
                                         <div class="d-flex flex-column gap-1">
                                             @if($value->topsale==1)
                                             <span class="badge badge-soft-warning font-size-10 text-start">
-                                                <i class="fe-zap me-1"></i>Hot Deal
+                                                <i class="fe-zap me-1"></i>{{ __('Hot Deal') }}
                                             </span>
                                             @endif
                                             @if($value->feature_product==1)
                                             <span class="badge badge-soft-success font-size-10 text-start">
-                                                <i class="fe-star me-1"></i>Featured
+                                                <i class="fe-star me-1"></i>{{ __('Featured') }}
                                             </span>
                                             @endif
                                             @if($value->topsale!=1 && $value->feature_product!=1)
@@ -180,31 +180,31 @@
 
                                     <td>
                                         <div class="d-flex justify-content-center gap-1">
-                                            {{-- Status Toggle --}}
+                                            {{-- {{ __('Status') }} Toggle --}}
                                             @if($value->status == 1)
                                                 <form method="post" action="{{route('products.inactive')}}" class="d-inline"> 
                                                     @csrf
                                                     <input type="hidden" value="{{$value->id}}" name="hidden_id">        
-                                                    <button type="submit" class="btn-action btn-status-toggle" title="Deactivate"><i class="fe-thumbs-down"></i></button>
+                                                    <button type="{{ __('submit') }}" class="btn-action btn-status-toggle" title="Deactivate"><i class="fe-thumbs-down"></i></button>
                                                 </form>
                                             @else
                                                 <form method="post" action="{{route('products.active')}}" class="d-inline">
                                                     @csrf
                                                     <input type="hidden" value="{{$value->id}}" name="hidden_id">        
-                                                    <button type="submit" class="btn-action btn-status-active" title="Activate"><i class="fe-thumbs-up"></i></button>
+                                                    <button type="{{ __('submit') }}" class="btn-action btn-status-active" title="Activate"><i class="fe-thumbs-up"></i></button>
                                                 </form>
                                             @endif
 
                                             {{-- Edit --}}
-                                            <a href="{{route('products.edit',$value->id)}}" class="btn-action btn-edit" title="{{ __('Edit') }}">
+                                            <a href="{{route('products.edit',$value->{{ __('id)') }}}}" class="btn-action btn-edit" title="{{ __('Edit') }}">
                                                 <i class="fe-edit"></i>
                                             </a>
 
                                             {{-- Delete --}}
-                                            <form method="post" action="{{route('products.destroy')}}" class="d-inline" onsubmit="return confirm('Are you sure?');">        
+                                            <form method="post" action="{{route('products.destroy')}}" class="d-inline" on{{ __('submit') }}="return confirm('Are you sure?');">        
                                                 @csrf
                                                 <input type="hidden" value="{{$value->id}}" name="hidden_id">
-                                                <button type="submit" class="btn-action btn-delete" title="{{ __('Delete') }}">
+                                                <button type="{{ __('submit') }}" class="btn-action btn-delete" title="{{ __('Delete') }}">
                                                     <i class="fe-trash-2"></i>
                                                 </button>
                                             </form>
@@ -216,7 +216,7 @@
                                     <td colspan="9" class="text-center py-4">
                                         <div class="text-muted">
                                             <i class="fe-search font-size-24 d-block mb-2"></i>
-                                            No products found!
+                                            {{ __('No products found') }}!
                                         </div>
                                     </td>
                                 </tr>
@@ -227,7 +227,7 @@
 
                     <div class="mt-4 d-flex justify-content-between align-items-center flex-wrap">
                         <div class="text-muted font-size-13 mb-2 mb-md-0">
-                            Showing {{ $data->firstItem() }} to {{ $data->lastItem() }} of {{ $data->total() }} results
+                            Showing {{ $data->first{{ __('Item') }}() }} to {{ $data->last{{ __('Item') }}() }} of {{ $data->{{ __('total') }}() }} results
                         </div>
                         <div class="custom-paginate">
                             {{$data->links('pagination::bootstrap-4')}}
@@ -239,7 +239,7 @@
     </div>
 </div>
 
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="{{ __('https://') }}code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
 $(function(){
     // Select all checkboxes
@@ -247,12 +247,12 @@ $(function(){
         $(".checkbox").prop('checked', $(this).is(":checked"));
     });
 
-    function getCheckedIds() {
+    function get{{ __('Check') }}edIds() {
         return $('input.checkbox:checked').map(function(){ return $(this).val(); }).get();
     }
 
     function sendBulkRequest(url, status) {
-        var ids = getCheckedIds();
+        var ids = get{{ __('Check') }}edIds();
         if(ids.length === 0){
             if (typeof toastr !== 'undefined') {
                 toastr.error('Please select at least one product!');
@@ -266,7 +266,7 @@ $(function(){
 
         $.ajax({
             url: url,
-            type: 'POST',
+            type: '{{ __('POST') }}',
             data: JSON.stringify({ product_ids: ids, status: status }),
             contentType: 'application/json; charset=utf-8',
             dataType: 'json',
@@ -274,23 +274,23 @@ $(function(){
             success: function(res){
                 if(res.status === 'success'){
                     if (typeof toastr !== 'undefined') {
-                        toastr.success(res.message);
+                        toastr.success(res.{{ __('message') }});
                     }
                     setTimeout(function(){ location.reload(); }, 800);
                 } else {
                     if (typeof toastr !== 'undefined') {
-                        toastr.error(res.message || 'Action failed');
+                        toastr.error(res.{{ __('message') }} || 'Action failed');
                     }
                 }
             },
             error: function(xhr){
-                let msg = (xhr.responseJSON && xhr.responseJSON.message) ? xhr.responseJSON.message : 'Server Error';
+                let msg = (xhr.responseJSON && xhr.responseJSON.{{ __('message') }}) ? xhr.responseJSON.{{ __('message') }} : 'Server Error';
                 if (typeof toastr !== 'undefined') { toastr.error(msg); } else { alert(msg); }
             }
         });
     }
 
-    // Handle Bulk Clicks
+    // Handle Bulk {{ __('Clicks') }}
     $(document).on('click', '.hotdeal_update, .update_status', function(e){
         e.preventDefault();
         var url = $(this).data('url');

@@ -1,5 +1,5 @@
 @extends('backEnd.layouts.master') 
-@section('title', 'Courier API Settings')
+@section('title', '{{ __('{{ __('Courier') }} API') }} Settings')
 
 @section('css')
 <link href="{{ asset('public/backEnd/assets/libs/select2/css/select2.min.css') }}" rel="stylesheet" type="text/css" />
@@ -49,7 +49,7 @@
     }
     /* ------ LOGO FIX END ------ */
 
-    /* Specific Courier Colors */
+    /* Specific {{ __('Courier') }} {{ __('{{ __('Color') }}s') }} */
     .header-steadfast { 
         background: linear-gradient(135deg, #fff5f5 0%, #fff 100%); 
         border-left: 5px solid #ff4d4d; 
@@ -80,7 +80,7 @@
         border: 1px solid #e2e8f0;
         padding: 12px 15px;
         border-radius: 8px;
-        font-size: 14px;
+        font-size: {{ __('14px') }};
         background-color: #f8fafc;
         transition: all 0.2s;
     }
@@ -90,7 +90,7 @@
         box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
     }
 
-    /* Status Switch Wrapper */
+    /* {{ __('Status') }} Switch Wrapper */
     .status-wrapper {
         background: #fff;
         padding: 15px;
@@ -142,8 +142,8 @@
     
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
-            <h4 class="fw-bold text-dark m-0" style="font-size: 22px;">Courier Integration</h4>
-            <span class="text-muted">Manage API keys for courier services</span>
+            <h4 class="fw-bold text-dark m-0" style="font-size: 22px;">{{ __('{{ __('Courier') }} Integration') }}</h4>
+            <span class="text-muted">{{ __('{{ __('Manage') }} API keys for courier services') }}</span>
         </div>
     </div>
 
@@ -153,16 +153,16 @@
             <div class="card courier-card">
                 <div class="card-header-custom header-steadfast">
                     <div>
-                        <h5 class="card-title">Steadfast Courier</h5>
-                        <small class="text-muted">Fast & Reliable Delivery</small>
+                        <h5 class="card-title">{{ __('{{ __('Steadfast') }} {{ __('Courier') }}') }}</h5>
+                        <small class="text-muted">{{ __('Fast & Reliable Delivery') }}</small>
                     </div>
                     <div class="courier-icon-box">
-                        <img src="{{ asset('public/frontEnd/images/stade.svg') }}" alt="Steadfast">
+                        <img src="{{ asset('public/frontEnd/images/stade.svg') }}" alt="{{ __('Steadfast') }}">
                     </div>
                 </div>
                 
                 <div class="card-body p-4">
-                    <form action="{{ route('courierapi.update') }}" method="POST" data-parsley-validate>
+                    <form action="{{ route('courierapi.update') }}" method={{ __('"{{ __('POST') }}"') }} data-parsley-validate>
                         @csrf
                         <input type="hidden" name="id" value="{{ $steadfast->id }}">
 
@@ -176,7 +176,7 @@
                         </div>
 
                         <div class="mb-4">
-                            <label class="form-label">Secret Key <span class="text-danger">*</span></label>
+                            <label class="form-label">{{ __('Secret Key') }} <span class="text-danger">*</span></label>
                             <input type="text" class="form-control @error('secret_key') is-invalid @enderror" 
                                    name="secret_key" value="{{ $steadfast->secret_key }}" required />
                             @error('secret_key')
@@ -187,7 +187,7 @@
                         <div class="status-wrapper">
                             <div class="d-flex align-items-center">
                                 <i class="fas fa-shipping-fast me-2 text-danger"></i>
-                                <span class="fw-bold text-dark" style="font-size: 14px;">Service Status</span>
+                                <span class="fw-bold text-dark" style="font-size: {{ __('14px') }};">{{ __('Service {{ __('Status') }}') }}</span>
                             </div>
                             <div class="form-check form-switch">
                                 <input class="form-check-input" type="checkbox" name="status" value="1" 
@@ -196,8 +196,8 @@
                             </div>
                         </div>
 
-                        <button type="submit" class="btn btn-save btn-steadfast">
-                            <i class="fas fa-save me-2"></i> Update Configuration
+                        <button type="{{ __('submit') }}" class="btn btn-save btn-steadfast">
+                            <i class="fas fa-save me-2"></i> Update {{ __('Configuration') }}
                         </button>
                     </form>
                 </div>
@@ -208,16 +208,16 @@
             <div class="card courier-card">
                 <div class="card-header-custom" style="background: linear-gradient(135deg, #e0f2fe 0%, #fff 100%); border-left: 5px solid #0ea5e9;">
                     <div>
-                        <h5 class="card-title">Pathao Courier</h5>
-                        <small class="text-muted">Fast Delivery Service</small>
+                        <h5 class="card-title">{{ __('{{ __('Pathao') }} {{ __('Courier') }}') }}</h5>
+                        <small class="text-muted">{{ __('Fast Delivery Service') }}</small>
                     </div>
                     <div class="courier-icon-box">
-                       <img src="https://merchant.pathao.com/assets/logo_pathao_courier.a3ef9b7c.svg" alt="Pathao">
+                       <img src="{{ __('https://') }}merchant.pathao.com/assets/logo_pathao_courier.a3ef9b7c.svg" alt="{{ __('Pathao') }}">
                     </div>
                 </div>
                 
                 <div class="card-body p-4">
-                    <form action="{{ route('courierapi.update') }}" method="POST" data-parsley-validate id="pathao_form">
+                    <form action="{{ route('courierapi.update') }}" method={{ __('"{{ __('POST') }}"') }} data-parsley-validate id="pathao_form">
                         @csrf
                         <input type="hidden" name="id" value="{{ $pathao->id ?? '' }}">
                         <input type="hidden" name="type" value="pathao">
@@ -225,36 +225,36 @@
                         <div class="mb-3">
                             <label class="form-label">{{ __('API URL') }}<span class="text-danger">*</span></label>
                             <input type="text" class="form-control" name="url" 
-                                   value="{{ $pathao->url ?? 'https://api-hermes.pathao.com' }}" 
-                                   placeholder="https://api-hermes.pathao.com" required />
+                                   value="{{ $pathao->url ?? '{{ __('{{ __('https://') }}api-hermes.pathao.com') }}' }}" 
+                                   placeholder="{{ __('{{ __('https://') }}api-hermes.pathao.com') }}" required />
                         </div>
 
                         <div class="mb-3">
-                            <label class="form-label">Client ID <span class="text-danger">*</span></label>
+                            <label class="form-label">{{ __('Client ID') }} <span class="text-danger">*</span></label>
                             <input type="text" class="form-control @error('client_id') is-invalid @enderror" 
                                    name="client_id" value="{{ $pathao->client_id ?? '' }}" 
-                                   placeholder="Enter Pathao Client ID" required />
+                                   placeholder="{{ __('Enter {{ __('Pathao') }} {{ __('Client ID') }}') }}" required />
                             @error('client_id')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                         </div>
 
                         <div class="mb-3">
-                            <label class="form-label">Client Secret <span class="text-danger">*</span></label>
+                            <label class="form-label">{{ __('Client Secret') }} <span class="text-danger">*</span></label>
                             <input type="password" class="form-control @error('client_secret') is-invalid @enderror" 
                                    name="client_secret" value="{{ $pathao->client_secret ?? '' }}" 
-                                   placeholder="Enter Pathao Client Secret" required />
+                                   placeholder="{{ __('Enter {{ __('Pathao') }} {{ __('Client Secret') }}') }}" required />
                             @error('client_secret')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                         </div>
 
                         <div class="mb-3">
-                            <label class="form-label">Username/Email <span class="text-danger">*</span></label>
+                            <label class="form-label">{{ __('{{ __('{{ __('Use') }}r') }}name/{{ __('Email') }}') }} <span class="text-danger">*</span></label>
                             <input type="text" class="form-control @error('username') is-invalid @enderror" 
                                    name="username" value="{{ $pathao->username ?? '' }}" 
-                                   placeholder="test@pathao.com (Sandbox) or your email (Production)" required />
-                            <small class="text-muted">For Sandbox: test@pathao.com | For Production: Your Pathao account email</small>
+                                   placeholder="{{ __('test@pathao.com ({{ __('Sandbox') }}) or your email ({{ __('{{ __('Product') }}ion') }})') }}" required />
+                            <small class="text-muted">For {{ __('Sandbox') }}: test@pathao.com | For {{ __('{{ __('Product') }}ion') }}: Your {{ __('Pathao') }} account email</small>
                             @error('username')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
@@ -264,31 +264,31 @@
                             <label class="form-label">{{ __('Password') }}<span class="text-danger">*</span></label>
                             <input type="password" class="form-control @error('password') is-invalid @enderror" 
                                    name="password" value="{{ $pathao->password ?? '' }}" 
-                                   placeholder="lovePathao (Sandbox) or your password (Production)" required />
-                            <small class="text-muted">For Sandbox: lovePathao | For Production: Your Pathao account password</small>
+                                   placeholder="{{ __('love{{ __('Pathao') }} ({{ __('Sandbox') }}) or your password ({{ __('{{ __('Product') }}ion') }})') }}" required />
+                            <small class="text-muted">For {{ __('Sandbox') }}: love{{ __('Pathao') }} | For {{ __('{{ __('Product') }}ion') }}: Your {{ __('Pathao') }} account password</small>
                             @error('password')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                         </div>
 
                         <div class="mb-3">
-                            <label class="form-label">Access Token</label>
+                            <label class="form-label">{{ __('Access Token') }}</label>
                             <div class="input-group">
                                 <input type="text" class="form-control" 
                                        value="{{ $pathao->token ?? '' }}" 
                                        id="pathao_token_display" readonly 
-                                       placeholder="Token will be generated automatically" />
+                                       placeholder="{{ __('Token will be generated automatically') }}" />
                                 <button type="button" class="btn btn-outline-primary" id="generate_pathao_token">
                                     <i class="fe-refresh-cw"></i> Generate
                                 </button>
                             </div>
-                            <small class="text-muted">Token will be auto-generated when you save Client ID & Secret</small>
+                            <small class="text-muted">{{ __('Token will be auto-generated when you save {{ __('Client ID') }} & Secret') }}</small>
                         </div>
 
                         <div class="status-wrapper">
                             <div class="d-flex align-items-center">
                                 <i class="fe-truck me-2 text-info"></i>
-                                <span class="fw-bold text-dark" style="font-size: 14px;">Service Status</span>
+                                <span class="fw-bold text-dark" style="font-size: {{ __('14px') }};">{{ __('Service {{ __('Status') }}') }}</span>
                             </div>
                             <div class="form-check form-switch">
                                 <input class="form-check-input" type="checkbox" name="status" value="1" 
@@ -297,63 +297,63 @@
                             </div>
                         </div>
 
-                        <button type="submit" class="btn btn-save" style="background: #0ea5e9; color: white; box-shadow: 0 4px 15px rgba(14, 165, 233, 0.3);">
-                            <i class="fe-save me-2"></i> Update Configuration
+                        <button type="{{ __('submit') }}" class="btn btn-save" style="background: #0ea5e9; color: white; box-shadow: 0 4px 15px rgba(14, 165, 233, 0.3);">
+                            <i class="fe-save me-2"></i> Update {{ __('Configuration') }}
                         </button>
                     </form>
                 </div>
             </div>
         </div>
 
-        {{-- RedX Courier --}}
+        {{-- {{ __('{{ __('RedX') }} {{ __('Courier') }}') }} --}}
         <div class="col-lg-4 col-md-12">
             <div class="card courier-card">
                 <div class="card-header-custom header-redx">
                     <div>
-                        <h5 class="card-title">RedX Courier</h5>
-                        <small class="text-muted">Reliable Delivery Service</small>
+                        <h5 class="card-title">{{ __('{{ __('RedX') }} {{ __('Courier') }}') }}</h5>
+                        <small class="text-muted">{{ __('Reliable Delivery Service') }}</small>
                     </div>
                     <div class="courier-icon-box">
-                        <img src="https://redx.com.bd/images/logo.png" alt="RedX" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22%3E%3Ctext x=%2250%22 y=%2250%22 font-size=%2240%22 text-anchor=%22middle%22 dominant-baseline=%22middle%22 fill=%22%23f59e0b%22%3ERedX%3C/text%3E%3C/svg%3E'">
+                        <img src="{{ __('https://') }}redx.com.bd/images/logo.png" alt="{{ __('RedX') }}" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22%3E%3Ctext x=%2250%22 y=%2250%22 font-size=%2240%22 text-anchor=%22middle%22 dominant-baseline=%22middle%22 fill=%22%23f59e0b%22%3E{{ __('RedX') }}%3C/text%3E%3C/svg%3E'">
                     </div>
                 </div>
                 
                 <div class="card-body p-4">
-                    <form action="{{ route('courierapi.update') }}" method="POST" data-parsley-validate>
+                    <form action="{{ route('courierapi.update') }}" method={{ __('"{{ __('POST') }}"') }} data-parsley-validate>
                         @csrf
                         <input type="hidden" name="id" value="{{ $redx->id ?? '' }}">
                         <input type="hidden" name="type" value="redx">
 
                         <div class="mb-3">
-                            <label class="form-label">Base URL <span class="text-danger">*</span></label>
+                            <label class="form-label">{{ __('Base URL') }} <span class="text-danger">*</span></label>
                             @php
-                                // Get current URL and normalize for comparison (remove https://)
+                                // Get current URL and normalize for comparison (remove {{ __('https://') }})
                                 $currentUrl = $redx->url ?? '';
                                 $currentUrlNormalized = preg_replace('/^https?:\/\//', '', $currentUrl);
                                 $currentUrlNormalized = rtrim($currentUrlNormalized, '/');
                             @endphp
                             <select class="form-control" name="url" id="redx_url" required>
-                                <option value="sandbox.redx.com.bd/v1.0.0-beta" {{ $currentUrlNormalized == 'sandbox.redx.com.bd/v1.0.0-beta' || strpos($currentUrlNormalized, 'sandbox.redx.com.bd') !== false ? 'selected' : '' }}>Sandbox (Testing)</option>
-                                <option value="openapi.redx.com.bd/v1.0.0-beta" {{ $currentUrlNormalized == 'openapi.redx.com.bd/v1.0.0-beta' || strpos($currentUrlNormalized, 'openapi.redx.com.bd') !== false ? 'selected' : '' }}>Production (Live)</option>
+                                <option value="sandbox.redx.com.bd/v1.0.0-beta" {{ $currentUrlNormalized == 'sandbox.redx.com.bd/v1.0.0-beta' || strpos($currentUrlNormalized, 'sandbox.redx.com.bd') !== false ? 'selected' : '' }}>{{ __('{{ __('Sandbox') }} (Testing)') }}</option>
+                                <option value="openapi.redx.com.bd/v1.0.0-beta" {{ $currentUrlNormalized == 'openapi.redx.com.bd/v1.0.0-beta' || strpos($currentUrlNormalized, 'openapi.redx.com.bd') !== false ? 'selected' : '' }}>{{ __('{{ __('{{ __('Product') }}ion') }} ({{ __('Live') }})') }}</option>
                             </select>
-                            <small class="text-muted">Select Sandbox for testing or Production for live operations</small>
+                            <small class="text-muted">{{ __('Select {{ __('Sandbox') }} for testing or {{ __('{{ __('Product') }}ion') }} for live operations') }}</small>
                             @if(!empty($currentUrl))
                                 <small class="text-info d-block mt-1">
-                                    <i class="fe-info"></i> Current: {{ $currentUrl }}
+                                    <i class="fe-info"></i> {{ __('Current') }}: {{ $currentUrl }}
                                 </small>
                             @endif
                         </div>
 
                         <div class="mb-3">
-                            <label class="form-label">API Access Token <span class="text-danger">*</span></label>
+                            <label class="form-label">{{ __('API {{ __('Access Token') }}') }} <span class="text-danger">*</span></label>
                             <input type="text" class="form-control @error('token') is-invalid @enderror" 
                                    name="token" value="{{ $redx->token ?? '' }}" 
-                                   placeholder="Enter RedX API Access Token (without Bearer prefix)" required />
+                                   placeholder="{{ __('Enter {{ __('RedX') }} {{ __('API {{ __('Access Token') }}') }} (without Bearer prefix)') }}" required />
                             <small class="text-muted">
-                                <strong>Important:</strong> Enter token only (without "Bearer " prefix).<br>
-                                • For <strong>Sandbox</strong>: Use Sandbox token from RedX Sandbox dashboard<br>
-                                • For <strong>Production</strong>: Use Production token from RedX OpenAPI dashboard<br>
-                                <span class="text-danger">⚠️ Token must match selected environment (Sandbox/Production)</span>
+                                <strong>{{ __('Important') }}:</strong> {{ __('Enter token only (without "Bearer " prefix).') }}<br>
+                                • For <strong>{{ __('Sandbox') }}</strong>: {{ __('{{ __('Use') }} {{ __('Sandbox') }} token from {{ __('RedX') }} {{ __('Sandbox') }} dashboard') }}<br>
+                                • For <strong>{{ __('{{ __('Product') }}ion') }}</strong>: {{ __('{{ __('Use') }} {{ __('{{ __('Product') }}ion') }} token from {{ __('RedX') }} OpenAPI dashboard') }}<br>
+                                <span class="text-danger">⚠️ Token must match selected environment ({{ __('Sandbox') }}/{{ __('{{ __('Product') }}ion') }})</span>
                             </small>
                             @error('token')
                                 <div class="invalid-feedback">{{ $message }}</div>
@@ -361,7 +361,7 @@
                         </div>
 
                         <div class="mb-3">
-                            <label class="form-label">Webhook Callback URL <small class="text-muted">(Optional)</small></label>
+                            <label class="form-label">{{ __('Webhook Callback URL') }} <small class="text-muted">{{ __('({{ __('Optional') }})') }}</small></label>
                             <div class="input-group">
                                 <input type="text" class="form-control" 
                                        name="webhook_url" 
@@ -373,16 +373,16 @@
                                 </button>
                             </div>
                             <small class="text-muted">
-                                <strong>Suggested URL:</strong> <code id="suggested_webhook_url">{{ config('app.url') }}/api/redx/webhook</code><br>
-                                RedX dashboard এ এই URL configure করুন। Parcel status updates automatically receive হবে।<br>
-                                <em>Leave empty if you don't want to use webhook.</em>
+                                <strong>{{ __('Suggested URL') }}:</strong> <code id="suggested_webhook_url">{{ config('app.url') }}/api/redx/webhook</code><br>
+                                {{ __('RedX') }} dashboard এ এই URL configure করুন। Parcel status updates automatically receive হবে।<br>
+                                <em>{{ __("Leave empty if you don't want to use webhook.") }}</em>
                             </small>
                         </div>
 
                         <div class="status-wrapper">
                             <div class="d-flex align-items-center">
                                 <i class="fas fa-shipping-fast me-2 text-warning"></i>
-                                <span class="fw-bold text-dark" style="font-size: 14px;">Service Status</span>
+                                <span class="fw-bold text-dark" style="font-size: {{ __('14px') }};">{{ __('Service {{ __('Status') }}') }}</span>
                             </div>
                             <div class="form-check form-switch">
                                 <input class="form-check-input" type="checkbox" name="status" value="1" 
@@ -391,8 +391,8 @@
                             </div>
                         </div>
 
-                        <button type="submit" class="btn btn-save btn-redx">
-                            <i class="fas fa-save me-2"></i> Update Configuration
+                        <button type="{{ __('submit') }}" class="btn btn-save btn-redx">
+                            <i class="fas fa-save me-2"></i> Update {{ __('Configuration') }}
                         </button>
                     </form>
                 </div>
@@ -410,7 +410,7 @@
     $(document).ready(function() {
         $(".select2").select2();
         
-        // Generate Pathao Token
+        // Generate {{ __('Pathao') }} Token
         $('#generate_pathao_token').on('click', function(){
             var $btn = $(this);
             var originalHtml = $btn.html();
@@ -418,7 +418,7 @@
             
             $.ajax({
                 url: "/admin/courierapi/pathao-generate-token",
-                type: "POST",
+                type: {{ __('"{{ __('POST') }}"') }},
                 data: {
                     _token: "{{ csrf_token() }}"
                 },
@@ -429,21 +429,21 @@
                         // Update token field
                         $('#pathao_token_display').val(res.token);
                         
-                        // Show success message with token info and expiry
-                        var tokenPreview = res.token.substring(0, 20) + '...';
+                        // Show success {{ __('message') }} with token info and expiry
+                        var token{{ __('Prev') }}iew = res.token.substring(0, 20) + '...';
                         var expiryInfo = '';
                         if(res.expiry_info){
-                            expiryInfo = '<br><small><strong>Token Validity:</strong> ' + res.expiry_info + '</small>';
+                            expiryInfo = '<br><small><strong>{{ __('Token Validity') }}:</strong> ' + res.expiry_info + '</small>';
                         }
                         if(res.expires_at){
-                            expiryInfo += '<br><small><strong>Expires At:</strong> ' + res.expires_at + '</small>';
+                            expiryInfo += '<br><small><strong>{{ __('Expires At') }}:</strong> ' + res.expires_at + '</small>';
                         }
                         
                         toastr.success(
                             '✅ Token generated successfully!' + expiryInfo + '<br>' +
-                            '<small><strong>Token Preview:</strong> ' + tokenPreview + '</small><br>' +
-                            '<small>Token has been saved to database.</small>',
-                            'Pathao Token Generated',
+                            '<small><strong>{{ __('Token {{ __('Prev') }}iew') }}:</strong> {{ __("' + token{{ __('Prev') }}iew + '") }}</small><br>' +
+                            '<small>{{ __('Token has been saved to database.') }}</small>',
+                            '{{ __('Pathao') }} Token Generated',
                             {timeOut: 7000}
                         );
                         
@@ -455,7 +455,7 @@
                         }, 2000);
                         
                     } else {
-                        toastr.error(res.message || 'Failed to generate token');
+                        toastr.error(res.{{ __('message') }} || 'Failed to generate token');
                     }
                     $btn.prop('disabled', false).html(originalHtml);
                 },
@@ -467,14 +467,14 @@
                         errorMsg = 'Route not found. Please check the URL.';
                     } else if(xhr.status === 500){
                         errorMsg = 'Server error. Please check server logs.';
-                    } else if(xhr.responseJSON && xhr.responseJSON.message){
-                        errorMsg = xhr.responseJSON.message;
-                    } else if(xhr.responseText){
+                    } else if(xhr.responseJSON && xhr.responseJSON.{{ __('message') }}){
+                        errorMsg = xhr.responseJSON.{{ __('message') }};
+                    } else if(xhr.response{{ __('Text') }}){
                         try {
-                            var response = JSON.parse(xhr.responseText);
-                            errorMsg = response.message || errorMsg;
+                            var response = JSON.parse(xhr.response{{ __('Text') }});
+                            errorMsg = response.{{ __('message') }} || errorMsg;
                         } catch(e) {
-                            errorMsg = xhr.responseText.substring(0, 200);
+                            errorMsg = xhr.response{{ __('Text') }}.substring(0, 200);
                         }
                     }
                     
@@ -492,7 +492,7 @@
             }
             
             // Copy to clipboard
-            navigator.clipboard.writeText(webhookUrl).then(function() {
+            navigator.clipboard.write{{ __('Text') }}(webhookUrl).then(function() {
                 toastr.success('Webhook URL copied to clipboard!', 'Copied', {timeOut: 3000});
                 $(this).html('<i class="fe-check"></i>').addClass('btn-success').removeClass('btn-outline-secondary');
                 var $btn = $(this);

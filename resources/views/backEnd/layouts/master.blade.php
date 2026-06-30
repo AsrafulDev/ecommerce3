@@ -17,8 +17,8 @@
     <link href="{{asset('public/backEnd/')}}/assets/css/icons.min.css" rel="stylesheet" type="text/css" />
     <!-- toastr css -->
     <link rel="stylesheet" href="{{asset('public/backEnd/')}}/assets/css/toastr.min.css" />
-    <!-- SweetAlert2 - ডেমো মুড পপআপের জন্য -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" />
+    <!-- SweetAlert2 - {{ __('bn_67543547') }} মুড পপআপের জন্য -->
+    <link rel="stylesheet" href="{{ __('https://') }}cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" />
     <!-- custom css -->
     <link href="{{asset('public/backEnd/')}}/assets/css/custom.css" rel="stylesheet" type="text/css" />
     <!-- Head js -->
@@ -63,7 +63,7 @@
   <body data-layout-mode="default" data-theme="light" data-layout-width="fluid" data-topbar-color="dark" data-menu-position="fixed" data-leftbar-color="light" data-leftbar-size="default" data-sidebar-user="false">
     <!-- Begin page -->
     <div id="wrapper">
-      <!-- Topbar Start -->
+      <!-- {{ __('Topbar') }} Start -->
       <div class="navbar-custom">
         <div class="container-fluid">
           <ul class="list-unstyled topnav-menu float-end mb-0">
@@ -73,7 +73,7 @@
               </a>
               <div class="dropdown-menu dropdown-lg dropdown-menu-end p-0">
                 <form class="p-3">
-                  <input type="text" class="form-control" placeholder="Search ..." aria-label="Recipient's username" />
+                  <input type="text" class="form-control" placeholder="{{ __('Search ...') }}" aria-label="Recipient's username" />
                 </form>
               </div>
             </li>
@@ -86,7 +86,7 @@
 
             @if(isset($demoMode) && $demoMode)
             <li class="dropdown d-none d-lg-inline-block">
-              <span class="badge bg-warning text-dark px-2 py-1 mt-1" title=".env থেকে DEMO_MODE=true সেট করা আছে"><i class="fe-eye me-1"></i>ডেমো</span>
+              <span class="badge bg-warning text-dark px-2 py-1 mt-1" title=".env থেকে DEMO_MODE=true সেট করা আছে"><i class="fe-eye me-1"></i>{{ __('bn_67543547') }}</span>
             </li>
             @endif
 
@@ -101,7 +101,7 @@
                   <h5 class="m-0">
                     <span class="float-end">
                       <a href="{{route('admin.orders',['slug'=>'pending'])}}" class="text-dark">
-                        <small>View All</small>
+                        <small>{{ __('View All') }}</small>
                       </a>
                     </span>{{ __('Orders') }}</h5>
                 </div>
@@ -115,7 +115,7 @@
                     </div>
                     <p class="notify-details">{{$porder->customer?$porder->customer->name:''}}</p>
                     <p class="text-muted mb-0 user-msg">
-                      <small>Invoice : {{$porder->invoice_id}}</small>
+                      <small>{{ __('{{ __('Inv') }}oice') }} : {{$porder->invoice_id}}</small>
                     </p>
                   </a>
                   @endforeach
@@ -139,7 +139,7 @@
               <div class="dropdown-menu dropdown-menu-end profile-dropdown">
                 <!-- item-->
                 <div class="dropdown-header noti-title">
-                  <h6 class="text-overflow m-0">Welcome !</h6>
+                  <h6 class="text-overflow m-0">{{ __('Welcome !') }}</h6>
                 </div>
 
                 <!-- item-->
@@ -158,15 +158,15 @@
                     </h6>
                 </div>
                 <div class="px-3 py-1" style="max-height:140px;overflow-y:auto;">
-                    @php $quickThemes = \App\Models\Theme::where('is_active', true)->orderBy('name')->limit(6)->get(); @endphp
-                    @foreach($quickThemes as $t)
-                    <a href="{{ route('themes.apply', $t->id) }}" class="dropdown-item notify-item py-1 px-2" style="font-size:12px;">
+                    @php $quick{{ __('Themes') }} = \App\Models\Theme::w{{ __('here') }}('is_active', true)->orderBy('name')->limit(6)->get(); @endphp
+                    @foreach($quick{{ __('Themes') }} as $t)
+                    <a href="{{ route('themes.apply', $t->{{ __('id)') }} }}" class="dropdown-item notify-item py-1 px-2" style="font-size:12px;">
                         <span class="d-inline-block rounded-circle me-2" style="width:12px;height:12px;background:{{ $t->primary_color }};border:1px solid rgba(0,0,0,0.1);"></span>
-                        {{ $t->name }} @if($activeTheme->id == $t->id)<i class="fe-check text-success ms-1"></i>@endif
+                        {{ $t->name }} @if($activeTheme->id == $t->{{ __('id)') }}<i class="fe-check text-success ms-1"></i>@endif
                     </a>
                     @endforeach
                     <a href="{{ route('themes.index') }}" class="dropdown-item notify-item py-1 px-2 text-primary" style="font-size:11px;">
-                        <i class="fe-settings me-1"></i> Manage Themes
+                        <i class="fe-settings me-1"></i> {{ __('Manage') }} {{ __('Themes') }}
                     </a>
                 </div>
                 @endif
@@ -179,13 +179,13 @@
                 <a
                   href="{{ route('logout') }}"
                   onclick="event.preventDefault();
-                  document.getElementById('logout-form').submit();"
+                  document.getElementById('logout-form').{{ __('submit') }}();"
                   class="dropdown-item notify-item"
                 >
                   <i class="fe-log-out me-1"></i>
                   <span>{{ __('Logout') }}</span>
                 </a>
-                <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
+                <form id="logout-form" action="{{ route('logout') }}" method={{ __('"{{ __('POST') }}"') }} style="display: none;">
                   @csrf
                 </form>
               </div>
@@ -203,7 +203,7 @@
             <a href="{{url('admin/dashboard')}}" class="logo logo-dark text-center">
               <span class="logo-sm">
                 <img src="{{asset(isset($generalsetting->white_logo) ? $generalsetting->white_logo : 'public/assets/images/CurlBazar.svg')}}" alt="" height="50" />
-                <!-- <span class="logo-lg-text-light">UBold</span> -->
+                <!-- <span class="logo-lg-text-light">{{ __('UBold') }}</span> -->
               </span>
               <span class="logo-lg">
                 <img src="{{asset(isset($generalsetting->white_logo) ? $generalsetting->white_logo : 'public/assets/images/CurlBazar.svg')}}" alt="" height="50" />
@@ -229,7 +229,7 @@
             </li>
 
             <li>
-              <!-- Mobile menu toggle (Horizontal Layout)-->
+              <!-- {{ __('Mobile') }} menu toggle (Horizontal Layout)-->
               <a class="navbar-toggle nav-link" data-bs-toggle="collapse" data-bs-target="#topnav-menu-content">
                 <div class="lines">
                   <span></span>
@@ -241,18 +241,18 @@
             </li>
 
             <li class="dropdown d-none d-xl-block">
-              <a class="nav-link dropdown-toggle waves-effect waves-light" href="{{route('home')}}" target="_blank"> <i data-feather="globe"></i> Visit Site </a>
+              <a class="nav-link dropdown-toggle waves-effect waves-light" href="{{route('home')}}" target="_blank"> <i data-feather="globe"></i> {{ __('Visit Site') }} </a>
             </li>
           </ul>
           <div class="clearfix"></div>
         </div>
       </div>
-      <!-- end Topbar -->
+      <!-- end {{ __('Topbar') }} -->
 
       <!-- ========== Left Sidebar Start ========== -->
       <div class="left-side-menu">
         <div class="h-100" data-simplebar>
-          <!-- User box -->
+          <!-- {{ __('{{ __('Use') }}r') }} box -->
           <div class="user-box text-center">
             <img src="{{asset('public/backEnd/')}}/assets/images/users/user-1.jpg" alt="user-img" title="Mat Helme" class="rounded-circle avatar-md" />
             <div class="dropdown">
@@ -273,25 +273,25 @@
                 <!-- item-->
                 <a href="javascript:void(0);" class="dropdown-item notify-item">
                   <i class="fe-lock me-1"></i>
-                  <span>Lock Screen</span>
+                  <span>{{ __('Lock Screen') }}</span>
                 </a>
 
                 <!-- item-->
                 <a
                   href="{{ route('logout') }}"
                   onclick="event.preventDefault();
-                                                     document.getElementById('logout-form').submit();"
+                                                     document.getElementById('logout-form').{{ __('submit') }}();"
                   class="dropdown-item notify-item"
                 >
                   <i class="fe-log-out me-1"></i>
                   <span>{{ __('Logout') }}</span>
                 </a>
-                <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
+                <form id="logout-form" action="{{ route('logout') }}" method={{ __('"{{ __('POST') }}"') }} style="display: none;">
                   @csrf
                 </form>
               </div>
             </div>
-            <p class="text-muted">Admin Head</p>
+            <p class="text-muted">{{ __('Admin Head') }}</p>
           </div>
 
           <!--- Sidemenu -->
@@ -308,7 +308,7 @@
 <li>
   <a href="{{route('admin.order.create')}}">
     <i data-feather="cpu"></i>
-    <span>POS System</span>
+    <span>{{ __('POS System') }}</span>
   </a>
 </li>
 @endcan
@@ -316,7 +316,7 @@
 @php
   use Illuminate\Support\Facades\Auth;
   $user = Auth::guard('admin')->user();
-  $pending_reviews = \App\Models\Review::where('status', 'pending')->count();
+  $pending_reviews = \App\Models\{{ __('Review') }}::w{{ __('here') }}('status', 'pending')->count();
 @endphp
 
 {{-- ============================================= --}}
@@ -332,37 +332,37 @@
   <div class="collapse" id="sidebar-orders">
     <ul class="nav-second-level">
       @can('order-list')
-      <li><a href="{{ route('admin.orders', ['slug'=>'all']) }}"><i data-feather="file-plus"></i> All Order</a></li>
-      <li><a href="{{ route('admin.incomplete-orders.index') }}"><i data-feather="file-plus"></i> Incomplete Orders</a></li>
+      <li><a href="{{ route('admin.orders', ['slug'=>'all']) }}"><i data-feather="file-plus"></i> {{ __('All Order') }}</a></li>
+      <li><a href="{{ route('admin.incomplete-orders.index') }}"><i data-feather="file-plus"></i> {{ __('Incomplete Orders') }}</a></li>
       @foreach($orderstatus as $value)
         <li><a href="{{ route('admin.orders', ['slug'=>$value->slug]) }}"><i data-feather="file-plus"></i>{{ $value->name }}</a></li>
       @endforeach
       @endcan
       @can('order-edit')
-      <li><a href="{{ route('orderstatus.index') }}"><i data-feather="file-plus"></i>{{ __('Order Status') }}</a></li>
+      <li><a href="{{ route('orderstatus.index') }}"><i data-feather="file-plus"></i>{{ __('Order {{ __('Status') }}') }}</a></li>
       @endcan
       @can('order-manage')
-      <li><a href="{{route('customers.ip_block')}}"><i data-feather="file-plus"></i> IP Block</a></li>
+      <li><a href="{{route('customers.ip_block')}}"><i data-feather="file-plus"></i> {{ __('IP Block') }}</a></li>
       @endcan
     </ul>
   </div>
 </li>
 @endcanany
 
-{{-- Refunds --}}
+{{-- {{ __('Refunds') }} --}}
 @canany(['order-list', 'order-edit'])
 <li class="{{ request()->routeIs('admin.refunds.*') ? 'active' : '' }}">
   <a href="#sidebar-refunds" data-bs-toggle="collapse">
     <i data-feather="rotate-ccw"></i>
-    <span> Refunds </span>
+    <span> {{ __('Refunds') }} </span>
     <span class="menu-arrow"></span>
   </a>
   <div class="collapse {{ request()->routeIs('admin.refunds.*') ? 'show' : '' }}" id="sidebar-refunds">
     <ul class="nav-second-level">
-      <li><a href="{{ route('admin.refunds.index') }}"><i data-feather="list"></i> All Refunds</a></li>
-      <li><a href="{{ route('admin.refunds.index', ['status' => 'pending']) }}"><i data-feather="clock"></i> Pending Refunds</a></li>
-      <li><a href="{{ route('admin.refunds.index', ['status' => 'approved']) }}"><i data-feather="check-circle"></i> Approved Refunds</a></li>
-      <li><a href="{{ route('admin.refunds.index', ['status' => 'processed']) }}"><i data-feather="check"></i> Processed Refunds</a></li>
+      <li><a href="{{ route('admin.refunds.index') }}"><i data-feather="list"></i> {{ __('All {{ __('Refunds') }}') }}</a></li>
+      <li><a href="{{ route('admin.refunds.index', ['status' => 'pending']) }}"><i data-feather="clock"></i> {{ __('Pending {{ __('Refunds') }}') }}</a></li>
+      <li><a href="{{ route('admin.refunds.index', ['status' => 'approved']) }}"><i data-feather="check-circle"></i> {{ __('{{ __('Approve') }}d {{ __('Refunds') }}') }}</a></li>
+      <li><a href="{{ route('admin.refunds.index', ['status' => 'processed']) }}"><i data-feather="check"></i> {{ __('{{ __('Processed') }} {{ __('Refunds') }}') }}</a></li>
     </ul>
   </div>
 </li>
@@ -375,37 +375,37 @@
 <li>
   <a href="#siebar-product" data-bs-toggle="collapse">
     <i data-feather="database"></i>
-    <span>{{ __('Products') }}</span>
+    <span>{{ __('{{ __('Product') }}s') }}</span>
     <span class="menu-arrow"></span>
   </a>
   <div class="collapse" id="siebar-product">
     <ul class="nav-second-level">
       @can('product-list')
-      <li><a href="{{ route('inhouse.products.index') }}"><i data-feather="package"></i> All Inhouse Products</a></li>
-      <li><a href="{{ route('products.pending') }}"><i data-feather="clock"></i> Pending Products</a></li>
-      <li><a href="{{ route('admin.products.wholesale') }}"><i data-feather="layers"></i> Wholesale Products</a></li>
+      <li><a href="{{ route('inhouse.products.index') }}"><i data-feather="package"></i> {{ __('All {{ __('Inhouse') }} {{ __('Product') }}s') }}</a></li>
+      <li><a href="{{ route('products.pending') }}"><i data-feather="clock"></i> {{ __('Pending {{ __('Product') }}s') }}</a></li>
+      <li><a href="{{ route('admin.products.wholesale') }}"><i data-feather="layers"></i> {{ __('{{ __('Wholesale {{ __('Product') }}') }}s') }}</a></li>
       @endcan
       @can('product-create')
-      <li><a href="{{ route('products.create') }}"><i data-feather="plus-circle"></i>{{ __('Add Product') }}</a></li>
+      <li><a href="{{ route('products.create') }}"><i data-feather="plus-circle"></i>{{ __('Add {{ __('Product') }}') }}</a></li>
       @endcan
       <li><hr class="dropdown-divider"></li>
       @can('category-list')
       <li><a href="{{ route('categories.index') }}"><i data-feather="file-plus"></i>{{ __('Categories') }}</a></li>
       @endcan
       @can('subcategory-list')
-      <li><a href="{{ route('subcategories.index') }}"><i data-feather="file-plus"></i> Subcategories</a></li>
+      <li><a href="{{ route('subcategories.index') }}"><i data-feather="file-plus"></i> {{ __('Subcategories') }}</a></li>
       @endcan
       @can('childcategory-list')
-      <li><a href="{{ route('childcategories.index') }}"><i data-feather="file-plus"></i> Childcategories</a></li>
+      <li><a href="{{ route('childcategories.index') }}"><i data-feather="file-plus"></i> {{ __('Childcategories') }}</a></li>
       @endcan
       @canany(['brand-list', 'brand-create', 'brand-edit'])
       <li><a href="{{ route('brands.index') }}"><i data-feather="file-plus"></i>{{ __('Brands') }}</a></li>
       @endcanany
       @canany(['color-list', 'color-create', 'color-edit'])
-      <li><a href="{{ route('colors.index') }}"><i data-feather="file-plus"></i> Colors</a></li>
+      <li><a href="{{ route('colors.index') }}"><i data-feather="file-plus"></i> {{ __('{{ __('Color') }}s') }}</a></li>
       @endcanany
       @canany(['size-list', 'size-create', 'size-edit'])
-      <li><a href="{{ route('sizes.index') }}"><i data-feather="file-plus"></i> Sizes</a></li>
+      <li><a href="{{ route('sizes.index') }}"><i data-feather="file-plus"></i> {{ __('Sizes') }}</a></li>
       @endcanany
     </ul>
   </div>
@@ -419,16 +419,16 @@
 <li>
   <a href="#sidebar-coupon" data-bs-toggle="collapse">
     <i data-feather="gift"></i>
-    <span> Coupons </span>
+    <span> {{ __('{{ __('Coupon') }}s') }} </span>
     <span class="menu-arrow"></span>
   </a>
   <div class="collapse" id="sidebar-coupon">
     <ul class="nav-second-level">
       @can('coupon-list')
-      <li><a href="{{ route('admin.coupons.index') }}"><i data-feather="list"></i> All Coupons</a></li>
+      <li><a href="{{ route('admin.coupons.index') }}"><i data-feather="list"></i> {{ __('All {{ __('{{ __('Coupon') }}s') }}') }}</a></li>
       @endcan
       @can('coupon-create')
-      <li><a href="{{ route('admin.coupons.create') }}"><i data-feather="plus-circle"></i>{{ __('Add New') }}</a></li>
+      <li><a href="{{ route('admin.coupons.create') }}"><i data-feather="plus-circle"></i>{{ __('Add {{ __('New') }}') }}</a></li>
       @endcan
     </ul>
   </div>
@@ -439,13 +439,13 @@
 <li>
   <a href="#sidebar-landing-page" data-bs-toggle="collapse">
     <i data-feather="airplay"></i>
-    <span> Landing Page </span>
+    <span> {{ __('Landing Page') }} </span>
     <span class="menu-arrow"></span>
   </a>
   <div class="collapse" id="sidebar-landing-page">
     <ul class="nav-second-level">
       @can('campaign-list')
-      <li><a href="{{ route('campaign.index') }}"><i data-feather="file-plus"></i> Campaign</a></li>
+      <li><a href="{{ route('campaign.index') }}"><i data-feather="file-plus"></i> {{ __('Campaign') }}</a></li>
       @endcan
       @can('campaign-create')
       <li><a href="{{ route('campaign.create') }}"><i data-feather="file-plus"></i>{{ __('Create') }}</a></li>
@@ -459,7 +459,7 @@
 <li class="{{ request()->routeIs('banners.index.*') ? 'active' : '' }}">
     <a href="{{ route('banners.index') }}">
       <i data-feather="image"></i>
-        <span> Banner & Sliders </span>
+        <span> {{ __('Banner & Sliders') }} </span>
     </a>
 </li>
 @endcanany
@@ -467,13 +467,13 @@
 @canany(['popup-list','popup-manage'])
 <li class="{{ request()->routeIs('admin.popup.*') ? 'active' : '' }}">
     <a href="{{ route('admin.popup.index') }}">
-        <i data-feather="message-square"></i>
-        <span> Popup Offer </span>
+        <i data-feather="{{ __('message') }}-square"></i>
+        <span> {{ __('Popup Offer') }} </span>
     </a>
 </li>
 @endcanany
 
-@canany(['blog-list','blog-create','blog-edit','blog-delete'])
+@canany(['blog-list','blog-create','{{ __('blog-edit') }}','blog-delete'])
 <li>
     <a href="#sidebar-blog" data-bs-toggle="collapse">
         <i data-feather="edit"></i>
@@ -483,10 +483,10 @@
     <div class="collapse" id="sidebar-blog">
         <ul class="nav-second-level">
             @can('blog-list')
-            <li><a href="{{ route('admin.blog.index') }}"><i data-feather="list"></i> All Blogs</a></li>
+            <li><a href="{{ route('admin.blog.index') }}"><i data-feather="list"></i> {{ __('All Blogs') }}</a></li>
             @endcan
             @can('blog-create')
-            <li><a href="{{ route('admin.blog.create') }}"><i data-feather="plus-circle"></i> Add New Blog</a></li>
+            <li><a href="{{ route('admin.blog.create') }}"><i data-feather="plus-circle"></i> {{ __('Add {{ __('New') }} Blog') }}</a></li>
             @endcan
         </ul>
     </div>
@@ -497,14 +497,14 @@
 <li>
   <a href="#sidebar-product-review" data-bs-toggle="collapse">
     <i data-feather="star"></i>
-    <span> Reviews </span>
+    <span> {{ __('{{ __('Review') }}s') }} </span>
     <span class="menu-arrow"></span>
   </a>
   <div class="collapse" id="sidebar-product-review">
     <ul class="nav-second-level">
       @can('review-list')
-      <li><a href="{{ route('reviews.pending') }}"><i data-feather="file-plus"></i> Pending Reviews ({{ $pending_reviews }})</a></li>
-      <li><a href="{{ route('reviews.index') }}"><i data-feather="file-plus"></i> All Reviews</a></li>
+      <li><a href="{{ route('reviews.pending') }}"><i data-feather="file-plus"></i> {{ __('Pending {{ __('{{ __('Review') }}s') }}') }} ({{ $pending_reviews }})</a></li>
+      <li><a href="{{ route('reviews.index') }}"><i data-feather="file-plus"></i> {{ __('All {{ __('{{ __('Review') }}s') }}') }}</a></li>
       @endcan
       @can('review-create')
       <li><a href="{{ route('reviews.pending') }}"><i data-feather="file-plus"></i>{{ __('Create') }}</a></li>
@@ -520,17 +520,17 @@
 <li>
   <a href="#sidebar-crm" data-bs-toggle="collapse">
     <i data-feather="users"></i>
-    <span> CRM / HR </span>
+    <span> {{ __('CRM / HR') }} </span>
     <span class="menu-arrow"></span>
   </a>
   <div class="collapse" id="sidebar-crm">
     <ul class="nav-second-level">
-      <li><a href="{{ route('admin.employees.index') }}"><i data-feather="user"></i> Employees</a></li>
+      <li><a href="{{ route('admin.employees.index') }}"><i data-feather="user"></i> {{ __('Employees') }}</a></li>
       <li><a href="{{ route('admin.attendances.index') }}"><i data-feather="check-circle"></i>{{ __('Attendance') }}</a></li>
-      <li><a href="{{ route('admin.leaves.index') }}"><i data-feather="calendar"></i> Leaves</a></li>
-      <li><a href="{{ route('admin.salaries.index') }}"><i data-feather="dollar-sign"></i> Salaries</a></li>
-      <li><a href="{{ route('admin.bonuses.index') }}"><i data-feather="gift"></i> Bonuses</a></li>
-      <li><a href="{{ route('admin.salary_payments.index') }}"><i data-feather="credit-card"></i> Salary Payments</a></li>
+      <li><a href="{{ route('admin.leaves.index') }}"><i data-feather="calendar"></i> {{ __('Leaves') }}</a></li>
+      <li><a href="{{ route('admin.salaries.index') }}"><i data-feather="dollar-sign"></i> {{ __('Salaries') }}</a></li>
+      <li><a href="{{ route('admin.bonuses.index') }}"><i data-feather="gift"></i> {{ __('Bonuses') }}</a></li>
+      <li><a href="{{ route('admin.salary_payments.index') }}"><i data-feather="credit-card"></i> {{ __('Salary Payments') }}</a></li>
     </ul>
   </div>
 </li>
@@ -539,22 +539,22 @@
 <li>
   <a href="#sidebar-users" data-bs-toggle="collapse">
     <i data-feather="user"></i>
-    <span> Users & Roles </span>
+    <span> {{ __('{{ __('{{ __('{{ __('Use') }}r') }}s') }} & {{ __('Roles') }}') }} </span>
     <span class="menu-arrow"></span>
   </a>
   <div class="collapse" id="sidebar-users">
     <ul class="nav-second-level">
       @can('user-list')
-      <li><a href="{{ route('users.index') }}"><i data-feather="file-plus"></i> User</a></li>
+      <li><a href="{{ route('users.index') }}"><i data-feather="file-plus"></i> {{ __('{{ __('Use') }}r') }}</a></li>
       @endcan
       @can('role-list')
-      <li><a href="{{ route('roles.index') }}"><i data-feather="file-plus"></i> Roles</a></li>
+      <li><a href="{{ route('roles.index') }}"><i data-feather="file-plus"></i> {{ __('Roles') }}</a></li>
       @endcan
       @can('permission-list')
-      <li><a href="{{ route('permissions.index') }}"><i data-feather="file-plus"></i> Permissions</a></li>
+      <li><a href="{{ route('permissions.index') }}"><i data-feather="file-plus"></i> {{ __('Permissions') }}</a></li>
       @endcan
       @canany(['customer-list', 'customer-create', 'customer-edit'])
-      <li><a href="{{ route('customers.index') }}"><i data-feather="file-plus"></i>{{ __('Customers') }}</a></li>
+      <li><a href="{{ route('customers.index') }}"><i data-feather="file-plus"></i>{{ __('{{ __('Customer') }}s') }}</a></li>
       @endcanany
     </ul>
   </div>
@@ -568,16 +568,16 @@
 <li class="{{ request()->routeIs('backEnd.complaints.*') ? 'active' : '' }}">
     <a href="{{ route('backEnd.complaints.index') }}">
         <i data-feather="alert-circle"></i>
-        <span> Complaints </span>
+        <span> {{ __('Complaints') }} </span>
     </a>
 </li>
 @endcanany
 
 @can('contact-list')
-<li class="{{ request()->routeIs('admin.contact.messages*') ? 'active' : '' }}">
-    <a href="{{ route('admin.contact.messages') }}">
+<li class="{{ request()->routeIs('admin.contact.{{ __('message') }}s*') ? 'active' : '' }}">
+    <a href="{{ route('admin.contact.{{ __('message') }}s') }}">
         <i data-feather="mail"></i>
-        <span> Contact Messages </span>
+        <span> {{ __('{{ __('Contact') }} {{ __('Message') }}s') }} </span>
     </a>
 </li>
 @endcan
@@ -585,7 +585,7 @@
 <li class="{{ request()->routeIs('admin.newsletter.subscribers*') ? 'active' : '' }}">
     <a href="{{ route('admin.newsletter.subscribers') }}">
         <i data-feather="mail"></i>
-        <span> Newsletter Subscribers </span>
+        <span> {{ __('{{ __('{{ __('New') }}sletter Subscribe') }}rs') }} </span>
     </a>
 </li>
 
@@ -593,7 +593,7 @@
 <li>
   <a href="{{ route('admin.sms.custom.page') }}">
     <i data-feather="send"></i>
-    <span>Send Custom SMS</span>
+    <span>{{ __('Send Custom SMS') }}</span>
   </a>
 </li>
 @endcan
@@ -605,7 +605,7 @@
 <li>
   <a href="{{ route('purchases.index') }}">
     <i data-feather="file-text"></i>
-    <span>Purchases</span>
+    <span>{{ __('Purchases') }}</span>
   </a>
 </li>
 @endcanany
@@ -614,7 +614,7 @@
 <li>
   <a href="{{ route('admin.suppliers.index') }}">
     <i data-feather="truck"></i>
-    <span>Suppliers</span>
+    <span>{{ __('{{ __('Supplier') }}s') }}</span>
   </a>
 </li>
 @endcanany
@@ -626,7 +626,7 @@
 <li>
   <a href="{{ route('admin.fund.index') }}">
     <i data-feather="briefcase"></i>
-    <span> Fund / Account</span>
+    <span> {{ __('Fund / Account') }}</span>
   </a>
 </li>
 @endcanany
@@ -635,7 +635,7 @@
 <li class="{{ request()->routeIs('admin.expenses.*') ? 'active' : '' }}">
   <a href="{{ route('admin.expenses.index') }}">
     <i data-feather="credit-card"></i>
-    <span>Expenses</span>
+    <span>{{ __('{{ __('Expense') }}s') }}</span>
   </a>
 </li>
 @endcanany
@@ -647,13 +647,13 @@
 <li>
   <a href="#sidebar-pixel-gtm" data-bs-toggle="collapse">
     <i data-feather="save"></i>
-    <span> G. Pixel and GTM </span>
+    <span> {{ __('G. Pixel and GTM') }} </span>
     <span class="menu-arrow"></span>
   </a>
   <div class="collapse" id="sidebar-pixel-gtm">
     <ul class="nav-second-level">
-      <li><a href="{{ route('tagmanagers.index') }}"><i data-feather="file-plus"></i> Tag Manager</a></li>
-      <li><a href="{{ route('pixels.index') }}"><i data-feather="file-plus"></i> Pixel Manage</a></li>
+      <li><a href="{{ route('tagmanagers.index') }}"><i data-feather="file-plus"></i> {{ __('Tag {{ __('Manage') }}r') }}</a></li>
+      <li><a href="{{ route('pixels.index') }}"><i data-feather="file-plus"></i> {{ __('Pixel {{ __('Manage') }}') }}</a></li>
       <li><a href="{{ route('tiktok.pixels.index') }}"><i data-feather="film"></i>{{ __('TikTok Pixel') }}</a></li>
     </ul>
   </div>
@@ -664,15 +664,15 @@
 <li>
   <a href="#sidebar-ads-analytics" data-bs-toggle="collapse">
     <i data-feather="trending-up"></i>
-    <span> Live Ads Result </span>
+    <span> {{ __('{{ __('Live') }} Ads Result') }} </span>
     <span class="menu-arrow"></span>
   </a>
   <div class="collapse {{ request()->routeIs('admin.ads_analytics.*') ? 'show' : '' }}" id="sidebar-ads-analytics">
     <ul class="nav-second-level">
-      <li><a href="{{ route('admin.ads_analytics.dashboard') }}"><i data-feather="layout"></i> Overview</a></li>
-      <li><a href="{{ route('admin.ads_analytics.facebook') }}"><i data-feather="facebook"></i> Facebook Ads</a></li>
-      <li><a href="{{ route('admin.ads_analytics.google') }}"><i data-feather="globe"></i> Google Ads</a></li>
-      <li><a href="{{ route('admin.ads_analytics.tiktok') }}"><i data-feather="video"></i> TikTok Ads</a></li>
+      <li><a href="{{ route('admin.ads_analytics.dashboard') }}"><i data-feather="layout"></i> {{ __('Overview') }}</a></li>
+      <li><a href="{{ route('admin.ads_analytics.facebook') }}"><i data-feather="facebook"></i> {{ __('Facebook Ads') }}</a></li>
+      <li><a href="{{ route('admin.ads_analytics.google') }}"><i data-feather="globe"></i> {{ __('Google Ads') }}</a></li>
+      <li><a href="{{ route('admin.ads_analytics.tiktok') }}"><i data-feather="video"></i> {{ __('TikTok Ads') }}</a></li>
     </ul>
   </div>
 </li>
@@ -682,7 +682,7 @@
 <li class="{{ request()->routeIs('admin.facebook_page.*') ? 'active' : '' }}">
   <a href="{{ route('admin.facebook_page.settings') }}">
     <i data-feather="share-2"></i>
-    <span> Facebook Page Post </span>
+    <span> {{ __('Facebook Page Post') }} </span>
   </a>
 </li>
 @endcanany
@@ -690,7 +690,7 @@
 {{-- ============================================= --}}
 {{--  SECTION 9: REPORTS                           --}}
 {{-- ============================================= --}}
-@canany(['report-view','order-report','purchase-report','expense-report','stock-report','profit-loss-report'])
+@canany(['report-view','order-report','purchase-report','expense-report','{{ __('stock') }}-report','profit-loss-report'])
 <li>
   <a href="#sidebar-report" data-bs-toggle="collapse">
     <i data-feather="pie-chart"></i>
@@ -700,19 +700,19 @@
   <div class="collapse" id="sidebar-report">
     <ul class="nav-second-level">
       @canany(['order-report','report-view'])
-      <li><a href="{{ route('admin.reports.orders') }}"><i data-feather="file-text"></i> Order Report</a></li>
+      <li><a href="{{ route('admin.reports.orders') }}"><i data-feather="file-text"></i> {{ __('Order Report') }}</a></li>
       @endcanany
       @canany(['purchase-report','report-view'])
-      <li><a href="{{ route('admin.reports.purchases') }}"><i data-feather="shopping-bag"></i> Purchase Report</a></li>
+      <li><a href="{{ route('admin.reports.purchases') }}"><i data-feather="shopping-bag"></i> {{ __('Purchase Report') }}</a></li>
       @endcanany
       @canany(['expense-report','report-view'])
-      <li><a href="{{ route('admin.reports.expenses') }}"><i data-feather="trending-down"></i> Expense Report</a></li>
+      <li><a href="{{ route('admin.reports.expenses') }}"><i data-feather="trending-down"></i> {{ __('{{ __('Expense') }} Report') }}</a></li>
       @endcanany
-      @canany(['stock-report','report-view'])
-      <li><a href="{{ route('admin.reports.stock') }}"><i data-feather="archive"></i> Stock Report</a></li>
+      @canany(['{{ __('stock') }}-report','report-view'])
+      <li><a href="{{ route('admin.reports.{{ __('stock') }}') }}"><i data-feather="archive"></i> {{ __('{{ __('Stock') }} Report') }}</a></li>
       @endcanany
       @canany(['profit-loss-report','report-view'])
-      <li><a href="{{ route('admin.reports.profit_loss') }}"><i data-feather="activity"></i> Profit & Loss</a></li>
+      <li><a href="{{ route('admin.reports.profit_loss') }}"><i data-feather="activity"></i> {{ __('Profit & Loss') }}</a></li>
       @endcanany
     </ul>
   </div>
@@ -726,25 +726,25 @@
 <li>
   <a href="#siebar-sitesetting" data-bs-toggle="collapse">
     <i data-feather="settings"></i>
-    <span> Site Setting </span>
+    <span> {{ __('Site Setting') }} </span>
     <span class="menu-arrow"></span>
   </a>
   <div class="collapse" id="siebar-sitesetting">
     <ul class="nav-second-level">
       @can('setting-list')
-      <li><a href="{{ route('settings.index') }}"><i data-feather="file-plus"></i> General Setting</a></li>
+      <li><a href="{{ route('settings.index') }}"><i data-feather="file-plus"></i> {{ __('General Setting') }}</a></li>
       @endcan
       @can('social-list')
-      <li><a href="{{ route('socialmedias.index') }}"><i data-feather="file-plus"></i> Social Media</a></li>
+      <li><a href="{{ route('socialmedias.index') }}"><i data-feather="file-plus"></i> {{ __('Social {{ __('Media') }}') }}</a></li>
       @endcan
       @can('contact-list')
-      <li><a href="{{ route('contact.index') }}"><i data-feather="file-plus"></i> Contact</a></li>
+      <li><a href="{{ route('contact.index') }}"><i data-feather="file-plus"></i> {{ __('Contact') }}</a></li>
       @endcan
       @canany(['page-list', 'page-create', 'page-edit'])
-      <li><a href="{{ route('pages.index') }}"><i data-feather="file-plus"></i> Create Page</a></li>
+      <li><a href="{{ route('pages.index') }}"><i data-feather="file-plus"></i> {{ __('Create Page') }}</a></li>
       @endcanany
       @canany(['shipping-list', 'shipping-create', 'shipping-edit'])
-      <li><a href="{{ route('shippingcharges.index') }}"><i data-feather="file-plus"></i> Shipping Charge</a></li>
+      <li><a href="{{ route('shippingcharges.index') }}"><i data-feather="file-plus"></i> {{ __('{{ __('Shipping') }} Charge') }}</a></li>
       @endcanany
     </ul>
   </div>
@@ -755,7 +755,7 @@
 <li class="{{ request()->routeIs('email_setting*') ? 'active' : '' }}">
   <a href="{{ route('email_setting') }}">
     <i data-feather="mail"></i>
-    <span>{{ __('Email Settings') }}</span>
+    <span>{{ __('{{ __('Email') }} Settings') }}</span>
   </a>
 </li>
 @endcan
@@ -764,22 +764,22 @@
 <li>
   <a href="#sidebar-theme" data-bs-toggle="collapse">
     <i data-feather="feather"></i>
-    <span> Theme System </span>
+    <span> {{ __('Theme System') }} </span>
     <span class="menu-arrow"></span>
   </a>
   <div class="collapse" id="sidebar-theme">
     <ul class="nav-second-level">
       @can('theme-list')
-      <li><a href="{{ route('themes.index') }}"><i data-feather="file-plus"></i> Theme Manager</a></li>
+      <li><a href="{{ route('themes.index') }}"><i data-feather="file-plus"></i> {{ __('Theme {{ __('Manage') }}r') }}</a></li>
       @endcan
       @can('theme-create')
-      <li><a href="{{ route('themes.create') }}"><i data-feather="file-plus"></i> Create Theme</a></li>
+      <li><a href="{{ route('themes.create') }}"><i data-feather="file-plus"></i> {{ __('Create Theme') }}</a></li>
       @endcan
       @canany(['layout-list', 'layout-create'])
-      <li><a href="{{ route('layouts.index') }}"><i data-feather="file-plus"></i> Layout Builder</a></li>
+      <li><a href="{{ route('layouts.index') }}"><i data-feather="file-plus"></i> {{ __('Layout Builder') }}</a></li>
       @endcanany
-      <li><a href="{{ route('headerfooter.index') }}"><i data-feather="layout"></i> Header & Footer</a></li>
-      <li><a href="{{ route('demo.index') }}"><i data-feather="upload"></i> Demo Import/Export</a></li>
+      <li><a href="{{ route('headerfooter.index') }}"><i data-feather="layout"></i> {{ __('Header & Footer') }}</a></li>
+      <li><a href="{{ route('demo.index') }}"><i data-feather="upload"></i> {{ __('Demo Import/Export') }}</a></li>
     </ul>
   </div>
 </li>
@@ -789,15 +789,15 @@
 <li>
   <a href="#sidebar-api-integration" data-bs-toggle="collapse">
     <i data-feather="save"></i>
-    <span> API Integration </span>
+    <span> {{ __('API Integration') }} </span>
     <span class="menu-arrow"></span>
   </a>
   <div class="collapse" id="sidebar-api-integration">
     <ul class="nav-second-level">
-      <li><a href="{{ route('paymentgeteway.manage') }}"><i data-feather="file-plus"></i> Payment Gateway</a></li>
-      <li><a href="{{ route('smsgeteway.manage') }}"><i data-feather="file-plus"></i> SMS Gateway</a></li>
-      <li><a href="{{ route('courierapi.manage') }}"><i data-feather="file-plus"></i> Courier API</a></li>
-      <li><a href="{{ route('admin.facebook_capi.edit') }}"><i data-feather="facebook"></i> Facebook CAPI</a></li>
+      <li><a href="{{ route('paymentgeteway.manage') }}"><i data-feather="file-plus"></i> {{ __('Payment Gateway') }}</a></li>
+      <li><a href="{{ route('smsgeteway.manage') }}"><i data-feather="file-plus"></i> {{ __('SMS Gateway') }}</a></li>
+      <li><a href="{{ route('courierapi.manage') }}"><i data-feather="file-plus"></i> {{ __('{{ __('Courier') }} API') }}</a></li>
+      <li><a href="{{ route('admin.facebook_capi.edit') }}"><i data-feather="facebook"></i> {{ __('Facebook CAPI') }}</a></li>
     </ul>
   </div>
 </li>
@@ -810,13 +810,13 @@
 <li>
   <a href="#sidebar-fraud" data-bs-toggle="collapse">
     <i data-feather="shield"></i>
-    <span> Fraud API Settings </span>
+    <span> {{ __('Fraud API Settings') }} </span>
     <span class="menu-arrow"></span>
   </a>
   <div class="collapse" id="sidebar-fraud">
     <ul class="nav-second-level">
       @can('fraud-setting-list')
-      <li><a href="{{ route('admin.fraud.index') }}"><i data-feather="key"></i> Manage Fraud API</a></li>
+      <li><a href="{{ route('admin.fraud.index') }}"><i data-feather="key"></i> {{ __('{{ __('Manage') }} Fraud API') }}</a></li>
       @endcan
     </ul>
   </div>
@@ -827,7 +827,7 @@
 <li>
   <a href="{{ route('manualFraud.page') }}">
     <i data-feather="search"></i>
-    <span>Manual Fraud Check</span>
+    <span>{{ __('Manual {{ __('Fraud {{ __('Check') }}') }}') }}</span>
   </a>
 </li>
 @endcan
@@ -836,7 +836,7 @@
 <li>
   <a href="{{ route('admin.order.restriction.setting.index') }}">
     <i data-feather="clock"></i>
-    <span> Order Restriction</span>
+    <span> {{ __('Order Restriction') }}</span>
   </a>
 </li>
 @endcanany
@@ -848,7 +848,7 @@
 <li>
   <a href="{{ route('admin.cron.index') }}">
     <i data-feather="clock"></i>
-    <span> Cron Job </span>
+    <span> {{ __('Cron Job') }} </span>
   </a>
 </li>
 @endcanany
@@ -866,7 +866,7 @@
 <li class="{{ request()->routeIs('admin.sitemap.*') ? 'active' : '' }}">
     <a href="{{ route('admin.sitemap.index') }}">
         <i data-feather="map"></i>
-        <span> Sitemap Settings </span>
+        <span> {{ __('Sitemap Settings') }} </span>
     </a>
 </li>
 @endcan
@@ -882,7 +882,7 @@
 <li>
   <a href="{{ route('error-log.index') }}">
     <i data-feather="file-text"></i>
-    <span>Error Log</span>
+    <span>{{ __('Error Log') }}</span>
   </a>
 </li>
             </ul>
@@ -917,7 +917,7 @@
         <ul class="nav nav-tabs nav-bordered nav-justified" role="tablist">
           <li class="nav-item">
             <a class="nav-link py-2" data-bs-toggle="tab" href="#chat-tab" role="tab">
-              <i class="mdi mdi-message-text d-block font-22 my-1"></i>
+              <i class="mdi mdi-{{ __('message') }}-text d-block font-22 my-1"></i>
             </a>
           </li>
           <li class="nav-item">
@@ -937,14 +937,14 @@
           <div class="tab-pane" id="chat-tab" role="tabpanel">
             <form class="search-bar p-3">
               <div class="position-relative">
-                <input type="text" class="form-control" placeholder="Search..." />
+                <input type="text" class="form-control" placeholder="{{ __('Search...') }}" />
                 <span class="mdi mdi-magnify"></span>
               </div>
             </form>
           </div>
 
           <div class="tab-pane" id="tasks-tab" role="tabpanel">
-            <h6 class="fw-medium p-3 m-0 text-uppercase">Working Tasks</h6>
+            <h6 class="fw-medium p-3 m-0 text-uppercase">{{ __('Working Tasks') }}</h6>
           </div>
           <div class="tab-pane active" id="settings-tab" role="tabpanel">
             <h6 class="fw-medium px-3 m-0 py-2 font-13 text-uppercase bg-light">
@@ -952,54 +952,54 @@
             </h6>
 
             <div class="p-3">
-              <div class="alert alert-warning" role="alert"><strong>Customize </strong> the overall color scheme, sidebar menu, etc.</div>
+              <div class="alert alert-warning" role="alert"><strong>{{ __('Customize') }} </strong> {{ __('the overall color scheme, sidebar menu, etc.') }}</div>
 
-              <h6 class="fw-medium font-14 mt-4 mb-2 pb-1">Color Scheme</h6>
+              <h6 class="fw-medium font-14 mt-4 mb-2 pb-1">{{ __('{{ __('Color') }} Scheme') }}</h6>
               <div class="form-check form-switch mb-1">
                 <input type="checkbox" class="form-check-input" name="layout-color" value="light" id="light-mode-check" checked />
-                <label class="form-check-label" for="light-mode-check">Light Mode</label>
+                <label class="form-check-label" for="light-mode-check">{{ __('{{ __('Light') }} Mode') }}</label>
               </div>
 
               <div class="form-check form-switch mb-1">
                 <input type="checkbox" class="form-check-input" name="layout-color" value="dark" id="dark-mode-check" />
-                <label class="form-check-label" for="dark-mode-check">Dark Mode</label>
+                <label class="form-check-label" for="dark-mode-check">{{ __('{{ __('Dark') }} Mode') }}</label>
               </div>
 
-              <!-- Width -->
-              <h6 class="fw-medium font-14 mt-4 mb-2 pb-1">Width</h6>
+              <!-- {{ __('Width') }} -->
+              <h6 class="fw-medium font-14 mt-4 mb-2 pb-1">{{ __('Width') }}</h6>
               <div class="form-check form-switch mb-1">
                 <input type="checkbox" class="form-check-input" name="layout-width" value="fluid" id="fluid-check" checked />
-                <label class="form-check-label" for="fluid-check">Fluid</label>
+                <label class="form-check-label" for="fluid-check">{{ __('Fluid') }}</label>
               </div>
               <div class="form-check form-switch mb-1">
                 <input type="checkbox" class="form-check-input" name="layout-width" value="boxed" id="boxed-check" />
-                <label class="form-check-label" for="boxed-check">Boxed</label>
+                <label class="form-check-label" for="boxed-check">{{ __('Boxed') }}</label>
               </div>
 
               <!-- Menu positions -->
-              <h6 class="fw-medium font-14 mt-4 mb-2 pb-1">Menus (Leftsidebar and Topbar) Positon</h6>
+              <h6 class="fw-medium font-14 mt-4 mb-2 pb-1">{{ __('Menus (Leftsidebar and {{ __('Topbar') }}) Positon') }}</h6>
 
               <div class="form-check form-switch mb-1">
                 <input type="checkbox" class="form-check-input" name="menu-position" value="fixed" id="fixed-check" checked />
-                <label class="form-check-label" for="fixed-check">Fixed</label>
+                <label class="form-check-label" for="fixed-check">{{ __('Fixed') }}</label>
               </div>
 
               <div class="form-check form-switch mb-1">
                 <input type="checkbox" class="form-check-input" name="menu-position" value="scrollable" id="scrollable-check" />
-                <label class="form-check-label" for="scrollable-check">Scrollable</label>
+                <label class="form-check-label" for="scrollable-check">{{ __('Scrollable') }}</label>
               </div>
 
               <!-- Left Sidebar-->
-              <h6 class="fw-medium font-14 mt-4 mb-2 pb-1">Left Sidebar Color</h6>
+              <h6 class="fw-medium font-14 mt-4 mb-2 pb-1">{{ __('Left Sidebar {{ __('Color') }}') }}</h6>
 
               <div class="form-check form-switch mb-1">
                 <input type="checkbox" class="form-check-input" name="leftbar-color" value="light" id="light-check" />
-                <label class="form-check-label" for="light-check">Light</label>
+                <label class="form-check-label" for="light-check">{{ __('Light') }}</label>
               </div>
 
               <div class="form-check form-switch mb-1">
                 <input type="checkbox" class="form-check-input" name="leftbar-color" value="dark" id="dark-check" checked />
-                <label class="form-check-label" for="dark-check">Dark</label>
+                <label class="form-check-label" for="dark-check">{{ __('Dark') }}</label>
               </div>
 
               <div class="form-check form-switch mb-1">
@@ -1009,11 +1009,11 @@
 
               <div class="form-check form-switch mb-3">
                 <input type="checkbox" class="form-check-input" name="leftbar-color" value="gradient" id="gradient-check" />
-                <label class="form-check-label" for="gradient-check">Gradient</label>
+                <label class="form-check-label" for="gradient-check">{{ __('Gradient') }}</label>
               </div>
 
               <!-- size -->
-              <h6 class="fw-medium font-14 mt-4 mb-2 pb-1">Left Sidebar Size</h6>
+              <h6 class="fw-medium font-14 mt-4 mb-2 pb-1">{{ __('Left Sidebar Size') }}</h6>
 
               <div class="form-check form-switch mb-1">
                 <input type="checkbox" class="form-check-input" name="leftbar-size" value="default" id="default-size-check" checked />
@@ -1022,38 +1022,38 @@
 
               <div class="form-check form-switch mb-1">
                 <input type="checkbox" class="form-check-input" name="leftbar-size" value="condensed" id="condensed-check" />
-                <label class="form-check-label" for="condensed-check">Condensed <small>(Extra Small size)</small></label>
+                <label class="form-check-label" for="condensed-check">{{ __('Condensed') }} <small>{{ __('(Extra Small size)') }}</small></label>
               </div>
 
               <div class="form-check form-switch mb-1">
                 <input type="checkbox" class="form-check-input" name="leftbar-size" value="compact" id="compact-check" />
-                <label class="form-check-label" for="compact-check">Compact <small>(Small size)</small></label>
+                <label class="form-check-label" for="compact-check">{{ __('Compact') }} <small>{{ __('(Small size)') }}</small></label>
               </div>
 
-              <!-- User info -->
-              <h6 class="fw-medium font-14 mt-4 mb-2 pb-1">Sidebar User Info</h6>
+              <!-- {{ __('{{ __('Use') }}r') }} info -->
+              <h6 class="fw-medium font-14 mt-4 mb-2 pb-1">{{ __('Sidebar {{ __('{{ __('Use') }}r') }} Info') }}</h6>
 
               <div class="form-check form-switch mb-1">
                 <input type="checkbox" class="form-check-input" name="sidebar-user" value="fixed" id="sidebaruser-check" />
-                <label class="form-check-label" for="sidebaruser-check">Enable</label>
+                <label class="form-check-label" for="sidebaruser-check">{{ __('Enable') }}</label>
               </div>
 
-              <!-- Topbar -->
-              <h6 class="fw-medium font-14 mt-4 mb-2 pb-1">Topbar</h6>
+              <!-- {{ __('Topbar') }} -->
+              <h6 class="fw-medium font-14 mt-4 mb-2 pb-1">{{ __('Topbar') }}</h6>
 
               <div class="form-check form-switch mb-1">
                 <input type="checkbox" class="form-check-input" name="topbar-color" value="dark" id="darktopbar-check" checked />
-                <label class="form-check-label" for="darktopbar-check">Dark</label>
+                <label class="form-check-label" for="darktopbar-check">{{ __('Dark') }}</label>
               </div>
 
               <div class="form-check form-switch mb-1">
                 <input type="checkbox" class="form-check-input" name="topbar-color" value="light" id="lighttopbar-check" />
-                <label class="form-check-label" for="lighttopbar-check">Light</label>
+                <label class="form-check-label" for="lighttopbar-check">{{ __('Light') }}</label>
               </div>
 
               <div class="d-grid mt-4">
-                <button class="btn btn-primary" id="resetBtn">Reset to Default</button>
-                <a href="https://1.envato.market/uboldadmin" class="btn btn-danger mt-3" target="_blank"><i class="mdi mdi-basket me-1"></i> Purchase Now</a>
+                <button class="btn btn-primary" id="resetBtn">{{ __('Reset to Default') }}</button>
+                <a href="{{ __('https://') }}1.envato.market/uboldadmin" class="btn btn-danger mt-3" target="_blank"><i class="mdi mdi-basket me-1"></i> {{ __('Purchase Now') }}</a>
               </div>
             </div>
           </div>
@@ -1072,7 +1072,7 @@
     <!-- App js -->
     <script src="{{asset('public/backEnd/')}}/assets/js/app.min.js"></script>
     <!-- Feather Icons - Ensure library is loaded and initialized -->
-    <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
+    <script src="{{ __('https://') }}cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
     <script>
         // Force Feather Icons initialization after all scripts load
         (function() {
@@ -1154,7 +1154,7 @@
                 });
             }
             
-            // Fallback: Check periodically for unrendered icons
+            // Fallback: {{ __('Check') }} periodically for unrendered icons
             setTimeout(function() {
                 var checkInterval = setInterval(function() {
                     var unrendered = document.querySelectorAll('[data-feather]:not(svg)');
@@ -1174,35 +1174,35 @@
     </script>
     <script src="{{asset('public/backEnd/')}}/assets/js/toastr.min.js"></script>
     <script src="{{asset('public/backEnd/')}}/assets/js/sweetalert.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    {!! Toastr::message() !!}
+    <script src="{{ __('https://') }}cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    {!! Toastr::{{ __('message') }}() !!}
 	<script>
-@if(Session::has('success'))
-    toastr.success("{{ Session::get('success') }}");
+@if({{ __('Session') }}::has('success'))
+    toastr.success("{{ {{ __('Session') }}::get('success') }}");
 @endif
-@if(Session::has('error') && !Session::has('demo_mode_blocked'))
-    toastr.error("{{ Session::get('error') }}");
+@if({{ __('Session') }}::has('error') && !{{ __('Session') }}::has('demo_mode_blocked'))
+    toastr.error("{{ {{ __('Session') }}::get('error') }}");
 @endif
-@if(Session::has('info'))
-    toastr.info("{{ Session::get('info') }}");
+@if({{ __('Session') }}::has('info'))
+    toastr.info("{{ {{ __('Session') }}::get('info') }}");
 @endif
-@if(Session::has('warning'))
-    toastr.warning("{{ Session::get('warning') }}");
+@if({{ __('Session') }}::has('warning'))
+    toastr.warning("{{ {{ __('Session') }}::get('warning') }}");
 @endif
-@if(Session::has('demo_mode_blocked'))
+@if({{ __('Session') }}::has('demo_mode_blocked'))
     if (typeof Swal !== 'undefined') {
         Swal.fire({
             icon: 'info',
-            title: '<strong style="font-size:1.4rem;color:#2c3e50;">ডেমো মুড সক্রিয়</strong>',
-            html: '<div style="text-align:center;padding:10px 0;"><div style="width:70px;height:70px;margin:0 auto 15px;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);border-radius:50%;display:flex;align-items:center;justify-content:center;"><i class="fe-eye" style="font-size:32px;color:#fff;"></i></div><p style="font-size:1rem;color:#5a6c7d;margin-bottom:8px;line-height:1.6;">অ্যাডমিন প্যানেল থেকে কোন ডাটা পরিবর্তন বা সংযোজন করা যাবে না।</p><p style="font-size:0.9rem;color:#95a5a6;margin:0;">কাস্টমার সাইটে অর্ডার, ট্রাকিং ও অন্যান্য সেবা স্বাভাবিকভাবে কাজ করবে।</p></div>',
-            confirmButtonText: 'বুঝেছি',
-            confirmButtonColor: '#667eea',
+            title: '<strong style="font-size:1.4rem;color:#2c3e50;">{{ __('bn_391c505f') }}</strong>',
+            html: '<div style="text-align:center;padding:10px 0;"><div style="width:70px;height:70px;margin:0 auto 15px;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);border-radius:50%;display:flex;align-items:center;justify-content:center;"><i class="fe-eye" style="font-size:32px;color:#fff;"></i></div><p style="font-size:1rem;color:#5a6c7d;margin-bottom:8px;line-height:1.6;">{{ __('bn_743a8bbb') }}</p><p style="font-size:0.9rem;color:#95a5a6;margin:0;">{{ __('bn_72230317') }}</p></div>',
+            confirmButton{{ __('Text') }}: 'বুঝেছি',
+            confirmButton{{ __('Color') }}: '#667eea',
             customClass: { popup: 'demo-mode-popup', confirmButton: 'demo-mode-btn' },
             width: '420px',
             backdrop: 'rgba(0,0,0,0.5)',
         });
     } else {
-        toastr.info("ডেমো মুড চালু আছে। অ্যাডমিন প্যানেল থেকে কোন পরিবর্তন করা যাবে না।");
+        toastr.info("{{ __('bn_67543547') }} মুড চালু আছে। অ্যাডমিন প্যানেল থেকে কোন পরিবর্তন করা যাবে না।");
     }
 @endif
 </script>
@@ -1215,22 +1215,22 @@
         if (typeof Swal !== 'undefined') {
             Swal.fire({
                 icon: 'info',
-                title: '<strong style="font-size:1.4rem;color:#2c3e50;">ডেমো মুড সক্রিয়</strong>',
-                html: '<div style="text-align:center;padding:10px 0;"><div style="width:70px;height:70px;margin:0 auto 15px;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);border-radius:50%;display:flex;align-items:center;justify-content:center;"><i class="fe-eye" style="font-size:32px;color:#fff;"></i></div><p style="font-size:1rem;color:#5a6c7d;margin-bottom:8px;line-height:1.6;">' + (msg || 'অ্যাডমিন প্যানেল থেকে কোন ডাটা পরিবর্তন বা সংযোজন করা যাবে না।') + '</p><p style="font-size:0.9rem;color:#95a5a6;margin:0;">কাস্টমার সাইটে অর্ডার, ট্রাকিং ও অন্যান্য সেবা স্বাভাবিকভাবে কাজ করবে।</p></div>',
-                confirmButtonText: 'বুঝেছি',
-                confirmButtonColor: '#667eea',
+                title: '<strong style="font-size:1.4rem;color:#2c3e50;">{{ __('bn_391c505f') }}</strong>',
+                html: '<div style="text-align:center;padding:10px 0;"><div style="width:70px;height:70px;margin:0 auto 15px;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);border-radius:50%;display:flex;align-items:center;justify-content:center;"><i class="fe-eye" style="font-size:32px;color:#fff;"></i></div><p style="font-size:1rem;color:#5a6c7d;margin-bottom:8px;line-height:1.6;">{{ __('bn_2c1448af') }}</p><p style="font-size:0.9rem;color:#95a5a6;margin:0;">{{ __('bn_72230317') }}</p></div>',
+                confirmButton{{ __('Text') }}: 'বুঝেছি',
+                confirmButton{{ __('Color') }}: '#667eea',
                 customClass: { popup: 'demo-mode-popup', confirmButton: 'demo-mode-btn' },
                 width: '420px',
                 backdrop: 'rgba(0,0,0,0.5)',
             });
         }
     }
-    $(document).ajaxComplete(function(event, xhr, settings) {
+    $(document).ajax{{ __('Complete') }}(function(event, xhr, settings) {
         if (xhr.status === 403) {
             try {
-                var data = typeof xhr.responseJSON !== 'undefined' ? xhr.responseJSON : JSON.parse(xhr.responseText || '{}');
+                var data = typeof xhr.responseJSON !== 'undefined' ? xhr.responseJSON : JSON.parse(xhr.response{{ __('Text') }} || '{}');
                 if (data.demo_mode && typeof Swal !== 'undefined') {
-                    showDemoModeAlert(data.message || '');
+                    showDemoModeAlert(data.{{ __('message') }} || '');
                 }
             } catch (e) {}
         }
@@ -1250,14 +1250,14 @@
             text: "You won't be able to revert this!",
             icon: 'warning',
             showCancelButton: true,
-            confirmButtonColor: '#d33',
-            cancelButtonColor: '#3085d6',
-            confirmButtonText: 'Yes, delete it!'
+            confirmButton{{ __('Color') }}: '#d33',
+            cancelButton{{ __('Color') }}: '#3085d6',
+            confirmButton{{ __('Text') }}: 'Yes, delete it!'
           }).then(function(result) {
-            if (result.isConfirmed) { form.submit(); }
+            if (result.isConfirmed) { form.{{ __('submit') }}(); }
           });
         } else {
-          if (confirm('Are you sure you want to delete this record?')) { form.submit(); }
+          if (confirm('Are you sure you want to delete this record?')) { form.{{ __('submit') }}(); }
         }
       });
       $(document).on('click', '.change-confirm', function (event) {
@@ -1274,12 +1274,12 @@
           dangerMode: true,
         }).then((willDelete) => {
           if (willDelete) {
-            form.submit();
+            form.{{ __('submit') }}();
           }
         });
       });
       @if(isset($demoMode) && $demoMode)
-      $(document).on('submit', 'form', function(e) {
+      $(document).on('{{ __('submit') }}', 'form', function(e) {
         var action = (this.action || '').toLowerCase();
         if (action.indexOf('logout') !== -1) return;
         var method = ($(this).find('input[name="_method"]').val() || $(this).attr('method') || 'get').toLowerCase();
@@ -1305,14 +1305,14 @@
         $(document).ready(function() {
             $('.pathaocity').change(function() {
                 var id = $(this).val();
-                if (id) {
+                if ({{ __('id)') }} {
                     $.ajax({
-                        type: "GET",
+                        type: "{{ __('GET') }}",
                         url: "{{ url('admin/pathao-city') }}?city_id=" + id,
                         success: function(res) {
                             if (res && res.data && res.data.data) {
                                 $(".pathaozone").empty();
-                                $(".pathaozone").append('<option value="">Select..</option>');
+                                $(".pathaozone").append('<option value="">{{ __('Select..') }}</option>');
                                 $.each(res.data.data, function(index, zone) {
                                     $(".pathaozone").append('<option value="' + zone.zone_id + '">' + zone.zone_name + '</option>');
                                     $('.pathaozone').trigger("chosen:updated");
@@ -1334,14 +1334,14 @@
         $(document).ready(function() {
             $('.pathaozone').change(function() {
                 var id = $(this).val();
-                if (id) {
+                if ({{ __('id)') }} {
                     $.ajax({
-                        type: "GET",
+                        type: "{{ __('GET') }}",
                         url: "{{ url('admin/pathao-zone') }}?zone_id=" + id,
                         success: function(res) {
                             if (res && res.data && res.data.data) {
                                 $(".pathaoarea").empty();
-                                $(".pathaoarea").append('<option value="">Select..</option>');
+                                $(".pathaoarea").append('<option value="">{{ __('Select..') }}</option>');
                                 $.each(res.data.data, function(index, area) {
                                     $(".pathaoarea").append('<option value="' + area.area_id + '">' + area.area_name + '</option>');
                                     $('.pathaoarea').trigger("chosen:updated");

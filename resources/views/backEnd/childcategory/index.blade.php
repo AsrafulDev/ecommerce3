@@ -1,5 +1,5 @@
 @extends('backEnd.layouts.master')
-@section('title','Childcategory Manage')
+@section('title','Childcategory {{ __('Manage') }}')
 
 @section('css')
 <link href="{{asset('/public/backEnd/')}}/assets/libs/datatables.net-bs5/css/dataTables.bootstrap5.min.css" rel="stylesheet" type="text/css" />
@@ -33,11 +33,11 @@
         padding: 15px;
         border-bottom: 1px solid #f1f5f7;
         color: #313b5e;
-        font-size: 14px;
+        font-size: {{ __('14px') }};
     }
 
     /* Childcategory Specific Styles */
-    .child-name { font-weight: 600; color: #343a40; font-size: 14px; }
+    .child-name { font-weight: 600; color: #343a40; font-size: {{ __('14px') }}; }
     .sub-cat { font-size: 12px; font-weight: 500; }
 
     /* Soft Badges */
@@ -73,7 +73,7 @@
     
     <div class="row mb-3 mt-3">
         <div class="col-12 d-flex justify-content-between align-items-center">
-            <h4 class="page-title mb-0" style="font-weight: 700; color: #2d3436;">Childcategories</h4>
+            <h4 class="page-title mb-0" style="font-weight: 700; color: #2d3436;">{{ __('Childcategories') }}</h4>
             <a href="{{route('childcategories.create')}}" class="btn btn-primary rounded-pill shadow-sm px-4">
                 <i class="fe-plus me-1"></i> Add Childcategory
             </a>
@@ -88,9 +88,9 @@
                         <thead>
                             <tr>
                                 <th style="width: 50px;">{{ __('SL') }}</th>
-                                <th>Subcategory</th>
-                                <th>Childcategory Name</th>
-                                <th>{{ __('Status') }}</th>
+                                <th>{{ __('Subcategory') }}</th>
+                                <th>{{ __('Childcategory {{ __('Name') }}') }}</th>
+                                <th>{{ __('{{ __('Status') }}') }}</th>
                                 <th class="text-end" style="width: 150px;">{{ __('Action') }}</th>
                             </tr>
                         </thead>                
@@ -102,15 +102,15 @@
                                 <td>
                                     @if($value->subcategory)
                                         <span class="badge badge-pill badge-soft-info sub-cat">
-                                            <i class="fe-corner-down-right me-1"></i> {{$value->subcategory->subcategoryName}}
+                                            <i class="fe-corner-down-right me-1"></i> {{$value->subcategory->subcategory{{ __('Name') }}}}
                                         </span>
                                     @else
-                                        <span class="badge badge-pill badge-soft-secondary">No Parent</span>
+                                        <span class="badge badge-pill badge-soft-secondary">{{ __('No Parent') }}</span>
                                     @endif
                                 </td>
 
                                 <td>
-                                    <span class="child-name">{{$value->childcategoryName}}</span>
+                                    <span class="child-name">{{$value->childcategory{{ __('Name') }}}}</span>
                                 </td>
                                 
                                 <td>
@@ -123,12 +123,12 @@
 
                                 <td class="text-end">
                                     <div class="d-inline-flex gap-2">
-                                        {{-- Status Toggle --}}
+                                        {{-- {{ __('Status') }} Toggle --}}
                                         @if($value->status == 1)
                                             <form method="post" action="{{route('childcategories.inactive')}}" class="d-inline"> 
                                                 @csrf
                                                 <input type="hidden" value="{{$value->id}}" name="hidden_id">        
-                                                <button type="submit" class="action-btn btn-inactive" title="Deactivate">
+                                                <button type="{{ __('submit') }}" class="action-btn btn-inactive" title="Deactivate">
                                                     <i class="fe-eye-off"></i>
                                                 </button>
                                             </form>
@@ -136,14 +136,14 @@
                                             <form method="post" action="{{route('childcategories.active')}}" class="d-inline">
                                                 @csrf
                                                 <input type="hidden" value="{{$value->id}}" name="hidden_id">        
-                                                <button type="submit" class="action-btn btn-active" title="Activate">
+                                                <button type="{{ __('submit') }}" class="action-btn btn-active" title="Activate">
                                                     <i class="fe-eye"></i>
                                                 </button>
                                             </form>
                                         @endif
 
                                         {{-- Edit --}}
-                                        <a href="{{route('childcategories.edit',$value->id)}}" class="action-btn btn-edit" title="{{ __('Edit') }}">
+                                        <a href="{{route('childcategories.edit',$value->{{ __('id)') }}}}" class="action-btn btn-edit" title="{{ __('Edit') }}">
                                             <i class="fe-edit"></i>
                                         </a>
 
@@ -151,7 +151,7 @@
                                         <form method="post" action="{{ route('childcategories.destroy') }}" class="d-inline">
                                             @csrf
                                             <input type="hidden" name="hidden_id" value="{{ $value->id }}">
-                                            <button type="submit" class="action-btn btn-delete delete-confirm" title="{{ __('Delete') }}">
+                                            <button type="{{ __('submit') }}" class="action-btn btn-delete delete-confirm" title="{{ __('Delete') }}">
                                                 <i class="fe-trash-2"></i>
                                             </button>
                                         </form>

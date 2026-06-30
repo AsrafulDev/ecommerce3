@@ -1,5 +1,5 @@
 @extends('backEnd.layouts.master')
-@section('title','TikTok Pixel Management')
+@section('title','TikTok {{ __('Pixel {{ __('Manage') }}') }}ment')
 
 @section('css')
 <link href="{{asset('/public/backEnd/')}}/assets/libs/datatables.net-bs5/css/dataTables.bootstrap5.min.css" rel="stylesheet" type="text/css" />
@@ -9,8 +9,8 @@
     .card { border: none; box-shadow: 0 0 20px rgba(18,38,63,0.03); border-radius: 12px; overflow: hidden; }
     .card-body { padding: 25px; }
     .table thead th { background-color: #f9fbfd; font-weight: 600; text-transform: uppercase; font-size: 11px; color: #8391a2; letter-spacing: 0.5px; border-bottom: 1px solid #eef2f7; padding: 12px 15px; }
-    .table tbody td { vertical-align: middle; padding: 15px; border-bottom: 1px solid #f1f5f7; color: #313b5e; font-size: 14px; }
-    .pixel-code { font-family: 'Courier New', monospace; background: #f1f5f7; padding: 4px 8px; border-radius: 4px; color: #d63384; font-weight: 600; }
+    .table tbody td { vertical-align: middle; padding: 15px; border-bottom: 1px solid #f1f5f7; color: #313b5e; font-size: {{ __('14px') }}; }
+    .pixel-code { font-family: '{{ __('Courier') }} {{ __('New') }}', monospace; background: #f1f5f7; padding: 4px 8px; border-radius: 4px; color: #d63384; font-weight: 600; }
     .badge-soft-success { background-color: rgba(10,207,151,0.18); color: #0acf97; }
     .badge-soft-danger { background-color: rgba(250,92,124,0.18); color: #fa5c7c; }
     .badge-pill { padding: 5px 10px; border-radius: 50rem; font-weight: 500; font-size: 11px; }
@@ -34,12 +34,12 @@
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="white"><path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34V9.05a8.16 8.16 0 004.77 1.52V7.13a4.85 4.85 0 01-1-.44z"/></svg>
                         TikTok
                     </span>
-                    Pixel Management
+                    {{ __('Pixel {{ __('Manage') }}') }}ment
                 </h4>
-                <p class="text-muted font-size-13 mb-0">Manage your TikTok tracking pixels.</p>
+                <p class="text-muted font-size-13 mb-0">{{ __('{{ __('Manage') }} your TikTok tracking pixels.') }}</p>
             </div>
             <a href="{{route('tiktok.pixels.create')}}" class="btn btn-dark rounded-pill shadow-sm px-4">
-                <i class="fe-plus me-1"></i> Add TikTok Pixel
+                <i class="fe-plus me-1"></i> {{ __('Add TikTok Pixel') }}
             </a>
         </div>
     </div>
@@ -52,7 +52,7 @@
                         <thead>
                             <tr>
                                 <th style="width: 50px;">{{ __('SL') }}</th>
-                                <th>TikTok Pixel ID</th>
+                                <th>{{ __('TikTok Pixel ID') }}</th>
                                 <th>{{ __('Status') }}</th>
                                 <th class="text-end" style="width: 150px;">{{ __('Action') }}</th>
                             </tr>
@@ -75,7 +75,7 @@
                                             <form method="post" action="{{route('tiktok.pixels.inactive')}}" class="d-inline">
                                                 @csrf
                                                 <input type="hidden" value="{{$value->id}}" name="hidden_id">
-                                                <button type="submit" class="action-btn btn-status-inactive" title="Deactivate">
+                                                <button type="{{ __('submit') }}" class="action-btn btn-status-inactive" title="Deactivate">
                                                     <i class="fe-thumbs-down"></i>
                                                 </button>
                                             </form>
@@ -83,18 +83,18 @@
                                             <form method="post" action="{{route('tiktok.pixels.active')}}" class="d-inline">
                                                 @csrf
                                                 <input type="hidden" value="{{$value->id}}" name="hidden_id">
-                                                <button type="submit" class="action-btn btn-status-active" title="Activate">
+                                                <button type="{{ __('submit') }}" class="action-btn btn-status-active" title="Activate">
                                                     <i class="fe-thumbs-up"></i>
                                                 </button>
                                             </form>
                                         @endif
-                                        <a href="{{route('tiktok.pixels.edit', $value->id)}}" class="action-btn btn-edit" title="{{ __('Edit') }}">
+                                        <a href="{{route('tiktok.pixels.edit', $value->{{ __('id)') }}}}" class="action-btn btn-edit" title="{{ __('Edit') }}">
                                             <i class="fe-edit"></i>
                                         </a>
                                         <form method="post" action="{{route('tiktok.pixels.destroy')}}" class="d-inline">
                                             @csrf
                                             <input type="hidden" name="hidden_id" value="{{ $value->id }}">
-                                            <button type="submit" class="action-btn btn-delete delete-confirm" title="{{ __('Delete') }}">
+                                            <button type="{{ __('submit') }}" class="action-btn btn-delete delete-confirm" title="{{ __('Delete') }}">
                                                 <i class="fe-trash-2"></i>
                                             </button>
                                         </form>

@@ -1,5 +1,5 @@
 @extends('backEnd.layouts.master')
-@section('title', 'Manage Users')
+@section('title', '{{ __('Manage') }} {{ __('{{ __('{{ __('Use') }}r') }}s') }}')
 
 @section('css')
 <link href="{{asset('/public/backEnd/')}}/assets/libs/datatables.net-bs5/css/dataTables.bootstrap5.min.css" rel="stylesheet" type="text/css" />
@@ -35,24 +35,24 @@
     }
     .table-modern tr:hover td { background-color: #f8fafc; }
 
-    /* --- User Avatar --- */
+    /* --- {{ __('{{ __('Use') }}r') }} Avatar --- */
     .user-avatar-circle {
         width: 35px; height: 35px;
         background-color: #e0e7ff; color: #4338ca;
         border-radius: 50%;
         display: flex; align-items: center; justify-content: center;
-        font-weight: 700; font-size: 14px;
+        font-weight: 700; font-size: {{ __('14px') }};
         margin-right: 12px;
     }
 
-    /* --- Status Badges --- */
+    /* --- {{ __('Status') }} Badges --- */
     .badge-soft {
         padding: 5px 10px; border-radius: 6px; font-size: 0.75rem; font-weight: 600;
         display: inline-flex; align-items: center; gap: 5px;
     }
     .badge-active { background: #dcfce7; color: #166534; }
     .badge-inactive { background: #fee2e2; color: #991b1b; }
-    .status-dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+    .status-dot { width: 6px; height: 6px; border-radius: 50%; background: current{{ __('Color') }}; }
 
     /* --- Action Buttons --- */
     .btn-icon {
@@ -75,11 +75,11 @@
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
             <h4 class="mb-1 fw-bold text-dark">
-                <i data-feather="users" class="text-primary me-2"></i>{{ __('Manage Users') }}</h4>
-            <p class="text-muted small mb-0">Overview of all registered users and their roles.</p>
+                <i data-feather="users" class="text-primary me-2"></i>{{ __('{{ __('Manage') }} {{ __('{{ __('{{ __('Use') }}r') }}s') }}') }}</h4>
+            <p class="text-muted small mb-0">{{ __('{{ __('Overview') }} of all registered users and their roles.') }}</p>
         </div>
         <a href="{{ route('users.create') }}" class="btn btn-primary px-4 py-2 rounded-pill shadow-sm">
-            <i data-feather="plus" class="me-1" style="width: 16px;"></i> Create User
+            <i data-feather="plus" class="me-1" style="width: 16px;"></i> Create {{ __('{{ __('Use') }}r') }}
         </a>
     </div>
 
@@ -90,32 +90,32 @@
                 <thead>
                     <tr>
                         <th width="5%">#</th>
-                        <th width="30%">User Name</th>
-                        <th width="30%">Email Address</th>
-                        <th width="15%">{{ __('Status') }}</th>
-                        <th width="20%" class="text-end">Actions</th>
+                        <th width="30%">{{ __('{{ __('{{ __('Use') }}r') }} {{ __('Name') }}') }}</th>
+                        <th width="30%">{{ __('{{ __('Email') }} Address') }}</th>
+                        <th width="15%">{{ __('{{ __('Status') }}') }}</th>
+                        <th width="20%" class="text-end">{{ __('Actions') }}</th>
                     </tr>
                 </thead>
                 <tbody>
                     @foreach($data as $key => $value)
                         
                         @php
-                            // Role Check Logic
-                            $isAdminUser  = method_exists($value, 'hasRole') ? $value->hasRole('Admin') : false;
+                            // Role {{ __('Check') }} Logic
+                            $isAdmin{{ __('{{ __('Use') }}r') }}  = method_exists($value, 'hasRole') ? $value->hasRole('Admin') : false;
                             $isLoginAdmin = auth()->check() && method_exists(auth()->user(), 'hasRole')
                                             ? auth()->user()->hasRole('Admin')
                                             : false;
                         @endphp
 
                         {{-- Hide Admin Rows from Non-Admins --}}
-                        @if($isAdminUser && !$isLoginAdmin)
+                        @if($isAdmin{{ __('{{ __('Use') }}r') }} && !$isLoginAdmin)
                             @continue
                         @endif
 
                         <tr>
                             <td class="text-muted">{{ $loop->iteration }}</td>
                             
-                            {{-- Name --}}
+                            {{-- {{ __('Name') }} --}}
                             <td>
                                 <div class="d-flex align-items-center">
                                     <div class="user-avatar-circle">
@@ -125,10 +125,10 @@
                                 </div>
                             </td>
 
-                            {{-- Email --}}
+                            {{-- {{ __('Email') }} --}}
                             <td>{{ $value->email }}</td>
 
-                            {{-- Status --}}
+                            {{-- {{ __('Status') }} --}}
                             <td>
                                 @if($value->status == 1)
                                     <span class="badge-soft badge-active"><span class="status-dot"></span>{{ __('Active') }}</span>
@@ -137,31 +137,31 @@
                                 @endif
                             </td>
 
-                            {{-- Actions --}}
+                            {{-- {{ __('Actions') }} --}}
                             <td class="text-end">
                                 <div class="d-flex justify-content-end gap-1">
                                     
-                                    {{-- Status Toggle --}}
+                                    {{-- {{ __('Status') }} Toggle --}}
                                     <form method="post" action="{{ $value->status == 1 ? route('users.inactive') : route('users.active') }}" class="d-inline">
                                         @csrf
                                         <input type="hidden" value="{{ $value->id }}" name="hidden_id">
-                                        <button type="submit" class="btn-icon {{ $value->status == 1 ? 'btn-toggle-on' : 'btn-toggle-off' }} change-confirm" 
+                                        <button type="{{ __('submit') }}" class="btn-icon {{ $value->status == 1 ? 'btn-toggle-on' : 'btn-toggle-off' }} change-confirm" 
                                                 title="{{ $value->status == 1 ? 'Deactivate' : 'Activate' }}">
-                                            <i data-feather="{{ $value->status == 1 ? 'thumbs-down' : 'thumbs-up' }}" style="width:14px;"></i>
+                                            <i data-feather="{{ $value->status == 1 ? 'thumbs-down' : 'thumbs-up' }}" style="width:{{ __('14px') }};"></i>
                                         </button>
                                     </form>
 
                                     {{-- Edit --}}
-                                    <a href="{{ route('users.edit', $value->id) }}" class="btn-icon btn-edit" title="{{ __('Edit') }}">
-                                        <i data-feather="edit-2" style="width:14px;"></i>
+                                    <a href="{{ route('users.edit', $value->{{ __('id)') }} }}" class="btn-icon btn-edit" title="{{ __('Edit') }}">
+                                        <i data-feather="edit-2" style="width:{{ __('14px') }};"></i>
                                     </a>
 
                                     {{-- Delete --}}
                                     <form method="post" action="{{ route('users.destroy') }}" class="d-inline">
                                         @csrf
                                         <input type="hidden" value="{{ $value->id }}" name="hidden_id">
-                                        <button type="submit" class="btn-icon btn-delete delete-confirm" title="{{ __('Delete') }}">
-                                            <i data-feather="trash-2" style="width:14px;"></i>
+                                        <button type="{{ __('submit') }}" class="btn-icon btn-delete delete-confirm" title="{{ __('Delete') }}">
+                                            <i data-feather="trash-2" style="width:{{ __('14px') }};"></i>
                                         </button>
                                     </form>
 

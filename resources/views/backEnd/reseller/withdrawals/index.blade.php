@@ -1,5 +1,5 @@
 @extends('backEnd.layouts.master')
-@section('title', 'Reseller Withdrawals')
+@section('title', 'Reseller {{ __('Withdraw') }}als')
 
 @section('css')
 <style>
@@ -30,7 +30,7 @@
     }
     .table-modern tr:hover td { background-color: #f8fafc; }
 
-    /* --- Status Badges --- */
+    /* --- {{ __('Status') }} Badges --- */
     .badge-soft {
         padding: 5px 10px; border-radius: 6px; font-size: 0.75rem; font-weight: 600;
         display: inline-flex; align-items: center; gap: 5px;
@@ -38,9 +38,9 @@
     .badge-approved { background: #dcfce7; color: #166534; }
     .badge-rejected { background: #fee2e2; color: #991b1b; }
     .badge-pending { background: #fef3c7; color: #92400e; }
-    .status-dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+    .status-dot { width: 6px; height: 6px; border-radius: 50%; background: current{{ __('Color') }}; }
 
-    /* --- Method Badges --- */
+    /* --- {{ __('Method') }} Badges --- */
     .method-badge {
         font-size: 0.75rem; padding: 4px 8px; border-radius: 4px;
         background: #f1f5f9; color: #475569; border: 1px solid #e2e8f0;
@@ -66,9 +66,9 @@
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
             <h4 class="mb-1 fw-bold text-dark">
-                <i data-feather="dollar-sign" class="text-primary me-2"></i> Reseller Withdrawals
+                <i data-feather="dollar-sign" class="text-primary me-2"></i> Reseller {{ __('Withdraw') }}als
             </h4>
-            <p class="text-muted small mb-0">Manage reseller payout requests and history.</p>
+            <p class="text-muted small mb-0">{{ __('{{ __('Manage') }} reseller payout requests and history.') }}</p>
         </div>
     </div>
 
@@ -85,13 +85,13 @@
                 <thead>
                     <tr>
                         <th width="5%">#</th>
-                        <th width="20%">Reseller Details</th>
-                        <th width="15%">{{ __('Amount') }}</th>
-                        <th width="10%">Method</th>
-                        <th width="20%">Account Info</th>
-                        <th width="15%">Request Date</th>
-                        <th width="10%">{{ __('Status') }}</th>
-                        <th width="5%" class="text-end">Actions</th>
+                        <th width="20%">{{ __('Reseller Details') }}</th>
+                        <th width="15%">{{ __('{{ __('Amount') }}') }}</th>
+                        <th width="10%">{{ __('Method') }}</th>
+                        <th width="20%">{{ __('Account Info') }}</th>
+                        <th width="15%">{{ __('Request {{ __('Date') }}') }}</th>
+                        <th width="10%">{{ __('{{ __('Status') }}') }}</th>
+                        <th width="5%" class="text-end">{{ __('Actions') }}</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -107,12 +107,12 @@
                                 </div>
                             </td>
 
-                            {{-- Amount --}}
+                            {{-- {{ __('Amount') }} --}}
                             <td>
                                 <span class="fw-bold text-dark fs-6">৳{{ number_format($row->amount, 2) }}</span>
                             </td>
 
-                            {{-- Method --}}
+                            {{-- {{ __('Method') }} --}}
                             <td>
                                 <span class="method-badge">
                                     @if($row->payout_method == 'bank') <i class="fas fa-university me-1"></i>
@@ -122,14 +122,14 @@
                                 </span>
                             </td>
 
-                            {{-- Account Info --}}
+                            {{-- {{ __('Account Info') }} --}}
                             <td>
                                 <div class="small">
                                     @if($row->account_name)
                                         <div class="fw-medium text-dark">{{ $row->account_name }}</div>
                                     @endif
-                                    @if($row->account_number)
-                                        <div class="text-muted font-monospace">{{ $row->account_number }}</div>
+                                    @if($row->account_{{ __('number') }})
+                                        <div class="text-muted font-monospace">{{ $row->account_{{ __('number') }} }}</div>
                                     @endif
                                     @if($row->note)
                                         <div class="text-muted fst-italic mt-1" style="font-size: 11px;">"{{ Str::limit($row->note, 20) }}"</div>
@@ -137,59 +137,59 @@
                                 </div>
                             </td>
 
-                            {{-- Date --}}
+                            {{-- {{ __('Date') }} --}}
                             <td class="text-muted small">
                                 <div>{{ $row->created_at->format('d M, Y') }}</div>
                                 <div>{{ $row->created_at->format('h:i A') }}</div>
                             </td>
 
-                            {{-- Status --}}
+                            {{-- {{ __('Status') }} --}}
                             <td>
                                 @if($row->status === 'approved')
-                                    <span class="badge-soft badge-approved"><span class="status-dot"></span>{{ __('Approved') }}</span>
+                                    <span class="badge-soft badge-approved"><span class="status-dot"></span>{{ __('{{ __('Approve') }}d') }}</span>
                                     @if($row->processed_at)
                                         <div class="small text-muted mt-1" style="font-size: 10px;">{{ $row->processed_at->format('d M, Y') }}</div>
                                     @endif
                                 @elseif($row->status === 'rejected')
-                                    <span class="badge-soft badge-rejected"><span class="status-dot"></span>{{ __('Rejected') }}</span>
+                                    <span class="badge-soft badge-rejected"><span class="status-dot"></span>{{ __('{{ __('Reject') }}ed') }}</span>
                                 @else
                                     <span class="badge-soft badge-pending"><span class="status-dot"></span>{{ __('Pending') }}</span>
                                 @endif
                             </td>
 
-                            {{-- Actions --}}
+                            {{-- {{ __('Actions') }} --}}
                             <td class="text-end">
                                 @if($row->status === 'pending')
                                     <div class="d-flex justify-content-end gap-1">
-                                        <button type="button" class="btn-icon btn-approve" data-bs-toggle="modal" data-bs-target="#approveModal{{ $row->id }}" title="Approve">
-                                            <i data-feather="check" style="width:14px;"></i>
+                                        <button type="button" class="btn-icon btn-approve" data-bs-toggle="modal" data-bs-target="#approveModal{{ $row->id }}" title="{{ __('Approve') }}">
+                                            <i data-feather="check" style="width:{{ __('14px') }};"></i>
                                         </button>
-                                        <button type="button" class="btn-icon btn-reject" data-bs-toggle="modal" data-bs-target="#rejectModal{{ $row->id }}" title="Reject">
-                                            <i data-feather="x" style="width:14px;"></i>
+                                        <button type="button" class="btn-icon btn-reject" data-bs-toggle="modal" data-bs-target="#rejectModal{{ $row->id }}" title="{{ __('Reject') }}">
+                                            <i data-feather="x" style="width:{{ __('14px') }};"></i>
                                         </button>
                                     </div>
                                 @else
                                     <div class="text-center text-muted small">-</div>
                                 @endif
 
-                                {{-- Approve Modal --}}
+                                {{-- {{ __('Approve') }} Modal --}}
                                 <div class="modal fade" id="approveModal{{ $row->id }}" tabindex="-1" aria-hidden="true">
                                     <div class="modal-dialog modal-dialog-centered">
                                         <div class="modal-content border-0 shadow-lg">
                                             <div class="modal-header border-bottom-0 pb-0">
-                                                <h5 class="modal-title fw-bold text-success">Approve Withdrawal</h5>
+                                                <h5 class="modal-title fw-bold text-success">{{ __('{{ __('Approve') }} {{ __('Withdraw') }}al') }}</h5>
                                                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                                             </div>
-                                            <form action="{{ route('admin.reseller.withdrawals.approve', $row->id) }}" method="POST">
+                                            <form action="{{ route('admin.reseller.withdrawals.approve', $row->{{ __('id)') }} }}" method={{ __('"{{ __('POST') }}"') }}>
                                                 @csrf
                                                 <div class="modal-body text-start">
                                                     <div class="alert alert-soft-success border-0 mb-3">
-                                                        <i data-feather="check-circle" class="me-1" style="width:14px;"></i>
-                                                        Balance will be deducted from admin fund.
+                                                        <i data-feather="check-circle" class="me-1" style="width:{{ __('14px') }};"></i>
+                                                        {{ __('Balance') }} will be deducted from admin fund.
                                                     </div>
                                                     <div class="mb-3 p-3 bg-light rounded border">
                                                         <div class="d-flex justify-content-between mb-1">
-                                                            <span class="text-muted small">Amount:</span>
+                                                            <span class="text-muted small">{{ __('Amount') }}:</span>
                                                             <span class="fw-bold">৳{{ number_format($row->amount, 2) }}</span>
                                                         </div>
                                                         <div class="d-flex justify-content-between">
@@ -198,42 +198,42 @@
                                                         </div>
                                                     </div>
                                                     <div class="mb-3">
-                                                        <label class="form-label small fw-bold text-muted">Admin Note (Optional)</label>
-                                                        <textarea name="admin_note" class="form-control" rows="2" placeholder="Transaction ID or remarks..."></textarea>
+                                                        <label class="form-label small fw-bold text-muted">{{ __('Admin {{ __('{{ __('Note') }} {{ __('({{ __('Optional') }})') }}') }}') }}</label>
+                                                        <textarea name="admin_note" class="form-control" rows="2" placeholder="{{ __('{{ __('Transaction ID') }} or remarks...') }}"></textarea>
                                                     </div>
                                                 </div>
                                                 <div class="modal-footer border-top-0 pt-0">
                                                     <button type="button" class="btn btn-light btn-sm" data-bs-dismiss="modal">{{ __('Cancel') }}</button>
-                                                    <button type="submit" class="btn btn-success btn-sm px-4">Confirm Approve</button>
+                                                    <button type="{{ __('submit') }}" class="btn btn-success btn-sm px-4">{{ __('Confirm {{ __('Approve') }}') }}</button>
                                                 </div>
                                             </form>
                                         </div>
                                     </div>
                                 </div>
 
-                                {{-- Reject Modal --}}
+                                {{-- {{ __('Reject') }} Modal --}}
                                 <div class="modal fade" id="rejectModal{{ $row->id }}" tabindex="-1" aria-hidden="true">
                                     <div class="modal-dialog modal-dialog-centered">
                                         <div class="modal-content border-0 shadow-lg">
                                             <div class="modal-header border-bottom-0 pb-0">
-                                                <h5 class="modal-title fw-bold text-danger">Reject Withdrawal</h5>
+                                                <h5 class="modal-title fw-bold text-danger">{{ __('{{ __('Reject') }} {{ __('Withdraw') }}al') }}</h5>
                                                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                                             </div>
-                                            <form action="{{ route('admin.reseller.withdrawals.reject', $row->id) }}" method="POST">
+                                            <form action="{{ route('admin.reseller.withdrawals.reject', $row->{{ __('id)') }} }}" method={{ __('"{{ __('POST') }}"') }}>
                                                 @csrf
                                                 <div class="modal-body text-start">
                                                     <div class="alert alert-soft-warning border-0 mb-3">
-                                                        <i data-feather="alert-triangle" class="me-1" style="width:14px;"></i>
-                                                        Amount will be refunded to reseller's wallet.
+                                                        <i data-feather="alert-triangle" class="me-1" style="width:{{ __('14px') }};"></i>
+                                                        {{ __('Amount') }} will be refunded to reseller's wallet.
                                                     </div>
                                                     <div class="mb-3">
-                                                        <label class="form-label small fw-bold text-muted">Rejection Reason <span class="text-danger">*</span></label>
-                                                        <textarea name="admin_note" class="form-control" rows="3" required placeholder="e.g. Invalid bank details..."></textarea>
+                                                        <label class="form-label small fw-bold text-muted">{{ __('{{ __('Reject') }}ion {{ __('Reason') }}') }} <span class="text-danger">*</span></label>
+                                                        <textarea name="admin_note" class="form-control" rows="3" required placeholder="{{ __('e.g. {{ __('Inv') }}alid bank details...') }}"></textarea>
                                                     </div>
                                                 </div>
                                                 <div class="modal-footer border-top-0 pt-0">
                                                     <button type="button" class="btn btn-light btn-sm" data-bs-dismiss="modal">{{ __('Cancel') }}</button>
-                                                    <button type="submit" class="btn btn-danger btn-sm px-4">Confirm Reject</button>
+                                                    <button type="{{ __('submit') }}" class="btn btn-danger btn-sm px-4">{{ __('Confirm {{ __('Reject') }}') }}</button>
                                                 </div>
                                             </form>
                                         </div>
@@ -249,7 +249,7 @@
 
         {{-- Pagination --}}
         <div class="p-4 border-top d-flex justify-content-between align-items-center bg-white rounded-bottom">
-            <small class="text-muted">{{ __('Showing') }}<strong>{{ $data->firstItem() }}</strong>{{ __('to') }}<strong>{{ $data->lastItem() }}</strong>{{ __('of') }}<strong>{{ $data->total() }}</strong> requests
+            <small class="text-muted">{{ __('Showing') }}<strong>{{ $data->first{{ __('Item') }}() }}</strong>{{ __('to') }}<strong>{{ $data->last{{ __('Item') }}() }}</strong>{{ __('of') }}<strong>{{ $data->{{ __('total') }}() }}</strong> requests
             </small>
             <div>
                 {{ $data->links('pagination::bootstrap-4') }}
@@ -261,5 +261,5 @@
 
 @push('scripts')
     {{-- FontAwesome for specific icons if needed --}}
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ __('https://') }}cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 @endpush

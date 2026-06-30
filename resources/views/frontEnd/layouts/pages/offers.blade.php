@@ -1,5 +1,5 @@
 @extends('frontEnd.layouts.master') 
-@section('title','Hot Deals') 
+@section('title','{{ __('Hot Deal') }}s') 
 @push('css')
 <link rel="stylesheet" href="{{asset('public/frontEnd/css/jquery-ui.css')}}" />
 @endpush 
@@ -12,7 +12,7 @@
 <script>
     $(".sort").change(function(){
        $('#loading').show();
-       $(".sort-form").submit();
+       $(".sort-form").{{ __('submit') }}();
     })
 </script>
 @endpush

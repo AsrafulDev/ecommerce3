@@ -1,5 +1,5 @@
 @extends('backEnd.layouts.master')
-@section('title', 'Purchase Report')
+@section('title', '{{ __('Purchase Report') }}')
 
 @section('css')
 <style>
@@ -14,7 +14,7 @@
     }
     
     /* --- Filter Section --- */
-    .filter-card {
+    .{{ __('filter') }}-card {
         background: #fff;
         border-radius: 12px;
         padding: 20px;
@@ -76,27 +76,27 @@
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
             <h4 class="mb-1 fw-bold text-dark">
-                <i data-feather="shopping-cart" class="text-primary me-2"></i> Purchase Reports
+                <i data-feather="shopping-cart" class="text-primary me-2"></i> {{ __('Purchase Report') }}s
             </h4>
-            <p class="text-muted small mb-0">Analysis for: <strong>{{ $label ?? 'Today' }}</strong></p>
+            <p class="text-muted small mb-0">{{ __('Analysis for') }}: <strong>{{ $label ?? '{{ __('Today') }}' }}</strong></p>
         </div>
     </div>
 
     {{-- FILTER FORM --}}
-    <div class="filter-card">
-        <form method="GET" action="{{ route('admin.reports.purchases') }}" id="purchase-filter-form">
+    <div class="{{ __('filter') }}-card">
+        <form method="{{ __('GET') }}" action="{{ route('admin.reports.purchases') }}" id="purchase-{{ __('filter') }}-form">
             <div class="row g-3 align-items-end">
                 
                 {{-- Report Type --}}
                 <div class="col-md-3">
-                    <label class="form-label-custom">Filter By</label>
+                    <label class="form-label-custom">{{ __('Filter By') }}</label>
                     <div class="input-group">
-                        <span class="input-group-text bg-white border-end-0"><i data-feather="filter" style="width:16px;"></i></span>
+                        <span class="input-group-text bg-white border-end-0"><i data-feather="{{ __('filter') }}" style="width:16px;"></i></span>
                         <select name="type" class="form-select form-select-custom border-start-0" id="report-type">
-                            <option value="today" {{ ($type ?? '')=='today' ? 'selected' : '' }}>Today</option>
-                            <option value="month" {{ ($type ?? '')=='month' ? 'selected' : '' }}>Monthly</option>
-                            <option value="year"  {{ ($type ?? '')=='year'  ? 'selected' : '' }}>Yearly</option>
-                            <option value="range" {{ ($type ?? '')=='range' ? 'selected' : '' }}>Custom Date Range</option>
+                            <option value="{{ __('today') }}" {{ ($type ?? '')=='{{ __('today') }}' ? 'selected' : '' }}>{{ __('Today') }}</option>
+                            <option value="month" {{ ($type ?? '')=='month' ? 'selected' : '' }}>{{ __('Monthly') }}</option>
+                            <option value="year"  {{ ($type ?? '')=='year'  ? 'selected' : '' }}>{{ __('Yearly') }}</option>
+                            <option value="range" {{ ($type ?? '')=='range' ? 'selected' : '' }}>{{ __('{{ __('Custom {{ __('Date') }}') }} Range') }}</option>
                         </select>
                     </div>
                 </div>
@@ -104,7 +104,7 @@
                 {{-- Dynamic Inputs --}}
                 <div class="col-md-2 type-month type-year" style="display:none;">
                     <label class="form-label-custom">{{ __('Year') }}</label>
-                    <input type="number" name="year" class="form-control form-control-custom" value="{{ request('year', now()->year) }}" placeholder="YYYY">
+                    <input type="{{ __('number') }}" name="year" class="form-control form-control-custom" value="{{ request('year', now()->year) }}" placeholder="{{ __('YYYY') }}">
                 </div>
 
                 <div class="col-md-2 type-month" style="display:none;">
@@ -119,21 +119,21 @@
                 </div>
 
                 <div class="col-md-2 type-range" style="display:none;">
-                    <label class="form-label-custom">Start Date</label>
+                    <label class="form-label-custom">{{ __('Start {{ __('Date') }}') }}</label>
                     <input type="date" name="from_date" class="form-control form-control-custom" value="{{ request('from_date') }}">
                 </div>
 
                 <div class="col-md-2 type-range" style="display:none;">
-                    <label class="form-label-custom">End Date</label>
+                    <label class="form-label-custom">{{ __('End {{ __('Date') }}') }}</label>
                     <input type="date" name="to_date" class="form-control form-control-custom" value="{{ request('to_date') }}">
                 </div>
 
-                {{-- Actions --}}
+                {{-- {{ __('Actions') }} --}}
                 <div class="col-md-auto ms-auto d-flex gap-2">
-                    <button class="btn btn-custom-primary" type="submit">
+                    <button class="btn btn-custom-primary" type="{{ __('submit') }}">
                         <i data-feather="search" class="me-1" style="width:16px;"></i> Generate
                     </button>
-                    <button class="btn btn-custom-outline" type="submit" name="export" value="csv" id="export-csv-btn">
+                    <button class="btn btn-custom-outline" type="{{ __('submit') }}" name="export" value="csv" id="export-csv-btn">
                         <i data-feather="download" class="me-1" style="width:16px;"></i> CSV
                     </button>
                 </div>
@@ -143,41 +143,41 @@
 
     {{-- SUMMARY STATS --}}
     <div class="row g-4 mb-4">
-        {{-- Total Purchase --}}
+        {{-- {{ __('{{ __('Total') }} Purchase') }} --}}
         <div class="col-md-4">
             <div class="stat-card">
                 <div class="stat-icon bg-light-primary">
                     <i data-feather="shopping-bag"></i>
                 </div>
                 <div>
-                    <div class="stat-label">Total Purchase</div>
-                    <h3 class="stat-value">৳{{ number_format($totalPurchaseAmount ?? 0, 2) }}</h3>
+                    <div class="stat-label">{{ __('{{ __('Total') }} Purchase') }}</div>
+                    <h3 class="stat-value">৳{{ number_format($totalPurchase{{ __('Amount') }} ?? 0, 2) }}</h3>
                 </div>
             </div>
         </div>
 
-        {{-- Total Paid --}}
+        {{-- {{ __('{{ __('Total') }} {{ __('Paid') }}') }} --}}
         <div class="col-md-4">
             <div class="stat-card">
                 <div class="stat-icon bg-light-success">
                     <i data-feather="check-circle"></i>
                 </div>
                 <div>
-                    <div class="stat-label">Paid Amount</div>
-                    <h3 class="stat-value">৳{{ number_format($totalPaid ?? 0, 2) }}</h3>
+                    <div class="stat-label">{{ __('{{ __('Paid') }} {{ __('Amount') }}') }}</div>
+                    <h3 class="stat-value">৳{{ number_format($total{{ __('Paid') }} ?? 0, 2) }}</h3>
                 </div>
             </div>
         </div>
 
-        {{-- Total Due --}}
+        {{-- {{ __('{{ __('Total') }} {{ __('Due') }}') }} --}}
         <div class="col-md-4">
             <div class="stat-card">
                 <div class="stat-icon bg-light-warning">
                     <i data-feather="alert-circle"></i>
                 </div>
                 <div>
-                    <div class="stat-label">Total Due</div>
-                    <h3 class="stat-value">৳{{ number_format($totalDue ?? 0, 2) }}</h3>
+                    <div class="stat-label">{{ __('{{ __('Total') }} {{ __('Due') }}') }}</div>
+                    <h3 class="stat-value">৳{{ number_format($total{{ __('Due') }} ?? 0, 2) }}</h3>
                 </div>
             </div>
         </div>
@@ -187,7 +187,7 @@
     <div id="purchase-table-wrapper">
         <div class="card card-modern">
             <div class="card-header border-bottom bg-white py-3">
-                <h5 class="mb-0 fw-bold text-dark">Detailed Purchase List</h5>
+                <h5 class="mb-0 fw-bold text-dark">{{ __('Detailed Purchase List') }}</h5>
             </div>
             
             <div class="table-responsive">
@@ -195,12 +195,12 @@
                     <thead>
                         <tr>
                             <th width="5%">#</th>
-                            <th width="15%">{{ __('Invoice') }}</th>
+                            <th width="15%">{{ __('{{ __('Inv') }}oice') }}</th>
                             <th width="20%">{{ __('Supplier') }}</th>
-                            <th width="15%" class="text-end">Total Amount</th>
-                            <th width="15%" class="text-end">Paid</th>
-                            <th width="15%" class="text-end">Due</th>
-                            <th width="15%">{{ __('Date') }}</th>
+                            <th width="15%" class="text-end">{{ __('{{ __('Total') }} {{ __('Amount') }}') }}</th>
+                            <th width="15%" class="text-end">{{ __('Paid') }}</th>
+                            <th width="15%" class="text-end">{{ __('Due') }}</th>
+                            <th width="15%">{{ __('{{ __('Date') }}') }}</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -209,7 +209,7 @@
                             <td class="text-muted">{{ $loop->iteration }}</td>
                             <td><span class="fw-bold text-primary">#{{ $p->invoice_no ?? $p->id }}</span></td>
                             <td class="fw-medium text-dark">{{ $p->supplier->name ?? '-' }}</td>
-                            <td class="text-end fw-bold text-dark">৳{{ number_format($p->grand_total ?? 0, 2) }}</td>
+                            <td class="text-end fw-bold text-dark">৳{{ number_format($p->grand_{{ __('total') }} ?? 0, 2) }}</td>
                             <td class="text-end text-success">৳{{ number_format($p->paid_amount ?? 0, 2) }}</td>
                             <td class="text-end {{ ($p->due_amount ?? 0) > 0 ? 'text-danger fw-bold' : 'text-muted' }}">
                                 ৳{{ number_format($p->due_amount ?? 0, 2) }}
@@ -220,8 +220,8 @@
                         <tr>
                             <td colspan="7" class="text-center py-5">
                                 <div class="d-flex flex-column align-items-center">
-                                    <img src="https://cdn-icons-png.flaticon.com/512/7486/7486744.png" width="50" class="opacity-25 mb-2">
-                                    <p class="text-muted fw-bold mb-0">No purchases found</p>
+                                    <img src="{{ __('https://') }}cdn-icons-png.flaticon.com/512/7486/7486744.png" width="50" class="opacity-25 mb-2">
+                                    <p class="text-muted fw-bold mb-0">{{ __('No purchases found') }}</p>
                                 </div>
                             </td>
                         </tr>
@@ -232,7 +232,7 @@
 
             {{-- Pagination --}}
             <div class="p-4 border-top d-flex justify-content-between align-items-center">
-                <small class="text-muted">Showing {{ $purchases->firstItem() }} to {{ $purchases->lastItem() }} of {{ $purchases->total() }} entries</small>
+                <small class="text-muted">Showing {{ $purchases->first{{ __('Item') }}() }} to {{ $purchases->last{{ __('Item') }}() }} of {{ $purchases->{{ __('total') }}() }} entries</small>
                 <div>{{ $purchases->links('pagination::bootstrap-4') }}</div>
             </div>
         </div>
@@ -267,16 +267,16 @@
     toggleReportFields();
 
     /* -------- AJAX Filter + Pagination -------- */
-    const form = document.getElementById('purchase-filter-form');
+    const form = document.getElementById('purchase-{{ __('filter') }}-form');
 
-    form.addEventListener('submit', function(e){
-        // CSV হলে normal submit
-        if (e.submitter && e.submitter.id === 'export-csv-btn') {
+    form.addEventListener('{{ __('submit') }}', function(e){
+        // CSV হলে normal {{ __('submit') }}
+        if (e.{{ __('submit') }}ter && e.{{ __('submit') }}ter.id === 'export-csv-btn') {
             return true;
         }
 
         e.preventDefault();
-        loadPurchases(new URLSearchParams(new FormData(form)).toString());
+        load{{ __('Purchases') }}(new URLSearchParams(new FormData(form)).to{{ __('String') }}());
     });
 
     document.addEventListener('click', function(e){
@@ -285,12 +285,12 @@
 
         e.preventDefault();
         let query = link.getAttribute('href').split('?')[1] || '';
-        loadPurchases(query);
+        load{{ __('Purchases') }}(query);
     });
 
-    function loadPurchases(query) {
+    function load{{ __('Purchases') }}(query) {
         fetch("{{ route('admin.reports.purchases') }}?" + query, {
-            headers: {'X-Requested-With':'XMLHttpRequest'}
+            headers: {'X-{{ __('Requested') }}-With':'XMLHttpRequest'}
         })
         .then(res => res.text())
         .then(html => {

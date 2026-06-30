@@ -4,30 +4,30 @@
         <tr>
             <th>#</th>
             <th>{{ __('Email') }}</th>
-            <th>Subscribed At</th>
+            <th>{{ __('Subscribed At') }}</th>
             <th width="120">{{ __('Action') }}</th>
         </tr>
     </thead>
     <tbody>
         @forelse($subscribers as $key => $row)
         <tr>
-            <td>{{ $subscribers->firstItem() + $key }}</td>
+            <td>{{ $subscribers->first{{ __('Item') }}() + $key }}</td>
             <td>{{ $row->email }}</td>
             <td>{{ $row->created_at->format('d M Y, h:i A') }}</td>
             <td>
-                <form action="{{ route('admin.newsletter.subscribers.delete', $row->id) }}"
-                      method="POST"
-                      class="deleteNewsletterForm"
+                <form action="{{ route('admin.newsletter.subscribers.delete', $row->{{ __('id)') }} }}"
+                      method={{ __('"{{ __('POST') }}"') }}
+                      class="delete{{ __('New') }}sletterForm"
                       style="display:inline-block">
                     @csrf
                     @method('DELETE')
-                    <button class="btn btn-sm btn-danger" type="submit">{{ __('Delete') }}</button>
+                    <button class="btn btn-sm btn-danger" type="{{ __('submit') }}">{{ __('Delete') }}</button>
                 </form>
             </td>
         </tr>
         @empty
         <tr>
-            <td colspan="4" class="text-center">No subscribers yet</td>
+            <td colspan="4" class="text-center">{{ __('No subscribers yet') }}</td>
         </tr>
         @endforelse
     </tbody>

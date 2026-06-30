@@ -5,23 +5,23 @@ use Illuminate\Support\Str;
 $customer = Auth::guard('customer')->user();
 $customerId = $customer->id;
 
-// Site Name & Logo
-$siteName = \App\Models\GeneralSetting::first();
-$siteInitial = strtoupper(substr($siteName->name ?? 'G', 0, 1));
-$siteDisplayName = Str::limit($siteName->name ?? 'GadgetShop', 8);
-$generalsetting = $siteName;
-$darkLogo = $siteName->dark_logo ?? null;
+// Site {{ __('Name') }} & Logo
+$site{{ __('Name') }} = \App\Models\GeneralSetting::first();
+$siteInitial = strtoupper(substr($site{{ __('Name') }}->name ?? 'G', 0, 1));
+$siteDisplay{{ __('Name') }} = Str::limit($site{{ __('Name') }}->name ?? 'Gadget{{ __('Shop') }}', 8);
+$generalsetting = $site{{ __('Name') }};
+$darkLogo = $site{{ __('Name') }}->dark_logo ?? null;
 
 // Pending Orders Count for Badge
-$pendingOrdersCount = \App\Models\Order::where('customer_id', $customerId)
-    ->whereNotIn('order_status', ['6', '11'])
+$pendingOrdersCount = \App\Models\Order::w{{ __('here') }}('customer_id', $customerId)
+    ->w{{ __('here') }}NotIn('order_status', ['6', '11'])
     ->count();
 
-// Profile Image - Use direct image path
+// Profile Image - {{ __('Use') }} direct image path
 $profileImage = $customer->image ? asset($customer->image) : asset('public/uploads/default/no-image.png');
 
-// Total Order Amount
-$totalOrderAmount = \App\Models\Order::where('customer_id', $customerId)->sum('amount');
+// {{ __('Total') }} Order {{ __('Amount') }}
+$totalOrder{{ __('Amount') }} = \App\Models\Order::w{{ __('here') }}('customer_id', $customerId)->sum('amount');
 @endphp
 
 <!DOCTYPE html>
@@ -30,11 +30,11 @@ $totalOrderAmount = \App\Models\Order::where('customer_id', $customerId)->sum('a
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>My Order History | {{ $siteName->name ?? 'Gadget Style' }}</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <title>My Order History | {{ $site{{ __('Name') }}->name ?? 'Gadget Style' }}</title>
+    <script src="{{ __('https://') }}cdn.tailwindcss.com"></script>
+    <link href="{{ __('https://') }}cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@300;400;500;600;700&display=swap');
+        @import url('{{ __('https://') }}fonts.googleapis.com/css2?family=Hind+Siliguri:wght@300;400;500;600;700&display=swap');
         body { font-family: 'Hind Siliguri', sans-serif; background-color: #F0F2F5; }
         .sidebar-item:hover { background-color: #f3f4f6; color: #4f46e5; }
         .active-menu { background-color: #EEF2FF; color: #4f46e5; border-right: 3px solid #4f46e5; }
@@ -43,7 +43,7 @@ $totalOrderAmount = \App\Models\Order::where('customer_id', $customerId)->sum('a
         .custom-table th { background-color: #F9FAFB; color: #6B7280; font-weight: 600; font-size: 0.85rem; }
         .custom-table td { border-bottom: 1px solid #F3F4F6; padding: 16px; font-size: 0.9rem; }
         
-        /* Mobile Menu Transition */
+        /* {{ __('Mobile') }} Menu Transition */
         #sidebar { transition: transform 0.3s ease-in-out; }
     </style>
 </head>
@@ -55,12 +55,12 @@ $totalOrderAmount = \App\Models\Order::where('customer_id', $customerId)->sum('a
         <div class="p-4 sm:p-6 flex items-center justify-between lg:justify-start gap-2 border-b border-gray-100">
             @if($darkLogo)
                 <a href="{{ route('home') }}" class="flex items-center gap-2 flex-1">
-                    <img src="{{ asset($darkLogo) }}" alt="{{ $siteName->name ?? 'Logo' }}" class="h-8 sm:h-10 w-auto max-w-full object-contain">
+                    <img src="{{ asset($darkLogo) }}" alt="{{ $site{{ __('Name') }}->name ?? 'Logo' }}" class="h-8 sm:h-10 w-auto max-w-full object-contain">
                 </a>
             @else
                 <div class="flex items-center gap-2">
                     <div class="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center text-white font-bold">{{ $siteInitial }}</div>
-                    <h1 class="text-xl sm:text-2xl font-bold text-gray-800 tracking-tight">{{ $siteDisplayName }}</h1>
+                    <h1 class="text-xl sm:text-2xl font-bold text-gray-800 tracking-tight">{{ $siteDisplay{{ __('Name') }} }}</h1>
                 </div>
             @endif
             <button onclick="toggleSidebar()" class="lg:hidden text-gray-500 hover:text-red-500">
@@ -73,7 +73,7 @@ $totalOrderAmount = \App\Models\Order::where('customer_id', $customerId)->sum('a
                 <i class="fas fa-home w-6"></i> ড্যাশবোর্ড
             </a>
             <a href="{{route('customer.orders')}}" class="{{request()->is('customer/orders')?'active-menu':'sidebar-item'}} flex items-center px-6 py-3.5 transition-colors">
-                <i class="fas fa-box-open w-6"></i> আমার অর্ডার 
+                <i class="fas fa-box-open w-6"></i> {{ __('My Orders') }} 
                 @if($pendingOrdersCount > 0)
                     <span class="ml-auto bg-red-100 text-red-600 text-xs px-2 py-0.5 rounded-full">{{ $pendingOrdersCount }}</span>
                 @endif
@@ -82,23 +82,23 @@ $totalOrderAmount = \App\Models\Order::where('customer_id', $customerId)->sum('a
                 <i class="fas fa-truck w-6"></i> ট্র্যাক অর্ডার
             </a>
             <a href="{{route('customer.refunds')}}" class="{{request()->is('customer/refunds*')?'active-menu':'sidebar-item'}} flex items-center px-6 py-3.5 transition-colors">
-                <i class="fas fa-undo w-6"></i> রিফান্ড রিকোয়েস্ট
+                <i class="fas fa-undo w-6"></i> {{ __('Refund Request') }}
             </a>
             <a href="{{ route('complaint') }}" class="{{ request()->is('complaint') ? 'active-menu' : 'sidebar-item' }} flex items-center px-6 py-3.5 transition-colors">
                 <i class="fas fa-headset w-6"></i> সাপোর্ট টিকেট
             </a>
             <a href="{{route('customer.profile_edit')}}" class="{{request()->is('customer/profile-edit')?'active-menu':'sidebar-item'}} flex items-center px-6 py-3.5 transition-colors">
-                <i class="fas fa-user-cog w-6"></i> সেটিংস
+                <i class="fas fa-user-cog w-6"></i> {{ __('Settings') }}
             </a>
         </nav>
 
         <div class="p-6 border-t">
             <a href="{{ route('customer.logout') }}" 
-               onclick="event.preventDefault(); document.getElementById('logout-form').submit();"
+               onclick="event.preventDefault(); document.getElementById('logout-form').{{ __('submit') }}();"
                class="w-full flex items-center justify-center px-4 py-2.5 text-red-500 bg-red-50 hover:bg-red-100 rounded-lg font-bold transition">
                 <i class="fas fa-sign-out-alt mr-2"></i> লগআউট
             </a>
-            <form id="logout-form" action="{{ route('customer.logout') }}" method="POST" style="display: none;">
+            <form id="logout-form" action="{{ route('customer.logout') }}" method={{ __('"{{ __('POST') }}"') }} style="display: none;">
                 @csrf
             </form>
         </div>
@@ -112,13 +112,13 @@ $totalOrderAmount = \App\Models\Order::where('customer_id', $customerId)->sum('a
             </div>
 
             <div class="flex-1">
-                <h2 class="text-xl font-bold text-gray-800">আমার অর্ডার</h2>
-                <p class="text-xs text-gray-400 mt-0.5 hidden sm:block">আপনার অর্ডার ইতিহাস</p>
+                <h2 class="text-xl font-bold text-gray-800">{{ __('My Orders') }}</h2>
+                <p class="text-xs text-gray-400 mt-0.5 hidden sm:block">{{ __('bn_fb27904a') }}</p>
             </div>
 
             <div class="flex items-center gap-4">
                 <div class="hidden sm:flex bg-green-50 text-green-700 px-4 py-2 rounded-full items-center font-bold text-sm border border-green-100">
-                    <i class="fas fa-wallet mr-2"></i> মোট: ৳{{ number_format($totalOrderAmount, 0) }}
+                    <i class="fas fa-wallet mr-2"></i> {{ __('bn_70ac0f2d') }}: ৳{{ number_format($totalOrder{{ __('Amount') }}, 0) }}
                 </div>
                 
                 <div class="relative cursor-pointer w-10 h-10 bg-gray-50 rounded-full flex items-center justify-center hover:bg-gray-100 transition">
@@ -131,12 +131,12 @@ $totalOrderAmount = \App\Models\Order::where('customer_id', $customerId)->sum('a
 
         <div class="p-4 lg:p-8 max-w-7xl mx-auto">
             
-            {{-- Summary Cards --}}
+            {{-- {{ __('Summary') }} Cards --}}
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
                 <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4">
                     <div class="flex items-center justify-between">
                         <div>
-                            <p class="text-xs text-gray-500 uppercase mb-1">মোট অর্ডার</p>
+                            <p class="text-xs text-gray-500 uppercase mb-1">{{ __('Orders') }}</p>
                             <p class="text-2xl font-bold text-gray-800">{{ $orders->count() }}</p>
                         </div>
                         <div class="w-12 h-12 bg-blue-50 rounded-lg flex items-center justify-center">
@@ -147,7 +147,7 @@ $totalOrderAmount = \App\Models\Order::where('customer_id', $customerId)->sum('a
                 <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4">
                     <div class="flex items-center justify-between">
                         <div>
-                            <p class="text-xs text-gray-500 uppercase mb-1">চলমান</p>
+                            <p class="text-xs text-gray-500 uppercase mb-1">{{ __('bn_aa3350ff') }}</p>
                             <p class="text-2xl font-bold text-gray-800">{{ $pendingOrdersCount }}</p>
                         </div>
                         <div class="w-12 h-12 bg-orange-50 rounded-lg flex items-center justify-center">
@@ -158,8 +158,8 @@ $totalOrderAmount = \App\Models\Order::where('customer_id', $customerId)->sum('a
                 <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4">
                     <div class="flex items-center justify-between">
                         <div>
-                            <p class="text-xs text-gray-500 uppercase mb-1">মোট টাকা</p>
-                            <p class="text-2xl font-bold text-gray-800">৳{{ number_format($totalOrderAmount, 0) }}</p>
+                            <p class="text-xs text-gray-500 uppercase mb-1">{{ __('bn_93349cea') }}</p>
+                            <p class="text-2xl font-bold text-gray-800">৳{{ number_format($totalOrder{{ __('Amount') }}, 0) }}</p>
                         </div>
                         <div class="w-12 h-12 bg-green-50 rounded-lg flex items-center justify-center">
                             <i class="fas fa-money-bill-wave text-green-600 text-xl"></i>
@@ -173,7 +173,7 @@ $totalOrderAmount = \App\Models\Order::where('customer_id', $customerId)->sum('a
                 @forelse($orders as $value)
                                 @php
                                     // Payment Logic
-                                    $payment_record = \App\Models\Payment::where('order_id', $value->id)->orderBy('id', 'desc')->first();
+                                    $payment_record = \App\Models\Payment::w{{ __('here') }}('order_id', $value->{{ __('id)') }}->orderBy('id', 'desc')->first();
                                     
                                     $gateway_status = $payment_record ? strtolower(trim($payment_record->payment_status)) : '';
                                     $payment_method = $payment_record ? strtolower(trim($payment_record->payment_method)) : '';
@@ -181,7 +181,7 @@ $totalOrderAmount = \App\Models\Order::where('customer_id', $customerId)->sum('a
                                     $admin_status   = strtolower(trim($value->payment_status ?? ''));
                                     $order_status   = strtolower(trim($value->status->slug ?? $value->status->name ?? ''));
 
-                                    $grand_total = $value->amount;
+                                    $grand_{{ __('total') }} = $value->amount;
                                     $paid_amount = 0;
 
                                     // Payment calculation logic
@@ -193,46 +193,46 @@ $totalOrderAmount = \App\Models\Order::where('customer_id', $customerId)->sum('a
                                     $is_order_completed = in_array($order_status, ['completed', 'delivered']) || in_array($admin_status, ['completed', 'delivered']);
 
                                     if ($is_cod && !$is_order_completed) {
-                                        if ($paid_amount >= $grand_total) {
+                                        if ($paid_amount >= $grand_{{ __('total') }}) {
                                             $paid_amount = 0;
                                         }
                                     }
 
                                     if ($is_order_completed) {
-                                        $paid_amount = $grand_total;
+                                        $paid_amount = $grand_{{ __('total') }};
                                     } 
                                     elseif (($paid_amount == 0 || !$payment_record) && in_array($admin_status, ['paid', 'success', 'approved'])) {
-                                        $paid_amount = $grand_total;
+                                        $paid_amount = $grand_{{ __('total') }};
                                     }
 
-                                    $due_amount = max(0, $grand_total - $paid_amount);
+                                    $due_amount = max(0, $grand_{{ __('total') }} - $paid_amount);
 
                                     $is_failed = false;
                                     if ($paid_amount == 0 && in_array($gateway_status, ['failed', 'cancel', 'cancelled'])) {
                                         $is_failed = true;
                                     }
 
-                                    $show_download = ($paid_amount >= $grand_total) || ($paid_amount > 0 && !$is_failed);
+                                    $show_download = ($paid_amount >= $grand_{{ __('total') }}) || ($paid_amount > 0 && !$is_failed);
 
-                                    $digitalDownloads = \App\Models\DigitalDownload::where('order_id', $value->id)->get();
-                                    $hasDigitalProduct = $digitalDownloads->count() > 0;
+                                    $digitalDownloads = \App\Models\DigitalDownload::w{{ __('here') }}('order_id', $value->{{ __('id)') }}->get();
+                                    $hasDigital{{ __('Product') }} = $digitalDownloads->count() > 0;
 
-                                    // Order Status Badge
+                                    // {{ __('Order {{ __('Status') }}') }} Badge
                                     $statusClass = '';
-                                    $statusText = $value->status ? $value->status->name : 'Pending';
+                                    $status{{ __('Text') }} = $value->status ? $value->status->name : 'Pending';
                                     
                                     if($value->order_status == '6') {
                                         $statusClass = 'bg-green-50 text-green-600';
-                                        $statusText = 'Completed';
+                                        $status{{ __('Text') }} = '{{ __('Complete') }}d';
                                     } elseif($value->order_status == '11') {
                                         $statusClass = 'bg-red-50 text-red-600';
-                                        $statusText = 'Cancelled';
+                                        $status{{ __('Text') }} = 'Cancelled';
                                     } elseif(in_array($value->order_status, ['3', '4', '5'])) {
                                         $statusClass = 'bg-orange-50 text-orange-600';
-                                        $statusText = 'Shipped';
+                                        $status{{ __('Text') }} = 'Shipped';
                                     } else {
                                         $statusClass = 'bg-gray-50 text-gray-600';
-                                        $statusText = 'Pending';
+                                        $status{{ __('Text') }} = 'Pending';
                                     }
 
                                     // Refund Logic
@@ -243,8 +243,8 @@ $totalOrderAmount = \App\Models\Order::where('customer_id', $customerId)->sum('a
                                         $canRefund = true;
                                     }
                                     
-                                    $existingRefund = \App\Models\Refund::where('order_id', $value->id)
-                                        ->whereIn('status', ['pending', 'approved'])
+                                    $existingRefund = \App\Models\Refund::w{{ __('here') }}('order_id', $value->{{ __('id)') }}
+                                        ->w{{ __('here') }}In('status', ['pending', 'approved'])
                                         ->first();
                                 @endphp
 
@@ -256,16 +256,16 @@ $totalOrderAmount = \App\Models\Order::where('customer_id', $customerId)->sum('a
                                             <div class="flex-1">
                                                 <div class="flex items-center gap-2 mb-1">
                                                     <h4 class="text-base font-bold text-gray-800">#{{ $value->invoice_id ?? $value->id }}</h4>
-                                                    <span class="{{ $statusClass }} px-2 py-0.5 rounded text-xs font-semibold">{{ $statusText }}</span>
+                                                    <span class="{{ $statusClass }} px-2 py-0.5 rounded text-xs font-semibold">{{ $status{{ __('Text') }} }}</span>
                                                 </div>
                                                 <p class="text-xs text-gray-500">{{ $value->created_at->format('d M, Y - h:i A') }}</p>
                                             </div>
                                             <div class="text-right">
-                                                <p class="text-lg font-bold text-gray-800">৳{{ number_format($grand_total, 2) }}</p>
+                                                <p class="text-lg font-bold text-gray-800">৳{{ number_format($grand_{{ __('total') }}, 2) }}</p>
                                             </div>
                                         </div>
 
-                                        {{-- Product Images --}}
+                                        {{-- {{ __('Product') }} Images --}}
                                         @if($value->orderdetails && $value->orderdetails->count() > 0)
                                             <div class="flex gap-2 mb-4 pb-4 border-b border-gray-100">
                                                 @foreach($value->orderdetails->take(5) as $detail)
@@ -280,7 +280,7 @@ $totalOrderAmount = \App\Models\Order::where('customer_id', $customerId)->sum('a
                                                     <img src="{{ $productImage ? asset($productImage) : asset('public/uploads/default/no-image.png') }}" 
                                                          onerror="this.src='{{ asset('public/uploads/default/no-image.png') }}'"
                                                          class="w-12 h-12 rounded object-cover border border-gray-200"
-                                                         alt="{{ $detail->product_name ?? 'Product' }}">
+                                                         alt="{{ $detail->product_name ?? '{{ __('Product') }}' }}">
                                                 @endforeach
                                                 @if($value->orderdetails->count() > 5)
                                                     <div class="w-12 h-12 rounded bg-gray-100 border border-gray-200 flex items-center justify-center text-gray-500 text-xs font-bold">
@@ -290,30 +290,30 @@ $totalOrderAmount = \App\Models\Order::where('customer_id', $customerId)->sum('a
                                             </div>
                                         @endif
 
-                                        {{-- Payment & Actions Row --}}
+                                        {{-- Payment & {{ __('Actions') }} Row --}}
                                         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-                                            {{-- Payment Status --}}
+                                            {{-- {{ __('Payment {{ __('Status') }}') }} --}}
                                             <div class="flex items-center gap-3 text-sm">
                                                 <div>
-                                                    <span class="text-gray-500">Paid: </span>
+                                                    <span class="text-gray-500">{{ __('Paid') }}: </span>
                                                     <span class="font-semibold {{ $paid_amount > 0 ? 'text-green-600' : 'text-gray-400' }}">৳{{ number_format($paid_amount, 2) }}</span>
                                                 </div>
                                                 <div>
-                                                    <span class="text-gray-500">Due: </span>
+                                                    <span class="text-gray-500">{{ __('Due') }}: </span>
                                                     <span class="font-semibold {{ $due_amount > 0 ? 'text-red-600' : 'text-gray-400' }}">৳{{ number_format($due_amount, 2) }}</span>
                                                 </div>
                                                 <div>
-                                                    @if($paid_amount >= $grand_total)
-                                                        <span class="bg-green-100 text-green-700 px-2 py-0.5 rounded text-xs font-semibold">Paid</span>
+                                                    @if($paid_amount >= $grand_{{ __('total') }})
+                                                        <span class="bg-green-100 text-green-700 px-2 py-0.5 rounded text-xs font-semibold">{{ __('Paid') }}</span>
                                                     @elseif($is_failed)
                                                         <span class="bg-red-100 text-red-700 px-2 py-0.5 rounded text-xs font-semibold">{{ __('Failed') }}</span>
                                                     @elseif($paid_amount > 0)
-                                                        <span class="bg-blue-100 text-blue-700 px-2 py-0.5 rounded text-xs font-semibold">Partial</span>
+                                                        <span class="bg-blue-100 text-blue-700 px-2 py-0.5 rounded text-xs font-semibold">{{ __('Partial') }}</span>
                                                     @else
                                                         @if($is_cod)
-                                                            <span class="bg-orange-100 text-orange-700 px-2 py-0.5 rounded text-xs font-semibold">COD</span>
+                                                            <span class="bg-orange-100 text-orange-700 px-2 py-0.5 rounded text-xs font-semibold">{{ __('COD') }}</span>
                                                         @else
-                                                            <span class="bg-red-100 text-red-700 px-2 py-0.5 rounded text-xs font-semibold">Unpaid</span>
+                                                            <span class="bg-red-100 text-red-700 px-2 py-0.5 rounded text-xs font-semibold">{{ __('Unpaid') }}</span>
                                                         @endif
                                                     @endif
                                                 </div>
@@ -323,14 +323,14 @@ $totalOrderAmount = \App\Models\Order::where('customer_id', $customerId)->sum('a
                                             <div class="flex items-center gap-2">
                                                 <a href="{{ route('customer.invoice',['id'=>$value->id]) }}" class="bg-indigo-600 hover:bg-indigo-700 text-white text-xs px-4 py-2 rounded-lg transition font-semibold flex items-center gap-1">
                                                     <i class="fas fa-eye"></i>
-                                                    <span class="hidden sm:inline">দেখুন</span>
+                                                    <span class="hidden sm:inline">{{ __('View') }}</span>
                                                 </a>
                                                 @if($value->admin_note)
-                                                    <a href="{{ route('customer.order_note',['id'=>$value->id]) }}" class="bg-blue-500 hover:bg-blue-600 text-white text-xs px-3 py-2 rounded-lg transition" title="Admin Note">
+                                                    <a href="{{ route('customer.order_note',['id'=>$value->id]) }}" class="bg-blue-500 hover:bg-blue-600 text-white text-xs px-3 py-2 rounded-lg transition" title="{{ __('Admin {{ __('Note') }}') }}">
                                                         <i class="fas fa-sticky-note"></i>
                                                     </a>
                                                 @endif
-                                                @if($hasDigitalProduct && $show_download)
+                                                @if($hasDigital{{ __('Product') }} && $show_download)
                                                     @foreach($digitalDownloads as $dl)
                                                         <a href="{{ route('digital.download', $dl->token) }}" 
                                                            class="bg-green-500 hover:bg-green-600 text-white text-xs px-3 py-2 rounded-lg transition" target="_blank" title="{{ __('Download') }}">
@@ -339,11 +339,11 @@ $totalOrderAmount = \App\Models\Order::where('customer_id', $customerId)->sum('a
                                                     @endforeach
                                                 @endif
                                                 @if($canRefund)
-                                                    <a href="{{ route('customer.refunds.create', $value->id) }}" class="bg-yellow-500 hover:bg-yellow-600 text-white text-xs px-3 py-2 rounded-lg transition" title="{{ __('Request Refund') }}">
+                                                    <a href="{{ route('customer.refunds.create', $value->{{ __('id)') }} }}" class="bg-yellow-500 hover:bg-yellow-600 text-white text-xs px-3 py-2 rounded-lg transition" title="{{ __('Request Refund') }}">
                                                         <i class="fas fa-undo"></i>
                                                     </a>
                                                 @elseif($existingRefund)
-                                                    <a href="{{ route('customer.refunds.show', $existingRefund->id) }}" class="bg-purple-500 hover:bg-purple-600 text-white text-xs px-3 py-2 rounded-lg transition" title="View Refund">
+                                                    <a href="{{ route('customer.refunds.show', $existingRefund->{{ __('id)') }} }}" class="bg-purple-500 hover:bg-purple-600 text-white text-xs px-3 py-2 rounded-lg transition" title="View Refund">
                                                         <i class="fas fa-eye"></i>
                                                     </a>
                                                 @endif
@@ -356,8 +356,8 @@ $totalOrderAmount = \App\Models\Order::where('customer_id', $customerId)->sum('a
                                     <div class="inline-flex items-center justify-center w-20 h-20 bg-gray-100 rounded-full mb-4">
                                         <i class="fas fa-box-open text-4xl text-gray-300"></i>
                                     </div>
-                                    <h5 class="text-lg font-bold text-gray-800 mb-2">কোনো অর্ডার পাওয়া যায়নি</h5>
-                                    <p class="text-gray-500">আপনি এখনো কোনো অর্ডার করেননি।</p>
+                                    <h5 class="text-lg font-bold text-gray-800 mb-2">{{ __('bn_f114c891') }}</h5>
+                                    <p class="text-gray-500">{{ __('bn_59411f94') }}</p>
                                 </div>
                             @endforelse
             </div>
@@ -366,7 +366,7 @@ $totalOrderAmount = \App\Models\Order::where('customer_id', $customerId)->sum('a
             @if(method_exists($orders, 'hasPages') && $orders->hasPages())
                 <div class="mt-6 flex justify-center">
                     <div class="flex items-center gap-2 flex-wrap justify-center">
-                        {{-- Previous Page Link --}}
+                        {{-- {{ __('Prev') }}ious Page {{ __('Link') }} --}}
                         @if ($orders->onFirstPage())
                             <span class="px-4 py-2 bg-gray-100 text-gray-400 rounded-lg cursor-not-allowed">
                                 <i class="fas fa-chevron-left"></i>
@@ -407,7 +407,7 @@ $totalOrderAmount = \App\Models\Order::where('customer_id', $customerId)->sum('a
                             <a href="{{ $orders->url($lastPage) }}" class="px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition">{{ $lastPage }}</a>
                         @endif
 
-                        {{-- Next Page Link --}}
+                        {{-- Next Page {{ __('Link') }} --}}
                         @if ($orders->hasMorePages())
                             <a href="{{ $orders->nextPageUrl() }}" class="px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition">
                                 <i class="fas fa-chevron-right"></i>

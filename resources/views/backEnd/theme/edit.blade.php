@@ -1,5 +1,5 @@
 @extends('backEnd.layouts.master')
-@section('title', $edit_data ? 'Edit Theme: ' . $edit_data->name : 'Create New Theme')
+@section('title', $edit_data ? 'Edit Theme: ' . $edit_data->name : 'Create {{ __('New') }} Theme')
 
 @section('css')
 <link href="{{asset('public/backEnd')}}/assets/libs/select2/css/select2.min.css" rel="stylesheet" type="text/css" />
@@ -46,7 +46,7 @@
         outline: none;
     }
 
-    /* Color picker row */
+    /* {{ __('Color') }} picker row */
     .color-row {
         display: flex;
         align-items: center;
@@ -65,7 +65,7 @@
         flex: 1;
     }
 
-    /* Live preview */
+    /* {{ __('Live') }} preview */
     .live-preview-box {
         background: #f8fafc;
         border-radius: 12px;
@@ -136,57 +136,57 @@
                 @if($edit_data)
                     <i class="mdi mdi-palette me-2"></i> Edit Theme: {{ $edit_data->name }}
                 @else
-                    <i class="mdi mdi-palette-plus me-2"></i> Create New Theme
+                    <i class="mdi mdi-palette-plus me-2"></i> Create {{ __('New') }} Theme
                 @endif
             </h4>
             <a href="{{ route('themes.index') }}" class="text-muted small">
-                <i class="fe-arrow-left me-1"></i> Back to Themes
+                <i class="fe-arrow-left me-1"></i> Back to {{ __('Themes') }}
             </a>
         </div>
     </div>
 
-    <form action="{{ $edit_data ? route('themes.update') : route('themes.store') }}" method="POST" enctype="multipart/form-data">
+    <form action="{{ $edit_data ? route('themes.update') : route('themes.store') }}" method={{ __('"{{ __('POST') }}"') }} enctype="multipart/form-data">
         @csrf
         @if($edit_data)
             <input type="hidden" name="id" value="{{ $edit_data->id }}">
         @endif
 
-        {{-- Live Preview --}}
+        {{-- {{ __('{{ __('Live') }} {{ __('Prev') }}iew') }} --}}
         <div class="live-preview-box">
             <div class="d-flex justify-content-between align-items-center mb-3">
-                <h6 class="fw-bold m-0"><i class="mdi mdi-eye me-1"></i> Live Preview</h6>
-                <small class="text-muted">Colors update as you type hex values</small>
+                <h6 class="fw-bold m-0"><i class="mdi mdi-eye me-1"></i> {{ __('{{ __('Live') }} {{ __('Prev') }}iew') }}</h6>
+                <small class="text-muted">{{ __('{{ __('{{ __('Color') }}s') }} update as you type hex values') }}</small>
             </div>
-            <div class="preview-card" id="livePreview" 
+            <div class="preview-card" id="live{{ __('Prev') }}iew" 
                  style="border:1px solid var(--pv-border, #dee2e6);">
                 <div class="preview-header" id="pvHeader" style="background:var(--pv-header-bg, #ffffff);">
-                    <span id="pvHeaderText" style="color:var(--pv-header-text, #212529);font-weight:700;font-size:14px;">My Store</span>
-                    <span class="preview-btn" id="pvButton" style="background:var(--pv-button-bg, #0d6efd);color:var(--pv-button-text, #ffffff);">{{ __('Shop Now') }}</span>
+                    <span id="pvHeader{{ __('Text') }}" style="color:var(--pv-header-text, #212529);font-weight:700;font-size:{{ __('14px') }};">{{ __('My {{ __('Store') }}') }}</span>
+                    <span class="preview-btn" id="pvButton" style="background:var(--pv-button-bg, #0d6efd);color:var(--pv-button-text, #ffffff);">{{ __('{{ __('Shop') }} Now') }}</span>
                 </div>
                 <div class="preview-body" id="pvBody" style="background:var(--pv-body-bg, #ffffff);">
-                    <h5 id="pvHeading" style="color:var(--pv-heading, #111111);font-weight:700;">Summer Collection 2026</h5>
-                    <p id="pvText" style="color:var(--pv-text, #212529);">Get up to <span class="preview-badge" id="pvBadge" style="background:var(--pv-sale-bg, #dc3545);color:var(--pv-sale-text, #ffffff);">50% OFF</span> on selected items. Limited time offer!</p>
+                    <h5 id="pvHeading" style="color:var(--pv-heading, #111111);font-weight:700;">{{ __('Summer Collection 2026') }}</h5>
+                    <p id="pv{{ __('Text') }}" style="color:var(--pv-text, #212529);">{{ __('Get up to') }} <span class="preview-badge" id="pvBadge" style="background:var(--pv-sale-bg, #dc3545);color:var(--pv-sale-text, #ffffff);">{{ __('50% OFF') }}</span> {{ __('on selected items. {{ __('Limit') }}ed time offer!') }}</p>
                 </div>
                 <div class="preview-footer" id="pvFooter" style="background:var(--pv-footer-bg, #1a1a1a);color:var(--pv-footer-text, #cccccc);">
-                    © 2026 My Store. All rights reserved.
+                    © 2026 {{ __('My {{ __('Store') }}') }}. All rights reserved.
                 </div>
             </div>
         </div>
 
         <div class="row">
-            {{-- Left Column: Basic Info + Brand Colors + Text Colors --}}
+            {{-- Left Column: {{ __('Basic') }} Info + {{ __('Brand {{ __('{{ __('Color') }}s') }}') }} + {{ __('{{ __('Text') }} {{ __('{{ __('Color') }}s') }}') }} --}}
             <div class="col-lg-6">
-                {{-- Basic Info --}}
+                {{-- {{ __('Basic') }} Info --}}
                 <div class="theme-editor-card">
-                    <div class="section-title-pro"><i class="mdi mdi-information-outline text-primary"></i> Basic Information</div>
+                    <div class="section-title-pro"><i class="mdi mdi-information-outline text-primary"></i> {{ __('{{ __('Basic') }} Information') }}</div>
                     <div class="p-4">
                         <div class="row g-3">
                             <div class="col-md-6">
-                                <label class="form-label-pro">Theme Name *</label>
+                                <label class="form-label-pro">{{ __('Theme {{ __('{{ __('Name') }} *') }}') }}</label>
                                 <input type="text" name="name" class="custom-input" value="{{ old('name', $edit_data->name ?? '') }}" required maxlength="100">
                             </div>
                             <div class="col-md-6">
-                                <label class="form-label-pro">Slug *</label>
+                                <label class="form-label-pro">{{ __('Slug *') }}</label>
                                 <input type="text" name="slug" class="custom-input" value="{{ old('slug', $edit_data->slug ?? '') }}" required maxlength="120">
                             </div>
                             <div class="col-12">
@@ -194,7 +194,7 @@
                                 <textarea name="description" class="custom-input" rows="2">{{ old('description', $edit_data->description ?? '') }}</textarea>
                             </div>
                             <div class="col-md-6">
-                                <label class="form-label-pro">Preview Image</label>
+                                <label class="form-label-pro">{{ __('{{ __('Prev') }}iew Image') }}</label>
                                 <input type="file" name="preview_image" class="custom-input">
                             </div>
                             <div class="col-md-3">
@@ -215,28 +215,28 @@
                     </div>
                 </div>
 
-                {{-- Brand Colors --}}
+                {{-- {{ __('Brand {{ __('{{ __('Color') }}s') }}') }} --}}
                 <div class="theme-editor-card">
-                    <div class="section-title-pro"><i class="mdi mdi-palette text-danger"></i> Brand Colors</div>
+                    <div class="section-title-pro"><i class="mdi mdi-palette text-danger"></i> {{ __('Brand {{ __('{{ __('Color') }}s') }}') }}</div>
                     <div class="p-4">
                         <div class="row g-3">
                             @php
-                                $brandColors = [
+                                $brand{{ __('{{ __('Color') }}s') }} = [
                                     'primary_color' => ['label' => 'Primary', 'default' => '#0d6efd'],
                                     'secondary_color' => ['label' => 'Secondary', 'default' => '#0b5ed7'],
                                     'accent_color' => ['label' => 'Accent', 'default' => '#ff6a00'],
                                 ];
                             @endphp
-                            @foreach($brandColors as $key => $c)
+                            @foreach($brand{{ __('{{ __('Color') }}s') }} as $key => $c)
                             <div class="col-md-4">
                                 <label class="form-label-pro">{{ $c['label'] }}</label>
                                 <div class="color-row">
                                     <input type="color" id="{{ $key }}_cp" value="{{ old($key, $edit_data->$key ?? $c['default']) }}"
-                                           oninput="updateColor('{{ $key }}', this.value);">
+                                           oninput="update{{ __('Color') }}('{{ $key }}', this.value);">
                                     <input type="text" name="{{ $key }}" id="{{ $key }}_txt" 
                                            value="{{ old($key, $edit_data->$key ?? $c['default']) }}"
                                            class="custom-input text-uppercase small fw-bold" style="font-size:11px;"
-                                           oninput="updateColor('{{ $key }}', this.value);">
+                                           oninput="update{{ __('Color') }}('{{ $key }}', this.value);">
                                 </div>
                             </div>
                             @endforeach
@@ -244,32 +244,32 @@
                     </div>
                 </div>
 
-                {{-- Text Colors --}}
+                {{-- {{ __('{{ __('Text') }} {{ __('{{ __('Color') }}s') }}') }} --}}
                 <div class="theme-editor-card">
-                    <div class="section-title-pro"><i class="mdi mdi-format-color-text text-warning"></i> Text Colors</div>
+                    <div class="section-title-pro"><i class="mdi mdi-format-color-text text-warning"></i> {{ __('{{ __('Text') }} {{ __('{{ __('Color') }}s') }}') }}</div>
                     <div class="p-4">
                         <div class="row g-3">
                             @php
-                                $textColors = [
-                                    'text_color' => ['label' => 'Body Text', 'default' => '#212529'],
+                                $text{{ __('{{ __('Color') }}s') }} = [
+                                    'text_color' => ['label' => 'Body {{ __('Text') }}', 'default' => '#212529'],
                                     'heading_color' => ['label' => 'Headings', 'default' => '#111111'],
-                                    'header_text_color' => ['label' => 'Header Text', 'default' => '#212529'],
-                                    'footer_text_color' => ['label' => 'Footer Text', 'default' => '#cccccc'],
-                                    'copyright_text_color' => ['label' => 'Copyright Text', 'default' => '#ffffff'],
-                                    'button_text_color' => ['label' => 'Button Text', 'default' => '#ffffff'],
-                                    'sale_badge_text' => ['label' => 'Sale Badge Text', 'default' => '#ffffff'],
+                                    'header_text_color' => ['label' => 'Header {{ __('Text') }}', 'default' => '#212529'],
+                                    'footer_text_color' => ['label' => 'Footer {{ __('Text') }}', 'default' => '#cccccc'],
+                                    'copyright_text_color' => ['label' => 'Copyright {{ __('Text') }}', 'default' => '#ffffff'],
+                                    'button_text_color' => ['label' => '{{ __('Button {{ __('Text') }}') }}', 'default' => '#ffffff'],
+                                    'sale_badge_text' => ['label' => 'Sale Badge {{ __('Text') }}', 'default' => '#ffffff'],
                                 ];
                             @endphp
-                            @foreach($textColors as $key => $c)
+                            @foreach($text{{ __('{{ __('Color') }}s') }} as $key => $c)
                             <div class="col-md-6">
                                 <label class="form-label-pro">{{ $c['label'] }}</label>
                                 <div class="color-row">
                                     <input type="color" id="{{ $key }}_cp" value="{{ old($key, $edit_data->$key ?? $c['default']) }}"
-                                           oninput="updateColor('{{ $key }}', this.value);">
+                                           oninput="update{{ __('Color') }}('{{ $key }}', this.value);">
                                     <input type="text" name="{{ $key }}" id="{{ $key }}_txt" 
                                            value="{{ old($key, $edit_data->$key ?? $c['default']) }}"
                                            class="custom-input text-uppercase small fw-bold" style="font-size:11px;"
-                                           oninput="updateColor('{{ $key }}', this.value);">
+                                           oninput="update{{ __('Color') }}('{{ $key }}', this.value);">
                                 </div>
                             </div>
                             @endforeach
@@ -278,15 +278,15 @@
                 </div>
             </div>
 
-            {{-- Right Column: Backgrounds + UI Elements + Typography --}}
+            {{-- Right Column: Backgrounds + {{ __('UI Elements') }} + Typography --}}
             <div class="col-lg-6">
-                {{-- Background Colors --}}
+                {{-- {{ __('Background {{ __('{{ __('Color') }}s') }}') }} --}}
                 <div class="theme-editor-card">
-                    <div class="section-title-pro"><i class="mdi mdi-invert-colors text-success"></i> Background Colors</div>
+                    <div class="section-title-pro"><i class="mdi mdi-invert-colors text-success"></i> {{ __('Background {{ __('{{ __('Color') }}s') }}') }}</div>
                     <div class="p-4">
                         <div class="row g-3">
                             @php
-                                $bgColors = [
+                                $bg{{ __('{{ __('Color') }}s') }} = [
                                     'body_bg_color' => ['label' => 'Body Background', 'default' => '#ffffff'],
                                     'header_bg_color' => ['label' => 'Header Background', 'default' => '#ffffff'],
                                     'footer_bg_color' => ['label' => 'Footer Background', 'default' => '#1a1a1a'],
@@ -296,16 +296,16 @@
                                     'sale_badge_bg' => ['label' => 'Sale Badge BG', 'default' => '#dc3545'],
                                 ];
                             @endphp
-                            @foreach($bgColors as $key => $c)
+                            @foreach($bg{{ __('{{ __('Color') }}s') }} as $key => $c)
                             <div class="col-md-6">
                                 <label class="form-label-pro">{{ $c['label'] }}</label>
                                 <div class="color-row">
                                     <input type="color" id="{{ $key }}_cp" value="{{ old($key, $edit_data->$key ?? $c['default']) }}"
-                                           oninput="updateColor('{{ $key }}', this.value);">
+                                           oninput="update{{ __('Color') }}('{{ $key }}', this.value);">
                                     <input type="text" name="{{ $key }}" id="{{ $key }}_txt" 
                                            value="{{ old($key, $edit_data->$key ?? $c['default']) }}"
                                            class="custom-input text-uppercase small fw-bold" style="font-size:11px;"
-                                           oninput="updateColor('{{ $key }}', this.value);">
+                                           oninput="update{{ __('Color') }}('{{ $key }}', this.value);">
                                 </div>
                             </div>
                             @endforeach
@@ -313,29 +313,29 @@
                     </div>
                 </div>
 
-                {{-- 🖥️ Admin Panel Colors --}}
+                {{-- 🖥️ {{ __('Admin Panel {{ __('{{ __('Color') }}s') }}') }} --}}
                 <div class="theme-editor-card">
-                    <div class="section-title-pro"><i class="mdi mdi-monitor-dashboard text-secondary"></i> Admin Panel Colors</div>
+                    <div class="section-title-pro"><i class="mdi mdi-monitor-dashboard text-secondary"></i> {{ __('Admin Panel {{ __('{{ __('Color') }}s') }}') }}</div>
                     <div class="p-4">
                         <div class="row g-3">
                             @php
-                                $adminColors = [
+                                $admin{{ __('{{ __('Color') }}s') }} = [
                                     'sidebar_bg_color' => ['label' => 'Sidebar Background', 'default' => '#1e293b'],
-                                    'sidebar_text_color' => ['label' => 'Sidebar Text', 'default' => '#ffffff'],
-                                    'topbar_bg_color' => ['label' => 'Topbar Background', 'default' => '#0f172a'],
+                                    'sidebar_text_color' => ['label' => 'Sidebar {{ __('Text') }}', 'default' => '#ffffff'],
+                                    'topbar_bg_color' => ['label' => '{{ __('Topbar') }} Background', 'default' => '#0f172a'],
                                     'admin_card_bg' => ['label' => 'Card Background', 'default' => '#ffffff'],
                                 ];
                             @endphp
-                            @foreach($adminColors as $key => $c)
+                            @foreach($admin{{ __('{{ __('Color') }}s') }} as $key => $c)
                             <div class="col-md-6">
                                 <label class="form-label-pro">{{ $c['label'] }}</label>
                                 <div class="color-row">
                                     <input type="color" id="{{ $key }}_cp" value="{{ old($key, $edit_data->$key ?? $c['default']) }}"
-                                           oninput="updateColor('{{ $key }}', this.value);">
+                                           oninput="update{{ __('Color') }}('{{ $key }}', this.value);">
                                     <input type="text" name="{{ $key }}" id="{{ $key }}_txt" 
                                            value="{{ old($key, $edit_data->$key ?? $c['default']) }}"
                                            class="custom-input text-uppercase small fw-bold" style="font-size:11px;"
-                                           oninput="updateColor('{{ $key }}', this.value);">
+                                           oninput="update{{ __('Color') }}('{{ $key }}', this.value);">
                                 </div>
                             </div>
                             @endforeach
@@ -343,74 +343,74 @@
                     </div>
                 </div>
 
-                {{-- UI Elements --}}
+                {{-- {{ __('UI Elements') }} --}}
                 <div class="theme-editor-card">
-                    <div class="section-title-pro"><i class="mdi mdi-border-all text-info"></i> UI Elements</div>
+                    <div class="section-title-pro"><i class="mdi mdi-border-all text-info"></i> {{ __('UI Elements') }}</div>
                     <div class="p-4">
                         <div class="row g-3">
                             <div class="col-md-6">
-                                <label class="form-label-pro">Border Color</label>
+                                <label class="form-label-pro">{{ __('Border {{ __('Color') }}') }}</label>
                                 <div class="color-row">
                                     <input type="color" id="border_color_cp" value="{{ old('border_color', $edit_data->border_color ?? '#dee2e6') }}"
-                                           oninput="updateColor('border_color', this.value);">
+                                           oninput="update{{ __('Color') }}('border_color', this.value);">
                                     <input type="text" name="border_color" id="border_color_txt" 
                                            value="{{ old('border_color', $edit_data->border_color ?? '#dee2e6') }}"
                                            class="custom-input text-uppercase small fw-bold" style="font-size:11px;"
-                                           oninput="updateColor('border_color', this.value);">
+                                           oninput="update{{ __('Color') }}('border_color', this.value);">
                                 </div>
                             </div>
                             <div class="col-md-6">
-                                <label class="form-label-pro">Border Radius</label>
+                                <label class="form-label-pro">{{ __('Border Radius') }}</label>
                                 <input type="text" name="border_radius" class="custom-input" 
-                                       value="{{ old('border_radius', $edit_data->border_radius ?? '8px') }}" placeholder="e.g. 8px">
+                                       value="{{ old('border_radius', $edit_data->border_radius ?? '8px') }}" placeholder="{{ __('e.g. 8px') }}">
                             </div>
                             <div class="col-md-12">
-                                <label class="form-label-pro">Card Shadow</label>
+                                <label class="form-label-pro">{{ __('Card Shadow') }}</label>
                                 <input type="text" name="card_shadow" class="custom-input" 
-                                       value="{{ old('card_shadow', $edit_data->card_shadow ?? '') }}" placeholder="e.g. 0 2px 8px rgba(0,0,0,0.08)">
+                                       value="{{ old('card_shadow', $edit_data->card_shadow ?? '') }}" placeholder="{{ __('e.g. 0 2px 8px rgba(0,0,0,0.08)') }}">
                             </div>
                         </div>
                     </div>
                 </div>
 
-                {{-- Typography & Layout --}}
+                {{-- {{ __('Typography & Layout') }} --}}
                 <div class="theme-editor-card">
-                    <div class="section-title-pro"><i class="mdi mdi-format-font text-purple"></i> Typography & Layout</div>
+                    <div class="section-title-pro"><i class="mdi mdi-format-font text-purple"></i> {{ __('Typography & Layout') }}</div>
                     <div class="p-4">
                         <div class="row g-3">
                             <div class="col-md-6">
-                                <label class="form-label-pro">Body Font Family</label>
+                                <label class="form-label-pro">{{ __('Body Font Family') }}</label>
                                 <input type="text" name="font_family" class="custom-input" 
                                        value="{{ old('font_family', $edit_data->font_family ?? "'Roboto', sans-serif") }}">
                             </div>
                             <div class="col-md-6">
-                                <label class="form-label-pro">Heading Font</label>
+                                <label class="form-label-pro">{{ __('Heading Font') }}</label>
                                 <input type="text" name="heading_font" class="custom-input" 
                                        value="{{ old('heading_font', $edit_data->heading_font ?? "'Jost', sans-serif") }}">
                             </div>
                             <div class="col-md-4">
-                                <label class="form-label-pro">Body Font Size</label>
+                                <label class="form-label-pro">{{ __('Body Font Size') }}</label>
                                 <input type="text" name="body_font_size" class="custom-input" 
-                                       value="{{ old('body_font_size', $edit_data->body_font_size ?? '14px') }}" placeholder="14px">
+                                       value="{{ old('body_font_size', $edit_data->body_font_size ?? '{{ __('14px') }}') }}" placeholder="{{ __('14px') }}">
                             </div>
                             <div class="col-md-4">
-                                <label class="form-label-pro">Heading Weight</label>
+                                <label class="form-label-pro">{{ __('Heading Weight') }}</label>
                                 <select name="heading_font_weight" class="custom-input">
-                                    @foreach(['300'=>'Light','400'=>'Normal','500'=>'Medium','600'=>'Semi Bold','700'=>'Bold','800'=>'Extra Bold','900'=>'Black'] as $v=>$l)
+                                    @foreach(['300'=>'{{ __('Light') }}','400'=>'Normal','500'=>'Medium','600'=>'Semi Bold','700'=>'Bold','800'=>'Extra Bold','900'=>'Black'] as $v=>$l)
                                     <option value="{{ $v }}" {{ old('heading_font_weight', $edit_data->heading_font_weight ?? '700') == $v ? 'selected' : '' }}>{{ $l }} ({{ $v }})</option>
                                     @endforeach
                                 </select>
                             </div>
                             <div class="col-md-4">
-                                <label class="form-label-pro">Layout Style</label>
+                                <label class="form-label-pro">{{ __('Layout Style') }}</label>
                                 <select name="layout_style" class="custom-input">
-                                    <option value="contained" {{ old('layout_style', $edit_data->layout_style ?? '') == 'contained' ? 'selected' : '' }}>Contained</option>
-                                    <option value="full-width" {{ old('layout_style', $edit_data->layout_style ?? '') == 'full-width' ? 'selected' : '' }}>Full Width</option>
+                                    <option value="contained" {{ old('layout_style', $edit_data->layout_style ?? '') == 'contained' ? 'selected' : '' }}>{{ __('Contained') }}</option>
+                                    <option value="full-width" {{ old('layout_style', $edit_data->layout_style ?? '') == 'full-width' ? 'selected' : '' }}>{{ __('Full {{ __('Width') }}') }}</option>
                                 </select>
                             </div>
                             <div class="col-12">
-                                <label class="form-label-pro">Custom CSS</label>
-                                <textarea name="custom_css" class="custom-input" rows="4" placeholder="/* Write custom CSS overrides here */">{{ old('custom_css', $edit_data->custom_css ?? '') }}</textarea>
+                                <label class="form-label-pro">{{ __('Custom CSS') }}</label>
+                                <textarea name="custom_css" class="custom-input" rows="4" placeholder="{{ __('/* Write custom CSS overrides {{ __('here') }} */') }}">{{ old('custom_css', $edit_data->custom_css ?? '') }}</textarea>
                             </div>
                         </div>
                     </div>
@@ -420,9 +420,9 @@
 
         {{-- Submit --}}
         <div class="text-center mb-5 mt-3">
-            <button type="submit" class="btn-save-pro">
+            <button type="{{ __('submit') }}" class="btn-save-pro">
                 <i class="mdi mdi-content-save-all me-2"></i> 
-                {{ $edit_data ? 'Update Theme' : 'Create Theme' }}
+                {{ $edit_data ? 'Update Theme' : '{{ __('Create Theme') }}' }}
             </button>
             <a href="{{ route('themes.index') }}" class="btn btn-light rounded-pill px-4 ms-2 fw-bold">{{ __('Cancel') }}</a>
         </div>
@@ -434,7 +434,7 @@
 <script src="{{asset('public/backEnd/')}}/assets/libs/select2/js/select2.min.js"></script>
 <script>
     // Update both color picker + text input and live preview
-    function updateColor(field, value) {
+    function update{{ __('Color') }}(field, value) {
         // Sync picker <-> text
         const cp = document.getElementById(field + '_cp');
         const txt = document.getElementById(field + '_txt');
@@ -442,7 +442,7 @@
         if (txt && value !== txt.value) txt.value = value;
 
         // Update live preview CSS variables
-        const preview = document.getElementById('livePreview');
+        const preview = document.getElementById('live{{ __('Prev') }}iew');
         const map = {
             'primary_color': '--pv-button-bg',
             'button_bg_color': '--pv-button-bg',
@@ -458,9 +458,9 @@
             'sale_badge_text': '--pv-sale-text',
             'border_color': '--pv-border',
         };
-        const varName = map[field];
-        if (varName && preview) {
-            preview.style.setProperty(varName, value);
+        const var{{ __('Name') }} = map[field];
+        if (var{{ __('Name') }} && preview) {
+            preview.style.setProperty(var{{ __('Name') }}, value);
         }
     }
 

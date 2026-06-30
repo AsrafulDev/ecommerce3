@@ -45,15 +45,15 @@
                                             </span>
                                         </a>
                                     </div>
-                                    <p class="text-muted mb-4 mt-3">Your panel is not locked password to access unlocked panel.</p>
+                                    <p class="text-muted mb-4 mt-3">{{ __('Your panel is not locked password to access unlocked panel.') }}</p>
                                 </div>
 
-                                <form method="POST" action="{{route('unlocked')}}" >
+                                <form method={{ __('"{{ __('POST') }}"') }} action="{{route('unlocked')}}" >
                                     @csrf
                                     <div class="mb-3">
                                         <label for="password" class="form-label">{{ __('Password') }}</label>
                                         <div class="input-group input-group-merge">
-                                            <input type="password" id="password" class="form-control @error('password') is-invalid @enderror" name="password" value="{{ old('password') }}" required autocomplete="password" autofocus placeholder="Enter your password">
+                                            <input type="password" id="password" class="form-control @error('password') is-invalid @enderror" name="password" value="{{ old('password') }}" required autocomplete="password" autofocus placeholder="{{ __('Enter your password') }}">
                                             <div class="input-group-text" data-password="false">
                                                 <span class="password-eye"></span>
                                             </div>
@@ -68,12 +68,12 @@
                                     <div class="mb-3">
                                         <div class="form-check">
                                             <input type="checkbox" class="form-check-input" id="checkbox-signin" value="1" name="remember" checked>
-                                            <label class="form-check-label" for="checkbox-signin">Remember me</label>
+                                            <label class="form-check-label" for="checkbox-signin">{{ __('Remember me') }}</label>
                                         </div>
                                     </div>
 
                                     <div class="text-center d-grid">
-                                        <button class="btn btn-primary" type="submit"> Unlock </button>
+                                        <button class="btn btn-primary" type="{{ __('submit') }}"> {{ __('Unlock') }} </button>
                                     </div>
 
                                 </form>

@@ -1,5 +1,5 @@
 @extends('frontEnd.layouts.master')
-@section('title','Customer Login')
+@section('title','{{ __('Customer') }} Login')
 @php
     $generalsetting = \App\Models\GeneralSetting::first();
 @endphp
@@ -7,7 +7,7 @@
 {{-- CSS সরাসরি এখানে দেওয়া হলো যাতে কোনো এরর না হয় --}}
 <style>
     /* মডার্ন ফন্ট ইমপোর্ট */
-    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+    @import url('{{ __('https://') }}fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
 
     .modern-login-section {
         background-color: #f0f2f5;
@@ -102,7 +102,7 @@
 
     .login-header { margin-bottom: 30px; }
     .login-header h3 { font-weight: 700; color: #333; margin-bottom: 5px; }
-    .login-header p { color: #888; font-size: 14px; }
+    .login-header p { color: #888; font-size: {{ __('14px') }}; }
 
     /* ইনপুট ফিল্ড ডিজাইন */
     .custom-input-group {
@@ -114,7 +114,7 @@
         margin-bottom: 8px;
         font-weight: 600;
         color: #555;
-        font-size: 14px;
+        font-size: {{ __('14px') }};
     }
     .custom-input {
         width: 100%;
@@ -134,7 +134,7 @@
     }
 
     /* বাটন ডিজাইন */
-    .btn-modern-submit {
+    .btn-modern-{{ __('submit') }} {
         width: 100%;
         height: 50px;
         background: var(--secondary-color);
@@ -148,7 +148,7 @@
         text-transform: uppercase;
         letter-spacing: 1px;
     }
-    .btn-modern-submit:hover {
+    .btn-modern-{{ __('submit') }}:hover {
         transform: translateY(-2px);
         box-shadow: 0 5px 15px rgba(118, 75, 162, 0.3);
     }
@@ -177,7 +177,7 @@
         text-decoration: none;
     }
 
-    /* ডেমো Use বাটন - কমলার বর্ডার */
+    /* {{ __('bn_67543547') }} {{ __('Use') }} বাটন - কমলার বর্ডার */
     .demo-use-btn {
         border: 2px solid #fd7e14;
         color: #fd7e14;
@@ -206,28 +206,28 @@
             {{-- বাম পাশ: ছবি --}}
 <div class="login-image-area">
     {{-- এখানে আর কোনো <img> ট্যাগ থাকবে না --}}
-    <h2>Welcome Back!</h2>
-    <p><span style="color: white;">আপনার অ্যাকাউন্টে লগিন করে নিরাপদ কেনাকাটা করুন।</span></p>
+    <h2>{{ __('Welcome Back!') }}</h2>
+    <p><span style="color: white;">{{ __('bn_8a5f6416') }}</span></p>
 </div>
 
             {{-- ডান পাশ: ফর্ম --}}
             <div class="login-form-area">
                 <div class="login-header">
-                    <h3>কাস্টমার লগিন 👋</h3>
-                    <p>আপনার ফোন নাম্বার এবং পাসওয়ার্ড দিন</p>
+                    <h3>{{ __('{{ __('Customer') }}s') }}</h3>
+                    <p>{{ __('bn_3090c0ce') }}</p>
                 </div>
 
-                {{-- আপনার অরিজিনাল ফর্ম অ্যাকশন এবং মেথড --}}
-                <form action="{{route('customer.signin')}}" method="POST" data-parsley-validate="">
+                {{-- আপনার অরিজিনাল ফর্ম {{ __('bn_7c6fd8c1') }} এবং {{ __('bn_ad0b92c2') }} --}}
+                <form action="{{route('customer.signin')}}" method={{ __('"{{ __('POST') }}"') }} data-parsley-validate="">
                     @csrf
                     
                     {{-- ফোন নাম্বার --}}
                     <div class="custom-input-group">
-                        <label for="login">মোবাইল নাম্বার বা ইমেইল</label>
+                        <label for="login">{{ __('{{ __('Mobile') }} Number') }}</label>
                         <input type="text" id="login" 
                                class="custom-input @error('login') is-invalid @enderror" 
                                name="login" value="{{ old('login') }}" 
-                               placeholder="017xxxxxxxx অথবা email@example.com" required>
+                               placeholder="{{ __('017xxxxxxxx') }} {{ __('bn_6bbacc71') }} email@example.com" required>
                         @error('login')
                             <span class="text-danger small mt-1 d-block">{{ $message }}</span>
                         @enderror
@@ -235,11 +235,11 @@
 
                     {{-- পাসওয়ার্ড --}}
                     <div class="custom-input-group">
-                        <label for="password">পাসওয়ার্ড</label>
+                        <label for="password">{{ __('Password') }}</label>
                         <div style="position: relative;">
                             <input type="password" id="password" 
                                    class="custom-input @error('password') is-invalid @enderror" 
-                                   name="password" placeholder="********" required>
+                                   name="password" placeholder="{{ __('********') }}" required>
                             {{-- পাসওয়ার্ড দেখার আইকন (অপশনাল) --}}
                             <span onclick="showPass()" style="position: absolute; right: 15px; top: 15px; cursor: pointer; color: #999;">
                                 <i class="fa fa-eye"></i>
@@ -252,12 +252,12 @@
 
                     {{-- ফরগট পাসওয়ার্ড --}}
                     <a href="{{route('customer.forgot.password')}}" class="forgot-pass-link">
-                        <i class="fa-solid fa-unlock"></i> পাসওয়ার্ড ভুলে গেছেন?
+                        <i class="fa-solid fa-unlock"></i> {{ __('Password') }} ভুলে গেছেন?
                     </a>
 
                     {{-- সাবমিট --}}
                     <div class="form-group mb-3">
-                        <button class="btn-modern-submit"> লগিন করুন </button>
+                        <button class="btn-modern-{{ __('submit') }}"> {{ __('Login Now') }} </button>
                     </div>
 
                 </form>
@@ -265,19 +265,19 @@
                 @if(isset($demoMode) && $demoMode)
                 <div class="mt-4 pt-3 border-top">
                     <div class="mb-2">
-                        <small class="d-block mb-1 text-muted">রিসেলার ইউজার</small>
+                        <small class="d-block mb-1 text-muted">{{ __('bn_b0a2e47c') }}</small>
                         <div class="d-flex gap-2 align-items-center flex-wrap mb-2">
                             <input type="text" class="form-control form-control-sm bg-light" value="01631843149" readonly style="flex:1;min-width:0;border:1px solid #ddd;">
                             <input type="text" class="form-control form-control-sm bg-light" value="12345678" readonly style="width:100px;border:1px solid #ddd;">
-                            <button type="button" class="btn btn-sm demo-use-btn" onclick="fillDemoCreds('01631843149','12345678')">Use</button>
+                            <button type="button" class="btn btn-sm demo-use-btn" onclick="fillDemoCreds('01631843149','12345678')">{{ __('Use') }}</button>
                         </div>
                     </div>
                     <div>
-                        <small class="d-block mb-1 text-muted">ভেন্ড্রর ইউজার</small>
+                        <small class="d-block mb-1 text-muted">{{ __('bn_7657d02f') }}</small>
                         <div class="d-flex gap-2 align-items-center flex-wrap">
                             <input type="text" class="form-control form-control-sm bg-light" value="01870829343" readonly style="flex:1;min-width:0;border:1px solid #ddd;">
                             <input type="text" class="form-control form-control-sm bg-light" value="123456789" readonly style="width:100px;border:1px solid #ddd;">
-                            <button type="button" class="btn btn-sm demo-use-btn" onclick="fillDemoCreds('01870829343','123456789')">Use</button>
+                            <button type="button" class="btn btn-sm demo-use-btn" onclick="fillDemoCreds('01870829343','123456789')">{{ __('Use') }}</button>
                         </div>
                     </div>
                 </div>
@@ -287,7 +287,7 @@
                 <div class="register-box">
                     <p class="mb-1 text-muted">একাউন্ট না থাকলে?</p>
                     <a href="{{route('customer.register')}}" class="register-link">
-                        <i data-feather="edit-3"></i> রেজিস্ট্রেশন করুন
+                        <i data-feather="edit-3"></i> {{ __('bn_71f2a0f0') }}
                     </a>
                 </div>
             </div>

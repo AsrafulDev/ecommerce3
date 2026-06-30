@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Shipping Labels</title>
+    <title>{{ __('{{ __('Shipping') }} {{ __('Label') }}s') }}</title>
     <style>
         * { margin:0; padding:0; box-sizing:border-box; }
 
@@ -20,7 +20,7 @@
         }
         .no-print button {
             padding: 8px 32px; background: #28a745; color: #fff;
-            border: none; cursor: pointer; font-size: 14px; border-radius: 4px; font-weight: 600;
+            border: none; cursor: pointer; font-size: {{ __('14px') }}; border-radius: 4px; font-weight: 600;
         }
 
         /* A4 page: 2 col × 4 row = 8 labels */
@@ -47,7 +47,7 @@
             background: repeating-linear-gradient(45deg,#f9f9f9,#f9f9f9 5px,#f0f0f0 5px,#f0f0f0 10px);
         }
 
-        /* Top bar — FROM + Invoice */
+        /* Top bar — FROM + {{ __('{{ __('Inv') }}oice') }} */
         .lbl-top {
             background: #1a1a1a; color: #fff;
             padding: 5px 8px;
@@ -66,10 +66,10 @@
         .lbl-to { padding:7px 8px 5px; flex:1; border-bottom:1px dashed #bbb; }
         .to-tag  { font-size:8px; font-weight:700; text-transform:uppercase; letter-spacing:1.5px; color:#888; margin-bottom:3px; }
         .to-name { font-size:17px; font-weight:800; color:#000; line-height:1.1; }
-        .to-phone{ font-size:13px; font-weight:700; color:#111; margin-top:3px; }
+        .to-{{ __('phone') }}{ font-size:13px; font-weight:700; color:#111; margin-top:3px; }
         .to-addr { font-size:10.5px; color:#333; margin-top:3px; line-height:1.4; }
 
-        /* Products */
+        /* {{ __('{{ __('Product') }}s *') }}/
         .lbl-prods {
             padding: 4px 8px; border-bottom: 1px dashed #bbb;
             flex-shrink: 0;
@@ -77,7 +77,7 @@
         .prod-row  { display:flex; align-items:center; gap:5px; margin-bottom:3px; }
         .prod-row:last-child { margin-bottom:0; }
         .prod-img  { width:36px; height:36px; object-fit:cover; border:1px solid #ddd; border-radius:2px; flex-shrink:0; background:#f5f5f5; }
-        .prod-ph   { width:36px; height:36px; border:1px solid #ddd; border-radius:2px; flex-shrink:0; background:#f0f0f0; display:flex; align-items:center; justify-content:center; font-size:14px; }
+        .prod-ph   { width:36px; height:36px; border:1px solid #ddd; border-radius:2px; flex-shrink:0; background:#f0f0f0; display:flex; align-items:center; justify-content:center; font-size:{{ __('14px') }}; }
         .prod-info { flex:1; font-size:9.5px; line-height:1.4; }
         .prod-name { font-weight:700; font-size:10px; }
         .prod-meta { display:flex; gap:4px; flex-wrap:wrap; margin-top:2px; }
@@ -97,10 +97,10 @@
         .c-id   { font-size:8.5px; color:#555; margin-top:1px; word-break:break-all; }
         .lbl-amount { width:90px; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:5px 6px; background:#f5f5f5; }
         .a-tag  { font-size:7.5px; text-transform:uppercase; letter-spacing:1px; color:#888; }
-        .a-val  { font-size:14px; font-weight:800; color:#000; line-height:1.1; }
+        .a-val  { font-size:{{ __('14px') }}; font-weight:800; color:#000; line-height:1.1; }
         .a-qty  { font-size:8.5px; color:#777; margin-top:1px; }
 
-        /* COD ribbon */
+        /* {{ __('COD') }} ribbon */
         .cod-ribbon {
             position:absolute; top:0; right:0;
             background:#dc2626; color:#fff;
@@ -134,7 +134,7 @@
 <body>
 
 <div class="no-print">
-    <button onclick="window.print()">🖨 &nbsp;Print Labels</button>
+    <button onclick="window.print()">🖨 &nbsp;Print {{ __('Label') }}s</button>
 </div>
 
 @foreach($orders->chunk(8) as $chunk)
@@ -143,28 +143,28 @@
     @foreach($chunk as $order)
     @php
         $totalQty  = $order->orderdetails->sum('qty');
-        $payMethod = strtolower($order->payment_gateway ?? ($order->payment ? $order->payment->payment_method : ''));
-        $isCOD     = !in_array($payMethod, ['bkash','nagad','rocket','card','online','paid']);
+        $pay{{ __('Method') }} = strtolower($order->payment_gateway ?? ($order->payment ? $order->payment->payment_method : ''));
+        $is{{ __('COD') }}     = !in_array($pay{{ __('Method') }}, ['bkash','nagad','rocket','card','online','paid']);
         $trkId     = $order->courier_tracking_id ?? $order->consignment_id ?? null;
         $courier   = $order->courier_type ?? ($trkId ? 'steadfast' : null);
         $cClass    = $courier ? strtolower($courier) : 'none';
     @endphp
 
     <div class="label">
-        @if($isCOD)<div class="cod-ribbon">COD</div>@endif
+        @if($is{{ __('COD') }})<div class="cod-ribbon">{{ __('COD') }}</div>@endif
 
-        {{-- TOP: FROM + Invoice --}}
+        {{-- TOP: FROM + {{ __('{{ __('Inv') }}oice') }} --}}
         <div class="lbl-top">
             <div>
-                <div class="from-tag">From</div>
+                <div class="from-tag">{{ __('From') }}</div>
                 <div class="from-name">{{ $generalsetting->name }}</div>
                 <div class="from-cont">
-                    {{ $contact->phone ?? '' }}
-                    @if($contact->address) &middot; {{ Str::limit($contact->address,35) }}@endif
+                    {{ $contact->{{ __('phone') }} ?? '' }}
+                    @if($contact->{{ __('address)') }} &middot; {{ Str::limit($contact->address,35) }}@endif
                 </div>
             </div>
             <div class="inv-block">
-                <div class="inv-tag">{{ __('Invoice') }}</div>
+                <div class="inv-tag">{{ __('{{ __('{{ __('Inv') }}oice') }}') }}</div>
                 <div class="inv-num">#{{ $order->invoice_id }}</div>
                 <div class="inv-date">{{ $order->created_at->format('d M Y') }}</div>
             </div>
@@ -172,30 +172,30 @@
 
         {{-- TO: Recipient --}}
         <div class="lbl-to">
-            <div class="to-tag">&#9658; Ship To</div>
+            <div class="to-tag">{{ __('&#9658; Ship To') }}</div>
             @if($order->shipping)
                 <div class="to-name">{{ $order->shipping->name ?? '—' }}</div>
-                <div class="to-phone">&#128222; {{ $order->shipping->phone ?? '' }}</div>
+                <div class="to-{{ __('phone') }}">&#128222; {{ $order->shipping->{{ __('phone') }} ?? '' }}</div>
                 <div class="to-addr">
                     {{ $order->shipping->address ?? '' }}
                     @if($order->shipping->area), {{ $order->shipping->area }}@endif
                 </div>
             @else
-                <div class="to-name">— No Shipping Info —</div>
+                <div class="to-name">— {{ __('No {{ __('Shipping') }} Info') }} —</div>
             @endif
         </div>
 
-        {{-- Products with image, size, color --}}
+        {{-- {{ __('Product') }}s with image, size, color --}}
         <div class="lbl-prods">
             @foreach($order->orderdetails as $item)
             @php
                 $imgPath = $item->image ? $item->image->image : null;
-                $sz = $item->size ? ($item->size->sizeName ?? null) : null;
+                $sz = $item->size ? ($item->size->size{{ __('Name') }} ?? null) : null;
                 if (!$sz && $item->product_size) {
                     $sm = \App\Models\Size::find($item->product_size);
-                    $sz = $sm ? ($sm->sizeName ?? null) : (is_numeric($item->product_size) ? null : $item->product_size);
+                    $sz = $sm ? ($sm->size{{ __('Name') }} ?? null) : (is_numeric($item->product_size) ? null : $item->product_size);
                 }
-                $cl = $item->color ? ($item->color->colorName ?? null) : null;
+                $cl = $item->color ? ($item->color->color{{ __('Name') }} ?? null) : null;
                 if (!$cl && $item->product_color && !is_numeric($item->product_color)) { $cl = $item->product_color; }
             @endphp
             <div class="prod-row">
@@ -211,23 +211,23 @@
                     <div class="prod-meta">
                         @if($sz)<span class="badge-sz">Sz: {{ $sz }}</span>@endif
                         @if($cl)<span class="badge-cl">{{ $cl }}</span>@endif
-                        <span class="badge-qty">&times; {{ $item->qty }}</span>
+                        <span class="badge-qty">{{ __('&times') }}; {{ $item->qty }}</span>
                     </div>
                 </div>
             </div>
             @endforeach
         </div>
 
-        {{-- Bottom: Courier + Amount --}}
+        {{-- Bottom: {{ __('Courier') }} + {{ __('Amount') }} --}}
         <div class="lbl-bottom">
             <div class="lbl-courier">
-                <div class="c-tag">&#128666; Courier</div>
+                <div class="c-tag">{{ __('&#128666; {{ __('Courier') }}') }}</div>
                 <div class="c-name {{ $cClass }}">
-                    @if($courier === 'steadfast') &#128309; Steadfast
-                    @elseif($courier === 'pathao') &#128311; Pathao
-                    @elseif($courier === 'redx') &#128992; RedX
+                    @if($courier === 'steadfast') &#128309; {{ __('Steadfast') }}
+                    @elseif($courier === 'pathao') &#128311; {{ __('Pathao') }}
+                    @elseif($courier === 'redx') &#128992; {{ __('RedX') }}
                     @elseif($courier) {{ ucfirst($courier) }}
-                    @else <span style="color:#bbb;">— Not Assigned —</span>
+                    @else <span style="color:#bbb;">— {{ __('Not {{ __('Assign') }}ed') }} —</span>
                     @endif
                 </div>
                 @if($trkId)<div class="c-id">ID: {{ $trkId }}</div>@endif

@@ -1,5 +1,5 @@
 @extends('backEnd.layouts.master')
-@section('title','Order Invoice')
+@section('title','{{ __('Order {{ __('{{ __('Inv') }}oice') }}') }}')
 @section('content')
 <style>
     .customer-invoice {
@@ -34,7 +34,7 @@
         .pos-receipt { display: block !important; }
 
         /* Receipt styles */
-        .pos-receipt * { font-family: 'Courier New', Courier, monospace; }
+        .pos-receipt * { font-family: '{{ __('Courier') }} {{ __('New') }}', {{ __('Courier') }}, monospace; }
         .pos-receipt .rh { text-align: center; border-bottom: 1px solid #000; padding-bottom: 5px; margin-bottom: 5px; }
         .pos-receipt .rh .shop { font-size: 15px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; }
         .pos-receipt .rh p { font-size: 10px; margin-top: 2px; }
@@ -47,13 +47,13 @@
         .pos-receipt table tbody td { padding: 3px 2px; vertical-align: top; }
         .pos-receipt table tbody tr:last-child td { border-bottom: 1px solid #000; }
         .pos-receipt .rs { display: flex; justify-content: space-between; font-size: 11px; padding: 2px 0; }
-        .pos-receipt .rtotal { display: flex; justify-content: space-between; font-size: 13px; font-weight: 700; border-top: 1px solid #000; border-bottom: 1px solid #000; padding: 4px 0; margin: 3px 0; }
+        .pos-receipt .r{{ __('total') }} { display: flex; justify-content: space-between; font-size: 13px; font-weight: 700; border-top: 1px solid #000; border-bottom: 1px solid #000; padding: 4px 0; margin: 3px 0; }
         .pos-receipt .rp { font-size: 11px; margin-top: 3px; }
         .pos-receipt .rp .fl { padding: 2px 0; margin-bottom: 0; }
-        .pos-receipt .ptotal { display: flex; justify-content: space-between; font-size: 13px; font-weight: 700; border-top: 1px solid #000; padding-top: 4px; margin-top: 3px; }
+        .pos-receipt .p{{ __('total') }} { display: flex; justify-content: space-between; font-size: 13px; font-weight: 700; border-top: 1px solid #000; padding-top: 4px; margin-top: 3px; }
         .pos-receipt .dash { border: none; border-top: 1px dashed #555; margin: 5px 0; }
         .pos-receipt .rf { text-align: center; border-top: 1px dashed #666; margin-top: 10px; padding-top: 7px; font-size: 12px; }
-        .pos-receipt .rf .ty { font-size: 14px; font-weight: 700; }
+        .pos-receipt .rf .ty { font-size: {{ __('14px') }}; font-weight: 700; }
         .pos-receipt .rf small { font-size: 9px; font-style: italic; margin-top: 3px; display: block; }
     }
 </style>
@@ -62,7 +62,7 @@
     <div class="container">
         <div class="row">
             <div class="col-sm-6">
-                <a href="/admin/order/all" class="no-print"><strong><i class="fe-arrow-left"></i> Back To Order</strong></a>
+                <a href="/admin/order/all" class="no-print"><strong><i class="fe-arrow-left"></i> {{ __('Back To Order') }}</strong></a>
             </div>
             <div class="col-sm-6 text-end">
                 <button onclick="printFunction()" class="no-print btn btn-xs btn-success waves-effect waves-light"><i class="fa fa-print"></i></button>
@@ -74,29 +74,29 @@
                         <tr>
                             <td style="width: 40%; float: left; padding-top: 15px;">
                                 <img src="{{asset($generalsetting->white_logo)}}" width="190px" style="margin-top:25px !important" alt="">
-                                <p style="font-size: 14px; color: #222; margin: 20px 0;">
-                                    <strong>Payment Method:</strong> 
+                                <p style="font-size: {{ __('14px') }}; color: #222; margin: 20px 0;">
+                                    <strong>{{ __('Payment {{ __('Method') }}') }}:</strong> 
                                     <span style="text-transform: uppercase;">{{$order->payment?$order->payment->payment_method:''}}</span>
                                 </p>
 
-                                <!-- ✅ Payment Gateway + Status অংশ -->
+                                <!-- ✅ {{ __('Payment Gateway') }} + {{ __('Status') }} অংশ -->
                                 <div style="margin-bottom:15px;">
-                                    <p><strong>Payment Gateway:</strong> {{ ucfirst($order->payment_gateway ?? 'N/A') }}</p>
-                                    <p><strong>Payment Status:</strong></p>
+                                    <p><strong>{{ __('Payment Gateway') }}:</strong> {{ ucfirst($order->payment_gateway ?? '{{ __('N/A') }}') }}</p>
+                                    <p><strong>{{ __('Payment {{ __('Status') }}') }}:</strong></p>
                                     <select id="payment_status_{{ $order->id }}" class="form-control no-print" style="width:auto; display:inline-block;">
                                         <option value="pending" {{ $order->payment_status == 'pending' ? 'selected' : '' }}>{{ __('Pending') }}</option>
-                                        <option value="paid" {{ $order->payment_status == 'paid' ? 'selected' : '' }}>Paid</option>
-                                        <option value="unpaid" {{ $order->payment_status == 'unpaid' ? 'selected' : '' }}>Unpaid</option>
+                                        <option value="paid" {{ $order->payment_status == 'paid' ? 'selected' : '' }}>{{ __('Paid') }}</option>
+                                        <option value="unpaid" {{ $order->payment_status == 'unpaid' ? 'selected' : '' }}>{{ __('Unpaid') }}</option>
                                         <option value="failed" {{ $order->payment_status == 'failed' ? 'selected' : '' }}>{{ __('Failed') }}</option>
                                     </select>
-                                    <button class="btn btn-sm btn-success no-print" onclick="updatePaymentStatus({{ $order->id }})">{{ __('Update') }}</button>
+                                    <button class="btn btn-sm btn-success no-print" onclick="updatePayment{{ __('Status') }}({{ $order->id }})">{{ __('Update') }}</button>
                                 </div>
                                 
-                                <!-- ✅ Order Status Change (Manual) -->
+                                <!-- ✅ {{ __('Order {{ __('Status') }}') }} {{ __('Change') }} (Manual) -->
                                 <div style="margin-bottom:15px; padding: 10px; background: #f8f9fa; border-radius: 5px;">
-                                    <p style="margin-bottom: 5px;"><strong>Order Status:</strong> 
+                                    <p style="margin-bottom: 5px;"><strong>{{ __('Order {{ __('Status') }}') }}:</strong> 
                                         <span class="badge bg-{{ $order->order_status == 6 ? 'success' : ($order->order_status == 11 ? 'danger' : 'warning') }}">
-                                            {{ $order->status ? $order->status->name : 'N/A' }}
+                                            {{ $order->status ? $order->status->name : '{{ __('N/A') }}' }}
                                         </span>
                                     </p>
                                     @if(isset($orderstatus))
@@ -108,16 +108,16 @@
                                                 </option>
                                             @endforeach
                                         </select>
-                                        <button class="btn btn-sm btn-primary" onclick="updateOrderStatus({{ $order->id }})">
-                                            <i class="fa fa-save"></i> Update Status
+                                        <button class="btn btn-sm btn-primary" onclick="updateOrder{{ __('Status') }}({{ $order->id }})">
+                                            <i class="fa fa-save"></i> {{ __('Update {{ __('Status') }}') }}
                                         </button>
                                         @if($order->courier_type)
                                         <br><small class="text-muted" style="margin-top: 5px; display: inline-block;">
-                                            <i class="fa fa-truck"></i> Courier: {{ ucfirst($order->courier_type) }}
-                                            @if($order->courier_tracking_id)
-                                                | Tracking: {{ $order->courier_tracking_id }}
+                                            <i class="fa fa-truck"></i> {{ __('Courier') }}: {{ ucfirst($order->courier_type) }}
+                                            @if($order->courier_tracking_{{ __('id)') }}
+                                                | {{ __('{{ __('Track') }}ing') }}: {{ $order->courier_tracking_id }}
                                             @endif
-                                            <br><span style="color: #6c757d; font-size: 11px;">(Auto-update from courier every 10 minutes)</span>
+                                            <br><span style="color: #6c757d; font-size: 11px;">{{ __('(Auto-update from courier every 10 minutes)') }}</span>
                                         </small>
                                         @endif
                                     </div>
@@ -126,14 +126,14 @@
                                 <!-- ✅ END -->
 
                                 <div class="invoice_form">
-                                    <p style="font-size:16px;line-height:1.8;color:#222"><strong>Invoice From:</strong></p>
+                                    <p style="font-size:16px;line-height:1.8;color:#222"><strong>{{ __('{{ __('{{ __('Inv') }}oice') }} {{ __('From') }}') }}:</strong></p>
                                     <p style="font-size:16px;line-height:1.8;color:#222">{{$generalsetting->name}}</p>
-                                    <p style="font-size:16px;line-height:1.8;color:#222">{{$contact->phone}}</p>
+                                    <p style="font-size:16px;line-height:1.8;color:#222">{{$contact->{{ __('phone') }}}}</p>
                                     <p style="font-size:16px;line-height:1.8;color:#222">{{$contact->email}}</p>
                             {{-- ⭐ SHOW ORDER NOTE --}}
 @if(!empty($order->order_note) || !empty($order->note))
 <p style="font-size:16px;line-height:1.8;color:#222">
-    <strong>Order Note:</strong> {{ $order->order_note ?? $order->note }}
+    <strong>{{ __('Order {{ __('Note') }}') }}:</strong> {{ $order->order_note ?? $order->note }}
 </p>
 @endif
 									
@@ -142,16 +142,16 @@
 
                             <td  style="width:60%;float: left;">
                                 <div class="invoice-bar" style=" background: #4DBC60; transform: skew(38deg); width: 100%; margin-left: 65px; padding: 20px 60px; ">
-                                    <p style="font-size: 30px; color: #fff; transform: skew(-38deg); text-transform: uppercase; text-align: right; font-weight: bold;">{{ __('Invoice') }}</p>
+                                    <p style="font-size: 30px; color: #fff; transform: skew(-38deg); text-transform: uppercase; text-align: right; font-weight: bold;">{{ __('{{ __('{{ __('Inv') }}oice') }}') }}</p>
                                 </div>
                                 <div class="invoice-bar" style="background: #fff; transform: skew(36deg); width: 72%; margin-left: 182px; padding: 12px 32px; margin-top: 6px;">
-                                    <p style="font-size: 15px; color: #222;font-weight:bold; transform: skew(-36deg); text-align: right; padding-right: 18px">Invoice ID : <strong>#{{$order->invoice_id}}</strong></p>
-                                    <p style="font-size: 15px; color: #222;font-weight:bold; transform: skew(-36deg); text-align: right; padding-right: 32px">Invoice Date: <strong>{{$order->created_at->format('d-m-y')}}</strong></p>
+                                    <p style="font-size: 15px; color: #222;font-weight:bold; transform: skew(-36deg); text-align: right; padding-right: 18px">{{ __('{{ __('{{ __('Inv') }}oice') }} ID') }} : <strong>#{{$order->invoice_id}}</strong></p>
+                                    <p style="font-size: 15px; color: #222;font-weight:bold; transform: skew(-36deg); text-align: right; padding-right: 32px">{{ __('{{ __('{{ __('Inv') }}oice') }} {{ __('Date') }}') }}: <strong>{{$order->created_at->format('d-m-y')}}</strong></p>
                                 </div>
                                 <div class="invoice_to" style="padding-top: 20px;">
-                                    <p style="font-size:16px;line-height:1.8;color:#222;text-align: right;"><strong>Invoice To:</strong></p>
+                                    <p style="font-size:16px;line-height:1.8;color:#222;text-align: right;"><strong>{{ __('{{ __('{{ __('Inv') }}oice') }} To') }}:</strong></p>
                                     <p style="font-size:16px;line-height:1.8;color:#222;text-align: right;">{{$order->shipping?$order->shipping->name:''}}</p>
-                                    <p style="font-size:16px;line-height:1.8;color:#222;text-align: right;">{{$order->shipping?$order->shipping->phone:''}}</p>
+                                    <p style="font-size:16px;line-height:1.8;color:#222;text-align: right;">{{$order->shipping?$order->shipping->{{ __('phone') }}:''}}</p>
                                     <p style="font-size:16px;line-height:1.8;color:#222;text-align: right;">{{$order->shipping?$order->shipping->address:''}}</p>
                                     <p style="font-size:16px;line-height:1.8;color:#222;text-align: right;">{{$order->shipping?$order->shipping->area:''}}</p>
                                 </div>
@@ -163,42 +163,42 @@
                         <thead style="background: #4DBC60; color: #fff;">
                             <tr>
                                 <th>{{ __('SL') }}</th>
-                                <th>Product</th>
+                                <th>{{ __('Product') }}</th>
                                 <th>{{ __('Price') }}</th>
                                 <th>{{ __('Qty') }}</th>
-                                <th>{{ __('Total') }}</th>
+                                <th>{{ __('{{ __('Total') }}') }}</th>
                             </tr>
                         </thead>
                         <tbody>
                             @php
-                                // Check if this is a reseller order (once, outside loop)
+                                // {{ __('Check') }} if this is a reseller order (once, outside loop)
                                 // Reseller orders ALWAYS have customer_payable_amount field set
-                                $isResellerOrderItem = !empty($order->customer_payable_amount);
+                                $isResellerOrder{{ __('Item') }} = !empty($order->customer_payable_amount);
                                 
                                 // For reseller orders: calculate custom_price from customer_payable_amount
                                 $customPrice = null;
-                                $totalProductValue = 0;
-                                if ($isResellerOrderItem && $order->customer_payable_amount) {
+                                $total{{ __('Product') }}{{ __('Value') }} = 0;
+                                if ($isResellerOrder{{ __('Item') }} && $order->customer_payable_amount) {
                                     $customPrice = $order->customer_payable_amount - $order->shipping_charge;
-                                    // Calculate total of all products (sum of sale_price * qty)
+                                    // {{ __('Calculate') }} {{ __('total') }} of all products (sum of sale_price * qty)
                                     foreach ($order->orderdetails as $od) {
-                                        $totalProductValue += ($od->sale_price * $od->qty);
+                                        $total{{ __('Product') }}{{ __('Value') }} += ($od->sale_price * $od->qty);
                                     }
                                 }
                             @endphp
                             @foreach($order->orderdetails as $key=>$value)
                             @php
-                                // For reseller orders: Calculate price from customer_payable_amount proportionally
+                                // For reseller orders: {{ __('Calculate') }} price from customer_payable_amount proportionally
                                 // customer_payable_amount = custom_price + shipping
-                                // custom_price = reseller যে দামে sell করেছে (total)
+                                // custom_price = reseller যে দামে sell করেছে ({{ __('total') }})
                                 // For normal orders: show sale_price (main price)
                                 
-                                if ($isResellerOrderItem && $customPrice && $totalProductValue > 0) {
-                                    // Reseller order: Calculate per product price from customer_payable_amount
-                                    // This product's share = (this product's value / total value) * custom_price
-                                    $thisProductValue = $value->sale_price * $value->qty;
-                                    $thisProductShare = ($thisProductValue / $totalProductValue) * $customPrice;
-                                    $displayPrice = $thisProductShare / $value->qty; // Per unit price
+                                if ($isResellerOrder{{ __('Item') }} && $customPrice && $total{{ __('Product') }}{{ __('Value') }} > 0) {
+                                    // Reseller order: {{ __('Calculate') }} per product price from customer_payable_amount
+                                    // This product's share = (this product's value / {{ __('total') }} value) * custom_price
+                                    $this{{ __('Product') }}{{ __('Value') }} = $value->sale_price * $value->qty;
+                                    $this{{ __('Product') }}Share = ($this{{ __('Product') }}{{ __('Value') }} / $total{{ __('Product') }}{{ __('Value') }}) * $customPrice;
+                                    $displayPrice = $this{{ __('Product') }}Share / $value->qty; // Per unit price
                                 } else {
                                     // Normal order: show sale_price (main price)
                                     $displayPrice = $value->sale_price;
@@ -211,11 +211,11 @@
                                 @php
                                     $sizeDisplay = null;
                                     if ($value->size) {
-                                        $sizeDisplay = $value->size->sizeName ?? $value->size->size_name ?? $value->size->name ?? null;
+                                        $sizeDisplay = $value->size->size{{ __('Name') }} ?? $value->size->size_name ?? $value->size->name ?? null;
                                     } elseif ($value->product_size) {
                                         // If product_size is an ID, fetch the Size model
                                         $s = \App\Models\Size::find($value->product_size);
-                                        $sizeDisplay = $s ? ($s->sizeName ?? $s->size_name ?? null) : null;
+                                        $sizeDisplay = $s ? ($s->size{{ __('Name') }} ?? $s->size_name ?? null) : null;
                                         // If still null, it might be a direct size name string
                                         if (!$sizeDisplay && !is_numeric($value->product_size)) {
                                             $sizeDisplay = $value->product_size;
@@ -226,10 +226,10 @@
                                     <small>Size: {{ $sizeDisplay }}</small><br>
                                 @endif   
                                 @php
-                                    $displayColor = ($value->color && $value->color->name) ? $value->color->name : ($value->product_color ?: null);
+                                    $display{{ __('Color') }} = ($value->color && $value->color->name) ? $value->color->name : ($value->product_color ?: null);
                                 @endphp
-                                @if($displayColor)
-                                    <small>Color: {{ $displayColor }}</small>
+                                @if($display{{ __('Color') }})
+                                    <small>{{ __('Color') }}: {{ $display{{ __('Color') }} }}</small>
                                 @endif 
                                 </td>
                                 <td>৳{{ number_format($displayPrice, 2) }}</td>
@@ -242,21 +242,21 @@
 
                     <div class="invoice-bottom">
                        @php
-    // Check if this is a reseller order
+    // {{ __('Check') }} if this is a reseller order
     // Reseller orders ALWAYS have customer_payable_amount field set
     $isResellerOrder = !empty($order->customer_payable_amount);
 
-    // Calculate subtotal - for reseller orders, calculate from customer_payable_amount
+    // {{ __('Calculate') }} sub{{ __('total') }} - for reseller orders, calculate from customer_payable_amount
     if ($isResellerOrder && $order->customer_payable_amount) {
         // customer_payable_amount = custom_price + shipping
-        // custom_price = reseller যে দামে sell করেছে (total)
-        // So subtotal = customer_payable_amount - shipping
-        $subtotal = $order->customer_payable_amount - $order->shipping_charge;
+        // custom_price = reseller যে দামে sell করেছে ({{ __('total') }})
+        // So sub{{ __('total') }} = customer_payable_amount - shipping
+        $sub{{ __('total') }} = $order->customer_payable_amount - $order->shipping_charge;
     } else {
         // Normal order: calculate from sale_price
-        $subtotal = 0;
+        $sub{{ __('total') }} = 0;
         foreach ($order->orderdetails as $item) {
-            $subtotal += ($item->sale_price * $item->qty);
+            $sub{{ __('total') }} += ($item->sale_price * $item->qty);
         }
     }
     
@@ -264,50 +264,50 @@
     $discount = $order->discount;
     
     // If reseller order, use customer_payable_amount, otherwise use amount
-    $finalTotal = $isResellerOrder ? $order->customer_payable_amount : $order->amount;
+    $final{{ __('Total') }} = $isResellerOrder ? $order->customer_payable_amount : $order->amount;
 
-    // Payment Table থেকে নেওয়া Paid/Advance Amount
-    $advancePaid = \App\Models\Payment::where('order_id', $order->id)->sum('amount');
+    // Payment Table থেকে নেওয়া {{ __('Paid') }}/Advance {{ __('Amount') }}
+    $advance{{ __('Paid') }} = \App\Models\Payment::w{{ __('here') }}('order_id', $order->{{ __('id)') }}->sum('amount');
 
-    // Due Amount
-    $dueAmount = $finalTotal - $advancePaid;
+    // {{ __('{{ __('Due') }} {{ __('Amount') }}') }}
+    $due{{ __('Amount') }} = $final{{ __('Total') }} - $advance{{ __('Paid') }};
 @endphp
 
 <table class="table" style="width: 300px; float: right; margin-bottom: 30px;">
     <tbody style="background:#f1f9f8">
         @if($isResellerOrder)
             <tr style="background:#ffc107;color:#000">
-                <td><strong><i class="fa fa-user-tag"></i> Reseller Order</strong></td>
+                <td><strong><i class="fa fa-user-tag"></i> {{ __('Reseller Order') }}</strong></td>
                 <td></td>
             </tr>
         @endif
         <tr>
-            <td><strong>SubTotal</strong></td>
-            <td><strong>৳{{ number_format($subtotal, 2) }}</strong></td>
+            <td><strong>{{ __('Sub{{ __('Total') }}') }}</strong></td>
+            <td><strong>৳{{ number_format($sub{{ __('total') }}, 2) }}</strong></td>
         </tr>
         <tr>
-            <td><strong>Shipping(+)</strong></td>
+            <td><strong>{{ __('{{ __('Shipping') }}(+)') }}</strong></td>
             <td><strong>৳{{ number_format($shipping, 2) }}</strong></td>
         </tr>
         <tr>
-            <td><strong>Discount(-)</strong></td>
+            <td><strong>{{ __('{{ __('Discount') }}(-)') }}</strong></td>
             <td><strong>৳{{ number_format($discount, 2) }}</strong></td>
         </tr>
 
         <tr style="background:#4DBC60;color:#fff">
-            <td><strong>{{ $isResellerOrder ? 'Customer Payable Amount' : 'Final Total' }}</strong></td>
-            <td><strong>৳{{ number_format($finalTotal, 2) }}</strong></td>
+            <td><strong>{{ $isResellerOrder ? '{{ __('Customer') }} Payable {{ __('Amount') }}' : '{{ __('Final {{ __('Total') }}') }}' }}</strong></td>
+            <td><strong>৳{{ number_format($final{{ __('Total') }}, 2) }}</strong></td>
         </tr>
 
-        {{-- 🔥 যদি Advance Payment থাকে --}}
-        @if($advancePaid > 0 && $advancePaid < $finalTotal)
+        {{-- 🔥 যদি {{ __('Advance Payment') }} থাকে --}}
+        @if($advance{{ __('Paid') }} > 0 && $advance{{ __('Paid') }} < $final{{ __('Total') }})
             <tr>
-                <td><strong>Advance Paid</strong></td>
-                <td><strong>৳{{ number_format($advancePaid, 2) }}</strong></td>
+                <td><strong>{{ __('Advance {{ __('Paid') }}') }}</strong></td>
+                <td><strong>৳{{ number_format($advance{{ __('Paid') }}, 2) }}</strong></td>
             </tr>
             <tr>
-                <td><strong>Due Amount</strong></td>
-                <td><strong>৳{{ number_format($dueAmount, 2) }}</strong></td>
+                <td><strong>{{ __('{{ __('Due') }} {{ __('Amount') }}') }}</strong></td>
+                <td><strong>৳{{ number_format($due{{ __('Amount') }}, 2) }}</strong></td>
             </tr>
         @endif
     </tbody>
@@ -315,8 +315,8 @@
 
 
                         <div class="terms-condition" style="overflow: hidden; width: 100%; text-align: center; padding: 20px 0; border-top: 1px solid #ddd;">
-                            <h5 style="font-style: italic;"><a href="{{route('page',['slug'=>'terms-condition'])}}">{{ __('Terms & Conditions') }}</a></h5>
-                            <p style="text-align: center; font-style: italic; font-size: 15px; margin-top: 10px;">* This is a computer generated invoice, does not require any signature.</p>
+                            <h5 style="font-style: italic;"><a href="{{route('page',['slug'=>'terms-condition'])}}">{{ __('{{ __('Terms') }} & Conditions') }}</a></h5>
+                            <p style="text-align: center; font-style: italic; font-size: 15px; margin-top: 10px;">{{ __('* This is a computer generated invoice, does not require any signature.') }}</p>
                         </div>
                     </div>
                 </div>
@@ -331,34 +331,34 @@
     $sub     = 0;
     foreach ($order->orderdetails as $od) { $sub += ($od->sale_price * $od->qty); }
     if ($isRes && $order->customer_payable_amount) { $sub = $order->customer_payable_amount - $order->shipping_charge; }
-    $ftotal  = $isRes ? $order->customer_payable_amount : $order->amount;
+    $f{{ __('total') }}  = $isRes ? $order->customer_payable_amount : $order->amount;
     $tqty    = $order->orderdetails->sum('qty');
-    $pmethod = strtoupper($order->payment_gateway ?? ($order->payment ? $order->payment->payment_method : 'N/A'));
+    $pmethod = strtoupper($order->payment_gateway ?? ($order->payment ? $order->payment->payment_method : '{{ __('N/A') }}'));
     $pstatus = $order->payment_status ?? ($order->payment ? $order->payment->payment_status : 'pending');
-    $adv     = \App\Models\Payment::where('order_id',$order->id)->sum('amount');
-    $due     = $ftotal - $adv;
+    $adv     = \App\Models\Payment::w{{ __('here') }}('order_id',$order->{{ __('id)') }}->sum('amount');
+    $due     = $f{{ __('total') }} - $adv;
     $trkId   = $order->courier_tracking_id ?? $order->consignment_id ?? null;
     $courier = $order->courier_type ?? ($trkId ? 'steadfast' : null);
 @endphp
 <div class="pos-receipt">
     <div class="rh">
         <div class="shop">{{ $generalsetting->name }}</div>
-        @if($contact->address)<p>{{ $contact->address }}</p>@endif
-        @if($contact->phone)<p>Phone: {{ $contact->phone }}</p>@endif
-        @if($contact->email)<p>{{ $contact->email }}</p>@endif
+        @if($contact->{{ __('address)') }}<p>{{ $contact->address }}</p>@endif
+        @if($contact->{{ __('{{ __('phone') }})') }}<p>{{ __('Phone') }}: {{ $contact->{{ __('phone') }} }}</p>@endif
+        @if($contact->{{ __('email)') }}<p>{{ $contact->email }}</p>@endif
     </div>
-    <div class="rt">POS Invoice</div>
+    <div class="rt">{{ __('POS {{ __('{{ __('Inv') }}oice') }}') }}</div>
     <div class="rm">
         <div class="fl">
-            <span>Bill No. : <strong>{{ $order->invoice_id }}</strong></span>
+            <span>{{ __('Bill No.') }} : <strong>{{ $order->invoice_id }}</strong></span>
             <span>{{ $order->created_at->format('H:i') }} hrs</span>
         </div>
-        <div class="fl"><span>Date &nbsp;&nbsp;: <strong>{{ $order->created_at->format('d-m-Y') }}</strong></span></div>
+        <div class="fl"><span>{{ __('{{ __('Date') }} &nbsp;&nbsp') }};: <strong>{{ $order->created_at->format('d-m-Y') }}</strong></span></div>
         @if($order->shipping && $order->shipping->name)
-        <div class="fl"><span>Buyer &nbsp;&nbsp;: <strong>{{ $order->shipping->name }}</strong></span></div>
+        <div class="fl"><span>{{ __('Buyer &nbsp;&nbsp') }};: <strong>{{ $order->shipping->name }}</strong></span></div>
         @endif
-        @if($order->shipping && $order->shipping->phone)
-        <div class="fl"><span>Phone &nbsp;&nbsp;: {{ $order->shipping->phone }}</span></div>
+        @if($order->shipping && $order->shipping->{{ __('{{ __('phone') }})') }}
+        <div class="fl"><span>{{ __('Phone') }} &nbsp;&nbsp;: {{ $order->shipping->{{ __('phone') }} }}</span></div>
         @endif
         @if($order->shipping && ($order->shipping->address || $order->shipping->area))
         <div class="fl"><span>Address : {{ $order->shipping->address }}{{ $order->shipping->area ? ', '.$order->shipping->area : '' }}</span></div>
@@ -367,11 +367,11 @@
     <table>
         <thead>
             <tr>
-                <th style="width:14px;">#</th>
-                <th>Product</th>
+                <th style="width:{{ __('14px') }};">#</th>
+                <th>{{ __('Product') }}</th>
                 <th style="width:22px;text-align:center;">{{ __('Qty') }}</th>
-                <th style="width:44px;" class="r">Rate</th>
-                <th style="width:48px;" class="r">{{ __('Total') }}</th>
+                <th style="width:44px;" class="r">{{ __('Rate') }}</th>
+                <th style="width:48px;" class="r">{{ __('{{ __('Total') }}') }}</th>
             </tr>
         </thead>
         <tbody>
@@ -382,12 +382,12 @@
                     $dp = (($tv / ($sub + $order->discount)) * $sub) / $value->qty;
                 } else { $dp = $value->sale_price; }
                 $szd = null;
-                if ($value->size) { $szd = $value->size->sizeName ?? null; }
+                if ($value->size) { $szd = $value->size->size{{ __('Name') }} ?? null; }
                 elseif ($value->product_size) {
                     $sm  = \App\Models\Size::find($value->product_size);
-                    $szd = $sm ? ($sm->sizeName ?? null) : (is_numeric($value->product_size) ? null : $value->product_size);
+                    $szd = $sm ? ($sm->size{{ __('Name') }} ?? null) : (is_numeric($value->product_size) ? null : $value->product_size);
                 }
-                $cld = ($value->color && $value->color->colorName) ? $value->color->colorName : ((!is_numeric($value->product_color) && $value->product_color) ? $value->product_color : null);
+                $cld = ($value->color && $value->color->color{{ __('Name') }}) ? $value->color->color{{ __('Name') }} : ((!is_numeric($value->product_color) && $value->product_color) ? $value->product_color : null);
             @endphp
             <tr>
                 <td>{{ $loop->iteration }}</td>
@@ -402,52 +402,52 @@
             @endforeach
         </tbody>
     </table>
-    <div class="rs"><span>{{ __('Subtotal') }}</span><span>{{ number_format($sub,2) }}</span></div>
-    @if($order->discount > 0)<div class="rs"><span>Discount (–)</span><span>{{ number_format($order->discount,2) }}</span></div>@endif
-    @if($order->shipping_charge > 0)<div class="rs"><span>Delivery (+)</span><span>{{ number_format($order->shipping_charge,2) }}</span></div>@endif
-    <div class="rtotal">
-        <span>Total &nbsp; {{ $tqty }} {{ $tqty>1?'Nos':'No' }}</span>
-        <span>&#2547; {{ number_format($ftotal,2) }}</span>
+    <div class="rs"><span>{{ __('Sub{{ __('total') }}') }}</span><span>{{ number_format($sub,2) }}</span></div>
+    @if($order->discount > 0)<div class="rs"><span>{{ __('Discount') }} (–)</span><span>{{ number_format($order->discount,2) }}</span></div>@endif
+    @if($order->shipping_charge > 0)<div class="rs"><span>{{ __('Delivery (+)') }}</span><span>{{ number_format($order->shipping_charge,2) }}</span></div>@endif
+    <div class="r{{ __('total') }}">
+        <span>{{ __('Total') }} &nbsp; {{ $tqty }} {{ $tqty>1?'Nos':'No' }}</span>
+        <span>&#2547; {{ number_format($f{{ __('total') }},2) }}</span>
     </div>
     <div class="rp">
-        <div class="fl"><span>Method &nbsp;&nbsp;:</span><span><strong>{{ $pmethod }}</strong></span></div>
-        <div class="fl"><span>Pay Status :</span><span><strong>{{ strtoupper($pstatus) }}</strong></span></div>
-        @if($adv > 0 && $adv < $ftotal)
-        <div class="fl"><span>Advance &nbsp;&nbsp;:</span><span>&#2547; {{ number_format($adv,2) }}</span></div>
-        <div class="fl"><span>Due &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:</span><span><strong>&#2547; {{ number_format($due,2) }}</strong></span></div>
+        <div class="fl"><span>{{ __('{{ __('Method') }} &nbsp;&nbsp') }};:</span><span><strong>{{ $pmethod }}</strong></span></div>
+        <div class="fl"><span>{{ __('Pay {{ __('Status') }}') }} :</span><span><strong>{{ strtoupper($pstatus) }}</strong></span></div>
+        @if($adv > 0 && $adv < $f{{ __('total') }})
+        <div class="fl"><span>{{ __('Advance &nbsp;&nbsp') }};:</span><span>&#2547; {{ number_format($adv,2) }}</span></div>
+        <div class="fl"><span>{{ __('{{ __('Due') }} &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp') }};:</span><span><strong>&#2547; {{ number_format($due,2) }}</strong></span></div>
         @endif
         @if($courier)
         <hr class="dash">
-        <div class="fl"><span>Courier &nbsp;&nbsp;:</span><span><strong>{{ ucfirst($courier) }}</strong></span></div>
-        @if($trkId)<div class="fl"><span>Tracking &nbsp;:</span><span>{{ $trkId }}</span></div>@endif
-        @if($order->courier_sent_at)<div class="fl"><span>Sent &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:</span><span>{{ \Carbon\Carbon::parse($order->courier_sent_at)->format('d M Y') }}</span></div>@endif
+        <div class="fl"><span>{{ __('{{ __('Courier') }} &nbsp;&nbsp') }};:</span><span><strong>{{ ucfirst($courier) }}</strong></span></div>
+        @if($trkId)<div class="fl"><span>{{ __('{{ __('{{ __('Track') }}ing') }} &nbsp') }};:</span><span>{{ $trkId }}</span></div>@endif
+        @if($order->courier_sent_at)<div class="fl"><span>{{ __('Sent &nbsp;&nbsp;&nbsp;&nbsp;&nbsp') }};:</span><span>{{ \Carbon\Carbon::parse($order->courier_sent_at)->format('d M Y') }}</span></div>@endif
         @endif
-        <div class="ptotal"><span>Total Paid</span><span>&#2547; {{ number_format($ftotal,2) }}</span></div>
+        <div class="p{{ __('total') }}"><span>{{ __('{{ __('Total') }} {{ __('Paid') }}') }}</span><span>&#2547; {{ number_format($f{{ __('total') }},2) }}</span></div>
     </div>
     <hr class="dash">
-    <div class="rs"><span>Order Status :</span><span><strong>{{ $order->status ? $order->status->name : 'Processing' }}</strong></span></div>
+    <div class="rs"><span>{{ __('Order {{ __('Status') }}') }} :</span><span><strong>{{ $order->status ? $order->status->name : 'Processing' }}</strong></span></div>
     <div class="rf">
-        <div class="ty">Thank You!</div>
-        <div>Visit Again!</div>
-        <small>* Computer generated invoice. No signature required.</small>
+        <div class="ty">{{ __('Thank You!') }}</div>
+        <div>{{ __('Visit Again!') }}</div>
+        <small>{{ __('* Computer generated invoice. No signature required.') }}</small>
     </div>
 </div>
 {{-- ══ END POS RECEIPT ══ --}}
 
 <!-- ✅ JS -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
-<link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" rel="stylesheet">
+<script src="{{ __('https://') }}cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+<link href="{{ __('https://') }}cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" rel="stylesheet">
 
 <script>
 function printFunction() {
     window.print();
 }
 
-function updatePaymentStatus(orderId) {
+function updatePayment{{ __('Status') }}(orderId) {
     let status = document.getElementById('payment_status_' + orderId).value;
 
-    fetch('{{ route("admin.order.updatePaymentStatus") }}', {
-        method: 'POST',
+    fetch('{{ route("admin.order.updatePayment{{ __('Status') }}") }}', {
+        method: '{{ __('POST') }}',
         headers: {
             'X-CSRF-TOKEN': '{{ csrf_token() }}',
             'Content-Type': 'application/json'
@@ -457,21 +457,21 @@ function updatePaymentStatus(orderId) {
     .then(res => res.json())
     .then(data => {
         if (data.status === 'success') {
-            toastr.success(data.message, 'Success!');
+            toastr.success(data.{{ __('message') }}, 'Success!');
         } else {
-            toastr.error(data.message, 'Error!');
+            toastr.error(data.{{ __('message') }}, '{{ __('Error!') }}');
         }
     })
     .catch(err => {
-        toastr.error('Something went wrong!', 'Error!');
+        toastr.error('Something went wrong!', '{{ __('Error!') }}');
     });
 }
 
-function updateOrderStatus(orderId) {
+function updateOrder{{ __('Status') }}(orderId) {
     let status = document.getElementById('order_status_' + orderId).value;
     
     if (!status) {
-        toastr.warning('Please select a status', 'Warning!');
+        toastr.warning('{{ __('Please select a status') }}', '{{ __('Warning') }}!');
         return;
     }
 
@@ -480,8 +480,8 @@ function updateOrderStatus(orderId) {
         return;
     }
 
-    fetch('{{ route("admin.order.updateSingleStatus") }}', {
-        method: 'POST',
+    fetch('{{ route("admin.order.updateSingle{{ __('Status') }}") }}', {
+        method: '{{ __('POST') }}',
         headers: {
             'X-CSRF-TOKEN': '{{ csrf_token() }}',
             'Content-Type': 'application/json'
@@ -491,17 +491,17 @@ function updateOrderStatus(orderId) {
     .then(res => res.json())
     .then(data => {
         if (data.status === 'success') {
-            toastr.success(data.message, 'Success!');
+            toastr.success(data.{{ __('message') }}, 'Success!');
             // Reload page after 1 second to show updated status
             setTimeout(function() {
                 location.reload();
             }, 1000);
         } else {
-            toastr.error(data.message, 'Error!');
+            toastr.error(data.{{ __('message') }}, '{{ __('Error!') }}');
         }
     })
     .catch(err => {
-        toastr.error('Something went wrong!', 'Error!');
+        toastr.error('Something went wrong!', '{{ __('Error!') }}');
         console.error(err);
     });
 }

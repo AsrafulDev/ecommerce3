@@ -1,5 +1,5 @@
 @extends('backEnd.layouts.master')
-@section('title','Edit Customer')
+@section('title','{{ __('Edit {{ __('Customer') }}') }}')
 
 @section('css')
 <link href="{{asset('public/backEnd')}}/assets/libs/select2/css/select2.min.css" rel="stylesheet" type="text/css" />
@@ -50,7 +50,7 @@
         border: 1px solid #eef2f7;
         padding: 12px 15px;
         border-radius: 8px;
-        font-size: 14px;
+        font-size: {{ __('14px') }};
         color: #2d3436;
         transition: all 0.3s;
     }
@@ -60,7 +60,7 @@
         box-shadow: 0 0 0 4px rgba(114, 124, 245, 0.1);
     }
 
-    /* Image Preview */
+    /* Image {{ __('Prev') }}iew */
     .image-preview-container {
         width: 100px;
         height: 100px;
@@ -85,7 +85,7 @@
     input:checked + .slider:before { transform: translateX(22px); }
 
     /* Button Style */
-    .btn-submit {
+    .btn-{{ __('submit') }} {
         background: linear-gradient(45deg, #0acf97, #06b6d4);
         border: none;
         color: white;
@@ -96,7 +96,7 @@
         transition: 0.3s;
         border-radius: 50rem;
     }
-    .btn-submit:hover {
+    .btn-{{ __('submit') }}:hover {
         transform: translateY(-2px);
         box-shadow: 0 6px 20px rgba(10, 207, 151, 0.4);
     }
@@ -109,8 +109,8 @@
     <div class="row mb-3 mt-3">
         <div class="col-12 d-flex justify-content-between align-items-center">
             <div>
-                <h4 class="page-title mb-0" style="font-weight: 700; color: #2d3436;">Edit Customer</h4>
-                <p class="text-muted font-size-13 mb-0">Update customer information.</p>
+                <h4 class="page-title mb-0" style="font-weight: 700; color: #2d3436;">{{ __('Edit {{ __('Customer') }}') }}</h4>
+                <p class="text-muted font-size-13 mb-0">{{ __('Update customer information.') }}</p>
             </div>
             <a href="{{route('customers.index')}}" class="btn btn-light rounded-pill border shadow-sm px-4">
                 <i class="fe-arrow-left me-1"></i> Back to List
@@ -123,10 +123,10 @@
             <div class="card">
                 <div class="card-header">
                     <div class="header-icon"><i class="fe-user-check"></i></div>
-                    <h5 class="card-title">Customer Details</h5>
+                    <h5 class="card-title">{{ __('{{ __('Customer') }} Details') }}</h5>
                 </div>
                 <div class="card-body">
-                    <form action="{{route('customers.update')}}" method="POST" enctype="multipart/form-data" data-parsley-validate>
+                    <form action="{{route('customers.update')}}" method={{ __('"{{ __('POST') }}"') }} enctype="multipart/form-data" data-parsley-validate>
                         @csrf
                         <input type="hidden" value="{{$edit_data->id}}" name="hidden_id">
                         
@@ -135,35 +135,35 @@
                                 <div class="row">
                                     <div class="col-md-6">
                                         <div class="form-group mb-4">
-                                            <label class="form-label">Full Name <span class="text-danger">*</span></label>
+                                            <label class="form-label">{{ __('Full {{ __('Name') }}') }} <span class="text-danger">*</span></label>
                                             <input type="text" class="form-control" name="name" value="{{ $edit_data->name }}" required>
                                             @error('name') <div class="text-danger small mt-1">{{ $message }}</div> @enderror
                                         </div>
                                     </div>
                                     <div class="col-md-6">
                                         <div class="form-group mb-4">
-                                            <label class="form-label">Phone Number <span class="text-danger">*</span></label>
-                                            <input type="text" class="form-control" name="phone" value="{{ $edit_data->phone }}" required>
-                                            @error('phone') <div class="text-danger small mt-1">{{ $message }}</div> @enderror
+                                            <label class="form-label">{{ __('{{ __('Phone') }} Number') }} <span class="text-danger">*</span></label>
+                                            <input type="text" class="form-control" name="{{ __('phone') }}" value="{{ $edit_data->{{ __('phone') }} }}" required>
+                                            @error('{{ __('phone') }}') <div class="text-danger small mt-1">{{ $message }}</div> @enderror
                                         </div>
                                     </div>
                                     <div class="col-md-6">
                                         <div class="form-group mb-4">
-                                            <label class="form-label">Email Address <span class="text-danger">*</span></label>
+                                            <label class="form-label">{{ __('{{ __('Email') }} Address') }} <span class="text-danger">*</span></label>
                                             <input type="email" class="form-control" name="email" value="{{ $edit_data->email }}" required>
                                             @error('email') <div class="text-danger small mt-1">{{ $message }}</div> @enderror
                                         </div>
                                     </div>
                                     <div class="col-md-6">
                                         <div class="form-group mb-4">
-                                            <label class="form-label">{{ __('Password') }}<span class="text-muted font-weight-normal">(Leave blank to keep current)</span></label>
-                                            <input type="password" class="form-control" name="password" placeholder="********">
+                                            <label class="form-label">{{ __('Password') }}<span class="text-muted font-weight-normal">{{ __('({{ __('Leave blank to keep current') }})') }}</span></label>
+                                            <input type="password" class="form-control" name="password" placeholder="{{ __('********') }}">
                                             @error('password') <div class="text-danger small mt-1">{{ $message }}</div> @enderror
                                         </div>
                                     </div>
                                     <div class="col-md-12">
                                         <div class="form-group mb-4">
-                                            <label class="form-label">Full Address <span class="text-danger">*</span></label>
+                                            <label class="form-label">{{ __('Full Address') }} <span class="text-danger">*</span></label>
                                             <input type="text" class="form-control" name="address" value="{{ $edit_data->address }}" required>
                                             @error('address') <div class="text-danger small mt-1">{{ $message }}</div> @enderror
                                         </div>
@@ -174,7 +174,7 @@
                             <div class="col-md-4">
                                 <div class="card bg-light border-0">
                                     <div class="card-body text-center">
-                                        <label class="form-label mb-3">Profile Picture</label>
+                                        <label class="form-label mb-3">{{ __('Profile Picture') }}</label>
                                         
                                         <div class="mx-auto image-preview-container">
                                             <img src="{{asset($edit_data->image)}}" alt="user-image" id="preview-image">
@@ -182,7 +182,7 @@
                                         
                                         <div class="mt-3">
                                             <input type="file" class="form-control form-control-sm" name="image" id="upload-image">
-                                            <small class="text-muted d-block mt-2">Allowed: jpg, jpeg, png</small>
+                                            <small class="text-muted d-block mt-2">{{ __('Allowed: jpg, jpeg, png') }}</small>
                                         </div>
                                         @error('image') <div class="text-danger small mt-1">{{ $message }}</div> @enderror
 
@@ -190,8 +190,8 @@
 
                                         <div class="d-flex justify-content-between align-items-center">
                                             <div>
-                                                <h6 class="mb-0 fw-bold">Active Status</h6>
-                                                <small class="text-muted">Enable account access</small>
+                                                <h6 class="mb-0 fw-bold">{{ __('Active {{ __('Status') }}') }}</h6>
+                                                <small class="text-muted">{{ __('{{ __('Enable') }} account access') }}</small>
                                             </div>
                                             <label class="switch">
                                                 <input type="checkbox" name="status" value="1" @if($edit_data->status==1) checked @endif>
@@ -205,8 +205,8 @@
 
                         <div class="row mt-3">
                             <div class="col-12 text-end">
-                                <button type="submit" class="btn btn-submit">
-                                    <i class="fe-check-circle me-1"></i> Update Customer
+                                <button type="{{ __('submit') }}" class="btn btn-{{ __('submit') }}">
+                                    <i class="fe-check-circle me-1"></i> Update {{ __('Customer') }}
                                 </button>
                             </div>
                         </div>
@@ -222,7 +222,7 @@
 <script src="{{asset('public/backEnd/')}}/assets/libs/select2/js/select2.min.js"></script>
 
 <script>
-    // Image Preview Script
+    // Image {{ __('Prev') }}iew Script
     document.getElementById('upload-image').addEventListener('change', function(event) {
         var reader = new FileReader();
         reader.onload = function(){

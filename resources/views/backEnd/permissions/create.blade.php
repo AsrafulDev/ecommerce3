@@ -50,7 +50,7 @@
         border: 1px solid #eef2f7;
         padding: 12px 15px;
         border-radius: 8px;
-        font-size: 14px;
+        font-size: {{ __('14px') }};
         color: #2d3436;
         transition: all 0.3s;
     }
@@ -61,7 +61,7 @@
     }
 
     /* Button Style */
-    .btn-submit {
+    .btn-{{ __('submit') }} {
         background: linear-gradient(45deg, #0acf97, #06b6d4);
         border: none;
         color: white;
@@ -72,7 +72,7 @@
         transition: 0.3s;
         border-radius: 50rem;
     }
-    .btn-submit:hover {
+    .btn-{{ __('submit') }}:hover {
         transform: translateY(-2px);
         box-shadow: 0 6px 20px rgba(10, 207, 151, 0.4);
     }
@@ -85,8 +85,8 @@
     <div class="row mb-3 mt-3">
         <div class="col-12 d-flex justify-content-between align-items-center">
             <div>
-                <h4 class="page-title mb-0" style="font-weight: 700; color: #2d3436;">Create New Permission</h4>
-                <p class="text-muted font-size-13 mb-0">Define specific access rights for roles.</p>
+                <h4 class="page-title mb-0" style="font-weight: 700; color: #2d3436;">{{ __('Create {{ __('New') }} Permission') }}</h4>
+                <p class="text-muted font-size-13 mb-0">{{ __('Define specific access rights for roles.') }}</p>
             </div>
             <a href="{{route('permissions.index')}}" class="btn btn-light rounded-pill border shadow-sm px-4">
                 <i class="fe-arrow-left me-1"></i> Back to List
@@ -99,20 +99,20 @@
             <div class="card">
                 <div class="card-header">
                     <div class="header-icon"><i class="fe-lock"></i></div>
-                    <h5 class="card-title">Permission Details</h5>
+                    <h5 class="card-title">{{ __('Permission Details') }}</h5>
                 </div>
                 <div class="card-body">
-                    <form action="{{route('permissions.store')}}" method="POST" data-parsley-validate>
+                    <form action="{{route('permissions.store')}}" method={{ __('"{{ __('POST') }}"') }} data-parsley-validate>
                         @csrf
                         
                         <div class="form-group mb-4">
-                            <label for="name" class="form-label">Permission Name <span class="text-danger">*</span></label>
+                            <label for="name" class="form-label">{{ __('Permission {{ __('Name') }}') }} <span class="text-danger">*</span></label>
                             <input type="text" class="form-control form-control-lg @error('name') is-invalid @enderror" 
                                    name="name" value="{{ old('name') }}" id="name" 
-                                   placeholder="e.g. product-create, user-edit" required>
+                                   placeholder="{{ __('e.g. product-create, user-edit') }}" required>
                             
                             <small class="text-muted d-block mt-2">
-                                <i class="fe-info"></i> Format Suggestion: <code>resource-action</code> (e.g., blog-delete)
+                                <i class="fe-info"></i> {{ __('Format Suggestion') }}: <code>{{ __('resource-action') }}</code> (e.g., blog-delete)
                             </small>
 
                             @error('name')
@@ -121,7 +121,7 @@
                         </div>
 
                         <div class="text-end">
-                            <button type="submit" class="btn btn-submit">
+                            <button type="{{ __('submit') }}" class="btn btn-{{ __('submit') }}">
                                 <i class="fe-check-circle me-1"></i> Save Permission
                             </button>
                         </div>

@@ -1,5 +1,5 @@
 @extends('backEnd.layouts.master')
-@section('title', 'Edit Reseller Profile')
+@section('title', 'Edit {{ __('Reseller Profile') }}')
 
 @section('css')
 <style>
@@ -49,77 +49,77 @@
     {{-- PAGE HEADER --}}
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
-            <h4 class="mb-1 fw-bold text-dark">Edit Reseller</h4>
-            <p class="text-muted small mb-0">Update reseller profile and account status.</p>
+            <h4 class="mb-1 fw-bold text-dark">{{ __('Edit Reseller') }}</h4>
+            <p class="text-muted small mb-0">{{ __('Update reseller profile and account status.') }}</p>
         </div>
         <a href="{{ route('admin.resellers.index') }}" class="btn btn-white border shadow-sm rounded-pill px-4">
             <i data-feather="arrow-left" class="me-1" style="width: 16px;"></i> Back to List
         </a>
     </div>
 
-    <form action="{{ route('admin.resellers.update') }}" method="POST" data-parsley-validate>
+    <form action="{{ route('admin.resellers.update') }}" method={{ __('"{{ __('POST') }}"') }} data-parsley-validate>
         @csrf
         <input type="hidden" value="{{ $reseller->id }}" name="hidden_id">
 
         <div class="row">
             
-            {{-- LEFT COLUMN: Basic Info --}}
+            {{-- LEFT COLUMN: {{ __('Basic') }} Info --}}
             <div class="col-lg-8">
                 
-                {{-- Personal Information --}}
+                {{-- {{ __('Personal Information') }} --}}
                 <div class="card card-modern">
                     <div class="card-header-modern">
-                        <h5 class="section-title"><i data-feather="user" class="text-primary" style="width: 18px;"></i> Reseller Information</h5>
+                        <h5 class="section-title"><i data-feather="user" class="text-primary" style="width: 18px;"></i> {{ __('Reseller Information') }}</h5>
                     </div>
                     <div class="card-body p-4">
                         <div class="row g-4">
                             <div class="col-md-6">
-                                <label class="form-label-custom">Full Name <span class="text-danger">*</span></label>
+                                <label class="form-label-custom">{{ __('Full {{ __('Name') }}') }} <span class="text-danger">*</span></label>
                                 <input type="text" class="form-control form-control-custom @error('name') is-invalid @enderror" name="name" value="{{ $reseller->name }}" required>
                                 @error('name') <span class="invalid-feedback">{{ $message }}</span> @enderror
                             </div>
                             
                             <div class="col-md-6">
-                                <label class="form-label-custom">Shop Name</label>
+                                <label class="form-label-custom">{{ __('{{ __('Shop') }} {{ __('Name') }}') }}</label>
                                 <input type="text" class="form-control form-control-custom @error('shop_name') is-invalid @enderror" name="shop_name" value="{{ $reseller->shop_name }}">
                                 @error('shop_name') <span class="invalid-feedback">{{ $message }}</span> @enderror
                             </div>
 
                             <div class="col-md-6">
-                                <label class="form-label-custom">Email Address <span class="text-danger">*</span></label>
+                                <label class="form-label-custom">{{ __('{{ __('Email') }} Address') }} <span class="text-danger">*</span></label>
                                 <input type="email" class="form-control form-control-custom @error('email') is-invalid @enderror" name="email" value="{{ $reseller->email }}" required>
                                 @error('email') <span class="invalid-feedback">{{ $message }}</span> @enderror
                             </div>
 
                             <div class="col-md-6">
-                                <label class="form-label-custom">Phone Number</label>
-                                <input type="text" class="form-control form-control-custom" value="{{ $reseller->phone ?? 'N/A' }}" readonly disabled>
-                                <small class="text-muted">Phone number cannot be changed directly.</small>
+                                <label class="form-label-custom">{{ __('{{ __('Phone') }} Number') }}</label>
+                                <input type="text" class="form-control form-control-custom" value="{{ $reseller->{{ __('phone') }} ?? '{{ __('N/A') }}' }}" readonly disabled>
+                                <small class="text-muted">{{ __('{{ __('Phone') }} {{ __('number') }} cannot be changed directly.') }}</small>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                {{-- Status & Verification --}}
+                {{-- {{ __('Status') }} & {{ __('Verification') }} --}}
                 <div class="card card-modern">
                     <div class="card-header-modern">
-                        <h5 class="section-title"><i data-feather="shield" class="text-info" style="width: 18px;"></i> Account Status</h5>
+                        <h5 class="section-title"><i data-feather="shield" class="text-info" style="width: 18px;"></i> {{ __('Account {{ __('Status') }}') }}</h5>
                     </div>
                     <div class="card-body p-4">
                         <div class="row g-4 align-items-center">
                             <div class="col-md-6">
-                                <label class="form-label-custom">Active Status</label>
+                                <label class="form-label-custom">{{ __('Active {{ __('Status') }}') }}</label>
                                 <select class="form-select form-select-custom" name="status">
                                     <option value="1" {{ $reseller->status == 1 ? 'selected' : '' }}>{{ __('Active') }}</option>
                                     <option value="0" {{ $reseller->status == 0 ? 'selected' : '' }}>{{ __('Inactive') }}</option>
                                 </select>
                             </div>
                             <div class="col-md-6">
-                                <label class="form-label-custom d-block">Verification Status</label>
+                                <label class="form-label-custom d-block">{{ __('{{ __('Verification') }} {{ __('Status') }}') }}</label>
                                 @if($reseller->verification_status == 'approved')
-                                    <span class="badge bg-success verification-badge"><i class="mdi mdi-check-decagram"></i> Verified</span>
+                                    <span class="badge bg-success verification-badge"><i class="mdi mdi-check-decagram"></i> {{ __('Verified') }}</span>
                                 @elseif($reseller->verification_status == 'rejected')
-                                    <span class="badge bg-danger verification-badge">{{ __('Rejected') }}</span>
+                                    <span class="badge bg-danger verification-badge">{{ __('{{ __('Reject') }}ed') }}</span>
                                 @else
                                     <span class="badge bg-warning text-dark verification-badge">{{ __('Pending') }}</span>
                                 @endif
@@ -130,40 +130,40 @@
 
             </div>
 
-            {{-- RIGHT COLUMN: Wallet & Security --}}
+            {{-- RIGHT COLUMN: {{ __('Wallet') }} & {{ __('Security') }} --}}
             <div class="col-lg-4">
                 
-                {{-- Wallet Info --}}
+                {{-- {{ __('Wallet') }} Info --}}
                 <div class="card card-modern">
                     <div class="card-header-modern">
-                        <h5 class="section-title"><i data-feather="credit-card" class="text-success" style="width: 18px;"></i> Financials</h5>
+                        <h5 class="section-title"><i data-feather="credit-card" class="text-success" style="width: 18px;"></i> {{ __('Financials') }}</h5>
                     </div>
                     <div class="card-body p-4">
                         <div class="wallet-card text-center">
-                            <label class="form-label-custom mb-1 text-muted">Current Wallet Balance</label>
+                            <label class="form-label-custom mb-1 text-muted">{{ __('{{ __('Current') }} {{ __('{{ __('Wallet') }} {{ __('Balance') }}') }}') }}</label>
                             <h3 class="mb-0 text-dark fw-bold">৳{{ number_format($reseller->wallet_balance ?? 0, 2) }}</h3>
                         </div>
                     </div>
                 </div>
 
-                {{-- Security --}}
+                {{-- {{ __('Security') }} --}}
                 <div class="card card-modern">
                     <div class="card-header-modern">
-                        <h5 class="section-title"><i data-feather="lock" class="text-danger" style="width: 18px;"></i> Security</h5>
+                        <h5 class="section-title"><i data-feather="lock" class="text-danger" style="width: 18px;"></i> {{ __('Security') }}</h5>
                     </div>
                     <div class="card-body p-4">
                         <div class="mb-3">
-                            <label class="form-label-custom">{{ __('New Password') }}</label>
-                            <input type="password" class="form-control form-control-custom @error('password') is-invalid @enderror" name="password" placeholder="Leave blank to keep current">
+                            <label class="form-label-custom">{{ __('{{ __('New') }} Password') }}</label>
+                            <input type="password" class="form-control form-control-custom @error('password') is-invalid @enderror" name="password" placeholder="{{ __('Leave blank to keep current') }}">
                             @error('password') <span class="invalid-feedback">{{ $message }}</span> @enderror
                         </div>
                         <div class="mb-3">
                             <label class="form-label-custom">{{ __('Confirm Password') }}</label>
-                            <input type="password" class="form-control form-control-custom" name="password_confirmation" placeholder="Retype password">
+                            <input type="password" class="form-control form-control-custom" name="password_confirmation" placeholder="{{ __('Retype password') }}">
                         </div>
                         
                         <div class="d-grid mt-4">
-                            <button type="submit" class="btn btn-primary fw-bold py-2 shadow-sm">
+                            <button type="{{ __('submit') }}" class="btn btn-primary fw-bold py-2 shadow-sm">
                                 <i data-feather="save" class="me-1" style="width: 16px;"></i> Update Reseller
                             </button>
                         </div>

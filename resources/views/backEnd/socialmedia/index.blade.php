@@ -1,5 +1,5 @@
 @extends('backEnd.layouts.master')
-@section('title','Social Media Management')
+@section('title','{{ __('Social {{ __('Media') }}') }} {{ __('Manage') }}ment')
 
 @section('css')
 <link href="{{asset('/public/backEnd/')}}/assets/libs/datatables.net-bs5/css/dataTables.bootstrap5.min.css" rel="stylesheet" type="text/css" />
@@ -30,12 +30,12 @@
     .table-pro tbody td {
         vertical-align: middle;
         color: #334155;
-        font-size: 14px;
+        font-size: {{ __('14px') }};
         padding: 15px;
         border-bottom: 1px solid #f1f5f9;
     }
 
-    /* Social Icon Preview */
+    /* Social Icon {{ __('Prev') }}iew */
     .social-icon-wrapper {
         width: 40px;
         height: 40px;
@@ -53,9 +53,9 @@
         color: #fff;
     }
 
-    /* Status Pill Badges */
+    /* {{ __('Status') }} Pill Badges */
     .status-badge {
-        padding: 6px 14px;
+        padding: 6px {{ __('14px') }};
         border-radius: 50px;
         font-size: 11px;
         font-weight: 700;
@@ -131,8 +131,8 @@
     
     <div class="row align-items-center mb-4">
         <div class="col-md-6">
-            <h4 class="fw-bold text-dark m-0">Social Media Links</h4>
-            <span class="text-muted small">Manage your official social media presence and links</span>
+            <h4 class="fw-bold text-dark m-0">{{ __('{{ __('Social {{ __('Media') }}') }} {{ __('{{ __('Link') }}s') }}') }}</h4>
+            <span class="text-muted small">{{ __('{{ __('Manage') }} your official social media presence and links') }}</span>
         </div>
         <div class="col-md-6 text-md-end mt-3 mt-md-0">
             <a href="{{route('socialmedias.create')}}" class="btn btn-primary rounded-pill px-4 shadow-sm fw-bold">
@@ -150,10 +150,10 @@
                             <thead>
                                 <tr>
                                     <th width="5%">{{ __('SL') }}</th>
-                                    <th width="15%">Platform</th>
-                                    <th width="40%">Name / Title</th>
-                                    <th width="15%">{{ __('Status') }}</th>
-                                    <th width="15%" class="text-end">Actions</th>
+                                    <th width="15%">{{ __('Platform') }}</th>
+                                    <th width="40%">{{ __('{{ __('Name') }} / {{ __('Title') }}') }}</th>
+                                    <th width="15%">{{ __('{{ __('Status') }}') }}</th>
+                                    <th width="15%" class="text-end">{{ __('Actions') }}</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -180,12 +180,12 @@
                                     <td class="text-end">
                                         <div class="d-flex justify-content-end align-items-center">
                                             
-                                            {{-- Status Toggle --}}
+                                            {{-- {{ __('Status') }} Toggle --}}
                                             @if($value->status == 1)
                                                 <form method="post" action="{{route('socialmedias.inactive')}}" class="d-inline"> 
                                                     @csrf
                                                     <input type="hidden" value="{{$value->id}}" name="hidden_id">        
-                                                    <button type="submit" class="btn-action btn-status-toggle shadow-sm" title="Deactivate">
+                                                    <button type="{{ __('submit') }}" class="btn-action btn-status-toggle shadow-sm" title="Deactivate">
                                                         <i class="fa fa-thumbs-down"></i>
                                                     </button>
                                                 </form>
@@ -193,15 +193,15 @@
                                                 <form method="post" action="{{route('socialmedias.active')}}" class="d-inline">
                                                     @csrf
                                                     <input type="hidden" value="{{$value->id}}" name="hidden_id">        
-                                                    <button type="submit" class="btn-action btn-status-active shadow-sm" title="Activate">
+                                                    <button type="{{ __('submit') }}" class="btn-action btn-status-active shadow-sm" title="Activate">
                                                         <i class="fa fa-thumbs-up"></i>
                                                     </button>
                                                 </form>
                                             @endif
 
-                                            <a href="{{route('socialmedias.edit',$value->id)}}" 
+                                            <a href="{{route('socialmedias.edit',$value->{{ __('id)') }}}}" 
                                                class="btn-action btn-edit-modern shadow-sm ms-1" 
-                                               title="Edit Platform">
+                                               title="Edit {{ __('Platform') }}">
                                                 <i class="fa fa-pencil-alt"></i>
                                             </a>
 
@@ -209,7 +209,7 @@
                                                 @csrf
                                                 <input type="hidden" value="{{$value->id}}" name="hidden_id">
                                                 <button type="button" class="btn-action btn-delete-modern shadow-sm delete-confirm" 
-                                                        title="Remove Platform"
+                                                        title="Remove {{ __('Platform') }}"
                                                         data-form-id="delete-form-{{$value->id}}">
                                                     <i class="fa fa-trash"></i>
                                                 </button>
@@ -252,7 +252,7 @@
                 form = $(this).closest('form');
             }
             
-            // Use master layout's swal if available, otherwise use confirm
+            // {{ __('Use') }} master layout's swal if available, otherwise use confirm
             if (typeof swal !== 'undefined') {
                 swal({
                     title: "Are you sure?",
@@ -262,13 +262,13 @@
                     dangerMode: true,
                 }).then((willDelete) => {
                     if (willDelete) {
-                        form.submit();
+                        form.{{ __('submit') }}();
                     }
                 });
             } else {
                 // Fallback to native confirm
                 if (confirm('Are you sure you want to delete this social media link?')) {
-                    form.submit();
+                    form.{{ __('submit') }}();
                 }
             }
             

@@ -1,5 +1,5 @@
 @extends('backEnd.layouts.master')
-@section('title', 'Salary Payments')
+@section('title', '{{ __('Salary Payments') }}')
 
 @section('css')
 <style>
@@ -10,7 +10,7 @@
         box-shadow: 0 4px 10px rgba(0, 0, 0, 0.03);
         background: #fff;
     }
-    .filter-container {
+    .{{ __('filter') }}-container {
         background: #f8fafc;
         border-bottom: 1px solid #e2e8f0;
         padding: 1.25rem;
@@ -63,7 +63,7 @@
     .badge-paid { background: #dcfce7; color: #166534; }
     .badge-failed { background: #fee2e2; color: #991b1b; }
     .badge-pending { background: #fef3c7; color: #92400e; }
-    .status-dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+    .status-dot { width: 6px; height: 6px; border-radius: 50%; background: current{{ __('Color') }}; }
 
     /* --- Action Buttons --- */
     .btn-icon {
@@ -83,9 +83,9 @@
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
             <h4 class="mb-1 fw-bold text-dark">
-                <i data-feather="credit-card" class="text-primary me-2"></i> Salary Payments
+                <i data-feather="credit-card" class="text-primary me-2"></i> {{ __('Salary Payments') }}
             </h4>
-            <p class="text-muted small mb-0">History of all salary transactions.</p>
+            <p class="text-muted small mb-0">{{ __('History of all salary transactions.') }}</p>
         </div>
         <a href="{{ route('admin.salary_payments.create') }}" class="btn btn-success px-4 py-2 rounded-pill shadow-sm">
             <i data-feather="plus" class="me-1" style="width: 16px;"></i> Make Payment
@@ -95,13 +95,13 @@
     <div class="card card-modern">
         
         {{-- FILTERS --}}
-        <div class="filter-container">
-            <form method="GET" action="{{ route('admin.salary_payments.index') }}">
+        <div class="{{ __('filter') }}-container">
+            <form method="{{ __('GET') }}" action="{{ route('admin.salary_payments.index') }}">
                 <div class="row g-3 align-items-end">
                     <div class="col-md-3">
                         <label class="form-label small fw-bold text-muted text-uppercase mb-1">{{ __('Employee') }}</label>
                         <select name="employee_id" class="form-control select2 form-select-modern">
-                            <option value="">All Employees</option>
+                            <option value="">{{ __('All {{ __('Employees') }}') }}</option>
                             @foreach($employees as $emp)
                                 <option value="{{ $emp->id }}" {{ request('employee_id') == $emp->id ? 'selected' : '' }}>
                                     {{ $emp->name }} ({{ $emp->employee_id }})
@@ -114,16 +114,16 @@
                         <input type="month" name="month" class="form-control form-control-modern" value="{{ request('month') }}">
                     </div>
                     <div class="col-md-2">
-                        <label class="form-label small fw-bold text-muted text-uppercase mb-1">{{ __('Status') }}</label>
+                        <label class="form-label small fw-bold text-muted text-uppercase mb-1">{{ __('{{ __('Status') }}') }}</label>
                         <select name="status" class="form-select form-select-modern">
-                            <option value="">All Status</option>
+                            <option value="">{{ __('All {{ __('Status') }}') }}</option>
                             <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }}>{{ __('Pending') }}</option>
-                            <option value="paid" {{ request('status') == 'paid' ? 'selected' : '' }}>Paid</option>
+                            <option value="paid" {{ request('status') == 'paid' ? 'selected' : '' }}>{{ __('Paid') }}</option>
                             <option value="failed" {{ request('status') == 'failed' ? 'selected' : '' }}>{{ __('Failed') }}</option>
                         </select>
                     </div>
                     <div class="col-md-3 d-flex gap-2">
-                        <button type="submit" class="btn btn-dark w-100 fw-bold">{{ __('Filter') }}</button>
+                        <button type="{{ __('submit') }}" class="btn btn-dark w-100 fw-bold">{{ __('Filter') }}</button>
                         <a href="{{ route('admin.salary_payments.index') }}" class="btn btn-light border px-3" title="{{ __('Reset') }}">
                             <i data-feather="refresh-cw" style="width:16px;"></i>
                         </a>
@@ -138,12 +138,12 @@
                 <thead>
                     <tr>
                         <th width="5%">#</th>
-                        <th width="15%">Txn ID</th>
-                        <th width="20%">Employee Details</th>
+                        <th width="15%">{{ __('Txn ID') }}</th>
+                        <th width="20%">{{ __('Employee Details') }}</th>
                         <th width="15%">{{ __('Month') }}</th>
                         <th width="15%">{{ __('Amount') }}</th>
-                        <th width="15%">Method</th>
-                        <th width="10%">{{ __('Status') }}</th>
+                        <th width="15%">{{ __('Method') }}</th>
+                        <th width="10%">{{ __('{{ __('Status') }}') }}</th>
                         <th width="5%" class="text-end">{{ __('View') }}</th>
                     </tr>
                 </thead>
@@ -174,7 +174,7 @@
                                 <div class="d-flex align-items-center text-muted small">
                                     @if($payment->payment_method == 'bank') <i data-feather="briefcase" class="me-1" style="width:12px;"></i>
                                     @elseif($payment->payment_method == 'cash') <i data-feather="dollar-sign" class="me-1" style="width:12px;"></i>
-                                    @else <i data-feather="smartphone" class="me-1" style="width:12px;"></i> @endif
+                                    @else <i data-feather="smart{{ __('phone') }}" class="me-1" style="width:12px;"></i> @endif
                                     
                                     {{ ucfirst(str_replace('_', ' ', $payment->payment_method)) }}
                                 </div>
@@ -182,7 +182,7 @@
                             </td>
                             <td>
                                 @if($payment->status == 'paid')
-                                    <span class="badge-soft badge-paid"><span class="status-dot"></span> Paid</span>
+                                    <span class="badge-soft badge-paid"><span class="status-dot"></span> {{ __('Paid') }}</span>
                                 @elseif($payment->status == 'failed')
                                     <span class="badge-soft badge-failed"><span class="status-dot"></span>{{ __('Failed') }}</span>
                                 @else
@@ -190,17 +190,17 @@
                                 @endif
                             </td>
                             <td class="text-end">
-                                <a href="{{ route('admin.salary_payments.show', $payment->id) }}" class="btn-icon btn-view" title="View Details">
-                                    <i data-feather="eye" style="width:14px;"></i>
+                                <a href="{{ route('admin.salary_payments.show', $payment->{{ __('id)') }} }}" class="btn-icon btn-view" title="View Details">
+                                    <i data-feather="eye" style="width:{{ __('14px') }};"></i>
                                 </a>
                             </td>
                         </tr>
                     @empty
                         <tr>
                             <td colspan="8" class="text-center py-5">
-                                <img src="https://cdn-icons-png.flaticon.com/512/7486/7486744.png" width="60" class="mb-3 opacity-25">
-                                <p class="text-muted fw-bold mb-0">No payment history found</p>
-                                <small class="text-muted">Adjust filters or create a new payment.</small>
+                                <img src="{{ __('https://') }}cdn-icons-png.flaticon.com/512/7486/7486744.png" width="60" class="mb-3 opacity-25">
+                                <p class="text-muted fw-bold mb-0">{{ __('No payment history found') }}</p>
+                                <small class="text-muted">{{ __('Adjust {{ __('filter') }}s or create a new payment.') }}</small>
                             </td>
                         </tr>
                     @endforelse
@@ -210,7 +210,7 @@
 
         {{-- PAGINATION --}}
         <div class="p-4 border-top d-flex justify-content-between align-items-center bg-white rounded-bottom">
-            <small class="text-muted">{{ __('Showing') }}<strong>{{ $payments->firstItem() }}</strong>{{ __('to') }}<strong>{{ $payments->lastItem() }}</strong>{{ __('of') }}<strong>{{ $payments->total() }}</strong> transactions
+            <small class="text-muted">{{ __('Showing') }}<strong>{{ $payments->first{{ __('Item') }}() }}</strong>{{ __('to') }}<strong>{{ $payments->last{{ __('Item') }}() }}</strong>{{ __('of') }}<strong>{{ $payments->{{ __('total') }}() }}</strong> transactions
             </small>
             <div>
                 {{ $payments->links('pagination::bootstrap-4') }}

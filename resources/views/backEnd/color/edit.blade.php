@@ -1,5 +1,5 @@
 @extends('backEnd.layouts.master')
-@section('title','Edit Color')
+@section('title','Edit {{ __('Color') }}')
 
 @section('css')
 <link href="{{asset('public/backEnd')}}/assets/libs/summernote/summernote-lite.min.css" rel="stylesheet" type="text/css" />
@@ -51,7 +51,7 @@
         border: 1px solid #eef2f7;
         padding: 12px 15px;
         border-radius: 8px;
-        font-size: 14px;
+        font-size: {{ __('14px') }};
         color: #2d3436;
         transition: all 0.3s;
     }
@@ -61,7 +61,7 @@
         box-shadow: 0 0 0 4px rgba(114, 124, 245, 0.1);
     }
 
-    /* Color Picker Styling */
+    /* {{ __('{{ __('Color') }} Picker') }} Styling */
     .color-preview-box {
         display: flex;
         align-items: center;
@@ -83,7 +83,7 @@
         font-weight: 600;
         color: #2d3436;
         font-family: monospace;
-        font-size: 14px;
+        font-size: {{ __('14px') }};
     }
 
     /* Toggle Switch */
@@ -95,7 +95,7 @@
     input:checked + .slider:before { transform: translateX(22px); }
 
     /* Button Style */
-    .btn-submit {
+    .btn-{{ __('submit') }} {
         background: linear-gradient(45deg, #0acf97, #06b6d4);
         border: none;
         color: white;
@@ -105,7 +105,7 @@
         box-shadow: 0 4px 15px rgba(10, 207, 151, 0.3);
         transition: 0.3s;
     }
-    .btn-submit:hover {
+    .btn-{{ __('submit') }}:hover {
         transform: translateY(-2px);
         box-shadow: 0 6px 20px rgba(10, 207, 151, 0.4);
     }
@@ -119,8 +119,8 @@
         <div class="col-12">
             <div class="page-title-box d-flex align-items-center justify-content-between py-4">
                 <div>
-                    <h4 class="page-title mb-1 text-dark fw-bold">Edit Color: {{ $edit_data->colorName }}</h4>
-                    <p class="text-muted font-size-13 mb-0">Update color details and status.</p>
+                    <h4 class="page-title mb-1 text-dark fw-bold">Edit {{ __('Color') }}: {{ $edit_data->color{{ __('Name') }} }}</h4>
+                    <p class="text-muted font-size-13 mb-0">{{ __('Update color details and status.') }}</p>
                 </div>
                 <div class="page-title-right">
                     <a href="{{route('colors.index')}}" class="btn btn-light rounded-pill border shadow-sm px-4">
@@ -131,7 +131,7 @@
         </div>
     </div>
 
-    <form action="{{route('colors.update')}}" method="POST" enctype="multipart/form-data" data-parsley-validate>
+    <form action="{{route('colors.update')}}" method={{ __('"{{ __('POST') }}"') }} enctype="multipart/form-data" data-parsley-validate>
         @csrf
         <input type="hidden" value="{{$edit_data->id}}" name="id">
 
@@ -141,16 +141,16 @@
                 <div class="card mb-4">
                     <div class="card-header">
                         <div class="header-icon"><i class="fe-edit"></i></div>
-                        <h5 class="card-title">Color Information</h5>
+                        <h5 class="card-title">{{ __('{{ __('{{ __('Color') }} Info') }}rmation') }}</h5>
                     </div>
                     <div class="card-body">
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="form-group mb-4">
-                                    <label for="colorName" class="form-label">Color Name <span class="text-danger">*</span></label>
-                                    <input type="text" class="form-control @error('colorName') is-invalid @enderror" 
-                                           name="colorName" value="{{ $edit_data->colorName }}" id="colorName" required>
-                                    @error('colorName')
+                                    <label for="color{{ __('Name') }}" class="form-label">{{ __('{{ __('Color') }} {{ __('Name') }}') }} <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control @error('color{{ __('Name') }}') is-invalid @enderror" 
+                                           name="color{{ __('Name') }}" value="{{ $edit_data->color{{ __('Name') }} }}" id="color{{ __('Name') }}" required>
+                                    @error('color{{ __('Name') }}')
                                         <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
                                 </div>
@@ -158,11 +158,11 @@
                             
                             <div class="col-md-6">
                                 <div class="form-group mb-4">
-                                    <label for="color" class="form-label">Color Picker <span class="text-danger">*</span></label>
+                                    <label for="color" class="form-label">{{ __('{{ __('Color') }} Picker') }} <span class="text-danger">*</span></label>
                                     <div class="color-preview-box">
                                         <input type="color" class="form-control @error('color') is-invalid @enderror" 
                                                name="color" value="{{ $edit_data->color }}" id="color" required 
-                                               onchange="updateColorCode(this.value)">
+                                               onchange="update{{ __('Color') }}Code(this.value)">
                                         <span id="colorCode" class="color-code">{{ $edit_data->color }}</span>
                                     </div>
                                     @error('color')
@@ -180,13 +180,13 @@
                 <div class="card mb-4">
                     <div class="card-header">
                         <div class="header-icon"><i class="fe-settings"></i></div>
-                        <h5 class="card-title">Visibility</h5>
+                        <h5 class="card-title">{{ __('Visibility') }}</h5>
                     </div>
                     <div class="card-body">
                         <div class="d-flex justify-content-between align-items-center mb-4 p-3 bg-light rounded border border-light">
                             <div>
-                                <h6 class="mb-1 text-dark fw-bold">Active Status</h6>
-                                <p class="text-muted font-size-12 mb-0">Enable or disable color</p>
+                                <h6 class="mb-1 text-dark fw-bold">{{ __('Active {{ __('Status') }}') }}</h6>
+                                <p class="text-muted font-size-12 mb-0">{{ __('{{ __('Enable') }} or disable color') }}</p>
                             </div>
                             <label class="switch">
                                 <input type="checkbox" name="status" value="1" {{ $edit_data->status == 1 ? 'checked' : '' }}>
@@ -197,8 +197,8 @@
                             <div class="text-danger small mb-2">{{ $message }}</div>
                         @enderror
 
-                        <button type="submit" class="btn btn-submit w-100 rounded-pill">
-                            <i class="fe-check-circle me-1"></i> Update Color
+                        <button type="{{ __('submit') }}" class="btn btn-{{ __('submit') }} w-100 rounded-pill">
+                            <i class="fe-check-circle me-1"></i> Update {{ __('Color') }}
                         </button>
                     </div>
                 </div>
@@ -217,14 +217,14 @@
 <script>
     $(document).ready(function(){
         $(".summernote").summernote({
-            placeholder: "Enter Your Text Here",
+            placeholder: "Enter Your {{ __('Text') }} Here",
             height: 120
         });
     });
 
     // Update Hex Code Display
-    function updateColorCode(color) {
-        document.getElementById('colorCode').innerText = color;
+    function update{{ __('Color') }}Code(color) {
+        document.getElementById('colorCode').inner{{ __('Text') }} = color;
     }
 </script>
 @endsection

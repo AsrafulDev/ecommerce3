@@ -1,5 +1,5 @@
 @extends('backEnd.layouts.master')
-@section('title', isset($supplier) ? 'Edit Supplier' : 'Suppliers Management')
+@section('title', isset($supplier) ? 'Edit {{ __('Supplier') }}' : '{{ __('{{ __('Supplier') }}s') }} {{ __('Manage') }}ment')
 
 @section('css')
 <style>
@@ -81,13 +81,13 @@
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
             <h4 class="mb-1 fw-bold text-dark">
-                <i data-feather="users" class="text-primary me-2"></i> Supplier Management
+                <i data-feather="users" class="text-primary me-2"></i> {{ __('Supplier') }} {{ __('Manage') }}ment
             </h4>
-            <p class="text-muted small mb-0">Manage your supplier list and track dues.</p>
+            <p class="text-muted small mb-0">{{ __('{{ __('Manage') }} your supplier list and track dues.') }}</p>
         </div>
         @if(isset($supplier))
             <a href="{{ route('admin.suppliers.index') }}" class="btn btn-white border shadow-sm rounded-pill px-3">
-                <i data-feather="plus" class="me-1"></i> Add New Supplier
+                <i data-feather="plus" class="me-1"></i> Add {{ __('New') }} {{ __('Supplier') }}
             </a>
         @endif
     </div>
@@ -99,44 +99,44 @@
             <div class="card card-modern h-100">
                 <div class="card-header-modern">
                     <i data-feather="{{ isset($supplier) ? 'edit-2' : 'plus-circle' }}" class="me-2" style="width:18px;"></i>
-                    {{ isset($supplier) ? 'Edit Supplier' : 'Add New Supplier' }}
+                    {{ isset($supplier) ? 'Edit {{ __('Supplier') }}' : 'Add {{ __('New') }} {{ __('Supplier') }}' }}
                 </div>
                 <div class="card-body p-4">
-                    <form action="{{ isset($supplier) ? route('admin.suppliers.update', $supplier->id) : route('admin.suppliers.store') }}" method="POST">
+                    <form action="{{ isset($supplier) ? route('admin.suppliers.update', $supplier->{{ __('id)') }} : route('admin.suppliers.store') }}" method={{ __('"{{ __('POST') }}"') }}>
                         @csrf
-                        {{-- Route uses POST, not PUT --}}
+                        {{-- Route uses {{ __('POST') }}, not PUT --}}
 
                         <div class="mb-3">
-                            <label class="form-label-modern">Full Name <span class="text-danger">*</span></label>
+                            <label class="form-label-modern">{{ __('Full {{ __('Name') }}') }} <span class="text-danger">*</span></label>
                             <input type="text" name="name" class="form-control form-control-modern @error('name') is-invalid @enderror" 
-                                   value="{{ old('name', $supplier->name ?? '') }}" placeholder="e.g. John Doe" required>
+                                   value="{{ old('name', $supplier->name ?? '') }}" placeholder="{{ __('e.g. John Doe') }}" required>
                             @error('name') <div class="invalid-feedback">{{ $message }}</div> @enderror
                         </div>
 
                         <div class="mb-3">
-                            <label class="form-label-modern">Phone Number</label>
-                            <input type="text" name="phone" class="form-control form-control-modern" 
-                                   value="{{ old('phone', $supplier->phone ?? '') }}" placeholder="e.g. 017xxxxxxxx">
+                            <label class="form-label-modern">{{ __('{{ __('Phone') }} Number') }}</label>
+                            <input type="text" name="{{ __('phone') }}" class="form-control form-control-modern" 
+                                   value="{{ old('{{ __('phone') }}', $supplier->{{ __('phone') }} ?? '') }}" placeholder="{{ __('e.g. {{ __('017xxxxxxxx') }}') }}">
                         </div>
 
                         <div class="mb-3">
-                            <label class="form-label-modern">Email Address</label>
+                            <label class="form-label-modern">{{ __('{{ __('Email') }} Address') }}</label>
                             <input type="email" name="email" class="form-control form-control-modern" 
-                                   value="{{ old('email', $supplier->email ?? '') }}" placeholder="supplier@example.com">
+                                   value="{{ old('email', $supplier->email ?? '') }}" placeholder="{{ __('supplier@example.com') }}">
                         </div>
 
                         <div class="mb-4">
                             <label class="form-label-modern">{{ __('Address') }}</label>
                             <textarea name="address" class="form-control form-control-modern" rows="3" 
-                                      placeholder="Full address here...">{{ old('address', $supplier->address ?? '') }}</textarea>
+                                      placeholder="{{ __('{{ __('Full address') }} {{ __('here') }}...') }}">{{ old('address', $supplier->address ?? '') }}</textarea>
                         </div>
 
                         <div class="d-grid gap-2">
-                            <button type="submit" class="btn btn-primary py-2 fw-bold">
-                                {{ isset($supplier) ? 'Update Supplier' : 'Save Supplier' }}
+                            <button type="{{ __('submit') }}" class="btn btn-primary py-2 fw-bold">
+                                {{ isset($supplier) ? 'Update {{ __('Supplier') }}' : 'Save {{ __('Supplier') }}' }}
                             </button>
                             @if(isset($supplier))
-                                <a href="{{ route('admin.suppliers.index') }}" class="btn btn-light py-2">Cancel Edit</a>
+                                <a href="{{ route('admin.suppliers.index') }}" class="btn btn-light py-2">{{ __('Cancel Edit') }}</a>
                             @endif
                         </div>
                     </form>
@@ -148,8 +148,8 @@
         <div class="col-lg-8">
             <div class="card card-modern h-100">
                 <div class="card-header-modern d-flex justify-content-between align-items-center">
-                    <span>Registered Suppliers</span>
-                    <span class="badge bg-light text-dark border">{{ $suppliers->total() }} Found</span>
+                    <span>{{ __('Registered {{ __('{{ __('Supplier') }}s') }}') }}</span>
+                    <span class="badge bg-light text-dark border">{{ $suppliers->{{ __('total') }}() }} Found</span>
                 </div>
                 
                 <div class="card-body p-0">
@@ -158,11 +158,11 @@
                             <thead>
                                 <tr>
                                     <th width="5%">#</th>
-                                    <th width="25%">Supplier Info</th>
-                                    <th width="20%">Contact</th>
+                                    <th width="25%">{{ __('{{ __('Supplier') }} Info') }}</th>
+                                    <th width="20%">{{ __('Contact') }}</th>
                                     <th width="20%">{{ __('Address') }}</th>
-                                    <th width="15%">Due Amount</th>
-                                    <th width="15%" class="text-end">Actions</th>
+                                    <th width="15%">{{ __('{{ __('Due') }} {{ __('Amount') }}') }}</th>
+                                    <th width="15%" class="text-end">{{ __('Actions') }}</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -171,10 +171,10 @@
                                         <td>{{ $loop->iteration + ($suppliers->currentPage()-1)*$suppliers->perPage() }}</td>
                                         <td>
                                             <div class="fw-bold text-dark">{{ $s->name }}</div>
-                                            <small class="text-muted">{{ $s->phone }}</small>
+                                            <small class="text-muted">{{ $s->{{ __('phone') }} }}</small>
                                         </td>
                                         <td>
-                                            @if($s->email)
+                                            @if($s->{{ __('email)') }}
                                                 <div class="d-flex align-items-center text-muted small">
                                                     <i data-feather="mail" class="me-1" style="width:12px;"></i> {{ $s->email }}
                                                 </div>
@@ -189,19 +189,19 @@
                                             @if($s->current_due > 0)
                                                 <span class="due-amount">{{ number_format($s->current_due, 2) }} ৳</span>
                                             @else
-                                                <span class="badge bg-light text-success border border-success">Paid</span>
+                                                <span class="badge bg-light text-success border border-success">{{ __('Paid') }}</span>
                                             @endif
                                         </td>
                                         <td class="text-end">
-                                            <a href="{{ route('admin.suppliers.edit', $s->id) }}" class="btn-icon btn-edit me-1" title="{{ __('Edit') }}">
+                                            <a href="{{ route('admin.suppliers.edit', $s->{{ __('id)') }} }}" class="btn-icon btn-edit me-1" title="{{ __('Edit') }}">
                                                 <i data-feather="edit-2" style="width:16px;"></i>
                                             </a>
                                             
-                                            <form action="{{ route('admin.suppliers.destroy', $s->id) }}" method="POST" class="d-inline" 
-                                                  onsubmit="return confirm('Are you sure? This will delete all history related to this supplier.');">
+                                            <form action="{{ route('admin.suppliers.destroy', $s->{{ __('id)') }} }}" method={{ __('"{{ __('POST') }}"') }} class="d-inline" 
+                                                  on{{ __('submit') }}="return confirm('Are you sure? This will delete all history related to this supplier.');">
                                                 @csrf
                                                 @method('DELETE')
-                                                <button type="submit" class="btn-icon btn-delete" title="{{ __('Delete') }}">
+                                                <button type="{{ __('submit') }}" class="btn-icon btn-delete" title="{{ __('Delete') }}">
                                                     <i data-feather="trash-2" style="width:16px;"></i>
                                                 </button>
                                             </form>
@@ -210,9 +210,9 @@
                                 @empty
                                     <tr>
                                         <td colspan="6" class="text-center py-5">
-                                            <img src="https://cdn-icons-png.flaticon.com/512/7486/7486744.png" width="60" class="mb-3 opacity-25">
-                                            <p class="text-muted fw-bold mb-0">No Suppliers Found</p>
-                                            <small class="text-muted">Add a new supplier from the left form.</small>
+                                            <img src="{{ __('https://') }}cdn-icons-png.flaticon.com/512/7486/7486744.png" width="60" class="mb-3 opacity-25">
+                                            <p class="text-muted fw-bold mb-0">{{ __('No {{ __('{{ __('Supplier') }}s') }} Found') }}</p>
+                                            <small class="text-muted">{{ __('Add a new supplier from the left form.') }}</small>
                                         </td>
                                     </tr>
                                 @endforelse

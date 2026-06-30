@@ -1,4 +1,4 @@
-{{-- Category-wise Products Section --}}
+{{-- {{ __('Category') }}-wise {{ __('Product') }}s Section --}}
 @if($generalsetting->show_category_wise_products)
     @foreach ($homeproducts as $homecat)
         <section class="homeproduct">
@@ -20,7 +20,7 @@
                     </div>
                     <div class="col-sm-12">
                         <div class="show_more_btn">
-                            <a href="{{ route('category', $homecat->slug) }}" class="view_more_btn">View More</a>
+                            <a href="{{ route('category', $homecat->slug) }}" class="view_more_btn">{{ __('View More') }}</a>
                         </div>
                     </div>
                 </div>

@@ -42,7 +42,7 @@
         font-size: 1.5rem; font-weight: 700; color: #16a34a;
     }
 
-    /* --- Status Badges --- */
+    /* --- {{ __('Status') }} Badges --- */
     .badge-status {
         padding: 6px 12px; border-radius: 6px; font-size: 0.8rem; font-weight: 600;
         display: inline-flex; align-items: center; gap: 6px;
@@ -50,7 +50,7 @@
     .badge-paid { background: #dcfce7; color: #166534; }
     .badge-failed { background: #fee2e2; color: #991b1b; }
     .badge-pending { background: #fef3c7; color: #92400e; }
-    .status-dot { width: 8px; height: 8px; border-radius: 50%; background: currentColor; }
+    .status-dot { width: 8px; height: 8px; border-radius: 50%; background: current{{ __('Color') }}; }
 
     /* --- Related Info Box --- */
     .related-box {
@@ -78,16 +78,16 @@
         {{-- Header --}}
         <div class="receipt-header">
             <div>
-                <h5 class="mb-1 fw-bold text-dark">Payment Receipt</h5>
+                <h5 class="mb-1 fw-bold text-dark">{{ __('Payment Receipt') }}</h5>
                 <div class="text-muted small font-monospace">TRX ID: #{{ $payment->payment_id }}</div>
             </div>
             <div>
                 @if($payment->status == 'paid')
-                    <span class="badge-status badge-paid"><span class="status-dot"></span> Paid Successfully</span>
+                    <span class="badge-status badge-paid"><span class="status-dot"></span> {{ __('{{ __('Paid') }} Successfully') }}</span>
                 @elseif($payment->status == 'failed')
-                    <span class="badge-status badge-failed"><span class="status-dot"></span> Payment Failed</span>
+                    <span class="badge-status badge-failed"><span class="status-dot"></span> {{ __('Payment Failed') }}</span>
                 @else
-                    <span class="badge-status badge-pending"><span class="status-dot"></span> Pending Approval</span>
+                    <span class="badge-status badge-pending"><span class="status-dot"></span> {{ __('Pending {{ __('Approval') }}') }}</span>
                 @endif
             </div>
         </div>
@@ -98,18 +98,18 @@
             {{-- Left Column --}}
             <div>
                 <div class="info-item mb-4">
-                    <span class="label">Amount Paid</span>
+                    <span class="label">{{ __('{{ __('Amount') }} {{ __('Paid') }}') }}</span>
                     <span class="value-highlight">৳{{ number_format($payment->amount, 2) }}</span>
                 </div>
                 
                 <div class="info-item mb-4">
-                    <span class="label">Payment To</span>
+                    <span class="label">{{ __('Payment To') }}</span>
                     <span class="value">{{ $payment->employee->name }}</span>
                     <div class="small text-muted">ID: {{ $payment->employee->employee_id }}</div>
                 </div>
 
                 <div class="info-item">
-                    <span class="label">Payment Date</span>
+                    <span class="label">{{ __('Payment {{ __('Date') }}') }}</span>
                     <span class="value">{{ $payment->payment_date->format('d F, Y') }}</span>
                 </div>
             </div>
@@ -117,27 +117,27 @@
             {{-- Right Column --}}
             <div>
                 <div class="info-item mb-4">
-                    <span class="label">{{ __('Payment Method') }}</span>
+                    <span class="label">{{ __('Payment {{ __('Method') }}') }}</span>
                     <div class="d-flex align-items-center gap-2">
                         <span class="value">{{ ucfirst(str_replace('_', ' ', $payment->payment_method)) }}</span>
                         @if($payment->payment_method == 'bank') <i data-feather="briefcase" class="text-muted" style="width:16px;"></i>
                         @elseif($payment->payment_method == 'cash') <i data-feather="dollar-sign" class="text-muted" style="width:16px;"></i>
-                        @else <i data-feather="smartphone" class="text-muted" style="width:16px;"></i> @endif
+                        @else <i data-feather="smart{{ __('phone') }}" class="text-muted" style="width:16px;"></i> @endif
                     </div>
                 </div>
 
-                @if($payment->transaction_id)
+                @if($payment->transaction_{{ __('id)') }}
                 <div class="info-item mb-4">
-                    <span class="label">Transaction Reference</span>
+                    <span class="label">{{ __('Transaction {{ __('Reference') }}') }}</span>
                     <span class="value font-monospace bg-light px-2 rounded">{{ $payment->transaction_id }}</span>
                 </div>
                 @endif
 
-                @if($payment->bank_name || $payment->account_number)
+                @if($payment->bank_name || $payment->account_{{ __('number') }})
                 <div class="info-item">
-                    <span class="label">Account Details</span>
+                    <span class="label">{{ __('Account Details') }}</span>
                     <div class="value">{{ $payment->bank_name }}</div>
-                    <div class="small text-muted">{{ $payment->account_number }}</div>
+                    <div class="small text-muted">{{ $payment->account_{{ __('number') }} }}</div>
                 </div>
                 @endif
             </div>
@@ -146,29 +146,29 @@
         {{-- Related Salary Info --}}
         @if($payment->salary)
         <div class="related-box">
-            <h6 class="fw-bold text-dark mb-3 small text-uppercase">Linked Salary Record</h6>
+            <h6 class="fw-bold text-dark mb-3 small text-uppercase">{{ __('{{ __('Link') }}ed Salary Record') }}</h6>
             <div class="d-flex justify-content-between align-items-center">
                 <div>
-                    <span class="d-block text-muted small">Salary Month</span>
+                    <span class="d-block text-muted small">{{ __('Salary Month') }}</span>
                     <span class="fw-bold">{{ \Carbon\Carbon::parse($payment->salary->salary_month)->format('F Y') }}</span>
                 </div>
                 <div class="text-center">
-                    <span class="d-block text-muted small">Total Working Days</span>
+                    <span class="d-block text-muted small">{{ __('{{ __('Total') }} {{ __('Working {{ __('Days') }}') }}') }}</span>
                     <span class="fw-bold">{{ $payment->salary->working_days }}</span>
                 </div>
                 <div class="text-end">
-                    <span class="d-block text-muted small">Net Payable</span>
+                    <span class="d-block text-muted small">{{ __('Net Payable') }}</span>
                     <span class="fw-bold text-primary">৳{{ number_format($payment->salary->net_salary, 2) }}</span>
                 </div>
             </div>
         </div>
         @endif
 
-        {{-- Notes --}}
+        {{-- {{ __('Note') }}s --}}
         @if($payment->notes)
         <div class="px-4 pb-4">
             <div class="p-3 bg-white border rounded">
-                <span class="label mb-1">Additional Notes</span>
+                <span class="label mb-1">{{ __('Additional {{ __('Note') }}s') }}</span>
                 <p class="mb-0 text-muted small">{{ $payment->notes }}</p>
             </div>
         </div>
@@ -177,7 +177,7 @@
         {{-- Footer Meta --}}
         <div class="bg-light px-4 py-3 border-top d-flex justify-content-between align-items-center">
             <div class="small text-muted">
-                Processed by: <strong>{{ $payment->paidBy->name ?? 'System' }}</strong>
+                {{ __('{{ __('Processed') }} by') }}: <strong>{{ $payment->paidBy->name ?? 'System' }}</strong>
             </div>
             @if($payment->paid_at)
             <div class="small text-muted">

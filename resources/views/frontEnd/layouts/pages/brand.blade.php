@@ -25,8 +25,8 @@
                         <div class="col-sm-6">
                             <div class="showing-data">
                                 <span>
-                                    Showing {{ $products->firstItem() }}-{{ $products->lastItem() }}
-                                    of {{ $products->total() }} Results
+                                    Showing {{ $products->first{{ __('Item') }}() }}-{{ $products->last{{ __('Item') }}() }}
+                                    of {{ $products->{{ __('total') }}() }} Results
                                 </span>
                             </div>
                         </div>
@@ -35,12 +35,12 @@
                             <div class="page-sort">
                                 <form class="sort-form">
                                     <select name="sort" class="form-control form-select sort">
-                                        <option value="1" @selected(request('sort')==1)>Product: Latest</option>
-                                        <option value="2" @selected(request('sort')==2)>Product: Oldest</option>
-                                        <option value="3" @selected(request('sort')==3)>Price: High To Low</option>
-                                        <option value="4" @selected(request('sort')==4)>Price: Low To High</option>
-                                        <option value="5" @selected(request('sort')==5)>Name: A-Z</option>
-                                        <option value="6" @selected(request('sort')==6)>Name: Z-A</option>
+                                        <option value="1" @selected(request('sort')==1)>{{ __('{{ __('Product') }}: {{ __('Late') }}st') }}</option>
+                                        <option value="2" @selected(request('sort')==2)>{{ __('{{ __('Product') }}: Oldest') }}</option>
+                                        <option value="3" @selected(request('sort')==3)>{{ __('Price: High To Low') }}</option>
+                                        <option value="4" @selected(request('sort')==4)>{{ __('Price: Low To High') }}</option>
+                                        <option value="5" @selected(request('sort')==5)>{{ __('{{ __('Name') }}: A-Z') }}</option>
+                                        <option value="6" @selected(request('sort')==6)>{{ __('{{ __('Name') }}: Z-A') }}</option>
                                     </select>
 
                                     <input type="hidden" name="min_price" value="{{ request('min_price') }}">
@@ -53,7 +53,7 @@
             </div>
         </div>
 
-        {{-- 🔹 Product Grid --}}
+        {{-- 🔹 {{ __('Product') }} Grid --}}
         <div class="row">
             <div class="col-sm-12">
                 <div class="category-product main_product_inner">
@@ -65,7 +65,7 @@
 
                         <div class="product_item_inner">
 
-                            {{-- Discount badge --}}
+                            {{-- {{ __('Discount') }} badge --}}
                             @if($value->old_price)
                             <div class="sale-badge">
                                 <div class="sale-badge-inner">
@@ -82,7 +82,7 @@
                             </div>
                             @endif
 
-                            {{-- Product image --}}
+                            {{-- {{ __('Product') }} image --}}
                             <div class="pro_img">
                                 <a href="{{ route('product', $value->slug) }}">
                                     <img src="{{ asset($value->image ? $value->image->image : '') }}"
@@ -90,7 +90,7 @@
                                 </a>
                             </div>
 
-                            {{-- Product name --}}
+                            {{-- {{ __('Product') }} name --}}
                             <div class="pro_des">
                                 <div class="pro_name">
                                     <a href="{{ route('product', $value->slug) }}">
@@ -100,7 +100,7 @@
                             </div>
                         </div>
 
-                        {{-- Rating --}}
+                        {{-- {{ __('Rating') }} --}}
                         @php
                             $avg = $value->reviews->avg('ratting') ?? 0;
                             $full = floor($avg);
@@ -124,7 +124,7 @@
                                 {{-- Variant product → details page --}}
                                 <a href="{{ route('product', $value->slug) }}"
                                    class="order-btn-link">
-                                    অর্ডার করুন
+                                    {{ __('Order Now') }}
                                 </a>
 
                                 <a href="{{ route('product', $value->slug) }}"
@@ -132,26 +132,26 @@
                                     <i class="fa-solid fa-cart-shopping"></i>
                                 </a>
                             @else
-                                {{-- Simple product --}}
+                                {{-- {{ __('Simple') }} product --}}
                                 {{-- Order Now --}}
-                                <form action="{{ route('cart.store') }}" method="POST" class="ajax-cart-form">
+                                <form action="{{ route('cart.store') }}" method={{ __('"{{ __('POST') }}"') }} class="ajax-cart-form">
                                     @csrf
                                     <input type="hidden" name="id" value="{{ $value->id }}">
                                     <input type="hidden" name="qty" value="1">
                                     <input type="hidden" name="order_now" value="1">
 
-                                    <button type="submit" class="order-btn">
-                                        অর্ডার করুন
+                                    <button type="{{ __('submit') }}" class="order-btn">
+                                        {{ __('Order Now') }}
                                     </button>
                                 </form>
 
-                                {{-- Add to Cart --}}
-                                <form action="{{ route('cart.store') }}" method="POST" class="ajax-cart-form">
+                                {{-- Add to {{ __('Cart') }} --}}
+                                <form action="{{ route('cart.store') }}" method={{ __('"{{ __('POST') }}"') }} class="ajax-cart-form">
                                     @csrf
                                     <input type="hidden" name="id" value="{{ $value->id }}">
                                     <input type="hidden" name="qty" value="1">
 
-                                    <button type="submit" class="cart-icon-btn">
+                                    <button type="{{ __('submit') }}" class="cart-icon-btn">
                                         <i class="fa-solid fa-cart-shopping"></i>
                                     </button>
                                 </form>
@@ -181,7 +181,7 @@
 @push('script')
 <script>
     $('.sort').change(function () {
-        $('.sort-form').submit();
+        $('.sort-form').{{ __('submit') }}();
     });
 </script>
 @endpush

@@ -1,8 +1,8 @@
 @php
     use Illuminate\Support\Str;
     $customer = Auth::guard('customer')->user();
-    $pendingOrdersCount = \App\Models\Order::where('customer_id', $customer->id)
-        ->whereNotIn('order_status', ['6', '11'])
+    $pendingOrdersCount = \App\Models\Order::w{{ __('here') }}('customer_id', $customer->{{ __('id)') }}
+        ->w{{ __('here') }}NotIn('order_status', ['6', '11'])
         ->count();
     
     // Get dark logo
@@ -10,7 +10,7 @@
     if(isset($generalsetting) && $generalsetting && !empty($generalsetting->dark_logo)) {
         $logo = $generalsetting->dark_logo;
     } else {
-        $gs = \App\Models\GeneralSetting::where('status', 1)->first();
+        $gs = \App\Models\GeneralSetting::w{{ __('here') }}('status', 1)->first();
         if($gs && !empty($gs->dark_logo)) {
             $logo = $gs->dark_logo;
         }
@@ -30,7 +30,7 @@
                     {{ strtoupper(substr($generalsetting->name ?? 'G', 0, 1)) }}
                 </div>
                 <h1 class="text-xl sm:text-2xl font-bold text-gray-800 tracking-tight">
-                    {{ Str::limit($generalsetting->name ?? 'GadgetShop', 8) }}
+                    {{ Str::limit($generalsetting->name ?? 'Gadget{{ __('Shop') }}', 8) }}
                 </h1>
             </div>
         @endif
@@ -44,7 +44,7 @@
             <i class="fas fa-home w-6"></i> ড্যাশবোর্ড
         </a>
         <a href="{{route('customer.orders')}}" class="{{request()->is('customer/orders')?'active-menu':'sidebar-item'}} flex items-center px-6 py-3.5 transition-colors">
-            <i class="fas fa-box-open w-6"></i> আমার অর্ডার 
+            <i class="fas fa-box-open w-6"></i> {{ __('My Orders') }} 
             @if($pendingOrdersCount > 0)
                 <span class="ml-auto bg-red-100 text-red-600 text-xs px-2 py-0.5 rounded-full">{{ $pendingOrdersCount }}</span>
             @endif
@@ -53,23 +53,23 @@
             <i class="fas fa-truck w-6"></i> ট্র্যাক অর্ডার
         </a>
         <a href="{{route('customer.refunds')}}" class="{{request()->is('customer/refunds*')?'active-menu':'sidebar-item'}} flex items-center px-6 py-3.5 transition-colors">
-            <i class="fas fa-undo w-6"></i> রিফান্ড রিকোয়েস্ট
+            <i class="fas fa-undo w-6"></i> {{ __('Refund Request') }}
         </a>
         <a href="{{ route('complaint') }}" class="{{ request()->is('complaint') ? 'active-menu' : 'sidebar-item' }} flex items-center px-6 py-3.5 transition-colors">
             <i class="fas fa-headset w-6"></i> সাপোর্ট টিকেট
         </a>
         <a href="{{route('customer.profile_edit')}}" class="{{request()->is('customer/profile-edit')?'active-menu':'sidebar-item'}} flex items-center px-6 py-3.5 transition-colors">
-            <i class="fas fa-user-cog w-6"></i> সেটিংস
+            <i class="fas fa-user-cog w-6"></i> {{ __('Settings') }}
         </a>
     </nav>
 
     <div class="p-6 border-t">
         <a href="{{ route('customer.logout') }}" 
-           onclick="event.preventDefault(); document.getElementById('logout-form').submit();"
+           onclick="event.preventDefault(); document.getElementById('logout-form').{{ __('submit') }}();"
            class="w-full flex items-center justify-center px-4 py-2.5 text-red-500 bg-red-50 hover:bg-red-100 rounded-lg font-bold transition">
             <i class="fas fa-sign-out-alt mr-2"></i> লগআউট
         </a>
-        <form id="logout-form" action="{{ route('customer.logout') }}" method="POST" style="display: none;">
+        <form id="logout-form" action="{{ route('customer.logout') }}" method={{ __('"{{ __('POST') }}"') }} style="display: none;">
             @csrf
         </form>
     </div>

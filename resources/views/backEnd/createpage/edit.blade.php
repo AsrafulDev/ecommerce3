@@ -19,7 +19,7 @@
         border: 1px solid #e2e8f0;
         padding: 12px 15px;
         border-radius: 8px;
-        font-size: 14px;
+        font-size: {{ __('14px') }};
         color: #334155;
         transition: all 0.2s;
     }
@@ -50,7 +50,7 @@
         align-items: center;
     }
     .status-text h6 {
-        font-size: 14px;
+        font-size: {{ __('14px') }};
         font-weight: 700;
         color: #334155;
         margin: 0;
@@ -74,13 +74,13 @@
     
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
-            <h4 class="fw-bold m-0 text-dark">Edit Content Page</h4>
-            <span class="text-muted small">Update your website information and legal content</span>
+            <h4 class="fw-bold m-0 text-dark">{{ __('Edit Content Page') }}</h4>
+            <span class="text-muted small">{{ __('Update your website information and legal content') }}</span>
         </div>
         <div class="d-flex gap-2">
             <a href="{{route('pages.index')}}" class="btn btn-light border fw-bold text-secondary px-3">{{ __('Cancel') }}</a>
-            <button type="submit" form="pageEditForm" class="btn btn-primary fw-bold px-4 shadow-sm">
-                <i class="fe-save me-1"></i> Update Changes
+            <button type="{{ __('submit') }}" form="pageEditForm" class="btn btn-primary fw-bold px-4 shadow-sm">
+                <i class="fe-save me-1"></i> Update {{ __('Change') }}s
             </button>
         </div>
     </div>
@@ -89,14 +89,14 @@
         <div class="col-lg-10 col-md-12">
             
             <div class="studio-card p-4">
-                <form action="{{route('pages.update')}}" method="POST" id="pageEditForm" data-parsley-validate="" enctype="multipart/form-data">
+                <form action="{{route('pages.update')}}" method={{ __('"{{ __('POST') }}"') }} id="pageEditForm" data-parsley-validate="" enctype="multipart/form-data">
                     @csrf
                     <input type="hidden" value="{{$edit_data->id}}" name="hidden_id">
 
                     <div class="row g-4">
                         
                         <div class="col-md-6">
-                            <label class="form-label-custom">Page Name <span class="text-danger">*</span></label>
+                            <label class="form-label-custom">{{ __('Page {{ __('Name') }}') }} <span class="text-danger">*</span></label>
                             <input type="text" 
                                    class="form-control input-clean @error('name') is-invalid @enderror" 
                                    name="name" 
@@ -109,7 +109,7 @@
                         </div>
 
                         <div class="col-md-6">
-                            <label class="form-label-custom">Page Title <span class="text-danger">*</span></label>
+                            <label class="form-label-custom">{{ __('Page {{ __('Title') }}') }} <span class="text-danger">*</span></label>
                             <input type="text" 
                                    class="form-control input-clean @error('title') is-invalid @enderror" 
                                    name="title" 
@@ -122,7 +122,7 @@
                         </div>
 
                         <div class="col-12">
-                            <label class="form-label-custom">Page Content / Description <span class="text-danger">*</span></label>
+                            <label class="form-label-custom">{{ __('Page Content / Description') }} <span class="text-danger">*</span></label>
                             <textarea class="summernote form-control @error('description') is-invalid @enderror" 
                                       name="description" 
                                       id="description" 
@@ -133,11 +133,11 @@
                         </div>
 
                         <div class="col-md-6">
-                            <label class="form-label-custom">Visibility Status</label>
+                            <label class="form-label-custom">{{ __('{{ __('Visibility') }} {{ __('Status') }}') }}</label>
                             <div class="status-toggle-box">
                                 <div class="status-text">
-                                    <h6>Active & Published</h6>
-                                    <small>Toggle to hide or show this page</small>
+                                    <h6>{{ __('Active & {{ __('Publish') }}ed') }}</h6>
+                                    <small>{{ __('Toggle to hide or show this page') }}</small>
                                 </div>
                                 <div class="form-check form-switch">
                                     <input class="form-check-input" type="checkbox" name="status" value="1" @if($edit_data->status == 1) checked @endif style="width: 3em; height: 1.5em; cursor:pointer;">
@@ -165,7 +165,7 @@
 <script>
     $(document).ready(function() {
         $(".summernote").summernote({
-            placeholder: "Update your page content here...",
+            placeholder: "Update your page content {{ __('here') }}...",
             height: 350,
             toolbar: [
                 ['style', ['style']],

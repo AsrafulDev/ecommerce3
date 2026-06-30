@@ -1,4 +1,4 @@
-{{-- Latest Blogs Section --}}
+{{-- {{ __('Late') }}st Blogs Section --}}
 @push('css')
 <style>
 .blog-card {
@@ -45,7 +45,7 @@
 .read-more-btn {
     border-radius: 20px;
     padding: 6px 22px;
-    font-size: 14px;
+    font-size: {{ __('14px') }};
 }
 </style>
 @endpush
@@ -57,8 +57,8 @@
             <div class="col-sm-12">
                 <div class="sec_title">
                     <h3 class="section-title-header">
-                        <span class="section-title-name">{{ __('Latest Blogs') }}</span>
-                        <a href="{{ route('blogs') }}" class="view_more_btn">View All</a>
+                        <span class="section-title-name">{{ __('{{ __('Late') }}st Blogs') }}</span>
+                        <a href="{{ route('blogs') }}" class="view_more_btn">{{ __('View All') }}</a>
                     </h3>
                 </div>
             </div>
@@ -75,7 +75,7 @@
                             @if($blog->image)
                                 <img src="{{ asset($blog->image) }}" alt="{{ $blog->title }}">
                             @else
-                                <img src="{{ asset('public/backEnd/assets/images/image-placeholder.png') }}" alt="No Image">
+                                <img src="{{ asset('public/backEnd/assets/images/image-placeholder.png') }}" alt="{{ __('No Image') }}">
                             @endif
                         </a>
                     </div>

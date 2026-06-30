@@ -1,5 +1,5 @@
 @extends('backEnd.layouts.master') 
-@section('title', 'Payment Gateway Settings')
+@section('title', '{{ __('Payment Gateway') }} Settings')
 
 @section('css')
 <link href="{{ asset('public/backEnd/assets/libs/select2/css/select2.min.css') }}" rel="stylesheet" type="text/css" />
@@ -45,7 +45,7 @@
         max-width: 35px;
     }
 
-    /* Specific Gateway Colors & Borders */
+    /* Specific Gateway {{ __('{{ __('Color') }}s') }} & Borders */
     .header-bkash { background: linear-gradient(135deg, #fff0f5 0%, #fff 100%); border-left: 5px solid #e2136e; }
     .header-shurjo { background: linear-gradient(135deg, #f0f7ff 0%, #fff 100%); border-left: 5px solid #4e73df; }
     .header-uddokta { background: linear-gradient(135deg, #f0fff4 0%, #fff 100%); border-left: 5px solid #28a745; }
@@ -72,7 +72,7 @@
         border: 1px solid #e2e8f0;
         padding: 12px 15px;
         border-radius: 8px;
-        font-size: 14px;
+        font-size: {{ __('14px') }};
         background-color: #f8fafc;
         transition: all 0.2s;
     }
@@ -82,7 +82,7 @@
         box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
     }
 
-    /* Status Switch Box */
+    /* {{ __('Status') }} Switch Box */
     .status-wrapper {
         background: #fff;
         padding: 15px;
@@ -128,8 +128,8 @@
     
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
-            <h4 class="fw-bold text-dark m-0" style="font-size: 22px;">Payment Gateways</h4>
-            <span class="text-muted">Manage API credentials & status</span>
+            <h4 class="fw-bold text-dark m-0" style="font-size: 22px;">{{ __('{{ __('Payment Gateway') }}s') }}</h4>
+            <span class="text-muted">{{ __('{{ __('Manage') }} API credentials & status') }}</span>
         </div>
     </div>
 
@@ -139,22 +139,22 @@
             <div class="card gateway-card">
                 <div class="card-header-custom header-bkash">
                     <div>
-                        <h5 class="card-title">bKash Merchant</h5>
-                        <small class="text-muted">Direct API Integration</small>
+                        <h5 class="card-title">{{ __('{{ __('bKash') }} Merchant') }}</h5>
+                        <small class="text-muted">{{ __('{{ __('Dir') }}ect {{ __('API Integration') }}') }}</small>
                     </div>
                     <div class="gateway-icon-box">
-                        <img src="{{ asset('public/frontEnd/images/bkash.svg') }}" alt="bKash">
+                        <img src="{{ asset('public/frontEnd/images/bkash.svg') }}" alt="{{ __('bKash') }}">
                     </div>
                 </div>
                 
                 <div class="card-body p-4">
-                    <form action="{{ route('paymentgeteway.update') }}" method="POST" data-parsley-validate>
+                    <form action="{{ route('paymentgeteway.update') }}" method={{ __('"{{ __('POST') }}"') }} data-parsley-validate>
                         @csrf
                         <input type="hidden" name="id" value="{{ $bkash->id }}">
 
                         <div class="row">
                             <div class="col-md-6 mb-3">
-                                <label class="form-label">User Name</label>
+                                <label class="form-label">{{ __('{{ __('{{ __('Use') }}r') }} {{ __('Name') }}') }}</label>
                                 <input type="text" class="form-control" name="username" value="{{ $bkash->username }}" required />
                             </div>
                             <div class="col-md-6 mb-3">
@@ -165,32 +165,32 @@
                         
                         <div class="row">
                             <div class="col-md-6 mb-3">
-                                <label class="form-label">App Key</label>
+                                <label class="form-label">{{ __('App Key') }}</label>
                                 <input type="text" class="form-control" name="app_key" value="{{ $bkash->app_key }}" required />
                             </div>
                             <div class="col-md-6 mb-3">
-                                <label class="form-label">App Secret</label>
+                                <label class="form-label">{{ __('App Secret') }}</label>
                                 <input type="text" class="form-control" name="app_secret" value="{{ $bkash->app_secret }}" required />
                             </div>
                         </div>
 
                         <div class="mb-4">
-                            <label class="form-label">Base URL</label>
+                            <label class="form-label">{{ __('Base URL') }}</label>
                             <input type="text" class="form-control" name="base_url" value="{{ $bkash->base_url }}" required />
                         </div>
 
                         <div class="status-wrapper">
                             <div class="d-flex align-items-center">
                                 <i class="fas fa-power-off me-2 text-danger"></i>
-                                <span class="fw-bold text-dark" style="font-size: 14px;">Gateway Status</span>
+                                <span class="fw-bold text-dark" style="font-size: {{ __('14px') }};">{{ __('Gateway {{ __('Status') }}') }}</span>
                             </div>
                             <div class="form-check form-switch">
                                 <input class="form-check-input" type="checkbox" name="status" value="1" @if($bkash->status==1) checked @endif style="cursor: pointer; width: 3em; height: 1.5em;">
                             </div>
                         </div>
 
-                        <button type="submit" class="btn btn-save btn-bkash">
-                            <i class="fas fa-save me-2"></i> Update bKash Config
+                        <button type="{{ __('submit') }}" class="btn btn-save btn-bkash">
+                            <i class="fas fa-save me-2"></i> Update {{ __('bKash') }} Config
                         </button>
                     </form>
                 </div>
@@ -201,26 +201,26 @@
             <div class="card gateway-card">
                 <div class="card-header-custom header-shurjo">
                     <div>
-                        <h5 class="card-title">ShurjoPay</h5>
-                        <small class="text-muted">Payment Aggregator</small>
+                        <h5 class="card-title">{{ __('ShurjoPay') }}</h5>
+                        <small class="text-muted">{{ __('Payment Aggregator') }}</small>
                     </div>
                     <div class="gateway-icon-box">
-                        <img src="{{ asset('public/frontEnd/images/shurjoPay.png') }}" alt="ShurjoPay">
+                        <img src="{{ asset('public/frontEnd/images/shurjoPay.png') }}" alt="{{ __('ShurjoPay') }}">
                     </div>
                 </div>
 
                 <div class="card-body p-4">
-                    <form action="{{ route('paymentgeteway.update') }}" method="POST" data-parsley-validate>
+                    <form action="{{ route('paymentgeteway.update') }}" method={{ __('"{{ __('POST') }}"') }} data-parsley-validate>
                         @csrf
                         <input type="hidden" name="id" value="{{ $shurjopay->id }}">
 
                         <div class="row">
                             <div class="col-md-6 mb-3">
-                                <label class="form-label">User Name</label>
+                                <label class="form-label">{{ __('{{ __('{{ __('Use') }}r') }} {{ __('Name') }}') }}</label>
                                 <input type="text" class="form-control" name="username" value="{{ $shurjopay->username }}" required />
                             </div>
                             <div class="col-md-6 mb-3">
-                                <label class="form-label">Prefix</label>
+                                <label class="form-label">{{ __('Prefix') }}</label>
                                 <input type="text" class="form-control" name="prefix" value="{{ $shurjopay->prefix }}" required />
                             </div>
                         </div>
@@ -231,18 +231,18 @@
                                 <input type="text" class="form-control" name="password" value="{{ $shurjopay->password }}" required />
                             </div>
                             <div class="col-md-6 mb-3">
-                                <label class="form-label">Base URL</label>
+                                <label class="form-label">{{ __('Base URL') }}</label>
                                 <input type="text" class="form-control" name="base_url" value="{{ $shurjopay->base_url }}" required />
                             </div>
                         </div>
 
                         <div class="row">
                             <div class="col-md-6 mb-4">
-                                <label class="form-label">Success URL</label>
+                                <label class="form-label">{{ __('Success URL') }}</label>
                                 <input type="text" class="form-control" name="success_url" value="{{ $shurjopay->success_url }}" required />
                             </div>
                             <div class="col-md-6 mb-4">
-                                <label class="form-label">Return URL</label>
+                                <label class="form-label">{{ __('Return URL') }}</label>
                                 <input type="text" class="form-control" name="return_url" value="{{ $shurjopay->return_url }}" required />
                             </div>
                         </div>
@@ -250,15 +250,15 @@
                         <div class="status-wrapper">
                             <div class="d-flex align-items-center">
                                 <i class="fas fa-power-off me-2 text-primary"></i>
-                                <span class="fw-bold text-dark" style="font-size: 14px;">Gateway Status</span>
+                                <span class="fw-bold text-dark" style="font-size: {{ __('14px') }};">{{ __('Gateway {{ __('Status') }}') }}</span>
                             </div>
                             <div class="form-check form-switch">
                                 <input class="form-check-input" type="checkbox" name="status" value="1" @if($shurjopay->status==1) checked @endif style="cursor: pointer; width: 3em; height: 1.5em;">
                             </div>
                         </div>
 
-                        <button type="submit" class="btn btn-save btn-shurjo">
-                            <i class="fas fa-save me-2"></i> Update ShurjoPay Config
+                        <button type="{{ __('submit') }}" class="btn btn-save btn-shurjo">
+                            <i class="fas fa-save me-2"></i> Update {{ __('ShurjoPay') }} Config
                         </button>
                     </form>
                 </div>
@@ -269,8 +269,8 @@
             <div class="card gateway-card">
                 <div class="card-header-custom header-uddokta">
                     <div>
-                        <h5 class="card-title">UddoktaPay</h5>
-                        <small class="text-muted">Automated Payment</small>
+                        <h5 class="card-title">{{ __('UddoktaPay') }}</h5>
+                        <small class="text-muted">{{ __('Automated Payment') }}</small>
                     </div>
                     <div class="gateway-icon-box">
                         <img src="{{ asset('public/frontEnd/images/uddokta.png') }}" alt="Uddokta">
@@ -278,7 +278,7 @@
                 </div>
 
                 <div class="card-body p-4">
-                    <form action="{{ route('paymentgeteway.update') }}" method="POST" data-parsley-validate>
+                    <form action="{{ route('paymentgeteway.update') }}" method={{ __('"{{ __('POST') }}"') }} data-parsley-validate>
                         @csrf
                         <input type="hidden" name="id" value="{{ $uddoktapay->id ?? '' }}">
                         
@@ -288,14 +288,14 @@
                         </div>
 
                         <div class="mb-4">
-                            <label class="form-label">API Base URL</label>
-                            <input type="text" class="form-control" name="base_url" value="{{ $uddoktapay->base_url ?? 'https://sandbox.uddoktapay.com/api/checkout-v2' }}" placeholder="UDDOKTAPAY_API_URL" required />
+                            <label class="form-label">{{ __('API {{ __('Base URL') }}') }}</label>
+                            <input type="text" class="form-control" name="base_url" value="{{ $uddoktapay->base_url ?? '{{ __('https://') }}sandbox.uddoktapay.com/api/checkout-v2' }}" placeholder="UDDOKTAPAY_API_URL" required />
                         </div>
 
                         <div class="status-wrapper">
                             <div class="d-flex align-items-center">
                                 <i class="fas fa-power-off me-2 text-success"></i>
-                                <span class="fw-bold text-dark" style="font-size: 14px;">Gateway Status</span>
+                                <span class="fw-bold text-dark" style="font-size: {{ __('14px') }};">{{ __('Gateway {{ __('Status') }}') }}</span>
                             </div>
                             <div class="form-check form-switch">
                                 <input class="form-check-input" type="checkbox" name="status" value="1" 
@@ -304,8 +304,8 @@
                             </div>
                         </div>
 
-                        <button type="submit" class="btn btn-save btn-uddokta">
-                            <i class="fas fa-save me-2"></i> Update UddoktaPay Config
+                        <button type="{{ __('submit') }}" class="btn btn-save btn-uddokta">
+                            <i class="fas fa-save me-2"></i> Update {{ __('UddoktaPay') }} Config
                         </button>
                     </form>
                 </div>
@@ -316,8 +316,8 @@
             <div class="card gateway-card">
                 <div class="card-header-custom header-aamarpay">
                     <div>
-                        <h5 class="card-title">aamarPay</h5>
-                        <small class="text-muted">Card & Mobile Banking</small>
+                        <h5 class="card-title">{{ __('aamarPay') }}</h5>
+                        <small class="text-muted">{{ __('Card & {{ __('Mobile') }} Banking') }}</small>
                     </div>
                     <div class="gateway-icon-box">
                    <img src="{{ asset('public/frontEnd/images/aamarpay.png') }}" alt="Uddokta">
@@ -325,32 +325,32 @@
                 </div>
 
                 <div class="card-body p-4">
-                    <form action="{{ route('paymentgeteway.update') }}" method="POST" data-parsley-validate>
+                    <form action="{{ route('paymentgeteway.update') }}" method={{ __('"{{ __('POST') }}"') }} data-parsley-validate>
                         @csrf
                         <input type="hidden" name="id" value="{{ $aamarpay->id ?? '' }}">
                         
                         <div class="mb-3">
-                            <label class="form-label">{{ __('Store ID') }}</label>
-                            <input type="text" class="form-control" name="app_key" value="{{ $aamarpay->app_key ?? '' }}" placeholder="aamarpaytest (Sandbox)" required />
-                            <small class="text-muted">Store ID is stored in App Key field</small>
+                            <label class="form-label">{{ __('{{ __('Store') }} ID') }}</label>
+                            <input type="text" class="form-control" name="app_key" value="{{ $aamarpay->app_key ?? '' }}" placeholder="{{ __('aamarpaytest ({{ __('Sandbox') }})') }}" required />
+                            <small class="text-muted">{{ __('{{ __('Store') }} ID is stored in {{ __('App Key') }} field') }}</small>
                         </div>
 
                         <div class="mb-3">
                             <label class="form-label">{{ __('Signature Key') }}</label>
-                            <input type="text" class="form-control" name="app_secret" value="{{ $aamarpay->app_secret ?? '' }}" placeholder="dbb74894e82415a2f7ff0ec3a97e4183 (Sandbox)" required />
-                            <small class="text-muted">Signature Key is stored in App Secret field</small>
+                            <input type="text" class="form-control" name="app_secret" value="{{ $aamarpay->app_secret ?? '' }}" placeholder="{{ __('dbb74894e82415a2f7ff0ec3a97e4183 ({{ __('Sandbox') }})') }}" required />
+                            <small class="text-muted">{{ __('Signature Key is stored in {{ __('App Secret') }} field') }}</small>
                         </div>
 
                         <div class="mb-4">
-                            <label class="form-label">API Base URL</label>
-                            <input type="text" class="form-control" name="base_url" value="{{ $aamarpay->base_url ?? 'https://sandbox.aamarpay.com/jsonpost.php' }}" placeholder="https://sandbox.aamarpay.com/jsonpost.php" required />
-                            <small class="text-muted">Sandbox: https://sandbox.aamarpay.com/jsonpost.php<br>Live: https://secure.aamarpay.com/jsonpost.php</small>
+                            <label class="form-label">{{ __('API {{ __('Base URL') }}') }}</label>
+                            <input type="text" class="form-control" name="base_url" value="{{ $aamarpay->base_url ?? '{{ __('{{ __('https://') }}sandbox.aamarpay.com/jsonpost.php') }}' }}" placeholder="{{ __('{{ __('https://') }}sandbox.aamarpay.com/jsonpost.php') }}" required />
+                            <small class="text-muted">{{ __('{{ __('Sandbox') }}: {{ __('{{ __('https://') }}sandbox.aamarpay.com/jsonpost.php') }}') }}<br>{{ __('{{ __('Live') }}: {{ __('https://') }}secure.aamarpay.com/jsonpost.php') }}</small>
                         </div>
 
                         <div class="status-wrapper">
                             <div class="d-flex align-items-center">
                                 <i class="fas fa-power-off me-2 text-warning"></i>
-                                <span class="fw-bold text-dark" style="font-size: 14px;">Gateway Status</span>
+                                <span class="fw-bold text-dark" style="font-size: {{ __('14px') }};">{{ __('Gateway {{ __('Status') }}') }}</span>
                             </div>
                             <div class="form-check form-switch">
                                 <input class="form-check-input" type="checkbox" name="status" value="1" 
@@ -359,8 +359,8 @@
                             </div>
                         </div>
 
-                        <button type="submit" class="btn btn-save btn-aamarpay">
-                            <i class="fas fa-save me-2"></i> Update aamarPay Config
+                        <button type="{{ __('submit') }}" class="btn btn-save btn-aamarpay">
+                            <i class="fas fa-save me-2"></i> Update {{ __('aamarPay') }} Config
                         </button>
                     </form>
                 </div>

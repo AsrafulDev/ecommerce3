@@ -1,4 +1,4 @@
-{{-- Customer Reviews Section --}}
+{{-- {{ __('{{ __('Customer') }} {{ __('{{ __('Review') }}s') }}') }} Section --}}
 @if($reviews->count() > 0)
 <section class="homeproduct">
     <div class="container">

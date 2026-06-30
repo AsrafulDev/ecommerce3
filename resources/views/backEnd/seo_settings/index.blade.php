@@ -1,5 +1,5 @@
 @extends('backEnd.layouts.master')
-@section('title','SEO Configuration')
+@section('title','{{ __('SEO {{ __('Configuration') }}') }}')
 
 @section('content')
 
@@ -46,7 +46,7 @@
         box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
     }
 
-    /* Right Side: Google Preview */
+    /* Right Side: Google {{ __('Prev') }}iew */
     .preview-card {
         background: #fff;
         border: 1px solid #e2e8f0;
@@ -74,7 +74,7 @@
     }
     .g-cite {
         color: #202124;
-        font-size: 14px;
+        font-size: {{ __('14px') }};
         line-height: 1.3;
         display: flex;
         align-items: center;
@@ -99,7 +99,7 @@
     .g-title:hover { text-decoration: underline; }
     .g-desc {
         color: #4d5156;
-        font-size: 14px;
+        font-size: {{ __('14px') }};
         line-height: 1.58;
     }
 
@@ -116,7 +116,7 @@
     .count-error { color: #ef4444; }
 
     .header-img-shadow {
-        filter: drop-shadow(0 4px 6px rgba(0,0,0,0.1));
+        {{ __('filter') }}: drop-shadow(0 4px 6px rgba(0,0,0,0.1));
     }
 </style>
 
@@ -129,13 +129,13 @@
             <div class="editor-card">
                 <div class="p-4 border-bottom bg-light bg-opacity-25 d-flex align-items-center justify-content-between">
                     <div class="d-flex align-items-center">
-                        <img src="https://blogger.googleusercontent.com/img/a/AVvXsEiD4KWbeS0TmkD8ViCKL7qJo69_R3QJsQmKyegmEbSR8SgNPobOSNs5YMD_aGAT4u8gLrVRArU_LoSKlH_bvNWFJ4ShjWKS_3Ljg09Mr8sg2gEdc-lPqNO_7qLC-aIao1MMTb8OAVWxgvu6FL1DXNSC_9q8bqyhKzgXzYXXIjlsowybTqjbOC3kFO5ZfoOl" 
+                        <img src="{{ __('https://') }}blogger.googleusercontent.com/img/a/AVvXsEiD4KWbeS0TmkD8ViCKL7qJo69_R3QJsQmKyegmEbSR8SgNPobOSNs5YMD_aGAT4u8gLrVRArU_LoSKlH_bvNWFJ4ShjWKS_3Ljg09Mr8sg2gEdc-lPqNO_7qLC-aIao1MMTb8OAVWxgvu6FL1DXNSC_9q8bqyhKzgXzYXXIjlsowybTqjbOC3kFO5ZfoOl" 
                              alt="SEO Icon" 
                              class="header-img-shadow me-3 rounded-circle" 
                              style="width: 48px; height: 48px; object-fit: cover;">
                         <div>
-                            <h5 class="mb-0 fw-bold text-dark">SEO Configuration</h5>
-                            <small class="text-muted">Optimize your site for search engines</small>
+                            <h5 class="mb-0 fw-bold text-dark">{{ __('SEO {{ __('Configuration') }}') }}</h5>
+                            <small class="text-muted">{{ __('Optimize your site for search engines') }}</small>
                         </div>
                     </div>
                 </div>
@@ -147,47 +147,47 @@
                         </div>
                     @endif
 
-                    <form action="{{ route('admin.seo_settings.update') }}" method="POST">
+                    <form action="{{ route('admin.seo_settings.update') }}" method={{ __('"{{ __('POST') }}"') }}>
                         @csrf
                         
-                        <h6 class="text-primary fw-bold mb-3 text-uppercase small ls-1"><i class="fas fa-layer-group me-2"></i>General Meta</h6>
+                        <h6 class="text-primary fw-bold mb-3 text-uppercase small ls-1"><i class="fas fa-layer-group me-2"></i>{{ __('General Meta') }}</h6>
                         
                         <div class="mb-4">
-                            <label class="form-label">{{ __('Meta Title') }}</label>
-                            <input type="text" id="inputTitle" name="meta_title" 
+                            <label class="form-label">{{ __('Meta {{ __('Title') }}') }}</label>
+                            <input type="text" id="input{{ __('Title') }}" name="meta_title" 
                                    class="form-control" 
                                    value="{{ old('meta_title', $seo->meta_title ?? '') }}" 
-                                   placeholder="Enter page title..."
-                                   oninput="updatePreview()">
-                            <span id="titleCount" class="char-count text-muted">0/60 characters</span>
+                                   placeholder="{{ __('Enter page title...') }}"
+                                   oninput="update{{ __('Prev') }}iew()">
+                            <span id="titleCount" class="char-count text-muted">{{ __('0/60 characters') }}</span>
                         </div>
 
                         <div class="mb-4">
                             <label class="form-label">{{ __('Meta Description') }}</label>
                             <textarea id="inputDesc" name="meta_description" rows="4" 
                                       class="form-control" 
-                                      placeholder="Write a compelling description..."
-                                      oninput="updatePreview()">{{ old('meta_description', $seo->meta_description ?? '') }}</textarea>
-                            <span id="descCount" class="char-count text-muted">0/160 characters</span>
+                                      placeholder="{{ __('Write a compelling description...') }}"
+                                      oninput="update{{ __('Prev') }}iew()">{{ old('meta_description', $seo->meta_description ?? '') }}</textarea>
+                            <span id="descCount" class="char-count text-muted">{{ __('0/160 characters') }}</span>
                         </div>
 
                         <div class="mb-4">
-                            <label class="form-label">Keywords / Tags</label>
+                            <label class="form-label">{{ __('Keywords / Tags') }}</label>
                             <div class="input-group">
                                 <span class="input-group-text bg-light border-end-0"><i class="fas fa-tags text-muted"></i></span>
                                 <input type="text" name="meta_tags" class="form-control border-start-0" 
                                        value="{{ old('meta_tags', $seo->meta_tags ?? '') }}" 
-                                       placeholder="seo, laravel, optimization (comma separated)">
+                                       placeholder="{{ __('seo, laravel, optimization (comma separated)') }}">
                             </div>
-                            <small class="text-muted mt-1" style="font-size: 11px;">Separate keywords with commas.</small>
+                            <small class="text-muted mt-1" style="font-size: 11px;">{{ __('Separate keywords with commas.') }}</small>
                         </div>
 
                         <hr class="my-4 border-light">
 
-                        <h6 class="text-primary fw-bold mb-3 text-uppercase small ls-1"><i class="fab fa-google me-2"></i>Webmaster Tools</h6>
+                        <h6 class="text-primary fw-bold mb-3 text-uppercase small ls-1"><i class="fab fa-google me-2"></i>{{ __('Webmaster Tools') }}</h6>
                         
                         <div class="mb-4">
-                            <label class="form-label">Google Search Console Verification</label>
+                            <label class="form-label">{{ __('{{ __('Google Search Console') }} {{ __('Verification') }}') }}</label>
                             <div class="input-group">
                                 <span class="input-group-text bg-white"><i class="fas fa-key text-muted"></i></span>
                                 <input type="text" name="search_console_verification" class="form-control"
@@ -197,8 +197,8 @@
                         </div>
 
                         <div class="d-flex justify-content-end pt-2">
-                            <button type="submit" class="btn btn-primary px-5 py-2 fw-bold shadow-sm">
-                                <i class="fas fa-save me-2"></i> Save Changes
+                            <button type="{{ __('submit') }}" class="btn btn-primary px-5 py-2 fw-bold shadow-sm">
+                                <i class="fas fa-save me-2"></i> Save {{ __('Change') }}s
                             </button>
                         </div>
                     </form>
@@ -209,19 +209,19 @@
         <div class="col-lg-5 d-none d-lg-block">
             <div class="preview-card shadow-sm">
                 <div class="preview-header">
-                    <i class="fab fa-google me-1"></i> Search Result Preview
+                    <i class="fab fa-google me-1"></i> Search Result {{ __('Prev') }}iew
                 </div>
                 
                 <div class="google-result">
                     <div class="g-cite">
-                        <img src="{{ asset('favicon.ico') }}" onerror="this.src='https://via.placeholder.com/16'" alt="Icon">
+                        <img src="{{ asset('favicon.ico') }}" onerror="this.src='{{ __('https://') }}via.placeholder.com/16'" alt="Icon">
                         <div class="d-flex flex-column">
-                            <span style="font-size: 14px; color: #202124;">{{ config('app.name') }}</span>
+                            <span style="font-size: {{ __('14px') }}; color: #202124;">{{ config('app.name') }}</span>
                             <span style="font-size: 12px; color: #5f6368;">{{ url('/') }}</span>
                         </div>
                     </div>
-                    <a href="#" class="g-title" id="previewTitle">
-                        {{ $seo->meta_title ?? 'Your Page Title Goes Here' }}
+                    <a href="#" class="g-title" id="preview{{ __('Title') }}">
+                        {{ $seo->meta_title ?? 'Your {{ __('Page {{ __('Title') }}') }} Goes Here' }}
                     </a>
                     <div class="g-desc" id="previewDesc">
                         {{ \Illuminate\Support\Str::limit($seo->meta_description ?? 'This is how your page description will look in Google search results. Start typing in the form to see real-time updates.', 160) }}
@@ -229,11 +229,11 @@
                 </div>
 
                 <div class="mt-5 p-3 bg-light rounded-3 border border-light">
-                    <h6 class="fw-bold text-dark mb-2"><i class="far fa-lightbulb text-warning me-2"></i>Pro Tips</h6>
+                    <h6 class="fw-bold text-dark mb-2"><i class="far fa-lightbulb text-warning me-2"></i>{{ __('{{ __('Pro Tip') }}s') }}</h6>
                     <ul class="mb-0 ps-3 text-muted small" style="line-height: 1.6;">
-                        <li>Keep <strong>{{ __('Title') }}</strong> under 60 characters for best visibility.</li>
-                        <li>Keep <strong>{{ __('Description') }}</strong> between 150-160 characters.</li>
-                        <li>Use relevant keywords in the beginning of your title.</li>
+                        <li>{{ __('Keep') }} <strong>{{ __('{{ __('Title') }}') }}</strong> {{ __('under 60 characters for best visibility.') }}</li>
+                        <li>{{ __('Keep') }} <strong>{{ __('Description') }}</strong> {{ __('between 150-160 characters.') }}</li>
+                        <li>{{ __('{{ __('Use') }} relevant keywords in the beginning of your title.') }}</li>
                     </ul>
                 </div>
             </div>
@@ -243,53 +243,53 @@
 </div>
 
 <script>
-    // Live Preview & Character Counter Logic
-    function updatePreview() {
+    // {{ __('{{ __('Live') }} {{ __('Prev') }}iew') }} & Character Counter Logic
+    function update{{ __('Prev') }}iew() {
         // Elements
-        const titleInput = document.getElementById('inputTitle');
+        const titleInput = document.getElementById('input{{ __('Title') }}');
         const descInput = document.getElementById('inputDesc');
-        const prevTitle = document.getElementById('previewTitle');
+        const prev{{ __('Title') }} = document.getElementById('preview{{ __('Title') }}');
         const prevDesc = document.getElementById('previewDesc');
         
         const titleCount = document.getElementById('titleCount');
         const descCount = document.getElementById('descCount');
 
-        // Logic for Title
+        // Logic for {{ __('Title') }}
         let titleVal = titleInput.value;
-        prevTitle.innerText = titleVal ? titleVal : 'Your Page Title Goes Here';
+        prev{{ __('Title') }}.inner{{ __('Text') }} = titleVal ? titleVal : 'Your {{ __('Page {{ __('Title') }}') }} Goes Here';
         
-        // Count Title
-        titleCount.innerText = titleVal.length + '/60 characters';
+        // Count {{ __('Title') }}
+        titleCount.inner{{ __('Text') }} = titleVal.length + '/60 characters';
         if(titleVal.length > 60) {
-            titleCount.className = 'char-count count-error';
+            titleCount.class{{ __('Name') }} = 'char-count count-error';
         } else if(titleVal.length > 50) {
-            titleCount.className = 'char-count count-warn';
+            titleCount.class{{ __('Name') }} = 'char-count count-warn';
         } else {
-            titleCount.className = 'char-count count-ok';
+            titleCount.class{{ __('Name') }} = 'char-count count-ok';
         }
 
         // Logic for Description
         let descVal = descInput.value;
         // Truncate for preview visually if too long (simulate Google)
         if (descVal.length > 160) {
-            prevDesc.innerText = descVal.substring(0, 160) + '...';
+            prevDesc.inner{{ __('Text') }} = descVal.substring(0, 160) + '...';
         } else {
-            prevDesc.innerText = descVal ? descVal : 'This is how your page description will look in search results...';
+            prevDesc.inner{{ __('Text') }} = descVal ? descVal : 'This is how your page description will look in search results...';
         }
 
         // Count Description
-        descCount.innerText = descVal.length + '/160 characters';
+        descCount.inner{{ __('Text') }} = descVal.length + '/160 characters';
         if(descVal.length > 160) {
-            descCount.className = 'char-count count-error';
+            descCount.class{{ __('Name') }} = 'char-count count-error';
         } else if(descVal.length > 140) {
-            descCount.className = 'char-count count-warn';
+            descCount.class{{ __('Name') }} = 'char-count count-warn';
         } else {
-            descCount.className = 'char-count count-ok';
+            descCount.class{{ __('Name') }} = 'char-count count-ok';
         }
     }
 
     // Initialize on load
-    document.addEventListener('DOMContentLoaded', updatePreview);
+    document.addEventListener('DOMContentLoaded', update{{ __('Prev') }}iew);
 </script>
 
 @endsection

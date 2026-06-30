@@ -31,7 +31,7 @@
         border-radius: 2px;
     }
     .brand-section .section-subtitle {
-        font-size: 14px;
+        font-size: {{ __('14px') }};
         color: #777;
         margin-top: 8px;
     }
@@ -43,7 +43,7 @@
         background: #fff;
         border: 1px solid #eef0f2;
         border-radius: 12px;
-        padding: 18px 12px 14px;
+        padding: 18px 12px {{ __('14px') }};
         height: 100%;
         text-decoration: none;
         transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -82,11 +82,11 @@
         max-height: 100%;
         object-fit: contain;
         transition: transform 0.3s ease;
-        filter: grayscale(20%);
+        {{ __('filter') }}: grayscale(20%);
         opacity: 0.85;
     }
     .brand-section .brand-card:hover .brand-img-wrap img {
-        filter: grayscale(0%);
+        {{ __('filter') }}: grayscale(0%);
         opacity: 1;
         transform: scale(1.08);
     }
@@ -113,7 +113,7 @@
         background: var(--primary-color, #0d6efd);
         color: #fff;
         border-radius: 8px;
-        font-size: 14px;
+        font-size: {{ __('14px') }};
         font-weight: 600;
         text-decoration: none;
         transition: all 0.3s ease;
@@ -137,7 +137,7 @@
     @media (max-width: 767px) {
         .brand-section { padding: 40px 0; }
         .brand-section .section-title { font-size: 22px; }
-        .brand-section .brand-card { padding: 14px 8px 10px; border-radius: 10px; }
+        .brand-section .brand-card { padding: {{ __('14px') }} 8px 10px; border-radius: 10px; }
         .brand-section .brand-img-wrap { width: 70px; height: 55px; }
         .brand-section .brand-name { font-size: 12px; }
     }
@@ -152,8 +152,8 @@
     <div class="container">
         {{-- Section Header --}}
         <div class="section-header">
-            <h3 class="section-title">Top Brands</h3>
-            <p class="section-subtitle">Shop from your favorite trusted brands</p>
+            <h3 class="section-title">{{ __('Top Brands') }}</h3>
+            <p class="section-subtitle">{{ __('{{ __('Shop') }} from your favorite trusted brands') }}</p>
         </div>
 
         {{-- Brands Grid --}}
@@ -178,11 +178,11 @@
             @endforeach
         </div>
 
-        {{-- View All Link --}}
+        {{-- {{ __('View All') }} {{ __('Link') }} --}}
         <div class="brand-footer">
             <a href="{{ route('brands') }}" class="view-all-btn">
-                View All Brands
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                View {{ __('All Brands') }}
+                <svg viewBox="0 0 24 24" fill="none" stroke="current{{ __('Color') }}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <line x1="5" y1="12" x2="19" y2="12"></line>
                     <polyline points="12 5 19 12 12 19"></polyline>
                 </svg>

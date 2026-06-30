@@ -1,9 +1,9 @@
 @extends('backEnd.layouts.master')
-@section('title','Employee Management')
+@section('title','Employee {{ __('Manage') }}ment')
 
 @section('css')
 <style>
-    /* --- Modern Variables --- */
+    /* --- Modern {{ __('Variable') }}s --- */
     :root {
         --primary-color: #4f46e5;
         --secondary-text: #64748b;
@@ -19,7 +19,7 @@
     }
     
     /* --- Filter Section --- */
-    .filter-container {
+    .{{ __('filter') }}-container {
         background: #f8fafc;
         border: 1px solid var(--border-color);
         border-radius: 12px;
@@ -57,7 +57,7 @@
     .employee-table tr:hover td { background: #fafafa; }
     .employee-table tr:last-child td { border-bottom: none; }
 
-    /* --- Avatar & User Info --- */
+    /* --- Avatar & {{ __('{{ __('Use') }}r') }} Info --- */
     .user-card { display: flex; align-items: center; gap: 12px; }
     .user-avatar {
         width: 40px; height: 40px;
@@ -65,7 +65,7 @@
         background: #e0e7ff;
         color: #4338ca;
         display: flex; align-items: center; justify-content: center;
-        font-weight: 700; font-size: 14px;
+        font-weight: 700; font-size: {{ __('14px') }};
         border: 2px solid #fff;
         box-shadow: 0 2px 5px rgba(0,0,0,0.05);
     }
@@ -76,7 +76,7 @@
         padding: 2px 6px; border-radius: 4px; font-weight: 600; margin-left: 6px;
     }
 
-    /* --- Status Badges --- */
+    /* --- {{ __('Status') }} Badges --- */
     .status-badge {
         padding: 5px 12px;
         border-radius: 20px;
@@ -87,7 +87,7 @@
     .status-active { background: #dcfce7; color: #166534; }
     .status-inactive { background: #fef3c7; color: #92400e; }
     .status-terminated { background: #fee2e2; color: #991b1b; }
-    .status-dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+    .status-dot { width: 6px; height: 6px; border-radius: 50%; background: current{{ __('Color') }}; }
 
     /* --- Action Buttons --- */
     .btn-icon {
@@ -110,12 +110,12 @@
     <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 gap-3">
         <div>
             <h4 class="mb-1 fw-bold text-dark">
-                <i data-feather="users" class="text-primary me-2"></i> Employee Management
+                <i data-feather="users" class="text-primary me-2"></i> Employee {{ __('Manage') }}ment
             </h4>
-            <p class="text-muted small mb-0">Manage all your employees, departments, and payroll info.</p>
+            <p class="text-muted small mb-0">{{ __('{{ __('Manage') }} all your employees, departments, and payroll info.') }}</p>
         </div>
         <a href="{{ route('admin.employees.create') }}" class="btn btn-primary px-4 py-2 rounded-pill shadow-sm">
-            <i data-feather="plus" class="me-1" style="width: 16px;"></i> Add New Employee
+            <i data-feather="plus" class="me-1" style="width: 16px;"></i> {{ __('Add {{ __('New') }} Employee') }}
         </a>
     </div>
 
@@ -123,17 +123,17 @@
         
         {{-- FILTERS --}}
         <div class="p-4 border-bottom">
-            <form method="GET" action="{{ route('admin.employees.index') }}">
+            <form method="{{ __('GET') }}" action="{{ route('admin.employees.index') }}">
                 <div class="row g-3">
                     <div class="col-md-4">
                         <div class="input-group">
                             <span class="input-group-text bg-white border-end-0 text-muted"><i data-feather="search" style="width:16px;"></i></span>
-                            <input type="text" name="keyword" class="form-control form-control-clean border-start-0 ps-0" placeholder="Search by name, email or ID..." value="{{ request('keyword') }}">
+                            <input type="text" name="keyword" class="form-control form-control-clean border-start-0 ps-0" placeholder="{{ __('Search by name, email or ID...') }}" value="{{ request('keyword') }}">
                         </div>
                     </div>
                     <div class="col-md-2">
                         <select name="department" class="form-select form-select-clean">
-                            <option value="">All Departments</option>
+                            <option value="">{{ __('All {{ __('Department') }}s') }}</option>
                             @foreach($departments as $dept)
                                 <option value="{{ $dept }}" {{ request('department') == $dept ? 'selected' : '' }}>{{ $dept }}</option>
                             @endforeach
@@ -141,14 +141,14 @@
                     </div>
                     <div class="col-md-2">
                         <select name="status" class="form-select form-select-clean">
-                            <option value="">All Status</option>
+                            <option value="">{{ __('All {{ __('Status') }}') }}</option>
                             <option value="active" {{ request('status') == 'active' ? 'selected' : '' }}>{{ __('Active') }}</option>
                             <option value="inactive" {{ request('status') == 'inactive' ? 'selected' : '' }}>{{ __('Inactive') }}</option>
-                            <option value="terminated" {{ request('status') == 'terminated' ? 'selected' : '' }}>Terminated</option>
+                            <option value="terminated" {{ request('status') == 'terminated' ? 'selected' : '' }}>{{ __('Terminated') }}</option>
                         </select>
                     </div>
                     <div class="col-md-4 d-flex gap-2">
-                        <button type="submit" class="btn btn-dark px-4 flex-grow-1">{{ __('Filter') }}</button>
+                        <button type="{{ __('submit') }}" class="btn btn-dark px-4 flex-grow-1">{{ __('Filter') }}</button>
                         <a href="{{ route('admin.employees.index') }}" class="btn btn-light border px-3" title="{{ __('Reset') }}">
                             <i data-feather="refresh-cw" style="width:16px;"></i>
                         </a>
@@ -162,18 +162,18 @@
             <table class="employee-table">
                 <thead>
                     <tr>
-                        <th width="30%">Employee Details</th>
-                        <th width="20%">Role & Dept</th>
-                        <th width="15%">Contact</th>
+                        <th width="30%">{{ __('Employee Details') }}</th>
+                        <th width="20%">{{ __('Role & Dept') }}</th>
+                        <th width="15%">{{ __('Contact') }}</th>
                         <th width="15%">{{ __('Salary') }}</th>
-                        <th width="10%">{{ __('Status') }}</th>
-                        <th width="10%" class="text-end">Actions</th>
+                        <th width="10%">{{ __('{{ __('Status') }}') }}</th>
+                        <th width="10%" class="text-end">{{ __('Actions') }}</th>
                     </tr>
                 </thead>
                 <tbody>
                     @forelse($employees as $employee)
                         <tr>
-                            {{-- Name & Avatar --}}
+                            {{-- {{ __('Name') }} & Avatar --}}
                             <td>
                                 <div class="user-card">
                                     <div class="user-avatar">
@@ -192,48 +192,48 @@
                             {{-- Role --}}
                             <td>
                                 <div class="d-flex flex-column">
-                                    <span class="fw-bold text-dark fs-6">{{ $employee->designation ?? 'N/A' }}</span>
+                                    <span class="fw-bold text-dark fs-6">{{ $employee->designation ?? '{{ __('N/A') }}' }}</span>
                                     <span class="text-muted small"><i data-feather="briefcase" style="width:10px;" class="me-1"></i> {{ $employee->department ?? 'General' }}</span>
                                 </div>
                             </td>
 
-                            {{-- Contact --}}
+                            {{-- {{ __('Contact') }} --}}
                             <td>
                                 <span class="text-muted small fw-medium">
-                                    {{ $employee->phone ?? 'N/A' }}
+                                    {{ $employee->{{ __('phone') }} ?? '{{ __('N/A') }}' }}
                                 </span>
                             </td>
 
                             {{-- Salary --}}
                             <td>
                                 <span class="fw-bold text-dark">৳{{ number_format($employee->basic_salary, 2) }}</span>
-                                <div class="text-muted" style="font-size: 10px;">Basic</div>
+                                <div class="text-muted" style="font-size: 10px;">{{ __('Basic') }}</div>
                             </td>
 
-                            {{-- Status --}}
+                            {{-- {{ __('Status') }} --}}
                             <td>
                                 @if($employee->status == 'active')
                                     <span class="status-badge status-active"><span class="status-dot"></span>{{ __('Active') }}</span>
                                 @elseif($employee->status == 'inactive')
                                     <span class="status-badge status-inactive"><span class="status-dot"></span>{{ __('Inactive') }}</span>
                                 @else
-                                    <span class="status-badge status-terminated"><span class="status-dot"></span> Terminated</span>
+                                    <span class="status-badge status-terminated"><span class="status-dot"></span> {{ __('Terminated') }}</span>
                                 @endif
                             </td>
 
-                            {{-- Actions --}}
+                            {{-- {{ __('Actions') }} --}}
                             <td class="text-end">
                                 <div class="d-flex justify-content-end gap-2">
-                                    <a href="{{ route('admin.employees.show', $employee->id) }}" class="btn-icon btn-view" title="View Details">
+                                    <a href="{{ route('admin.employees.show', $employee->{{ __('id)') }} }}" class="btn-icon btn-view" title="View Details">
                                         <i data-feather="eye" style="width: 16px;"></i>
                                     </a>
-                                    <a href="{{ route('admin.employees.edit', $employee->id) }}" class="btn-icon btn-edit" title="Edit Info">
+                                    <a href="{{ route('admin.employees.edit', $employee->{{ __('id)') }} }}" class="btn-icon btn-edit" title="Edit Info">
                                         <i data-feather="edit-2" style="width: 16px;"></i>
                                     </a>
-                                    <form action="{{ route('admin.employees.destroy', $employee->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Are you sure you want to delete this employee?');">
+                                    <form action="{{ route('admin.employees.destroy', $employee->{{ __('id)') }} }}" method={{ __('"{{ __('POST') }}"') }} class="d-inline" on{{ __('submit') }}="return confirm('Are you sure you want to delete this employee?');">
                                         @csrf
                                         @method('DELETE')
-                                        <button type="submit" class="btn-icon btn-delete" title="{{ __('Delete') }}">
+                                        <button type="{{ __('submit') }}" class="btn-icon btn-delete" title="{{ __('Delete') }}">
                                             <i data-feather="trash-2" style="width: 16px;"></i>
                                         </button>
                                     </form>
@@ -243,9 +243,9 @@
                     @empty
                         <tr>
                             <td colspan="6" class="text-center py-5">
-                                <img src="https://cdn-icons-png.flaticon.com/512/7486/7486754.png" width="60" class="mb-3 opacity-25">
-                                <p class="text-muted fw-bold mb-0">No Employees Found</p>
-                                <small class="text-muted">Try adjusting your search or filters.</small>
+                                <img src="{{ __('https://') }}cdn-icons-png.flaticon.com/512/7486/7486754.png" width="60" class="mb-3 opacity-25">
+                                <p class="text-muted fw-bold mb-0">{{ __('No {{ __('Employees') }} Found') }}</p>
+                                <small class="text-muted">{{ __('Try adjusting your search or {{ __('filter') }}s.') }}</small>
                             </td>
                         </tr>
                     @endforelse
@@ -255,7 +255,7 @@
 
         {{-- PAGINATION --}}
         <div class="p-4 border-top d-flex justify-content-between align-items-center">
-            <small class="text-muted">{{ __('Showing') }}<strong>{{ $employees->firstItem() }}</strong>{{ __('to') }}<strong>{{ $employees->lastItem() }}</strong>{{ __('of') }}<strong>{{ $employees->total() }}</strong> results
+            <small class="text-muted">{{ __('Showing') }}<strong>{{ $employees->first{{ __('Item') }}() }}</strong>{{ __('to') }}<strong>{{ $employees->last{{ __('Item') }}() }}</strong>{{ __('of') }}<strong>{{ $employees->{{ __('total') }}() }}</strong> results
             </small>
             <div>
                 {{ $employees->links('pagination::bootstrap-4') }}

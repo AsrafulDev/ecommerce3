@@ -1,5 +1,5 @@
 @extends('backEnd.layouts.master')
-@section('title', 'Ads Analytics Settings | API Configuration')
+@section('title', 'Ads Analytics Settings | API {{ __('Configuration') }}')
 
 @section('content')
 <div class="container-fluid py-4">
@@ -22,7 +22,7 @@
     </div>
   </div>
 
-  <form id="settingsForm" action="{{ route('admin.ads_analytics.save_settings') }}" method="POST">
+  <form id="settingsForm" action="{{ route('admin.ads_analytics.save_settings') }}" method={{ __('"{{ __('POST') }}"') }}>
     @csrf
 
     @php
@@ -32,16 +32,16 @@
       $activeCount = ($fbActive ? 1 : 0) + ($googleActive ? 1 : 0) + ($tiktokActive ? 1 : 0);
     @endphp
 
-    {{-- Facebook Ads Card --}}
+    {{-- {{ __('Facebook Ads') }} Card --}}
     <div class="modern-card mb-4">
       <div class="modern-card-header fb-gradient d-flex justify-content-between align-items-center" data-bs-toggle="collapse" data-bs-target="#facebookBody" aria-expanded="true">
         <div class="d-flex align-items-center gap-3">
           <div class="platform-icon">
-            <i class="fe-facebook"></i>
+            <i class="{{ __('fe-facebook') }}"></i>
           </div>
           <div>
-            <h5 class="mb-0 text-white fw-semibold">Facebook Ads Manager</h5>
-            <small class="text-white-50">Meta Ads API Configuration</small>
+            <h5 class="mb-0 text-white fw-semibold">{{ __('{{ __('Facebook Ads') }} {{ __('Manage') }}r') }}</h5>
+            <small class="text-white-50">{{ __('Meta Ads API {{ __('Configuration') }}') }}</small>
           </div>
         </div>
         <div class="d-flex align-items-center gap-3">
@@ -62,18 +62,18 @@
               </label>
               <div class="modern-input-group input-group">
                 <span class="input-group-text"><i class="fe-briefcase"></i></span>
-                <input type="text" id="facebook_ad_account_id" name="facebook_ad_account_id" class="form-control modern-input" value="{{ optional($settings['facebook'] ?? null)->ad_account_id ?? '' }}" placeholder="act_1234567890">
+                <input type="text" id="facebook_ad_account_id" name="facebook_ad_account_id" class="form-control modern-input" value="{{ optional($settings['facebook'] ?? null)->ad_account_id ?? '' }}" placeholder="act_{{ __('1234567890') }}">
                 <button type="button" class="copy-btn" data-copy="{{ optional($settings['facebook'] ?? null)->ad_account_id ?? '' }}" title="Copy to clipboard"><i class="fe-copy"></i></button>
               </div>
             </div>
             <div class="col-md-6">
               <label class="modern-label" for="facebook_access_token">
-                <i class="fe-key me-1"></i>Access Token
-                <span class="field-tooltip" title="Long-lived System User Token or User Access Token from Meta">?</span>
+                <i class="fe-key me-1"></i>{{ __('Access Token') }}
+                <span class="field-tooltip" title="Long-lived System {{ __('{{ __('Use') }}r') }} Token or {{ __('{{ __('Use') }}r') }} {{ __('Access Token') }} from Meta">?</span>
               </label>
               <div class="modern-input-group input-group">
                 <span class="input-group-text"><i class="fe-lock"></i></span>
-                <input type="password" id="facebook_access_token" name="facebook_access_token" class="form-control modern-input" value="{{ optional($settings['facebook'] ?? null)->access_token ?? '' }}" placeholder="Long-lived token" autocomplete="off">
+                <input type="password" id="facebook_access_token" name="facebook_access_token" class="form-control modern-input" value="{{ optional($settings['facebook'] ?? null)->access_token ?? '' }}" placeholder="{{ __('Long-lived token') }}" autocomplete="off">
                 <button type="button" class="password-toggle" onclick="togglePassword('facebook_access_token', this)" title="Show/Hide password">
                   <i class="fe-eye"></i>
                 </button>
@@ -86,18 +86,18 @@
               </label>
               <div class="modern-input-group input-group">
                 <span class="input-group-text"><i class="fe-cpu"></i></span>
-                <input type="text" id="facebook_app_id" name="facebook_app_id" class="form-control modern-input" value="{{ optional($settings['facebook'] ?? null)->app_id ?? '' }}" placeholder="Enter App ID">
+                <input type="text" id="facebook_app_id" name="facebook_app_id" class="form-control modern-input" value="{{ optional($settings['facebook'] ?? null)->app_id ?? '' }}" placeholder="{{ __('Enter App ID') }}">
                 <button type="button" class="copy-btn" data-copy="{{ optional($settings['facebook'] ?? null)->app_id ?? '' }}" title="Copy to clipboard"><i class="fe-copy"></i></button>
               </div>
             </div>
             <div class="col-md-6">
               <label class="modern-label" for="facebook_app_secret">
-                <i class="fe-shield me-1"></i>App Secret
-                <span class="field-tooltip" title="Your Facebook App Secret from the Meta Developer Portal">?</span>
+                <i class="fe-shield me-1"></i>{{ __('App Secret') }}
+                <span class="field-tooltip" title="Your Facebook {{ __('App Secret') }} from the Meta Developer Portal">?</span>
               </label>
               <div class="modern-input-group input-group">
                 <span class="input-group-text"><i class="fe-eye-off"></i></span>
-                <input type="password" id="facebook_app_secret" name="facebook_app_secret" class="form-control modern-input" value="{{ optional($settings['facebook'] ?? null)->app_secret ?? '' }}" placeholder="Enter App Secret" autocomplete="off">
+                <input type="password" id="facebook_app_secret" name="facebook_app_secret" class="form-control modern-input" value="{{ optional($settings['facebook'] ?? null)->app_secret ?? '' }}" placeholder="{{ __('Enter {{ __('App Secret') }}') }}" autocomplete="off">
                 <button type="button" class="password-toggle" onclick="togglePassword('facebook_app_secret', this)" title="Show/Hide password">
                   <i class="fe-eye"></i>
                 </button>
@@ -106,13 +106,13 @@
           </div>
           <div class="help-block">
             <i class="fe-info text-primary me-1"></i>
-            <strong>Where to find:</strong> Facebook Developers → App → Marketing API → System User Token or User Access Token
+            <strong>{{ __('W{{ __('here') }} to find') }}:</strong> Facebook Developers → App → Marketing API → System {{ __('{{ __('Use') }}r') }} Token or {{ __('{{ __('Use') }}r') }} {{ __('Access Token') }}
           </div>
         </div>
       </div>
     </div>
 
-    {{-- Google Ads Card --}}
+    {{-- {{ __('Google Ads') }} Card --}}
     <div class="modern-card mb-4">
       <div class="modern-card-header google-gradient d-flex justify-content-between align-items-center" data-bs-toggle="collapse" data-bs-target="#googleBody" aria-expanded="true">
         <div class="d-flex align-items-center gap-3">
@@ -120,8 +120,8 @@
             <i class="fe-globe"></i>
           </div>
           <div>
-            <h5 class="mb-0 text-white fw-semibold">Google Ads</h5>
-            <small class="text-white-50">Google Ads API Configuration</small>
+            <h5 class="mb-0 text-white fw-semibold">{{ __('Google Ads') }}</h5>
+            <small class="text-white-50">{{ __('{{ __('Google Ads') }} API {{ __('Configuration') }}') }}</small>
           </div>
         </div>
         <div class="d-flex align-items-center gap-3">
@@ -137,35 +137,35 @@
           <div class="row g-3">
             <div class="col-md-6">
               <label class="modern-label" for="google_ad_account_id">
-                <i class="fe-hash me-1"></i>Customer ID
-                <span class="field-tooltip" title="Your Google Ads Customer ID (10-digit number)">?</span>
+                <i class="fe-hash me-1"></i>{{ __('Customer') }} ID
+                <span class="field-tooltip" title="Your {{ __('Google Ads') }} {{ __('Customer') }} ID (10-digit {{ __('number') }})">?</span>
               </label>
               <div class="modern-input-group input-group">
                 <span class="input-group-text"><i class="fe-briefcase"></i></span>
-                <input type="text" id="google_ad_account_id" name="google_ad_account_id" class="form-control modern-input" value="{{ optional($settings['google'] ?? null)->ad_account_id ?? '' }}" placeholder="1234567890">
+                <input type="text" id="google_ad_account_id" name="google_ad_account_id" class="form-control modern-input" value="{{ optional($settings['google'] ?? null)->ad_account_id ?? '' }}" placeholder="{{ __('1234567890') }}">
                 <button type="button" class="copy-btn" data-copy="{{ optional($settings['google'] ?? null)->ad_account_id ?? '' }}" title="Copy to clipboard"><i class="fe-copy"></i></button>
               </div>
-              <small class="text-muted">Format: 123-456-7890</small>
+              <small class="text-muted">{{ __('Format: 123-456-7890') }}</small>
             </div>
             <div class="col-md-6">
               <label class="modern-label" for="google_client_id">
-                <i class="fe-user me-1"></i>Client ID
-                <span class="field-tooltip" title="OAuth 2.0 Client ID from Google Cloud Console">?</span>
+                <i class="fe-user me-1"></i>{{ __('Client ID') }}
+                <span class="field-tooltip" title="OAuth 2.0 {{ __('Client ID') }} from Google Cloud Console">?</span>
               </label>
               <div class="modern-input-group input-group">
                 <span class="input-group-text"><i class="fe-file-text"></i></span>
-                <input type="text" id="google_client_id" name="google_client_id" class="form-control modern-input" value="{{ optional($settings['google'] ?? null)->client_id ?? '' }}" placeholder="Enter Client ID">
+                <input type="text" id="google_client_id" name="google_client_id" class="form-control modern-input" value="{{ optional($settings['google'] ?? null)->client_id ?? '' }}" placeholder="{{ __('Enter {{ __('Client ID') }}') }}">
                 <button type="button" class="copy-btn" data-copy="{{ optional($settings['google'] ?? null)->client_id ?? '' }}" title="Copy to clipboard"><i class="fe-copy"></i></button>
               </div>
             </div>
             <div class="col-md-6">
               <label class="modern-label" for="google_client_secret">
-                <i class="fe-shield me-1"></i>Client Secret
-                <span class="field-tooltip" title="OAuth 2.0 Client Secret from Google Cloud Console">?</span>
+                <i class="fe-shield me-1"></i>{{ __('Client Secret') }}
+                <span class="field-tooltip" title="OAuth 2.0 {{ __('Client Secret') }} from Google Cloud Console">?</span>
               </label>
               <div class="modern-input-group input-group">
                 <span class="input-group-text"><i class="fe-lock"></i></span>
-                <input type="password" id="google_client_secret" name="google_client_secret" class="form-control modern-input" value="{{ optional($settings['google'] ?? null)->client_secret ?? '' }}" placeholder="Enter Client Secret" autocomplete="off">
+                <input type="password" id="google_client_secret" name="google_client_secret" class="form-control modern-input" value="{{ optional($settings['google'] ?? null)->client_secret ?? '' }}" placeholder="{{ __('Enter {{ __('Client Secret') }}') }}" autocomplete="off">
                 <button type="button" class="password-toggle" onclick="togglePassword('google_client_secret', this)" title="Show/Hide password">
                   <i class="fe-eye"></i>
                 </button>
@@ -178,20 +178,20 @@
               </label>
               <div class="modern-input-group input-group">
                 <span class="input-group-text"><i class="fe-rotate-cw"></i></span>
-                <input type="text" id="google_refresh_token" name="google_refresh_token" class="form-control modern-input" value="{{ optional($settings['google'] ?? null)->refresh_token ?? '' }}" placeholder="1//...">
+                <input type="text" id="google_refresh_token" name="google_refresh_token" class="form-control modern-input" value="{{ optional($settings['google'] ?? null)->refresh_token ?? '' }}" placeholder="{{ __('1//...') }}">
                 <button type="button" class="copy-btn" data-copy="{{ optional($settings['google'] ?? null)->refresh_token ?? '' }}" title="Copy to clipboard"><i class="fe-copy"></i></button>
               </div>
             </div>
           </div>
           <div class="help-block">
             <i class="fe-info text-danger me-1"></i>
-            <strong>Where to find:</strong> Google Cloud Console → OAuth 2.0 credentials. Application verification required for Google Ads API.
+            <strong>{{ __('W{{ __('here') }} to find') }}:</strong> Google Cloud Console → OAuth 2.0 credentials. Application verification required for {{ __('Google Ads') }} API.
           </div>
         </div>
       </div>
     </div>
 
-    {{-- TikTok Ads Card --}}
+    {{-- {{ __('TikTok Ads') }} Card --}}
     <div class="modern-card mb-4">
       <div class="modern-card-header tiktok-gradient d-flex justify-content-between align-items-center" data-bs-toggle="collapse" data-bs-target="#tiktokBody" aria-expanded="true">
         <div class="d-flex align-items-center gap-3">
@@ -199,8 +199,8 @@
             <i class="fe-video"></i>
           </div>
           <div>
-            <h5 class="mb-0 text-white fw-semibold">TikTok Ads</h5>
-            <small class="text-white-50">TikTok for Business API Configuration</small>
+            <h5 class="mb-0 text-white fw-semibold">{{ __('TikTok Ads') }}</h5>
+            <small class="text-white-50">{{ __('TikTok for Business API {{ __('Configuration') }}') }}</small>
           </div>
         </div>
         <div class="d-flex align-items-center gap-3">
@@ -221,18 +221,18 @@
               </label>
               <div class="modern-input-group input-group">
                 <span class="input-group-text"><i class="fe-briefcase"></i></span>
-                <input type="text" id="tiktok_advertiser_id" name="tiktok_advertiser_id" class="form-control modern-input" value="{{ optional($settings['tiktok'] ?? null)->ad_account_id ?? '' }}" placeholder="1234567890123456789">
+                <input type="text" id="tiktok_advertiser_id" name="tiktok_advertiser_id" class="form-control modern-input" value="{{ optional($settings['tiktok'] ?? null)->ad_account_id ?? '' }}" placeholder="{{ __('{{ __('1234567890') }}123456789') }}">
                 <button type="button" class="copy-btn" data-copy="{{ optional($settings['tiktok'] ?? null)->ad_account_id ?? '' }}" title="Copy to clipboard"><i class="fe-copy"></i></button>
               </div>
             </div>
             <div class="col-md-6">
               <label class="modern-label" for="tiktok_access_token">
-                <i class="fe-key me-1"></i>Access Token
-                <span class="field-tooltip" title="API Access Token from TikTok for Business">?</span>
+                <i class="fe-key me-1"></i>{{ __('Access Token') }}
+                <span class="field-tooltip" title="{{ __('API {{ __('Access Token') }}') }} from TikTok for Business">?</span>
               </label>
               <div class="modern-input-group input-group">
                 <span class="input-group-text"><i class="fe-lock"></i></span>
-                <input type="password" id="tiktok_access_token" name="tiktok_access_token" class="form-control modern-input" value="{{ optional($settings['tiktok'] ?? null)->access_token ?? '' }}" placeholder="Enter Access Token" autocomplete="off">
+                <input type="password" id="tiktok_access_token" name="tiktok_access_token" class="form-control modern-input" value="{{ optional($settings['tiktok'] ?? null)->access_token ?? '' }}" placeholder="{{ __('Enter {{ __('Access Token') }}') }}" autocomplete="off">
                 <button type="button" class="password-toggle" onclick="togglePassword('tiktok_access_token', this)" title="Show/Hide password">
                   <i class="fe-eye"></i>
                 </button>
@@ -241,7 +241,7 @@
           </div>
           <div class="help-block">
             <i class="fe-info text-dark me-1"></i>
-            <strong>Where to find:</strong> TikTok for Business → Tools → API → Create Access Token
+            <strong>{{ __('W{{ __('here') }} to find') }}:</strong> TikTok for Business → Tools → API → Create {{ __('Access Token') }}
           </div>
         </div>
       </div>
@@ -252,7 +252,7 @@
       <div class="d-flex justify-content-between align-items-center px-3">
         <div class="d-flex align-items-center gap-2">
           <span class="status-badge {{ $fbActive ? 'active' : 'inactive' }}">
-            <i class="fe-facebook"></i> FB
+            <i class="{{ __('fe-facebook') }}"></i> FB
           </span>
           <span class="status-badge {{ $googleActive ? 'active' : 'inactive' }}">
             <i class="fe-globe"></i> Google
@@ -261,15 +261,15 @@
             <i class="fe-video"></i> TikTok
           </span>
           <span class="setup-progress ms-3">
-            <span id="progressText">{{ $activeCount }}/3 active</span>
+            <span id="progress{{ __('Text') }}">{{ $activeCount }}/3 active</span>
             <span class="progress-track">
               <span class="progress-fill" id="progressFill" style="width: {{ ($activeCount/3)*100 }}%"></span>
             </span>
           </span>
         </div>
-        <button type="submit" class="btn btn-modern-save" id="saveBtn">
+        <button type="{{ __('submit') }}" class="btn btn-modern-save" id="saveBtn">
           <span class="spinner"></span>
-          <span class="btn-text"><i class="fe-save"></i> Save Settings</span>
+          <span class="btn-text"><i class="fe-save"></i> {{ __('Save Settings') }}</span>
         </button>
       </div>
     </div>
@@ -295,7 +295,7 @@ document.querySelectorAll('.copy-btn').forEach(btn => {
   btn.addEventListener('click', function() {
     const text = this.getAttribute('data-copy');
     if (!text) return;
-    navigator.clipboard.writeText(text).then(() => {
+    navigator.clipboard.write{{ __('Text') }}(text).then(() => {
       this.classList.add('copied');
       this.innerHTML = '<i class="fe-check"></i>';
       setTimeout(() => {
@@ -329,18 +329,18 @@ function updateProgress() {
   const count = (fb ? 1 : 0) + (google ? 1 : 0) + (tiktok ? 1 : 0);
   const pct = (count / 3) * 100;
 
-  document.getElementById('progressText').textContent = count + '/3 active';
+  document.getElementById('progress{{ __('Text') }}').textContent = count + '/3 active';
   document.getElementById('progressFill').style.width = pct + '%';
 
   // Update status badges
   document.querySelectorAll('.status-badge').forEach((badge, i) => {
     const isActive = [fb, google, tiktok][i];
-    badge.className = 'status-badge ' + (isActive ? 'active' : 'inactive');
+    badge.class{{ __('Name') }} = 'status-badge ' + (isActive ? 'active' : 'inactive');
   });
 }
 
 // --- Save Button Loading State ---
-document.getElementById('settingsForm').addEventListener('submit', function() {
+document.getElementById('settingsForm').addEventListener('{{ __('submit') }}', function() {
   const btn = document.getElementById('saveBtn');
   btn.classList.add('loading');
   btn.disabled = true;

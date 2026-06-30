@@ -1,5 +1,5 @@
 @extends('backEnd.layouts.master')
-@section('title','Point of Sale')
+@section('title','{{ __('Point of Sale') }}')
 
 @section('css')
 <style>
@@ -12,16 +12,16 @@
     }
     .pos-card{
         background:#ffffff;
-        border-radius:14px;
+        border-radius:{{ __('14px') }};
         box-shadow:0 15px 30px rgba(15,23,42,0.08);
-        padding:14px 14px 10px;
+        padding:{{ __('14px') }} {{ __('14px') }} 10px;
         border:1px solid rgba(148,163,184,0.25);
     }
     .pos-header-bar{
         background:linear-gradient(135deg,#4f46e5,#6366f1);
         color:#fff;
         border-radius:12px;
-        padding:10px 14px;
+        padding:10px {{ __('14px') }};
         margin-bottom:10px;
         display:flex;
         justify-content:space-between;
@@ -95,14 +95,14 @@
     }
     .pos-summary-table td{
         padding:6px 10px;
-        font-size:14px;
+        font-size:{{ __('14px') }};
     }
     .pos-summary-table tr:last-child td{
         border-top:1px dashed #e2e8f0;
         font-size:15px;
         font-weight:700;
     }
-    .pos-grand-total{
+    .pos-grand-{{ __('total') }}{
         font-size:18px !important;
         color:#16a34a;
     }
@@ -113,7 +113,7 @@
         padding:9px 22px;
         border-radius:999px;
         font-weight:600;
-        font-size:14px;
+        font-size:{{ __('14px') }};
         box-shadow:0 10px 20px rgba(79,70,229,.35);
         color:#fff;
     }
@@ -155,11 +155,11 @@
         color:#111827;
     }
     .pos-product-price{
-        font-size:14px;
+        font-size:{{ __('14px') }};
         font-weight:700;
         color:#16a34a;
     }
-    .pos-stock-badge{
+    .pos-{{ __('stock') }}-badge{
         position:absolute;
         top:6px;
         left:8px;
@@ -196,11 +196,11 @@
     <div class="row mb-2">
         <div class="col-12">
             <div class="d-flex justify-content-between align-items-center">
-                <h4 class="mb-0">Point of Sale</h4>
+                <h4 class="mb-0">{{ __('Point of Sale') }}</h4>
                 <form method="get" action="{{route('admin.order.cart_clear')}}" class="d-inline">
                     @csrf
-                    <button type="submit" class="btn btn-sm btn-outline-danger rounded-pill delete-confirm" title="Clear Cart">
-                        <i class="fas fa-trash-alt"></i> Cart Clear
+                    <button type="{{ __('submit') }}" class="btn btn-sm btn-outline-danger rounded-pill delete-confirm" title="Clear {{ __('Cart') }}">
+                        <i class="fas fa-trash-alt"></i> {{ __('Cart') }} Clear
                     </button>
                 </form>
             </div>
@@ -215,11 +215,11 @@
                 {{-- POS HEADER STRIP --}}
                 <div class="pos-header-bar mb-3">
                     <div>
-                        <h5>Shop Store</h5>
-                        <small class="pos-badge-soft">Walk-in Customer POS</small>
+                        <h5>{{ __('{{ __('Shop') }} {{ __('Store') }}') }}</h5>
+                        <small class="pos-badge-soft">{{ __('Walk-in {{ __('Customer') }} POS') }}</small>
                     </div>
                     <div class="text-end">
-                        <div style="font-size:12px;opacity:.8;">Session</div>
+                        <div style="font-size:12px;opacity:.8;">{{ __('Session') }}</div>
                         <div style="font-weight:600;">SL-{{ date('dmy-His') }}</div>
                     </div>
                 </div>
@@ -230,10 +230,10 @@
                         <thead>
                             <tr>
                                 <th>{{ __('Image') }}</th>
-                                <th>Item</th>
+                                <th>{{ __('Item') }}</th>
                                 <th>{{ __('Qty') }}</th>
                                 <th>{{ __('Price') }}</th>
-                                <th>{{ __('Subtotal') }}</th>
+                                <th>{{ __('Sub{{ __('total') }}') }}</th>
                                 <th></th>
                             </tr>
                         </thead>
@@ -245,13 +245,13 @@
 
                 {{-- COUPON SECTION --}}
                 <div class="mb-3 p-3 rounded" style="background:#f8fafc; border:1px solid #e2e8f0;">
-                    <div class="pos-section-title mb-2">কুপন কোড</div>
+                    <div class="pos-section-title mb-2">{{ __('{{ __('Coupon') }} Code') }}</div>
                     <div class="d-flex gap-2 align-items-center flex-wrap">
-                        <input type="text" id="pos_coupon_code" class="form-control form-control-sm" placeholder="কুপন কোড লিখুন" value="{{ Session::get('pos_coupon_code', '') }}" style="max-width:180px">
+                        <input type="text" id="pos_coupon_code" class="form-control form-control-sm" placeholder="{{ __('{{ __('Coupon') }} Code') }} লিখুন" value="{{ {{ __('Session') }}::get('pos_coupon_code', '') }}" style="max-width:180px">
                         <button type="button" id="pos_apply_coupon" class="btn btn-sm btn-success rounded-pill">
                             <i class="fas fa-tag me-1"></i> অ্যাপ্লাই
                         </button>
-                        <button type="button" id="pos_remove_coupon" class="btn btn-sm btn-outline-secondary rounded-pill" style="{{ Session::has('pos_coupon_code') ? '' : 'display:none' }}">
+                        <button type="button" id="pos_remove_coupon" class="btn btn-sm btn-outline-secondary rounded-pill" style="{{ {{ __('Session') }}::has('pos_coupon_code') ? '' : 'display:none' }}">
                             <i class="fas fa-times me-1"></i> রিমুভ
                         </button>
                         <span id="pos_coupon_msg" class="small text-muted"></span>
@@ -259,30 +259,30 @@
                 </div>
 
                 {{-- CUSTOMER + TOTAL --}}
-                <form action="{{route('admin.order.store')}}" method="POST" class="row pos_form" data-parsley-validate="" enctype="multipart/form-data" id="pos_order_form">
+                <form action="{{route('admin.order.store')}}" method={{ __('"{{ __('POST') }}"') }} class="row pos_form" data-parsley-validate="" enctype="multipart/form-data" id="pos_order_form">
                     @csrf
-                    <input type="hidden" name="coupon_code" value="{{ Session::get('pos_coupon_code', '') }}">
+                    <input type="hidden" name="coupon_code" value="{{ {{ __('Session') }}::get('pos_coupon_code', '') }}">
 
                     {{-- CUSTOMER --}}
                     <div class="col-md-6">
-                        <div class="pos-section-title">Customer</div>
+                        <div class="pos-section-title">{{ __('Customer') }}</div>
 
                         <div class="mb-2">
                             <input type="text"
                                    id="name"
                                    class="form-control form-control-sm @error('name') is-invalid @enderror"
-                                   placeholder="Customer Name"
+                                   placeholder="{{ __('{{ __('Customer') }} {{ __('Name') }}') }}"
                                    name="name" required>
                             @error('name')<span class="invalid-feedback"><strong>{{ $message }}</strong></span>@enderror
                         </div>
 
                         <div class="mb-2">
-                            <input type="number"
-                                   id="phone"
-                                   class="form-control form-control-sm @error('phone') is-invalid @enderror"
-                                   placeholder="Mobile Number"
-                                   name="phone" required>
-                            @error('phone')<span class="invalid-feedback"><strong>{{ $message }}</strong></span>@enderror
+                            <input type="{{ __('number') }}"
+                                   id="{{ __('phone') }}"
+                                   class="form-control form-control-sm @error('{{ __('phone') }}') is-invalid @enderror"
+                                   placeholder="{{ __('{{ __('Mobile') }} Number') }}"
+                                   name="{{ __('phone') }}" required>
+                            @error('{{ __('phone') }}')<span class="invalid-feedback"><strong>{{ $message }}</strong></span>@enderror
                         </div>
 
                         <div class="mb-2">
@@ -298,7 +298,7 @@
                             <select id="area"
                                     class="form-control form-control-sm @error('area') is-invalid @enderror"
                                     name="area" required>
-                                <option value="">ডেলিভারি এরিয়া নির্বাচন করুন...</option>
+                                <option value="">{{ __('bn_97e6b5e4') }}</option>
                                 @foreach($shippingcharge ?? [] as $area)
                                 <option value="{{ $area->id }}" {{ old('area') == $area->id ? 'selected' : '' }}>
                                     {{ $area->name }} (৳{{ $area->amount }})
@@ -311,39 +311,39 @@
 
                     {{-- SUMMARY --}}
                     <div class="col-md-6">
-                        <div class="pos-section-title">Summary</div>
+                        <div class="pos-section-title">{{ __('Summary') }}</div>
 
                         @php
-                            $subtotal = Cart::instance('pos_shopping')->subtotal();
-                            $subtotal = str_replace(',','',$subtotal);
-                            $subtotal = str_replace('.00', '',$subtotal);
-                            $shipping = Session::get('pos_shipping');
-                            $couponDiscount = Session::get('pos_discount', 0);
-                            $grand = ($subtotal + $shipping) - $couponDiscount;
+                            $sub{{ __('total') }} = {{ __('Cart') }}::instance('pos_shopping')->sub{{ __('total') }}();
+                            $sub{{ __('total') }} = str_replace(',','',$sub{{ __('total') }});
+                            $sub{{ __('total') }} = str_replace('.00', '',$sub{{ __('total') }});
+                            $shipping = {{ __('Session') }}::get('pos_shipping');
+                            $coupon{{ __('Discount') }} = {{ __('Session') }}::get('pos_discount', 0);
+                            $grand = ($sub{{ __('total') }} + $shipping) - $coupon{{ __('Discount') }};
                         @endphp
 
                         <table class="table table-borderless pos-summary-table mb-2" id="cart_details">
                             <tr>
-                                <td>Sub Total</td>
-                                <td class="text-end">৳{{$subtotal}}</td>
+                                <td>{{ __('Sub {{ __('Total') }}') }}</td>
+                                <td class="text-end">৳{{$sub{{ __('total') }}}}</td>
                             </tr>
                             <tr>
-                                <td>Shipping Fee</td>
+                                <td>{{ __('{{ __('Shipping') }} Fee') }}</td>
                                 <td class="text-end">৳{{$shipping}}</td>
                             </tr>
                             <tr>
-                                <td>কুপন ডিস্কাউন্ট</td>
-                                <td class="text-end">৳{{$couponDiscount}}</td>
+                                <td>{{ __('bn_4f6e559f') }}</td>
+                                <td class="text-end">৳{{$coupon{{ __('Discount') }}}}</td>
                             </tr>
                             <tr>
-                                <td>Grand Total</td>
-                                <td class="text-end pos-grand-total">৳{{$grand}}</td>
+                                <td>{{ __('Grand {{ __('Total') }}') }}</td>
+                                <td class="text-end pos-grand-{{ __('total') }}">৳{{$grand}}</td>
                             </tr>
                         </table>
 
                         <div class="text-end mt-1">
-                            <button type="submit" class="btn btn-pos-primary">
-                                Complete Sale
+                            <button type="{{ __('submit') }}" class="btn btn-pos-primary">
+                                {{ __('Complete') }} Sale
                             </button>
                         </div>
                     </div>
@@ -358,13 +358,13 @@
 
                 {{-- SEARCH BAR --}}
                 <div class="mb-2">
-                    <div class="pos-section-title">{{ __('Products') }}</div>
+                    <div class="pos-section-title">{{ __('{{ __('Product') }}s') }}</div>
                     <div class="pos-search-bar position-relative">
                         <span class="icon"><i class="fa fa-search"></i></span>
                         <input type="text"
                                id="product_search"
                                class="form-control form-control-sm"
-                               placeholder="Search product by name...">
+                               placeholder="{{ __('Search product by name...') }}">
                     </div>
                 </div>
 
@@ -374,7 +374,7 @@
                             @php $img = optional($p->image)->image ?? 'public/no-image.png'; @endphp
                             <div class="col-6 mb-2 pos-product-wrapper" data-name="{{ strtolower($p->name) }}">
                                 <div class="pos-product-card pos-add-product" data-id="{{ $p->id }}">
-                                    <span class="pos-stock-badge">Stock: {{ $p->stock}}</span>
+                                    <span class="pos-{{ __('stock') }}-badge">{{ __('Stock') }}: {{ $p->{{ __('stock') }}}}</span>
                                     <img src="{{ asset($img) }}" class="pos-product-img" alt="">
                                     <div class="pos-product-name">{{ $p->name }}</div>
                                     <div class="pos-product-price">
@@ -402,7 +402,7 @@
 
 <script>
     $(".summernote").summernote({
-        placeholder: "Enter Your Text Here",
+        placeholder: "Enter Your {{ __('Text') }} Here",
     });
 </script>
 
@@ -414,7 +414,7 @@
     // -------- CART CONTENT LOADERS ----------
     function cart_content() {
         $.ajax({
-            type: "GET",
+            type: "{{ __('GET') }}",
             url: "{{route('admin.order.cart_content')}}",
             dataType: "html",
             success: function (cartinfo) {
@@ -424,7 +424,7 @@
     }
     function cart_details() {
         $.ajax({
-            type: "GET",
+            type: "{{ __('GET') }}",
             url: "{{route('admin.order.cart_details')}}",
             dataType: "html",
             success: function (cartinfo) {
@@ -437,10 +437,10 @@
     $(document).on("click", ".pos-add-product", function (e) {
         e.preventDefault();
         var id = $(this).data("id");
-        if (id) {
+        if ({{ __('id)') }} {
             $.ajax({
                 cache: false,
-                type: "GET",
+                type: "{{ __('GET') }}",
                 data: { id: id },
                 url: "{{route('admin.order.cart_add')}}",
                 dataType: "json",
@@ -457,11 +457,11 @@
         e.preventDefault();
         var id = $(this).data("id");
         var qty = $(this).val();
-        if (id) {
+        if ({{ __('id)') }} {
             $.ajax({
                 cache: false,
                 data: { id: id, qty: qty },
-                type: "GET",
+                type: "{{ __('GET') }}",
                 url: "{{route('admin.order.cart_increment')}}",
                 dataType: "json",
                 success: function (cartinfo) {
@@ -476,10 +476,10 @@
         e.preventDefault();
         var id = $(this).data("id");
         var qty = $(this).val();
-        if (id) {
+        if ({{ __('id)') }} {
             $.ajax({
                 cache: false,
-                type: "GET",
+                type: "{{ __('GET') }}",
                 data: { id: id, qty: qty },
                 url: "{{route('admin.order.cart_decrement')}}",
                 dataType: "json",
@@ -491,14 +491,14 @@
         }
     });
 
-    // -------- CART REMOVE ----------
+    // -------- CART {{ __('REMOVE') }} ----------
     $(document).on("click", ".cart_remove", function (e) {
         e.preventDefault();
         var id = $(this).data("id");
-        if (id) {
+        if ({{ __('id)') }} {
             $.ajax({
                 cache: false,
-                type: "GET",
+                type: "{{ __('GET') }}",
                 data: { id: id },
                 url: "{{route('admin.order.cart_remove')}}",
                 dataType: "json",
@@ -510,38 +510,38 @@
         }
     });
 
-    // -------- COUPON APPLY ----------
+    // -------- COUPON {{ __('APPLY') }} ----------
     $("#pos_apply_coupon").on("click", function () {
         var code = $("#pos_coupon_code").val().trim();
         if (!code) {
-            $("#pos_coupon_msg").removeClass("text-success").addClass("text-danger").text("কুপন কোড লিখুন");
+            $("#pos_coupon_msg").removeClass("text-success").addClass("text-danger").text("{{ __('{{ __('Coupon') }} Code') }} লিখুন");
             return;
         }
         $.ajax({
-            type: "POST",
+            type: {{ __('"{{ __('POST') }}"') }},
             url: "{{ route('admin.order.pos.apply_coupon') }}",
             data: { _token: "{{ csrf_token() }}", coupon_code: code },
             dataType: "json",
             success: function (res) {
                 if (res.success) {
-                    $("#pos_coupon_msg").removeClass("text-danger").addClass("text-success").text(res.message);
+                    $("#pos_coupon_msg").removeClass("text-danger").addClass("text-success").text(res.{{ __('message') }});
                     $("#pos_remove_coupon").show();
                     cart_details();
                 } else {
-                    $("#pos_coupon_msg").removeClass("text-success").addClass("text-danger").text(res.message || "কুপন বৈধ নয়");
+                    $("#pos_coupon_msg").removeClass("text-success").addClass("text-danger").text(res.{{ __('message') }} || "কুপন বৈধ নয়");
                 }
             },
             error: function (xhr) {
-                var msg = xhr.responseJSON && xhr.responseJSON.message ? xhr.responseJSON.message : "ত্রুটি হয়েছে";
+                var msg = xhr.responseJSON && xhr.responseJSON.{{ __('message') }} ? xhr.responseJSON.{{ __('message') }} : "{{ __('bn_8183e331') }} হয়েছে";
                 $("#pos_coupon_msg").removeClass("text-success").addClass("text-danger").text(msg);
             }
         });
     });
 
-    // -------- COUPON REMOVE ----------
+    // -------- COUPON {{ __('REMOVE') }} ----------
     $("#pos_remove_coupon").on("click", function () {
         $.ajax({
-            type: "GET",
+            type: "{{ __('GET') }}",
             url: "{{ route('admin.order.pos.remove_coupon') }}",
             dataType: "json",
             success: function () {
@@ -557,7 +557,7 @@
     $(document).on("change", "#area", function () {
         var id = $(this).val();
         $.ajax({
-            type: "GET",
+            type: "{{ __('GET') }}",
             data: { id: id },
             url: "{{route('admin.order.cart_shipping')}}",
             dataType: "json",
@@ -569,7 +569,7 @@
     });
 
     // -------- SIZE / COLOR SELECT (variant price update) ----------
-    function updateCartVariant(rowId, productId, sizeId, colorId) {
+    function update{{ __('Cart') }}Variant(rowId, productId, sizeId, colorId) {
         var $row = $('.cart-size-selector[data-id="'+rowId+'"]').closest('tr');
         if (!$row.length) $row = $('.cart-color-selector[data-id="'+rowId+'"]').closest('tr');
         var $sizeSelect = $row.find('.cart-size-selector');
@@ -579,7 +579,7 @@
         var pid = productId || $row.find('.cart-size-selector, .cart-color-selector').first().data('product-id') || '';
         $.ajax({
             cache: false,
-            type: "GET",
+            type: "{{ __('GET') }}",
             data: { id: rowId, product_id: pid, size_id: sId || '', color_id: cId || '' },
             url: "{{ route('admin.order.cart.update') }}",
             dataType: "json",
@@ -593,18 +593,18 @@
         var rowId = $(this).data("id");
         var productId = $(this).data("product-id");
         var sizeId = $(this).val();
-        updateCartVariant(rowId, productId, sizeId, undefined);
+        update{{ __('Cart') }}Variant(rowId, productId, sizeId, undefined);
     });
     $(document).on("change", ".cart-color-selector", function () {
         var rowId = $(this).data("id");
         var productId = $(this).data("product-id");
         var colorId = $(this).val();
-        updateCartVariant(rowId, productId, undefined, colorId);
+        update{{ __('Cart') }}Variant(rowId, productId, undefined, colorId);
     });
 
-    // -------- FORM SUBMIT - আগে Size/Color সিঙ্ক করুন --------
+    // -------- FORM SUBMIT - আগে Size/{{ __('Color') }} সিঙ্ক করুন --------
     var posFormSubmitting = false;
-    $("#pos_order_form").on("submit", function (e) {
+    $("#pos_order_form").on("{{ __('submit') }}", function (e) {
         if (posFormSubmitting) return;
         e.preventDefault();
         var form = this;
@@ -615,7 +615,7 @@
         });
         if (rows.length === 0) {
             posFormSubmitting = true;
-            form.submit();
+            form.{{ __('submit') }}();
             return;
         }
         var promises = [];
@@ -626,7 +626,7 @@
             var cId = $row.find('.cart-color-selector').val() || '';
             var productId = $row.find('.cart-size-selector, .cart-color-selector').first().data('product-id') || '';
             promises.push($.ajax({
-                type: "GET",
+                type: "{{ __('GET') }}",
                 url: "{{ route('admin.order.cart.update') }}",
                 data: { id: rowId, product_id: productId, size_id: sId, color_id: cId },
                 dataType: "json"
@@ -634,7 +634,7 @@
         });
         $.when.apply($, promises).always(function () {
             posFormSubmitting = true;
-            setTimeout(function () { form.submit(); }, 150);
+            setTimeout(function () { form.{{ __('submit') }}(); }, 150);
         });
     });
 

@@ -1,5 +1,5 @@
 @extends('backEnd.layouts.master')
-@section('title', 'Manage Coupons')
+@section('title', '{{ __('Manage') }} {{ __('{{ __('Coupon') }}s') }}')
 
 @section('css')
 <style>
@@ -32,9 +32,9 @@
     .table-modern tr:last-child td { border-bottom: none; }
     .table-modern tr:hover td { background-color: #f8fafc; }
 
-    /* --- Coupon Code Badge --- */
+    /* --- {{ __('Coupon') }} Code Badge --- */
     .coupon-badge {
-        font-family: 'Courier New', Courier, monospace;
+        font-family: '{{ __('Courier') }} {{ __('New') }}', {{ __('Courier') }}, monospace;
         font-weight: 700;
         color: #4f46e5;
         background: #eef2ff;
@@ -44,7 +44,7 @@
         letter-spacing: 1px;
     }
 
-    /* --- Status & Type Badges --- */
+    /* --- {{ __('Status') }} & Type Badges --- */
     .badge-soft {
         padding: 5px 10px; border-radius: 6px; font-size: 0.75rem; font-weight: 600;
         display: inline-flex; align-items: center; gap: 5px;
@@ -80,11 +80,11 @@
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
             <h4 class="mb-1 fw-bold text-dark">
-                <i data-feather="tag" class="text-primary me-2"></i>{{ __('Manage Coupons') }}</h4>
-            <p class="text-muted small mb-0">Create and manage discount codes for customers.</p>
+                <i data-feather="tag" class="text-primary me-2"></i>{{ __('{{ __('Manage') }} {{ __('{{ __('Coupon') }}s') }}') }}</h4>
+            <p class="text-muted small mb-0">{{ __('Create and manage discount codes for customers.') }}</p>
         </div>
         <a href="{{ route('admin.coupons.create') }}" class="btn btn-primary px-4 py-2 rounded-pill shadow-sm">
-            <i data-feather="plus-circle" class="me-1" style="width: 16px;"></i> Create Coupon
+            <i data-feather="plus-circle" class="me-1" style="width: 16px;"></i> {{ __('Create {{ __('Coupon') }}') }}
         </a>
     </div>
 
@@ -94,13 +94,13 @@
                 <thead>
                     <tr>
                         <th width="5%">#</th>
-                        <th width="20%">{{ __('Coupon Code') }}</th>
-                        <th width="15%">Discount Type</th>
-                        <th width="10%">Value</th>
-                        <th width="15%">Min Purchase</th>
-                        <th width="20%">Validity Period</th>
-                        <th width="10%">{{ __('Status') }}</th>
-                        <th width="10%" class="text-end">Actions</th>
+                        <th width="20%">{{ __('{{ __('Coupon') }} Code') }}</th>
+                        <th width="15%">{{ __('{{ __('Discount') }} Type') }}</th>
+                        <th width="10%">{{ __('Value') }}</th>
+                        <th width="15%">{{ __('Min Purchase') }}</th>
+                        <th width="20%">{{ __('Validity Period') }}</th>
+                        <th width="10%">{{ __('{{ __('Status') }}') }}</th>
+                        <th width="10%" class="text-end">{{ __('Actions') }}</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -118,17 +118,17 @@
                                 @if(in_array($coupon->type, ['flat', 'fixed']))
                                     <div class="d-flex align-items-center">
                                         <span class="type-icon type-fixed"><i class="fas fa-dollar-sign"></i></span>
-                                        <span>Fixed Amount</span>
+                                        <span>{{ __('{{ __('Fixed') }} {{ __('Amount') }}') }}</span>
                                     </div>
                                 @else
                                     <div class="d-flex align-items-center">
                                         <span class="type-icon type-percent"><i class="fas fa-percent"></i></span>
-                                        <span>Percentage</span>
+                                        <span>{{ __('Percentage') }}</span>
                                     </div>
                                 @endif
                             </td>
 
-                            {{-- Value --}}
+                            {{-- {{ __('Value') }} --}}
                             <td>
                                 <span class="fw-bold text-dark fs-6">
                                     @if(in_array($coupon->type, ['percent', 'percentage']))
@@ -139,9 +139,9 @@
                                 </span>
                             </td>
 
-                            {{-- Min Purchase --}}
+                            {{-- {{ __('Min Purchase') }} --}}
                             <td class="text-muted">
-                                {{ $coupon->min_purchase ? '৳'.number_format($coupon->min_purchase) : 'No Limit' }}
+                                {{ $coupon->min_purchase ? '৳'.number_format($coupon->min_purchase) : 'No {{ __('Limit') }}' }}
                             </td>
 
                             {{-- Validity --}}
@@ -156,14 +156,14 @@
                                 </div>
                             </td>
 
-                            {{-- Status --}}
+                            {{-- {{ __('Status') }} --}}
                             <td>
                                 @php
-                                    $isExpired = $coupon->valid_to && \Carbon\Carbon::parse($coupon->valid_to)->isPast();
+                                    $is{{ __('Expired') }} = $coupon->valid_to && \Carbon\Carbon::parse($coupon->valid_to)->isPast();
                                 @endphp
 
-                                @if($isExpired)
-                                    <span class="badge-soft badge-expired">Expired</span>
+                                @if($is{{ __('Expired') }})
+                                    <span class="badge-soft badge-expired">{{ __('Expired') }}</span>
                                 @elseif($coupon->status)
                                     <span class="badge-soft badge-active">{{ __('Active') }}</span>
                                 @else
@@ -171,19 +171,19 @@
                                 @endif
                             </td>
 
-                            {{-- Actions --}}
+                            {{-- {{ __('Actions') }} --}}
                             <td class="text-end">
                                 <div class="d-flex justify-content-end gap-1">
-                                    <a href="{{ route('admin.coupons.edit', $coupon->id) }}" class="btn-icon btn-edit" title="{{ __('Edit') }}">
-                                        <i data-feather="edit-2" style="width:14px;"></i>
+                                    <a href="{{ route('admin.coupons.edit', $coupon->{{ __('id)') }} }}" class="btn-icon btn-edit" title="{{ __('Edit') }}">
+                                        <i data-feather="edit-2" style="width:{{ __('14px') }};"></i>
                                     </a>
                                     
-                                    <form action="{{ route('admin.coupons.destroy', $coupon->id) }}" method="POST" class="d-inline"
-                                          onsubmit="return confirm('Are you sure you want to delete this coupon?');">
+                                    <form action="{{ route('admin.coupons.destroy', $coupon->{{ __('id)') }} }}" method={{ __('"{{ __('POST') }}"') }} class="d-inline"
+                                          on{{ __('submit') }}="return confirm('Are you sure you want to delete this coupon?');">
                                         @csrf
                                         @method('DELETE')
-                                        <button type="submit" class="btn-icon btn-delete" title="{{ __('Delete') }}">
-                                            <i data-feather="trash-2" style="width:14px;"></i>
+                                        <button type="{{ __('submit') }}" class="btn-icon btn-delete" title="{{ __('Delete') }}">
+                                            <i data-feather="trash-2" style="width:{{ __('14px') }};"></i>
                                         </button>
                                     </form>
                                 </div>
@@ -192,9 +192,9 @@
                     @empty
                         <tr>
                             <td colspan="8" class="text-center py-5">
-                                <img src="https://cdn-icons-png.flaticon.com/512/7486/7486744.png" width="60" class="mb-3 opacity-25">
-                                <p class="text-muted fw-bold mb-0">No Coupons Found</p>
-                                <small class="text-muted">Create a new coupon to get started.</small>
+                                <img src="{{ __('https://') }}cdn-icons-png.flaticon.com/512/7486/7486744.png" width="60" class="mb-3 opacity-25">
+                                <p class="text-muted fw-bold mb-0">{{ __('No {{ __('{{ __('Coupon') }}s') }} Found') }}</p>
+                                <small class="text-muted">{{ __('Create a new coupon to get started.') }}</small>
                             </td>
                         </tr>
                     @endforelse
@@ -214,5 +214,5 @@
 
 @push('scripts')
     {{-- Ensure FontAwesome is loaded for icons inside table if Feather is not enough --}}
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ __('https://') }}cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 @endpush

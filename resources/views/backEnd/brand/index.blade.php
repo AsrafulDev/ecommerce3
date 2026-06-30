@@ -1,5 +1,5 @@
 @extends('backEnd.layouts.master')
-@section('title','Brand Manage')
+@section('title','Brand {{ __('Manage') }}')
 
 @section('css')
 <link href="{{asset('/public/backEnd/')}}/assets/libs/datatables.net-bs5/css/dataTables.bootstrap5.min.css" rel="stylesheet" type="text/css" />
@@ -33,10 +33,10 @@
         padding: 15px;
         border-bottom: 1px solid #f1f5f7;
         color: #313b5e;
-        font-size: 14px;
+        font-size: {{ __('14px') }};
     }
 
-    /* Brand Image */
+    /* Brand {{ __('Image *') }}/
     .brand-img {
         width: 50px;
         height: 50px;
@@ -48,8 +48,8 @@
         background: #fff;
     }
 
-    /* Brand Name */
-    .brand-name { font-weight: 600; color: #343a40; font-size: 14px; }
+    /* {{ __('Brand {{ __('Name') }}') }} */
+    .brand-name { font-weight: 600; color: #343a40; font-size: {{ __('14px') }}; }
 
     /* Soft Badges */
     .badge-soft-success { background-color: rgba(10, 207, 151, 0.18); color: #0acf97; }
@@ -97,8 +97,8 @@
                             <tr>
                                 <th style="width: 50px;">{{ __('SL') }}</th>
                                 <th>{{ __('Logo') }}</th>
-                                <th>Brand Name</th>
-                                <th>{{ __('Status') }}</th>
+                                <th>{{ __('Brand {{ __('Name') }}') }}</th>
+                                <th>{{ __('{{ __('Status') }}') }}</th>
                                 <th class="text-end" style="width: 150px;">{{ __('Action') }}</th>
                             </tr>
                         </thead>                
@@ -125,12 +125,12 @@
 
                                 <td class="text-end">
                                     <div class="d-inline-flex gap-2">
-                                        {{-- Status Toggle --}}
+                                        {{-- {{ __('Status') }} Toggle --}}
                                         @if($value->status == 1)
                                             <form method="post" action="{{route('brands.inactive')}}" class="d-inline"> 
                                                 @csrf
                                                 <input type="hidden" value="{{$value->id}}" name="hidden_id">        
-                                                <button type="submit" class="action-btn btn-inactive" title="Deactivate">
+                                                <button type="{{ __('submit') }}" class="action-btn btn-inactive" title="Deactivate">
                                                     <i class="fe-eye-off"></i>
                                                 </button>
                                             </form>
@@ -138,14 +138,14 @@
                                             <form method="post" action="{{route('brands.active')}}" class="d-inline">
                                                 @csrf
                                                 <input type="hidden" value="{{$value->id}}" name="hidden_id">        
-                                                <button type="submit" class="action-btn btn-active" title="Activate">
+                                                <button type="{{ __('submit') }}" class="action-btn btn-active" title="Activate">
                                                     <i class="fe-eye"></i>
                                                 </button>
                                             </form>
                                         @endif
 
                                         {{-- Edit --}}
-                                        <a href="{{route('brands.edit',$value->id)}}" class="action-btn btn-edit" title="{{ __('Edit') }}">
+                                        <a href="{{route('brands.edit',$value->{{ __('id)') }}}}" class="action-btn btn-edit" title="{{ __('Edit') }}">
                                             <i class="fe-edit"></i>
                                         </a>
 
@@ -153,7 +153,7 @@
                                         <form method="post" action="{{ route('brands.destroy') }}" class="d-inline">
                                             @csrf
                                             <input type="hidden" name="hidden_id" value="{{ $value->id }}">
-                                            <button type="submit" class="action-btn btn-delete delete-confirm" title="{{ __('Delete') }}">
+                                            <button type="{{ __('submit') }}" class="action-btn btn-delete delete-confirm" title="{{ __('Delete') }}">
                                                 <i class="fe-trash-2"></i>
                                             </button>
                                         </form>

@@ -1,22 +1,22 @@
 @php
-    $subtotal = Cart::instance('shopping')->subtotal();
-    $subtotal=str_replace(',','',$subtotal);
-    $subtotal=str_replace('.00', '',$subtotal);
-    view()->share('subtotal',$subtotal);
-    $shipping = Session::get('shipping')?Session::get('shipping'):0;
-    $discount = Session::get('discount')?Session::get('discount'):0;
+    $sub{{ __('total') }} = {{ __('Cart') }}::instance('shopping')->sub{{ __('total') }}();
+    $sub{{ __('total') }}=str_replace(',','',$sub{{ __('total') }});
+    $sub{{ __('total') }}=str_replace('.00', '',$sub{{ __('total') }});
+    view()->share('sub{{ __('total') }}',$sub{{ __('total') }});
+    $shipping = {{ __('Session') }}::get('shipping')?{{ __('Session') }}::get('shipping'):0;
+    $discount = {{ __('Session') }}::get('discount')?{{ __('Session') }}::get('discount'):0;
 @endphp
 
-<h5>Cart Summary</h5>
+<h5>{{ __('{{ __('Cart') }} {{ __('Summary') }}') }}</h5>
     <table class="table">
         <tbody>
             <tr>
-                <td>Items</td>
-                <td>{{Cart::instance('shopping')->count()}} (qty)</td>
+                <td>{{ __('{{ __('Item') }}s') }}</td>
+                <td>{{{{ __('Cart') }}::instance('shopping')->count()}} (qty)</td>
             </tr>
             <tr>
                 <td>{{ __('Total') }}</td>
-                <td>৳{{$subtotal}}</td>
+                <td>৳{{$sub{{ __('total') }}}}</td>
             </tr>
             <tr>
                 <td>{{ __('Shipping') }}</td>
@@ -28,7 +28,7 @@
             </tr>
             <tr>
                 <td>{{ __('Total') }}</td>
-                <td>৳{{($subtotal+$shipping) - $discount}}</td>
+                <td>৳{{($sub{{ __('total') }}+$shipping) - $discount}}</td>
             </tr>
         </tbody>
     </table>

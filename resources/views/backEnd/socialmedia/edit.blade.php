@@ -1,5 +1,5 @@
 @extends('backEnd.layouts.master')
-@section('title', 'Edit Social Media')
+@section('title', 'Edit {{ __('Social {{ __('Media') }}') }}')
 
 @section('css')
 <style>
@@ -27,7 +27,7 @@
         border: 1px solid #e2e8f0;
         padding: 12px 15px;
         border-radius: 10px;
-        font-size: 14px;
+        font-size: {{ __('14px') }};
         color: #334155;
         transition: all 0.2s ease-in-out;
     }
@@ -63,7 +63,7 @@
         align-items: center;
     }
 
-    .status-text h6 { font-size: 14px; font-weight: 700; color: #1e293b; margin: 0; }
+    .status-text h6 { font-size: {{ __('14px') }}; font-weight: 700; color: #1e293b; margin: 0; }
     .status-text small { font-size: 12px; color: #64748b; }
 
     /* 4. COLOR PICKER */
@@ -80,13 +80,13 @@
     
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
-            <h4 class="fw-bold m-0 text-dark">Edit Platform Connection</h4>
-            <span class="text-muted small">Update social media profile details for <b>{{ $edit_data->title }}</b></span>
+            <h4 class="fw-bold m-0 text-dark">{{ __('Edit {{ __('Platform') }} Connection') }}</h4>
+            <span class="text-muted small">{{ __('Update social media profile details for') }} <b>{{ $edit_data->title }}</b></span>
         </div>
         <div class="d-flex gap-2">
             <a href="{{route('socialmedias.index')}}" class="btn btn-light border fw-bold text-secondary px-3 rounded-pill">{{ __('Cancel') }}</a>
-            <button type="submit" form="socialEditForm" class="btn btn-primary fw-bold px-4 shadow-sm rounded-pill">
-                <i class="mdi mdi-check-circle-outline me-1"></i> Update Platform
+            <button type="{{ __('submit') }}" form="socialEditForm" class="btn btn-primary fw-bold px-4 shadow-sm rounded-pill">
+                <i class="mdi mdi-check-circle-outline me-1"></i> Update {{ __('Platform') }}
             </button>
         </div>
     </div>
@@ -95,48 +95,48 @@
         <div class="col-lg-9 col-md-11">
             
             <div class="studio-card p-4 p-md-5">
-                <form action="{{route('socialmedias.update')}}" method="POST" id="socialEditForm" data-parsley-validate="" enctype="multipart/form-data">
+                <form action="{{route('socialmedias.update')}}" method={{ __('"{{ __('POST') }}"') }} id="socialEditForm" data-parsley-validate="" enctype="multipart/form-data">
                     @csrf
                     <input type="hidden" value="{{$edit_data->id}}" name="id">
 
                     <div class="row g-4">
                         
                         <div class="col-md-6">
-                            <label class="form-label-custom">Platform Name *</label>
+                            <label class="form-label-custom">{{ __('{{ __('Platform') }} {{ __('{{ __('Name') }} *') }}') }}</label>
                             <div class="input-group">
                                 <span class="input-group-text"><i class="mdi mdi-label-outline"></i></span>
                                 <input type="text" class="form-control input-clean @error('title') is-invalid @enderror" 
                                        name="title" value="{{ old('title', $edit_data->title) }}" 
-                                       placeholder="e.g. Facebook" required>
+                                       placeholder="{{ __('e.g. Facebook') }}" required>
                             </div>
                             @error('title') <div class="text-danger small mt-1">{{ $message }}</div> @enderror
                         </div>
 
                         <div class="col-md-6">
-                            <label class="form-label-custom">Icon Class *</label>
+                            <label class="form-label-custom">{{ __('Icon Class *') }}</label>
                             <div class="input-group">
                                 <span class="input-group-text"><i class="mdi mdi-emoticon-happy-outline"></i></span>
                                 <input type="text" class="form-control input-clean @error('icon') is-invalid @enderror" 
                                        name="icon" value="{{ old('icon', $edit_data->icon) }}" 
-                                       placeholder="e.g. fab fa-facebook" required>
+                                       placeholder="{{ __('e.g. fab fa-facebook') }}" required>
                             </div>
-                            <small class="text-muted">Currently using: <i class="{{ $edit_data->icon }} ms-1"></i></small>
+                            <small class="text-muted">{{ __('{{ __('Current') }}ly using') }}: <i class="{{ $edit_data->icon }} ms-1"></i></small>
                             @error('icon') <div class="text-danger small mt-1">{{ $message }}</div> @enderror
                         </div>
 
                         <div class="col-md-6">
-                            <label class="form-label-custom">Profile URL / Link *</label>
+                            <label class="form-label-custom">{{ __('Profile URL / {{ __('Link') }} *') }}</label>
                             <div class="input-group">
                                 <span class="input-group-text"><i class="mdi mdi-link-variant"></i></span>
                                 <input type="text" class="form-control input-clean @error('link') is-invalid @enderror" 
                                        name="link" value="{{ old('link', $edit_data->link) }}" 
-                                       placeholder="https://facebook.com/yourpage" required>
+                                       placeholder="{{ __('{{ __('https://') }}facebook.com/yourpage') }}" required>
                             </div>
                             @error('link') <div class="text-danger small mt-1">{{ $message }}</div> @enderror
                         </div>
 
                         <div class="col-md-6">
-                            <label class="form-label-custom">Brand Theme Color *</label>
+                            <label class="form-label-custom">{{ __('Brand Theme {{ __('Color') }} *') }}</label>
                             <div class="input-group">
                                 <span class="input-group-text"><i class="mdi mdi-palette-outline"></i></span>
                                 <input type="color" class="form-control input-clean color-input-wrapper @error('color') is-invalid @enderror" 
@@ -148,8 +148,8 @@
                         <div class="col-12">
                             <div class="status-toggle-box">
                                 <div class="status-text">
-                                    <h6 class="d-flex align-items-center"><i class="mdi mdi-eye-outline me-2 text-primary"></i> Publication Status</h6>
-                                    <small>Enable or disable this link on the website</small>
+                                    <h6 class="d-flex align-items-center"><i class="mdi mdi-eye-outline me-2 text-primary"></i> {{ __('Publication {{ __('Status') }}') }}</h6>
+                                    <small>{{ __('{{ __('Enable') }} or disable this link on the website') }}</small>
                                 </div>
                                 <div class="form-check form-switch">
                                     {{-- Hidden input to ensure status=0 is sent when checkbox is unchecked --}}
@@ -178,14 +178,14 @@
     $(document).ready(function() {
         // Handle checkbox change - update hidden input value
         $('#status_checkbox').change(function() {
-            var statusValue = $(this).is(':checked') ? '1' : '0';
-            $('#status_hidden').val(statusValue);
+            var status{{ __('Value') }} = $(this).is(':checked') ? '1' : '0';
+            $('#status_hidden').val(status{{ __('Value') }});
         });
         
-        // Handle form submission - ensure status value is properly set before submit
-        $('#socialEditForm').on('submit', function(e) {
-            var statusValue = $('#status_checkbox').is(':checked') ? '1' : '0';
-            $('#status_hidden').val(statusValue);
+        // Handle form submission - ensure status value is properly set before {{ __('submit') }}
+        $('#socialEditForm').on('{{ __('submit') }}', function(e) {
+            var status{{ __('Value') }} = $('#status_checkbox').is(':checked') ? '1' : '0';
+            $('#status_hidden').val(status{{ __('Value') }});
         });
     });
 </script>

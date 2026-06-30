@@ -1,5 +1,5 @@
 @extends('backEnd.layouts.master')
-@section('title', 'Cron Job ম্যানেজমেন্ট')
+@section('title', '{{ __('bn_c49993c5') }}')
 
 @section('css')
 <style>
@@ -30,7 +30,7 @@
     }
     .cron-icon.courier { background: linear-gradient(135deg,#667eea,#764ba2); color:#fff; }
     .cron-body  { padding: 20px 24px; }
-    .cron-footer{ padding: 14px 24px; background: #f8fafc; border-top: 1px solid #f1f5f9; }
+    .cron-footer{ padding: {{ __('14px') }} 24px; background: #f8fafc; border-top: 1px solid #f1f5f9; }
 
     /* Toggle Switch */
     .switch { position:relative; display:inline-block; width:52px; height:28px; }
@@ -51,7 +51,7 @@
     input:checked + .slider { background: #28a745; }
     input:checked + .slider:before { transform: translateX(24px); }
 
-    /* Status badge */
+    /* {{ __('Status') }} badge */
     .run-badge {
         display:inline-flex; align-items:center; gap:5px;
         padding:4px 12px; border-radius:20px;
@@ -107,7 +107,7 @@
     }
     .cron-info-box .note { font-size:12px; color:#94a3b8; }
 
-    .spinner-border-sm { width:14px; height:14px; border-width:2px; }
+    .spinner-border-sm { width:{{ __('14px') }}; height:{{ __('14px') }}; border-width:2px; }
 
     @keyframes pulse-dot { 0%,100%{opacity:1} 50%{opacity:.4} }
     .pulse-dot { animation: pulse-dot 1.2s ease-in-out infinite; }
@@ -119,10 +119,10 @@
     <div class="row align-items-center">
         <div class="col-sm-6">
             <div class="breadcrumbs-area clearfix">
-                <h4 class="page-title pull-left">Cron Job ম্যানেজমেন্ট</h4>
+                <h4 class="page-title pull-left">{{ __('bn_c49993c5') }}</h4>
                 <ul class="breadcrumbs pull-left">
                     <li><a href="{{ route('admin.dashboard') }}">{{ __('Dashboard') }}</a></li>
-                    <li><span>Cron Jobs</span></li>
+                    <li><span>{{ __('{{ __('Cron Job') }}s') }}</span></li>
                 </ul>
             </div>
         </div>
@@ -146,7 +146,7 @@
                         <p class="mb-0 text-muted" style="font-size:12px;">{{ $job->job_description }}</p>
                     </div>
                     {{-- Toggle --}}
-                    <label class="switch mb-0" title="{{ $job->is_enabled ? 'বন্ধ করুন' : 'চালু করুন' }}">
+                    <label class="switch mb-0" title="{{ $job->is_enabled ? '{{ __('Close') }} করুন' : 'চালু করুন' }}">
                         <input type="checkbox" class="toggle-cron"
                                data-id="{{ $job->id }}"
                                {{ $job->is_enabled ? 'checked' : '' }}>
@@ -162,19 +162,19 @@
                         <div class="col-4">
                             <div class="stat-box">
                                 <div class="stat-num text-success" id="updated-{{ $job->id }}">{{ $job->last_updated_count ?? 0 }}</div>
-                                <div class="stat-label">আপডেট হয়েছে</div>
+                                <div class="stat-label">{{ __('bn_60964013') }}</div>
                             </div>
                         </div>
                         <div class="col-4">
                             <div class="stat-box">
                                 <div class="stat-num text-danger" id="failed-{{ $job->id }}">{{ $job->last_failed_count ?? 0 }}</div>
-                                <div class="stat-label">ব্যর্থ হয়েছে</div>
+                                <div class="stat-label">{{ __('bn_70373bd4') }}</div>
                             </div>
                         </div>
                         <div class="col-4">
                             <div class="stat-box">
                                 <div class="stat-num text-primary">{{ $job->frequency_minutes }}</div>
-                                <div class="stat-label">মিনিট পর পর</div>
+                                <div class="stat-label">{{ __('bn_94d29106') }}</div>
                             </div>
                         </div>
                     </div>
@@ -182,16 +182,16 @@
                     {{-- Last run info --}}
                     <div class="d-flex align-items-center justify-content-between mb-3 flex-wrap gap-2">
                         <div>
-                            <span class="text-muted" style="font-size:12px;">শেষ রান:</span>
+                            <span class="text-muted" style="font-size:12px;">{{ __('bn_69ff0ba2') }}:</span>
                             <strong style="font-size:13px;" id="last-run-at-{{ $job->id }}">
-                                {{ $job->last_run_at ? $job->last_run_at->format('d M Y, h:i A') : 'এখনও রান হয়নি' }}
+                                {{ $job->last_run_at ? $job->last_run_at->format('d M Y, h:i A') : 'এখনও রান {{ __('bn_290a7f61') }}নি' }}
                             </strong>
                         </div>
                         <span class="run-badge {{ $job->last_run_status ?? 'none' }}" id="status-badge-{{ $job->id }}">
                             @if($job->last_run_status === 'success')
-                                <i class="fa fa-check-circle"></i> সফল
+                                <i class="fa fa-check-circle"></i> {{ __('bn_fbbc3031') }}
                             @elseif($job->last_run_status === 'failed')
-                                <i class="fa fa-times-circle"></i> ব্যর্থ
+                                <i class="fa fa-times-circle"></i> {{ __('bn_84d84036') }}
                             @elseif($job->last_run_status === 'running')
                                 <i class="fa fa-circle pulse-dot"></i> চলছে
                             @else
@@ -213,7 +213,7 @@
                     {{-- Settings row --}}
                     <div class="row align-items-end">
                         <div class="col-sm-4 mb-3 mb-sm-0">
-                            <label class="d-block mb-1" style="font-size:12px;font-weight:600;">ফ্রিকোয়েন্সি (মিনিট)</label>
+                            <label class="d-block mb-1" style="font-size:12px;font-weight:600;">{{ __('bn_527b0ccd') }}</label>
                             <select class="freq-select w-100" id="freq-{{ $job->id }}">
                                 @foreach([1,2,5,10,15,30,60,120] as $min)
                                 <option value="{{ $min }}" {{ $job->frequency_minutes == $min ? 'selected' : '' }}>
@@ -223,7 +223,7 @@
                             </select>
                         </div>
                         <div class="col-sm-4 mb-3 mb-sm-0">
-                            <label class="d-block mb-1" style="font-size:12px;font-weight:600;">অর্ডার লিমিট (প্রতিবার)</label>
+                            <label class="d-block mb-1" style="font-size:12px;font-weight:600;">{{ __('bn_617697fc') }}</label>
                             <select class="freq-select w-100" id="limit-{{ $job->id }}">
                                 @foreach([10,25,50,100,200,500] as $lim)
                                 <option value="{{ $lim }}" {{ $job->order_limit == $lim ? 'selected' : '' }}>
@@ -263,11 +263,11 @@
                 <h6 class="mb-2" style="color:#f8fafc;font-weight:700;">
                     <i class="fa fa-server mr-2"></i>Server Cron Setup
                 </h6>
-                <p class="note mb-2">cPanel / Hosting-এ নিচের কমান্ডটি যোগ করুন:</p>
+                <p class="note mb-2">{{ __('bn_03775f86') }}:</p>
                 <code>* * * * * cd {{ base_path() }} && php artisan schedule:run >> /dev/null 2>&1</code>
                 <p class="note mt-2 mb-0">
                     <i class="fa fa-info-circle mr-1"></i>
-                    এই একটি cron লাইনই যথেষ্ট — বাকি সব schedule Laravel নিজেই পরিচালনা করবে।
+                    এই একটি cron লাইনই যথেষ্ট — বাকি সব schedule {{ __('Laravel') }} নিজেই পরিচালনা করবে।
                 </p>
 
                 <hr style="border-color:#334155;margin:16px 0;">
@@ -276,11 +276,11 @@
                     <i class="fa fa-question-circle mr-2"></i>কীভাবে কাজ করে?
                 </h6>
                 <ul class="note pl-3 mb-0" style="line-height:1.8;">
-                    <li>অর্ডার courier-এ পাঠানো হলে status = <strong style="color:#38bdf8;">5</strong> হয়</li>
-                    <li>Cron চললে courier API থেকে update নেওয়া হয়</li>
-                    <li>Delivered → status = <strong style="color:#4ade80;">6</strong></li>
+                    <li>{{ __('bn_0534047d') }} <strong style="color:#38bdf8;">5</strong> {{ __('bn_290a7f61') }}</li>
+                    <li>{{ __('bn_da175019') }}</li>
+                    <li>{{ __('Delivered') }} → status = <strong style="color:#4ade80;">6</strong></li>
                     <li>Cancelled → status = <strong style="color:#f87171;">11</strong></li>
-                    <li>"এখনই রান করুন" দিয়ে manual sync করা যাবে</li>
+                    <li>{{ __('bn_b1a90c89') }}</li>
                 </ul>
 
                 <hr style="border-color:#334155;margin:16px 0;">
@@ -289,7 +289,7 @@
                     <i class="fa fa-terminal mr-2"></i>Manual Run (Terminal)
                 </h6>
                 <code>php artisan courier:check-status --limit=50</code>
-                <code style="margin-top:6px;">php artisan courier:check-status --force</code>
+                <code style="margin-top:6px;">{{ __('php artisan courier:check-status --force') }}</code>
             </div>
         </div>
 
@@ -307,16 +307,16 @@
         el.addEventListener('change', function() {
             const id = this.dataset.id;
             fetch('{{ url("admin/cron-jobs") }}/' + id + '/toggle', {
-                method: 'POST',
+                method: '{{ __('POST') }}',
                 headers: { 'X-CSRF-TOKEN': csrfToken, 'Accept': 'application/json' }
             })
             .then(r => r.json())
             .then(function(data) {
                 if (data.success) {
-                    showToast(data.message, 'success');
+                    showToast(data.{{ __('message') }}, 'success');
                 }
             })
-            .catch(function() { showToast('সমস্যা হয়েছে, আবার চেষ্টা করুন।', 'error'); });
+            .catch(function() { showToast('সমস্যা {{ __('bn_290a7f61') }}েছে, আবার চেষ্টা করুন।', 'error'); });
         });
     });
 
@@ -324,14 +324,14 @@
     document.querySelectorAll('.btn-save-settings').forEach(function(btn) {
         btn.addEventListener('click', function() {
             const id   = this.dataset.id;
-            const freq = document.getElementById('freq-'  + id).value;
-            const lim  = document.getElementById('limit-' + id).value;
+            const freq = document.getElementById('freq-'  + {{ __('id)') }}.value;
+            const lim  = document.getElementById('limit-' + {{ __('id)') }}.value;
 
             btn.disabled = true;
             btn.innerHTML = '<i class="fa fa-spinner fa-spin mr-1"></i> সেভ হচ্ছে...';
 
             fetch('{{ url("admin/cron-jobs") }}/' + id + '/settings', {
-                method: 'POST',
+                method: '{{ __('POST') }}',
                 headers: {
                     'X-CSRF-TOKEN': csrfToken,
                     'Accept': 'application/json',
@@ -344,9 +344,9 @@
                 btn.disabled = false;
                 btn.innerHTML = '<i class="fa fa-save mr-1"></i> সেভ';
                 if (data.success) {
-                    showToast(data.message, 'success');
+                    showToast(data.{{ __('message') }}, 'success');
                     // Update display
-                    var dispEl = document.getElementById('freq-display-' + id);
+                    var dispEl = document.getElementById('freq-display-' + {{ __('id)') }};
                     if (dispEl) {
                         dispEl.textContent = freq >= 60 ? (freq/60)+' ঘণ্টা' : freq+' মিনিট';
                     }
@@ -354,7 +354,7 @@
                     var statBox = document.querySelector('#card-job-' + id + ' .stat-num.text-primary');
                     if (statBox) statBox.textContent = freq;
                 } else {
-                    showToast('সেভ ব্যর্থ হয়েছে।', 'error');
+                    showToast('সেভ {{ __('bn_70373bd4') }}।', 'error');
                 }
             })
             .catch(function() {
@@ -375,7 +375,7 @@
             setBadge(id, 'running', '<i class="fa fa-circle pulse-dot"></i> চলছে');
 
             fetch('{{ url("admin/cron-jobs") }}/' + id + '/run-now', {
-                method: 'POST',
+                method: '{{ __('POST') }}',
                 headers: { 'X-CSRF-TOKEN': csrfToken, 'Accept': 'application/json' }
             })
             .then(r => r.json())
@@ -384,51 +384,51 @@
                 btn.innerHTML = '<i class="fa fa-play-circle"></i> এখনই রান করুন';
 
                 if (data.success) {
-                    showToast(data.message, 'success');
+                    showToast(data.{{ __('message') }}, 'success');
                     setBadge(id, data.last_run_status, getBadgeHtml(data.last_run_status));
                     if (data.last_run_at) {
-                        var el = document.getElementById('last-run-at-' + id);
+                        var el = document.getElementById('last-run-at-' + {{ __('id)') }};
                         if (el) el.textContent = data.last_run_at;
                     }
                     if (data.last_run_result) {
-                        var res = document.getElementById('result-text-' + id);
+                        var res = document.getElementById('result-text-' + {{ __('id)') }};
                         if (res) {
                             res.style.display = '';
                             res.innerHTML = '<i class="fa fa-info-circle text-muted mr-1"></i>' + data.last_run_result;
                         }
                     }
                     if (typeof data.updated_count !== 'undefined') {
-                        var u = document.getElementById('updated-' + id);
+                        var u = document.getElementById('updated-' + {{ __('id)') }};
                         if (u) u.textContent = data.updated_count;
                     }
                     if (typeof data.failed_count !== 'undefined') {
-                        var f = document.getElementById('failed-' + id);
+                        var f = document.getElementById('failed-' + {{ __('id)') }};
                         if (f) f.textContent = data.failed_count;
                     }
                 } else {
-                    showToast(data.message || 'রান ব্যর্থ হয়েছে।', 'error');
-                    setBadge(id, 'failed', '<i class="fa fa-times-circle"></i> ব্যর্থ');
+                    showToast(data.{{ __('message') }} || 'রান {{ __('bn_70373bd4') }}।', 'error');
+                    setBadge(id, 'failed', '<i class="fa fa-times-circle"></i> {{ __('bn_84d84036') }}');
                 }
             })
             .catch(function() {
                 btn.disabled = false;
                 btn.innerHTML = '<i class="fa fa-play-circle"></i> এখনই রান করুন';
-                setBadge(id, 'failed', '<i class="fa fa-times-circle"></i> ব্যর্থ');
+                setBadge(id, 'failed', '<i class="fa fa-times-circle"></i> {{ __('bn_84d84036') }}');
                 showToast('নেটওয়ার্ক সমস্যা।', 'error');
             });
         });
     });
 
     function setBadge(id, status, html) {
-        var el = document.getElementById('status-badge-' + id);
+        var el = document.getElementById('status-badge-' + {{ __('id)') }};
         if (!el) return;
-        el.className = 'run-badge ' + (status || 'none');
+        el.class{{ __('Name') }} = 'run-badge ' + (status || 'none');
         el.innerHTML = html;
     }
 
     function getBadgeHtml(status) {
-        if (status === 'success') return '<i class="fa fa-check-circle"></i> সফল';
-        if (status === 'failed')  return '<i class="fa fa-times-circle"></i> ব্যর্থ';
+        if (status === 'success') return '<i class="fa fa-check-circle"></i> {{ __('bn_fbbc3031') }}';
+        if (status === 'failed')  return '<i class="fa fa-times-circle"></i> {{ __('bn_84d84036') }}';
         if (status === 'running') return '<i class="fa fa-circle pulse-dot"></i> চলছে';
         return '<i class="fa fa-clock-o"></i> কখনও চলেনি';
     }

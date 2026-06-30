@@ -1,1 +1,1 @@
-{{Cart::instance('compare')->count()}}
+{{{{ __('Cart') }}::instance('compare')->count()}}

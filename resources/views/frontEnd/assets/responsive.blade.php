@@ -8,7 +8,7 @@
     .mobile-search {
         display: none;
     }
-    .mobile-filter-toggle {
+    .mobile-{{ __('filter') }}-toggle {
         display: none;
     }
 }
@@ -52,14 +52,14 @@
     .payment-method-wrappers {
         grid-template-columns: repeat(2, 1fr);
     }
-    .filter_sort {
+    .{{ __('filter') }}_sort {
         display: grid;
         grid-template-columns: 1fr 1fr;
         align-items: center;
         padding: 0 6px;
         margin-top: 12px;
     }
-    .filter_sidebar {
+    .{{ __('filter') }}_sidebar {
         position: fixed;
         visibility: hidden;
         opacity: 0;
@@ -67,7 +67,7 @@
         transition: 0.35s all;
         background: #fff;
     }
-    .filter_sidebar.active {
+    .{{ __('filter') }}_sidebar.active {
         background: #fff;
         z-index: 9999;
         height: 100%;
@@ -77,24 +77,24 @@
         opacity: 1;
         overflow-y: auto;
     }
-    .filter_sidebar.active::-webkit-scrollbar-track
+    .{{ __('filter') }}_sidebar.active::-webkit-scrollbar-track
     {
     	-webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3);
     	background-color: #F5F5F5;
     }
     
-    .filter_sidebar.active::-webkit-scrollbar
+    .{{ __('filter') }}_sidebar.active::-webkit-scrollbar
     {
     	width: 6px;
     	background-color: #F5F5F5;
     }
     
-    .filter_sidebar.active::-webkit-scrollbar-thumb
+    .{{ __('filter') }}_sidebar.active::-webkit-scrollbar-thumb
     {
     	background-color: var(--primary-color);
     }
 
-    .filter_btn {
+    .{{ __('filter') }}_btn {
         display: inline-block;
         background: var(--primary-color);
         color: #fff;
@@ -107,7 +107,7 @@
         text-transform: capitalize;
         cursor: pointer;
     }
-    .filter_close {
+    .{{ __('filter') }}_close {
         background: var(--primary-color);
         padding: 10px 15px;
         font-size: 18px;
@@ -174,7 +174,7 @@
     .showing-data {
         display: none;
     }
-    .mobile-filter-toggle {
+    .mobile-{{ __('filter') }}-toggle {
         display: flex;
         justify-content: center;
         margin: 10px 0;
@@ -182,7 +182,7 @@
         column-gap: 10px;
         display: none;
     }
-.mobile-filter-toggle span {
+.mobile-{{ __('filter') }}-toggle span {
     font-size: 17px;
     text-transform: uppercase;
     font-weight: 500;
@@ -675,7 +675,7 @@ header .toggle {
 	    opacity: 0;
 	    transition: 0.35s all;
 	}
-	.close_filter {
+	.close_{{ __('filter') }} {
 	    position: absolute;
 	    top: 0;
 	    right: 12px;
@@ -686,10 +686,10 @@ header .toggle {
 	    background: #d3b520;
 	    color: #fff;
 	}
-	.close_filter,.show_filter {
+	.close_{{ __('filter') }},.show_{{ __('filter') }} {
 	    display: block;
 	}
-	.show_filter {
+	.show_{{ __('filter') }} {
 	    display: inline-block;
 	    margin-right: 10px;
 	    margin-left: 8px;
@@ -701,7 +701,7 @@ header .toggle {
 	    margin-top: 0;
 	}
 	.sort-form select {
-	    font-size: 14px;
+	    font-size: {{ __('14px') }};
 	}
 	.category-sidebar.active {
 	    visibility: visible;

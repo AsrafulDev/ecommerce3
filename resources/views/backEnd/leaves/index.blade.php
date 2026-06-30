@@ -1,5 +1,5 @@
 @extends('backEnd.layouts.master')
-@section('title', 'Leave Management')
+@section('title', 'Leave {{ __('Manage') }}ment')
 
 @section('css')
 <style>
@@ -10,7 +10,7 @@
         box-shadow: 0 4px 10px rgba(0, 0, 0, 0.03);
         background: #fff;
     }
-    .filter-container {
+    .{{ __('filter') }}-container {
         background: #f8fafc;
         border-bottom: 1px solid #e2e8f0;
         padding: 1.25rem;
@@ -63,7 +63,7 @@
     .badge-approved { background: #dcfce7; color: #166534; }
     .badge-rejected { background: #fee2e2; color: #991b1b; }
     .badge-pending { background: #fef3c7; color: #92400e; }
-    .status-dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+    .status-dot { width: 6px; height: 6px; border-radius: 50%; background: current{{ __('Color') }}; }
 
     /* --- Action Buttons --- */
     .btn-icon {
@@ -85,25 +85,25 @@
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
             <h4 class="mb-1 fw-bold text-dark">
-                <i data-feather="calendar" class="text-primary me-2"></i> Leave Management
+                <i data-feather="calendar" class="text-primary me-2"></i> Leave {{ __('Manage') }}ment
             </h4>
-            <p class="text-muted small mb-0">Track and manage employee leave requests.</p>
+            <p class="text-muted small mb-0">{{ __('{{ __('Track') }} and manage employee leave requests.') }}</p>
         </div>
         <a href="{{ route('admin.leaves.create') }}" class="btn btn-primary px-4 py-2 rounded-pill shadow-sm">
-            <i data-feather="plus-circle" class="me-1" style="width: 16px;"></i> Add New Leave
+            <i data-feather="plus-circle" class="me-1" style="width: 16px;"></i> Add {{ __('New') }} Leave
         </a>
     </div>
 
     <div class="card card-modern">
         
         {{-- FILTERS --}}
-        <div class="filter-container">
-            <form method="GET" action="{{ route('admin.leaves.index') }}">
+        <div class="{{ __('filter') }}-container">
+            <form method="{{ __('GET') }}" action="{{ route('admin.leaves.index') }}">
                 <div class="row g-3 align-items-end">
                     <div class="col-md-3">
                         <label class="form-label small fw-bold text-muted text-uppercase mb-1">{{ __('Employee') }}</label>
                         <select name="employee_id" class="form-control select2 form-select-modern">
-                            <option value="">All Employees</option>
+                            <option value="">{{ __('All {{ __('Employees') }}') }}</option>
                             @foreach($employees as $emp)
                                 <option value="{{ $emp->id }}" {{ request('employee_id') == $emp->id ? 'selected' : '' }}>
                                     {{ $emp->name }} ({{ $emp->employee_id }})
@@ -112,25 +112,25 @@
                         </select>
                     </div>
                     <div class="col-md-2">
-                        <label class="form-label small fw-bold text-muted text-uppercase mb-1">{{ __('Status') }}</label>
+                        <label class="form-label small fw-bold text-muted text-uppercase mb-1">{{ __('{{ __('Status') }}') }}</label>
                         <select name="status" class="form-select form-select-modern">
-                            <option value="">All Status</option>
+                            <option value="">{{ __('All {{ __('Status') }}') }}</option>
                             <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }}>{{ __('Pending') }}</option>
-                            <option value="approved" {{ request('status') == 'approved' ? 'selected' : '' }}>{{ __('Approved') }}</option>
-                            <option value="rejected" {{ request('status') == 'rejected' ? 'selected' : '' }}>{{ __('Rejected') }}</option>
+                            <option value="approved" {{ request('status') == 'approved' ? 'selected' : '' }}>{{ __('{{ __('Approve') }}d') }}</option>
+                            <option value="rejected" {{ request('status') == 'rejected' ? 'selected' : '' }}>{{ __('{{ __('Reject') }}ed') }}</option>
                         </select>
                     </div>
                     <div class="col-md-2">
-                        <label class="form-label small fw-bold text-muted text-uppercase mb-1">Leave Type</label>
+                        <label class="form-label small fw-bold text-muted text-uppercase mb-1">{{ __('Leave Type') }}</label>
                         <select name="leave_type" class="form-select form-select-modern">
-                            <option value="">All Types</option>
-                            <option value="sick" {{ request('leave_type') == 'sick' ? 'selected' : '' }}>Sick</option>
-                            <option value="casual" {{ request('leave_type') == 'casual' ? 'selected' : '' }}>Casual</option>
-                            <option value="annual" {{ request('leave_type') == 'annual' ? 'selected' : '' }}>Annual</option>
+                            <option value="">{{ __('All Types') }}</option>
+                            <option value="sick" {{ request('leave_type') == 'sick' ? 'selected' : '' }}>{{ __('Sick') }}</option>
+                            <option value="casual" {{ request('leave_type') == 'casual' ? 'selected' : '' }}>{{ __('Casual') }}</option>
+                            <option value="annual" {{ request('leave_type') == 'annual' ? 'selected' : '' }}>{{ __('Annual') }}</option>
                         </select>
                     </div>
                     <div class="col-md-3 d-flex gap-2">
-                        <button type="submit" class="btn btn-dark w-100 fw-bold">{{ __('Filter') }}</button>
+                        <button type="{{ __('submit') }}" class="btn btn-dark w-100 fw-bold">{{ __('Filter') }}</button>
                         <a href="{{ route('admin.leaves.index') }}" class="btn btn-light border px-3" title="{{ __('Reset') }}">
                             <i data-feather="refresh-cw" style="width:16px;"></i>
                         </a>
@@ -145,12 +145,12 @@
                 <thead>
                     <tr>
                         <th width="5%">#</th>
-                        <th width="20%">Employee Details</th>
-                        <th width="15%">Leave Type</th>
-                        <th width="20%">Duration</th>
-                        <th width="10%">Days</th>
-                        <th width="15%">{{ __('Status') }}</th>
-                        <th width="15%" class="text-end">Actions</th>
+                        <th width="20%">{{ __('Employee Details') }}</th>
+                        <th width="15%">{{ __('Leave Type') }}</th>
+                        <th width="20%">{{ __('Duration') }}</th>
+                        <th width="10%">{{ __('Days') }}</th>
+                        <th width="15%">{{ __('{{ __('Status') }}') }}</th>
+                        <th width="15%" class="text-end">{{ __('Actions') }}</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -173,12 +173,12 @@
                             <td class="text-muted">
                                 {{ $leave->start_date->format('d M') }} - {{ $leave->end_date->format('d M, Y') }}
                             </td>
-                            <td class="fw-bold">{{ $leave->total_days }}</td>
+                            <td class="fw-bold">{{ $leave->{{ __('total') }}_days }}</td>
                             <td>
                                 @if($leave->status == 'approved')
-                                    <span class="badge-soft badge-approved"><span class="status-dot"></span>{{ __('Approved') }}</span>
+                                    <span class="badge-soft badge-approved"><span class="status-dot"></span>{{ __('{{ __('Approve') }}d') }}</span>
                                 @elseif($leave->status == 'rejected')
-                                    <span class="badge-soft badge-rejected"><span class="status-dot"></span>{{ __('Rejected') }}</span>
+                                    <span class="badge-soft badge-rejected"><span class="status-dot"></span>{{ __('{{ __('Reject') }}ed') }}</span>
                                 @else
                                     <span class="badge-soft badge-pending"><span class="status-dot"></span>{{ __('Pending') }}</span>
                                 @endif
@@ -186,40 +186,40 @@
                             <td class="text-end">
                                 <div class="d-flex justify-content-end gap-1">
                                     @if($leave->status == 'pending')
-                                        <form action="{{ route('admin.leaves.approve', $leave->id) }}" method="POST" class="d-inline">
+                                        <form action="{{ route('admin.leaves.approve', $leave->{{ __('id)') }} }}" method={{ __('"{{ __('POST') }}"') }} class="d-inline">
                                             @csrf
-                                            <button type="submit" class="btn-icon btn-approve" title="Approve">
-                                                <i data-feather="check" style="width:14px;"></i>
+                                            <button type="{{ __('submit') }}" class="btn-icon btn-approve" title="{{ __('Approve') }}">
+                                                <i data-feather="check" style="width:{{ __('14px') }};"></i>
                                             </button>
                                         </form>
-                                        <button type="button" class="btn-icon btn-reject" data-bs-toggle="modal" data-bs-target="#rejectModal{{ $leave->id }}" title="Reject">
-                                            <i data-feather="x" style="width:14px;"></i>
+                                        <button type="button" class="btn-icon btn-reject" data-bs-toggle="modal" data-bs-target="#rejectModal{{ $leave->id }}" title="{{ __('Reject') }}">
+                                            <i data-feather="x" style="width:{{ __('14px') }};"></i>
                                         </button>
                                     @endif
-                                    <a href="{{ route('admin.leaves.edit', $leave->id) }}" class="btn-icon btn-edit" title="{{ __('Edit') }}">
-                                        <i data-feather="edit-2" style="width:14px;"></i>
+                                    <a href="{{ route('admin.leaves.edit', $leave->{{ __('id)') }} }}" class="btn-icon btn-edit" title="{{ __('Edit') }}">
+                                        <i data-feather="edit-2" style="width:{{ __('14px') }};"></i>
                                     </a>
                                 </div>
 
-                                {{-- Reject Modal --}}
+                                {{-- {{ __('Reject') }} Modal --}}
                                 <div class="modal fade" id="rejectModal{{ $leave->id }}" tabindex="-1" aria-hidden="true">
                                     <div class="modal-dialog modal-dialog-centered">
                                         <div class="modal-content border-0 shadow-lg">
                                             <div class="modal-header border-bottom-0 pb-0">
-                                                <h5 class="modal-title text-danger fw-bold">Reject Leave Request</h5>
+                                                <h5 class="modal-title text-danger fw-bold">{{ __('{{ __('Reject') }} Leave Request') }}</h5>
                                                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                                             </div>
-                                            <form action="{{ route('admin.leaves.reject', $leave->id) }}" method="POST">
+                                            <form action="{{ route('admin.leaves.reject', $leave->{{ __('id)') }} }}" method={{ __('"{{ __('POST') }}"') }}>
                                                 @csrf
                                                 <div class="modal-body text-start">
                                                     <div class="mb-3">
-                                                        <label class="form-label small fw-bold text-muted">Reason for Rejection <span class="text-danger">*</span></label>
-                                                        <textarea name="admin_note" class="form-control" rows="3" required placeholder="Enter rejection reason..."></textarea>
+                                                        <label class="form-label small fw-bold text-muted">{{ __('{{ __('Reason') }} for {{ __('Reject') }}ion') }} <span class="text-danger">*</span></label>
+                                                        <textarea name="admin_note" class="form-control" rows="3" required placeholder="{{ __('Enter rejection reason...') }}"></textarea>
                                                     </div>
                                                 </div>
                                                 <div class="modal-footer border-top-0 pt-0">
                                                     <button type="button" class="btn btn-light btn-sm" data-bs-dismiss="modal">{{ __('Cancel') }}</button>
-                                                    <button type="submit" class="btn btn-danger btn-sm px-4">Confirm Reject</button>
+                                                    <button type="{{ __('submit') }}" class="btn btn-danger btn-sm px-4">{{ __('Confirm {{ __('Reject') }}') }}</button>
                                                 </div>
                                             </form>
                                         </div>
@@ -231,9 +231,9 @@
                     @empty
                         <tr>
                             <td colspan="7" class="text-center py-5">
-                                <img src="https://cdn-icons-png.flaticon.com/512/7486/7486744.png" width="60" class="mb-3 opacity-25">
-                                <p class="text-muted fw-bold mb-0">No leave requests found</p>
-                                <small class="text-muted">Adjust filters or add a new request.</small>
+                                <img src="{{ __('https://') }}cdn-icons-png.flaticon.com/512/7486/7486744.png" width="60" class="mb-3 opacity-25">
+                                <p class="text-muted fw-bold mb-0">{{ __('No leave requests found') }}</p>
+                                <small class="text-muted">{{ __('Adjust {{ __('filter') }}s or add a new request.') }}</small>
                             </td>
                         </tr>
                     @endforelse
@@ -243,7 +243,7 @@
 
         {{-- PAGINATION --}}
         <div class="p-4 border-top d-flex justify-content-between align-items-center bg-white rounded-bottom">
-            <small class="text-muted">{{ __('Showing') }}<strong>{{ $leaves->firstItem() }}</strong>{{ __('to') }}<strong>{{ $leaves->lastItem() }}</strong>{{ __('of') }}<strong>{{ $leaves->total() }}</strong> records
+            <small class="text-muted">{{ __('Showing') }}<strong>{{ $leaves->first{{ __('Item') }}() }}</strong>{{ __('to') }}<strong>{{ $leaves->last{{ __('Item') }}() }}</strong>{{ __('of') }}<strong>{{ $leaves->{{ __('total') }}() }}</strong> records
             </small>
             <div>
                 {{ $leaves->links('pagination::bootstrap-4') }}

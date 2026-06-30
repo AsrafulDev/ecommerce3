@@ -1,10 +1,10 @@
 @extends('frontEnd.layouts.master')
-@section('title','Customer Register')
+@section('title','{{ __('Customer') }} Register')
 
 @section('content')
 {{-- CSS সরাসরি এখানে --}}
 <style>
-    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+    @import url('{{ __('https://') }}fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
 
     .modern-auth-section {
         background-color: #f0f2f5;
@@ -75,12 +75,12 @@
 
     .auth-header { margin-bottom: 30px; }
     .auth-header h3 { font-weight: 700; color: #333; margin-bottom: 5px; }
-    .auth-header p { color: #888; font-size: 14px; }
+    .auth-header p { color: #888; font-size: {{ __('14px') }}; }
 
     /* ইনপুট ডিজাইন */
     .custom-input-group { position: relative; margin-bottom: 20px; }
     .custom-input-group label {
-        display: block; margin-bottom: 8px; font-weight: 600; color: #555; font-size: 14px;
+        display: block; margin-bottom: 8px; font-weight: 600; color: #555; font-size: {{ __('14px') }};
     }
     .custom-input {
         width: 100%; height: 50px; padding: 10px 20px 10px 45px; /* আইকনের জন্য বামে প্যাডিং */
@@ -103,7 +103,7 @@
     }
 
     /* সাবমিট বাটন */
-    .btn-auth-submit {
+    .btn-auth-{{ __('submit') }} {
         width: 100%; height: 50px;
         background: var(--secondary-color);
         border: none; border-radius: 10px;
@@ -111,7 +111,7 @@
         cursor: pointer; transition: 0.3s;
         text-transform: uppercase; letter-spacing: 1px;
     }
-    .btn-auth-submit:hover {
+    .btn-auth-{{ __('submit') }}:hover {
         transform: translateY(-2px);
         box-shadow: 0 5px 15px rgba(118, 75, 162, 0.3);
     }
@@ -120,7 +120,7 @@
     .login-redirect {
         text-align: center; margin-top: 25px; padding-top: 20px; border-top: 1px dashed #ddd;
     }
-    .login-redirect p { margin-bottom: 5px; color: #666; font-size: 14px; }
+    .login-redirect p { margin-bottom: 5px; color: #666; font-size: {{ __('14px') }}; }
     .login-link {
         text-decoration: none; color: var(--primary-color); font-weight: 700; font-size: 15px;
     }
@@ -139,23 +139,23 @@
             
             {{-- বাম পাশ: ব্যাকগ্রাউন্ড ইমেজ --}}
             <div class="auth-image-area">
-                <h2>Join Us Today!</h2>
-                <p>নতুন একাউন্ট খুলে আমাদের সেরা শপিং অভিজ্ঞতা উপভোগ করুন।</p>
+                <h2>{{ __('Join Us {{ __('Today') }}!') }}</h2>
+                <p>{{ __('bn_ba6272c2') }}</p>
             </div>
 
             {{-- ডান পাশ: ফর্ম --}}
             <div class="auth-form-area">
                 <div class="auth-header">
-                    <h3>রেজিস্ট্রেশন করুন</h3>
-                    <p>আপনার তথ্য দিয়ে ফর্মটি পূরণ করুন</p>
+                    <h3>{{ __('bn_71f2a0f0') }}</h3>
+                    <p>{{ __('bn_28218bd7') }}</p>
                 </div>
 
-                <form action="{{route('customer.store')}}" method="POST" enctype="multipart/form-data" data-parsley-validate="">
+                <form action="{{route('customer.store')}}" method={{ __('"{{ __('POST') }}"') }} enctype="multipart/form-data" data-parsley-validate="">
                     @csrf
                     
-                    {{-- Name Input --}}
+                    {{-- {{ __('Name') }} Input --}}
                     <div class="custom-input-group">
-                        <label for="name">আপনার নাম</label>
+                        <label for="name">{{ __('Your {{ __('Name') }}') }}</label>
                         <i class="fas fa-user input-icon"></i>
                         <input type="text" id="name" 
                                class="custom-input @error('name') is-invalid @enderror" 
@@ -166,27 +166,27 @@
                         @enderror
                     </div>
 
-                    {{-- Phone Input --}}
+                    {{-- {{ __('Phone') }} Input --}}
                     <div class="custom-input-group">
-                        <label for="phone">মোবাইল নাম্বার</label>
-                        <i class="fas fa-phone-alt input-icon"></i>
-                        <input type="tel" id="phone" 
-                               class="custom-input @error('phone') is-invalid @enderror" 
-                               name="phone" value="{{ old('phone') }}" 
-                               placeholder="017xxxxxxxx" required>
-                        @error('phone')
+                        <label for="{{ __('phone') }}">{{ __('{{ __('Mobile') }} Number') }}</label>
+                        <i class="fas fa-{{ __('phone') }}-alt input-icon"></i>
+                        <input type="tel" id="{{ __('phone') }}" 
+                               class="custom-input @error('{{ __('phone') }}') is-invalid @enderror" 
+                               name="{{ __('phone') }}" value="{{ old('{{ __('phone') }}') }}" 
+                               placeholder="{{ __('017xxxxxxxx') }}" required>
+                        @error('{{ __('phone') }}')
                             <span class="text-danger small mt-1 d-block">{{ $message }}</span>
                         @enderror
                     </div>
 
-                    {{-- Email Input (Optional) --}}
+                    {{-- {{ __('Email') }} Input {{ __('({{ __('Optional') }})') }} --}}
                     <div class="custom-input-group">
-                        <label for="email">ইমেইল <small class="text-muted">(ঐচ্ছিক)</small></label>
+                        <label for="email">{{ __('Email') }} <small class="text-muted">{{ __('bn_0b6593db') }}</small></label>
                         <i class="fas fa-envelope input-icon"></i>
                         <input type="email" id="email"
                                class="custom-input @error('email') is-invalid @enderror"
                                name="email" value="{{ old('email') }}"
-                               placeholder="example@email.com">
+                               placeholder="{{ __('example@email.com') }}">
                         @error('email')
                             <span class="text-danger small mt-1 d-block">{{ $message }}</span>
                         @enderror
@@ -194,12 +194,12 @@
 
                     {{-- Password Input --}}
                     <div class="custom-input-group">
-                        <label for="password">পাসওয়ার্ড</label>
+                        <label for="password">{{ __('Password') }}</label>
                         <i class="fas fa-lock input-icon"></i>
                         <div style="position: relative;">
                             <input type="password" id="password" 
                                    class="custom-input @error('password') is-invalid @enderror" 
-                                   name="password" placeholder="********" required>
+                                   name="password" placeholder="{{ __('********') }}" required>
                             
                             {{-- পাসওয়ার্ড দেখার আইকন --}}
                             <span onclick="showPass()" style="position: absolute; right: 15px; top: 15px; cursor: pointer; color: #999;">
@@ -213,7 +213,7 @@
 
                     {{-- Submit Button --}}
                     <div class="form-group mt-4">
-                        <button class="btn-auth-submit" type="submit"> রেজিস্ট্রেশন করুন </button>
+                        <button class="btn-auth-{{ __('submit') }}" type="{{ __('submit') }}"> {{ __('bn_71f2a0f0') }} </button>
                     </div>
 
                 </form>
@@ -222,7 +222,7 @@
                 <div class="login-redirect">
                     <p>আগেই রেজিস্ট্রেশন করা আছে?</p>
                     <a href="{{route('customer.login')}}" class="login-link">
-                        <i class="fas fa-sign-in-alt me-1"></i> লগিন করুন
+                        <i class="fas fa-sign-in-alt me-1"></i> {{ __('Login Now') }}
                     </a>
                 </div>
             </div>

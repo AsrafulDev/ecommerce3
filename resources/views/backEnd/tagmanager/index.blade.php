@@ -1,5 +1,5 @@
 @extends('backEnd.layouts.master')
-@section('title','Manage Tag Manager')
+@section('title','{{ __('Manage') }} {{ __('Tag {{ __('Manage') }}r') }}')
 
 @section('css')
 <link href="{{asset('/public/backEnd/')}}/assets/libs/datatables.net-bs5/css/dataTables.bootstrap5.min.css" rel="stylesheet" type="text/css" />
@@ -33,12 +33,12 @@
         padding: 15px;
         border-bottom: 1px solid #f1f5f7;
         color: #313b5e;
-        font-size: 14px;
+        font-size: {{ __('14px') }};
     }
 
     /* GTM Code Styling */
     .gtm-code {
-        font-family: 'Courier New', Courier, monospace;
+        font-family: '{{ __('Courier') }} {{ __('New') }}', {{ __('Courier') }}, monospace;
         background: #f1f5f7;
         padding: 4px 8px;
         border-radius: 4px;
@@ -81,8 +81,8 @@
     <div class="row mb-3 mt-3">
         <div class="col-12 d-flex justify-content-between align-items-center">
             <div>
-                <h4 class="page-title mb-0" style="font-weight: 700; color: #2d3436;">Google Tag Manager</h4>
-                <p class="text-muted font-size-13 mb-0">Manage your GTM containers and scripts.</p>
+                <h4 class="page-title mb-0" style="font-weight: 700; color: #2d3436;">{{ __('Google {{ __('Tag {{ __('Manage') }}r') }}') }}</h4>
+                <p class="text-muted font-size-13 mb-0">{{ __('{{ __('Manage') }} your GTM containers and scripts.') }}</p>
             </div>
             <a href="{{route('tagmanagers.create')}}" class="btn btn-primary rounded-pill shadow-sm px-4">
                 <i class="fe-plus me-1"></i> Add GTM
@@ -98,8 +98,8 @@
                         <thead>
                             <tr>
                                 <th style="width: 50px;">{{ __('SL') }}</th>
-                                <th>GTM ID / Code</th>
-                                <th>{{ __('Status') }}</th>
+                                <th>{{ __('GTM ID / Code') }}</th>
+                                <th>{{ __('{{ __('Status') }}') }}</th>
                                 <th class="text-end" style="width: 150px;">{{ __('Action') }}</th>
                             </tr>
                         </thead>                
@@ -123,12 +123,12 @@
                                 <td class="text-end">
                                     <div class="d-inline-flex gap-2">
                                         
-                                        {{-- Status Toggle --}}
+                                        {{-- {{ __('Status') }} Toggle --}}
                                         @if($value->status == 1)
                                             <form method="post" action="{{route('tagmanagers.inactive')}}" class="d-inline"> 
                                                 @csrf
                                                 <input type="hidden" value="{{$value->id}}" name="hidden_id">        
-                                                <button type="submit" class="action-btn btn-status-inactive" title="Deactivate">
+                                                <button type="{{ __('submit') }}" class="action-btn btn-status-inactive" title="Deactivate">
                                                     <i class="fe-thumbs-down"></i>
                                                 </button>
                                             </form>
@@ -136,14 +136,14 @@
                                             <form method="post" action="{{route('tagmanagers.active')}}" class="d-inline">
                                                 @csrf
                                                 <input type="hidden" value="{{$value->id}}" name="hidden_id">        
-                                                <button type="submit" class="action-btn btn-status-active" title="Activate">
+                                                <button type="{{ __('submit') }}" class="action-btn btn-status-active" title="Activate">
                                                     <i class="fe-thumbs-up"></i>
                                                 </button>
                                             </form>
                                         @endif
 
                                         {{-- Edit --}}
-                                        <a href="{{route('tagmanagers.edit',$value->id)}}" class="action-btn btn-edit" title="{{ __('Edit') }}">
+                                        <a href="{{route('tagmanagers.edit',$value->{{ __('id)') }}}}" class="action-btn btn-edit" title="{{ __('Edit') }}">
                                             <i class="fe-edit"></i>
                                         </a>
 
@@ -151,7 +151,7 @@
                                         <form method="post" action="{{ route('tagmanagers.destroy') }}" class="d-inline">
                                             @csrf
                                             <input type="hidden" name="hidden_id" value="{{ $value->id }}">
-                                            <button type="submit" class="action-btn btn-delete delete-confirm" title="{{ __('Delete') }}">
+                                            <button type="{{ __('submit') }}" class="action-btn btn-delete delete-confirm" title="{{ __('Delete') }}">
                                                 <i class="fe-trash-2"></i>
                                             </button>
                                         </form>

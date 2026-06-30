@@ -1,21 +1,21 @@
 @extends('frontEnd.layouts.master')
-@section('title', 'Customer Checkout')
+@section('title', '{{ __('Customer') }} {{ __('Check') }}out')
 @php
     $generalsetting = \App\Models\GeneralSetting::first();
     $pageType = 'checkout';
-    $cartItems = [];
-    $checkoutValue = 0;
-    foreach (Cart::instance('shopping')->content() as $item) {
-        $cartItems[] = [
+    $cart{{ __('{{ __('Item') }}s') }} = [];
+    $checkout{{ __('Value') }} = 0;
+    foreach ({{ __('Cart') }}::instance('shopping')->content() as $item) {
+        $cart{{ __('{{ __('Item') }}s') }}[] = [
             'item_id' => (string) $item->id,
             'item_name' => $item->name,
             'price' => (float) $item->price,
             'quantity' => (int) $item->qty,
             'item_category' => '',
         ];
-        $checkoutValue += $item->price * $item->qty;
+        $checkout{{ __('Value') }} += $item->price * $item->qty;
     }
-    $contentIds = array_map(function ($i) { return $i['item_id']; }, $cartItems);
+    $contentIds = array_map(function ($i) { return $i['item_id']; }, $cart{{ __('{{ __('Item') }}s') }});
     $tiktokContents = array_map(function ($i) {
         return [
             'content_id' => $i['item_id'],
@@ -23,7 +23,7 @@
             'quantity' => $i['quantity'],
             'price' => $i['price'],
         ];
-    }, $cartItems);
+    }, $cart{{ __('{{ __('Item') }}s') }});
 @endphp
 @push('dataLayer')
 window.dataLayer = window.dataLayer || [];
@@ -31,22 +31,22 @@ window.dataLayer.push({
     event: 'begin_checkout',
     ecommerce: {
         currency: 'BDT',
-        value: {{ $checkoutValue }},
-        items: @json($cartItems)
+        value: {{ $checkout{{ __('Value') }} }},
+        items: @json($cart{{ __('{{ __('Item') }}s') }})
     }
 });
 if (typeof fbq === 'function') {
-    fbq('track', 'InitiateCheckout', {
-        value: {{ $checkoutValue }},
+    fbq('track', 'Initiate{{ __('Check') }}out', {
+        value: {{ $checkout{{ __('Value') }} }},
         currency: 'BDT',
-        num_items: {{ count($cartItems) }},
+        num_items: {{ count($cart{{ __('{{ __('Item') }}s') }}) }},
         content_ids: @json($contentIds),
         content_type: 'product'
     });
 }
 if (typeof ttq !== 'undefined') {
-    ttq.track('InitiateCheckout', {
-        value: {{ $checkoutValue }},
+    ttq.track('Initiate{{ __('Check') }}out', {
+        value: {{ $checkout{{ __('Value') }} }},
         currency: 'BDT',
         contents: @json($tiktokContents),
         content_type: 'product'
@@ -113,7 +113,7 @@ if (typeof ttq !== 'undefined') {
     /* --- Form Inputs --- */
     .form-group { margin-bottom: 20px; }
     .form-label-custom {
-        font-size: 14px;
+        font-size: {{ __('14px') }};
         font-weight: 600;
         color: var(--text-dark);
         margin-bottom: 8px;
@@ -141,7 +141,7 @@ if (typeof ttq !== 'undefined') {
         line-height: 1.5;
     }
 
-    /* --- Payment Methods (Interactive Box) --- */
+    /* --- {{ __('Payment {{ __('Method') }}') }}s (Interactive Box) --- */
     .payment-option-label {
         display: flex;
         align-items: center;
@@ -214,7 +214,7 @@ if (typeof ttq !== 'undefined') {
         border-radius: 50%;
     }
 
-    /* --- Cart Items (Scrollable) --- */
+    /* --- {{ __('Cart') }} {{ __('{{ __('Item') }}s') }} ({{ __('Scrollable') }}) --- */
     .sticky-sidebar {
         position: sticky;
         top: 100px;
@@ -295,7 +295,7 @@ if (typeof ttq !== 'undefined') {
     .qty-val {
         width: 30px;
         text-align: center;
-        font-size: 14px;
+        font-size: {{ __('14px') }};
         font-weight: 600;
     }
 
@@ -334,7 +334,7 @@ if (typeof ttq !== 'undefined') {
         border: none;
         padding: 0 30px;
         font-weight: 700;
-        font-size: 14px;
+        font-size: {{ __('14px') }};
         text-transform: uppercase;
         cursor: pointer;
         transition: 0.3s;
@@ -343,19 +343,19 @@ if (typeof ttq !== 'undefined') {
         background: var(--secondary-color);
     }
 
-    /* --- Totals Area --- */
-    .summary-totals {
+    /* --- {{ __('Total') }}s {{ __('Area') }} --- */
+    .summary-{{ __('total') }}s {
         padding: 24px;
         background: #fff;
     }
-    .total-row {
+    .{{ __('total') }}-row {
         display: flex;
         justify-content: space-between;
         margin-bottom: 12px;
         font-size: 15px;
         color: var(--text-dark);
     }
-    .total-row.final {
+    .{{ __('total') }}-row.final {
         border-top: 2px dashed #e5e7eb;
         margin-top: 15px;
         padding-top: 15px;
@@ -364,7 +364,7 @@ if (typeof ttq !== 'undefined') {
         color: var(--primary-color);
     }
     
-    /* Advance/Due Alert */
+    /* Advance/{{ __('Due') }} Alert */
     .advance-alert {
         background: #f0fdf4;
         border: 1px solid #bbf7d0;
@@ -403,12 +403,12 @@ if (typeof ttq !== 'undefined') {
     @media (max-width: 991px) {
         .cus-order-2 { order: 2; }
         .cust-order-1 { order: 1; margin-bottom: 30px; }
-        .mobile-submit-btn { display: block !important; margin-top: 25px; }
-        .desktop-submit-btn { display: none !important; }
+        .mobile-{{ __('submit') }}-btn { display: block !important; margin-top: 25px; }
+        .desktop-{{ __('submit') }}-btn { display: none !important; }
     }
     @media (min-width: 992px) {
-        .mobile-submit-btn { display: none !important; }
-        .desktop-submit-btn { display: block !important; }
+        .mobile-{{ __('submit') }}-btn { display: none !important; }
+        .desktop-{{ __('submit') }}-btn { display: block !important; }
     }
 </style>
 @endpush
@@ -417,17 +417,17 @@ if (typeof ttq !== 'undefined') {
 <section class="checkout-section">
     @php
         // ==============================================================
-        //  PHP LOGIC: CART, SHIPPING, DISCOUNT, ADVANCE (UNCHANGED)
+        //  {{ __('PHP') }} LOGIC: CART, SHIPPING, DISCOUNT, ADVANCE (UNCHANGED)
         // ==============================================================
-        $subtotal = Cart::instance('shopping')->subtotal();
-        $subtotal = str_replace(',', '', $subtotal);
-        $subtotal = str_replace('.00', '', $subtotal);
-        $subtotal = (float) $subtotal;
+        $sub{{ __('total') }} = {{ __('Cart') }}::instance('shopping')->sub{{ __('total') }}();
+        $sub{{ __('total') }} = str_replace(',', '', $sub{{ __('total') }});
+        $sub{{ __('total') }} = str_replace('.00', '', $sub{{ __('total') }});
+        $sub{{ __('total') }} = (float) $sub{{ __('total') }};
 
         // ✅ শিপিং লজিক চেক
         $requires_shipping = false;
-        foreach (Cart::instance('shopping')->content() as $item) {
-            $product = \App\Models\Product::find($item->id);
+        foreach ({{ __('Cart') }}::instance('shopping')->content() as $item) {
+            $product = \App\Models\{{ __('Product') }}::find($item->{{ __('id)') }};
             if ($product && $product->is_digital != 1) {
                 $requires_shipping = true;
                 break;
@@ -435,27 +435,27 @@ if (typeof ttq !== 'undefined') {
         }
 
         // ✅ শিপিং চার্জ সেট
-        // ⭐ Free Delivery Check - যদি সব প্রোডাক্ট free delivery eligible হয়, shipping charge 0
-        $hasAllFreeDelivery = \App\Http\Controllers\Frontend\ShoppingController::hasAllFreeDeliveryProducts();
+        // ⭐ {{ __('Free Delivery') }} {{ __('Check') }} - যদি সব {{ __('{{ __('Product') }}s') }} free delivery eligible {{ __('bn_290a7f61') }}, shipping charge 0
+        $hasAllFreeDelivery = \App\Http\Controllers\Frontend\{{ __('Shop') }}pingController::hasAllFreeDelivery{{ __('Product') }}s();
         
         if ($requires_shipping && !$hasAllFreeDelivery) {
-            $shipping = Session::get('shipping') ? Session::get('shipping') : 0;
+            $shipping = {{ __('Session') }}::get('shipping') ? {{ __('Session') }}::get('shipping') : 0;
         } else {
             $shipping = 0;
-            Session::put('shipping', 0);
+            {{ __('Session') }}::put('shipping', 0);
         }
 
-        $discount = Session::get('discount', 0);
-        // ⭐ Grand Total Calculation - Free delivery হলে shipping charge 0
-        $grand_total = $subtotal + $shipping - $discount;
+        $discount = {{ __('Session') }}::get('discount', 0);
+        // ⭐ {{ __('Grand {{ __('Total') }}') }} Calculation - Free delivery হলে shipping charge 0
+        $grand_{{ __('total') }} = $sub{{ __('total') }} + $shipping - $discount;
 
         // ✅ JS ডেটা অ্যারে
-        $cartItemsForJs = [];
+        $cart{{ __('{{ __('Item') }}s') }}ForJs = [];
         $hasDigital = false;
-        foreach (Cart::instance('shopping')->content() as $item) {
-            $p = \App\Models\Product::find($item->id);
+        foreach ({{ __('Cart') }}::instance('shopping')->content() as $item) {
+            $p = \App\Models\{{ __('Product') }}::find($item->{{ __('id)') }};
             if ($p && $p->is_digital == 1) { $hasDigital = true; }
-            $cartItemsForJs[] = [
+            $cart{{ __('{{ __('Item') }}s') }}ForJs[] = [
                 'id'    => $item->id,
                 'name'  => $item->name,
                 'qty'   => $item->qty,
@@ -468,75 +468,75 @@ if (typeof ttq !== 'undefined') {
         }
 
         // ✅ Advance Logic
-        $advance_amount = \App\Http\Controllers\Frontend\ShoppingController::getCartAdvanceAmount();
+        $advance_amount = \App\Http\Controllers\Frontend\{{ __('Shop') }}pingController::get{{ __('Cart') }}Advance{{ __('Amount') }}();
         $hasAdvance     = $advance_amount > 0 ? true : false;
-        $payable_now    = $hasAdvance ? $advance_amount : $grand_total;
-        $due_amount     = $hasAdvance ? ($grand_total - $advance_amount) : 0;
+        $payable_now    = $hasAdvance ? $advance_amount : $grand_{{ __('total') }};
+        $due_amount     = $hasAdvance ? ($grand_{{ __('total') }} - $advance_amount) : 0;
     @endphp
 
     <div class="container">
         {{-- মেইন ফর্ম --}}
-        <form id="checkout-form" action="{{ route('customer.ordersave') }}" method="POST" data-parsley-validate="">
+        <form id="checkout-form" action="{{ route('customer.ordersave') }}" method={{ __('"{{ __('POST') }}"') }} data-parsley-validate="">
             @csrf
             
             <div class="row">
                 
-                {{-- LEFT COLUMN: Shipping & Payment --}}
+                {{-- LEFT COLUMN: {{ __('Shipping') }} & Payment --}}
                 <div class="col-lg-7 col-md-12 cus-order-2">
                     
                     {{-- 1. SHIPPING INFO CARD --}}
                     <div class="checkout-card">
                         <div class="checkout-header">
                             <i class="fas fa-truck-moving"></i>
-                            <h6>শিপিং এবং বিলিং তথ্য</h6>
+                            <h6>{{ __('bn_e19de9e7') }}</h6>
                         </div>
                         <div class="card-body-custom">
                             <div class="row">
                                 <div class="col-md-6">
                                     <div class="form-group">
-                                        <label class="form-label-custom">আপনার নাম *</label>
+                                        <label class="form-label-custom">{{ __('Your {{ __('Name') }}') }}</label>
                                         <input type="text" name="name" class="form-control-custom" 
                                             value="{{ Auth::guard('customer')->user()->name ?? old('name') }}" placeholder="সম্পূর্ণ নাম লিখুন" required>
                                     </div>
                                 </div>
                                 <div class="col-md-6">
                                     <div class="form-group">
-                                        <label class="form-label-custom">মোবাইল নাম্বার *</label>
-                                        <input type="text" name="phone" class="form-control-custom" minlength="11" maxlength="11" pattern="0[0-9]+" 
-                                            value="{{ Auth::guard('customer')->user()->phone ?? old('phone') }}" placeholder="017xxxxxxxx" required>
+                                        <label class="form-label-custom">{{ __('{{ __('Mobile') }} Number') }}</label>
+                                        <input type="text" name="{{ __('phone') }}" class="form-control-custom" minlength="11" maxlength="11" pattern="0[0-9]+" 
+                                            value="{{ Auth::guard('customer')->user()->{{ __('phone') }} ?? old('{{ __('phone') }}') }}" placeholder="{{ __('017xxxxxxxx') }}" required>
                                     </div>
                                 </div>
                                 <div class="col-12">
                                     <div class="form-group">
-                                        <label class="form-label-custom">সম্পূর্ণ ঠিকানা *</label>
+                                        <label class="form-label-custom">{{ __('bn_aa5e2d70') }}</label>
                                         <input type="text" name="address" class="form-control-custom" 
                                             value="{{ Auth::guard('customer')->user()->address ?? old('address') }}" placeholder="বাসা নং, রোড নং, এলাকা, জেলা" required>
                                     </div>
                                 </div>
                                 <div class="col-12">
                                     <div class="form-group">
-                                        <label class="form-label-custom">ডেলিভারি এরিয়া *</label>
+                                        <label class="form-label-custom">{{ __('bn_e223e9e1') }}</label>
                                         @if($requires_shipping)
                                             <select id="area" class="form-control-custom select2" name="area" required>
-                                                <option value="">এরিয়া নির্বাচন করুন...</option>
+                                                <option value="">{{ __('bn_f35b28fb') }}</option>
                                                 @foreach ($shippingcharge as $value)
                                                     <option value="{{ $value->id }}" data-charge="{{ $value->amount }}"
-                                                        {{ Session::get('shipping_id') == $value->id ? 'selected' : '' }}>
+                                                        {{ {{ __('Session') }}::get('shipping_id') == $value->id ? 'selected' : '' }}>
                                                         {{ $value->name }}
                                                     </option>
                                                 @endforeach
                                             </select>
                                         @else
-                                            <input type="text" class="form-control-custom" value="Digital Product (No Shipping Charge)" readonly disabled style="background:#f3f4f6">
+                                            <input type="text" class="form-control-custom" value="{{ __('Digital {{ __('Product') }}') }} (No {{ __('{{ __('Shipping') }} Charge') }})" readonly disabled style="background:#f3f4f6">
                                             <input type="hidden" name="area" value="free_shipping"> 
                                         @endif
                                     </div>
                                 </div>
                                 <div class="col-12">
                                     <div class="form-group">
-                                        <label class="form-label-custom">অর্ডার নোট (ঐচ্ছিক)</label>
+                                        <label class="form-label-custom">{{ __('bn_76267855') }}</label>
                                         <textarea name="order_note" id="order_note" class="form-control-custom" rows="2" style="height:auto; resize:none;" 
-                                            placeholder="ডেলিভারি সম্পর্কে বিশেষ কিছু বলার থাকলে লিখুন...">{{ $order_note ?? '' }}</textarea>
+                                            placeholder="{{ __('bn_a62e1d5e') }} সম্পর্কে বিশেষ কিছু বলার থাকলে লিখুন...">{{ $order_note ?? '' }}</textarea>
                                     </div>
                                 </div>
                             </div>
@@ -550,7 +550,7 @@ if (typeof ttq !== 'undefined') {
 <div class="checkout-card">
     <div class="checkout-header">
         <i class="fas fa-wallet"></i>
-        <h6>পেমেন্ট মেথড নির্বাচন করুন</h6>
+        <h6>{{ __('bn_b28bdfec') }}</h6>
     </div>
     <div class="card-body-custom">
         
@@ -559,8 +559,8 @@ if (typeof ttq !== 'undefined') {
                 <div class="d-flex gap-3 align-items-center">
                     <i class="fas fa-exclamation-triangle text-warning fs-4"></i>
                     <div>
-                        <strong>অগ্রিম পেমেন্ট প্রয়োজন!</strong>
-                        <p class="mb-0 small">এই অর্ডারে <b>৳ {{ number_format($advance_amount,2) }}</b> অগ্রিম পেমেন্ট করতে হবে।</p>
+                        <strong>{{ __('bn_c58ba16f') }}</strong>
+                        <p class="mb-0 small">{{ __('Orders') }} <b>৳ {{ number_format($advance_amount,2) }}</b> {{ __('bn_6982b91e') }}</p>
                     </div>
                 </div>
             </div>
@@ -569,81 +569,81 @@ if (typeof ttq !== 'undefined') {
         {{-- Payment Options List --}}
         <div class="payment-options-list">
             
-            {{-- COD Option --}}
+            {{-- {{ __('COD') }} Option --}}
             @if(!$hasDigital && !$hasAdvance)
                 <label class="payment-option-label">
                     <input type="radio" name="payment_method" value="cod" checked required>
                     <div class="payment-content">
                         <div class="text-center" style="width: 40px;"><i class="fas fa-truck text-success fs-2"></i></div>
                         <div class="pay-info">
-                            <strong>Cash On Delivery</strong>
-                            <small>পণ্য হাতে পেয়ে মূল্য পরিশোধ করুন</small>
+                            <strong>{{ __('{{ __('Cash') }} On Delivery') }}</strong>
+                            <small>{{ __('bn_3bec6524') }}</small>
                         </div>
                     </div>
                     <div class="check-circle"></div>
                 </label>
             @endif
 
-            {{-- Bkash --}}
+            {{-- {{ __('Bkash') }} --}}
             @if($bkash_gateway)
                 <label class="payment-option-label">
                     {{-- required যুক্ত করা হয়েছে --}}
                     <input type="radio" name="payment_method" value="bkash" required> 
                     <div class="payment-content">
-                        <img src="{{ asset('public/frontEnd/images/bkash.svg') }}" class="pay-logo" alt="bKash">
+                        <img src="{{ asset('public/frontEnd/images/bkash.svg') }}" class="pay-logo" alt="{{ __('bKash') }}">
                         <div class="pay-info">
-                            <strong>bKash Payment</strong>
-                            <small>বিকাশ অ্যাপ বা গেটওয়ে দ্বারা পেমেন্ট</small>
+                            <strong>{{ __('{{ __('bKash') }} Payment') }}</strong>
+                            <small>{{ __('bn_ee716c0e') }}</small>
                         </div>
                     </div>
                     <div class="check-circle"></div>
                 </label>
             @endif
 
-            {{-- ShurjoPay --}}
+            {{-- {{ __('ShurjoPay') }} --}}
             @if($shurjopay_gateway)
                 <label class="payment-option-label">
                     {{-- required যুক্ত করা হয়েছে --}}
                     <input type="radio" name="payment_method" value="shurjopay" required>
                     <div class="payment-content">
-                        <img src="{{ asset('public/frontEnd/images/shurjoPay.png') }}" class="pay-logo" alt="ShurjoPay">
+                        <img src="{{ asset('public/frontEnd/images/shurjoPay.png') }}" class="pay-logo" alt="{{ __('ShurjoPay') }}">
                         <div class="pay-info">
                             <strong>{{ __('Online Payment') }}</strong>
-                            <small>ShurjoPay (Card/Mobile Banking)</small>
+                            <small>{{ __('{{ __('ShurjoPay') }} (Card/{{ __('Mobile') }} Banking)') }}</small>
                         </div>
                     </div>
                     <div class="check-circle"></div>
                 </label>
             @endif
 
-            {{-- UddoktaPay --}}
+            {{-- {{ __('UddoktaPay') }} --}}
             @if($uddoktapay_gateway)
                 <label class="payment-option-label">
                     {{-- required যুক্ত করা হয়েছে --}}
                     <input type="radio" name="payment_method" value="uddoktapay" required>
                     <div class="payment-content">
-                        <img src="{{ asset('public/frontEnd/images/uddokta.png') }}" class="pay-logo" alt="UddoktaPay">
+                        <img src="{{ asset('public/frontEnd/images/uddokta.png') }}" class="pay-logo" alt="{{ __('UddoktaPay') }}">
                         <div class="pay-info">
-                            <strong>UddoktaPay</strong>
-                            <small>মোবাইল ব্যাংকিং পেমেন্ট গেটওয়ে</small>
+                            <strong>{{ __('UddoktaPay') }}</strong>
+                            <small>{{ __('bn_d84fe118') }}</small>
                         </div>
                     </div>
                     <div class="check-circle"></div>
                 </label>
             @endif
 
-            {{-- aamarPay --}}
+            {{-- {{ __('aamarPay') }} --}}
             @if($aamarpay_gateway)
                 <label class="payment-option-label">
                     <input type="radio" name="payment_method" value="aamarpay" required>
                     <div class="payment-content">
-                        <img src="{{ asset('public/frontEnd/images/aamarpay.png') }}" class="pay-logo" alt="aamarPay" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                        <img src="{{ asset('public/frontEnd/images/aamarpay.png') }}" class="pay-logo" alt="{{ __('aamarPay') }}" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
                         <div class="pay-info" style="display: none;">
                             <i class="fas fa-credit-card text-primary fs-4"></i>
                         </div>
                         <div class="pay-info">
-                            <strong>aamarPay</strong>
-                            <small>কার্ড ও মোবাইল ব্যাংকিং পেমেন্ট</small>
+                            <strong>{{ __('aamarPay') }}</strong>
+                            <small>{{ __('bn_5d6d6149') }}</small>
                         </div>
                     </div>
                     <div class="check-circle"></div>
@@ -651,41 +651,41 @@ if (typeof ttq !== 'undefined') {
             @endif
 
         </div>
-        {{-- Error message placeholder --}}
+        {{-- Error {{ __('message') }} placeholder --}}
         <div id="payment-error" class="text-danger fw-bold mt-2 text-center" style="display:none;">
-            <i class="fas fa-exclamation-circle"></i> অনুগ্রহ করে একটি পেমেন্ট মেথড সিলেক্ট করুন।
+            <i class="fas fa-exclamation-circle"></i> অনুগ্রহ করে একটি {{ __('bn_f0a1817c') }} {{ __('bn_ad0b92c2') }} সিলেক্ট করুন।
         </div>
     </div>
 </div>
 
-                    {{-- MOBILE SUBMIT BUTTON (Only Visible on Mobile) --}}
-                    <div class="mobile-submit-btn">
-                        <button type="submit" class="btn-place-order">
+                    {{-- MOBILE SUBMIT BUTTON (Only Visible on {{ __('Mobile') }}) --}}
+                    <div class="mobile-{{ __('submit') }}-btn">
+                        <button type="{{ __('submit') }}" class="btn-place-order">
                             অর্ডার নিশ্চিত করুন <i class="fas fa-arrow-right"></i>
                         </button>
                         <div class="text-center text-muted small mt-3">
-                            <i class="fas fa-shield-alt"></i> ১০০% নিরাপদ এবং সিকিউর চেকআউট
+                            <i class="fas fa-shield-alt"></i> ১০০% {{ __('bn_8704a028') }} এবং সিকিউর চেকআউট
                         </div>
                     </div>
 
                 </div>
 
-                {{-- RIGHT SIDE: Order Summary --}}
+                {{-- RIGHT SIDE: Order {{ __('Summary') }} --}}
                 <div class="col-lg-5 col-md-12 cust-order-1">
                     <div class="sticky-sidebar">
                         <div class="checkout-card">
                             <div class="checkout-header">
                                 <i class="fas fa-shopping-bag"></i>
-                                <h6>অর্ডার সামারি ({{ Cart::instance('shopping')->count() }})</h6>
+                                <h6>অর্ডার সামারি ({{ {{ __('Cart') }}::instance('shopping')->count() }})</h6>
                             </div>
                             
                             <div class="card-body-custom p-0">
-                                {{-- Products List (Scrollable) --}}
+                                {{-- {{ __('Product') }}s List ({{ __('Scrollable') }}) --}}
                                 <div class="cart-items-scroll px-4 pt-3 cartlist" style="max-height: 400px; overflow-y: auto;">
-                                    @foreach (Cart::instance('shopping')->content() as $value)
+                                    @foreach ({{ __('Cart') }}::instance('shopping')->content() as $value)
                                         <div class="checkout-item">
                                             {{-- Remove --}}
-                                            <a class="remove-item-btn cart_remove" data-id="{{ $value->rowId }}" title="Remove Item">
+                                            <a class="remove-item-btn cart_remove" data-id="{{ $value->rowId }}" title="Remove {{ __('Item') }}">
                                                 <i class="far fa-trash-alt"></i>
                                             </a>
 
@@ -701,7 +701,7 @@ if (typeof ttq !== 'undefined') {
                                                 </a>
                                                 <div class="meta text-muted small mb-1">
                                                     @if($value->options->product_size) Size: {{$value->options->product_size}} @endif
-                                                    @if($value->options->product_color) | Color: {{$value->options->product_color}} @endif
+                                                    @if($value->options->product_color) | {{ __('Color') }}: {{$value->options->product_color}} @endif
                                                 </div>
                                                 
                                                 {{-- Price & Qty --}}
@@ -720,44 +720,44 @@ if (typeof ttq !== 'undefined') {
 
                                 {{-- COUPON SECTION --}}
 <div class="coupon-wrapper">
-    @if(!Session::has('coupon_code'))
+    @if(!{{ __('Session') }}::has('coupon_code'))
         <div class="coupon-group-modern">
             {{-- ভিজ্যুয়াল ইনপুট (এটি কোনো ফর্মের অংশ নয়, শুধু ডাটা নেওয়ার জন্য) --}}
-            <input type="text" id="coupon_input" class="coupon-input-modern" placeholder="কুপন কোড আছে? এখানে লিখুন...">
-            <button type="button" class="coupon-btn-modern" onclick="submitCoupon()">APPLY</button>
+            <input type="text" id="coupon_input" class="coupon-input-modern" placeholder="{{ __('{{ __('Coupon') }} Code') }} আছে? এখানে লিখুন...">
+            <button type="button" class="coupon-btn-modern" onclick="{{ __('submit') }}{{ __('Coupon') }}()">{{ __('APPLY') }}</button>
         </div>
     @else
         <div class="alert alert-success d-flex justify-content-between align-items-center m-0 py-3 px-3 border-0 rounded shadow-sm">
-            <span><i class="fas fa-check-circle"></i> Coupon <b>{{ Session::get('coupon_code') }}</b> Applied!</span>
-            <a href="{{ route('coupon.remove') }}" class="text-danger fw-bold text-decoration-none px-2">REMOVE</a>
+            <span><i class="fas fa-check-circle"></i> {{ __('Coupon') }} <b>{{ {{ __('Session') }}::get('coupon_code') }}</b> {{ __('Applied!') }}</span>
+            <a href="{{ route('coupon.remove') }}" class="text-danger fw-bold text-decoration-none px-2">{{ __('REMOVE') }}</a>
         </div>
     @endif
 </div>
 
                                 {{-- Calculation --}}
-                                <div class="summary-totals">
-                                    <div class="total-row"><span>সাবটোটাল</span> <span id="subtotalAmount">৳ {{ number_format($subtotal, 2) }}</span></div>
-                                    <div class="total-row"><span>ডেলিভারি চার্জ</span> <span id="shippingAmount">৳ {{ number_format($shipping, 2) }}</span></div>
+                                <div class="summary-{{ __('total') }}s">
+                                    <div class="{{ __('total') }}-row"><span>{{ __('Sub{{ __('total') }}') }}</span> <span id="sub{{ __('total') }}{{ __('Amount') }}">৳ {{ number_format($sub{{ __('total') }}, 2) }}</span></div>
+                                    <div class="{{ __('total') }}-row"><span>{{ __('bn_99838c8f') }}</span> <span id="shipping{{ __('Amount') }}">৳ {{ number_format($shipping, 2) }}</span></div>
                                     @if($discount > 0)
-                                        <div class="total-row text-success"><span>কুপন ছাড়</span> <span id="discountAmount">- ৳ {{ number_format($discount, 2) }}</span></div>
+                                        <div class="{{ __('total') }}-row text-success"><span>{{ __('bn_a13a244a') }}</span> <span id="discount{{ __('Amount') }}">- ৳ {{ number_format($discount, 2) }}</span></div>
                                     @endif
-                                    <div class="total-row final"><span>সর্বমোট</span> <span id="grandTotalAmount">৳ {{ number_format($grand_total, 2) }}</span></div>
+                                    <div class="{{ __('total') }}-row final"><span>{{ __('{{ __('Total') }}') }}</span> <span id="grand{{ __('Total') }}{{ __('Amount') }}">৳ {{ number_format($grand_{{ __('total') }}, 2) }}</span></div>
 
                                     @if($hasAdvance)
                                         <div class="advance-alert">
-                                            <div class="total-row text-success fw-bold"><span>অগ্রিম (পেইড):</span> <span id="advanceAmountCell">৳ {{ number_format($advance_amount,2) }}</span></div>
-                                            <div class="total-row text-danger fw-bold mb-0"><span>বাকি (ডিউ):</span> <span id="dueAmountCell">৳ {{ number_format($due_amount,2) }}</span></div>
+                                            <div class="{{ __('total') }}-row text-success fw-bold"><span>{{ __('bn_5fa719d8') }}:</span> <span id="advance{{ __('Amount') }}Cell">৳ {{ number_format($advance_amount,2) }}</span></div>
+                                            <div class="{{ __('total') }}-row text-danger fw-bold mb-0"><span>{{ __('bn_ce7135b7') }}:</span> <span id="due{{ __('Amount') }}Cell">৳ {{ number_format($due_amount,2) }}</span></div>
                                         </div>
                                     @endif
                                 </div>
 
-                                {{-- DESKTOP SUBMIT BUTTON (Only Visible on Desktop) --}}
-                                <div class="desktop-submit-btn p-4">
-                                    <button type="submit" class="btn-place-order">
+                                {{-- DESKTOP SUBMIT BUTTON (Only Visible on {{ __('Desktop') }}) --}}
+                                <div class="desktop-{{ __('submit') }}-btn p-4">
+                                    <button type="{{ __('submit') }}" class="btn-place-order">
                                         অর্ডার নিশ্চিত করুন <i class="fas fa-check-circle"></i>
                                     </button>
                                     <div class="text-center text-muted small mt-3">
-                                        <i class="fas fa-lock"></i> ১০০% নিরাপদ চেকআউট প্রসেস
+                                        <i class="fas fa-lock"></i> ১০০% {{ __('bn_8704a028') }} চেকআউট প্রসেস
                                     </div>
                                 </div>
 
@@ -776,7 +776,7 @@ if (typeof ttq !== 'undefined') {
 <script src="{{ asset('public/frontEnd/js/select2.min.js') }}"></script>
 
 {{-- ============================================================== --}}
-{{--  JAVASCRIPT LOGIC (EXACT COPY - NO FUNCTIONALITY REMOVED)  --}}
+{{--  JAVASCRIPT LOGIC (EXACT COPY - NO FUNCTIONALITY {{ __('REMOVE') }}D)  --}}
 {{-- ============================================================== --}}
 </form> 
         
@@ -785,18 +785,18 @@ if (typeof ttq !== 'undefined') {
         {{-- ========================================================= --}}
         
         {{-- হিডেন কুপন ফর্ম (এটি অবশ্যই মেইন ফর্মের বাইরে থাকতে হবে) --}}
-        <form id="coupon-form" action="{{ route('coupon.apply') }}" method="POST" style="display:none;">
+        <form id="coupon-form" action="{{ route('coupon.apply') }}" method={{ __('"{{ __('POST') }}"') }} style="display:none;">
             @csrf
             <input type="hidden" name="coupon_code" id="hidden_coupon_code">
         </form>
 
         {{-- কুপন সাবমিট করার জাভাস্ক্রিপ্ট --}}
         <script>
-            function submitCoupon() {
+            function {{ __('submit') }}{{ __('Coupon') }}() {
                 var code = document.getElementById('coupon_input').value;
                 if(code) {
                     document.getElementById('hidden_coupon_code').value = code;
-                    document.getElementById('coupon-form').submit();
+                    document.getElementById('coupon-form').{{ __('submit') }}();
                 } else {
                     // টোস্টার থাকলে টোস্টার, নাহলে এলার্ট
                     if(typeof toastr !== 'undefined') {
@@ -808,7 +808,7 @@ if (typeof ttq !== 'undefined') {
             }
         </script>
 <script>
-    // গ্লোবাল ভেরিয়েবল (Global Variables)
+    // গ্লোবাল ভেরিয়েবল (Global {{ __('Variable') }}s)
     let incompleteOrderTimer;
     let isSubmitting = false; // অর্ডার সাবমিট হচ্ছে কিনা তা চেক করার জন্য
 
@@ -817,20 +817,20 @@ if (typeof ttq !== 'undefined') {
         $(".select2").select2({ width: '100%' });
 
         // ==========================================
-        // 1. CART LOGIC (REMOVE, INCREASE, DECREASE)
+        // 1. CART LOGIC ({{ __('REMOVE') }}, INCREASE, DECREASE)
         // ==========================================
         
-        // Remove Item
+        // Remove {{ __('Item') }}
         $(document).on('click', '.cart_remove', function(e) {
             e.preventDefault(); e.stopImmediatePropagation();
             var id = $(this).data("id");
-            if (id) {
+            if ({{ __('id)') }} {
                 $("#loading").show();
                 $.ajax({
-                    type: "GET",
+                    type: "{{ __('GET') }}",
                     url: "{{ route('cart.remove') }}",
                     data: { id: id },
-                    success: function() { toastr.success('Success', 'Item removed'); window.location.reload(); },
+                    success: function() { toastr.success('Success', '{{ __('Item') }} removed'); window.location.reload(); },
                     error: function() { window.location.reload(); }
                 });
             }
@@ -854,20 +854,20 @@ if (typeof ttq !== 'undefined') {
         // 2. SHIPPING & TOTAL CALCULATION
         // ==========================================
         
-        const baseSubtotal = parseFloat("{{ $subtotal ?? 0 }}");
-        const baseDiscount = parseFloat("{{ $discount ?? 0 }}");
-        const advanceAmount = parseFloat("{{ $advance_amount ?? 0 }}");
+        const base{{ __('Sub{{ __('total') }}') }} = parseFloat("{{ $sub{{ __('total') }} ?? 0 }}");
+        const base{{ __('Discount') }} = parseFloat("{{ $discount ?? 0 }}");
+        const advance{{ __('Amount') }} = parseFloat("{{ $advance_amount ?? 0 }}");
         const hasAdvance = @json($hasAdvance ?? false);
-        const requiresShipping = @json($requires_shipping ?? false);
-        const cartItems = @json($cartItemsForJs ?? []);
+        const requires{{ __('Shipping') }} = @json($requires_shipping ?? false);
+        const cart{{ __('{{ __('Item') }}s') }} = @json($cart{{ __('{{ __('Item') }}s') }}ForJs ?? []);
         const hasAllFreeDelivery = @json($hasAllFreeDelivery ?? false);
 
-        // ⭐ Free Delivery Check Function
+        // ⭐ {{ __('Free Delivery') }} {{ __('Check') }} Function
         function checkFreeDelivery() {
-            // Check if all physical products have free_delivery = 1
+            // {{ __('Check') }} if all physical products have free_delivery = 1
             let allFreeDelivery = true;
-            for (let i = 0; i < cartItems.length; i++) {
-                let item = cartItems[i];
+            for (let i = 0; i < cart{{ __('{{ __('Item') }}s') }}.length; i++) {
+                let item = cart{{ __('{{ __('Item') }}s') }}[i];
                 // Skip digital products
                 if (item.is_digital == 1) {
                     continue;
@@ -885,20 +885,20 @@ if (typeof ttq !== 'undefined') {
         $('#area').on('change', function () {
             var selectedCharge = parseFloat($('option:selected', this).attr('data-charge')) || 0;
             
-            // ⭐ Free Delivery Check - যদি সব প্রোডাক্ট free delivery eligible হয়, shipping charge 0
+            // ⭐ {{ __('Free Delivery') }} {{ __('Check') }} - যদি সব {{ __('{{ __('Product') }}s') }} free delivery eligible {{ __('bn_290a7f61') }}, shipping charge 0
             var isFreeDelivery = checkFreeDelivery();
             var shippingCharge = isFreeDelivery ? 0 : selectedCharge;
             
-            var grandTotal = baseSubtotal + shippingCharge - baseDiscount;
-            var dueAmount = hasAdvance ? (grandTotal - advanceAmount) : 0;
+            var grand{{ __('Total') }} = base{{ __('Sub{{ __('total') }}') }} + shippingCharge - base{{ __('Discount') }};
+            var due{{ __('Amount') }} = hasAdvance ? (grand{{ __('Total') }} - advance{{ __('Amount') }}) : 0;
 
             // টেক্সট আপডেট
-            $('#shippingAmount').text('৳ ' + shippingCharge.toFixed(2));
-            $('#grandTotalAmount').text('৳ ' + grandTotal.toFixed(2));
+            $('#shipping{{ __('Amount') }}').text('৳ ' + shippingCharge.to{{ __('Fixed') }}(2));
+            $('#grand{{ __('Total') }}{{ __('Amount') }}').text('৳ ' + grand{{ __('Total') }}.to{{ __('Fixed') }}(2));
             
             if (hasAdvance) {
-                $('#dueAmountCell').text('৳ ' + dueAmount.toFixed(2));
-                $('#dueAmountText').text(dueAmount.toFixed(2));
+                $('#due{{ __('Amount') }}Cell').text('৳ ' + due{{ __('Amount') }}.to{{ __('Fixed') }}(2));
+                $('#due{{ __('Amount') }}{{ __('Text') }}').text(due{{ __('Amount') }}.to{{ __('Fixed') }}(2));
             }
 
             // ব্যাকএন্ডে শিপিং চার্জ সেট করা (free delivery হলে 0 পাঠাবে)
@@ -908,43 +908,43 @@ if (typeof ttq !== 'undefined') {
                 $.get('{{ route("shipping.charge") }}', { id: $(this).val() });
             }
             
-            // এরিয়া চেঞ্জ করলেও ইনকমপ্লিট অর্ডার আপডেট হবে (যদি নাম/ফোন/ঠিকানা থাকে)
+            // এরিয়া চেঞ্জ করলেও ইন{{ __('bn_e35fe987') }} আপডেট হবে (যদি নাম/ফোন/ঠিকানা থাকে)
             saveIncompleteOrder();
         });
 
-        // ⭐ Page Load হওয়ার সময় Free Delivery Check করে Initial Shipping Charge Set করা
+        // ⭐ Page Load হওয়ার সময় {{ __('Free Delivery') }} {{ __('Check') }} করে Initial {{ __('{{ __('Shipping') }} Charge') }} Set করা
         $(document).ready(function() {
-            // Check free delivery on page load
+            // {{ __('Check') }} free delivery on page load
             var isFreeDeliveryOnLoad = hasAllFreeDelivery || checkFreeDelivery();
             
             if (isFreeDeliveryOnLoad) {
                 var shippingCharge = 0;
-                var grandTotal = baseSubtotal + shippingCharge - baseDiscount;
-                var dueAmount = hasAdvance ? (grandTotal - advanceAmount) : 0;
+                var grand{{ __('Total') }} = base{{ __('Sub{{ __('total') }}') }} + shippingCharge - base{{ __('Discount') }};
+                var due{{ __('Amount') }} = hasAdvance ? (grand{{ __('Total') }} - advance{{ __('Amount') }}) : 0;
 
                 // টেক্সট আপডেট
-                $('#shippingAmount').text('৳ ' + shippingCharge.toFixed(2));
-                $('#grandTotalAmount').text('৳ ' + grandTotal.toFixed(2));
+                $('#shipping{{ __('Amount') }}').text('৳ ' + shippingCharge.to{{ __('Fixed') }}(2));
+                $('#grand{{ __('Total') }}{{ __('Amount') }}').text('৳ ' + grand{{ __('Total') }}.to{{ __('Fixed') }}(2));
                 
                 if (hasAdvance) {
-                    $('#dueAmountCell').text('৳ ' + dueAmount.toFixed(2));
-                    $('#dueAmountText').text(dueAmount.toFixed(2));
+                    $('#due{{ __('Amount') }}Cell').text('৳ ' + due{{ __('Amount') }}.to{{ __('Fixed') }}(2));
+                    $('#due{{ __('Amount') }}{{ __('Text') }}').text(due{{ __('Amount') }}.to{{ __('Fixed') }}(2));
                 }
 
                 // ব্যাকএন্ডে শিপিং চার্জ 0 সেট করা
                 $.get('{{ route("shipping.charge") }}', { id: 'free_delivery' });
             } else {
                 // Free delivery না হলে current shipping charge use করবে
-                var currentShipping = parseFloat($('#shippingAmount').text().replace(/[৳,\s]/g, '').trim()) || 0;
-                var grandTotal = baseSubtotal + currentShipping - baseDiscount;
-                var dueAmount = hasAdvance ? (grandTotal - advanceAmount) : 0;
+                var current{{ __('Shipping') }} = parseFloat($('#shipping{{ __('Amount') }}').text().replace(/[৳,\s]/g, '').trim()) || 0;
+                var grand{{ __('Total') }} = base{{ __('Sub{{ __('total') }}') }} + current{{ __('Shipping') }} - base{{ __('Discount') }};
+                var due{{ __('Amount') }} = hasAdvance ? (grand{{ __('Total') }} - advance{{ __('Amount') }}) : 0;
                 
-                // Grand total update
-                $('#grandTotalAmount').text('৳ ' + grandTotal.toFixed(2));
+                // Grand {{ __('total') }} update
+                $('#grand{{ __('Total') }}{{ __('Amount') }}').text('৳ ' + grand{{ __('Total') }}.to{{ __('Fixed') }}(2));
                 
                 if (hasAdvance) {
-                    $('#dueAmountCell').text('৳ ' + dueAmount.toFixed(2));
-                    $('#dueAmountText').text(dueAmount.toFixed(2));
+                    $('#due{{ __('Amount') }}Cell').text('৳ ' + due{{ __('Amount') }}.to{{ __('Fixed') }}(2));
+                    $('#due{{ __('Amount') }}{{ __('Text') }}').text(due{{ __('Amount') }}.to{{ __('Fixed') }}(2));
                 }
             }
         });
@@ -963,34 +963,34 @@ if (typeof ttq !== 'undefined') {
             // ২ সেকেন্ড পর চেক করবে
             incompleteOrderTimer = setTimeout(() => {
                 var name = $('input[name="name"]').val();
-                var phone = $('input[name="phone"]').val();
+                var {{ __('phone') }} = $('input[name="{{ __('phone') }}"]').val();
                 var address = $('input[name="address"]').val();
                 
                 // ২. লজিক: নাম, ফোন এবং ঠিকানা - তিনটিই থাকতে হবে। 
-                // যদি একাও মিসিং থাকে, তাহলে ইনকমপ্লিট অর্ডার সেভ হবে না।
-                if (!name || !phone || !address) {
+                // যদি একাও মিসিং থাকে, তাহলে ইন{{ __('bn_e35fe987') }} সেভ হবে না।
+                if (!name || !{{ __('phone') }} || !{{ __('address)') }} {
                     return; 
                 }
 
                 // ক্যালকুলেশন
                 var selectedCharge = parseFloat($('#area option:selected').attr('data-charge')) || 0;
-                // ⭐ Free Delivery Check
+                // ⭐ {{ __('Free Delivery') }} {{ __('Check') }}
                 var isFreeDelivery = checkFreeDelivery();
                 var shippingCharge = isFreeDelivery ? 0 : selectedCharge;
-                var total = (baseSubtotal + shippingCharge - baseDiscount).toFixed(2);
+                var {{ __('total') }} = (base{{ __('Sub{{ __('total') }}') }} + shippingCharge - base{{ __('Discount') }}).to{{ __('Fixed') }}(2);
 
                 // ডাটা পাঠানো
                 $.ajax({
                     url: '{{ route("incomplete.order.store") }}',
-                    type: 'POST',
+                    type: '{{ __('POST') }}',
                     contentType: 'application/json',
                     headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') },
                     data: JSON.stringify({
                         name: name,
-                        phone: phone,
+                        {{ __('phone') }}: {{ __('phone') }},
                         address: address,
-                        items: cartItems,
-                        total_amount: total
+                        items: cart{{ __('{{ __('Item') }}s') }},
+                        {{ __('total') }}_amount: {{ __('total') }}
                     })
                 });
             }, 2000); // ২ সেকেন্ড ডিলে
@@ -1003,20 +1003,20 @@ if (typeof ttq !== 'undefined') {
              }
         });
 
-        // পেজ ছেড়ে যাওয়ার সময় ইনকমপ্লিট অর্ডার সেভ (যাতে অ্যাডমিন প্যানেলে দেখায়)
+        // পেজ ছেড়ে যাওয়ার সময় ইন{{ __('bn_e35fe987') }} সেভ (যাতে অ্যাডমিন প্যানেলে দেখায়)
         function saveIncompleteOrderSync() {
             if (isSubmitting) return;
             var name = $('input[name="name"]').val();
-            var phone = $('input[name="phone"]').val();
+            var {{ __('phone') }} = $('input[name="{{ __('phone') }}"]').val();
             var address = $('input[name="address"]').val();
-            if (!name || !phone || !address) return;
+            if (!name || !{{ __('phone') }} || !{{ __('address)') }} return;
             var selectedCharge = parseFloat($('#area option:selected').attr('data-charge')) || 0;
             var isFreeDelivery = typeof checkFreeDelivery === 'function' ? checkFreeDelivery() : false;
             var shippingCharge = isFreeDelivery ? 0 : selectedCharge;
-            var total = (baseSubtotal + shippingCharge - baseDiscount).toFixed(2);
+            var {{ __('total') }} = (base{{ __('Sub{{ __('total') }}') }} + shippingCharge - base{{ __('Discount') }}).to{{ __('Fixed') }}(2);
             var payload = JSON.stringify({
-                name: name, phone: phone, address: address,
-                items: cartItems, total_amount: total,
+                name: name, {{ __('phone') }}: {{ __('phone') }}, address: address,
+                items: cart{{ __('{{ __('Item') }}s') }}, {{ __('total') }}_amount: {{ __('total') }},
                 _token: $('meta[name="csrf-token"]').attr('content')
             });
             navigator.sendBeacon('{{ route("incomplete.order.store") }}', new Blob([payload], {type: 'application/json'}));
@@ -1027,13 +1027,13 @@ if (typeof ttq !== 'undefined') {
         // 4. FORM SUBMISSION & VALIDATION
         // ==========================================
 
-        $('#checkout-form').on('submit', function(e) {
-            // পেমেন্ট মেথড চেক
-            var paymentMethod = $('input[name="payment_method"]:checked').val();
+        $('#checkout-form').on('{{ __('submit') }}', function(e) {
+            // {{ __('bn_f0a1817c') }} {{ __('bn_ad0b92c2') }} চেক
+            var payment{{ __('Method') }} = $('input[name="payment_method"]:checked').val();
             
-            if (!paymentMethod) {
+            if (!payment{{ __('Method') }}) {
                 e.preventDefault();
-                toastr.error('অর্ডার সম্পন্ন করতে পেমেন্ট মেথড নির্বাচন করুন।', 'Error');
+                toastr.error('অর্ডার সম্পন্ন করতে {{ __('bn_b28bdfec') }}।', 'Error');
                 $('#payment-error').show();
                 $('html, body').animate({ scrollTop: $(".checkout-card .fa-wallet").offset().top - 150 }, 500);
                 $('.btn-place-order').prop('disabled', false);
@@ -1041,7 +1041,7 @@ if (typeof ttq !== 'undefined') {
             } else {
                 $('#payment-error').hide();
 
-                // ৩. অর্ডার সাবমিট হচ্ছে, তাই ইনকমপ্লিট টাইমার বন্ধ করে দেওয়া হলো
+                // ৩. অর্ডার সাবমিট হচ্ছে, তাই ইনকমপ্লিট টাইমার {{ __('Close') }} করে দেওয়া হলো
                 isSubmitting = true; 
                 if(incompleteOrderTimer) {
                     clearTimeout(incompleteOrderTimer);
@@ -1051,27 +1051,27 @@ if (typeof ttq !== 'undefined') {
             }
         });
 
-        // পেমেন্ট সিলেক্ট করলে এরর হাইড হবে
+        // {{ __('bn_f0a1817c') }} সিলেক্ট করলে এরর হাইড হবে
         $('input[name="payment_method"]').on('change', function() {
             $('#payment-error').hide();
         });
     });
 </script>
-{{-- 🔹 GA4 + Facebook Pixel Tracking for Checkout --}}
+{{-- 🔹 GA4 + Facebook Pixel {{ __('{{ __('Track') }}ing') }} for {{ __('Check') }}out --}}
 <script type="text/javascript">
     window.dataLayer = window.dataLayer || [];
 
     (function () {
-        const items        = @json($cartItemsForJs);
+        const items        = @json($cart{{ __('{{ __('Item') }}s') }}ForJs);
         const hasAdvance   = @json($hasAdvance);
-        const advanceAmount= parseFloat("{{ $advance_amount }}") || 0;
-        const grandTotal   = parseFloat("{{ $grand_total }}") || 0;
-        const payableNow   = hasAdvance ? advanceAmount : grandTotal;
-        const coupon       = @json(Session::get('coupon_code', null));
+        const advance{{ __('Amount') }}= parseFloat("{{ $advance_amount }}") || 0;
+        const grand{{ __('Total') }}   = parseFloat("{{ $grand_{{ __('total') }} }}") || 0;
+        const payableNow   = hasAdvance ? advance{{ __('Amount') }} : grand{{ __('Total') }};
+        const coupon       = @json({{ __('Session') }}::get('coupon_code', null));
 
-        const ga4Items = items.map(function (item, index) {
+        const ga4{{ __('{{ __('Item') }}s') }} = items.map(function (item, index) {
             return {
-                item_id: String(item.id),
+                item_id: {{ __('String') }}(item.{{ __('id)') }},
                 item_name: item.name,
                 quantity: Number(item.qty),
                 price: Number(item.price),
@@ -1080,7 +1080,7 @@ if (typeof ttq !== 'undefined') {
         });
 
         // GA4: begin_checkout
-        if (ga4Items.length) {
+        if (ga4{{ __('{{ __('Item') }}s') }}.length) {
             window.dataLayer.push({ ecommerce: null });
             window.dataLayer.push({
                 event: "begin_checkout",
@@ -1088,14 +1088,14 @@ if (typeof ttq !== 'undefined') {
                     currency: "BDT",
                     value: payableNow,
                     coupon: coupon,
-                    items: ga4Items
+                    items: ga4{{ __('{{ __('Item') }}s') }}
                 }
             });
         }
 
-        // Facebook Pixel: InitiateCheckout
+        // Facebook Pixel: Initiate{{ __('Check') }}out
         if (typeof fbq === "function" && items.length) {
-            fbq("track", "InitiateCheckout", {
+            fbq("track", "Initiate{{ __('Check') }}out", {
                 value: payableNow,
                 currency: "BDT",
                 num_items: items.length,
@@ -1107,25 +1107,25 @@ if (typeof ttq !== 'undefined') {
             });
         }
 
-        // On form submit: GA4 add_payment_info + Pixel AddPaymentInfo
+        // On form {{ __('submit') }}: GA4 add_payment_info + Pixel AddPaymentInfo
         document.addEventListener("DOMContentLoaded", function () {
             var form = document.getElementById("checkout-form");
             if (!form) return;
 
-            form.addEventListener("submit", function () {
+            form.addEventListener("{{ __('submit') }}", function () {
                 var paymentInput  = form.querySelector('input[name="payment_method"]:checked');
-                var paymentMethod = paymentInput ? paymentInput.value : null;
+                var payment{{ __('Method') }} = paymentInput ? paymentInput.value : null;
 
                 // GA4 add_payment_info
                 window.dataLayer.push({ ecommerce: null });
                 window.dataLayer.push({
                     event: "add_payment_info",
-                    payment_type: paymentMethod,
+                    payment_type: payment{{ __('Method') }},
                     ecommerce: {
                         currency: "BDT",
                         value: payableNow,
                         coupon: coupon,
-                        items: ga4Items
+                        items: ga4{{ __('{{ __('Item') }}s') }}
                     }
                 });
 
@@ -1134,7 +1134,7 @@ if (typeof ttq !== 'undefined') {
                     fbq("track", "AddPaymentInfo", {
                         value: payableNow,
                         currency: "BDT",
-                        payment_method: paymentMethod,
+                        payment_method: payment{{ __('Method') }},
                         num_items: items.length,
                         content_ids: items.map(function(i){ return i.id; })
                     });

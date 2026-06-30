@@ -1,22 +1,22 @@
 @php
-    $subtotal = Cart::instance('shopping')->subtotal();
-    $subtotal=str_replace(',','',$subtotal);
-    $subtotal=str_replace('.00', '',$subtotal);
-    $shipping = Session::get('shipping')?Session::get('shipping'):0;
-    $discount = Session::get('discount')?Session::get('discount'):0;
+    $sub{{ __('total') }} = {{ __('Cart') }}::instance('shopping')->sub{{ __('total') }}();
+    $sub{{ __('total') }}=str_replace(',','',$sub{{ __('total') }});
+    $sub{{ __('total') }}=str_replace('.00', '',$sub{{ __('total') }});
+    $shipping = {{ __('Session') }}::get('shipping')?{{ __('Session') }}::get('shipping'):0;
+    $discount = {{ __('Session') }}::get('discount')?{{ __('Session') }}::get('discount'):0;
 @endphp
 <table class="cart_table table table-bordered table-striped text-center mb-0">
         <thead>
          <tr>
-          <th style="width: 20%;">ডিলিট</th>
-          <th style="width: 40%;">প্রোডাক্ট</th>
-          <th style="width: 20%;">পরিমাণ</th>
-          <th style="width: 20%;">মূল্য</th>
+          <th style="width: 20%;">{{ __('Delete') }}</th>
+          <th style="width: 40%;">{{ __('{{ __('Product') }}s') }}</th>
+          <th style="width: 20%;">{{ __('Quantity') }}</th>
+          <th style="width: 20%;">{{ __('Price') }}</th>
          </tr>
         </thead>
 
         <tbody>
-         @foreach(Cart::instance('shopping')->content() as $value)
+         @foreach({{ __('Cart') }}::instance('shopping')->content() as $value)
          <tr>
           <td>
            <a class="cart_remove" data-id="{{$value->rowId}}"><i class="fas fa-trash text-danger"></i></a>
@@ -27,7 +27,7 @@
             <p>Size: {{$value->options->product_size}}</p>
            @endif
            @if($value->options->product_color)
-           <p>Color: {{ $value->options->product_color }}</p>
+           <p>{{ __('Color') }}: {{ $value->options->product_color }}</p>
            @endif
           </td>
           <td class="cart_qty">
@@ -45,29 +45,29 @@
         </tbody>
         <tfoot>
          <tr>
-          <th colspan="3" class="text-end px-4">মোট</th>
+          <th colspan="3" class="text-end px-4">{{ __('bn_70ac0f2d') }}</th>
           <td>
-           <span id="net_total"><span class="alinur">৳ </span><strong>{{$subtotal}}</strong></span>
+           <span id="net_{{ __('total') }}"><span class="alinur">৳ </span><strong>{{$sub{{ __('total') }}}}</strong></span>
           </td>
          </tr>
          <tr>
-          <th colspan="3" class="text-end px-4">ডেলিভারি চার্জ</th>
+          <th colspan="3" class="text-end px-4">{{ __('bn_99838c8f') }}</th>
           <td>
            <span id="cart_shipping_cost"><span class="alinur">৳ </span><strong>{{$shipping}}</strong></span>
           </td>
          </tr>
-         @if(Session::get('discount', 0) > 0)
+         @if({{ __('Session') }}::get('discount', 0) > 0)
          <tr>
-            <th colspan="3" class="text-end px-4">কুপন ছাড়</th>
+            <th colspan="3" class="text-end px-4">{{ __('bn_a13a244a') }}</th>
             <td>
-                <span id="discount"><span class="alinur">৳ </span><strong>{{ Session::get('discount', 0) }}</strong></span>
+                <span id="discount"><span class="alinur">৳ </span><strong>{{ {{ __('Session') }}::get('discount', 0) }}</strong></span>
             </td>
         </tr>
         @endif
          <tr>
-          <th colspan="3" class="text-end px-4">সর্বমোট</th>
+          <th colspan="3" class="text-end px-4">{{ __('Total') }}</th>
           <td>
-           <span id="grand_total"><span class="alinur">৳ </span><strong>{{$subtotal+$shipping-Session::get('discount', 0)}}</strong></span>
+           <span id="grand_{{ __('total') }}"><span class="alinur">৳ </span><strong>{{$sub{{ __('total') }}+$shipping-{{ __('Session') }}::get('discount', 0)}}</strong></span>
           </td>
          </tr>
         </tfoot>
@@ -79,9 +79,9 @@
     $('.cart_store').on('click',function(){
     var id = $(this).data('id'); 
     var qty = $(this).parent().find('input').val();
-    if(id){
+    if({{ __('id)') }}{
         $.ajax({
-           type:"GET",
+           type:"{{ __('GET') }}",
            data:{'id':id,'qty':qty?qty:1},
            url:"{{route('cart.store')}}",
            success:function(data){               
@@ -95,9 +95,9 @@
 
     $('.cart_remove').on('click',function(){
     var id = $(this).data('id');   
-    if(id){
+    if({{ __('id)') }}{
         $.ajax({
-           type:"GET",
+           type:"{{ __('GET') }}",
            data:{'id':id},
            url:"{{route('cart.remove')}}",
            success:function(data){               
@@ -113,9 +113,9 @@
 
     $('.cart_increment').on('click',function(){
     var id = $(this).data('id');  
-    if(id){
+    if({{ __('id)') }}{
         $.ajax({
-           type:"GET",
+           type:"{{ __('GET') }}",
            data:{'id':id},
            url:"{{route('cart.increment')}}",
            success:function(data){               
@@ -130,9 +130,9 @@
 
     $('.cart_decrement').on('click',function(){
     var id = $(this).data('id');  
-    if(id){
+    if({{ __('id)') }}{
         $.ajax({
-           type:"GET",
+           type:"{{ __('GET') }}",
            data:{'id':id},
            url:"{{route('cart.decrement')}}",
            success:function(data){               
@@ -147,7 +147,7 @@
     
     function cart_count(){
         $.ajax({
-           type:"GET",
+           type:"{{ __('GET') }}",
            url:"{{route('cart.count')}}",
            success:function(data){               
             if(data){

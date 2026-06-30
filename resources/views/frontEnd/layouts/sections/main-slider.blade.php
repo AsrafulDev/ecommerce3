@@ -1,4 +1,4 @@
-{{-- Left Category Hero Slider --}}
+{{-- Left {{ __('Category') }} Hero Slider --}}
 <section class="hero-section">
     <div class="container">
         <div class="row g-0 hero-row">
@@ -83,7 +83,7 @@
     .hero-section .owl-next { right: 12px; }
     .hero-section .owl-nav button:hover {
         background: #fff !important;
-        box-shadow: 0 4px 14px rgba(0,0,0,0.18);
+        box-shadow: 0 4px {{ __('14px') }} rgba(0,0,0,0.18);
     }
 
     @media (max-width: 991px) {

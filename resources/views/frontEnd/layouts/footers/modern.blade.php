@@ -1,4 +1,4 @@
-{{-- Footer Style 2: Modern --}}
+{{-- {{ __('Footer Style') }} 2: Modern --}}
 <footer style="background:#f8f9fa;border-top:3px solid var(--primary-color);">
     <div class="container py-5">
         <div class="row g-4">
@@ -13,17 +13,17 @@
             </div>
             <div class="col-md-8">
                 <div class="row">
-                    <div class="col-6 col-md-3"><h6 class="fw-bold small mb-2">Shop</h6><ul class="list-unstyled small text-muted"><li class="mb-1"><a href="{{ route('shop') }}" class="text-decoration-none text-muted">All Products</a></li><li class="mb-1"><a href="{{ route('hotdeals') }}" class="text-decoration-none text-muted">{{ __('Hot Deals') }}</a></li><li class="mb-1"><a href="#" class="text-decoration-none text-muted">{{ __('New Arrivals') }}</a></li></ul></div>
-                    <div class="col-6 col-md-3"><h6 class="fw-bold small mb-2">{{ __('Help') }}</h6><ul class="list-unstyled small text-muted"><li class="mb-1"><a href="#" class="text-decoration-none text-muted">{{ __('FAQ') }}</a></li><li class="mb-1"><a href="#" class="text-decoration-none text-muted">{{ __('Shipping') }}</a></li><li class="mb-1"><a href="{{ route('contact') }}" class="text-decoration-none text-muted">Contact</a></li></ul></div>
+                    <div class="col-6 col-md-3"><h6 class="fw-bold small mb-2">{{ __('Shop') }}</h6><ul class="list-unstyled small text-muted"><li class="mb-1"><a href="{{ route('shop') }}" class="text-decoration-none text-muted">{{ __('All {{ __('Product') }}s') }}</a></li><li class="mb-1"><a href="{{ route('hotdeals') }}" class="text-decoration-none text-muted">{{ __('{{ __('Hot Deal') }}s') }}</a></li><li class="mb-1"><a href="#" class="text-decoration-none text-muted">{{ __('{{ __('New') }} Arrivals') }}</a></li></ul></div>
+                    <div class="col-6 col-md-3"><h6 class="fw-bold small mb-2">{{ __('Help') }}</h6><ul class="list-unstyled small text-muted"><li class="mb-1"><a href="#" class="text-decoration-none text-muted">{{ __('FAQ') }}</a></li><li class="mb-1"><a href="#" class="text-decoration-none text-muted">{{ __('Shipping') }}</a></li><li class="mb-1"><a href="{{ route('contact') }}" class="text-decoration-none text-muted">{{ __('Contact') }}</a></li></ul></div>
                     <div class="col-6 col-md-3"><h6 class="fw-bold small mb-2">{{ __('Account') }}</h6><ul class="list-unstyled small text-muted"><li class="mb-1"><a href="{{ route('customer.account') }}" class="text-decoration-none text-muted">{{ __('My Account') }}</a></li><li class="mb-1"><a href="#" class="text-decoration-none text-muted">{{ __('Orders') }}</a></li><li class="mb-1"><a href="#" class="text-decoration-none text-muted">{{ __('Wishlist') }}</a></li></ul></div>
-                    <div class="col-6 col-md-3"><h6 class="fw-bold small mb-2">Contact</h6><ul class="list-unstyled small text-muted"><li class="mb-1"><i class="fa-solid fa-phone me-1"></i>{{ $contact->hotline ?? 'N/A' }}</li><li class="mb-1"><i class="fa-solid fa-envelope me-1"></i>{{ $contact->email ?? 'N/A' }}</li></ul></div>
+                    <div class="col-6 col-md-3"><h6 class="fw-bold small mb-2">{{ __('Contact') }}</h6><ul class="list-unstyled small text-muted"><li class="mb-1"><i class="fa-solid fa-{{ __('phone') }} me-1"></i>{{ $contact->hotline ?? '{{ __('N/A') }}' }}</li><li class="mb-1"><i class="fa-solid fa-envelope me-1"></i>{{ $contact->email ?? '{{ __('N/A') }}' }}</li></ul></div>
                 </div>
             </div>
         </div>
         <hr>
         <div class="d-flex justify-content-between align-items-center small text-muted">
             <span>{{ $generalsetting->copyright ?? '© 2026' }}</span>
-            <span>Powered by Ecommerce3</span>
+            <span>{{ __('Powered by Ecommerce3') }}</span>
         </div>
     </div>
 </footer>

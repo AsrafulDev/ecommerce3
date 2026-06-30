@@ -1,5 +1,5 @@
 @extends('frontEnd.layouts.master')
-@section('title','Contact Us')
+@section('title','{{ __('Contact') }} Us')
 @php
     $generalsetting = \App\Models\GeneralSetting::first();
 @endphp
@@ -63,7 +63,7 @@
     .sidebar-info {
         margin-top: 30px;
         background: rgba(255, 255, 255, 0.1); /* হালকা কাঁচের মতো এফেক্ট */
-        backdrop-filter: blur(5px);
+        backdrop-{{ __('filter') }}: blur(5px);
         padding: 20px;
         border-radius: 15px;
         border: 1px solid rgba(255, 255, 255, 0.15);
@@ -83,7 +83,7 @@
         width: 22px;
         height: 22px;
         color: #fff;
-        filter: drop-shadow(0 0 5px var(--primary-brand)); /* নিওন আইকন এফেক্ট */
+        {{ __('filter') }}: drop-shadow(0 0 5px var(--primary-brand)); /* নিওন আইকন এফেক্ট */
     }
 
     .sidebar-info-item span {
@@ -114,7 +114,7 @@
         box-shadow: 0 0 0 4px rgba(13, 110, 253, 0.1);
     }
 
-    .submit-btn {
+    .{{ __('submit') }}-btn {
         background: var(--primary-brand);
         color: white;
         padding: 15px;
@@ -140,8 +140,8 @@
                         <div class="col-lg-5">
                             <div class="contact-sidebar-img">
                                 <div class="sidebar-content">
-                                    <h3 class="fw-bold mb-3">আমাদের সাথে যোগাযোগ করুন</h3>
-                                    <p class="small opacity-75 mb-0"><span style="color: white;">আপনার যেকোনো প্রশ্ন বা মতামতের জন্য সরাসরি মেসেজ দিন। আমরা দ্রুত উত্তর দেব।</span></p>
+                                    <h3 class="fw-bold mb-3">{{ __('bn_cca05c50') }}</h3>
+                                    <p class="small opacity-75 mb-0"><span style="color: white;">{{ __('bn_81c6cb34') }}</span></p>
 
                                     <div class="sidebar-info">
                                         <div class="sidebar-info-item">
@@ -149,7 +149,7 @@
                                             <span>{{ $contact->address }}</span>
                                         </div>
                                         <div class="sidebar-info-item">
-                                            <i data-feather="phone-call"></i>
+                                            <i data-feather="{{ __('phone') }}-call"></i>
                                             <span>{{ $contact->hotline ?? '01XXX-XXXXXX' }}</span>
                                         </div>
                                         <div class="sidebar-info-item">
@@ -163,7 +163,7 @@
 
                         <div class="col-lg-7">
                             <div class="contact-form-side">
-                                <h4 class="fw-bold mb-4" style="color: #222;">একটি মেসেজ পাঠান</h4>
+                                <h4 class="fw-bold mb-4" style="color: #222;">{{ __('Send {{ __('Message') }}') }}</h4>
 
                                 @if(session('success'))
                                     <div class="alert alert-success border-0 shadow-sm mb-4" style="border-radius: 10px;">
@@ -171,33 +171,33 @@
                                     </div>
                                 @endif
 
-                                <form action="{{ route('frontend.contact.store') }}" method="POST">
+                                <form action="{{ route('frontend.contact.store') }}" method={{ __('"{{ __('POST') }}"') }}>
                                     @csrf
                                     <input type="hidden" name="status" value="0">
 
                                     <div class="row g-3">
                                         <div class="col-md-6">
-                                            <label class="form-label fw-bold small">সম্পূর্ণ নাম *</label>
-                                            <input type="text" name="full_name" class="form-control" placeholder="আপনার নাম" required>
+                                            <label class="form-label fw-bold small">{{ __('bn_8a5c0cf7') }}</label>
+                                            <input type="text" name="full_name" class="form-control" placeholder="{{ __('Your {{ __('Name') }}') }}" required>
                                         </div>
                                         <div class="col-md-6">
-                                            <label class="form-label fw-bold small">মোবাইল নাম্বার *</label>
+                                            <label class="form-label fw-bold small">{{ __('{{ __('Mobile') }} Number') }}</label>
                                             <input type="text" name="mobile" class="form-control" placeholder="০১xxx-xxxxxx" required>
                                         </div>
                                         <div class="col-12">
-                                            <label class="form-label fw-bold small">ইমেইল এড্রেস</label>
-                                            <input type="email" name="email" class="form-control" placeholder="example@mail.com">
+                                            <label class="form-label fw-bold small">{{ __('bn_186b9f22') }}</label>
+                                            <input type="email" name="email" class="form-control" placeholder="{{ __('example@mail.com') }}">
                                         </div>
                                         <div class="col-12">
-                                            <label class="form-label fw-bold small">বিষয়</label>
+                                            <label class="form-label fw-bold small">{{ __('Subject') }}</label>
                                             <input type="text" name="subject" class="form-control" placeholder="কি বিষয়ে জানতে চান?">
                                         </div>
                                         <div class="col-12">
-                                            <label class="form-label fw-bold small">মেসেজ লিখুন *</label>
+                                            <label class="form-label fw-bold small">{{ __('bn_7bc8edb6') }}</label>
                                             <textarea name="details" class="form-control" rows="5" placeholder="আপনার মেসেজ লিখুন..." required></textarea>
                                         </div>
                                         <div class="col-12 mt-4">
-                                            <button type="submit" class="submit-btn w-100">
+                                            <button type="{{ __('submit') }}" class="{{ __('submit') }}-btn w-100">
                                                 মেসেজ পাঠান <i class="ms-2" data-feather="send" style="width: 18px"></i>
                                             </button>
                                         </div>
@@ -216,7 +216,7 @@
 @endsection
 
 @push('script')
-<script src="https://unpkg.com/feather-icons"></script>
+<script src="{{ __('https://') }}unpkg.com/feather-icons"></script>
 <script>
     feather.replace();
 </script>

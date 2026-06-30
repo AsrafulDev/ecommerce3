@@ -1,5 +1,5 @@
 @extends('backEnd.layouts.master')
-@section('title','Landing Page Edit')
+@section('title','{{ __('{{ __('Landing Page') }} Edit') }}')
 @section('css')
 <link href="{{asset('public/backEnd')}}/assets/libs/select2/css/select2.min.css" rel="stylesheet" type="text/css" />
 <link href="{{asset('public/backEnd')}}/assets/libs/flatpickr/flatpickr.min.css" rel="stylesheet" type="text/css" />
@@ -14,9 +14,9 @@
         <div class="col-12">
             <div class="page-title-box">
                 <div class="page-title-right">
-                    <a href="{{route('campaign.index')}}" class="btn btn-primary rounded-pill">Manage</a>
+                    <a href="{{route('campaign.index')}}" class="btn btn-primary rounded-pill">{{ __('Manage') }}</a>
                 </div>
-                <h4 class="page-title">Landing Page Edit</h4>
+                <h4 class="page-title">{{ __('{{ __('Landing Page') }} Edit') }}</h4>
             </div>
         </div>
     </div>       
@@ -25,14 +25,14 @@
     <div class="col-lg-10">
         <div class="card">
             <div class="card-body">
-                <form action="{{route('campaign.update')}}" method="POST" class="row" data-parsley-validate="" enctype="multipart/form-data" name="editForm">
+                <form action="{{route('campaign.update')}}" method={{ __('"{{ __('POST') }}"') }} class="row" data-parsley-validate="" enctype="multipart/form-data" name="editForm">
                     @csrf
                     <input type="hidden" value="{{$edit_data->id}}" name="hidden_id">
 
 
                       <div class="col-sm-12">
                         <div class="form-group mb-3">
-                            <label for="name" class="form-label">Landing Page Title *</label>
+                            <label for="name" class="form-label">{{ __('{{ __('{{ __('Landing Page') }} {{ __('Title') }}') }} *') }}</label>
                             <input type="text" class="form-control @error('name') is-invalid @enderror" name="name" value="{{ $edit_data->name}}"  id="name" required="">
                             @error('name')
                                 <span class="invalid-feedback" role="alert">
@@ -46,7 +46,7 @@
 
                     <div class="col-sm-12 mb-3">
                         <div class="form-group">
-                            <label for="banner" class="form-label">Banner Image</label>
+                            <label for="banner" class="form-label">{{ __('Banner Image') }}</label>
                             <input type="file" class="form-control @error('banner') is-invalid @enderror" name="banner" value="{{ $edit_data->banner }}"  id="banner" >
                             <img src="{{asset($edit_data->banner)}}" alt="" class="edit-image">
                             @error('banner')
@@ -60,7 +60,7 @@
 
                     <div class="col-sm-12">
                         <div class="form-group mb-3">
-                            <label for="banner_title" class="form-label">Banner Title</label>
+                            <label for="banner_title" class="form-label">{{ __('Banner {{ __('Title') }}') }}</label>
                             <input type="text" class="form-control @error('banner_title') is-invalid @enderror" name="banner_title" value="{{ $edit_data->banner_title }}" id="banner_title">
                             @error('banner_title')
                                 <span class="invalid-feedback" role="alert">
@@ -72,7 +72,7 @@
                     
                     <div class="col-sm-12">
                         <div class="form-group mb-3">
-                            <label for="deadline" class="form-label">Deadline</label>
+                            <label for="deadline" class="form-label">{{ __('Deadline') }}</label>
                             <input type="datetime-local" class="form-control @error('deadline') is-invalid @enderror" name="deadline" value="{{ $edit_data->deadline  }}" id="deadline">
                             @error('deadline')
                                 <span class="invalid-feedback" role="alert">
@@ -84,7 +84,7 @@
                     
                     <div class="col-sm-12">
                         <div class="form-group mb-3">
-                            <label for="top_title_1" class="form-label">Top Title 1</label>
+                            <label for="top_title_1" class="form-label">{{ __('Top {{ __('Title') }} 1') }}</label>
                             <input type="text" class="form-control @error('top_title_1') is-invalid @enderror" name="top_title_1" value="{{ $edit_data->top_title_1 }}" id="top_title_1">
                             @error('top_title_1')
                                 <span class="invalid-feedback" role="alert">
@@ -96,7 +96,7 @@
                     
                     <div class="col-sm-12">
                         <div class="form-group mb-3">
-                            <label for="top_title_2" class="form-label">Top Title 2</label>
+                            <label for="top_title_2" class="form-label">{{ __('Top {{ __('Title') }} 2') }}</label>
                             <input type="text" class="form-control @error('top_title_2') is-invalid @enderror" name="top_title_2" value="{{ $edit_data->top_title_2 }}" id="top_title_2">
                             @error('top_title_2')
                                 <span class="invalid-feedback" role="alert">
@@ -108,7 +108,7 @@
                     
                     <div class="col-sm-12">
                         <div class="form-group mb-3">
-                            <label for="heading_1" class="form-label">Heading 1</label>
+                            <label for="heading_1" class="form-label">{{ __('Heading 1') }}</label>
                             <input type="text" class="form-control @error('heading_1') is-invalid @enderror" name="heading_1" value="{{ $edit_data->heading_1 }}" id="heading_1">
                             @error('heading_1')
                                 <span class="invalid-feedback" role="alert">
@@ -120,7 +120,7 @@
                     
                     <div class="col-sm-12">
                         <div class="form-group mb-3">
-                            <label for="feature_1" class="form-label">Feature 1</label>
+                            <label for="feature_1" class="form-label">{{ __('Feature 1') }}</label>
                             <input type="text" class="form-control @error('feature_1') is-invalid @enderror" name="feature_1" value="{{ $edit_data->feature_1 }}" id="feature_1">
                             @error('feature_1')
                                 <span class="invalid-feedback" role="alert">
@@ -132,7 +132,7 @@
                     
                     <div class="col-sm-12">
                         <div class="form-group mb-3">
-                            <label for="feature_2" class="form-label">Feature 2</label>
+                            <label for="feature_2" class="form-label">{{ __('Feature 2') }}</label>
                             <input type="text" class="form-control @error('feature_2') is-invalid @enderror" name="feature_2" value="{{ $edit_data->feature_2 }}" id="feature_2">
                             @error('feature_2')
                                 <span class="invalid-feedback" role="alert">
@@ -144,7 +144,7 @@
                     
                     <div class="col-sm-12">
                         <div class="form-group mb-3">
-                            <label for="heading_2" class="form-label">Heading 2</label>
+                            <label for="heading_2" class="form-label">{{ __('Heading 2') }}</label>
                             <input type="text" class="form-control @error('heading_2') is-invalid @enderror" name="heading_2" value="{{ $edit_data->heading_2 }}" id="heading_2">
                             @error('heading_2')
                                 <span class="invalid-feedback" role="alert">
@@ -156,7 +156,7 @@
                     
                     <div class="col-sm-12">
                         <div class="form-group mb-3">
-                            <label for="heading_3" class="form-label">Heading 3</label>
+                            <label for="heading_3" class="form-label">{{ __('Heading 3') }}</label>
                             <input type="text" class="form-control @error('heading_3') is-invalid @enderror" name="heading_3" value="{{ $edit_data->heading_3 }}" id="heading_3">
                             @error('heading_3')
                                 <span class="invalid-feedback" role="alert">
@@ -168,7 +168,7 @@
                     
                     <div class="col-sm-12">
                         <div class="form-group mb-3">
-                            <label for="heading_4" class="form-label">Heading 4</label>
+                            <label for="heading_4" class="form-label">{{ __('Heading 4') }}</label>
                             <input type="text" class="form-control @error('heading_4') is-invalid @enderror" name="heading_4" value="{{ $edit_data->heading_4 }}" id="heading_4">
                             @error('heading_4')
                                 <span class="invalid-feedback" role="alert">
@@ -204,7 +204,7 @@
 
                     <div class="col-sm-12">
                         <div class="form-group mb-3">
-                            <label for="video" class="form-label">Youtube Video ID</label>
+                            <label for="video" class="form-label">{{ __('Youtube Video ID') }}</label>
                             <input type="text" class="form-control @error('video') is-invalid @enderror" name="video" value="{{ $edit_data->video}}"  id="video">
                             @error('video')
                                 <span class="invalid-feedback" role="alert">
@@ -219,12 +219,12 @@
 
                     <div class="col-sm-12">
                         <div class="form-group mb-3">
-                            <label for="product_id" class="form-label">Products *</label>
+                            <label for="product_id" class="form-label">{{ __('{{ __('Product') }}s *') }}</label>
                             <select class="select2 form-control @error('product_id') is-invalid @enderror" 
                                     name="product_id[]" 
                                     multiple="multiple" 
-                                    data-placeholder="Choose ...">
-                                <option value="">Select..</option>
+                                    data-placeholder="{{ __('Choose ...') }}">
+                                <option value="">{{ __('Select..') }}</option>
                                 @foreach($products as $value)
                                     <option value="{{ $value->id }}" 
                                         {{ $value->id == $edit_data->product_id || in_array($value->id, array_column($select_products, 'id')) ? 'selected' : '' }}>
@@ -238,7 +238,7 @@
                                 </span>
                             @enderror
                         </div>
-                        <div>Selected Products</div>
+                        <div>{{ __('Selected {{ __('Product') }}s') }}</div>
                         <ul>
                            @foreach($select_products as $sp)
                            <li>{{$sp->name}}</li>
@@ -252,7 +252,7 @@
                     
                     <div class="col-sm-6 mb-3">
                         <div class="form-group">
-                            <label for="image_one" class="form-label">Image One</label>
+                            <label for="image_one" class="form-label">{{ __('Image One') }}</label>
                             <input type="file" class="form-control @error('image_one') is-invalid @enderror" name="image_one" value="{{ $edit_data->image_one }}"  id="image_one" >
                             <img src="{{asset($edit_data->image_one)}}" alt="" class="edit-image">
                             @error('image_one')
@@ -264,7 +264,7 @@
                     </div>
                     <div class="col-sm-6 mb-3">
                         <div class="form-group">
-                            <label for="image_two" class="form-label">Image Two</label>
+                            <label for="image_two" class="form-label">{{ __('Image Two') }}</label>
                             <input type="file" class="form-control @error('image_two') is-invalid @enderror" name="image_two" value="{{ $edit_data->image_two }}"  id="image_two" >
                             <img src="{{asset($edit_data->image_two)}}" alt="" class="edit-image">
                             @error('image_two')
@@ -276,7 +276,7 @@
                     </div>
                       <div class="col-sm-6 mb-3">
                         <div class="form-group">
-                            <label for="image_three" class="form-label">Image Three</label>
+                            <label for="image_three" class="form-label">{{ __('Image Three') }}</label>
                             <input type="file" class="form-control @error('image_three') is-invalid @enderror" name="image_three" value="{{ $edit_data->image_three }}"  id="image_three" >
                             <img src="{{asset($edit_data->image_three)}}" alt="" class="edit-image">
                             @error('image_three')
@@ -288,7 +288,7 @@
                     </div>
                     <!-- col end -->
                     <div class="col-sm-6 mb-3">
-                        <label for="image">Review Image *</label>
+                        <label for="image">{{ __('{{ __('Review') }} {{ __('Image *') }}') }}</label>
                         <div class="input-group control-group increment">
                             <input type="file" name="image[]" class="form-control @error('image') is-invalid @enderror" />
                             <div class="input-group-btn">
@@ -319,7 +319,7 @@
 
                     <div class="col-sm-6">
                         <div class="form-group mb-3">
-                            <label for="review" class="form-label">Review *</label>
+                            <label for="review" class="form-label">{{ __('{{ __('Review') }} *') }}</label>
                             <input type="text" class="form-control @error('review') is-invalid @enderror" name="review" value="{{ $edit_data->review}}"  id="review" required="">
                             @error('review')
                                 <span class="invalid-feedback" role="alert">
@@ -331,7 +331,7 @@
                     <!-- col-end -->
                     <div class="col-sm-12 mb-3">
                         <div class="form-group">
-                            <label for="short_description" class="form-label">Short Description</label>
+                            <label for="short_description" class="form-label">{{ __('Short Description') }}</label>
                             <textarea name="short_description"  rows="6" class="summernote form-control @error('short_description') is-invalid @enderror">{{$edit_data->short_description}}</textarea>
                             @error('short_description')
                                 <span class="invalid-feedback" role="alert">
@@ -371,7 +371,7 @@
                     </div>
                     <!-- col end -->
                     <div>
-                        <input type="submit" class="btn btn-success" value="Submit">
+                        <input type="{{ __('submit') }}" class="btn btn-success" value="Submit">
                     </div>
 
                 </form>
@@ -396,7 +396,7 @@
 <script src="{{asset('public/backEnd/')}}/assets/libs//summernote/summernote-lite.min.js"></script>
 <script>
   $(".summernote").summernote({
-    placeholder: "Enter Your Text Here",
+    placeholder: "Enter Your {{ __('Text') }} Here",
   });
 </script>
 <script type="text/javascript">

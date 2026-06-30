@@ -1,5 +1,5 @@
 @extends('backEnd.layouts.master')
-@section('title', 'Bonus Management')
+@section('title', 'Bonus {{ __('Manage') }}ment')
 
 @section('css')
 <style>
@@ -10,7 +10,7 @@
         box-shadow: 0 4px 10px rgba(0, 0, 0, 0.03);
         background: #fff;
     }
-    .filter-container {
+    .{{ __('filter') }}-container {
         background: #f8fafc;
         border-bottom: 1px solid #e2e8f0;
         padding: 1.25rem;
@@ -63,7 +63,7 @@
     .badge-paid { background: #dcfce7; color: #166534; }
     .badge-approved { background: #e0f2fe; color: #075985; }
     .badge-pending { background: #fef3c7; color: #92400e; }
-    .status-dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+    .status-dot { width: 6px; height: 6px; border-radius: 50%; background: current{{ __('Color') }}; }
 
     /* --- Action Buttons --- */
     .btn-icon {
@@ -86,25 +86,25 @@
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
             <h4 class="mb-1 fw-bold text-dark">
-                <i data-feather="gift" class="text-primary me-2"></i> Bonus Management
+                <i data-feather="gift" class="text-primary me-2"></i> Bonus {{ __('Manage') }}ment
             </h4>
-            <p class="text-muted small mb-0">Manage employee bonuses and incentives.</p>
+            <p class="text-muted small mb-0">{{ __('{{ __('Manage') }} employee bonuses and incentives.') }}</p>
         </div>
         <a href="{{ route('admin.bonuses.create') }}" class="btn btn-primary px-4 py-2 rounded-pill shadow-sm">
-            <i data-feather="plus-circle" class="me-1" style="width: 16px;"></i> Add New Bonus
+            <i data-feather="plus-circle" class="me-1" style="width: 16px;"></i> Add {{ __('New') }} Bonus
         </a>
     </div>
 
     <div class="card card-modern">
         
         {{-- FILTERS --}}
-        <div class="filter-container">
-            <form method="GET" action="{{ route('admin.bonuses.index') }}">
+        <div class="{{ __('filter') }}-container">
+            <form method="{{ __('GET') }}" action="{{ route('admin.bonuses.index') }}">
                 <div class="row g-3 align-items-end">
                     <div class="col-md-3">
                         <label class="form-label small fw-bold text-muted text-uppercase mb-1">{{ __('Employee') }}</label>
                         <select name="employee_id" class="form-control select2 form-select-modern">
-                            <option value="">All Employees</option>
+                            <option value="">{{ __('All {{ __('Employees') }}') }}</option>
                             @foreach($employees as $emp)
                                 <option value="{{ $emp->id }}" {{ request('employee_id') == $emp->id ? 'selected' : '' }}>
                                     {{ $emp->name }} ({{ $emp->employee_id }})
@@ -113,20 +113,20 @@
                         </select>
                     </div>
                     <div class="col-md-2">
-                        <label class="form-label small fw-bold text-muted text-uppercase mb-1">{{ __('Status') }}</label>
+                        <label class="form-label small fw-bold text-muted text-uppercase mb-1">{{ __('{{ __('Status') }}') }}</label>
                         <select name="status" class="form-select form-select-modern">
-                            <option value="">All Status</option>
+                            <option value="">{{ __('All {{ __('Status') }}') }}</option>
                             <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }}>{{ __('Pending') }}</option>
-                            <option value="approved" {{ request('status') == 'approved' ? 'selected' : '' }}>{{ __('Approved') }}</option>
-                            <option value="paid" {{ request('status') == 'paid' ? 'selected' : '' }}>Paid</option>
+                            <option value="approved" {{ request('status') == 'approved' ? 'selected' : '' }}>{{ __('{{ __('Approve') }}d') }}</option>
+                            <option value="paid" {{ request('status') == 'paid' ? 'selected' : '' }}>{{ __('Paid') }}</option>
                         </select>
                     </div>
                     <div class="col-md-3">
-                        <label class="form-label small fw-bold text-muted text-uppercase mb-1">Bonus Type</label>
-                        <input type="text" name="bonus_type" class="form-control form-control-modern" placeholder="e.g. Eid Bonus" value="{{ request('bonus_type') }}">
+                        <label class="form-label small fw-bold text-muted text-uppercase mb-1">{{ __('Bonus Type') }}</label>
+                        <input type="text" name="bonus_type" class="form-control form-control-modern" placeholder="{{ __('e.g. Eid Bonus') }}" value="{{ request('bonus_type') }}">
                     </div>
                     <div class="col-md-4 d-flex gap-2">
-                        <button type="submit" class="btn btn-dark w-100 fw-bold">{{ __('Filter') }}</button>
+                        <button type="{{ __('submit') }}" class="btn btn-dark w-100 fw-bold">{{ __('Filter') }}</button>
                         <a href="{{ route('admin.bonuses.index') }}" class="btn btn-light border px-3" title="{{ __('Reset') }}">
                             <i data-feather="refresh-cw" style="width:16px;"></i>
                         </a>
@@ -141,12 +141,12 @@
                 <thead>
                     <tr>
                         <th width="5%">#</th>
-                        <th width="20%">Employee Details</th>
-                        <th width="15%">Bonus Type</th>
-                        <th width="15%">{{ __('Amount') }}</th>
+                        <th width="20%">{{ __('Employee Details') }}</th>
+                        <th width="15%">{{ __('Bonus Type') }}</th>
+                        <th width="15%">{{ __('{{ __('Amount') }}') }}</th>
                         <th width="15%">{{ __('Month') }}</th>
-                        <th width="15%">{{ __('Status') }}</th>
-                        <th width="15%" class="text-end">Actions</th>
+                        <th width="15%">{{ __('{{ __('Status') }}') }}</th>
+                        <th width="15%" class="text-end">{{ __('Actions') }}</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -170,9 +170,9 @@
                             <td class="text-muted">{{ $bonus->salary_month ?? '-' }}</td>
                             <td>
                                 @if($bonus->status == 'paid')
-                                    <span class="badge-soft badge-paid"><span class="status-dot"></span> Paid</span>
+                                    <span class="badge-soft badge-paid"><span class="status-dot"></span> {{ __('Paid') }}</span>
                                 @elseif($bonus->status == 'approved')
-                                    <span class="badge-soft badge-approved"><span class="status-dot"></span>{{ __('Approved') }}</span>
+                                    <span class="badge-soft badge-approved"><span class="status-dot"></span>{{ __('{{ __('Approve') }}d') }}</span>
                                 @else
                                     <span class="badge-soft badge-pending"><span class="status-dot"></span>{{ __('Pending') }}</span>
                                 @endif
@@ -180,48 +180,48 @@
                             <td class="text-end">
                                 <div class="d-flex justify-content-end gap-1">
                                     @if($bonus->status == 'pending')
-                                        <form action="{{ route('admin.bonuses.approve', $bonus->id) }}" method="POST" class="d-inline">
+                                        <form action="{{ route('admin.bonuses.approve', $bonus->{{ __('id)') }} }}" method={{ __('"{{ __('POST') }}"') }} class="d-inline">
                                             @csrf
-                                            <button type="submit" class="btn-icon btn-approve" title="Approve">
-                                                <i data-feather="check" style="width:14px;"></i>
+                                            <button type="{{ __('submit') }}" class="btn-icon btn-approve" title="{{ __('Approve') }}">
+                                                <i data-feather="check" style="width:{{ __('14px') }};"></i>
                                             </button>
                                         </form>
-                                        <button type="button" class="btn-icon btn-reject" data-bs-toggle="modal" data-bs-target="#rejectModal{{ $bonus->id }}" title="Reject">
-                                            <i data-feather="x" style="width:14px;"></i>
+                                        <button type="button" class="btn-icon btn-reject" data-bs-toggle="modal" data-bs-target="#rejectModal{{ $bonus->id }}" title="{{ __('Reject') }}">
+                                            <i data-feather="x" style="width:{{ __('14px') }};"></i>
                                         </button>
                                     @elseif($bonus->status == 'approved')
-                                        <form action="{{ route('admin.bonuses.pay', $bonus->id) }}" method="POST" class="d-inline">
+                                        <form action="{{ route('admin.bonuses.pay', $bonus->{{ __('id)') }} }}" method={{ __('"{{ __('POST') }}"') }} class="d-inline">
                                             @csrf
-                                            <button type="submit" class="btn-icon btn-pay" title="Pay Bonus" onclick="return confirm('Pay bonus? Amount will be deducted from fund.');">
-                                                <i data-feather="credit-card" style="width:14px;"></i>
+                                            <button type="{{ __('submit') }}" class="btn-icon btn-pay" title="Pay Bonus" onclick="return confirm('Pay bonus? {{ __('Amount') }} will be deducted from fund.');">
+                                                <i data-feather="credit-card" style="width:{{ __('14px') }};"></i>
                                             </button>
                                         </form>
                                     @endif
                                     
-                                    <a href="{{ route('admin.bonuses.edit', $bonus->id) }}" class="btn-icon btn-edit" title="{{ __('Edit') }}">
-                                        <i data-feather="edit-2" style="width:14px;"></i>
+                                    <a href="{{ route('admin.bonuses.edit', $bonus->{{ __('id)') }} }}" class="btn-icon btn-edit" title="{{ __('Edit') }}">
+                                        <i data-feather="edit-2" style="width:{{ __('14px') }};"></i>
                                     </a>
                                 </div>
 
-                                {{-- Reject Modal --}}
+                                {{-- {{ __('Reject') }} Modal --}}
                                 <div class="modal fade" id="rejectModal{{ $bonus->id }}" tabindex="-1" aria-hidden="true">
                                     <div class="modal-dialog modal-dialog-centered">
                                         <div class="modal-content border-0 shadow-lg">
                                             <div class="modal-header border-bottom-0 pb-0">
-                                                <h5 class="modal-title text-danger fw-bold">Reject Bonus</h5>
+                                                <h5 class="modal-title text-danger fw-bold">{{ __('{{ __('Reject') }} Bonus') }}</h5>
                                                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                                             </div>
-                                            <form action="{{ route('admin.bonuses.reject', $bonus->id) }}" method="POST">
+                                            <form action="{{ route('admin.bonuses.reject', $bonus->{{ __('id)') }} }}" method={{ __('"{{ __('POST') }}"') }}>
                                                 @csrf
                                                 <div class="modal-body text-start">
                                                     <div class="mb-3">
-                                                        <label class="form-label small fw-bold text-muted">Reason for Rejection</label>
-                                                        <textarea name="notes" class="form-control" rows="3" placeholder="Enter reason..."></textarea>
+                                                        <label class="form-label small fw-bold text-muted">{{ __('{{ __('Reason') }} for {{ __('Reject') }}ion') }}</label>
+                                                        <textarea name="notes" class="form-control" rows="3" placeholder="{{ __('Enter reason...') }}"></textarea>
                                                     </div>
                                                 </div>
                                                 <div class="modal-footer border-top-0 pt-0">
                                                     <button type="button" class="btn btn-light btn-sm" data-bs-dismiss="modal">{{ __('Cancel') }}</button>
-                                                    <button type="submit" class="btn btn-danger btn-sm px-4">Confirm Reject</button>
+                                                    <button type="{{ __('submit') }}" class="btn btn-danger btn-sm px-4">{{ __('Confirm {{ __('Reject') }}') }}</button>
                                                 </div>
                                             </form>
                                         </div>
@@ -233,9 +233,9 @@
                     @empty
                         <tr>
                             <td colspan="7" class="text-center py-5">
-                                <img src="https://cdn-icons-png.flaticon.com/512/7486/7486744.png" width="60" class="mb-3 opacity-25">
-                                <p class="text-muted fw-bold mb-0">No bonus records found</p>
-                                <small class="text-muted">Adjust filters or add a new bonus.</small>
+                                <img src="{{ __('https://') }}cdn-icons-png.flaticon.com/512/7486/7486744.png" width="60" class="mb-3 opacity-25">
+                                <p class="text-muted fw-bold mb-0">{{ __('No bonus records found') }}</p>
+                                <small class="text-muted">{{ __('Adjust {{ __('filter') }}s or add a new bonus.') }}</small>
                             </td>
                         </tr>
                     @endforelse
@@ -245,7 +245,7 @@
 
         {{-- PAGINATION --}}
         <div class="p-4 border-top d-flex justify-content-between align-items-center bg-white rounded-bottom">
-            <small class="text-muted">{{ __('Showing') }}<strong>{{ $bonuses->firstItem() }}</strong>{{ __('to') }}<strong>{{ $bonuses->lastItem() }}</strong>{{ __('of') }}<strong>{{ $bonuses->total() }}</strong> records
+            <small class="text-muted">{{ __('Showing') }}<strong>{{ $bonuses->first{{ __('Item') }}() }}</strong>{{ __('to') }}<strong>{{ $bonuses->last{{ __('Item') }}() }}</strong>{{ __('of') }}<strong>{{ $bonuses->{{ __('total') }}() }}</strong> records
             </small>
             <div>
                 {{ $bonuses->links('pagination::bootstrap-4') }}

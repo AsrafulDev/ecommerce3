@@ -1,5 +1,5 @@
 @extends('backEnd.layouts.master')
-@section('title','Manage Permissions')
+@section('title','{{ __('{{ __('Manage') }} {{ __('Permissions') }}') }}')
 
 @section('css')
 <link href="{{asset('/public/backEnd/')}}/assets/libs/datatables.net-bs5/css/dataTables.bootstrap5.min.css" rel="stylesheet" type="text/css" />
@@ -33,14 +33,14 @@
         padding: 15px;
         border-bottom: 1px solid #f1f5f7;
         color: #313b5e;
-        font-size: 14px;
+        font-size: {{ __('14px') }};
     }
 
-    /* Permission Name Styling */
+    /* {{ __('Permission {{ __('Name') }}') }} Styling */
     .permission-name {
         font-weight: 600;
         color: #343a40;
-        font-size: 14px;
+        font-size: {{ __('14px') }};
         background-color: #f8f9fa;
         padding: 6px 12px;
         border-radius: 6px;
@@ -77,11 +77,11 @@
     <div class="row mb-3 mt-3">
         <div class="col-12 d-flex justify-content-between align-items-center">
             <div>
-                <h4 class="page-title mb-0" style="font-weight: 700; color: #2d3436;">Permissions</h4>
-                <p class="text-muted font-size-13 mb-0">Manage system permissions and access levels.</p>
+                <h4 class="page-title mb-0" style="font-weight: 700; color: #2d3436;">{{ __('Permissions') }}</h4>
+                <p class="text-muted font-size-13 mb-0">{{ __('{{ __('Manage') }} system permissions and access levels.') }}</p>
             </div>
             <a href="{{route('permissions.create')}}" class="btn btn-primary rounded-pill shadow-sm px-4">
-                <i class="fe-plus me-1"></i> Add New Permission
+                <i class="fe-plus me-1"></i> Add {{ __('New') }} Permission
             </a>
         </div>
     </div>
@@ -94,7 +94,7 @@
                         <thead>
                             <tr>
                                 <th style="width: 50px;">{{ __('SL') }}</th>
-                                <th>Permission Name</th>
+                                <th>{{ __('Permission {{ __('Name') }}') }}</th>
                                 <th class="text-end" style="width: 150px;">{{ __('Action') }}</th>
                             </tr>
                         </thead>                
@@ -113,7 +113,7 @@
                                     <div class="d-inline-flex gap-2">
                                         
                                         {{-- Edit --}}
-                                        <a href="{{route('permissions.edit',$value->id)}}" class="action-btn btn-edit" title="Edit Permission">
+                                        <a href="{{route('permissions.edit',$value->{{ __('id)') }}}}" class="action-btn btn-edit" title="{{ __('Edit Permission') }}">
                                             <i class="fe-edit"></i>
                                         </a>
 
@@ -121,7 +121,7 @@
                                         <form method="post" action="{{ route('permissions.destroy') }}" class="d-inline">
                                             @csrf
                                             <input type="hidden" name="hidden_id" value="{{ $value->id }}">
-                                            <button type="submit" class="action-btn btn-delete delete-confirm" title="{{ __('Delete') }}">
+                                            <button type="{{ __('submit') }}" class="action-btn btn-delete delete-confirm" title="{{ __('Delete') }}">
                                                 <i class="fe-trash-2"></i>
                                             </button>
                                         </form>

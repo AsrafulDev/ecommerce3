@@ -1,5 +1,5 @@
 @extends('backEnd.layouts.master')
-@section('title', 'Edit Coupon')
+@section('title', 'Edit {{ __('Coupon') }}')
 
 @section('css')
 <style>
@@ -42,7 +42,7 @@
     <div class="row justify-content-center">
         <div class="col-md-8 col-lg-7">
             
-            <form action="{{ route('admin.coupons.update', $coupon->id) }}" method="POST">
+            <form action="{{ route('admin.coupons.update', $coupon->{{ __('id)') }} }}" method={{ __('"{{ __('POST') }}"') }}>
                 @csrf
 
                 <div class="card card-modern">
@@ -50,18 +50,18 @@
                     {{-- Header --}}
                     <div class="card-header-modern">
                         <div>
-                            <h5 class="mb-1 fw-bold text-dark">{{ __('Edit Coupon') }}</h5>
-                            <p class="text-muted small mb-0">Update discount details and validity.</p>
+                            <h5 class="mb-1 fw-bold text-dark">{{ __('Edit {{ __('Coupon') }}') }}</h5>
+                            <p class="text-muted small mb-0">{{ __('Update discount details and validity.') }}</p>
                         </div>
                         <a href="{{ route('admin.coupons.index') }}" class="btn btn-light btn-sm rounded-pill px-3">
-                            <i data-feather="x" style="width:14px;"></i>{{ __('Cancel') }}</a>
+                            <i data-feather="x" style="width:{{ __('14px') }};"></i>{{ __('Cancel') }}</a>
                     </div>
 
                     <div class="card-body p-4">
                         
-                        {{-- Coupon Code --}}
+                        {{-- {{ __('Coupon') }} Code --}}
                         <div class="mb-4">
-                            <label class="form-label-custom">{{ __('Coupon Code') }}<span class="text-danger">*</span></label>
+                            <label class="form-label-custom">{{ __('{{ __('Coupon') }} Code') }}<span class="text-danger">*</span></label>
                             <div class="input-group">
                                 <span class="input-group-text bg-white border-end-0 text-muted border-start-custom" style="border-radius: 10px 0 0 10px; border: 1px solid #e2e8f0; border-right: 0;">
                                     <i data-feather="tag" style="width:16px;"></i>
@@ -73,40 +73,40 @@
                             @error('code') <span class="text-danger small">{{ $message }}</span> @enderror
                         </div>
 
-                        {{-- Value & Type --}}
+                        {{-- {{ __('Value') }} & Type --}}
                         <div class="row g-3 mb-4">
                             <div class="col-md-6">
-                                <label class="form-label-custom">Discount Type</label>
+                                <label class="form-label-custom">{{ __('{{ __('Discount') }} Type') }}</label>
                                 <select name="type" id="discount_type" class="form-select form-select-custom">
-                                    <option value="flat" {{ $coupon->type == 'flat' ? 'selected' : '' }}>Fixed Amount (Flat)</option>
-                                    <option value="percent" {{ $coupon->type == 'percent' ? 'selected' : '' }}>Percentage (%)</option>
+                                    <option value="flat" {{ $coupon->type == 'flat' ? 'selected' : '' }}>{{ __('{{ __('{{ __('Fixed') }} {{ __('Amount') }}') }} (Flat)') }}</option>
+                                    <option value="percent" {{ $coupon->type == 'percent' ? 'selected' : '' }}>{{ __('{{ __('Percentage') }} (%)') }}</option>
                                 </select>
                             </div>
                             <div class="col-md-6">
-                                <label class="form-label-custom">Discount Value <span class="text-danger">*</span></label>
+                                <label class="form-label-custom">{{ __('{{ __('Discount') }} {{ __('Value') }}') }} <span class="text-danger">*</span></label>
                                 <div class="input-group">
                                     <span class="input-group-text input-group-text-custom" id="value_icon" style="border-radius: 10px 0 0 10px; border-right: 0;">
                                         {{ $coupon->type == 'percent' ? '%' : '৳' }}
                                     </span>
-                                    <input type="number" step="0.01" name="value" class="form-control form-control-custom border-start-0" 
+                                    <input type="{{ __('number') }}" step="0.01" name="value" class="form-control form-control-custom border-start-0" 
                                            value="{{ old('value', $coupon->value) }}" required style="border-radius: 0 10px 10px 0;">
                                 </div>
                                 @error('value') <span class="text-danger small">{{ $message }}</span> @enderror
                             </div>
                         </div>
 
-                        {{-- Limits & Status --}}
+                        {{-- {{ __('Limit') }}s & {{ __('Status') }} --}}
                         <div class="row g-3 mb-4">
                             <div class="col-md-6">
-                                <label class="form-label-custom">Min Purchase (Optional)</label>
+                                <label class="form-label-custom">{{ __('{{ __('Min Purchase') }} {{ __('({{ __('Optional') }})') }}') }}</label>
                                 <div class="input-group">
                                     <span class="input-group-text input-group-text-custom" style="border-radius: 10px 0 0 10px; border-right: 0;">৳</span>
-                                    <input type="number" step="0.01" name="min_purchase" class="form-control form-control-custom border-start-0" 
+                                    <input type="{{ __('number') }}" step="0.01" name="min_purchase" class="form-control form-control-custom border-start-0" 
                                            value="{{ old('min_purchase', $coupon->min_purchase) }}" style="border-radius: 0 10px 10px 0;">
                                 </div>
                             </div>
                             <div class="col-md-6">
-                                <label class="form-label-custom">{{ __('Status') }}</label>
+                                <label class="form-label-custom">{{ __('{{ __('Status') }}') }}</label>
                                 <select name="status" class="form-select form-select-custom">
                                     <option value="1" {{ $coupon->status == 1 ? 'selected' : '' }}>{{ __('Active') }}</option>
                                     <option value="0" {{ $coupon->status == 0 ? 'selected' : '' }}>{{ __('Inactive') }}</option>
@@ -114,29 +114,29 @@
                             </div>
                         </div>
 
-                        {{-- Validity Dates --}}
+                        {{-- Validity {{ __('Date') }}s --}}
                         <div class="p-3 bg-light rounded-3 mb-4 border">
-                            <h6 class="text-dark fw-bold mb-3 small text-uppercase"><i data-feather="calendar" style="width:14px;" class="me-1"></i> Validity Period</h6>
+                            <h6 class="text-dark fw-bold mb-3 small text-uppercase"><i data-feather="calendar" style="width:{{ __('14px') }};" class="me-1"></i> {{ __('Validity Period') }}</h6>
                             <div class="row g-3">
                                 <div class="col-6">
-                                    <label class="form-label-custom mb-1">Valid From</label>
+                                    <label class="form-label-custom mb-1">{{ __('Valid {{ __('From') }}') }}</label>
                                     <input type="date" name="valid_from" class="form-control form-control-custom" 
                                            value="{{ old('valid_from', $coupon->valid_from) }}">
                                 </div>
                                 <div class="col-6">
-                                    <label class="form-label-custom mb-1">Valid To</label>
+                                    <label class="form-label-custom mb-1">{{ __('Valid To') }}</label>
                                     <input type="date" name="valid_to" class="form-control form-control-custom" 
                                            value="{{ old('valid_to', $coupon->valid_to) }}">
                                 </div>
                             </div>
                         </div>
 
-                        {{-- Actions --}}
+                        {{-- {{ __('Actions') }} --}}
                         <div class="d-grid gap-2">
-                            <button type="submit" class="btn btn-primary py-2 fw-bold shadow-sm">
-                                <i data-feather="save" class="me-1" style="width: 16px;"></i> Update Coupon
+                            <button type="{{ __('submit') }}" class="btn btn-primary py-2 fw-bold shadow-sm">
+                                <i data-feather="save" class="me-1" style="width: 16px;"></i> Update {{ __('Coupon') }}
                             </button>
-                            <a href="{{ route('admin.coupons.index') }}" class="btn btn-light py-2">Discard Changes</a>
+                            <a href="{{ route('admin.coupons.index') }}" class="btn btn-light py-2">{{ __('Discard {{ __('Change') }}s') }}</a>
                         </div>
 
                     </div>

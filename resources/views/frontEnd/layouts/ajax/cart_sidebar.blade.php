@@ -1,15 +1,15 @@
 <div class="sidebar-cart-header" style="background: var(--primary-color);">
-    <button type="button" class="sidebar-cart-close" onclick="closeSidebarCart()" aria-label="বন্ধ করুন">
+    <button type="button" class="sidebar-cart-close" onclick="closeSidebar{{ __('Cart') }}()" aria-label="{{ __('Close') }} করুন">
         <i class="fa-solid fa-times"></i>
     </button>
-    <h3 class="sidebar-cart-title">আমার কার্ট</h3>
+    <h3 class="sidebar-cart-title">{{ __('My {{ __('Cart') }}') }}</h3>
 </div>
 <div class="sidebar-cart-body">
     @if($cartContent->isEmpty())
         <div class="sidebar-cart-empty">
             <i class="fa-solid fa-cart-shopping"></i>
-            <p>আপনার কার্ট খালি</p>
-            <a href="{{ route('shop') }}" class="sidebar-cart-checkout-btn" style="background: var(--primary-color);">শপিং করুন</a>
+            <p>{{ __('Your cart is empty') }}</p>
+            <a href="{{ route('shop') }}" class="sidebar-cart-checkout-btn" style="background: var(--primary-color);">{{ __('{{ __('Shop') }} Now') }}</a>
         </div>
     @else
         @foreach($cartContent as $item)
@@ -41,10 +41,10 @@
 </div>
 @if(!$cartContent->isEmpty())
 <div class="sidebar-cart-footer">
-    <div class="sidebar-cart-total">
-        <span class="sidebar-cart-total-label">সর্বমোট</span>
-        <span class="sidebar-cart-total-amount">৳ {{ number_format($subtotal, 0) }}</span>
+    <div class="sidebar-cart-{{ __('total') }}">
+        <span class="sidebar-cart-{{ __('total') }}-label">{{ __('Total') }}</span>
+        <span class="sidebar-cart-{{ __('total') }}-amount">৳ {{ number_format($sub{{ __('total') }}, 0) }}</span>
     </div>
-    <a href="{{ route('customer.checkout') }}" class="sidebar-cart-checkout-btn" style="background: var(--primary-color);">অর্ডার করুন</a>
+    <a href="{{ route('customer.checkout') }}" class="sidebar-cart-checkout-btn" style="background: var(--primary-color);">{{ __('Order Now') }}</a>
 </div>
 @endif

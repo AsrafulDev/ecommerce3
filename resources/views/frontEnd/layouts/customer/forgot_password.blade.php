@@ -4,7 +4,7 @@
 @section('content')
 {{-- CSS সরাসরি এখানে দেওয়া হলো --}}
 <style>
-    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+    @import url('{{ __('https://') }}fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
 
     .modern-auth-section {
         background-color: #f0f2f5;
@@ -31,7 +31,7 @@
     .auth-image-area {
         width: 50%;
         /* আপনার লগইন পেজের স্টাইলের সাথে মিল রেখে একটি সুন্দর ব্যাকগ্রাউন্ড ইমেজ */
-        background-image: url('https://images.unsplash.com/photo-1516321318423-f06f85e504b3?q=80&w=2070&auto=format&fit=crop');
+        background-image: url('{{ __('https://') }}images.unsplash.com/photo-1516321318423-f06f85e504b3?q=80&w=2070&auto=format&fit=crop');
         background-size: cover;        /* পুরো বক্স কাভার করবে */
         background-position: center;   /* ছবির মাঝখান দেখাবে */
         position: relative;            /* ওভারলে-এর জন্য জরুরি */
@@ -76,12 +76,12 @@
 
     .auth-header { margin-bottom: 30px; }
     .auth-header h3 { font-weight: 700; color: #333; margin-bottom: 5px; }
-    .auth-header p { color: #888; font-size: 14px; }
+    .auth-header p { color: #888; font-size: {{ __('14px') }}; }
 
     /* ইনপুট ডিজাইন */
     .custom-input-group { position: relative; margin-bottom: 25px; }
     .custom-input-group label {
-        display: block; margin-bottom: 8px; font-weight: 600; color: #555; font-size: 14px;
+        display: block; margin-bottom: 8px; font-weight: 600; color: #555; font-size: {{ __('14px') }};
     }
     .custom-input {
         width: 100%; height: 50px; padding: 10px 20px 10px 45px; /* আইকনের জন্য বামে প্যাডিং */
@@ -97,7 +97,7 @@
     }
 
     /* সাবমিট বাটন */
-    .btn-auth-submit {
+    .btn-auth-{{ __('submit') }} {
         width: 100%; height: 50px;
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         border: none; border-radius: 10px;
@@ -105,7 +105,7 @@
         cursor: pointer; transition: 0.3s;
         text-transform: uppercase; letter-spacing: 1px;
     }
-    .btn-auth-submit:hover {
+    .btn-auth-{{ __('submit') }}:hover {
         transform: translateY(-2px);
         box-shadow: 0 5px 15px rgba(118, 75, 162, 0.3);
     }
@@ -115,7 +115,7 @@
         text-align: center; margin-top: 20px; padding-top: 20px; border-top: 1px dashed #ddd;
     }
     .back-login a {
-        text-decoration: none; color: #764ba2; font-weight: 600; font-size: 14px;
+        text-decoration: none; color: #764ba2; font-weight: 600; font-size: {{ __('14px') }};
     }
     .back-login a:hover { text-decoration: underline; }
 
@@ -134,41 +134,41 @@
             <div class="auth-image-area">
                 {{-- <img> ট্যাগ সরানো হয়েছে, এখন ব্যাকগ্রাউন্ড ইমেজ কাজ করবে --}}
                 <h2>Forgot Password?</h2>
-                <p>চিন্তার কিছু নেই! আপনার ফোন নাম্বার দিয়ে খুব সহজেই পাসওয়ার্ড রিসেট করুন।</p>
+                <p>{{ __('bn_63d87f4f') }}</p>
             </div>
 
             {{-- ডান পাশ: ফর্ম --}}
             <div class="auth-form-area">
                 <div class="auth-header">
-                    <h3>পাসওয়ার্ড রিসেট 🔒</h3>
-                    <p>আপনার রেজিস্টার্ড ফোন নাম্বারটি লিখুন</p>
+                    <h3>{{ __('Password') }}</h3>
+                    <p>{{ __('bn_1e458cdc') }}</p>
                 </div>
 
-                <form action="{{route('customer.forgot.verify')}}" method="POST" data-parsley-validate="">
+                <form action="{{route('customer.forgot.verify')}}" method={{ __('"{{ __('POST') }}"') }} data-parsley-validate="">
                     @csrf
                     
-                    {{-- Phone Input --}}
+                    {{-- {{ __('Phone') }} Input --}}
                     <div class="custom-input-group">
-                        <label for="phone">মোবাইল নাম্বার</label>
-                        <i class="fas fa-phone-alt input-icon"></i>
-                        <input type="number" id="phone" 
-                               class="custom-input @error('phone') is-invalid @enderror" 
-                               name="phone" value="{{ old('phone') }}" 
-                               placeholder="017xxxxxxxx" required>
+                        <label for="{{ __('phone') }}">{{ __('{{ __('Mobile') }} Number') }}</label>
+                        <i class="fas fa-{{ __('phone') }}-alt input-icon"></i>
+                        <input type="{{ __('number') }}" id="{{ __('phone') }}" 
+                               class="custom-input @error('{{ __('phone') }}') is-invalid @enderror" 
+                               name="{{ __('phone') }}" value="{{ old('{{ __('phone') }}') }}" 
+                               placeholder="{{ __('017xxxxxxxx') }}" required>
                         
-                        @error('phone')
+                        @error('{{ __('phone') }}')
                             <span class="text-danger small mt-1 d-block">{{ $message }}</span>
                         @enderror
                     </div>
 
                     {{-- Submit Button --}}
                     <div class="form-group mb-3">
-                        <button class="btn-auth-submit"> সাবমিট করুন </button>
+                        <button class="btn-auth-{{ __('submit') }}"> {{ __('bn_69748cb0') }} </button>
                     </div>
 
                 </form>
 
-                {{-- Back to Login --}}
+                {{-- {{ __('Back to Login') }} --}}
                 <div class="back-login">
                     <a href="{{route('customer.login')}}">
                         <i class="fas fa-arrow-left me-1"></i> লগইন পেজে ফিরে যান

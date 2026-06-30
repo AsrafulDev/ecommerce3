@@ -1,5 +1,5 @@
 @extends('backEnd.layouts.master')
-@section('title','Pending Products')
+@section('title','{{ __('Pending {{ __('Product') }}s') }}')
 
 @section('css')
 <style>
@@ -37,7 +37,7 @@
         background-color: #fafbfd;
     }
 
-    /* Product & Vendor Identity */
+    /* {{ __('Product') }} & Vendor Identity */
     .product-box {
         display: flex;
         align-items: center;
@@ -53,7 +53,7 @@
     }
     .product-info h6 {
         margin: 0;
-        font-size: 14px;
+        font-size: {{ __('14px') }};
         font-weight: 600;
         color: #343a40;
     }
@@ -118,9 +118,9 @@
     
     <div class="row mb-3 mt-3">
         <div class="col-12 d-flex justify-content-between align-items-center">
-            <h4 class="page-title mb-0" style="font-weight: 700; color: #2d3436;">Pending Approvals</h4>
+            <h4 class="page-title mb-0" style="font-weight: 700; color: #2d3436;">{{ __('{{ __('Pending {{ __('Approval') }}') }}s') }}</h4>
             <a href="{{route('inhouse.products.index')}}" class="btn btn-secondary rounded-pill shadow-sm px-4">
-                <i class="fe-arrow-left me-1"></i> Back to Products
+                <i class="fe-arrow-left me-1"></i> Back to {{ __('Product') }}s
             </a>
         </div>
     </div>
@@ -130,12 +130,12 @@
             <div class="card">
                 
                 <div class="card-header bg-white d-flex justify-content-between align-items-center">
-                    <h5 class="text-muted mb-0 text-uppercase font-size-13">Waiting for Approval</h5>
+                    <h5 class="text-muted mb-0 text-uppercase font-size-13">{{ __('Waiting for {{ __('Approval') }}') }}</h5>
                     
-                    <form class="d-flex" method="GET" action="{{ route('products.pending') }}">
+                    <form class="d-flex" method="{{ __('GET') }}" action="{{ route('products.pending') }}">
                         <div class="input-group input-group-sm" style="width: 250px;">
                             <span class="input-group-text bg-light border-end-0"><i class="fe-search"></i></span>
-                            <input type="text" name="keyword" class="form-control border-start-0 ps-0" placeholder="Search pending..." value="{{ request('keyword') }}">
+                            <input type="text" name="keyword" class="form-control border-start-0 ps-0" placeholder="{{ __('Search pending...') }}" value="{{ request('keyword') }}">
                         </div>
                     </form>
                 </div>
@@ -145,23 +145,23 @@
                         <thead>
                             <tr>
                                 <th style="width: 50px;">{{ __('SL') }}</th>
-                                <th style="width: 30%;">{{ __('Product Details') }}</th>
-                                <th>Vendor Info</th>
+                                <th style="width: 30%;">{{ __('{{ __('Product') }} Details') }}</th>
+                                <th>{{ __('Vendor Info') }}</th>
                                 <th>{{ __('Category') }}</th>
                                 <th>{{ __('Price') }}</th>
-                                <th>{{ __('Stock') }}</th>
+                                <th>{{ __('{{ __('Stock') }}') }}</th>
                                 <th>{{ __('Status') }}</th>
-                                <th class="text-end" style="width: 200px;">Actions</th>
+                                <th class="text-end" style="width: 200px;">{{ __('Actions') }}</th>
                             </tr>
                         </thead>
                         <tbody>
                             @forelse($data as $key=>$value)
                             <tr>
-                                <td>{{ $data->firstItem() + $key }}</td>
+                                <td>{{ $data->first{{ __('Item') }}() + $key }}</td>
                                 
                                 <td>
                                     <div class="product-box">
-                                        <img src="{{ asset($value->image ? $value->image->image : 'storage/uploads/placeholder.png') }}" class="product-img" alt="Product">
+                                        <img src="{{ asset($value->image ? $value->image->image : 'storage/uploads/placeholder.png') }}" class="product-img" alt="{{ __('Product') }}">
                                         <div class="product-info">
                                             <h6 class="text-truncate" style="max-width: 250px;" title="{{$value->name}}">{{$value->name}}</h6>
                                             @php
@@ -177,18 +177,18 @@
                                 </td>
 
                                 <td>
-                                    <span class="badge badge-soft-secondary">Admin Product</span>
+                                    <span class="badge badge-soft-secondary">{{ __('Admin {{ __('Product') }}') }}</span>
                                 </td>
 
-                                <td>{{$value->category ? $value->category->name : 'N/A'}}</td>
+                                <td>{{$value->category ? $value->category->name : '{{ __('N/A') }}'}}</td>
 
                                 <td class="fw-bold text-dark">৳{{ number_format($value->new_price, 2) }}</td>
 
                                 <td>
-                                    @if($value->stock > 0)
-                                        <span class="badge badge-soft-success">{{$value->stock}}</span>
+                                    @if($value->{{ __('stock') }} > 0)
+                                        <span class="badge badge-soft-success">{{$value->{{ __('stock') }}}}</span>
                                     @else
-                                        <span class="badge badge-soft-danger">{{ __('Out of Stock') }}</span>
+                                        <span class="badge badge-soft-danger">{{ __('Out of {{ __('Stock') }}') }}</span>
                                     @endif
                                 </td>
 
@@ -199,23 +199,23 @@
 
                                 <td class="text-end">
                                     <div class="d-flex justify-content-end align-items-center gap-2">
-                                        {{-- Edit Link --}}
-                                        <a href="{{route('products.edit',$value->id)}}" class="btn-icon" title="View Details">
+                                        {{-- Edit {{ __('Link') }} --}}
+                                        <a href="{{route('products.edit',$value->{{ __('id)') }}}}" class="btn-icon" title="View Details">
                                             <i class="fe-eye"></i>
                                         </a>
 
-                                        {{-- Approve Button --}}
-                                        <form method="POST" action="{{ route('products.approve') }}" class="d-inline">
+                                        {{-- {{ __('Approve') }} Button --}}
+                                        <form method={{ __('"{{ __('POST') }}"') }} action="{{ route('products.approve') }}" class="d-inline">
                                             @csrf
                                             <input type="hidden" name="id" value="{{ $value->id }}">
-                                            <button type="submit" class="btn-approve" onclick="return confirm('Are you sure you want to approve this product?')">
-                                                <i class="fe-check me-1"></i> Approve
+                                            <button type="{{ __('submit') }}" class="btn-approve" onclick="return confirm('Are you sure you want to approve this product?')">
+                                                <i class="fe-check me-1"></i> {{ __('Approve') }}
                                             </button>
                                         </form>
 
-                                        {{-- Reject Button (Trigger Modal) --}}
+                                        {{-- {{ __('Reject') }} Button (Trigger Modal) --}}
                                         <button type="button" class="btn-reject" data-bs-toggle="modal" data-bs-target="#rejectModal{{ $value->id }}">
-                                            <i class="fe-x me-1"></i> Reject
+                                            <i class="fe-x me-1"></i> {{ __('Reject') }}
                                         </button>
                                     </div>
 
@@ -223,23 +223,23 @@
                                         <div class="modal-dialog modal-dialog-centered">
                                             <div class="modal-content">
                                                 <div class="modal-header">
-                                                    <h5 class="modal-title text-danger"><i class="fe-alert-triangle me-2"></i>Reject Product</h5>
+                                                    <h5 class="modal-title text-danger"><i class="fe-alert-triangle me-2"></i>{{ __('{{ __('Reject') }} {{ __('Product') }}') }}</h5>
                                                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{{ __('Close') }}"></button>
                                                 </div>
-                                                <form method="POST" action="{{ route('products.reject') }}">
+                                                <form method={{ __('"{{ __('POST') }}"') }} action="{{ route('products.reject') }}">
                                                     @csrf
                                                     <div class="modal-body text-start">
                                                         <input type="hidden" name="id" value="{{ $value->id }}">
-                                                        <p class="mb-2">Are you sure you want to reject <strong>{{ $value->name }}</strong>?</p>
+                                                        <p class="mb-2">{{ __('Are you sure you want to reject') }} <strong>{{ $value->name }}</strong>?</p>
                                                         
                                                         <div class="form-group mt-3">
-                                                            <label class="form-label small fw-bold">Rejection Reason (Optional)</label>
-                                                            <textarea name="rejection_reason" class="form-control" rows="3" placeholder="Explain why the product is rejected..."></textarea>
+                                                            <label class="form-label small fw-bold">{{ __('{{ __('{{ __('Reject') }}ion {{ __('Reason') }}') }} {{ __('({{ __('Optional') }})') }}') }}</label>
+                                                            <textarea name="rejection_reason" class="form-control" rows="3" placeholder="{{ __('Explain why the product is rejected...') }}"></textarea>
                                                         </div>
                                                     </div>
                                                     <div class="modal-footer bg-light">
                                                         <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">{{ __('Cancel') }}</button>
-                                                        <button type="submit" class="btn btn-sm btn-danger">Confirm Rejection</button>
+                                                        <button type="{{ __('submit') }}" class="btn btn-sm btn-danger">{{ __('{{ __('Confirm {{ __('Reject') }}') }}ion') }}</button>
                                                     </div>
                                                 </form>
                                             </div>
@@ -252,8 +252,8 @@
                                 <td colspan="8" class="text-center py-5">
                                     <div class="text-center">
                                         <img src="{{ asset('public/backEnd/assets/images/no-data.png') }}" style="height: 80px; opacity: 0.6; margin-bottom: 15px;" alt="">
-                                        <h5 class="text-muted">No pending approvals!</h5>
-                                        <p class="text-muted mb-0">All products have been processed.</p>
+                                        <h5 class="text-muted">{{ __('No pending approvals!') }}</h5>
+                                        <p class="text-muted mb-0">{{ __('All products have been processed.') }}</p>
                                     </div>
                                 </td>
                             </tr>
@@ -265,7 +265,7 @@
                 <div class="card-footer bg-white border-top-0 py-3">
                     <div class="d-flex justify-content-between align-items-center">
                         <div class="text-muted small">
-                            Showing {{ $data->firstItem() }} to {{ $data->lastItem() }} of {{ $data->total() }} results
+                            Showing {{ $data->first{{ __('Item') }}() }} to {{ $data->last{{ __('Item') }}() }} of {{ $data->{{ __('total') }}() }} results
                         </div>
                         <div class="custom-paginate">
                             {{$data->links('pagination::bootstrap-4')}}
