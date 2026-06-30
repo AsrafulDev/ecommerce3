@@ -58,14 +58,33 @@
     .customer-invoice { margin: 25px 0; }
     .invoice_btn{ margin-bottom: 15px; }
     td{ font-size: 16px; }
+    
+    #invoice-pdf-area { 
+        background: #fff; 
+        max-width: 850px; 
+        margin: 0 auto; 
+        border-radius: 12px; 
+        box-shadow: 0 5px 15px rgba(0,0,0,0.05); 
+        overflow: hidden; 
+        padding: 30px;
+    }
+    #invoice-pdf-area table { width: 100%; border-collapse: collapse; }
+    #invoice-pdf-area .invoice-bar { background: #00aef0; padding: 20px 40px; }
+    #invoice-pdf-area .invoice-bar p { color: #fff; font-weight: bold; }
+    #invoice-pdf-area .invoice_form p { margin: 3px 0; font-size: 14px; }
+    #invoice-pdf-area .invoice_to p { margin: 3px 0; font-size: 14px; }
 
    @page { size: a4;  margin: 0mm; background:#fff }
    @media print {
         td{ font-size: 18px; }
         header,footer,nav,.no-print,.sidebar,#sidebar,.navbar,.main-nav,.top-header,.header-section,.footer-section,
         .page-header,.main-footer,.site-header,.site-footer,.mobile-nav,.top-bar { display: none !important; }
-        body { background: #fff !important; }
-        .container { width: 100% !important; max-width: 100% !important; }
+        body { background: #fff !important; margin: 0; padding: 0; }
+        .container { width: 100% !important; max-width: 100% !important; padding: 0 !important; }
+        #invoice-pdf-area { width: 100% !important; max-width: 100% !important; box-shadow: none !important; margin: 0 !important; }
+        .invoice-innter { width: 100% !important; }
+        table { width: 100% !important; }
+        .customer-invoice { padding: 0 !important; }
    }
 </style>
 
@@ -88,7 +107,7 @@
 
             <div class="col-sm-12">
 
-                <div id="invoice-pdf-area" class="invoice-innter" style="max-width: 900px;margin: 0 auto;background: #fff;overflow: hidden;padding: 30px;padding-top: 0;">
+                <div id="invoice-pdf-area" style="width: 800px; max-width: 100%; margin: 0 auto; background: #fff; padding: 20px; font-size: 14px;">
 
                     {{-- ===================== INVOICE HEADER ===================== --}}
                     <table style="width:100%">
@@ -292,23 +311,41 @@ function downloadPDF() {
     const element = document.getElementById('invoice-pdf-area');
     const invoice_id = "{{ $order->invoice_id }}";
     const opt = {
-        margin: [5, 5, 5, 5],
+        margin: [10, 10, 10, 10],
         filename: 'Invoice-' + invoice_id + '.pdf',
-        image: { type: 'jpeg', quality: 0.95 },
-        html2canvas: { 
-            scale: 2, 
-            useCORS: true,
-            scrollY: 0,
-            windowWidth: element.scrollWidth
-        },
-        jsPDF: { 
-            unit: 'mm', 
-            format: 'a4', 
-            orientation: 'portrait' 
-        },
-        pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { scale: 2, useCORS: true },
+        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+        pagebreak: { mode: ['css', 'legacy'] }
     };
-    html2pdf().set(opt).from(element).save();
+    
+    // Clone & clean the DOM for PDF (remove transforms, fix widths)
+    const clone = element.cloneNode(true);
+    clone.style.width = '800px';
+    clone.style.maxWidth = '100%';
+    clone.style.transform = 'none';
+    // Remove skew transforms
+    clone.querySelectorAll('[style*="skew"]').forEach(el => {
+        el.style.transform = 'none';
+    });
+    // Fix float-right tables
+    clone.querySelectorAll('[style*="float"]').forEach(el => {
+        el.style.float = 'none';
+        el.style.width = '100%';
+    });
+    // Fix margin-left on bars
+    clone.querySelectorAll('[style*="margin-left"]').forEach(el => {
+        el.style.marginLeft = '0';
+    });
+    // Temporarily replace
+    const parent = element.parentNode;
+    parent.insertBefore(clone, element);
+    element.style.display = 'none';
+    
+    html2pdf().set(opt).from(clone).save().then(() => {
+        clone.remove();
+        element.style.display = '';
+    });
 }
 </script>
 
