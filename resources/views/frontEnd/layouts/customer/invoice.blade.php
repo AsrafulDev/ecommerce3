@@ -80,13 +80,15 @@
             </div>
 
             <div class="col-sm-6 text-end">
+                <button onclick="downloadPDF()" class="no-print invoice_btn btn btn-success me-2">
+                    <i class="fa fa-download"></i>{{ __('Download Invoice') }}</button>
                 <button onclick="printFunction()" class="no-print invoice_btn btn btn-primary">
                     <i class="fa fa-print"></i>{{ __('Print') }}</button>
             </div>
 
             <div class="col-sm-12">
 
-                <div class="invoice-innter" style="width: 900px;margin: 0 auto;background: #f9f9f9;overflow: hidden;padding: 30px;padding-top: 0;">
+                <div id="invoice-pdf-area" class="invoice-innter" style="width: 900px;margin: 0 auto;background: #f9f9f9;overflow: hidden;padding: 30px;padding-top: 0;">
 
                     {{-- ===================== INVOICE HEADER ===================== --}}
                     <table style="width:100%">
@@ -283,6 +285,21 @@
     function printFunction() {
         window.print();
     }
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<script>
+function downloadPDF() {
+    const element = document.getElementById('invoice-pdf-area');
+    const invoice_id = "{{ $order->invoice_id }}";
+    const opt = {
+        margin: [10, 10, 10, 10],
+        filename: 'Invoice-' + invoice_id + '.pdf',
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { scale: 2, useCORS: true },
+        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+    };
+    html2pdf().set(opt).from(element).save();
+}
 </script>
 
 @endsection
