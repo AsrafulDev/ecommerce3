@@ -10,6 +10,7 @@ return new class extends Migration
         DB::statement('ALTER TABLE sms_gateways ADD COLUMN IF NOT EXISTS forget_pass TINYINT DEFAULT 0 AFTER status');
         DB::statement('ALTER TABLE sms_gateways ADD COLUMN IF NOT EXISTS order_confirm TINYINT DEFAULT 0 AFTER forget_pass');
         DB::statement('ALTER TABLE sms_gateways ADD COLUMN IF NOT EXISTS order_cancel TINYINT DEFAULT 0 AFTER order_confirm');
+        DB::statement("ALTER TABLE sms_gateways ADD COLUMN `order` TINYINT DEFAULT 0 AFTER order_cancel");
     }
 
     public function down(): void

@@ -2357,6 +2357,36 @@ class OrderController extends Controller
             $payment->save();
         }
 
+        // 💰 ফান্ড আপডেট — পেমেন্ট পেইড হলে ফান্ডে যোগ, আনপেইড/ফেইল হলে কোন পরিবর্তন নয়
+        $paidStatuses = ['paid', 'completed', 'success', 'approved'];
+        $refundStatuses = ['refunded', 'refund', 'returned'];
+        
+        if (in_array(strtolower($request->payment_status), $paidStatuses)) {
+            $exists = FundTransaction::where('source', 'sale')->where('source_id', $order->id)->exists();
+            if (!$exists) {
+                FundTransaction::create([
+                    'direction'  => 'in',
+                    'source'     => 'sale',
+                    'source_id'  => $order->id,
+                    'amount'     => $order->amount,
+                    'note'       => 'Payment received — Order #' . $order->invoice_id,
+                    'created_by' => auth()->id(),
+                ]);
+            }
+        } elseif (in_array(strtolower($request->payment_status), $refundStatuses)) {
+            $exists = FundTransaction::where('source', 'refund')->where('source_id', $order->id)->exists();
+            if (!$exists) {
+                FundTransaction::create([
+                    'direction'  => 'out',
+                    'source'     => 'refund',
+                    'source_id'  => $order->id,
+                    'amount'     => $order->amount,
+                    'note'       => 'Refund processed — Order #' . $order->invoice_id,
+                    'created_by' => auth()->id(),
+                ]);
+            }
+        }
+
         // ==============================================================
         // ⭐ NEW LOGIC: জেনারেট ডিজিটাল ডাউনলোড (যদি পেইড হয়)
         // ==============================================================
