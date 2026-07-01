@@ -39,6 +39,6 @@ class ComplaintController extends Controller
             'status'      => 'pending',
         ]);
 
-        return back()->with('success', 'আপনার কমপ্লেইন সফলভাবে জমা হয়েছে');
+        return back()->with('success', __('Your complaint has been submitted successfully.'));
     }
 }

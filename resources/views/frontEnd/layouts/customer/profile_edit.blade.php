@@ -30,7 +30,7 @@ $totalOrderAmount = \App\Models\Order::where('customer_id', $customerId)->sum('a
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>সেটিংস | {{ $siteName->name ?? 'Gadget Style' }}</title>
+    <title>{{ __('Settings') }} | {{ $siteName->name ?? 'Gadget Style' }}</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
@@ -124,25 +124,25 @@ $totalOrderAmount = \App\Models\Order::where('customer_id', $customerId)->sum('a
 
         <nav class="flex-1 px-0 text-gray-500 font-medium space-y-1 mt-2 overflow-y-auto">
             <a href="{{route('customer.account')}}" class="{{request()->is('customer/account')?'active-menu':'sidebar-item'}} flex items-center px-6 py-3.5 transition-colors">
-                <i class="fas fa-home w-6"></i> ড্যাশবোর্ড
+                <i class="fas fa-home w-6"></i> {{ __('Dashboard') }}
             </a>
             <a href="{{route('customer.orders')}}" class="{{request()->is('customer/orders')?'active-menu':'sidebar-item'}} flex items-center px-6 py-3.5 transition-colors">
-                <i class="fas fa-box-open w-6"></i> আমার অর্ডার 
+                <i class="fas fa-box-open w-6"></i> {{ __('My Orders') }} 
                 @if($pendingOrdersCount > 0)
                     <span class="ml-auto bg-red-100 text-red-600 text-xs px-2 py-0.5 rounded-full">{{ $pendingOrdersCount }}</span>
                 @endif
             </a>
             <a href="{{route('customer.order_track')}}" class="{{request()->is('customer/order-track*')?'active-menu':'sidebar-item'}} flex items-center px-6 py-3.5 transition-colors">
-                <i class="fas fa-truck w-6"></i> ট্র্যাক অর্ডার
+                <i class="fas fa-truck w-6"></i> {{ __('Track Order') }}
             </a>
             <a href="{{route('customer.refunds')}}" class="{{request()->is('customer/refunds*')?'active-menu':'sidebar-item'}} flex items-center px-6 py-3.5 transition-colors">
-                <i class="fas fa-undo w-6"></i> রিফান্ড রিকোয়েস্ট
+                <i class="fas fa-undo w-6"></i> {{ __('Refund Request') }}
             </a>
             <a href="{{ route('complaint') }}" class="{{ request()->is('complaint') ? 'active-menu' : 'sidebar-item' }} flex items-center px-6 py-3.5 transition-colors">
-                <i class="fas fa-headset w-6"></i> সাপোর্ট টিকেট
+                <i class="fas fa-headset w-6"></i> {{ __('Support Ticket') }}
             </a>
             <a href="{{route('customer.profile_edit')}}" class="{{request()->is('customer/profile-edit')?'active-menu':'sidebar-item'}} flex items-center px-6 py-3.5 transition-colors">
-                <i class="fas fa-user-cog w-6"></i> সেটিংস
+                <i class="fas fa-user-cog w-6"></i> {{ __('Settings') }}
             </a>
         </nav>
 
@@ -150,7 +150,7 @@ $totalOrderAmount = \App\Models\Order::where('customer_id', $customerId)->sum('a
             <a href="{{ route('customer.logout') }}" 
                onclick="event.preventDefault(); document.getElementById('logout-form').submit();"
                class="w-full flex items-center justify-center px-4 py-2.5 text-red-500 bg-red-50 hover:bg-red-100 rounded-lg font-bold transition">
-                <i class="fas fa-sign-out-alt mr-2"></i> লগআউট
+                <i class="fas fa-sign-out-alt mr-2"></i> {{ __('Logout') }}
             </a>
             <form id="logout-form" action="{{ route('customer.logout') }}" method="POST" style="display: none;">
                 @csrf
@@ -166,13 +166,13 @@ $totalOrderAmount = \App\Models\Order::where('customer_id', $customerId)->sum('a
             </div>
 
             <div class="flex-1">
-                <h2 class="text-xl font-bold text-gray-800">সেটিংস</h2>
-                <p class="text-xs text-gray-400 mt-0.5 hidden sm:block">আপনার প্রোফাইল তথ্য আপডেট করুন</p>
+                <h2 class="text-xl font-bold text-gray-800">{{ __('Settings') }}</h2>
+                <p class="text-xs text-gray-400 mt-0.5 hidden sm:block">{{ __('Update your profile information') }}</p>
             </div>
 
             <div class="flex items-center gap-4">
                 <div class="hidden sm:flex bg-green-50 text-green-700 px-4 py-2 rounded-full items-center font-bold text-sm border border-green-100">
-                    <i class="fas fa-wallet mr-2"></i> মোট: ৳{{ number_format($totalOrderAmount, 0) }}
+                    <i class="fas fa-wallet mr-2"></i> {{ __('Total:') }} ৳{{ number_format($totalOrderAmount, 0) }}
                 </div>
                 
                 <div class="relative cursor-pointer w-10 h-10 bg-gray-50 rounded-full flex items-center justify-center hover:bg-gray-100 transition">
@@ -187,7 +187,7 @@ $totalOrderAmount = \App\Models\Order::where('customer_id', $customerId)->sum('a
             
             <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
                 <div class="p-6 border-b border-gray-50">
-                    <h3 class="text-lg font-bold text-gray-800">⚙️ প্রোফাইল আপডেট</h3>
+                    <h3 class="text-lg font-bold text-gray-800">⚙️ {{ __('Profile Update') }}</h3>
                 </div>
                 
                 <form action="{{route('customer.profile_update')}}" method="POST" enctype="multipart/form-data" class="p-6 space-y-6" id="profileForm">
@@ -203,8 +203,8 @@ $totalOrderAmount = \App\Models\Order::where('customer_id', $customerId)->sum('a
                             <input type="file" id="profileImageInput" name="image" accept="image/jpeg,image/jpg,image/png,image/webp" onchange="previewProfileImage(this)">
                         </div>
                         <div class="text-center">
-                            <h6 class="font-bold text-gray-800 mb-1">প্রোফাইল ছবি</h6>
-                            <p class="text-xs text-gray-500">PNG, JPG বা WEBP (সর্বোচ্চ 2MB)</p>
+                            <h6 class="font-bold text-gray-800 mb-1">{{ __('Profile Image') }}</h6>
+                            <p class="text-xs text-gray-500">{{ __('PNG, JPG or WEBP (Max 2MB)') }}</p>
                             <p id="imageFileName" class="text-xs text-indigo-600 mt-1 hidden"></p>
                             @if(session('success'))
                                 <p class="text-green-500 text-xs mt-1">{{ session('success') }}</p>
@@ -219,7 +219,7 @@ $totalOrderAmount = \App\Models\Order::where('customer_id', $customerId)->sum('a
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         {{-- Full Name --}}
                         <div>
-                            <label for="name" class="block text-sm font-semibold text-gray-700 mb-2">পুরো নাম *</label>
+                            <label for="name" class="block text-sm font-semibold text-gray-700 mb-2">{{ __('Full Name *') }}</label>
                             <input type="text" id="name" name="name" value="{{old('name', $profile_edit->name)}}" required
                                    class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition @error('name') border-red-500 @enderror">
                             @error('name')
@@ -229,7 +229,7 @@ $totalOrderAmount = \App\Models\Order::where('customer_id', $customerId)->sum('a
 
                         {{-- Phone Number --}}
                         <div>
-                            <label for="phone" class="block text-sm font-semibold text-gray-700 mb-2">ফোন নম্বর *</label>
+                            <label for="phone" class="block text-sm font-semibold text-gray-700 mb-2">{{ __('Phone Number *') }}</label>
                             <input type="number" id="phone" name="phone" value="{{old('phone', $profile_edit->phone)}}" required
                                    class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition @error('phone') border-red-500 @enderror">
                                 @error('phone')
@@ -239,7 +239,7 @@ $totalOrderAmount = \App\Models\Order::where('customer_id', $customerId)->sum('a
 
                         {{-- Email Address --}}
                         <div>
-                            <label for="email" class="block text-sm font-semibold text-gray-700 mb-2">ইমেইল ঠিকানা *</label>
+                            <label for="email" class="block text-sm font-semibold text-gray-700 mb-2">{{ __('Email Address *') }}</label>
                             <input type="email" id="email" name="email" value="{{old('email', $profile_edit->email)}}" required
                                    class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition @error('email') border-red-500 @enderror">
                                 @error('email')
@@ -249,7 +249,7 @@ $totalOrderAmount = \App\Models\Order::where('customer_id', $customerId)->sum('a
 
                         {{-- Address --}}
                         <div>
-                            <label for="address" class="block text-sm font-semibold text-gray-700 mb-2">ঠিকানা *</label>
+                            <label for="address" class="block text-sm font-semibold text-gray-700 mb-2">{{ __('Address *') }}</label>
                             <input type="text" id="address" name="address" value="{{old('address', $profile_edit->address)}}" required
                                    class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition @error('address') border-red-500 @enderror">
                                 @error('address')
@@ -259,9 +259,9 @@ $totalOrderAmount = \App\Models\Order::where('customer_id', $customerId)->sum('a
 
                         {{-- District --}}
                         <div>
-                            <label for="district" class="block text-sm font-semibold text-gray-700 mb-2">জেলা *</label>
+                            <label for="district" class="block text-sm font-semibold text-gray-700 mb-2">{{ __('District *') }}</label>
                             <select id="district" name="district" class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition select2 @error('district') border-red-500 @enderror" required>
-                                <option value="">নির্বাচন করুন...</option>
+                                <option value="">{{ __('Select...') }}</option>
                                     @foreach($districts as $key=>$district)
                                     <option value="{{$district->district}}" @if(old('district', $profile_edit->district)==$district->district) selected @endif>{{$district->district}}</option>
                                     @endforeach
@@ -273,9 +273,9 @@ $totalOrderAmount = \App\Models\Order::where('customer_id', $customerId)->sum('a
 
                         {{-- Area --}}
                         <div>
-                            <label for="area" class="block text-sm font-semibold text-gray-700 mb-2">এলাকা *</label>
+                            <label for="area" class="block text-sm font-semibold text-gray-700 mb-2">{{ __('Area *') }}</label>
                             <select id="area" name="area" class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition select2 area @error('area') border-red-500 @enderror" required>
-                                <option value="">নির্বাচন করুন...</option>
+                                <option value="">{{ __('Select...') }}</option>
                                     @foreach($areas as $key=>$area)
                                     <option value="{{$area->id}}" @if(old('area', $profile_edit->area) == $area->id) selected @endif>{{$area->area_name}}</option>
                                     @endforeach
@@ -290,7 +290,7 @@ $totalOrderAmount = \App\Models\Order::where('customer_id', $customerId)->sum('a
                     <div class="pt-6 border-t border-gray-100">
                         <button type="submit" class="w-full md:w-auto bg-indigo-600 hover:bg-indigo-700 text-white font-semibold px-8 py-3 rounded-lg transition duration-200 shadow-sm hover:shadow-md flex items-center justify-center gap-2">
                             <i class="fas fa-save"></i>
-                            আপডেট করুন
+                            {{ __('Update') }}
                         </button>
                         </div>
                     </form>
@@ -326,16 +326,16 @@ $totalOrderAmount = \App\Models\Order::where('customer_id', $customerId)->sum('a
 
         // Display session messages
         @if(Session::has('success'))
-            toastr.success("{{ Session::get('success') }}", "সফল!");
+            toastr.success("{{ Session::get('success') }}", "{{ __('Success!') }}");
         @endif
         @if(Session::has('error'))
-            toastr.error("{{ Session::get('error') }}", "ত্রুটি!");
+            toastr.error("{{ Session::get('error') }}", "{{ __('Error!') }}");
         @endif
         @if(Session::has('info'))
-            toastr.info("{{ Session::get('info') }}", "তথ্য!");
+            toastr.info("{{ Session::get('info') }}", "{{ __('Info!') }}");
         @endif
         @if(Session::has('warning'))
-            toastr.warning("{{ Session::get('warning') }}", "সতর্কতা!");
+            toastr.warning("{{ Session::get('warning') }}", "{{ __('Warning!') }}");
         @endif
     </script>
     <script>
@@ -360,7 +360,7 @@ $totalOrderAmount = \App\Models\Order::where('customer_id', $customerId)->sum('a
                 
                 // Check file size
                 if (file.size > maxSize) {
-                    alert('ইমেজ সাইজ 2MB এর বেশি হতে পারবে না!');
+                    alert('{{ __('Image size cannot exceed 2MB!') }}');
                     input.value = '';
                     return;
                 }
@@ -368,7 +368,7 @@ $totalOrderAmount = \App\Models\Order::where('customer_id', $customerId)->sum('a
                 // Check file type
                 const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
                 if (!allowedTypes.includes(file.type)) {
-                    alert('শুধুমাত্র JPG, PNG বা WEBP ফরম্যাটের ইমেজ আপলোড করা যাবে!');
+                    alert('{{ __('Only JPG, PNG or WEBP images are allowed!') }}');
                     input.value = '';
                     return;
                 }
@@ -392,7 +392,7 @@ $totalOrderAmount = \App\Models\Order::where('customer_id', $customerId)->sum('a
                 
                 if (file.size > maxSize) {
                     e.preventDefault();
-                    alert('ইমেজ সাইজ 2MB এর বেশি হতে পারবে না!');
+                    alert('{{ __('Image size cannot exceed 2MB!') }}');
                     return false;
                 }
             }

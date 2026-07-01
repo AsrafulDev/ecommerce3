@@ -57,7 +57,7 @@ class GeneralSettingController extends Controller
         $name =  time().'-'.$image->getClientOriginalName();
         $name = preg_replace('"\.(jpg|jpeg|png|webp)$"', '.webp',$name);
         $name = strtolower(preg_replace('/\s+/', '-', $name));
-        $uploadpath = 'public/uploads/settings/';
+        $uploadpath = public_path('uploads/settings/');
         $imageUrl = $uploadpath.$name; 
         $img=Image::make($image->getRealPath());
         $img->encode('webp', 90);
@@ -72,7 +72,7 @@ class GeneralSettingController extends Controller
         $name2 =  time().'-'.$image2->getClientOriginalName();
         $name2 = preg_replace('"\.(jpg|jpeg|png|webp)$"', '.webp',$name2);
         $name2 = strtolower(preg_replace('/\s+/', '-', $name2));
-        $uploadpath2 = 'public/uploads/settings/';
+        $uploadpath2 = public_path('uploads/settings/');
         $image2Url = $uploadpath2.$name2; 
         $img2=Image::make($image2->getRealPath());
         $img2->encode('webp', 90);
@@ -87,7 +87,7 @@ class GeneralSettingController extends Controller
         $name4 =  time().'-'.$image4->getClientOriginalName();
         $name4 = preg_replace('"\.(jpg|jpeg|png|webp)$"', '.webp',$name4);
         $name4 = strtolower(preg_replace('/\s+/', '-', $name4));
-        $uploadpath4 = 'public/uploads/settings/';
+        $uploadpath4 = public_path('uploads/settings/');
         $image4Url = $uploadpath4.$name4; 
         $img4=Image::make($image4->getRealPath());
         $img4->encode('webp', 90);
@@ -103,7 +103,7 @@ class GeneralSettingController extends Controller
         $name3 =  time().'-'.$image3->getClientOriginalName();
         $name3 = preg_replace('"\.(jpg|jpeg|png|webp)$"', '.png',$name3);
         $name3 = strtolower(preg_replace('/\s+/', '-', $name3));
-        $uploadpath3 = 'public/uploads/settings/';
+        $uploadpath3 = public_path('uploads/settings/');
         $image3Url = $uploadpath3.$name3; 
         $img3=Image::make($image3->getRealPath());
         //$img3->encode('webp', 90);
@@ -114,10 +114,10 @@ class GeneralSettingController extends Controller
         $img3->save($image3Url);
 
         $input = $request->all();
-        $input['white_logo'] = $imageUrl;
-        $input['dark_logo'] = $image2Url;
-        $input['favicon'] = $image3Url;
-		 $input['og_baner'] = $image4Url;
+        $input['white_logo'] = 'uploads/settings/'.$name;
+        $input['dark_logo'] = 'uploads/settings/'.$name2;
+        $input['favicon'] = 'uploads/settings/'.$name3;
+		 $input['og_baner'] = 'uploads/settings/'.$name4;
         
         GeneralSetting::create($input);
         Toastr::success('Success','Data insert successfully');
@@ -147,7 +147,7 @@ class GeneralSettingController extends Controller
             $name =  time().'-'.$image->getClientOriginalName();
             $name = preg_replace('"\.(jpg|jpeg|png|webp)$"', '.webp',$name);
             $name = strtolower(preg_replace('/\s+/', '-', $name));
-            $uploadpath = 'public/uploads/settings/';
+            $uploadpath = public_path('uploads/settings/');
             $imageUrl = $uploadpath.$name; 
             $img=Image::make($image->getRealPath());
             $img->encode('webp', 90);
@@ -156,7 +156,7 @@ class GeneralSettingController extends Controller
             $img->height() > $img->width() ? $width=null : $height=null;
             $img->resize($width, $height);
             $img->save($imageUrl);
-            $input['white_logo'] = $imageUrl;
+            $input['white_logo'] = 'uploads/settings/'.$name;
         }else{
             $input['white_logo'] = $update_data->white_logo;
         }
@@ -168,7 +168,7 @@ class GeneralSettingController extends Controller
             $name2 =  time().'-'.$image2->getClientOriginalName();
             $name2 = preg_replace('"\.(jpg|jpeg|png|webp)$"', '.webp',$name2);
             $name2 = strtolower(preg_replace('/\s+/', '-', $name2));
-            $uploadpath2 = 'public/uploads/settings/';
+            $uploadpath2 = public_path('uploads/settings/');
             $image2Url = $uploadpath2.$name2; 
             $img2=Image::make($image2->getRealPath());
             $img2->encode('webp', 90);
@@ -177,7 +177,7 @@ class GeneralSettingController extends Controller
             $img2->height() > $img2->width() ? $width2=null : $height2=null;
             $img2->resize($width2, $height2);
             $img2->save($image2Url);
-            $input['dark_logo'] = $image2Url;
+            $input['dark_logo'] = 'uploads/settings/'.$name2;
         }else{
             $input['dark_logo'] = $update_data->dark_logo;
         }
@@ -189,7 +189,7 @@ class GeneralSettingController extends Controller
             $name4 =  time().'-'.$image4->getClientOriginalName();
             $name4 = preg_replace('"\.(jpg|jpeg|png|webp)$"', '.webp',$name4);
             $name4 = strtolower(preg_replace('/\s+/', '-', $name4));
-            $uploadpath4 = 'public/uploads/settings/';
+            $uploadpath4 = public_path('uploads/settings/');
             $image4Url = $uploadpath4.$name4; 
             $img4=Image::make($image4->getRealPath());
             $img4->encode('webp', 90);
@@ -198,7 +198,7 @@ class GeneralSettingController extends Controller
             $img4->height() > $img4->width() ? $width4=null : $height4=null;
             $img4->resize($width4, $height4);
             $img4->save($image4Url);
-            $input['og_baner'] = $image4Url;
+            $input['og_baner'] = 'uploads/settings/'.$name4;
         }else{
             $input['og_baner'] = $update_data->og_baner;
         }
@@ -213,7 +213,7 @@ class GeneralSettingController extends Controller
             $name3 =  time().'-'.$image3->getClientOriginalName();
             $name3 = preg_replace('"\.(jpg|jpeg|png|webp)$"', '.webp',$name3);
             $name3 = strtolower(preg_replace('/\s+/', '-', $name3));
-            $uploadpath3 = 'public/uploads/settings/';
+            $uploadpath3 = public_path('uploads/settings/');
             $image3Url = $uploadpath3.$name3; 
             $img3=Image::make($image3->getRealPath());
             $img3->encode('webp', 90);
@@ -222,7 +222,7 @@ class GeneralSettingController extends Controller
             //$img3->height() > $img3->width() ? $width3=null : $height3=null;
             $img3->resize($width3, $height3);
             $img3->save($image3Url);
-            $input['favicon'] = $image3Url;
+            $input['favicon'] = 'uploads/settings/'.$name3;
         }else{
             $input['favicon'] = $update_data->favicon;
         }

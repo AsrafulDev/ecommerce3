@@ -326,6 +326,10 @@
                 border-radius: 8px;
                 border: none;
             }
+            .footer-newsletter .form-control.newsletter-input {
+                border:none;
+                border-radius:50px 0 0 50px;
+            }
             
             /* Newsletter Title Color - White */
             .footer-menu .title.stay_conn a {
@@ -683,7 +687,7 @@
                                 <a href="{{route('home')}}">
                                     <img src="{{ asset($generalsetting->dark_logo ?: 'public/assets/images/CurlBazar.svg') }}" alt="" />
                                 </a>
-                                <p>{{ optional($generalsetting)->footer_about_text ?? 'আপনার ব্যবসার ডিজিটাল পার্টনার। আমরা বিশ্বাস করি গুণগত মান এবং গ্রাহক সন্তুষ্টিতে। প্রযুক্তির সাথে এগিয়ে চলুন আমাদের সাথে।' }}</p>
+                                <p>{{ optional($generalsetting)->footer_about_text ?? '' }}</p>
                                 <a href="tel:{{ $contact->hotline ?? '01XXX-XXXXXX' }}" class="footer-hotlint">{{ $contact->hotline ?? '01XXX-XXXXXX' }}</a>
                                 
                                 <!-- App Store Buttons -->
@@ -707,6 +711,9 @@
                                     </li>
 									     <li>
                                         <a href="{{route('complaint')}}"> Complaints</a>
+                                    </li>
+                                     <li>
+                                        <a href="{{route('contact')}}"> Contact Us</a>
                                     </li>
                                     @foreach($pages as $page)
                                     <li><a href="{{route('page',['slug'=>$page->slug])}}">{{$page->name}}</a></li>

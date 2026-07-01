@@ -50,7 +50,7 @@
 
     /* সাইডবার ইমেজ সেকশন */
     .complaint-sidebar-img {
-        background-image: url('{{ asset('public/frontEnd/images/login.avif') }}'); 
+        background-image: url('{{ asset('public/frontEnd/images/contact.png') }}'); 
         background-size: cover;
         background-position: center;
         min-height: 100%;
@@ -66,7 +66,7 @@
         content: "";
         position: absolute;
         top: 0; left: 0; width: 100%; height: 100%;
-        background: linear-gradient(to bottom, rgba(0,0,0,0.1) 30%, rgba(231, 76, 60, 0.9) 100%);
+        background: linear-gradient(to bottom, rgba(0,0,0,0.1) 30%, var(--primary-color) 100%);
     }
 
     .sidebar-content {
@@ -170,8 +170,8 @@
                         <div class="col-lg-5">
                             <div class="complaint-sidebar-img">
                                 <div class="sidebar-content">
-                                    <h3 class="fw-bold mb-2">আপনার মতামত আমাদের কাছে মূল্যবান</h3>
-                                    <p class="small opacity-90"><span style="color: white;">আমাদের সেবা নিয়ে কোনো অভিযোগ থাকলে আমাদের জানান। আমরা দ্রুত ব্যবস্থা গ্রহণ করবো।</span></p>                                    
+                                    <h3 class="fw-bold mb-2">{{ __('Your feedback is valuable to us') }}</h3>
+                                    <p class="small opacity-90"><span style="color: white;">{{ __('If you have any complaints about our service, let us know. We will take immediate action.') }}</span></p>                                    
                                     
                                     <div class="mt-4">
                                         <div class="d-flex align-items-center gap-3 mb-2">
@@ -187,7 +187,7 @@
 
                         <div class="col-lg-7">
                             <div class="form-side">
-                                <h5 class="account-title">কমপ্লেইন জমা দিন</h5>
+                                <h5 class="account-title">{{ __('Submit a Complaint') }}</h5>
 
                                 @if(session('success'))
                                     <div class="alert alert-success border-0 shadow-sm mb-4">
@@ -202,34 +202,34 @@
 
                                     <div class="row g-4">
                                         <div class="col-md-6">
-                                            <label class="form-label">আপনার নাম *</label>
-                                            <input type="text" name="name" class="form-control" placeholder="নাম লিখুন" required>
+                                            <label class="form-label">{{ __('Your Name *') }}</label>
+                                            <input type="text" name="name" class="form-control" placeholder="{{ __('Enter your name') }}" required>
                                         </div>
 
                                         <div class="col-md-6">
-                                            <label class="form-label">মোবাইল নম্বর *</label>
-                                            <input type="tel" name="phone" class="form-control" placeholder="০১xxx-xxxxxx" required maxlength="11" oninput="this.value = this.value.replace(/[^0-9]/g,'')">
+                                            <label class="form-label">{{ __('Mobile Number *') }}</label>
+                                            <input type="tel" name="phone" class="form-control" placeholder="{{ __('Enter mobile number') }}" required maxlength="11" oninput="this.value = this.value.replace(/[^0-9]/g,'')">
                                         </div>
 
                                         <div class="col-12">
-                                            <label class="form-label">অর্ডার আইডি (যদি থাকে)</label>
-                                            <input type="text" name="order_id" class="form-control" placeholder="Order ID লিখুন (যদি থাকে)">
+                                            <label class="form-label">{{ __('Order ID (if any)') }}</label>
+                                            <input type="text" name="order_id" class="form-control" placeholder="{{ __('Enter Order ID (if any)') }}">
                                         </div>
 
                                         <div class="col-12">
-                                            <label class="form-label">কমপ্লেইনের বিবরণ *</label>
-                                            <textarea name="description" class="form-control" rows="4" placeholder="আপনার সমস্যাটি বিস্তারিত লিখুন..." required></textarea>
+                                            <label class="form-label">{{ __('Complaint Description *') }}</label>
+                                            <textarea name="description" class="form-control" rows="4" placeholder="{{ __('Describe your issue in detail...') }}" required></textarea>
                                         </div>
 
                                         <div class="col-12">
-                                            <label class="form-label">প্রমাণস্বরূপ ছবি (ঐচ্ছিক)</label>
+                                            <label class="form-label">{{ __('Image as evidence (optional)') }}</label>
                                             <input type="file" name="image" class="form-control">
-                                            <small class="text-muted">আপনি সমস্যার স্ক্রিনশট বা ছবি যুক্ত করতে পারেন।</small>
+                                            <small class="text-muted">{{ __('You can attach a screenshot or image of the issue.') }}</small>
                                         </div>
 
                                         <div class="col-12 mt-4">
                                             <button type="submit" class="submit-btn w-100">
-                                                কমপ্লেইন পাঠান <i data-feather="send" style="width: 18px"></i>
+                                                {{ __('Submit Complaint') }} <i data-feather="send" style="width: 18px"></i>
                                             </button>
                                         </div>
                                     </div>
@@ -237,10 +237,10 @@
 
                                 <div class="quick-info">
                                     <div class="info-box">
-                                        <i data-feather="shield"></i> <span>নিরাপদ ডাটা</span>
+                                        <i data-feather="shield"></i> <span>{{ __('Secure Data') }}</span>
                                     </div>
                                     <div class="info-box">
-                                        <i data-feather="clock"></i> <span>২৪-৪৮ ঘণ্টার সমাধান</span>
+                                        <i data-feather="clock"></i> <span>{{ __('24-48 hour resolution') }}</span>
                                     </div>
                                 </div>
                             </div>

@@ -488,15 +488,15 @@ if (typeof ttq !== 'undefined') {
                     <div class="checkout-card">
                         <div class="checkout-header">
                             <i class="fas fa-truck-moving"></i>
-                            <h6>শিপিং এবং বিলিং তথ্য</h6>
+                            <h6>{{ __('Shipping & Billing Info') }}</h6>
                         </div>
                         <div class="card-body-custom">
                             <div class="row">
                                 <div class="col-md-6">
                                     <div class="form-group">
-                                        <label class="form-label-custom">আপনার নাম *</label>
+                                        <label class="form-label-custom">{{ __('Your Name') }} *</label>
                                         <input type="text" name="name" class="form-control-custom" 
-                                            value="{{ Auth::guard('customer')->user()->name ?? old('name') }}" placeholder="সম্পূর্ণ নাম লিখুন" required>
+                                            value="{{ Auth::guard('customer')->user()->name ?? old('name') }}" placeholder="{{ __('Enter full name') }}" required>
                                     </div>
                                 </div>
                                 <div class="col-md-6">
@@ -508,17 +508,17 @@ if (typeof ttq !== 'undefined') {
                                 </div>
                                 <div class="col-12">
                                     <div class="form-group">
-                                        <label class="form-label-custom">সম্পূর্ণ ঠিকানা *</label>
+                                        <label class="form-label-custom">{{ __('Full Address') }} *</label>
                                         <input type="text" name="address" class="form-control-custom" 
-                                            value="{{ Auth::guard('customer')->user()->address ?? old('address') }}" placeholder="বাসা নং, রোড নং, এলাকা, জেলা" required>
+                                            value="{{ Auth::guard('customer')->user()->address ?? old('address') }}" placeholder="{{ __('House No.') }}, {{ __('Road No.') }}, {{ __('Area') }}, {{ __('District') }}" required>
                                     </div>
                                 </div>
                                 <div class="col-12">
                                     <div class="form-group">
-                                        <label class="form-label-custom">ডেলিভারি এরিয়া *</label>
+                                        <label class="form-label-custom">{{ __('Delivery Area') }} *</label>
                                         @if($requires_shipping)
                                             <select id="area" class="form-control-custom select2" name="area" required>
-                                                <option value="">এরিয়া নির্বাচন করুন...</option>
+                                                <option value="">{{ __('Select Area') }}...</option>
                                                 @foreach ($shippingcharge as $value)
                                                     <option value="{{ $value->id }}" data-charge="{{ $value->amount }}"
                                                         {{ Session::get('shipping_id') == $value->id ? 'selected' : '' }}>
@@ -534,9 +534,9 @@ if (typeof ttq !== 'undefined') {
                                 </div>
                                 <div class="col-12">
                                     <div class="form-group">
-                                        <label class="form-label-custom">অর্ডার নোট (ঐচ্ছিক)</label>
+                                        <label class="form-label-custom">{{ __('Order Note') }} ({{ __('Optional') }})</label>
                                         <textarea name="order_note" id="order_note" class="form-control-custom" rows="2" style="height:auto; resize:none;" 
-                                            placeholder="ডেলিভারি সম্পর্কে বিশেষ কিছু বলার থাকলে লিখুন...">{{ $order_note ?? '' }}</textarea>
+                                            placeholder="{{ __('Special instructions for delivery') }}...">{{ $order_note ?? '' }}</textarea>
                                     </div>
                                 </div>
                             </div>
@@ -550,7 +550,7 @@ if (typeof ttq !== 'undefined') {
 <div class="checkout-card">
     <div class="checkout-header">
         <i class="fas fa-wallet"></i>
-        <h6>পেমেন্ট মেথড নির্বাচন করুন</h6>
+        <h6>{{ __('Select Payment Method') }}</h6>
     </div>
     <div class="card-body-custom">
         
@@ -559,8 +559,8 @@ if (typeof ttq !== 'undefined') {
                 <div class="d-flex gap-3 align-items-center">
                     <i class="fas fa-exclamation-triangle text-warning fs-4"></i>
                     <div>
-                        <strong>অগ্রিম পেমেন্ট প্রয়োজন!</strong>
-                        <p class="mb-0 small">এই অর্ডারে <b>৳ {{ number_format($advance_amount,2) }}</b> অগ্রিম পেমেন্ট করতে হবে।</p>
+                        <strong>{{ __('Advance Payment Required') }}!</strong>
+                        <p class="mb-0 small">{{ __('on this order') }} <b>৳ {{ number_format($advance_amount,2) }}</b> {{ __('required as advance payment') }}।</p>
                     </div>
                 </div>
             </div>
@@ -577,7 +577,7 @@ if (typeof ttq !== 'undefined') {
                         <div class="text-center" style="width: 40px;"><i class="fas fa-truck text-success fs-2"></i></div>
                         <div class="pay-info">
                             <strong>{{ __('Cash On Delivery') }}</strong>
-                            <small>পণ্য হাতে পেয়ে মূল্য পরিশোধ করুন</small>
+                            <small>{{ __('Pay when you receive the product') }}</small>
                         </div>
                     </div>
                     <div class="check-circle"></div>
@@ -587,13 +587,13 @@ if (typeof ttq !== 'undefined') {
             {{-- Bkash --}}
             @if($bkash_gateway)
                 <label class="payment-option-label">
-                    {{-- required যুক্ত করা হয়েছে --}}
+                    {{-- required {{ __('Added') }} --}}
                     <input type="radio" name="payment_method" value="bkash" required> 
                     <div class="payment-content">
                         <img src="{{ asset('public/frontEnd/images/bkash.svg') }}" class="pay-logo" alt="bKash">
                         <div class="pay-info">
                             <strong>{{ __('bKash Payment') }}</strong>
-                            <small>বিকাশ অ্যাপ বা গেটওয়ে দ্বারা পেমেন্ট</small>
+                            <small>{{ __('Pay via bKash App or Gateway') }}</small>
                         </div>
                     </div>
                     <div class="check-circle"></div>
@@ -603,7 +603,7 @@ if (typeof ttq !== 'undefined') {
             {{-- ShurjoPay --}}
             @if($shurjopay_gateway)
                 <label class="payment-option-label">
-                    {{-- required যুক্ত করা হয়েছে --}}
+                    {{-- required {{ __('Added') }} --}}
                     <input type="radio" name="payment_method" value="shurjopay" required>
                     <div class="payment-content">
                         <img src="{{ asset('public/frontEnd/images/shurjoPay.png') }}" class="pay-logo" alt="ShurjoPay">
@@ -619,13 +619,13 @@ if (typeof ttq !== 'undefined') {
             {{-- {{ __('UddoktaPay') }} --}}
             @if($uddoktapay_gateway)
                 <label class="payment-option-label">
-                    {{-- required যুক্ত করা হয়েছে --}}
+                    {{-- required {{ __('Added') }} --}}
                     <input type="radio" name="payment_method" value="uddoktapay" required>
                     <div class="payment-content">
                         <img src="{{ asset('public/frontEnd/images/uddokta.png') }}" class="pay-logo" alt="{{ __('UddoktaPay') }}">
                         <div class="pay-info">
                             <strong>{{ __('UddoktaPay') }}</strong>
-                            <small>মোবাইল ব্যাংকিং পেমেন্ট গেটওয়ে</small>
+                            <small>{{ __('Mobile Banking Payment Gateway') }}</small>
                         </div>
                     </div>
                     <div class="check-circle"></div>
@@ -643,7 +643,7 @@ if (typeof ttq !== 'undefined') {
                         </div>
                         <div class="pay-info">
                             <strong>{{ __('aamarPay') }}</strong>
-                            <small>কার্ড ও মোবাইল ব্যাংকিং পেমেন্ট</small>
+                            <small>{{ __('Card & Mobile Banking Payment') }}</small>
                         </div>
                     </div>
                     <div class="check-circle"></div>
@@ -653,7 +653,7 @@ if (typeof ttq !== 'undefined') {
         </div>
         {{-- Error message placeholder --}}
         <div id="payment-error" class="text-danger fw-bold mt-2 text-center" style="display:none;">
-            <i class="fas fa-exclamation-circle"></i> অনুগ্রহ করে একটি পেমেন্ট মেথড সিলেক্ট করুন।
+            <i class="fas fa-exclamation-circle"></i> {{ __('Please select a payment method') }}।
         </div>
     </div>
 </div>
@@ -661,10 +661,10 @@ if (typeof ttq !== 'undefined') {
                     {{-- MOBILE SUBMIT BUTTON (Only Visible on Mobile) --}}
                     <div class="mobile-submit-btn">
                         <button type="submit" class="btn-place-order">
-                            অর্ডার নিশ্চিত করুন <i class="fas fa-arrow-right"></i>
+                            {{ __('Confirm Order') }} <i class="fas fa-arrow-right"></i>
                         </button>
                         <div class="text-center text-muted small mt-3">
-                            <i class="fas fa-shield-alt"></i> ১০০% নিরাপদ এবং সিকিউর চেকআউট
+                            <i class="fas fa-shield-alt"></i> ১০০% {{ __('Safe & Secure Checkout') }}
                         </div>
                     </div>
 
@@ -676,7 +676,7 @@ if (typeof ttq !== 'undefined') {
                         <div class="checkout-card">
                             <div class="checkout-header">
                                 <i class="fas fa-shopping-bag"></i>
-                                <h6>অর্ডার সামারি ({{ Cart::instance('shopping')->count() }})</h6>
+                                <h6>{{ __('Order Summary') }} ({{ Cart::instance('shopping')->count() }})</h6>
                             </div>
                             
                             <div class="card-body-custom p-0">
@@ -723,7 +723,7 @@ if (typeof ttq !== 'undefined') {
     @if(!Session::has('coupon_code'))
         <div class="coupon-group-modern">
             {{-- ভিজ্যুয়াল ইনপুট (এটি কোনো ফর্মের অংশ নয়, শুধু ডাটা নেওয়ার জন্য) --}}
-            <input type="text" id="coupon_input" class="coupon-input-modern" placeholder="কুপন কোড আছে? এখানে লিখুন...">
+            <input type="text" id="coupon_input" class="coupon-input-modern" placeholder="{{ __('Have a coupon?') }}? {{ __('Enter here') }}...">
             <button type="button" class="coupon-btn-modern" onclick="submit{{ __('Coupon') }}()">{{ __('APPLY') }}</button>
         </div>
     @else
@@ -736,8 +736,8 @@ if (typeof ttq !== 'undefined') {
 
                                 {{-- Calculation --}}
                                 <div class="summary-totals">
-                                    <div class="total-row"><span>সাবটোটাল</span> <span id="subtotalAmount">৳ {{ number_format($subtotal, 2) }}</span></div>
-                                    <div class="total-row"><span>ডেলিভারি চার্জ</span> <span id="shippingAmount">৳ {{ number_format($shipping, 2) }}</span></div>
+                                    <div class="total-row"><span>{{ __('Subtotal') }}</span> <span id="subtotalAmount">৳ {{ number_format($subtotal, 2) }}</span></div>
+                                    <div class="total-row"><span>{{ __('Delivery Charge') }}</span> <span id="shippingAmount">৳ {{ number_format($shipping, 2) }}</span></div>
                                     @if($discount > 0)
                                         <div class="total-row text-success"><span>{{ __('Coupon Discount') }}</span> <span id="discountAmount">- ৳ {{ number_format($discount, 2) }}</span></div>
                                     @endif
@@ -745,8 +745,8 @@ if (typeof ttq !== 'undefined') {
 
                                     @if($hasAdvance)
                                         <div class="advance-alert">
-                                            <div class="total-row text-success fw-bold"><span>অগ্রিম (পেইড):</span> <span id="advanceAmountCell">৳ {{ number_format($advance_amount,2) }}</span></div>
-                                            <div class="total-row text-danger fw-bold mb-0"><span>বাকি (ডিউ):</span> <span id="dueAmountCell">৳ {{ number_format($due_amount,2) }}</span></div>
+                                            <div class="total-row text-success fw-bold"><span>{{ __('Advance') }} ({{ __('Paid') }}):</span> <span id="advanceAmountCell">৳ {{ number_format($advance_amount,2) }}</span></div>
+                                            <div class="total-row text-danger fw-bold mb-0"><span>{{ __('Due') }} ({{ __('Due') }}):</span> <span id="dueAmountCell">৳ {{ number_format($due_amount,2) }}</span></div>
                                         </div>
                                     @endif
                                 </div>
@@ -754,7 +754,7 @@ if (typeof ttq !== 'undefined') {
                                 {{-- DESKTOP SUBMIT BUTTON (Only Visible on Desktop) --}}
                                 <div class="desktop-submit-btn p-4">
                                     <button type="submit" class="btn-place-order">
-                                        অর্ডার নিশ্চিত করুন <i class="fas fa-check-circle"></i>
+                                        {{ __('Confirm Order') }} <i class="fas fa-check-circle"></i>
                                     </button>
                                     <div class="text-center text-muted small mt-3">
                                         <i class="fas fa-lock"></i> ১০০% নিরাপদ চেকআউট প্রসেস
@@ -1033,7 +1033,7 @@ if (typeof ttq !== 'undefined') {
             
             if (!paymentMethod) {
                 e.preventDefault();
-                toastr.error('অর্ডার সম্পন্ন করতে পেমেন্ট মেথড নির্বাচন করুন।', 'Error');
+                toastr.error('অর্ডার সম্পন্ন করতে {{ __('Select Payment Method') }}।', 'Error');
                 $('#payment-error').show();
                 $('html, body').animate({ scrollTop: $(".checkout-card .fa-wallet").offset().top - 150 }, 500);
                 $('.btn-place-order').prop('disabled', false);

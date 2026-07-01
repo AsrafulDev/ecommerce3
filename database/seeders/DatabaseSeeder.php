@@ -28,6 +28,12 @@ class DatabaseSeeder extends Seeder
             CreateAdminUserSeeder::class,
             ContactSeeder::class,
             HomepageSectionSeeder::class,
+
+            // Default attribute data
+            ColorSeeder::class,
+            SizeSeeder::class,
+            CouponSeeder::class,
+
             DemoDataSeeder::class,
         ]);
     }

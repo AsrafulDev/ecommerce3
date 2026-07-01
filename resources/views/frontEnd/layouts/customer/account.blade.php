@@ -59,7 +59,7 @@ $darkLogo = $siteName->dark_logo ?? null;
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>Customer Panel | {{ $siteName->name ?? 'Gadget Style' }}</title>
+    <title>{{ __('Customer Panel') }} | {{ $siteName->name ?? 'Gadget Style' }}</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
@@ -147,25 +147,25 @@ $darkLogo = $siteName->dark_logo ?? null;
 
         <nav class="flex-1 px-0 text-gray-500 font-medium space-y-1 mt-2 overflow-y-auto">
             <a href="{{route('customer.account')}}" class="{{request()->is('customer/account')?'active-menu':'sidebar-item'}} flex items-center px-6 py-3.5 transition-colors">
-                <i class="fas fa-home w-6"></i> ড্যাশবোর্ড
+                <i class="fas fa-home w-6"></i> {{ __('Dashboard') }}
             </a>
             <a href="{{route('customer.orders')}}" class="{{request()->is('customer/orders')?'active-menu':'sidebar-item'}} flex items-center px-6 py-3.5 transition-colors">
-                <i class="fas fa-box-open w-6"></i> আমার অর্ডার 
+                <i class="fas fa-box-open w-6"></i> {{ __('My Orders') }} 
                 @if($pendingOrdersCount > 0)
                     <span class="ml-auto bg-red-100 text-red-600 text-xs px-2 py-0.5 rounded-full">{{ $pendingOrdersCount }}</span>
                 @endif
             </a>
             <a href="{{route('customer.order_track')}}" class="{{request()->is('customer/order-track*')?'active-menu':'sidebar-item'}} flex items-center px-6 py-3.5 transition-colors">
-                <i class="fas fa-truck w-6"></i> ট্র্যাক অর্ডার
+                <i class="fas fa-truck w-6"></i> {{ __('Track Order') }}
             </a>
             <a href="{{route('customer.refunds')}}" class="{{request()->is('customer/refunds*')?'active-menu':'sidebar-item'}} flex items-center px-6 py-3.5 transition-colors">
-                <i class="fas fa-undo w-6"></i> রিফান্ড রিকোয়েস্ট
+                <i class="fas fa-undo w-6"></i> {{ __('Refund Request') }}
             </a>
             <a href="{{ route('complaint') }}" class="{{ request()->is('complaint') ? 'active-menu' : 'sidebar-item' }} flex items-center px-6 py-3.5 transition-colors">
-                <i class="fas fa-headset w-6"></i> সাপোর্ট টিকেট
+                <i class="fas fa-headset w-6"></i> {{ __('Support Ticket') }}
             </a>
             <a href="{{route('customer.profile_edit')}}" class="{{request()->is('customer/profile-edit')?'active-menu':'sidebar-item'}} flex items-center px-6 py-3.5 transition-colors">
-                <i class="fas fa-user-cog w-6"></i> সেটিংস
+                <i class="fas fa-user-cog w-6"></i> {{ __('Settings') }}
             </a>
         </nav>
 
@@ -173,7 +173,7 @@ $darkLogo = $siteName->dark_logo ?? null;
             <a href="{{ route('customer.logout') }}" 
                onclick="event.preventDefault(); document.getElementById('logout-form').submit();"
                class="w-full flex items-center justify-center px-4 py-2.5 text-red-500 bg-red-50 hover:bg-red-100 rounded-lg font-bold transition">
-                <i class="fas fa-sign-out-alt mr-2"></i> লগআউট
+                <i class="fas fa-sign-out-alt mr-2"></i> {{ __('Logout') }}
             </a>
             <form id="logout-form" action="{{ route('customer.logout') }}" method="POST" style="display: none;">
                 @csrf
@@ -189,13 +189,13 @@ $darkLogo = $siteName->dark_logo ?? null;
             </div>
 
             <div class="flex-1">
-                <h2 class="text-xl font-bold text-gray-800">স্বাগতম, {{ $customer->name }}! 👋</h2>
-                <p class="text-xs text-gray-400 mt-0.5 hidden sm:block">আপনার কেনাকাটার সংক্ষিপ্ত বিবরণ</p>
+                <h2 class="text-xl font-bold text-gray-800">{{ __('Welcome, :name!', ['name' => $customer->name]) }} 👋</h2>
+                <p class="text-xs text-gray-400 mt-0.5 hidden sm:block">{{ __('Your shopping summary') }}</p>
             </div>
 
             <div class="flex items-center gap-4">
                 <div class="hidden sm:flex bg-green-50 text-green-700 px-4 py-2 rounded-full items-center font-bold text-sm border border-green-100">
-                    <i class="fas fa-wallet mr-2"></i> মোট: ৳{{ number_format($totalOrderAmount, 0) }}
+                    <i class="fas fa-wallet mr-2"></i> {{ __('Total:') }} ৳{{ number_format($totalOrderAmount, 0) }}
                 </div>
                 
                 <div class="relative cursor-pointer w-10 h-10 bg-gray-50 rounded-full flex items-center justify-center hover:bg-gray-100 transition">
@@ -211,8 +211,8 @@ $darkLogo = $siteName->dark_logo ?? null;
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
                 <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 flex justify-between items-center group hover:shadow-md transition">
                     <div>
-                        <p class="text-gray-400 text-xs font-medium uppercase tracking-wider">মোট অর্ডার</p>
-                        <p class="text-2xl font-bold text-gray-800 mt-1">{{ $totalOrders }} টি</p>
+                        <p class="text-gray-400 text-xs font-medium uppercase tracking-wider">{{ __('Total Orders') }}</p>
+                        <p class="text-2xl font-bold text-gray-800 mt-1">{{ $totalOrders }} {{ __('items') }}</p>
                     </div>
                     <div class="w-12 h-12 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center text-xl group-hover:scale-110 transition">
                         <i class="fas fa-shopping-bag"></i>
@@ -221,8 +221,8 @@ $darkLogo = $siteName->dark_logo ?? null;
 
                 <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 flex justify-between items-center group hover:shadow-md transition">
                     <div>
-                        <p class="text-gray-400 text-xs font-medium uppercase tracking-wider">চলমান অর্ডার</p>
-                        <p class="text-2xl font-bold text-gray-800 mt-1">{{ $pendingOrders }} টি</p>
+                        <p class="text-gray-400 text-xs font-medium uppercase tracking-wider">{{ __('Active Orders') }}</p>
+                        <p class="text-2xl font-bold text-gray-800 mt-1">{{ $pendingOrders }} {{ __('items') }}</p>
                     </div>
                     <div class="w-12 h-12 bg-orange-50 text-orange-500 rounded-xl flex items-center justify-center text-xl group-hover:scale-110 transition">
                         <i class="fas fa-truck-moving"></i>
@@ -231,8 +231,8 @@ $darkLogo = $siteName->dark_logo ?? null;
 
                 <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 flex justify-between items-center group hover:shadow-md transition">
                     <div>
-                        <p class="text-gray-400 text-xs font-medium uppercase tracking-wider">কমপ্লিট অর্ডার</p>
-                        <p class="text-2xl font-bold text-gray-800 mt-1">{{ $completedOrders }} টি</p>
+                        <p class="text-gray-400 text-xs font-medium uppercase tracking-wider">{{ __('Completed Orders') }}</p>
+                        <p class="text-2xl font-bold text-gray-800 mt-1">{{ $completedOrders }} {{ __('items') }}</p>
                     </div>
                     <div class="w-12 h-12 bg-green-50 text-green-600 rounded-xl flex items-center justify-center text-xl group-hover:scale-110 transition">
                         <i class="fas fa-check-circle"></i>
@@ -241,7 +241,7 @@ $darkLogo = $siteName->dark_logo ?? null;
 
                 <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 flex justify-between items-center group hover:shadow-md transition">
                     <div>
-                        <p class="text-gray-400 text-xs font-medium uppercase tracking-wider">মোট টাকা</p>
+                        <p class="text-gray-400 text-xs font-medium uppercase tracking-wider">{{ __('Total Amount') }}</p>
                         <p class="text-2xl font-bold text-gray-800 mt-1">৳{{ number_format($totalOrderAmount, 0) }}</p>
                     </div>
                     <div class="w-12 h-12 bg-indigo-50 text-indigo-600 rounded-xl flex items-center justify-center text-xl group-hover:scale-110 transition">
@@ -252,20 +252,20 @@ $darkLogo = $siteName->dark_logo ?? null;
 
             <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
                 <div class="p-6 border-b border-gray-50 flex justify-between items-center">
-                    <h3 class="text-lg font-bold text-gray-800">📦 সাম্প্রতিক অর্ডারসমূহ</h3>
-                    <a href="{{ route('customer.orders') }}" class="text-sm text-indigo-600 font-semibold hover:underline">সবগুলো দেখুন</a>
+                    <h3 class="text-lg font-bold text-gray-800">📦 {{ __('Recent Orders') }}</h3>
+                    <a href="{{ route('customer.orders') }}" class="text-sm text-indigo-600 font-semibold hover:underline">{{ __('View All') }}</a>
                 </div>
                 <div class="overflow-x-auto">
                     <table class="w-full text-left custom-table">
                         <thead>
                             <tr>
-                                <th class="pl-6 py-4">অর্ডার আইডি</th>
-                                <th class="py-4">তারিখ</th>
-                                <th class="py-4">পণ্যের নাম</th>
-                                <th class="py-4">মোট টাকা</th>
-                                <th class="py-4">পেমেন্ট</th>
-                                <th class="py-4">স্ট্যাটাস</th>
-                                <th class="pr-6 py-4 text-right">অ্যাকশন</th>
+                                <th class="pl-6 py-4">{{ __('Order ID') }}</th>
+                                <th class="py-4">{{ __('Date') }}</th>
+                                <th class="py-4">{{ __('Product Name') }}</th>
+                                <th class="py-4">{{ __('Total Amount') }}</th>
+                                <th class="py-4">{{ __('Payment') }}</th>
+                                <th class="py-4">{{ __('Status') }}</th>
+                                <th class="pr-6 py-4 text-right">{{ __('Action') }}</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -283,16 +283,16 @@ $darkLogo = $siteName->dark_logo ?? null;
                                     
                                     if($order->order_status == '6') {
                                         $statusClass = 'bg-green-50 text-green-600';
-                                        $statusText = 'Delivered';
+                                        $statusText = __('Delivered');
                                     } elseif($order->order_status == '11') {
                                         $statusClass = 'bg-red-50 text-red-600';
-                                        $statusText = 'Cancelled';
+                                        $statusText = __('Cancelled');
                                     } elseif(in_array($order->order_status, ['3', '4', '5'])) {
                                         $statusClass = 'bg-orange-50 text-orange-600';
-                                        $statusText = 'Shipped';
+                                        $statusText = __('Shipped');
                                     } else {
                                         $statusClass = 'bg-blue-50 text-blue-600';
-                                        $statusText = 'Processing';
+                                        $statusText = __('Processing');
                                     }
                                 @endphp
                                 <tr class="hover:bg-gray-50 transition">
@@ -302,9 +302,9 @@ $darkLogo = $siteName->dark_logo ?? null;
                                     <td class="font-bold text-gray-800">৳{{ number_format($order->amount, 0) }}</td>
                                     <td>
                                         @if($isPaid)
-                                            <span class="bg-green-50 text-green-600 px-2.5 py-1 rounded text-xs font-bold">Paid</span>
+                                            <span class="bg-green-50 text-green-600 px-2.5 py-1 rounded text-xs font-bold">{{ __('Paid') }}</span>
                                         @else
-                                            <span class="bg-red-50 text-red-600 px-2.5 py-1 rounded text-xs font-bold">Unpaid</span>
+                                            <span class="bg-red-50 text-red-600 px-2.5 py-1 rounded text-xs font-bold">{{ __('Unpaid') }}</span>
                                         @endif
                                     </td>
                                     <td>
@@ -316,7 +316,7 @@ $darkLogo = $siteName->dark_logo ?? null;
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="7" class="text-center py-8 text-gray-500">কোনো অর্ডার পাওয়া যায়নি</td>
+                                    <td colspan="7" class="text-center py-8 text-gray-500">{{ __('No orders found') }}</td>
                                 </tr>
                             @endforelse
                         </tbody>
@@ -327,7 +327,7 @@ $darkLogo = $siteName->dark_logo ?? null;
             @if($recommendedProducts->count() > 0)
             <div>
                 <div class="flex justify-between items-center mb-5 px-2 sm:px-0">
-                    <h3 class="text-lg font-bold text-gray-800">🔥 আপনার জন্য সেরা (Recommended)</h3>
+                    <h3 class="text-lg font-bold text-gray-800">🔥 {{ __('Best For You') }}</h3>
                 </div>
                 <div class="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 lg:gap-5">
                     @foreach($recommendedProducts as $product)
@@ -348,7 +348,7 @@ $darkLogo = $siteName->dark_logo ?? null;
                                     <span class="absolute top-1.5 left-1.5 sm:top-2 sm:left-2 bg-green-500 text-white text-[9px] sm:text-xs px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full shadow-md font-bold z-10">New</span>
                                 @endif
                                 @if($product->stock <= 0)
-                                    <span class="absolute top-1.5 right-1.5 sm:top-2 sm:right-2 bg-red-500 text-white text-[9px] sm:text-xs px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full shadow-md font-bold z-10">স্টকে নেই</span>
+                                    <span class="absolute top-1.5 right-1.5 sm:top-2 sm:right-2 bg-red-500 text-white text-[9px] sm:text-xs px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full shadow-md font-bold z-10">{{ __('Out of Stock') }}</span>
                                 @endif
                             </div>
                             <div class="p-3 sm:p-4">
@@ -375,7 +375,7 @@ $darkLogo = $siteName->dark_logo ?? null;
                                 </div>
                                 @else
                                 <div class="w-full bg-gray-100 text-gray-500 text-xs sm:text-sm font-semibold py-2 sm:py-2.5 px-3 sm:px-4 rounded-lg text-center">
-                                    <i class="fas fa-ban mr-1 sm:mr-2"></i>স্টকে নেই
+                                    <i class="fas fa-ban mr-1 sm:mr-2"></i>{{ __('Out of Stock') }}
                                 </div>
                                 @endif
                             </div>

@@ -564,7 +564,7 @@ Route::get('reports/profit-loss',   [ReportController::class, 'profitLoss'])->na
     Route::post('employees/import-user', [\App\Http\Controllers\Admin\EmployeeController::class, 'importFromUser'])->name('admin.employees.import');
     Route::get('employees/{id}', [\App\Http\Controllers\Admin\EmployeeController::class, 'show'])->name('admin.employees.show');
     Route::get('employees/{id}/edit', [\App\Http\Controllers\Admin\EmployeeController::class, 'edit'])->name('admin.employees.edit');
-    Route::post('employees/{id}/update', [\App\Http\Controllers\Admin\EmployeeController::class, 'update'])->name('admin.employees.update');
+    Route::put('employees/{id}/update', [\App\Http\Controllers\Admin\EmployeeController::class, 'update'])->name('admin.employees.update');
     Route::delete('employees/{id}', [\App\Http\Controllers\Admin\EmployeeController::class, 'destroy'])->name('admin.employees.destroy');
 
     // CRM - Attendance Routes
@@ -573,7 +573,7 @@ Route::get('reports/profit-loss',   [ReportController::class, 'profitLoss'])->na
     Route::post('attendances/store', [\App\Http\Controllers\Admin\AttendanceController::class, 'store'])->name('admin.attendances.store');
     Route::post('attendances/bulk-mark', [\App\Http\Controllers\Admin\AttendanceController::class, 'bulkMark'])->name('admin.attendances.bulk');
     Route::get('attendances/{id}/edit', [\App\Http\Controllers\Admin\AttendanceController::class, 'edit'])->name('admin.attendances.edit');
-    Route::post('attendances/{id}/update', [\App\Http\Controllers\Admin\AttendanceController::class, 'update'])->name('admin.attendances.update');
+    Route::put('attendances/{id}/update', [\App\Http\Controllers\Admin\AttendanceController::class, 'update'])->name('admin.attendances.update');
     Route::delete('attendances/{id}', [\App\Http\Controllers\Admin\AttendanceController::class, 'destroy'])->name('admin.attendances.destroy');
 
     // CRM - Leave Routes
@@ -583,7 +583,7 @@ Route::get('reports/profit-loss',   [ReportController::class, 'profitLoss'])->na
     Route::post('leaves/{id}/approve', [\App\Http\Controllers\Admin\LeaveController::class, 'approve'])->name('admin.leaves.approve');
     Route::post('leaves/{id}/reject', [\App\Http\Controllers\Admin\LeaveController::class, 'reject'])->name('admin.leaves.reject');
     Route::get('leaves/{id}/edit', [\App\Http\Controllers\Admin\LeaveController::class, 'edit'])->name('admin.leaves.edit');
-    Route::post('leaves/{id}/update', [\App\Http\Controllers\Admin\LeaveController::class, 'update'])->name('admin.leaves.update');
+    Route::put('leaves/{id}/update', [\App\Http\Controllers\Admin\LeaveController::class, 'update'])->name('admin.leaves.update');
     Route::delete('leaves/{id}', [\App\Http\Controllers\Admin\LeaveController::class, 'destroy'])->name('admin.leaves.destroy');
 
     // CRM - Salary Routes
@@ -600,7 +600,7 @@ Route::get('reports/profit-loss',   [ReportController::class, 'profitLoss'])->na
     Route::post('bonuses/{id}/pay', [\App\Http\Controllers\Admin\BonusController::class, 'pay'])->name('admin.bonuses.pay');
     Route::post('bonuses/{id}/reject', [\App\Http\Controllers\Admin\BonusController::class, 'reject'])->name('admin.bonuses.reject');
     Route::get('bonuses/{id}/edit', [\App\Http\Controllers\Admin\BonusController::class, 'edit'])->name('admin.bonuses.edit');
-    Route::post('bonuses/{id}/update', [\App\Http\Controllers\Admin\BonusController::class, 'update'])->name('admin.bonuses.update');
+    Route::put('bonuses/{id}/update', [\App\Http\Controllers\Admin\BonusController::class, 'update'])->name('admin.bonuses.update');
     Route::delete('bonuses/{id}', [\App\Http\Controllers\Admin\BonusController::class, 'destroy'])->name('admin.bonuses.destroy');
 
     // CRM - Salary Payment Routes

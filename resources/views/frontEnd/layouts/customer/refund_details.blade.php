@@ -30,7 +30,7 @@ $totalOrderAmount = \App\Models\Order::where('customer_id', $customerId)->sum('a
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>রিফান্ড বিস্তারিত #{{ $refund->refund_id }} | {{ $siteName->name ?? 'Gadget Style' }}</title>
+    <title>{{ __('Refund Details') }} #{{ $refund->refund_id }} | {{ $siteName->name ?? 'Gadget Style' }}</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
@@ -66,25 +66,25 @@ $totalOrderAmount = \App\Models\Order::where('customer_id', $customerId)->sum('a
 
         <nav class="flex-1 px-0 text-gray-500 font-medium space-y-1 mt-2 overflow-y-auto">
             <a href="{{route('customer.account')}}" class="{{request()->is('customer/account')?'active-menu':'sidebar-item'}} flex items-center px-6 py-3.5 transition-colors">
-                <i class="fas fa-home w-6"></i> ড্যাশবোর্ড
+                <i class="fas fa-home w-6"></i> {{ __('Dashboard') }}
             </a>
             <a href="{{route('customer.orders')}}" class="{{request()->is('customer/orders')?'active-menu':'sidebar-item'}} flex items-center px-6 py-3.5 transition-colors">
-                <i class="fas fa-box-open w-6"></i> আমার অর্ডার 
+                <i class="fas fa-box-open w-6"></i> {{ __('My Orders') }} 
                 @if($pendingOrdersCount > 0)
                     <span class="ml-auto bg-red-100 text-red-600 text-xs px-2 py-0.5 rounded-full">{{ $pendingOrdersCount }}</span>
                 @endif
             </a>
             <a href="{{route('customer.order_track')}}" class="{{request()->is('customer/order-track*')?'active-menu':'sidebar-item'}} flex items-center px-6 py-3.5 transition-colors">
-                <i class="fas fa-truck w-6"></i> ট্র্যাক অর্ডার
+                <i class="fas fa-truck w-6"></i> {{ __('Track Order') }}
             </a>
             <a href="{{route('customer.refunds')}}" class="{{request()->is('customer/refunds*')?'active-menu':'sidebar-item'}} flex items-center px-6 py-3.5 transition-colors">
-                <i class="fas fa-undo w-6"></i> রিফান্ড রিকোয়েস্ট
+                <i class="fas fa-undo w-6"></i> {{ __('Refund Request') }}
             </a>
             <a href="{{ route('complaint') }}" class="{{ request()->is('complaint') ? 'active-menu' : 'sidebar-item' }} flex items-center px-6 py-3.5 transition-colors">
-                <i class="fas fa-headset w-6"></i> সাপোর্ট টিকেট
+                <i class="fas fa-headset w-6"></i> {{ __('Support Ticket') }}
             </a>
             <a href="{{route('customer.profile_edit')}}" class="{{request()->is('customer/profile-edit')?'active-menu':'sidebar-item'}} flex items-center px-6 py-3.5 transition-colors">
-                <i class="fas fa-user-cog w-6"></i> সেটিংস
+                <i class="fas fa-user-cog w-6"></i> {{ __('Settings') }}
             </a>
         </nav>
 
@@ -92,7 +92,7 @@ $totalOrderAmount = \App\Models\Order::where('customer_id', $customerId)->sum('a
             <a href="{{ route('customer.logout') }}" 
                onclick="event.preventDefault(); document.getElementById('logout-form').submit();"
                class="w-full flex items-center justify-center px-4 py-2.5 text-red-500 bg-red-50 hover:bg-red-100 rounded-lg font-bold transition">
-                <i class="fas fa-sign-out-alt mr-2"></i> লগআউট
+                <i class="fas fa-sign-out-alt mr-2"></i> {{ __('Logout') }}
             </a>
             <form id="logout-form" action="{{ route('customer.logout') }}" method="POST" style="display: none;">
                 @csrf
@@ -108,13 +108,13 @@ $totalOrderAmount = \App\Models\Order::where('customer_id', $customerId)->sum('a
             </div>
 
             <div class="flex-1">
-                <h2 class="text-xl font-bold text-gray-800">রিফান্ড বিস্তারিত</h2>
-                <p class="text-xs text-gray-400 mt-0.5 hidden sm:block">রিফান্ড আইডি: #{{ $refund->refund_id }}</p>
+                <h2 class="text-xl font-bold text-gray-800">{{ __('Refund Details') }}</h2>
+                <p class="text-xs text-gray-400 mt-0.5 hidden sm:block">{{ __('Refund ID:') }} #{{ $refund->refund_id }}</p>
             </div>
 
             <div class="flex items-center gap-4">
                 <div class="hidden sm:flex bg-green-50 text-green-700 px-4 py-2 rounded-full items-center font-bold text-sm border border-green-100">
-                    <i class="fas fa-wallet mr-2"></i> মোট: ৳{{ number_format($totalOrderAmount, 0) }}
+                    <i class="fas fa-wallet mr-2"></i> {{ __('Total:') }} ৳{{ number_format($totalOrderAmount, 0) }}
                 </div>
                 
                 <div class="relative cursor-pointer w-10 h-10 bg-gray-50 rounded-full flex items-center justify-center hover:bg-gray-100 transition">
@@ -130,21 +130,21 @@ $totalOrderAmount = \App\Models\Order::where('customer_id', $customerId)->sum('a
             {{-- Header Actions --}}
             <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
                 <div>
-                    <h3 class="text-2xl font-bold text-gray-800">রিফান্ড বিস্তারিত</h3>
-                    <p class="text-sm text-gray-500 mt-1">রিফান্ড আইডি: #{{ $refund->refund_id }}</p>
+                    <h3 class="text-2xl font-bold text-gray-800">{{ __('Refund Details') }}</h3>
+                    <p class="text-sm text-gray-500 mt-1">{{ __('Refund ID:') }} #{{ $refund->refund_id }}</p>
                 </div>
                 <div class="flex gap-2">
                     <a href="{{ route('customer.refunds') }}" class="inline-flex items-center gap-2 bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-lg font-semibold transition">
                         <i class="fas fa-arrow-left"></i>
-                        ফিরে যান
+                        {{ __('Back') }}
                     </a>
                     @if($refund->status == 'pending')
-                        <form action="{{ route('customer.refunds.cancel', $refund->id) }}" method="POST" class="inline" onsubmit="return confirm('আপনি কি এই রিফান্ড রিকোয়েস্টটি বাতিল করতে চান?');">
+                        <form action="{{ route('customer.refunds.cancel', $refund->id) }}" method="POST" class="inline" onsubmit="return confirm('{{ __('Are you sure you want to cancel this refund request?') }}');">
                             @csrf
                             @method('DELETE')
                             <button type="submit" class="inline-flex items-center gap-2 bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg font-semibold transition">
                                 <i class="fas fa-times"></i>
-                                বাতিল করুন
+                                {{ __('Cancel') }}
                             </button>
                         </form>
                     @endif
@@ -175,7 +175,7 @@ $totalOrderAmount = \App\Models\Order::where('customer_id', $customerId)->sum('a
                             <div class="w-12 h-12 rounded-full {{ $refund->status == 'processed' ? 'bg-indigo-600' : 'bg-gray-300' }} text-white flex items-center justify-center font-bold shadow-lg">
                                 <i class="fas fa-check"></i>
                             </div>
-                            <span class="text-xs font-semibold {{ $refund->status == 'processed' ? 'text-indigo-600' : 'text-gray-400' }} mt-2">Processed</span>
+                            <span class="text-xs font-semibold {{ $refund->status == 'processed' ? 'text-indigo-600' : 'text-gray-400' }} mt-2">{{ __('Processed') }}</span>
                         </div>
                     </div>
                 </div>
@@ -184,8 +184,8 @@ $totalOrderAmount = \App\Models\Order::where('customer_id', $customerId)->sum('a
                     <div class="flex items-center gap-3">
                         <i class="fas fa-times-circle text-red-600 text-xl"></i>
                         <div>
-                            <h4 class="font-bold text-red-800">রিফান্ড রিকোয়েস্ট প্রত্যাখ্যাত</h4>
-                            <p class="text-sm text-red-600">এই রিফান্ড রিকোয়েস্টটি প্রত্যাখ্যান করা হয়েছে।</p>
+                            <h4 class="font-bold text-red-800">{{ __('Refund Request Rejected') }}</h4>
+                            <p class="text-sm text-red-600">{{ __('This refund request has been rejected.') }}</p>
                         </div>
                     </div>
                 </div>
@@ -197,10 +197,10 @@ $totalOrderAmount = \App\Models\Order::where('customer_id', $customerId)->sum('a
                     {{-- Total Amount Card --}}
                     <div class="bg-gradient-to-br from-indigo-600 to-purple-600 rounded-2xl shadow-lg p-6 text-white mb-6">
                         <div class="text-center">
-                            <p class="text-sm opacity-90 mb-2">মোট রিফান্ড পরিমাণ</p>
+                            <p class="text-sm opacity-90 mb-2">{{ __('Total Refund Amount') }}</p>
                             <h2 class="text-4xl font-bold mb-2">৳{{ number_format($refund->amount + $refund->shipping_charge, 2) }}</h2>
                             <p class="text-xs opacity-80">
-                                (পণ্য: ৳{{ number_format($refund->amount, 2) }} + ডেলিভারি: ৳{{ number_format($refund->shipping_charge, 2) }})
+                                ({{ __('Product:') }} ৳{{ number_format($refund->amount, 2) }} + {{ __('Delivery:') }} ৳{{ number_format($refund->shipping_charge, 2) }})
                             </p>
                         </div>
                     </div>
@@ -209,18 +209,18 @@ $totalOrderAmount = \App\Models\Order::where('customer_id', $customerId)->sum('a
                     <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
                         <h4 class="font-bold text-gray-800 mb-4 flex items-center gap-2">
                             <i class="fas fa-wallet text-indigo-600"></i>
-                            রিফান্ড মেথড
+                            {{ __('Refund Method') }}
                         </h4>
                         <div class="space-y-4">
                             <div>
-                                <p class="text-xs text-gray-500 uppercase mb-1">মেথড</p>
+                                <p class="text-xs text-gray-500 uppercase mb-1">{{ __('Method') }}</p>
                                 <span class="inline-block bg-indigo-50 text-indigo-600 px-3 py-1 rounded-full text-sm font-semibold">
-                                    {{ ucfirst(str_replace('_', ' ', $refund->refund_method ?? 'Unknown')) }}
+                                    {{ ucfirst(str_replace('_', ' ', $refund->refund_method ?? __('Unknown'))) }}
                                 </span>
                             </div>
                             @if($refund->refund_account)
                             <div>
-                                <p class="text-xs text-gray-500 uppercase mb-1">অ্যাকাউন্ট নম্বর</p>
+                                <p class="text-xs text-gray-500 uppercase mb-1">{{ __('Account Number') }}</p>
                                 <p class="font-semibold text-gray-800">{{ $refund->refund_account }}</p>
                                 @if($refund->refund_account_name)
                                     <p class="text-sm text-gray-500">{{ $refund->refund_account_name }}</p>
@@ -229,7 +229,7 @@ $totalOrderAmount = \App\Models\Order::where('customer_id', $customerId)->sum('a
                             @endif
                             @if($refund->transaction_id)
                             <div>
-                                <p class="text-xs text-gray-500 uppercase mb-1">ট্রানজ্যাকশন আইডি</p>
+                                <p class="text-xs text-gray-500 uppercase mb-1">{{ __('Transaction ID') }}</p>
                                 <code class="block bg-gray-50 text-indigo-600 px-3 py-2 rounded-lg text-sm font-mono">{{ $refund->transaction_id }}</code>
                             </div>
                             @endif
@@ -243,10 +243,10 @@ $totalOrderAmount = \App\Models\Order::where('customer_id', $customerId)->sum('a
                         <div class="p-6 border-b border-gray-100 flex justify-between items-center">
                             <h4 class="font-bold text-gray-800 flex items-center gap-2">
                                 <i class="fas fa-shopping-bag text-indigo-600"></i>
-                                অর্ডার তথ্য
+                                {{ __('Order Information') }}
                             </h4>
                             <a href="{{ route('customer.invoice', ['id' => $refund->order->id]) }}" class="text-indigo-600 hover:text-indigo-700 text-sm font-semibold flex items-center gap-1">
-                                <span>ইনভয়েস দেখুন</span>
+                                <span>{{ __('View Invoice') }}</span>
                                 <i class="fas fa-external-link-alt"></i>
                             </a>
                         </div>
@@ -254,11 +254,11 @@ $totalOrderAmount = \App\Models\Order::where('customer_id', $customerId)->sum('a
                         <div class="p-6">
                             <div class="grid grid-cols-2 gap-4 mb-6">
                                 <div>
-                                    <p class="text-xs text-gray-500 uppercase mb-1">ইনভয়েস আইডি</p>
+                                    <p class="text-xs text-gray-500 uppercase mb-1">{{ __('Invoice ID') }}</p>
                                     <p class="font-bold text-gray-800">#{{ $refund->order->invoice_id ?? $refund->order->id }}</p>
                                 </div>
                                 <div>
-                                    <p class="text-xs text-gray-500 uppercase mb-1">অর্ডার তারিখ</p>
+                                    <p class="text-xs text-gray-500 uppercase mb-1">{{ __('Order Date') }}</p>
                                     <p class="font-semibold text-gray-800">{{ $refund->order->created_at->format('d M, Y') }}</p>
                                 </div>
                                 <div>
@@ -268,15 +268,15 @@ $totalOrderAmount = \App\Models\Order::where('customer_id', $customerId)->sum('a
                                     </span>
                                 </div>
                                 <div>
-                                    <p class="text-xs text-gray-500 uppercase mb-1">মোট অর্ডার</p>
+                                    <p class="text-xs text-gray-500 uppercase mb-1">{{ __('Total Order') }}</p>
                                     <p class="font-bold text-gray-800">৳{{ number_format($refund->order->amount + $refund->order->shipping_charge, 2) }}</p>
                                 </div>
                             </div>
 
                             <div class="border-t border-gray-100 pt-6">
-                                <p class="text-xs text-gray-500 uppercase mb-2">রিফান্ডের কারণ</p>
+                                <p class="text-xs text-gray-500 uppercase mb-1">{{ __('Refund Reason') }}</p>
                                 <div class="bg-gray-50 border-l-4 border-indigo-500 p-4 rounded-r-lg">
-                                    <p class="text-gray-700 italic">"{{ $refund->reason ?? 'কোনো কারণ দেওয়া হয়নি' }}"</p>
+                                    <p class="text-gray-700 italic">"{{ $refund->reason ?? __('No reason provided') }}"</p>
                                 </div>
                             </div>
 
@@ -284,7 +284,7 @@ $totalOrderAmount = \App\Models\Order::where('customer_id', $customerId)->sum('a
                             <div class="mt-6 bg-yellow-50 border-l-4 border-yellow-500 p-4 rounded-r-lg">
                                 <div class="flex items-center gap-2 mb-2">
                                     <i class="fas fa-user-shield text-yellow-600"></i>
-                                    <h5 class="font-bold text-gray-800">অ্যাডমিনের উত্তর</h5>
+                                    <h5 class="font-bold text-gray-800">{{ __('Admin Response') }}</h5>
                                 </div>
                                 <p class="text-gray-700 text-sm">{{ $refund->admin_note }}</p>
                             </div>
