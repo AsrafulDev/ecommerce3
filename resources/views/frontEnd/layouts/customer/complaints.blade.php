@@ -5,23 +5,20 @@ use Illuminate\Support\Str;
 $customer = Auth::guard('customer')->user();
 $customerId = $customer->id;
 
-// Site Name & Logo
 $siteName = \App\Models\GeneralSetting::first();
 $siteInitial = strtoupper(substr($siteName->name ?? 'G', 0, 1));
 $siteDisplayName = Str::limit($siteName->name ?? 'GadgetShop', 8);
-$generalsetting = $siteName;
 $darkLogo = $siteName->dark_logo ?? null;
 
-// Pending Orders Count for Badge
 $pendingOrdersCount = \App\Models\Order::where('customer_id', $customerId)
-    ->whereNotIn('order_status', ['6', '11'])
-    ->count();
+    ->whereNotIn('order_status', ['6', '11'])->count();
 
-// Profile Image - Use direct image path
 $profileImage = $customer->image ? asset($customer->image) : asset('public/uploads/default/no-image.png');
-
-// Total Order Amount
 $totalOrderAmount = \App\Models\Order::where('customer_id', $customerId)->sum('amount');
+
+$complaints = \App\Models\Complaint::where('customer_id', $customerId)
+    ->latest()
+    ->paginate(10);
 @endphp
 
 <!DOCTYPE html>
@@ -30,7 +27,7 @@ $totalOrderAmount = \App\Models\Order::where('customer_id', $customerId)->sum('a
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>{{ __('Refund Request') }} | {{ $siteName->name ?? 'Gadget Style' }}</title>
+    <title>{{ __('Support Ticket') }} | {{ $siteName->name ?? 'Gadget Style' }}</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
@@ -38,12 +35,8 @@ $totalOrderAmount = \App\Models\Order::where('customer_id', $customerId)->sum('a
         body { font-family: 'Hind Siliguri', sans-serif; background-color: #F0F2F5; }
         .sidebar-item:hover { background-color: #f3f4f6; color: #4f46e5; }
         .active-menu { background-color: #EEF2FF; color: #4f46e5; border-right: 3px solid #4f46e5; }
-        
-        /* Table Style */
         .custom-table th { background-color: #F9FAFB; color: #6B7280; font-weight: 600; font-size: 0.85rem; }
         .custom-table td { border-bottom: 1px solid #F3F4F6; padding: 16px; font-size: 0.9rem; }
-        
-        /* Mobile Menu Transition */
         #sidebar { transition: transform 0.3s ease-in-out; }
     </style>
 </head>
@@ -84,7 +77,7 @@ $totalOrderAmount = \App\Models\Order::where('customer_id', $customerId)->sum('a
             <a href="{{route('customer.refunds')}}" class="{{request()->is('customer/refunds*')?'active-menu':'sidebar-item'}} flex items-center px-6 py-3.5 transition-colors">
                 <i class="fas fa-undo w-6"></i> {{ __('Refund Request') }}
             </a>
-            <a href="{{ route('customer.complaints') }}" class="{{ request()->is('customer/complaints*') ? 'active-menu' : 'sidebar-item' }} flex items-center px-6 py-3.5 transition-colors">
+            <a href="{{route('customer.complaints')}}" class="{{request()->is('customer/complaints*')?'active-menu':'sidebar-item'}} flex items-center px-6 py-3.5 transition-colors">
                 <i class="fas fa-headset w-6"></i> {{ __('Support Ticket') }}
             </a>
             <a href="{{route('customer.profile_edit')}}" class="{{request()->is('customer/profile-edit')?'active-menu':'sidebar-item'}} flex items-center px-6 py-3.5 transition-colors">
@@ -110,143 +103,92 @@ $totalOrderAmount = \App\Models\Order::where('customer_id', $customerId)->sum('a
             <div class="lg:hidden mr-4">
                 <button onclick="toggleSidebar()" class="text-gray-600 text-xl p-2"><i class="fas fa-bars"></i></button>
             </div>
-
             <div class="flex-1">
-                <h2 class="text-xl font-bold text-gray-800">{{ __('Refund Request') }}</h2>
-                <p class="text-xs text-gray-400 mt-0.5 hidden sm:block">{{ __('Your refund requests') }}</p>
+                <h2 class="text-xl font-bold text-gray-800">{{ __('Support Ticket') }}</h2>
+                <p class="text-xs text-gray-400 mt-0.5 hidden sm:block">{{ __('Your complaints and support tickets') }}</p>
             </div>
-
             <div class="flex items-center gap-4">
-                <div class="hidden sm:flex bg-green-50 text-green-700 px-4 py-2 rounded-full items-center font-bold text-sm border border-green-100">
-                    <i class="fas fa-wallet mr-2"></i> {{ __('Total:') }} ৳{{ number_format($totalOrderAmount, 0) }}
-                </div>
-                
-                <div class="relative cursor-pointer w-10 h-10 bg-gray-50 rounded-full flex items-center justify-center hover:bg-gray-100 transition">
-                    <i class="far fa-bell text-gray-600"></i>
-                </div>
-
+                <a href="{{ route('complaint') }}" class="bg-indigo-600 hover:bg-indigo-700 text-white text-sm px-4 py-2 rounded-lg font-semibold transition">
+                    <i class="fas fa-plus mr-1"></i> {{ __('New Ticket') }}
+                </a>
                 <img src="{{ $profileImage }}" onerror="this.src='{{ asset('public/uploads/default/no-image.png') }}'" class="w-10 h-10 rounded-full border-2 border-white shadow-sm cursor-pointer" alt="Profile">
             </div>
         </header>
 
         <div class="p-4 lg:p-8 max-w-7xl mx-auto">
-            
             <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
                 <div class="p-6 border-b border-gray-50 flex justify-between items-center">
-                    <h3 class="text-lg font-bold text-gray-800">🔄 {{ __('Refund Request') }}</h3>
-                    @if($refunds->count() > 0)
-                        <span class="bg-indigo-50 text-indigo-600 px-3 py-1 rounded-full text-sm font-semibold">{{ $refunds->total() }} {{ __('requests') }}</span>
+                    <h3 class="text-lg font-bold text-gray-800">🎫 {{ __('Support Ticket') }}</h3>
+                    @if($complaints->count() > 0)
+                        <span class="bg-indigo-50 text-indigo-600 px-3 py-1 rounded-full text-sm font-semibold">{{ $complaints->total() }} {{ __('tickets') }}</span>
                     @endif
                 </div>
-                
-                @if($refunds->count() > 0)
+
+                @if($complaints->count() > 0)
                     <div class="overflow-x-auto">
                         <table class="w-full text-left custom-table">
                             <thead>
                                 <tr>
-                                    <th class="pl-6 py-4">{{ __('Refund ID') }}</th>
-                                    <th class="py-4">{{ __('Order Info') }}</th>
-                                    <th class="py-4">{{ __('Total Refund') }}</th>
+                                    <th class="pl-6 py-4">#</th>
+                                    <th class="py-4">{{ __('Order ID') }}</th>
+                                    <th class="py-4">{{ __('Description') }}</th>
                                     <th class="py-4">{{ __('Status') }}</th>
                                     <th class="py-4">{{ __('Date') }}</th>
-                                    <th class="pr-6 py-4 text-right">{{ __('Action') }}</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                @foreach($refunds as $refund)
+                                @foreach($complaints as $complaint)
                                     @php
-                                        // Status Badge Classes
-                                        $statusClass = '';
-                                        $statusText = '';
-                                        $statusIcon = '';
-                                        
-                                        if($refund->status == 'pending') {
-                                            $statusClass = 'bg-orange-50 text-orange-600';
-                                            $statusText = __('Pending');
-                                            $statusIcon = 'fas fa-clock';
-                                        } elseif($refund->status == 'approved') {
-                                            $statusClass = 'bg-blue-50 text-blue-600';
-                                            $statusText = __('Approved');
-                                            $statusIcon = 'fas fa-check';
-                                        } elseif($refund->status == 'rejected') {
-                                            $statusClass = 'bg-red-50 text-red-600';
-                                            $statusText = __('Rejected');
-                                            $statusIcon = 'fas fa-times';
-                                        } elseif($refund->status == 'processed') {
-                                            $statusClass = 'bg-green-50 text-green-600';
-                                            $statusText = __('Processed');
-                                            $statusIcon = 'fas fa-check-double';
-                                        }
+                                        $statusClass = match($complaint->status) {
+                                            'resolved'  => 'bg-green-50 text-green-600',
+                                            'processing'=> 'bg-blue-50 text-blue-600',
+                                            default     => 'bg-orange-50 text-orange-600',
+                                        };
+                                        $statusIcon = match($complaint->status) {
+                                            'resolved'  => 'fas fa-check-circle',
+                                            'processing'=> 'fas fa-spinner',
+                                            default     => 'fas fa-clock',
+                                        };
                                     @endphp
                                     <tr class="hover:bg-gray-50 transition">
-                                        <td class="pl-6 font-bold text-indigo-600">#{{ $refund->refund_id }}</td>
-                                        
+                                        <td class="pl-6 font-bold text-indigo-600">{{ $loop->iteration }}</td>
                                         <td>
-                                            <a href="{{ route('customer.invoice', ['id' => $refund->order->id]) }}" class="text-indigo-600 hover:text-indigo-700 font-bold hover:underline">
-                                                #{{ $refund->order->invoice_id ?? $refund->order->id }}
-                                            </a>
-                                            <div class="text-xs text-gray-400 mt-0.5">{{ __('Invoice ID') }}</div>
+                                            <span class="font-semibold text-gray-700">{{ $complaint->order_id ?? 'N/A' }}</span>
                                         </td>
-
-                                        <td class="font-bold text-gray-800">৳{{ number_format($refund->amount + $refund->shipping_charge, 2) }}</td>
-
+                                        <td>
+                                            <span class="text-gray-600">{{ \Illuminate\Support\Str::limit($complaint->description, 60) }}</span>
+                                        </td>
                                         <td>
                                             <span class="{{ $statusClass }} px-3 py-1 rounded-full text-xs font-bold inline-flex items-center gap-1">
                                                 <i class="{{ $statusIcon }}"></i>
-                                                {{ $statusText }}
+                                                {{ __(ucfirst($complaint->status)) }}
                                             </span>
                                         </td>
-
-                                        <td class="text-gray-500">
-                                            <div>{{ $refund->created_at->format('d M, Y') }}</div>
-                                            <div class="text-xs text-gray-400">{{ $refund->created_at->format('h:i A') }}</div>
-                                        </td>
-
-                                        <td class="pr-6 text-right">
-                                            <div class="flex items-center justify-end gap-2">
-                                                <a href="{{ route('customer.refunds.show', $refund->id) }}" class="text-indigo-600 hover:text-indigo-700 p-2 hover:bg-indigo-50 rounded-lg transition" title="{{ __('View Details') }}">
-                                                    <i class="fas fa-eye"></i>
-                                                </a>
-                                                
-                                                @if($refund->status == 'pending')
-                                                    <form action="{{ route('customer.refunds.cancel', $refund->id) }}" method="POST" class="inline" onsubmit="return confirm('{{ __("Are you sure you want to cancel this refund request?") }}');">
-                                                        @csrf
-                                                        @method('DELETE')
-                                                        <button type="submit" class="text-red-600 hover:text-red-700 p-2 hover:bg-red-50 rounded-lg transition" title="{{ __('Cancel') }}">
-                                                            <i class="fas fa-times"></i>
-                                                        </button>
-                                                    </form>
-                                                @endif
-                                            </div>
-                                        </td>
+                                        <td class="text-gray-500 text-sm">{{ $complaint->created_at->format('d M, Y') }}</td>
                                     </tr>
                                 @endforeach
                             </tbody>
                         </table>
                     </div>
-
-                    {{-- Pagination --}}
-                    @if($refunds->hasPages())
+                    @if($complaints->hasPages())
                         <div class="p-6 border-t border-gray-100 flex justify-center">
-                            {{ $refunds->links() }}
+                            {{ $complaints->links() }}
                         </div>
                     @endif
                 @else
-                    {{-- Empty State --}}
                     <div class="text-center py-16 px-4">
                         <div class="inline-flex items-center justify-center w-20 h-20 bg-gray-100 rounded-full mb-4">
-                            <i class="fas fa-file-invoice-dollar text-4xl text-gray-300"></i>
+                            <i class="fas fa-headset text-4xl text-gray-300"></i>
                         </div>
-                        <h5 class="text-lg font-bold text-gray-800 mb-2">{{ __('No refund requests') }}</h5>
-                        <p class="text-gray-500 mb-6">{{ __("You haven't made any refund requests.") }}</p>
-                        <a href="{{ route('customer.orders') }}" class="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2.5 rounded-lg font-semibold transition">
-                            <i class="fas fa-box-open"></i>
-                            {{ __('View Orders') }}
+                        <h5 class="text-lg font-bold text-gray-800 mb-2">{{ __('No tickets found') }}</h5>
+                        <p class="text-gray-500 mb-6">{{ __('You haven\'t submitted any support tickets yet.') }}</p>
+                        <a href="{{ route('complaint') }}" class="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2.5 rounded-lg font-semibold transition">
+                            <i class="fas fa-plus"></i>
+                            {{ __('Submit a Ticket') }}
                         </a>
                     </div>
                 @endif
             </div>
-
         </div>
     </main>
 
@@ -254,7 +196,6 @@ $totalOrderAmount = \App\Models\Order::where('customer_id', $customerId)->sum('a
         function toggleSidebar() {
             const sidebar = document.getElementById('sidebar');
             const overlay = document.getElementById('overlay');
-            
             if (sidebar.classList.contains('-translate-x-full')) {
                 sidebar.classList.remove('-translate-x-full');
                 overlay.classList.remove('hidden');

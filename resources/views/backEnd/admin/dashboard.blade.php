@@ -1,312 +1,257 @@
 @extends('backEnd.layouts.master')
-@section('title','Sales Dashboard')
+@section('title','Dashboard')
 
 @section('css')
 <link href="https://cdn.jsdelivr.net/npm/apexcharts@3.35.5/dist/apexcharts.css" rel="stylesheet">
 <style>
-/* ── Dashboard Hero Banner ── */
-.dash-hero {
-    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
-    border-radius: 16px;
-    padding: 1.75rem 2rem;
-    position: relative;
-    overflow: hidden;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: 1rem;
+:root {
+    --card-shadow: 0 1px 3px rgba(0,0,0,0.04), 0 1px 2px rgba(0,0,0,0.03);
+    --card-hover-shadow: 0 10px 40px rgba(0,0,0,0.08), 0 2px 8px rgba(0,0,0,0.04);
+    --radius: 14px;
 }
-.dash-hero::before {
-    content: '';
-    position: absolute;
-    top: -50%;
-    right: -30%;
-    width: 60%;
-    height: 200%;
-    background: radial-gradient(circle, rgba(255,255,255,0.04) 0%, transparent 70%);
-    pointer-events: none;
+.stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 1rem; margin-bottom: 1.5rem; }
+.stat-grid.small { grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); }
+.stat-card {
+    background: #fff; border-radius: var(--radius); padding: 1.25rem 1.5rem;
+    box-shadow: var(--card-shadow); transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex; align-items: center; gap: 1rem; border: 1px solid transparent;
 }
-.dash-hero::after {
-    content: '';
-    position: absolute;
-    bottom: -40%;
-    left: -10%;
-    width: 40%;
-    height: 150%;
-    background: radial-gradient(circle, rgba(99,102,241,0.08) 0%, transparent 70%);
-    pointer-events: none;
+.stat-card:hover { transform: translateY(-2px); box-shadow: var(--card-hover-shadow); border-color: #e2e8f0; }
+.stat-card.compact { padding: 1rem 1.25rem; }
+.stat-card .icon-box {
+    width: 48px; height: 48px; border-radius: 12px;
+    display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0;
 }
-.dash-hero > * { position: relative; z-index: 1; }
-.dash-hero h3 { color: #fff; font-weight: 700; font-size: 1.35rem; margin-bottom: 0.25rem; }
-.dash-hero p { color: rgba(255,255,255,0.6); margin: 0; font-size: 0.85rem; }
-.dash-hero .hero-profit { text-align: right; }
-.dash-hero .hero-profit .profit-value {
-    font-size: 1.8rem; font-weight: 800; color: #fff; line-height: 1.2;
+.stat-card.compact .icon-box { width: 40px; height: 40px; font-size: 16px; }
+.icon-blue   { background: #eff6ff; color: #3b82f6; }
+.icon-green  { background: #f0fdf4; color: #22c55e; }
+.icon-purple { background: #faf5ff; color: #a855f7; }
+.icon-amber  { background: #fffbeb; color: #f59e0b; }
+.icon-rose   { background: #fff1f2; color: #f43f5e; }
+.icon-cyan   { background: #ecfeff; color: #06b6d4; }
+.icon-indigo { background: #eef2ff; color: #6366f1; }
+.icon-teal   { background: #f0fdfa; color: #14b8a6; }
+.stat-card .stat-content { flex: 1; min-width: 0; }
+.stat-card .stat-label { font-size: 0.75rem; font-weight: 600; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
+.stat-card .stat-value { font-size: 1.5rem; font-weight: 800; color: #0f172a; line-height: 1.2; }
+.stat-card.compact .stat-value { font-size: 1.2rem; }
+.stat-card .stat-sub { font-size: 0.75rem; color: #64748b; margin-top: 2px; }
+.stat-card .stat-sub.up { color: #16a34a; }
+.welcome-section {
+    display: flex; align-items: center; justify-content: space-between;
+    flex-wrap: wrap; gap: 1rem; margin-bottom: 1.5rem;
 }
-.dash-hero .hero-profit .profit-label {
-    font-size: 0.8rem; color: rgba(255,255,255,0.6);
-    text-transform: uppercase; letter-spacing: 0.5px;
+.welcome-section h3 { font-weight: 700; color: #1e293b; font-size: 1.4rem; margin: 0; }
+.welcome-section p { color: #94a3b8; font-size: 0.85rem; margin: 2px 0 0 0; }
+.date-badge { background: #f1f5f9; color: #64748b; padding: 0.45rem 1rem; border-radius: 50px; font-size: 0.8rem; font-weight: 600; }
+.quick-actions { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1.5rem; }
+.quick-action-btn {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 0.5rem 1rem; border-radius: 10px; font-size: 0.8rem;
+    font-weight: 600; text-decoration: none; transition: all 0.2s;
+    border: 1px solid #e2e8f0; background: #fff; color: #475569;
 }
-
-/* ── Dashboard Stat Cards ── */
-.dash-card {
-    background: #fff;
-    border: none;
-    border-radius: 16px;
-    padding: 1.25rem 1.5rem;
-    box-shadow: 0 2px 12px rgba(0,0,0,0.05), 0 1px 3px rgba(0,0,0,0.03);
-    transition: all 0.3s cubic-bezier(0.4,0,0.2,1);
-    position: relative;
-    overflow: hidden;
-    display: flex;
-    align-items: center;
-    gap: 1rem;
+.quick-action-btn:hover { background: #f8fafc; border-color: #cbd5e1; color: #1e293b; }
+.chart-card {
+    background: #fff; border-radius: var(--radius); padding: 1.25rem;
+    box-shadow: var(--card-shadow); border: 1px solid #f1f5f9; height: 100%;
 }
-.dash-card:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 8px 30px rgba(0,0,0,0.08), 0 2px 8px rgba(0,0,0,0.04);
+.chart-card .chart-header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 1rem; padding-bottom: 0.75rem; border-bottom: 1px solid #f1f5f9;
 }
-.dash-card .card-icon {
-    width: 52px; height: 52px;
-    border-radius: 14px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 24px;
-    flex-shrink: 0;
+.chart-card .chart-header h5 { font-size: 0.95rem; font-weight: 700; color: #1e293b; margin: 0; }
+.dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-right: 8px; }
+.data-card {
+    background: #fff; border-radius: var(--radius); padding: 1.25rem;
+    box-shadow: var(--card-shadow); border: 1px solid #f1f5f9; height: 100%;
 }
-.dash-card .card-icon.orders { background: #ede9fe; color: #7c3aed; }
-.dash-card .card-icon.fund { background: #dbeafe; color: #2563eb; }
-.dash-card .card-icon.expenses { background: #fce4ec; color: #dc2626; }
-.dash-card .card-icon.delivery { background: #dcfce7; color: #16a34a; }
-.dash-card .card-info { flex: 1; min-width: 0; }
-.dash-card .card-info .card-label {
-    font-size: 0.8rem; color: #94a3b8;
-    font-weight: 500; text-transform: uppercase; letter-spacing: 0.4px;
+.data-card .data-header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 1rem; padding-bottom: 0.75rem; border-bottom: 1px solid #f1f5f9;
 }
-.dash-card .card-info .card-value {
-    font-size: 1.6rem; font-weight: 800; color: #1a1a2e;
-    line-height: 1.3;
-}
-
-/* ── Chart Box ── */
-.chart-modern {
-    background: #fff;
-    border: none;
-    border-radius: 16px;
-    padding: 1.5rem;
-    box-shadow: 0 2px 12px rgba(0,0,0,0.05), 0 1px 3px rgba(0,0,0,0.03);
-    transition: all 0.3s ease;
-}
-.chart-modern:hover {
-    box-shadow: 0 8px 25px rgba(0,0,0,0.07);
-}
-.chart-modern .chart-title {
-    font-size: 1rem; font-weight: 700; color: #1a1a2e;
-    margin-bottom: 1rem; padding-bottom: 0.75rem;
-    border-bottom: 2px solid #f1f5f9;
-    display: flex; align-items: center; gap: 8px;
-}
-.chart-modern .chart-title .title-dot {
-    width: 8px; height: 8px; border-radius: 50%;
-    flex-shrink: 0;
-}
-.chart-modern .chart-title .title-dot.purple { background: #7c3aed; }
-.chart-modern .chart-title .title-dot.blue { background: #2563eb; }
-
-/* ── Table Enhancements ── */
-.table-modern { margin-bottom: 0; }
-.table-modern thead th {
-    background: #f8fafc;
-    font-size: 0.75rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    color: #64748b;
-    border-bottom: 2px solid #e2e8f0;
-    padding: 0.75rem 1rem;
-}
-.table-modern tbody td {
-    padding: 0.75rem 1rem;
-    vertical-align: middle;
-    border-color: #f1f5f9;
-    font-size: 0.875rem;
-}
-.table-modern tbody tr {
-    transition: background 0.2s ease;
-}
-.table-modern tbody tr:hover {
-    background: #f8fafc;
-}
-
-/* ── Customer List ── */
-.customer-list { margin: 0; }
-.customer-list .customer-item {
-    padding: 0.7rem 0;
-    border-bottom: 1px solid #f1f5f9;
-    transition: all 0.2s ease;
-}
-.customer-list .customer-item:last-child { border-bottom: none; }
-.customer-list .customer-item:hover {
-    padding-left: 6px;
-}
-.customer-list .customer-item .cust-name {
-    font-weight: 600; color: #1a1a2e; font-size: 0.9rem;
-}
-.customer-list .customer-item .cust-phone {
-    font-size: 0.8rem; color: #94a3b8;
-}
-
-/* ── Badge refinements ── */
-.badge-dash {
-    font-size: 0.75rem;
-    font-weight: 600;
-    padding: 0.3rem 0.75rem;
-    border-radius: 50px;
-}
+.data-card .data-header h5 { font-size: 0.95rem; font-weight: 700; color: #1e293b; margin: 0; }
+.table-modern { width: 100%; margin: 0; }
+.table-modern th { background: #f8fafc; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: #64748b; padding: 0.6rem 0.75rem; border-bottom: 2px solid #e2e8f0; }
+.table-modern td { padding: 0.6rem 0.75rem; vertical-align: middle; border-color: #f1f5f9; font-size: 0.85rem; color: #334155; }
+.table-modern tbody tr { transition: background 0.15s; }
+.table-modern tbody tr:hover { background: #f8fafc; }
+.customer-mini { list-style: none; padding: 0; margin: 0; }
+.customer-mini li { display: flex; align-items: center; gap: 10px; padding: 0.6rem 0; border-bottom: 1px solid #f1f5f9; }
+.customer-mini li:last-child { border-bottom: none; }
+.customer-mini .cust-avatar { width: 36px; height: 36px; border-radius: 50%; background: #eef2ff; color: #6366f1; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 14px; flex-shrink: 0; }
+.customer-mini .cust-name { font-weight: 600; font-size: 0.85rem; color: #1e293b; }
+.customer-mini .cust-phone { font-size: 0.75rem; color: #94a3b8; }
+.badge-dot { display: inline-flex; align-items: center; gap: 5px; font-size: 0.75rem; font-weight: 600; padding: 0.3rem 0.75rem; border-radius: 50px; }
+@media (max-width: 768px) { .stat-grid { grid-template-columns: repeat(2, 1fr); } .stat-card .stat-value { font-size: 1.2rem; } }
+@media (max-width: 480px) { .stat-grid { grid-template-columns: 1fr; } }
 </style>
 @endsection
 
 @section('content')
 <div class="container-fluid py-3">
 
-  {{-- Header --}}
-  <div class="page-header-modern mb-3">
-    <h4 class="fw-bold"> {{ __('Hi! Welcome To Dashboard') }} </h4>
-    <p class="text-muted">Home → Sales Dashboard</p>
-  </div>
-
-  {{-- Hero Banner --}}
-  <div class="dash-hero mb-4">
+  <div class="welcome-section">
     <div>
-      <h3>Congratulations {{ Auth::user()->name ?? 'Admin' }} 🎉</h3>
-      <p>You have reached your sales milestone! Keep going strong 💪</p>
+      <h3>👋 {{ __('Welcome back') }}, {{ Auth::user()->name ?? 'Admin' }}</h3>
+      <p>{{ __('Here\'s what\'s happening with your store today.') }}</p>
     </div>
-    <div class="hero-profit">
-      <div class="profit-value">TK {{ number_format($today_profit ?? 0,2) }}</div>
-      <div class="profit-label"> {{ __("Today's Profit") }} </div>
+    <div class="date-badge"><i class="far fa-calendar-alt me-1"></i> {{ now()->format('d M, Y') }}</div>
+  </div>
+
+  <div class="quick-actions">
+    <a href="#" class="quick-action-btn"><i class="fas fa-plus-circle"></i> New Order</a>
+    <a href="#" class="quick-action-btn"><i class="fas fa-box"></i> Add Product</a>
+    <a href="#" class="quick-action-btn"><i class="fas fa-tag"></i> Add Coupon</a>
+    <a href="#" class="quick-action-btn"><i class="fas fa-pen"></i> Write Blog</a>
+    <a href="#" class="quick-action-btn"><i class="fas fa-coins"></i> Fund</a>
+  </div>
+
+  <div class="stat-grid">
+    <div class="stat-card">
+      <div class="icon-box icon-blue"><i class="fas fa-shopping-bag"></i></div>
+      <div class="stat-content">
+        <div class="stat-label">{{ __('Total Orders') }}</div>
+        <div class="stat-value">{{ number_format($total_order ?? 0) }}</div>
+        <div class="stat-sub up">+{{ $today_order ?? 0 }} today</div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="icon-box icon-green"><i class="fas fa-check-circle"></i></div>
+      <div class="stat-content">
+        <div class="stat-label">{{ __('Delivered') }}</div>
+        <div class="stat-value">{{ number_format($total_delivery ?? 0) }}</div>
+        <div class="stat-sub">{{ $last_week ?? 0 }} this week</div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="icon-box icon-amber"><i class="fas fa-coins"></i></div>
+      <div class="stat-content">
+        <div class="stat-label">{{ __('Today Profit') }}</div>
+        <div class="stat-value">৳{{ number_format($today_profit ?? 0, 0) }}</div>
+        <div class="stat-sub">Sales: ৳{{ number_format($today_sales ?? 0, 0) }}</div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="icon-box icon-rose"><i class="fas fa-chart-line"></i></div>
+      <div class="stat-content">
+        <div class="stat-label">{{ __('Expenses') }}</div>
+        <div class="stat-value">৳{{ number_format($total_expenses ?? 0, 0) }}</div>
+        <div class="stat-sub">Fund: ৳{{ number_format($fund_balance ?? 0, 0) }}</div>
+      </div>
     </div>
   </div>
 
-  {{-- Stat Cards --}}
+  <div class="stat-grid small">
+    <div class="stat-card compact">
+      <div class="icon-box icon-purple"><i class="fas fa-boxes"></i></div>
+      <div class="stat-content">
+        <div class="stat-label">{{ __('Products') }}</div>
+        <div class="stat-value">{{ number_format($total_product ?? 0) }}</div>
+      </div>
+    </div>
+    <div class="stat-card compact">
+      <div class="icon-box icon-cyan"><i class="fas fa-users"></i></div>
+      <div class="stat-content">
+        <div class="stat-label">{{ __('Customers') }}</div>
+        <div class="stat-value">{{ number_format($total_customer ?? 0) }}</div>
+      </div>
+    </div>
+    <div class="stat-card compact">
+      <div class="icon-box icon-indigo"><i class="fas fa-truck"></i></div>
+      <div class="stat-content">
+        <div class="stat-label">{{ __('Today Delivery') }}</div>
+        <div class="stat-value">{{ $today_delivery ?? 0 }}</div>
+      </div>
+    </div>
+    <div class="stat-card compact">
+      <div class="icon-box icon-teal"><i class="fas fa-calendar-check"></i></div>
+      <div class="stat-content">
+        <div class="stat-label">{{ __('Last Month') }}</div>
+        <div class="stat-value">{{ $last_month ?? 0 }}</div>
+      </div>
+    </div>
+  </div>
+
   <div class="row g-3 mb-3">
-    <div class="col-md-3">
-      <div class="dash-card">
-        <div class="card-icon orders" data-feather="shopping-cart"></div>
-        <div class="card-info">
-          <div class="card-label"> {{ __('Total Orders') }} </div>
-          <div class="card-value">{{ number_format($total_order ?? 0) }}</div>
+    <div class="col-lg-8">
+      <div class="chart-card">
+        <div class="chart-header">
+          <h5><span class="dot" style="background:#6366f1;"></span> {{ __('Sales Overview') }}</h5>
+          <small class="text-muted">{{ __('Last 30 days (delivered)') }}</small>
         </div>
+        <div id="salesChart" style="min-height: 300px;"></div>
       </div>
     </div>
-    <div class="col-md-3">
-      <div class="dash-card">
-        <div class="card-icon fund" data-feather="dollar-sign"></div>
-        <div class="card-info">
-          <div class="card-label"> {{ __('Fund Balance') }} </div>
-          <div class="card-value">TK {{ number_format($fund_balance ?? 0,2) }}</div>
-        </div>
-      </div>
-    </div>
-    <div class="col-md-3">
-      <div class="dash-card">
-        <div class="card-icon expenses" data-feather="trending-down"></div>
-        <div class="card-info">
-          <div class="card-label"> {{ __('Total Expenses') }} </div>
-          <div class="card-value">TK {{ number_format($total_expenses ?? 0,2) }}</div>
-        </div>
-      </div>
-    </div>
-    <div class="col-md-3">
-      <div class="dash-card">
-        <div class="card-icon delivery" data-feather="truck"></div>
-        <div class="card-info">
-          <div class="card-label"> {{ __('Delivered Orders') }} </div>
-          <div class="card-value">{{ number_format($total_delivery ?? 0) }}</div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  {{-- Charts --}}
-  <div class="row g-3">
     <div class="col-lg-4">
-      <div class="chart-modern">
-        <div class="chart-title">
-          <span class="title-dot purple"></span>
-          Sales By Category
+      <div class="chart-card">
+        <div class="chart-header">
+          <h5><span class="dot" style="background:#a855f7;"></span> {{ __('Categories') }}</h5>
         </div>
-        <div id="categoryChart"></div>
-      </div>
-    </div>
-    <div class="col-lg-8">
-      <div class="chart-modern">
-        <div class="chart-title">
-          <span class="title-dot blue"></span>
-          Monthly Sales Statistics
-        </div>
-        <div id="salesChart"></div>
+        <div id="categoryChart" style="min-height: 300px;"></div>
       </div>
     </div>
   </div>
 
-  {{-- Recent Orders & Customers --}}
-  <div class="row g-3 mt-3">
-    <div class="col-lg-8">
-      <div class="chart-modern">
-        <div class="chart-title">
-          <span class="title-dot blue"></span> {{ __('Recent Orders') }} </div>
+  <div class="row g-3">
+    <div class="col-lg-7">
+      <div class="data-card">
+        <div class="data-header">
+          <h5><span class="dot" style="background:#3b82f6;"></span> {{ __('Recent Orders') }}</h5>
+          <a href="#" class="text-decoration-none small fw-bold" style="color:#6366f1;">{{ __('View All') }} →</a>
+        </div>
         <div class="table-responsive">
-          <table class="table table-modern">
+          <table class="table-modern">
             <thead>
-              <tr>
-                <th> {{ __('Customer') }} </th>
-                <th>{{ __('Invoice') }}</th>
-                <th>{{ __('Status') }}</th>
-                <th>{{ __('Date') }}</th>
-              </tr>
+              <tr><th>{{ __('Invoice') }}</th><th>{{ __('Customer') }}</th><th>{{ __('Amount') }}</th><th>{{ __('Status') }}</th><th>{{ __('Date') }}</th></tr>
             </thead>
             <tbody>
-            @forelse($latest_order ?? [] as $order)
+              @forelse($latest_order ?? [] as $order)
               <tr>
-                <td>{{ $order->customer->name ?? 'Guest' }}</td>
-                <td>#{{ $order->invoice_id ?? '-' }}</td>
+                <td class="fw-bold" style="color:#6366f1;">#{{ $order->invoice_id ?? $order->id }}</td>
+                <td>{{ \Illuminate\Support\Str::limit($order->customer->name ?? 'Guest', 15) }}</td>
+                <td class="fw-bold">৳{{ number_format($order->amount ?? 0, 0) }}</td>
                 <td>
-                  @if(($order->order_status ?? 0) == 5)
-                    <span class="badge bg-success badge-dash"> {{ __('Delivered') }} </span>
-                  @elseif(($order->order_status ?? 0) == 1)
-                    <span class="badge bg-info badge-dash">{{ __('Pending') }}</span>
-                  @else
-                    <span class="badge bg-warning badge-dash">{{ __('Processing') }}</span>
-                  @endif
+                  @php
+                    $statusName = $order->status->name ?? ($order->order_status ?? 'Processing');
+                    $statusSlug = $order->status->slug ?? '';
+                    $badgeStyle = match(true) {
+                      in_array($statusSlug, ['delivered','completed']) || $statusName === 'Delivered' => 'background:#dcfce7;color:#16a34a;',
+                      in_array($statusSlug, ['pending','on-hold']) || $statusName === 'Pending' => 'background:#fef3c7;color:#d97706;',
+                      in_array($statusSlug, ['shipped','processing','ready-to-ship']) => 'background:#dbeafe;color:#2563eb;',
+                      in_array($statusSlug, ['cancelled','canceled','returned']) => 'background:#fee2e2;color:#dc2626;',
+                      default => 'background:#f1f5f9;color:#64748b;',
+                    };
+                  @endphp
+                  <span class="badge-dot" style="{{ $badgeStyle }}">{{ $statusName }}</span>
                 </td>
-                <td class="text-muted">{{ optional($order->created_at)->format('d M Y') }}</td>
+                <td class="text-muted small">{{ optional($order->created_at)->format('d M') }}</td>
               </tr>
-            @empty
-              <tr>
-                <td colspan="4" class="text-center text-muted py-3"> {{ __('No recent orders found') }} </td>
-              </tr>
-            @endforelse
+              @empty
+              <tr><td colspan="5" class="text-center text-muted py-4">{{ __('No orders yet') }}</td></tr>
+              @endforelse
             </tbody>
           </table>
         </div>
       </div>
     </div>
-    <div class="col-lg-4">
-      <div class="chart-modern">
-        <div class="chart-title">
-          <span class="title-dot purple"></span>
-          {{ __('Recent Customers') }}
+    <div class="col-lg-5">
+      <div class="data-card">
+        <div class="data-header">
+          <h5><span class="dot" style="background:#a855f7;"></span> {{ __('Recent Customers') }}</h5>
+          <a href="#" class="text-decoration-none small fw-bold" style="color:#a855f7;">{{ __('View All') }} →</a>
         </div>
-        <ul class="customer-list">
-          @forelse($latest_customer ?? [] as $cust)
-            <li class="customer-item">
-              <div class="cust-name">{{ $cust->name }}</div>
-              <div class="cust-phone">{{ $cust->phone ?? 'N/A' }}</div>
-            </li>
+        <ul class="customer-mini">
+          @forelse($latest_customer ?? [] as $customer)
+          <li>
+            <div class="cust-avatar">{{ strtoupper(substr($customer->name ?? '?', 0, 1)) }}</div>
+            <div>
+              <div class="cust-name">{{ \Illuminate\Support\Str::limit($customer->name ?? 'Unknown', 20) }}</div>
+              <div class="cust-phone">{{ $customer->phone ?? 'N/A' }}</div>
+            </div>
+          </li>
           @empty
-            <li class="text-muted text-center py-3"> {{ __('No customers found') }} </li>
+          <li class="text-muted text-center py-3">{{ __('No customers yet') }}</li>
           @endforelse
         </ul>
       </div>
@@ -317,94 +262,41 @@
 @endsection
 
 @section('script')
-<script src="https://cdn.jsdelivr.net/npm/apexcharts@3.35.5"></script>
+<script src="https://cdn.jsdelivr.net/npm/apexcharts@3.35.5/dist/apexcharts.min.js"></script>
 <script>
-// ── Category Chart (Donut) ──
-new ApexCharts(document.querySelector("#categoryChart"),{
-  chart:{type:'donut',height:280},
-  labels:@json($categoryLabels ?? ['No Sales']),
-  series:@json($categorySeries ?? [0]),
-  legend:{position:'bottom',fontSize:'13px',fontFamily:'inherit'},
-  colors:['#7c3aed','#2563eb','#16a34a','#d97706','#dc2626','#0891b2'],
-  dataLabels:{enabled:false},
-  tooltip:{
-    y:{
-      formatter:function(val){
-        return '৳ ' + val.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
-      }
-    }
-  },
-  plotOptions:{
-    pie:{
-      donut:{
-        size:'70%',
-        labels:{
-          show:true,
-          name:{show:true,fontSize:'13px',fontWeight:600,color:'#1a1a2e'},
-          value:{show:true,fontSize:'14px',fontWeight:700,color:'#273444',
-            formatter:function(val){
-              return '৳ ' + Number(val).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
-            }
-          },
-          total:{
-            show:true,
-            label:'Total Sales',
-            fontSize:'12px',
-            fontWeight:600,
-            color:'#94a3b8',
-            formatter:function(){
-              var total = @json(array_sum($categorySeries ?? [0]));
-              return '৳ ' + total.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
-            }
-          }
-        }
-      }
-    }
-  }
-}).render();
+  (function() {
+    var monthlyData = @json($monthly_sale ?? []);
+    var categories = [], values = [];
+    monthlyData.forEach(function(item) { categories.push(item.date); values.push(parseFloat(item.amount)); });
+    categories.reverse(); values.reverse();
+    new ApexCharts(document.querySelector('#salesChart'), {
+      chart: { type: 'area', height: 320, toolbar: { show: false }, fontFamily: 'inherit' },
+      series: [{ name: 'Sales (৳)', data: values }],
+      xaxis: { categories: categories, labels: { style: { fontSize: '11px' } } },
+      yaxis: { labels: { formatter: function(v) { return '৳'+(v/1000).toFixed(0)+'k'; } } },
+      colors: ['#6366f1'],
+      fill: { type: 'gradient', gradient: { shadeIntensity: 1, opacityFrom: 0.3, opacityTo: 0.05 } },
+      stroke: { curve: 'smooth', width: 2.5 },
+      dataLabels: { enabled: false },
+      grid: { borderColor: '#f1f5f9', strokeDashArray: 4 },
+      tooltip: { y: { formatter: function(v) { return '৳'+v.toLocaleString(); } } }
+    }).render();
+  })();
 
-// ── Monthly Sales Chart (Area) ──
-new ApexCharts(document.querySelector("#salesChart"),{
-  chart:{type:'area',height:300,toolbar:{show:false},fontFamily:'inherit'},
-  series:[{
-    name:'Sales',
-    data:@json(($monthly_sale ?? collect())->pluck('amount'))
-  }],
-  xaxis:{
-    categories:@json(($monthly_sale ?? collect())->pluck('date')),
-    labels:{style:{fontSize:'12px',fontWeight:500,colors:'#94a3b8'}}
-  },
-  yaxis:{
-    labels:{
-      style:{fontSize:'12px',fontWeight:500,colors:'#94a3b8'},
-      formatter:function(val){ return '৳ ' + val.toLocaleString('en-US'); }
-    }
-  },
-  stroke:{curve:'smooth',width:3,colors:['#2563eb']},
-  fill:{
-    type:'gradient',
-    gradient:{
-      shadeIntensity:1,
-      opacityFrom:0.4,
-      opacityTo:0.1,
-      colorStops:[{
-        offset:0,color:'#2563eb',opacity:0.4
-      },{
-        offset:100,color:'#2563eb',opacity:0.05
-      }]
-    }
-  },
-  dataLabels:{enabled:false},
-  markers:{size:0},
-  tooltip:{
-    y:{
-      formatter:function(val){ return '৳ ' + val.toLocaleString('en-US',{minimumFractionDigits:2}); }
-    }
-  },
-  grid:{borderColor:'#f1f5f9'}
-}).render();
-
-// ── Feather Icons ──
-if(typeof feather !== 'undefined'){ feather.replace(); }
+  (function() {
+    var catData = @json($categorySales ?? []);
+    var labels = catData.map(function(c) { return c.category_name || 'Other'; });
+    var series = catData.map(function(c) { return parseFloat(c.total_amount || 0); });
+    new ApexCharts(document.querySelector('#categoryChart'), {
+      chart: { type: 'donut', height: 320, fontFamily: 'inherit' },
+      series: series, labels: labels,
+      colors: ['#6366f1','#22c55e','#f59e0b','#f43f5e','#06b6d4','#a855f7','#14b8a6','#f97316'],
+      legend: { position: 'bottom', fontSize: '12px' },
+      plotOptions: { pie: { donut: { size: '55%' } } },
+      dataLabels: { enabled: true, formatter: function(v, opts) { return opts.w.config.series[opts.seriesIndex] > 0 ? Math.round(v)+'%' : ''; } },
+      tooltip: { y: { formatter: function(v) { return '৳'+v.toLocaleString(); } } },
+      stroke: { width: 0 }
+    }).render();
+  })();
 </script>
 @endsection

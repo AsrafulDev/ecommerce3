@@ -2218,5 +2218,14 @@
     "Your name": "Your name",
     "What do you want to know?": "What do you want to know?",
     "Write Message *": "Write Message *",
-    "Write your message...": "Write your message..."
+    "Write your message...": "Write your message...",
+    "Welcome back": "Welcome back",
+    "Here's what's happening with your store today.": "Here's what's happening with your store today.",
+    "Today Profit": "Today Profit",
+    "Today Delivery": "Today Delivery",
+    "Last Month": "Last Month",
+    "Sales Overview": "Sales Overview",
+    "Last 30 days (delivered)": "Last 30 days (delivered)",
+    "No orders yet": "No orders yet",
+    "No customers yet": "No customers yet"
 }

@@ -440,6 +440,9 @@ Route::group(['prefix'=>'customer','namespace'=>'Frontend','middleware' => ['cus
     Route::get('/refunds/{id}', [\App\Http\Controllers\Frontend\RefundController::class, 'show'])->name('customer.refunds.show');
     Route::delete('/refunds/{id}/cancel', [\App\Http\Controllers\Frontend\RefundController::class, 'cancel'])->name('customer.refunds.cancel');
     
+    // Customer Complaints (Support Tickets)
+    Route::get('/complaints', [CustomerController::class, 'complaints'])->name('customer.complaints');
+    
 });
 
 Route::group(['namespace'=>'Frontend', 'middleware' => ['ipcheck','check_refer']], function() {

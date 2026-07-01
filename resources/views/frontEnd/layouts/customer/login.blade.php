@@ -47,7 +47,7 @@
 .login-image-area {
     width: 50%;
     /* আপনার পছন্দের ছবিটি এখানে ব্যাকগ্রাউন্ড হিসেবে দিন */
-    background-image: url('{{ asset('public/frontEnd/images/login.avif') }}');
+    background-image: url('{{ asset('public/frontEnd/images/contact.php') }}');
     background-size: cover;   /* পুরো বক্স কাভার করবে */
     background-position: center; /* ছবির মাঝখান দেখাবে */
     position: relative;       /* ওভারলে-এর জন্য জরুরি */

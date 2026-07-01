@@ -38,7 +38,7 @@ class DashboardController extends Controller
         $total_customer = Customer::count();
 
         $latest_order = Order::latest()
-            ->with('customer', 'product', 'product.image')
+            ->with('customer', 'status')
             ->limit(5)
             ->get();
 

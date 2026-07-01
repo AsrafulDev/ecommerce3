@@ -982,4 +982,9 @@ public function order_save(Request $request)
 
         return $response;
     }
+
+    public function complaints()
+    {
+        return view('frontEnd.layouts.customer.complaints');
+    }
 }

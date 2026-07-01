@@ -815,5 +815,14 @@
     "Email Address": "ইমেইল এড্রেস",
     "What do you want to know?": "কি বিষয়ে জানতে চান?",
     "Write Message *": "মেসেজ লিখুন *",
-    "Write your message...": "আপনার মেসেজ লিখুন..."
+    "Write your message...": "আপনার মেসেজ লিখুন...",
+    "Welcome back": "আবার স্বাগতম",
+    "Here's what's happening with your store today.": "আজ আপনার স্টোরে কী ঘটছে তা দেখুন।",
+    "Today Profit": "আজকের প্রফিট",
+    "Today Delivery": "আজকের ডেলিভারি",
+    "Last Month": "গত মাস",
+    "Sales Overview": "বিক্রয় ওভারভিউ",
+    "Last 30 days (delivered)": "শেষ ৩০ দিন (ডেলিভার্ড)",
+    "No orders yet": "এখনো কোনো অর্ডার নেই",
+    "No customers yet": "এখনো কোনো কাস্টমার নেই"
 }

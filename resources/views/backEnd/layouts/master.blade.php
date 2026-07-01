@@ -39,7 +39,7 @@
             --admin-card-shadow: 0 2px 12px rgba(0,0,0,0.06);
             --admin-border-color: {{ $activeTheme->border_color ?? '#e2e8f0' }};
         }
-        /* Sidebar active/hover colors */
+        /* ── Modern Sidebar UI ── */
         #sidebar-menu .menuitem-active > a { color: var(--admin-secondary) !important; }
         #sidebar-menu > ul > li > a:hover { color: var(--admin-secondary) !important; }
         .left-side-menu { background-color: var(--admin-sidebar-bg) !important; }
@@ -53,6 +53,85 @@
         .nav-second-level li a { color: var(--admin-sidebar-text) !important; opacity: 0.85; }
         .nav-second-level li a:hover { color: var(--admin-secondary) !important; opacity: 1; }
         .card { border-color: var(--admin-border-color) !important; }
+
+        /* ── Enhanced Sidebar Styling ── */
+        .left-side-menu {
+            box-shadow: 2px 0 24px rgba(0,0,0,0.06);
+            border-right: 1px solid rgba(255,255,255,0.05);
+        }
+        #side-menu > li { margin: 2px 8px; border-radius: 10px; overflow: hidden; }
+        #side-menu > li > a {
+            display: flex !important; align-items: center; gap: 12px;
+            padding: 11px 16px !important; border-radius: 10px;
+            font-size: 0.9rem; font-weight: 500;
+            transition: all 0.2s ease; position: relative;
+        }
+        #side-menu > li > a:hover {
+            background: rgba(255,255,255,0.07) !important;
+            padding-left: 20px !important;
+        }
+        #side-menu > li > a i, #side-menu > li > a svg {
+            width: 20px; height: 20px; flex-shrink: 0; opacity: 0.65;
+            transition: opacity 0.2s;
+        }
+        #side-menu > li > a:hover i, #side-menu > li > a:hover svg { opacity: 1; }
+        #side-menu > li.menuitem-active > a {
+            background: rgba(255,255,255,0.1) !important;
+            font-weight: 600; position: relative;
+        }
+        #side-menu > li.menuitem-active > a::before {
+            content: ''; position: absolute; left: 0; top: 50%; transform: translateY(-50%);
+            width: 3px; height: 24px; border-radius: 3px;
+            background: var(--admin-secondary, #04a31e);
+        }
+        .menu-arrow { margin-left: auto; font-size: 10px; opacity: 0.4; transition: transform 0.2s; }
+        [aria-expanded="true"] .menu-arrow { transform: rotate(90deg); opacity: 0.8; }
+
+        /* ── Submenu ── */
+        .nav-second-level { padding: 4px 0 8px 0; }
+        .nav-second-level li a {
+            padding: 9px 16px 9px 48px !important; border-radius: 8px;
+            font-size: 0.84rem; margin: 0 8px; transition: all 0.2s;
+            display: flex; align-items: center; gap: 10px;
+        }
+        .nav-second-level li a:hover {
+            background: rgba(255,255,255,0.06) !important;
+            padding-left: 52px !important;
+        }
+        .nav-second-level li a i, .nav-second-level li a svg {
+            width: 15px; height: 15px; flex-shrink: 0; opacity: 0.55;
+        }
+        .collapse.show { animation: fadeSlideIn 0.25s ease; }
+
+        /* ── User Box ── */
+        .user-box {
+            padding: 1.5rem 1rem 1rem; border-bottom: 1px solid rgba(255,255,255,0.06);
+            margin-bottom: 0.5rem;
+        }
+        .user-box img.avatar-md {
+            width: 52px; height: 52px; border-radius: 14px;
+            border: 2px solid rgba(255,255,255,0.15);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        .user-box .dropdown-toggle { color: var(--admin-sidebar-text) !important; font-size: 0.9rem !important; }
+
+        /* ── Scrollbar ── */
+        .left-side-menu .simplebar-scrollbar::before {
+            background: rgba(255,255,255,0.2) !important;
+            width: 4px; border-radius: 4px;
+        }
+
+        /* ── Animations ── */
+        @keyframes fadeSlideIn {
+            from { opacity: 0; transform: translateY(-6px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ── Mobile Tweaks ── */
+        @media (max-width: 992px) {
+            #side-menu > li { margin: 1px 4px; }
+            #side-menu > li > a { padding: 10px 12px !important; }
+        }
     </style>
     @endif
     <style>.navbar-custom .dropdown-menu .noti-scroll{max-height:230px!important;overflow-y:auto!important}</style>
@@ -1267,16 +1346,27 @@
         showDemoModeAlert();
         return;
         @endif
-        swal({
-          title: `Are you sure you want to change this record?`,
-          icon: "warning",
-          buttons: true,
-          dangerMode: true,
-        }).then((willDelete) => {
-          if (willDelete) {
-            form.submit();
-          }
-        });
+        if (typeof Swal !== 'undefined') {
+          Swal.fire({
+            title: 'Are you sure you want to change this record?',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Yes, update it!'
+          }).then(function(result) {
+            if (result.isConfirmed) { form.submit(); }
+          });
+        } else if (typeof swal !== 'undefined') {
+          swal({
+            title: "Are you sure you want to change this record?",
+            icon: "warning",
+            buttons: true,
+            dangerMode: true,
+          }).then((willChange) => {
+            if (willChange) { form.submit(); }
+          });
+        } else {
+          if (confirm('Are you sure you want to change this record?')) { form.submit(); }
+        }
       });
       @if(isset($demoMode) && $demoMode)
       $(document).on('submit', 'form', function(e) {
