@@ -418,7 +418,7 @@
       @endforeach
       @endcan
       @can('order-edit')
-      <li><a href="{{ route('orderstatus.index') }}"><i data-feather="file-plus"></i>{{ __('Order Status') }}</a></li>
+      {{-- Order Status now managed via app/Enums/OrderStatus.php (enum-driven) --}}
       @endcan
       @can('order-manage')
       <li><a href="{{route('customers.ip_block')}}"><i data-feather="file-plus"></i> {{ __('IP Block') }} </a></li>

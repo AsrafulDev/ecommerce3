@@ -1147,7 +1147,7 @@ $brands = Brand::where('status', 1)
             $order->invoice_id   = $data[0]->id;
             $order->amount       = $data[0]->amount;
             $order->customer_id  = Auth::guard('customer')->user()->id;
-            $order->order_status = $data[0]->bank_status;
+            $order->order_status = 'pending'; // bank_status converted
             $order->save();
 
             $payment = new Payment();

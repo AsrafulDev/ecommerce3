@@ -118,13 +118,17 @@ class LayoutController extends Controller
 
         $maxOrder = HomepageLayoutSection::where('layout_id', $request->layout_id)->max('sort_order') ?? 0;
 
-        $layoutSection = HomepageLayoutSection::create([
-            'layout_id' => $request->layout_id,
-            'section_id' => $request->section_id,
-            'sort_order' => $maxOrder + 1,
-            'is_visible' => true,
-            'columns_config' => 'col-sm-12',
-        ]);
+        $layoutSection = HomepageLayoutSection::firstOrCreate(
+            [
+                'layout_id'  => $request->layout_id,
+                'section_id' => $request->section_id,
+            ],
+            [
+                'sort_order'     => $maxOrder + 1,
+                'is_visible'     => true,
+                'columns_config' => 'col-sm-12',
+            ]
+        );
 
         $layoutSection->load('section');
 
@@ -133,6 +137,7 @@ class LayoutController extends Controller
         return response()->json([
             'success' => true,
             'section' => $layoutSection,
+            'ls_id'   => $layoutSection->id,
             'html' => view('backEnd.layout.partials.section-item', ['ls' => $layoutSection])->render(),
         ]);
     }
@@ -202,6 +207,10 @@ class LayoutController extends Controller
         $ls->save();
 
         Cache::forget('frontend_homepage_v1');
+
+        if ($request->expectsJson() || $request->ajax()) {
+            return response()->json(['success' => true, 'message' => 'Section settings updated!']);
+        }
 
         Toastr::success('Section settings updated!', 'Success');
         return redirect()->back();

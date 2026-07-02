@@ -8,10 +8,11 @@
 
     // ২. স্ট্যাটাস লোয়ারকেস করা
     $gateway_status = $payment ? strtolower(trim($payment->payment_status)) : ''; 
-    $payment_method = $payment ? strtolower(trim($payment->payment_method)) : strtolower(trim($order->payment_method ?? ''));
+    $payment_method = $payment ? strtolower(trim($payment->payment_method)) : strtolower(trim($order->payment->payment_method ?? ''));
     
     $admin_status   = strtolower(trim($order->payment_status ?? ''));
-    $order_status   = strtolower(trim($order->status ?? ''));
+    $order_status   = $order->status ? strtolower(trim($order->status->slug)) : ($order->order_status ?? '');
+    $order_status_label = \App\Enums\OrderStatus::tryFrom($order->order_status)?->label() ?? ($order->status->name ?? 'Processing');
 
     // ৩. গ্র্যান্ড টোটাল
     $grand_total = $order->amount;

@@ -198,7 +198,7 @@ class AamarPayController extends Controller
             // Payment successful
             $order->payment_status = 'paid';
             $order->payment_gateway = 'aamarpay';
-            $order->order_status = 1; // Processing
+            $order->order_status = 'pending';
             $order->save();
 
             // Update payment record

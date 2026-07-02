@@ -168,7 +168,7 @@ class RefundController extends Controller
             $refund->save();
 
             // Restore product stock if order was cancelled
-            if ($refund->order->order_status == 11) { // 11 = cancelled
+            if ($refund->order->order_status == 'cancelled') {
                 $orderDetails = OrderDetails::where('order_id', $refund->order_id)
                     ->with('product')
                     ->get();

@@ -473,7 +473,8 @@ public function order_save(Request $request)
         $order->amount          = $grandTotal; // অর্ডারে সবসময় টোটাল এমাউন্ট থাকবে
         $order->shipping_charge = $shippingfee;
         $order->customer_id     = $customer_id;
-        $order->order_status    = 1;
+        $order->order_status    = \App\Enums\OrderStatus::PENDING->value;
+        $order->order_type      = $request->payment_method === 'cod' ? 'cod' : 'online';
         $order->note            = $request->note;
         $order->order_note      = $request->order_note;
         $order->payment_status  = 'pending';

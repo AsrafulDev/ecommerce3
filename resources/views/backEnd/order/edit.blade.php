@@ -201,7 +201,7 @@
                                     <!-- Gateway -->
                                     <div class="col-md-6 mb-3">
                                         <label class="form-label"> {{ __('Payment Gateway') }} </label>
-                                        <input type="text" class="form-control" value="{{ ucfirst($order->payment_gateway ?? 'N/A') }}" readonly>
+                                        <input type="text" class="form-control" value="{{ $order->payment ? strtoupper($order->payment->payment_method) : 'N/A' }}" readonly>
                                     </div>
 
                                     <!-- Status -->

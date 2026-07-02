@@ -11,6 +11,6 @@ class OrderStatus extends Model
     protected $guarded = [];
 
     public function orders(){
-        return $this->hasMany(Order::class, 'order_status')->select('id','order_status');
+        return $this->hasMany(Order::class, 'order_status', 'slug')->select('id','order_status');
     }
 }

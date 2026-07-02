@@ -12,9 +12,11 @@ use App\Models\District;
 use App\Models\OrderStatus;
 use App\Models\Order;
 use App\Models\OrderDetails;
+use App\Models\OrderNote;
 use App\Models\Shipping;
 use App\Models\ShippingCharge;
 use App\Models\Payment;
+use App\Models\PaymentGateway;
 use App\Models\Product;
 use App\Models\Category;
 use App\Models\User;
@@ -30,6 +32,8 @@ use App\Models\FundTransaction;
 use App\Helpers\FundHelper;
 use App\Models\Expense;
 use App\Services\RedXService;
+use App\Enums\OrderStatus as OrderStatusEnum;
+use App\Enums\PaymentStatus as PaymentStatusEnum;
 
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
@@ -44,21 +48,29 @@ class OrderController extends Controller
 {
     /*
     |--------------------------------------------------------------------------
-    | COMMON STOCK HANDLER
+    | COMMON STOCK HANDLER (Updated for Enum-based status)
     |--------------------------------------------------------------------------
     |
-    | activeStatuses = 1,2,3,5,6,8  => স্টক মাইনাস
-    | newStatus = 11 এবং oldStatus active হলে => স্টক প্লাস
+    | activeStatuses = confirmed, picking, packing, packed, shipped, out_for_delivery, delivered, completed
+    | cancel => restore stock if old status was active
     |
     */
-    protected function handleStockChange(Order $order, int $oldStatus, int $newStatus)
+    protected function handleStockChange(Order $order, $oldStatus, $newStatus)
     {
-        $activeStatuses = [1, 2, 3, 5, 6, 8];
+        $oldEnum = is_int($oldStatus) ? OrderStatusEnum::fromLegacyId($oldStatus) : OrderStatusEnum::tryFrom($oldStatus);
+        $newEnum = is_int($newStatus) ? OrderStatusEnum::fromLegacyId($newStatus) : OrderStatusEnum::tryFrom($newStatus);
 
-        // 1) প্রথমবার active status এ ঢুকলে স্টক কমবে
-        if (in_array($newStatus, $activeStatuses) && !in_array($oldStatus, $activeStatuses)) {
+        if (!$oldEnum || !$newEnum) {
+            return;
+        }
+
+        $wasActive = $oldEnum->consumesStock();
+        $isActive  = $newEnum->consumesStock();
+
+        // 1) Entering active status → decrease stock
+        if ($isActive && !$wasActive) {
             $details = OrderDetails::where('order_id', $order->id)
-                ->with('product:id,stock') // ✅ Eager load products to avoid N+1
+                ->with('product:id,stock')
                 ->get();
 
             foreach ($details as $row) {
@@ -69,10 +81,10 @@ class OrderController extends Controller
             }
         }
 
-        // 2) cancel (11) হলে, যদি আগেরটা active group এ থাকে -> স্টক রিস্টোর
-        if ($newStatus == 11 && in_array($oldStatus, $activeStatuses)) {
+        // 2) Cancelled → restore stock if was active
+        if ($newEnum === OrderStatusEnum::CANCELLED && $wasActive) {
             $details = OrderDetails::where('order_id', $order->id)
-                ->with('product:id,stock') // ✅ Eager load products to avoid N+1
+                ->with('product:id,stock')
                 ->get();
 
             foreach ($details as $row) {
@@ -187,8 +199,12 @@ class OrderController extends Controller
                 })->get();
 
                 foreach ($orders as $order) {
-                    $order->order_status = 1; // Pending
-                    $order->admin_note = ($order->admin_note ? $order->admin_note . "\n" : '') . 'Fraud check failed at ' . now()->format('d/m/Y h:i A');
+                    $order->order_status = 'pending'; // Use string-based enum value
+                    $order->addNote(
+                        content: 'Fraud check failed at ' . now()->format('d/m/Y h:i A'),
+                        type: 'danger',
+                        source: 'system'
+                    );
                     $order->save();
                 }
 
@@ -204,8 +220,12 @@ class OrderController extends Controller
             })->get();
 
             foreach ($orders as $order) {
-                $order->order_status = 1; // Pending
-                $order->admin_note = ($order->admin_note ? $order->admin_note . "\n" : '') . 'Fraud check failed at ' . now()->format('d/m/Y h:i A');
+                $order->order_status = 'pending'; // Use string-based enum value
+                $order->addNote(
+                    content: 'Fraud check failed at ' . now()->format('d/m/Y h:i A'),
+                    type: 'danger',
+                    source: 'system'
+                );
                 $order->save();
             }
 
@@ -441,10 +461,22 @@ class OrderController extends Controller
             });
             
             if (!$order_status) {
-                return redirect()->route('admin.orders', 'all')->with('error', 'Order status not found.');
+                // Fallback: try to create a virtual status from enum
+                $enum = OrderStatusEnum::tryFrom($slug);
+                if ($enum) {
+                    $count = Order::where('order_status', $slug)->count();
+                    $order_status = (object) [
+                        'id'           => $slug,
+                        'name'         => $enum->label(),
+                        'slug'         => $slug,
+                        'orders_count' => $count,
+                    ];
+                } else {
+                    return redirect()->route('admin.orders', 'all')->with('error', 'Order status not found.');
+                }
             }
             
-            $show_data = Order::where(['order_status' => $order_status->id])
+            $show_data = Order::where(['order_status' => $order_status->slug])
                 ->latest()
                 ->with([
                     'shipping:id,order_id,name,phone,address',
@@ -800,7 +832,7 @@ class OrderController extends Controller
                         $order->courier_tracking_id = $consignmentId;
                         $order->courier_sent_at = now();
                         $order->consignment_id = $consignmentId;
-                        $order->order_status = 5;
+                        $order->order_status = 'shipped';
                         $order->save();
 
                         $results['success'][] = [
@@ -903,24 +935,33 @@ class OrderController extends Controller
     public function invoice($invoice_id)
     {
         $order = Order::where(['invoice_id' => $invoice_id])
-            ->with(['orderdetails', 'orderdetails.size', 'orderdetails.color', 'payment', 'shipping', 'customer', 'status'])
+            ->with(['orderdetails', 'orderdetails.size', 'orderdetails.color', 'payment', 'shipping', 'customer', 'status', 'notes', 'notes.user'])
             ->firstOrFail();
 
         $orderstatus = OrderStatus::all();
+        $statusOptions = OrderStatusEnum::cases();
+        $availableActions = $order->getAvailableActions();
+        $pipelineActions = $order->getPipelineActions();
 
-        return view('backEnd.order.invoice', compact('order', 'orderstatus'));
+        return view('backEnd.order.invoice', compact('order', 'statusOptions', 'orderstatus', 'availableActions', 'pipelineActions'));
     }
 
     public function process($invoice_id)
     {
         $data = Order::where(['invoice_id' => $invoice_id])
-            ->select('id', 'invoice_id', 'order_status')
-            ->with(['orderdetails', 'orderdetails.size', 'orderdetails.color'])
+            ->select('id', 'invoice_id', 'order_status', 'payment_status', 'order_type')
+            ->with(['orderdetails', 'orderdetails.size', 'orderdetails.color', 'payment', 'shipping'])
             ->first();
 
-        $shippingcharge = ShippingCharge::where('status', 1)->get();
+        if (!$data) {
+            return redirect()->route('admin.orders', 'all')->with('error', 'Order not found.');
+        }
 
-        return view('backEnd.order.process', compact('data', 'shippingcharge'));
+        $shippingcharge = ShippingCharge::where('status', 1)->get();
+        $orderstatus = OrderStatus::all();
+        $availableActions = $data->getAvailableActions();
+
+        return view('backEnd.order.process', compact('data', 'shippingcharge', 'orderstatus', 'availableActions'));
     }
 
     /**
@@ -930,19 +971,37 @@ class OrderController extends Controller
     {
         $request->validate([
             'order_id' => 'required|exists:orders,id',
-            'order_status' => 'required|exists:order_statuses,id',
+            'order_status' => 'required',
         ]);
 
         $order = Order::findOrFail($request->order_id);
-        $oldStatus = (int) $order->order_status;
-        $newStatus = (int) $request->order_status;
+        $oldStatusRaw = $order->order_status;
+        $newStatusRaw = $request->order_status;
+
+        $oldStatusEnum = is_numeric($oldStatusRaw)
+            ? OrderStatusEnum::fromLegacyId((int) $oldStatusRaw)
+            : OrderStatusEnum::tryFrom((string) $oldStatusRaw);
+
+        $newStatusEnum = is_numeric($newStatusRaw)
+            ? OrderStatusEnum::fromLegacyId((int) $newStatusRaw)
+            : OrderStatusEnum::tryFrom((string) $newStatusRaw);
+
+        if (!$newStatusEnum) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Selected status is invalid',
+            ], 422);
+        }
+
+        $newStatus = $newStatusEnum->value;
+        $oldStatus = $oldStatusEnum?->value ?? (string) $oldStatusRaw;
 
         $order->order_status = $newStatus;
         $order->save();
 
-        // Handle fund transaction if status changed to completed (6)
+        // Handle fund transaction if status changed to completed
         // Only if no fund transaction already exists for this order (avoid double-crediting POS)
-        if ($newStatus == 6 && $oldStatus != 6) {
+        if ($newStatus === OrderStatusEnum::COMPLETED->value && $oldStatus !== OrderStatusEnum::COMPLETED->value) {
             $existingTx = FundTransaction::where('source', 'sale')->where('source_id', $order->id)->exists();
             if (!$existingTx) {
                 FundTransaction::create([
@@ -953,6 +1012,17 @@ class OrderController extends Controller
                     'note'       => 'Order complete (#' . $order->invoice_id . ') - Manual update',
                     'created_by' => auth()->id(),
                 ]);
+            }
+
+            $payment = Payment::where('order_id', $order->id)->first();
+            if ($payment && strtolower(trim((string) $payment->payment_status)) !== 'paid') {
+                $payment->payment_status = 'paid';
+                $payment->save();
+            }
+
+            if (strtolower(trim((string) $order->payment_status)) !== 'paid') {
+                $order->payment_status = 'paid';
+                $order->save();
             }
         }
 
@@ -977,16 +1047,37 @@ class OrderController extends Controller
 
     public function order_process(Request $request)
     {
-        $link = OrderStatus::find($request->status)->slug;
+        // Support both legacy int ID and new enum string
+        if (is_numeric($request->status)) {
+            $link = OrderStatus::find($request->status)?->slug ?? 'all';
+        } else {
+            $link = $request->status;
+        }
 
         $order     = Order::find($request->id);
-        $oldStatus = (int) $order->order_status;
-        $newStatus = (int) $request->status;
+        $oldStatus = $order->order_status;
+        $newStatus = $request->status; // Can be int (legacy) or string (enum)
+
+        // If integer, convert to enum value
+        if (is_numeric($newStatus)) {
+            $newEnum = OrderStatusEnum::fromLegacyId((int) $newStatus);
+            $newStatus = $newEnum->value;
+        }
 
         $order->order_status = $newStatus;
-        $order->admin_note   = $request->admin_note;
 
-        if ($newStatus == 6 && $oldStatus != 6) {
+        // Add admin note if provided
+        if ($request->filled('admin_note')) {
+            $order->addNote(
+                content: $request->admin_note,
+                type: 'info',
+                source: 'admin',
+                userId: auth()->id(),
+                metadata: ['old_status' => $oldStatus, 'new_status' => $newStatus]
+            );
+        }
+
+        if ($newStatus === OrderStatusEnum::COMPLETED->value && $oldStatus !== OrderStatusEnum::COMPLETED->value) {
             FundTransaction::create([
                 'direction'  => 'in',
                 'source'     => 'sale',
@@ -1415,7 +1506,7 @@ class OrderController extends Controller
                         $order->courier_tracking_id = $consignment_id;
                         $order->courier_sent_at = now();
                         $order->consignment_id = $consignment_id;
-                        $order->order_status = 5;
+                        $order->order_status = 'shipped';
                         $order->save();
                         
                         \Log::info('✅ RedX parcel created successfully', [
@@ -1558,7 +1649,7 @@ class OrderController extends Controller
                     $order->courier_tracking_id = $consignment_id;
                     $order->courier_sent_at = now();
                     $order->consignment_id = $consignment_id; // Keep for backward compatibility
-                    $order->order_status   = 5;
+                    $order->order_status   = 'packed';
                     $order->save();
 
                     \Log::info('✅ Courier info saved successfully', [
@@ -1763,11 +1854,13 @@ class OrderController extends Controller
 
         $cartinfo       = Cart::instance('pos_shopping')->content();
         $shippingcharge = ShippingCharge::where('status', 1)->get();
+        $paymentGateways = PaymentGateway::where('status', 1)->orderBy('type')->get();
 
         return view('backEnd.order.create', compact(
             'products',
             'cartinfo',
-            'shippingcharge'
+            'shippingcharge',
+            'paymentGateways'
         ));
     }
 
@@ -1814,9 +1907,31 @@ class OrderController extends Controller
         $order->discount        = $discount ? $discount : 0;
         $order->shipping_charge = isset($shippingfee->amount) ? $shippingfee->amount : 0;
         $order->customer_id     = $customer_id;
-        $order->order_status    = 1;
+
+        // 🆕 Payment type: paid or cod (from POS form)
+        $paymentType            = strtolower(trim((string) $request->input('payment_type', 'paid')));
+        $paymentSubMethod       = trim((string) $request->input('payment_method', 'Cash'));
+        $paymentNote            = trim((string) $request->input('payment_note', ''));
+
+        $order->order_type      = $paymentType === 'cod' ? 'cod' : 'pos';
+        // POS paid → completed immediately (skip fulfillment)
+        // POS COD → pending (will complete on delivery/payment)
+        $order->order_status    = $paymentType === 'cod' 
+            ? OrderStatusEnum::PENDING->value 
+            : OrderStatusEnum::COMPLETED->value;
+        $order->payment_status  = $paymentType === 'cod' ? 'pending' : 'paid';
         $order->note            = $request->note;
         $order->save();
+
+        // Record order note with payment info
+        $order->addNote(
+            content: 'POS order created | Payment: ' . strtoupper($paymentType) 
+                . ' | Method: ' . $paymentSubMethod
+                . ($paymentNote ? ' | Ref: ' . $paymentNote : ''),
+            type: 'info',
+            source: 'system',
+            userId: auth()->id()
+        );
 
         $shipping              = new Shipping();
         $shipping->order_id    = $order->id;
@@ -1830,9 +1945,9 @@ class OrderController extends Controller
         $payment                 = new Payment();
         $payment->order_id       = $order->id;
         $payment->customer_id    = $customer_id;
-        $payment->payment_method = 'Cash On Delivery';
+        $payment->payment_method = $this->resolvePaymentMethodLabel($paymentSubMethod);
         $payment->amount         = $order->amount;
-        $payment->payment_status = 'pending';
+        $payment->payment_status = $order->payment_status;
         $payment->save();
 
         foreach (Cart::instance('pos_shopping')->content() as $cart) {
@@ -1884,15 +1999,17 @@ class OrderController extends Controller
         // নতুন অর্ডার প্লেস করলে স্টক কমানো (oldStatus = 0, newStatus = 1)
         $this->handleStockChange($order, 0, (int) $order->order_status);
 
-        // 💰 POS অর্ডার হলে ফান্ডে টাকা যোগ করুন
-        FundTransaction::create([
-            'direction' => 'in',
-            'source'    => 'sale',
-            'source_id' => $order->id,
-            'amount'    => $order->amount,
-            'note'      => 'POS Order #' . $order->invoice_id,
-            'created_by'=> auth()->id(),
-        ]);
+        // 💰 Payment received হলে ফান্ডে টাকা যোগ করুন
+        if (in_array($paymentStatusInput, ['paid', 'completed', 'success', 'approved'], true)) {
+            FundTransaction::create([
+                'direction' => 'in',
+                'source'    => 'sale',
+                'source_id' => $order->id,
+                'amount'    => $order->amount,
+                'note'      => 'POS Order #' . $order->invoice_id,
+                'created_by'=> auth()->id(),
+            ]);
+        }
 
         Cart::instance('pos_shopping')->destroy();
         Session::forget(['pos_shipping', 'pos_discount', 'pos_coupon_code']);
@@ -1937,16 +2054,24 @@ class OrderController extends Controller
         $order = Order::findOrFail($request->order_id);
 
         if ($request->note_type === 'order') {
+            // Customer-facing note: keep on orders table
             if (Schema::hasColumn('orders', 'order_note')) {
                 $order->order_note = $request->note;
             } else {
                 $order->note = $request->note;
             }
+            $order->save();
         } else {
-            $order->admin_note = $request->note;
+            // Admin note: use OrderNote model for history
+            if (!empty($request->note)) {
+                $order->addNote(
+                    content: $request->note,
+                    type: 'info',
+                    source: 'admin',
+                    userId: auth()->id()
+                );
+            }
         }
-
-        $order->save();
 
         return response()->json([
             'status' => 'success',
@@ -2196,6 +2321,7 @@ class OrderController extends Controller
 
         $shippingcharge = ShippingCharge::where('status', 1)->get();
         $order          = Order::where('invoice_id', $invoice_id)->firstOrFail();
+        $paymentGateways = PaymentGateway::where('status', 1)->orderBy('type')->get();
 
         Cart::instance('pos_shopping')->destroy();
 
@@ -2233,7 +2359,8 @@ class OrderController extends Controller
             'cartinfo',
             'shippingcharge',
             'shippinginfo',
-            'order'
+            'order',
+            'paymentGateways'
         ));
     }
 
@@ -2271,7 +2398,13 @@ class OrderController extends Controller
         $order->discount        = isset($discount) ? $discount : 0;
         $order->shipping_charge = isset($shippingfee->amount) ? $shippingfee->amount : 0;
         $order->customer_id     = $customer->id;
-        $order->order_status    = 1; // এখানে চাইলে স্টক হ্যান্ডেল করতে চাইলে handleStockChange আরও কেয়ারফুললি ব্যবহার করতে হবে
+        $oldOrderStatus         = $order->order_status;
+        $paymentGatewayInput    = strtolower(trim((string) $request->input('payment_gateway', 'cod')));
+        $paymentStatusInput     = strtolower(trim((string) $request->input('payment_status', 'pending')));
+        $order->order_type      = $paymentGatewayInput === 'cod' ? 'cod' : 'pos';
+        if (in_array($paymentStatusInput, ['paid', 'completed', 'success', 'approved'], true)) {
+            $order->order_status = 'completed';
+        }
         $order->note            = $request->note;
         $order->save();
 
@@ -2284,10 +2417,24 @@ class OrderController extends Controller
 
         $payment                 = Payment::where('order_id', $order->id)->firstOrNew(['order_id' => $order->id]);
         $payment->customer_id    = $customer->id;
-        $payment->payment_method = 'Cash On Delivery';
+        $payment->payment_method = $this->resolvePaymentMethodLabel($paymentGatewayInput);
         $payment->amount         = $order->amount;
-        $payment->payment_status = 'pending';
+        $payment->payment_status = $paymentStatusInput;
         $payment->save();
+
+        if (in_array($paymentStatusInput, ['paid', 'completed', 'success', 'approved'], true)) {
+            $exists = FundTransaction::where('source', 'sale')->where('source_id', $order->id)->exists();
+            if (!$exists) {
+                FundTransaction::create([
+                    'direction'  => 'in',
+                    'source'     => 'sale',
+                    'source_id'  => $order->id,
+                    'amount'     => $order->amount,
+                    'note'       => 'Payment received — Order #' . $order->invoice_id,
+                    'created_by' => auth()->id(),
+                ]);
+            }
+        }
 
         $existingDetails = OrderDetails::where('order_id', $order->id)->pluck('id')->toArray();
         $updatedIds      = [];
@@ -2313,6 +2460,10 @@ class OrderController extends Controller
             $updatedIds[] = $detail->id;
         }
 
+        if ((int) $oldOrderStatus !== (int) $order->order_status) {
+            $this->handleStockChange($order, (int) $oldOrderStatus, (int) $order->order_status);
+        }
+
         OrderDetails::where('order_id', $order->id)
             ->whereNotIn('id', $updatedIds)
             ->delete();
@@ -2322,6 +2473,17 @@ class OrderController extends Controller
 
         Toastr::success('Order updated successfully!', 'Success!');
         return redirect()->route('admin.orders', 'pending');
+    }
+
+    protected function resolvePaymentMethodLabel(string $gateway): string
+    {
+        $gateway = trim(strtolower($gateway));
+
+        if ($gateway === '' || in_array($gateway, ['cod', 'cash on delivery', 'cash_on_delivery'], true)) {
+            return 'Cash On Delivery';
+        }
+
+        return ucwords(str_replace(['-', '_'], ' ', $gateway));
     }
 
     /*
@@ -2431,6 +2593,421 @@ class OrderController extends Controller
         return response()->json([
             'status'  => 'success',
             'message' => 'Payment status updated & Digital assets generated successfully!',
+        ]);
+    }
+
+    // ═══════════════════════════════════════════════════════════
+    // 🌟 NEW: Action-Based Order Management (System-Driven)
+    // Each action automatically transitions status + records note
+    // ═══════════════════════════════════════════════════════════
+
+    /**
+     * Add an admin note to an order (without status change).
+     */
+    public function addOrderNote(Request $request)
+    {
+        $request->validate([
+            'order_id' => 'required|integer|exists:orders,id',
+            'note'     => 'required|string|min:1',
+            'type'     => 'nullable|in:info,warning,success,danger',
+        ]);
+
+        $order = Order::findOrFail($request->order_id);
+        
+        $note = $order->addNote(
+            content: $request->note,
+            type: $request->type ?? 'info',
+            source: 'admin',
+            userId: auth()->id()
+        );
+
+        return response()->json([
+            'status'  => 'success',
+            'message' => 'Note added successfully',
+            'note'    => [
+                'id'         => $note->id,
+                'content'    => $note->content,
+                'type'       => $note->type,
+                'user_name'  => auth()->user()->name ?? 'System',
+                'created_at' => $note->created_at->format('d M Y, h:i A'),
+                'created_at_diff' => $note->created_at->diffForHumans(),
+            ],
+        ]);
+    }
+
+    /**
+     * Confirm order (Pending → Confirmed).
+     */
+    public function confirmOrder(Request $request)
+    {
+        $request->validate([
+            'order_id' => 'required|integer|exists:orders,id',
+            'note'     => 'nullable|string',
+        ]);
+
+        $order = Order::findOrFail($request->order_id);
+        $userId = auth()->id();
+
+        // Handle stock: entering active status
+        $oldStatus = $order->order_status;
+        $success = $order->confirm($request->note, $userId);
+
+        if (!$success) {
+            return response()->json([
+                'status'  => 'error',
+                'message' => 'Cannot confirm this order. Invalid status transition.',
+            ], 422);
+        }
+
+        $this->handleStockChange($order, (int) $oldStatus, (int) $order->getOriginal('order_status'));
+
+        return response()->json([
+            'status'      => 'success',
+            'message'     => 'Order confirmed successfully',
+            'new_status'  => $order->order_status,
+            'status_label'=> OrderStatusEnum::tryFrom($order->order_status)?->label() ?? $order->order_status,
+            'badge_class' => OrderStatusEnum::tryFrom($order->order_status)?->badgeClass() ?? 'secondary',
+            'actions'     => $order->getAvailableActions(),
+        ]);
+    }
+
+    /**
+     * Start picking (Confirmed → Picking).
+     */
+    public function startPicking(Request $request)
+    {
+        $request->validate([
+            'order_id' => 'required|integer|exists:orders,id',
+            'note'     => 'nullable|string',
+        ]);
+
+        $order = Order::findOrFail($request->order_id);
+        $success = $order->startPicking($request->note, auth()->id());
+
+        if (!$success) {
+            return response()->json([
+                'status'  => 'error',
+                'message' => 'Cannot start picking. Invalid status transition.',
+            ], 422);
+        }
+
+        return $this->actionSuccessResponse($order, 'Picking started');
+    }
+
+    /**
+     * Start packing (Picking → Packing).
+     */
+    public function startPacking(Request $request)
+    {
+        $request->validate([
+            'order_id' => 'required|integer|exists:orders,id',
+            'note'     => 'nullable|string',
+        ]);
+
+        $order = Order::findOrFail($request->order_id);
+        $success = $order->startPacking($request->note, auth()->id());
+
+        if (!$success) {
+            return response()->json([
+                'status'  => 'error',
+                'message' => 'Cannot start packing. Invalid status transition.',
+            ], 422);
+        }
+
+        return $this->actionSuccessResponse($order, 'Packing started');
+    }
+
+    /**
+     * Mark as packed (Packing → Packed).
+     */
+    public function markPacked(Request $request)
+    {
+        $request->validate([
+            'order_id' => 'required|integer|exists:orders,id',
+            'note'     => 'nullable|string',
+        ]);
+
+        $order = Order::findOrFail($request->order_id);
+        $success = $order->markPacked($request->note, auth()->id());
+
+        if (!$success) {
+            return response()->json([
+                'status'  => 'error',
+                'message' => 'Cannot mark as packed. Invalid status transition.',
+            ], 422);
+        }
+
+        return $this->actionSuccessResponse($order, 'Order packed');
+    }
+
+    /**
+     * Ship order (Packed → Shipped).
+     */
+    public function shipOrder(Request $request)
+    {
+        $request->validate([
+            'order_id'        => 'required|integer|exists:orders,id',
+            'note'            => 'nullable|string',
+            'courier_type'    => 'nullable|string|max:255',
+            'courier_tracking_id' => 'nullable|string|max:255',
+        ]);
+
+        $order = Order::findOrFail($request->order_id);
+        $success = $order->ship(
+            courierType: $request->courier_type,
+            trackingId: $request->courier_tracking_id,
+            note: $request->note,
+            userId: auth()->id()
+        );
+
+        if (!$success) {
+            return response()->json([
+                'status'  => 'error',
+                'message' => 'Cannot ship this order. Invalid status transition.',
+            ], 422);
+        }
+
+        return $this->actionSuccessResponse($order, 'Order shipped');
+    }
+
+    /**
+     * Mark out for delivery (Shipped → Out for Delivery).
+     */
+    public function markOutForDelivery(Request $request)
+    {
+        $request->validate([
+            'order_id' => 'required|integer|exists:orders,id',
+            'note'     => 'nullable|string',
+        ]);
+
+        $order = Order::findOrFail($request->order_id);
+        $success = $order->markOutForDelivery($request->note, auth()->id());
+
+        if (!$success) {
+            return response()->json([
+                'status'  => 'error',
+                'message' => 'Cannot mark out for delivery. Invalid status transition.',
+            ], 422);
+        }
+
+        return $this->actionSuccessResponse($order, 'Out for delivery');
+    }
+
+    /**
+     * Mark as delivered (Out for Delivery → Delivered).
+     */
+    public function markDelivered(Request $request)
+    {
+        $request->validate([
+            'order_id' => 'required|integer|exists:orders,id',
+            'note'     => 'nullable|string',
+        ]);
+
+        $order = Order::findOrFail($request->order_id);
+        $success = $order->markDelivered($request->note, auth()->id());
+
+        if (!$success) {
+            return response()->json([
+                'status'  => 'error',
+                'message' => 'Cannot mark as delivered. Invalid status transition.',
+            ], 422);
+        }
+
+        // COD: auto-update payment to paid on delivery
+        if ($order->isCodOrder() && $order->payment_status === 'pending') {
+            $order->payment_status = 'paid';
+            $order->save();
+
+            $payment = Payment::where('order_id', $order->id)->first();
+            if ($payment) {
+                $payment->payment_status = 'paid';
+                $payment->save();
+            }
+
+            // Fund transaction
+            $exists = FundTransaction::where('source', 'sale')->where('source_id', $order->id)->exists();
+            if (!$exists) {
+                FundTransaction::create([
+                    'direction'  => 'in',
+                    'source'     => 'sale',
+                    'source_id'  => $order->id,
+                    'amount'     => $order->amount,
+                    'note'       => 'COD payment received — Order #' . $order->invoice_id,
+                    'created_by' => auth()->id(),
+                ]);
+            }
+        }
+
+        return $this->actionSuccessResponse($order, 'Order delivered');
+    }
+
+    /**
+     * Complete order (Delivered → Completed).
+     */
+    public function completeOrder(Request $request)
+    {
+        $request->validate([
+            'order_id' => 'required|integer|exists:orders,id',
+            'note'     => 'nullable|string',
+        ]);
+
+        $order = Order::findOrFail($request->order_id);
+        $success = $order->markCompleted($request->note, auth()->id());
+
+        if (!$success) {
+            return response()->json([
+                'status'  => 'error',
+                'message' => 'Cannot complete this order. Invalid status transition.',
+            ], 422);
+        }
+
+        // Fund transaction on completion
+        $exists = FundTransaction::where('source', 'sale')->where('source_id', $order->id)->exists();
+        if (!$exists) {
+            FundTransaction::create([
+                'direction'  => 'in',
+                'source'     => 'sale',
+                'source_id'  => $order->id,
+                'amount'     => $order->amount,
+                'note'       => 'Order complete (#' . $order->invoice_id . ')',
+                'created_by' => auth()->id(),
+            ]);
+        }
+
+        return $this->actionSuccessResponse($order, 'Order completed');
+    }
+
+    /**
+     * Request return (Delivered/Completed → Return Requested).
+     */
+    public function requestReturn(Request $request)
+    {
+        $request->validate([
+            'order_id' => 'required|integer|exists:orders,id',
+            'note'     => 'nullable|string',
+        ]);
+
+        $order = Order::findOrFail($request->order_id);
+        $success = $order->requestReturn($request->note, auth()->id());
+
+        if (!$success) {
+            return response()->json([
+                'status'  => 'error',
+                'message' => 'Cannot request return. Invalid status transition.',
+            ], 422);
+        }
+
+        return $this->actionSuccessResponse($order, 'Return requested');
+    }
+
+    /**
+     * Approve return (Return Requested → Return Approved).
+     */
+    public function approveReturn(Request $request)
+    {
+        $request->validate([
+            'order_id' => 'required|integer|exists:orders,id',
+            'note'     => 'nullable|string',
+        ]);
+
+        $order = Order::findOrFail($request->order_id);
+        $success = $order->approveReturn($request->note, auth()->id());
+
+        if (!$success) {
+            return response()->json([
+                'status'  => 'error',
+                'message' => 'Cannot approve return. Invalid status transition.',
+            ], 422);
+        }
+
+        return $this->actionSuccessResponse($order, 'Return approved');
+    }
+
+    /**
+     * Mark item returned (Return Approved → Returned).
+     */
+    public function markReturned(Request $request)
+    {
+        $request->validate([
+            'order_id' => 'required|integer|exists:orders,id',
+            'note'     => 'nullable|string',
+        ]);
+
+        $order = Order::findOrFail($request->order_id);
+        $success = $order->markReturned($request->note, auth()->id());
+
+        if (!$success) {
+            return response()->json([
+                'status'  => 'error',
+                'message' => 'Cannot mark as returned. Invalid status transition.',
+            ], 422);
+        }
+
+        return $this->actionSuccessResponse($order, 'Item returned');
+    }
+
+    /**
+     * Close order (Returned → Closed).
+     */
+    public function closeOrder(Request $request)
+    {
+        $request->validate([
+            'order_id' => 'required|integer|exists:orders,id',
+            'note'     => 'nullable|string',
+        ]);
+
+        $order = Order::findOrFail($request->order_id);
+        $success = $order->closeOrder($request->note, auth()->id());
+
+        if (!$success) {
+            return response()->json([
+                'status'  => 'error',
+                'message' => 'Cannot close this order. Invalid status transition.',
+            ], 422);
+        }
+
+        return $this->actionSuccessResponse($order, 'Order closed');
+    }
+
+    /**
+     * Cancel order.
+     */
+    public function cancelOrder(Request $request)
+    {
+        $request->validate([
+            'order_id' => 'required|integer|exists:orders,id',
+            'note'     => 'nullable|string',
+        ]);
+
+        $order = Order::findOrFail($request->order_id);
+        $oldStatus = (int) $order->order_status;
+        $success = $order->cancel($request->note, auth()->id());
+
+        if (!$success) {
+            return response()->json([
+                'status'  => 'error',
+                'message' => 'Cannot cancel this order. It may already be shipped or completed.',
+            ], 422);
+        }
+
+        // Restore stock on cancellation
+        $this->handleStockChange($order, $oldStatus, (int) OrderStatusEnum::CANCELLED->value);
+
+        return $this->actionSuccessResponse($order, 'Order cancelled');
+    }
+
+    /**
+     * Standardized success response for action methods.
+     */
+    private function actionSuccessResponse(Order $order, string $message): \Illuminate\Http\JsonResponse
+    {
+        return response()->json([
+            'status'       => 'success',
+            'message'      => $message . ' successfully',
+            'new_status'   => $order->order_status,
+            'status_label' => OrderStatusEnum::tryFrom($order->order_status)?->label() ?? $order->order_status,
+            'badge_class'  => OrderStatusEnum::tryFrom($order->order_status)?->badgeClass() ?? 'secondary',
+            'actions'      => $order->getAvailableActions(),
         ]);
     }
 

@@ -163,7 +163,7 @@ class OrderController extends Controller
                 'amount' => $grandTotal,
                 'shipping_charge' => $shippingfee,
                 'customer_id' => $customer->id,
-                'order_status' => 1, // Pending
+                'order_status' => 'pending',
                 'note' => $request->note,
                 'order_note' => $request->order_note,
                 'payment_status' => 'pending',

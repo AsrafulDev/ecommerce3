@@ -211,7 +211,7 @@ class BkashController extends Controller
             // যদি 'order_status' কলামও না থাকে, তবে নিচের লাইনটি কমেন্ট করে দিন।
 if($order) {
     // আপনার ডাটাবেসের order_statuses টেবিলে দেখুন Pending এর ID কত। সাধারণত 1 হয়।
-    $order->order_status = 1; // ✅ সঠিক: সংখ্যা বসানো হয়েছে
+    $order->order_status = 'pending';
     $order->payment_status = 'paid';
     $order->save();
 }

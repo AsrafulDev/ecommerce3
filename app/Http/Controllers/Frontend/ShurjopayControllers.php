@@ -52,7 +52,7 @@ class ShurjopayControllers extends Controller
         $orderIdFromGateway = $data[0]->value1 ?? $data[0]->id;
 
         $order = Order::where('id', $orderIdFromGateway)->firstOrFail();
-        $order->order_status = 2;      // accepted/processing ইত্যাদি
+        $order->order_status = 'confirmed';
         $order->payment_status = 'paid';
         $order->save();
         

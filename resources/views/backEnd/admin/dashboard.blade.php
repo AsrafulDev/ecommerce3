@@ -125,6 +125,14 @@
       </div>
     </div>
     <div class="stat-card">
+      <div class="icon-box icon-teal"><i class="fas fa-flag-checkered"></i></div>
+      <div class="stat-content">
+        <div class="stat-label">{{ __('Completed') }}</div>
+        <div class="stat-value">{{ number_format($total_completed ?? 0) }}</div>
+        <div class="stat-sub">Orders fully closed</div>
+      </div>
+    </div>
+    <div class="stat-card">
       <div class="icon-box icon-amber"><i class="fas fa-coins"></i></div>
       <div class="stat-content">
         <div class="stat-label">{{ __('Today Profit') }}</div>
@@ -165,6 +173,13 @@
       </div>
     </div>
     <div class="stat-card compact">
+      <div class="icon-box icon-amber"><i class="fas fa-clock"></i></div>
+      <div class="stat-content">
+        <div class="stat-label">{{ __('Pending') }}</div>
+        <div class="stat-value">{{ number_format($total_pending ?? 0) }}</div>
+      </div>
+    </div>
+    <div class="stat-card compact">
       <div class="icon-box icon-teal"><i class="fas fa-calendar-check"></i></div>
       <div class="stat-content">
         <div class="stat-label">{{ __('Last Month') }}</div>
@@ -178,7 +193,7 @@
       <div class="chart-card">
         <div class="chart-header">
           <h5><span class="dot" style="background:#6366f1;"></span> {{ __('Sales Overview') }}</h5>
-          <small class="text-muted">{{ __('Last 30 days (delivered)') }}</small>
+          <small class="text-muted">{{ __('Last 30 days (delivered + completed)') }}</small>
         </div>
         <div id="salesChart" style="min-height: 300px;"></div>
       </div>
@@ -270,13 +285,12 @@
     monthlyData.forEach(function(item) { categories.push(item.date); values.push(parseFloat(item.amount)); });
     categories.reverse(); values.reverse();
     new ApexCharts(document.querySelector('#salesChart'), {
-      chart: { type: 'area', height: 320, toolbar: { show: false }, fontFamily: 'inherit' },
+      chart: { type: 'bar', height: 320, toolbar: { show: false }, fontFamily: 'inherit' },
       series: [{ name: 'Sales (৳)', data: values }],
       xaxis: { categories: categories, labels: { style: { fontSize: '11px' } } },
       yaxis: { labels: { formatter: function(v) { return '৳'+(v/1000).toFixed(0)+'k'; } } },
       colors: ['#6366f1'],
-      fill: { type: 'gradient', gradient: { shadeIntensity: 1, opacityFrom: 0.3, opacityTo: 0.05 } },
-      stroke: { curve: 'smooth', width: 2.5 },
+      plotOptions: { bar: { borderRadius: 6, columnWidth: '60%', distributed: false } },
       dataLabels: { enabled: false },
       grid: { borderColor: '#f1f5f9', strokeDashArray: 4 },
       tooltip: { y: { formatter: function(v) { return '৳'+v.toLocaleString(); } } }

@@ -356,13 +356,13 @@ body {
 /*==== COMMON CSS START ====*/
 @font-face {
     font-family: "Potro Sans Bangla";
-    src: url("../fonts/Potro-Sans-Bangla-Regular.ttf");
-    src: url("../fonts/Potro-Sans-Bangla-Regular.ttf?#iefix") format("embedded-opentype"), url("../fonts/Potro-Sans-Bangla-Regular.ttf") format("truetype");
+    src: url("{{ asset('public/frontEnd/fonts/Potro-Sans-Bangla-Regular.ttf') }}");
+    src: url("{{ asset('public/frontEnd/fonts/Potro-Sans-Bangla-Regular.ttf') }}?#iefix") format("embedded-opentype"), url("{{ asset('public/frontEnd/fonts/Potro-Sans-Bangla-Regular.ttf') }}") format("truetype");
 }
 
 @font-face {
     font-family: "Alinur Banglaborno";
-    src: url("../fonts/Li-Alinur-Banglaborno-Unicode.ttf");
+    src: url("{{ asset('public/frontEnd/fonts/Li-Alinur-Banglaborno-Unicode.ttf') }}");
     src: url("../fonts/Li-Alinur-Banglaborno-Unicode.ttf?#iefix") format("embedded-opentype"), url("../fonts/Li-Alinur-Banglaborno-Unicode.ttf") format("truetype");
 }
 

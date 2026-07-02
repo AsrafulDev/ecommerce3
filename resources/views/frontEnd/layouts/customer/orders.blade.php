@@ -5,6 +5,45 @@ use Illuminate\Support\Str;
 $customer = Auth::guard('customer')->user();
 $customerId = $customer->id;
 
+$resolveOrderStatus = function ($orderStatus, $relationStatus = null) {
+    $statusValue = is_string($orderStatus) ? strtolower(trim($orderStatus)) : (string) $orderStatus;
+    $enum = \App\Enums\OrderStatus::tryFrom($statusValue);
+
+    if ($enum) {
+        return [
+            'label' => $enum->label(),
+            'class' => match ($enum) {
+                \App\Enums\OrderStatus::COMPLETED => 'bg-green-50 text-green-600',
+                \App\Enums\OrderStatus::CANCELLED, \App\Enums\OrderStatus::CLOSED => 'bg-red-50 text-red-600',
+                \App\Enums\OrderStatus::SHIPPED, \App\Enums\OrderStatus::OUT_FOR_DELIVERY => 'bg-orange-50 text-orange-600',
+                default => 'bg-gray-50 text-gray-600',
+            },
+        ];
+    }
+
+    $legacyMap = [
+        '1'  => ['label' => 'Pending', 'class' => 'bg-gray-50 text-gray-600'],
+        '2'  => ['label' => 'Confirmed', 'class' => 'bg-blue-50 text-blue-600'],
+        '3'  => ['label' => 'Picking', 'class' => 'bg-orange-50 text-orange-600'],
+        '4'  => ['label' => 'Packing', 'class' => 'bg-orange-50 text-orange-600'],
+        '5'  => ['label' => 'Packed', 'class' => 'bg-orange-50 text-orange-600'],
+        '6'  => ['label' => 'Completed', 'class' => 'bg-green-50 text-green-600'],
+        '7'  => ['label' => 'Shipped', 'class' => 'bg-orange-50 text-orange-600'],
+        '8'  => ['label' => 'Out for Delivery', 'class' => 'bg-orange-50 text-orange-600'],
+        '9'  => ['label' => 'Delivered', 'class' => 'bg-green-50 text-green-600'],
+        '10' => ['label' => 'Return Requested', 'class' => 'bg-yellow-50 text-yellow-600'],
+        '11' => ['label' => 'Cancelled', 'class' => 'bg-red-50 text-red-600'],
+        '12' => ['label' => 'Return Approved', 'class' => 'bg-blue-50 text-blue-600'],
+        '13' => ['label' => 'Returned', 'class' => 'bg-gray-50 text-gray-600'],
+        '14' => ['label' => 'Closed', 'class' => 'bg-red-50 text-red-600'],
+    ];
+
+    return $legacyMap[$statusValue] ?? [
+        'label' => optional($relationStatus)->name ?? 'Pending',
+        'class' => 'bg-gray-50 text-gray-600',
+    ];
+};
+
 // Site Name & Logo
 $siteName = \App\Models\GeneralSetting::first();
 $siteInitial = strtoupper(substr($siteName->name ?? 'G', 0, 1));
@@ -14,7 +53,7 @@ $darkLogo = $siteName->dark_logo ?? null;
 
 // Pending Orders Count for Badge
 $pendingOrdersCount = \App\Models\Order::where('customer_id', $customerId)
-    ->whereNotIn('order_status', ['6', '11'])
+    ->whereNotIn('order_status', ['completed', 'cancelled', 'closed', '6', '11', '14'])
     ->count();
 
 // Profile Image - Use direct image path
@@ -218,22 +257,9 @@ $totalOrderAmount = \App\Models\Order::where('customer_id', $customerId)->sum('a
                                     $hasDigitalProduct = $digitalDownloads->count() > 0;
 
                                     // Order Status Badge
-                                    $statusClass = '';
-                                    $statusText = $value->status ? $value->status->name : 'Pending';
-                                    
-                                    if($value->order_status == '6') {
-                                        $statusClass = 'bg-green-50 text-green-600';
-                                        $statusText = __('Completed');
-                                    } elseif($value->order_status == '11') {
-                                        $statusClass = 'bg-red-50 text-red-600';
-                                        $statusText = __('Cancelled');
-                                    } elseif(in_array($value->order_status, ['3', '4', '5'])) {
-                                        $statusClass = 'bg-orange-50 text-orange-600';
-                                        $statusText = __('Shipped');
-                                    } else {
-                                        $statusClass = 'bg-gray-50 text-gray-600';
-                                        $statusText = __('Pending');
-                                    }
+                                    $statusMeta = $resolveOrderStatus($value->order_status, $value->status);
+                                    $statusClass = $statusMeta['class'];
+                                    $statusText = __($statusMeta['label']);
 
                                     // Refund Logic
                                     $canRefund = false;

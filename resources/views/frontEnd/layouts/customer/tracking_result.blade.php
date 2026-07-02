@@ -270,7 +270,7 @@
                                 </div>
                             </div>
                             <div class="status-badge">
-                                {{ optional(App\Models\Orderstatus::find($value->order_status))->name ?? 'Unknown' }}
+                                {{ optional(\App\Models\OrderStatus::where('slug', $value->order_status)->first())->name ?? (\App\Enums\OrderStatus::tryFrom($value->order_status)?->label() ?? 'Unknown') }}
                             </div>
                         </div>
 

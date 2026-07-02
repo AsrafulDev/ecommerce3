@@ -19,10 +19,10 @@ class ApiIntegrationController extends Controller
      
     public function pay_manage ()
     {
-        $bkash = PaymentGateway::where('type','=','bkash')->first();
-        $shurjopay = PaymentGateway::where('type','=','shurjopay')->first();
-        $uddoktapay = PaymentGateway::where('type', 'uddoktapay')->first();
-        $aamarpay = PaymentGateway::where('type', 'aamarpay')->first();
+        $bkash = PaymentGateway::where('type','=','bkash')->first() ?? new PaymentGateway(['type' => 'bkash']);
+        $shurjopay = PaymentGateway::where('type','=','shurjopay')->first() ?? new PaymentGateway(['type' => 'shurjopay']);
+        $uddoktapay = PaymentGateway::where('type', 'uddoktapay')->first() ?? new PaymentGateway(['type' => 'uddoktapay']);
+        $aamarpay = PaymentGateway::where('type', 'aamarpay')->first() ?? new PaymentGateway(['type' => 'aamarpay']);
         return view('backEnd.apiintegration.pay_manage', compact('bkash', 'shurjopay', 'uddoktapay', 'aamarpay'));
 
     }
@@ -30,9 +30,16 @@ class ApiIntegrationController extends Controller
    public function pay_update(Request $request)
 {
     $update_data = \App\Models\PaymentGateway::find($request->id);
+    
+    if (!$update_data) {
+        $update_data = new \App\Models\PaymentGateway();
+        $update_data->type = $request->type;
+    }
+    
     $input = $request->all();
+    unset($input['_token'], $input['_method']);
     $input['status'] = $request->status ? 1 : 0;
-    $update_data->update($input);
+    $update_data->fill($input)->save();
 
     // ✅ যদি গেটওয়ে টাইপ হয় UddoktaPay
     if ($update_data->type === 'uddoktapay') {
@@ -71,21 +78,26 @@ private function updateEnvFile($key, $value)
     
     public function sms_manage ()
     {  
-        $sms = SmsGateway::first();
+        $sms = SmsGateway::first() ?? new SmsGateway();
         return view('backEnd.apiintegration.sms_manage',compact('sms'));
     }
     
 public function sms_update(Request $request)
 {
     $update_data = SmsGateway::find($request->id);
+    
+    if (!$update_data) {
+        $update_data = new SmsGateway();
+    }
+    
     $input = $request->all();
+    unset($input['_token'], $input['_method']);
     $input['status'] = $request->status?1:0;
     $input['order'] = $request->order?1:0;
     $input['forget_pass'] = $request->forget_pass?1:0;
     $input['password_g'] = $request->password_g?1:0;
 
-    // DB Update
-    $update_data->update($input);
+    $update_data->fill($input)->save();
 
     // ============================
     //  🔥 HERE: Save to .env file
@@ -101,8 +113,8 @@ public function sms_update(Request $request)
     
     public function courier_manage ()
     {
-        $steadfast = Courierapi::where('type','=','steadfast')->first();
-        $pathao = Courierapi::where('type','=','pathao')->first();
+        $steadfast = Courierapi::where('type','=','steadfast')->first() ?? new Courierapi(['type' => 'steadfast']);
+        $pathao = Courierapi::where('type','=','pathao')->first() ?? new Courierapi(['type' => 'pathao']);
         $redx = Courierapi::where('type','=','redx')->first();
         
         // Create RedX entry if not exists
@@ -121,8 +133,15 @@ public function sms_update(Request $request)
     {
       
         $update_data = Courierapi::find($request->id);
+        
+        if (!$update_data) {
+            $update_data = new Courierapi();
+            $update_data->type = $request->type; // Set type for new record
+        }
+        
         $input = $request->all();
-        $input['status'] = $request->status?1:0;
+        unset($input['_token'], $input['_method']); // Remove Laravel form helpers
+        $input['status'] = $request->status ? 1 : 0;
         
         // Only include webhook_url if column exists
         if (!Schema::hasColumn('courierapis', 'webhook_url')) {
@@ -197,7 +216,7 @@ public function sms_update(Request $request)
             }
         }
         
-        $update_data->update($input);
+        $update_data->fill($input)->save();
         
         Toastr::success('Success','Data update successfully');
         return redirect()->back();

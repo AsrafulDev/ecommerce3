@@ -172,6 +172,11 @@ if (typeof ttq !== 'undefined') {
 #exampleModal .modal-dialog {
     z-index: 10056 !important;
 }
+
+@keyframes pulse-border {
+    0%, 100% { outline: 2px solid #dc3545; outline-offset: 2px; }
+    50% { outline: 2px solid transparent; outline-offset: 4px; }
+}
 </style>
 @endpush
 
@@ -358,8 +363,7 @@ if (typeof ttq !== 'undefined') {
                                     id="fc-option{{ $procolor->id }}"
                                     value="{{ $procolor->id }}"
                                     name="product_color"
-                                    class="selector-item_radio emptyalert"
-                                    required />
+                                    class="selector-item_radio emptyalert" />
                                 <label for="fc-option{{ $procolor->id }}"
                                     style="background-color: {{ $procolor->color ?? '#ccc' }}"
                                     class="selector-item_label">
@@ -389,8 +393,7 @@ if (typeof ttq !== 'undefined') {
                                     id="f-option{{ $prosize->id }}"
                                     value="{{ $prosize->id }}"
                                     name="product_size"
-                                    class="selector-item_radio emptyalert"
-                                    required />
+                                    class="selector-item_radio emptyalert" />
                                 <label for="f-option{{ $prosize->id }}" class="selector-item_label">
                                     {{ $prosize->sizeName ?? $prosize->name }}
                                 </label>
@@ -1299,21 +1302,50 @@ if (typeof ttq !== 'undefined') {
         if (!form) return true;
         var sizeEl = form["product_size"];
         var colorEl = form["product_color"];
-        if (sizeEl) {
-            var size = sizeEl.value || "";
-            if (size === "") {
-                toastr.warning("Please select any size");
+        
+        var hasSizes = sizeEl && sizeEl.length > 0;
+        var hasColors = colorEl && colorEl.length > 0;
+        
+        if (hasSizes) {
+            var sizeChecked = form.querySelector('input[name="product_size"]:checked');
+            if (!sizeChecked) {
+                showAlert('warning', 'Please select a Size / Variant');
+                highlightGroup('product_size');
                 return false;
             }
         }
-        if (colorEl) {
-            var color = colorEl.value || "";
-            if (color === "") {
-                toastr.error("Please select any color");
+        if (hasColors) {
+            var colorChecked = form.querySelector('input[name="product_color"]:checked');
+            if (!colorChecked) {
+                showAlert('error', 'Please select a Color');
+                highlightGroup('product_color');
                 return false;
             }
         }
         return true;
+    }
+    
+    function showAlert(type, message) {
+        if (typeof toastr !== 'undefined') {
+            toastr[type](message);
+        } else if (typeof Swal !== 'undefined') {
+            Swal.fire({ icon: type === 'error' ? 'error' : 'warning', title: message, timer: 2000, showConfirmButton: false });
+        } else {
+            alert(message);
+        }
+    }
+    
+    function highlightGroup(name) {
+        // Flash the selector group to draw attention
+        var radios = document.querySelectorAll('input[name="' + name + '"]');
+        radios.forEach(function(r) {
+            var label = r.nextElementSibling;
+            if (label) {
+                label.style.animation = 'none';
+                label.offsetHeight;
+                label.style.animation = 'pulse-border 0.6s ease 3';
+            }
+        });
     }
     function handleDetailsCartSubmit(event) {
         if (!sendSuccess()) return false;

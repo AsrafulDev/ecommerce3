@@ -39,7 +39,7 @@ class RefundController extends Controller
             ->firstOrFail();
 
         // Check if order is eligible for refund
-        if ($order->order_status == 11) { // Already cancelled
+        if ($order->order_status == 'cancelled') { // Already cancelled
             Toastr::warning('This order is already cancelled.', 'Warning');
             return redirect()->route('customer.orders');
         }
@@ -79,7 +79,7 @@ class RefundController extends Controller
             ->firstOrFail();
 
         // Check if order is eligible for refund
-        if ($order->order_status == 11) {
+        if ($order->order_status == 'cancelled') {
             Toastr::error('This order is already cancelled.', 'Error');
             return back();
         }

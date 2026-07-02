@@ -262,6 +262,7 @@
                 <form action="{{route('admin.order.store')}}" method="POST" class="row pos_form" data-parsley-validate="" enctype="multipart/form-data" id="pos_order_form">
                     @csrf
                     <input type="hidden" name="coupon_code" value="{{ Session::get('pos_coupon_code', '') }}">
+                    <input type="hidden" name="order_type" value="pos">
 
                     {{-- CUSTOMER --}}
                     <div class="col-md-6">
@@ -307,6 +308,41 @@
                             </select>
                             @error('area')<span class="invalid-feedback"><strong>{{ $message }}</strong></span>@enderror
                         </div>
+
+                        {{-- 🆕 Payment Gateway Selection --}}
+                        <div class="mb-2">
+                            <label class="form-label small mb-1"><strong>Payment Method:</strong></label>
+                            <select id="pos_payment_type"
+                                    class="form-control form-control-sm"
+                                    name="payment_type">
+                                <option value="paid">{{ __('Paid (Cash/Card/Bank/MFS)') }}</option>
+                                <option value="cod">{{ __('Cash on Delivery (COD)') }}</option>
+                            </select>
+                        </div>
+
+                        {{-- 🆕 Payment Sub-Method (shown for both paid and COD) --}}
+                        <div class="mb-2" id="pos_payment_sub_method_wrap">
+                            <label class="form-label small mb-1"><strong>Payment Sub-Method:</strong></label>
+                            <select id="pos_payment_sub_method"
+                                    class="form-control form-control-sm"
+                                    name="payment_method">
+                                <option value="Cash">Cash</option>
+                                <option value="Card">Card</option>
+                                <option value="Bank">Bank Transfer</option>
+                                <option value="MFS">MFS (bKash/Nagad/Rocket)</option>
+                            </select>
+                        </div>
+
+                        {{-- 🆕 Payment Note / Transaction Info --}}
+                        <div class="mb-2">
+                            <label class="form-label small mb-1"><strong>Transaction Note (optional):</strong></label>
+                            <input type="text"
+                                   id="pos_payment_note"
+                                   class="form-control form-control-sm"
+                                   placeholder="Transaction ID / Reference"
+                                   name="payment_note">
+                        </div>
+
                     </div>
 
                     {{-- SUMMARY --}}

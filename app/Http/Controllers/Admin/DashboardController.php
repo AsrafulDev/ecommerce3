@@ -47,24 +47,30 @@ class DashboardController extends Controller
         // =========================
         // DELIVERY / LAST WEEK / LAST MONTH
         // =========================
-        // ✅ Delivered status = 6
+        // ✅ Delivered status = delivered (enum)
         // আজকে যেগুলো ডেলিভার্ড হলো (updated_at আজ)
-        $today_delivery = Order::where('order_status', '6')
+        $today_delivery = Order::where('order_status', 'delivered')
             ->whereDate('updated_at', Carbon::today())
             ->count();
 
         // মোট ডেলিভার্ড অর্ডার
-        $total_delivery = Order::where('order_status', '6')->count();
+        $total_delivery = Order::where('order_status', 'delivered')->count();
+
+        // মোট কমপ্লিটেড অর্ডার (Delivered + Return window expired)
+        $total_completed = Order::where('order_status', 'completed')->count();
+
+        // পেন্ডিং অর্ডার
+        $total_pending = Order::where('order_status', 'pending')->count();
 
         // এই সপ্তাহে যেগুলো ডেলিভার্ড হয়েছে
-        $last_week = Order::where('order_status', '6')
+        $last_week = Order::where('order_status', 'delivered')
             ->whereBetween('updated_at', [
                 Carbon::now()->startOfWeek(),
                 Carbon::now()->endOfWeek()
             ])->count();
 
         // গত মাসে ডেলিভার্ড
-        $last_month = Order::where('order_status', '6')
+        $last_month = Order::where('order_status', 'delivered')
             ->whereYear('updated_at', Carbon::now()->subMonth()->year)
             ->whereMonth('updated_at', Carbon::now()->subMonth()->month)
             ->count();
@@ -78,7 +84,7 @@ class DashboardController extends Controller
                 DB::raw('DATE(updated_at) as date')
             )
             ->selectRaw('SUM(amount) as amount')
-            ->where('order_status', '6') // শুধুই delivered অর্ডার
+            ->whereIn('order_status', ['delivered', 'completed']) // delivered + completed
             ->groupBy('date')
             ->orderBy('date', 'desc')
             ->limit(30)
@@ -87,8 +93,8 @@ class DashboardController extends Controller
         // =========================
         // ⭐ TODAY PROFIT হিসাব
         // =========================
-        // আজকে যেসব অর্ডার ডেলিভার্ড হয়েছে (status = 6 & updated_at = আজ)
-        $todayDeliveredOrders = Order::where('order_status', '6')
+        // আজকে যেসব অর্ডার ডেলিভার্ড/কমপ্লিট হয়েছে (status = delivered/completed & updated_at = আজ)
+        $todayDeliveredOrders = Order::whereIn('order_status', ['delivered', 'completed'])
             ->whereDate('updated_at', Carbon::today())
             ->get();
 
@@ -141,7 +147,7 @@ class DashboardController extends Controller
         // ⭐ SALES BY CATEGORY (Chart Data)
         // =========================
         // Delivered orders এর order_details থেকে category-wise sales calculate
-        $deliveredOrderIds = Order::where('order_status', '6')->pluck('id');
+        $deliveredOrderIds = Order::whereIn('order_status', ['delivered', 'completed'])->pluck('id');
         
         $categorySales = OrderDetails::whereIn('order_id', $deliveredOrderIds)
             ->join('products', 'order_details.product_id', '=', 'products.id')
@@ -176,9 +182,12 @@ class DashboardController extends Controller
             'latest_customer',
             'today_delivery',
             'total_delivery',
+            'total_completed',
+            'total_pending',
             'last_week',
             'last_month',
             'monthly_sale',
+            'today_sales',
             'today_profit',
             'fund_balance',
             'total_expenses',

@@ -265,8 +265,9 @@
     const CSRF_TOKEN = '{{ csrf_token() }}';
     const LAYOUT_ID = {{ $layout->id }};
 
-    // Initialize SortableJS on the sections container
-    const sortable = new Sortable(document.getElementById('sectionsSortable'), {
+    // Initialize SortableJS on the sections container (canvas)
+    const sectionsSortable = new Sortable(document.getElementById('sectionsSortable'), {
+        group: 'layout-sections',
         handle: '.drag-handle',
         animation: 200,
         ghostClass: 'sortable-ghost',
@@ -274,10 +275,33 @@
         dragClass: 'sortable-drag',
         onEnd: function(evt) {
             updateOrder();
+        },
+        onAdd: function(evt) {
+            // Item dragged from pool → add to layout via AJAX
+            const sectionId = evt.item.dataset.sectionId;
+            if (sectionId) {
+                addSectionToLayout(sectionId, evt.item);
+            }
         }
     });
 
-    // Add section from pool
+    // Initialize SortableJS on the pool (left panel) for drag-to-canvas
+    const poolSortable = new Sortable(document.getElementById('sectionPool'), {
+        group: {
+            name: 'layout-sections',
+            pull: 'clone',
+            put: false
+        },
+        sort: false,
+        animation: 200,
+        onStart: function(evt) {
+            // Hide the "no sections" empty state when dragging starts
+            const empty = document.getElementById('emptyCanvas');
+            if (empty) empty.style.display = 'none';
+        }
+    });
+
+    // Add section from pool (click)
     document.querySelectorAll('.add-section-btn').forEach(btn => {
         btn.addEventListener('click', function() {
             const sectionId = this.dataset.sectionId;
@@ -312,7 +336,7 @@
         });
     });
 
-    function addSectionToLayout(sectionId) {
+    function addSectionToLayout(sectionId, draggedEl = null) {
         fetch('{{ route('layouts.sections.add') }}', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': CSRF_TOKEN },
@@ -325,14 +349,18 @@
                 const empty = document.getElementById('emptyCanvas');
                 if (empty) empty.remove();
 
-                // Append the new section HTML
                 const container = document.getElementById('sectionsSortable');
-                container.insertAdjacentHTML('beforeend', data.html);
 
-                // Attach events to the new section
-                attachSectionEvents(container.lastElementChild);
+                if (draggedEl) {
+                    // Replace the cloned pool item with the real section HTML
+                    draggedEl.outerHTML = data.html;
+                    const newEl = container.querySelector(`[data-ls-id="${data.section.ls_id || ''}"]`);
+                    if (newEl) attachSectionEvents(newEl);
+                } else {
+                    container.insertAdjacentHTML('beforeend', data.html);
+                    if (container.lastElementChild) attachSectionEvents(container.lastElementChild);
+                }
 
-                // Update count
                 updateSectionCount();
                 updateOrder();
             }
@@ -367,7 +395,9 @@
             if (data.success) {
                 const badge = document.querySelector(`.sortable-item[data-ls-id="${id}"] .visibility-badge`);
                 if (badge) {
-                    badge.innerHTML = data.is_visible ? '<i class="fe-eye me-1"></i> {{ __("Visible' : '") }} <i class="fe-eye-off me-1"></i> Hidden';
+                    badge.innerHTML = data.is_visible 
+                        ? '<i class="fe-eye me-1"></i> {!! __("Visible") !!}' 
+                        : '<i class="fe-eye-off me-1"></i> {!! __("Hidden") !!}';
                     badge.className = 'badge ' + (data.is_visible ? 'bg-success' : 'bg-secondary') + ' rounded-pill visibility-badge';
                 }
             }

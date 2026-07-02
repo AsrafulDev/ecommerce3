@@ -150,7 +150,8 @@
                 <div class="card-body p-4">
                     <form action="{{ route('paymentgeteway.update') }}" method="POST" data-parsley-validate>
                         @csrf
-                        <input type="hidden" name="id" value="{{ $bkash->id }}">
+                        <input type="hidden" name="id" value="{{ $bkash->id ?? '' }}">
+                        <input type="hidden" name="type" value="bkash">
 
                         <div class="row">
                             <div class="col-md-6 mb-3">
@@ -212,7 +213,8 @@
                 <div class="card-body p-4">
                     <form action="{{ route('paymentgeteway.update') }}" method="POST" data-parsley-validate>
                         @csrf
-                        <input type="hidden" name="id" value="{{ $shurjopay->id }}">
+                        <input type="hidden" name="id" value="{{ $shurjopay->id ?? '' }}">
+                        <input type="hidden" name="type" value="shurjopay">
 
                         <div class="row">
                             <div class="col-md-6 mb-3">
@@ -281,6 +283,7 @@
                     <form action="{{ route('paymentgeteway.update') }}" method="POST" data-parsley-validate>
                         @csrf
                         <input type="hidden" name="id" value="{{ $uddoktapay->id ?? '' }}">
+                        <input type="hidden" name="type" value="uddoktapay">
                         
                         <div class="mb-3">
                             <label class="form-label">{{ __('API Key') }}</label>
@@ -328,6 +331,7 @@
                     <form action="{{ route('paymentgeteway.update') }}" method="POST" data-parsley-validate>
                         @csrf
                         <input type="hidden" name="id" value="{{ $aamarpay->id ?? '' }}">
+                        <input type="hidden" name="type" value="aamarpay">
                         
                         <div class="mb-3">
                             <label class="form-label">{{ __('Store ID') }}</label>

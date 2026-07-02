@@ -19,7 +19,6 @@ use Illuminate\Support\Facades\Response;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\SubcategoryController;
 use App\Http\Controllers\Admin\ChildcategoryController;
-use App\Http\Controllers\Admin\OrderStatusController;
 use App\Http\Controllers\Admin\PixelsController;
 use App\Http\Controllers\Admin\TiktokPixelsController;
 use App\Http\Controllers\Admin\BrandController;
@@ -713,15 +712,7 @@ Route::get('dashboard', [DashboardController::class, 'dashboard'])->name('admin.
     Route::get('redx/pickup-stores', [OrderController::class, 'redxPickupStores'])->name('admin.redx.pickup-stores');
 
     // attribute
-    Route::get('orderstatus/manage', [OrderStatusController::class,'index'])->name('orderstatus.index');
-    Route::get('orderstatus/{id}/show', [OrderStatusController::class,'show'])->name('orderstatus.show');
-    Route::get('orderstatus/create', [OrderStatusController::class,'create'])->name('orderstatus.create');
-    Route::post('orderstatus/save', [OrderStatusController::class,'store'])->name('orderstatus.store');
-    Route::get('orderstatus/{id}/edit', [OrderStatusController::class,'edit'])->name('orderstatus.edit');
-    Route::post('orderstatus/update', [OrderStatusController::class,'update'])->name('orderstatus.update');
-    Route::post('orderstatus/inactive', [OrderStatusController::class,'inactive'])->name('orderstatus.inactive');
-    Route::post('orderstatus/active', [OrderStatusController::class,'active'])->name('orderstatus.active');
-    Route::post('orderstatus/destroy', [OrderStatusController::class,'destroy'])->name('orderstatus.destroy');
+    // ⚠️ Order Status management removed — now enum-driven via app/Enums/OrderStatus.php
     
     // pixels
     Route::get('pixels/manage', [PixelsController::class,'index'])->name('pixels.index');
@@ -1021,6 +1012,26 @@ Route::get('dashboard', [DashboardController::class, 'dashboard'])->name('admin.
     Route::get('order/process/{invoice_id}', [OrderController::class,'process'])->name('admin.order.process');
     Route::post('order/change', [OrderController::class,'order_process'])->name('admin.order_change');
     Route::post('order/destroy', [OrderController::class,'destroy'])->name('admin.order.destroy');
+
+    // ═══════════════════════════════════════════════════════
+    // 🌟 NEW: Action-Based Order Management (System-Driven)
+    // Each action auto-transitions status + records note
+    // ═══════════════════════════════════════════════════════
+    Route::post('order/add-note', [OrderController::class, 'addOrderNote'])->name('admin.order.addNote');
+    Route::post('order/action/confirm', [OrderController::class, 'confirmOrder'])->name('admin.order.confirm');
+    Route::post('order/action/start-picking', [OrderController::class, 'startPicking'])->name('admin.order.startPicking');
+    Route::post('order/action/start-packing', [OrderController::class, 'startPacking'])->name('admin.order.startPacking');
+    Route::post('order/action/mark-packed', [OrderController::class, 'markPacked'])->name('admin.order.markPacked');
+    Route::post('order/action/ship', [OrderController::class, 'shipOrder'])->name('admin.order.ship');
+    Route::post('order/action/out-for-delivery', [OrderController::class, 'markOutForDelivery'])->name('admin.order.outForDelivery');
+    Route::post('order/action/deliver', [OrderController::class, 'markDelivered'])->name('admin.order.deliver');
+    Route::post('order/action/complete', [OrderController::class, 'completeOrder'])->name('admin.order.complete');
+    Route::post('order/action/request-return', [OrderController::class, 'requestReturn'])->name('admin.order.requestReturn');
+    Route::post('order/action/approve-return', [OrderController::class, 'approveReturn'])->name('admin.order.approveReturn');
+    Route::post('order/action/mark-returned', [OrderController::class, 'markReturned'])->name('admin.order.markReturned');
+    Route::post('order/action/close', [OrderController::class, 'closeOrder'])->name('admin.order.close');
+    Route::post('order/action/cancel', [OrderController::class, 'cancelOrder'])->name('admin.order.cancel');
+
     Route::get('order-assign', [OrderController::class,'order_assign'])->name('admin.order.assign');
     Route::get('order-status', [OrderController::class,'order_status'])->name('admin.order.status');
     Route::get('order-bulk-destroy', [OrderController::class,'bulk_destroy'])->name('admin.order.bulk_destroy');

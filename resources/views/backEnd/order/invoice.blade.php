@@ -81,7 +81,7 @@
 
                                 <!-- ✅ Payment Gateway + Status অংশ -->
                                 <div style="margin-bottom:15px;">
-                                    <p><strong>Payment Gateway:</strong> {{ ucfirst($order->payment_gateway ?? 'N/A') }}</p>
+                                    <p><strong>Payment Gateway:</strong> {{ $order->payment ? strtoupper($order->payment->payment_method) : 'N/A' }}</p>
                                     <p><strong>Payment Status:</strong></p>
                                     <select id="payment_status_{{ $order->id }}" class="form-control no-print" style="width:auto; display:inline-block;">
                                         <option value="pending" {{ $order->payment_status == 'pending' ? 'selected' : '' }}>{{ __('Pending') }}</option>
@@ -92,35 +92,120 @@
                                     <button class="btn btn-sm btn-success no-print" onclick="updatePaymentStatus({{ $order->id }})">{{ __('Update') }}</button>
                                 </div>
                                 
-                                <!-- ✅ Order Status Change (Manual) -->
-                                <div style="margin-bottom:15px; padding: 10px; background: #f8f9fa; border-radius: 5px;">
-                                    <p style="margin-bottom: 5px;"><strong>Order Status:</strong> 
-                                        <span class="badge bg-{{ $order->order_status == 6 ? 'success' : ($order->order_status == 11 ? 'danger' : 'warning') }}">
-                                            {{ $order->status ? $order->status->name : 'N/A' }}
+                                <!-- 🌟 NEW: System-Driven Order Status (Read-Only) + Action Buttons -->
+                                <div style="margin-bottom:15px; padding: 12px; background: #f8f9fa; border-radius: 5px; border-left: 4px solid #4DBC60;">
+                                    <p style="margin-bottom: 8px;">
+                                        <strong>Order Status:</strong> 
+                                        @php
+                                            $statusEnum = \App\Enums\OrderStatus::tryFrom($order->order_status);
+                                            $statusLabel = $statusEnum ? $statusEnum->label() : ($order->status->name ?? 'N/A');
+                                            $badgeClass = $statusEnum ? $statusEnum->badgeClass() : 'secondary';
+                                        @endphp
+                                        <span class="badge bg-{{ $badgeClass }}" style="font-size:14px; padding:6px 12px;">
+                                            {{ $statusLabel }}
                                         </span>
-                                    </p>
-                                    @if(isset($orderstatus))
-                                    <div class="no-print">
-                                        <select id="order_status_{{ $order->id }}" class="form-control" style="width:auto; display:inline-block; margin-right: 5px;">
-                                            @foreach($orderstatus as $status)
-                                                <option value="{{ $status->id }}" {{ $order->order_status == $status->id ? 'selected' : '' }}>
-                                                    {{ $status->name }}
-                                                </option>
-                                            @endforeach
-                                        </select>
-                                        <button class="btn btn-sm btn-primary" onclick="updateOrderStatus({{ $order->id }})">
-                                            <i class="fa fa-save"></i> {{ __('Update Status') }} </button>
-                                        @if($order->courier_type)
-                                        <br><small class="text-muted" style="margin-top: 5px; display: inline-block;">
-                                            <i class="fa fa-truck"></i> Courier: {{ ucfirst($order->courier_type) }}
-                                            @if($order->courier_tracking_id)
-                                                | Tracking: {{ $order->courier_tracking_id }}
-                                            @endif
-                                            <br><span style="color: #6c757d; font-size: 11px;">(Auto-update from courier every 10 minutes)</span>
-                                        </small>
+                                        @if($order->order_type)
+                                            <small class="text-muted">| Type: {{ ucfirst($order->order_type) }}</small>
                                         @endif
-                                    </div>
+                                    </p>
+                                    
+                                    {{-- Courier info if shipped --}}
+                                    @if($order->courier_type)
+                                    <small class="text-muted d-block mb-2">
+                                        <i class="fa fa-truck"></i> Courier: {{ ucfirst($order->courier_type) }}
+                                        @if($order->courier_tracking_id)
+                                            | Tracking: <strong>{{ $order->courier_tracking_id }}</strong>
+                                        @endif
+                                        @if($order->courier_sent_at)
+                                            | Sent: {{ \Carbon\Carbon::parse($order->courier_sent_at)->format('d M Y h:i A') }}
+                                        @endif
+                                    </small>
                                     @endif
+
+                                    {{-- Action Buttons + Quick Dropdown --}}
+                                    @php 
+                                        $hasActions = !empty($availableActions) && is_array($availableActions) && count($availableActions) > 0;
+                                        $pipeline = $pipelineActions ?? $availableActions ?? [];
+                                    @endphp
+                                    @if($hasActions)
+                                    <div class="no-print mt-2">
+                                        <strong style="font-size:12px; color:#666;">Quick Actions (Next Step + Pipeline):</strong><br>
+                                        {{-- Quick dropdown shows ALL downstream steps --}}
+                                        <div class="input-group" style="max-width: 360px;">
+                                            <select id="quick_action_select" class="form-select form-select-sm" style="border-radius: 4px 0 0 4px;">
+                                                <option value="">— Select Pipeline Step —</option>
+                                                @foreach($pipeline as $action)
+                                                    <option value="{{ $action['action'] }}" data-next="{{ $action['next_status'] }}">
+                                                        {{ $action['label'] }} @if(!in_array($action['action'], array_column($availableActions, 'action'))) (skip) @endif
+                                                    </option>
+                                                @endforeach
+                                            </select>
+                                            <button class="btn btn-sm btn-success" onclick="performQuickAction({{ $order->id }})" style="border-radius: 0 4px 4px 0;">
+                                                <i class="fa fa-bolt"></i> Go
+                                            </button>
+                                        </div>
+                                        {{-- Individual next-step action buttons --}}
+                                        <div class="mt-1">
+                                        @foreach($availableActions as $action)
+                                            <button class="btn btn-xs btn-{{ $action['class'] }} mt-1" 
+                                                    onclick="performAction('{{ $action['action'] }}', {{ $order->id }})"
+                                                    style="margin-right: 3px; margin-bottom: 3px;"
+                                                    title="{{ $action['label'] }}">
+                                                <i class="fa {{ $action['icon'] }}"></i> {{ $action['label'] }}
+                                            </button>
+                                        @endforeach
+                                        </div>
+                                    </div>
+                                    @else
+                                    <small class="text-muted no-print"><i class="fa fa-lock"></i> No further actions available (terminal status)</small>
+                                    @endif
+                                </div>
+
+                                {{-- Ship Order Modal (hidden by default) --}}
+                                <div id="shipModal" class="no-print" style="display:none; padding:10px; background:#fff3cd; border-radius:5px; margin-bottom:10px;">
+                                    <strong><i class="fa fa-truck"></i> Ship Order</strong>
+                                    <div class="row mt-2">
+                                        <div class="col-6">
+                                            <input type="text" id="courier_type" class="form-control form-control-sm" placeholder="Courier type (e.g. Steadfast)">
+                                        </div>
+                                        <div class="col-6">
+                                            <input type="text" id="courier_tracking_id" class="form-control form-control-sm" placeholder="Tracking ID">
+                                        </div>
+                                    </div>
+                                    <div class="mt-2">
+                                        <textarea id="ship_note" class="form-control form-control-sm" rows="1" placeholder="Optional note..."></textarea>
+                                    </div>
+                                    <button class="btn btn-sm btn-info mt-2" onclick="submitShip({{ $order->id }})">
+                                        <i class="fa fa-paper-plane"></i> Confirm Shipment
+                                    </button>
+                                    <button class="btn btn-sm btn-secondary mt-2" onclick="document.getElementById('shipModal').style.display='none'">Cancel</button>
+                                </div>
+
+                                {{-- Action Note Modal (used by performAction) --}}
+                                <div id="actionNoteModal" class="no-print" style="display:none; padding:10px; background:#e3f2fd; border-radius:5px; margin-bottom:10px; border:1px solid #90caf9;">
+                                    <strong><i class="fa fa-pencil"></i> Add Note (Optional)</strong>
+                                    <textarea id="action_note_input" class="form-control form-control-sm mt-1" rows="2" placeholder="Optional note..."></textarea>
+                                    <div class="mt-2">
+                                        <button class="btn btn-sm btn-primary" onclick="confirmAction()"><i class="fa fa-check"></i> Confirm</button>
+                                        <button class="btn btn-sm btn-secondary" onclick="cancelAction()">Cancel</button>
+                                    </div>
+                                </div>
+
+                                {{-- Add Admin Note --}}
+                                <div class="no-print mt-3" style="padding: 10px; background: #e8f4fd; border-radius: 5px;">
+                                    <strong style="font-size:13px;"><i class="fa fa-sticky-note"></i> Add Admin Note</strong>
+                                    <textarea id="admin_note_input" class="form-control form-control-sm mt-1" rows="2" placeholder="Type your note here..."></textarea>
+                                    <div class="mt-1">
+                                        <select id="note_type_select" class="form-control form-control-sm" style="width:auto; display:inline-block;">
+                                            <option value="info">Info</option>
+                                            <option value="warning">Warning</option>
+                                            <option value="success">Success</option>
+                                            <option value="danger">Danger</option>
+                                        </select>
+                                        <button class="btn btn-sm btn-primary" onclick="addNote({{ $order->id }})">
+                                            <i class="fa fa-plus"></i> Add Note
+                                        </button>
+                                    </div>
                                 </div>
                                 <!-- ✅ END -->
 
@@ -318,6 +403,50 @@
                             <p style="text-align: center; font-style: italic; font-size: 15px; margin-top: 10px;">* This is a computer generated invoice, does not require any signature.</p>
                         </div>
                     </div>
+
+                    {{-- ═══════════════════════════════════════════ --}}
+                    {{-- 🌟 NOTE HISTORY TIMELINE --}}
+                    {{-- ═══════════════════════════════════════════ --}}
+                    @php
+                        $allNotes = $order->notes()->with('user:id,name')->get();
+                    @endphp
+                    @if($allNotes->count() > 0)
+                    <div class="no-print" style="margin-top: 20px; width: 760px; margin-left: auto; margin-right: auto;">
+                        <div style="border-top: 2px solid #4DBC60; padding-top: 15px;">
+                            <h5 style="margin-bottom: 15px;"><i class="fa fa-history"></i> Order Activity Log ({{ $allNotes->count() }} entries)</h5>
+                            <div style="max-height: 400px; overflow-y: auto;">
+                                @foreach($allNotes as $nt)
+                                <div style="display: flex; margin-bottom: 10px; padding: 8px; background: #fafafa; border-radius: 4px; border-left: 3px solid 
+                                    @if($nt->type == 'success') #28a745
+                                    @elseif($nt->type == 'warning') #ffc107
+                                    @elseif($nt->type == 'danger') #dc3545
+                                    @else #17a2b8 @endif
+                                ;">
+                                    <div style="min-width: 40px; text-align: center; padding-top: 2px;">
+                                        <i class="fa 
+                                            @if($nt->type == 'success') fa-check-circle text-success
+                                            @elseif($nt->type == 'warning') fa-exclamation-triangle text-warning
+                                            @elseif($nt->type == 'danger') fa-times-circle text-danger
+                                            @else fa-info-circle text-info @endif
+                                        " style="font-size:18px;"></i>
+                                    </div>
+                                    <div style="flex:1; padding-left: 10px;">
+                                        <div style="font-size: 13px; color: #333;">{{ $nt->content }}</div>
+                                        <div style="font-size: 11px; color: #888; margin-top: 2px;">
+                                            <span><i class="fa fa-user"></i> {{ $nt->user->name ?? 'System' }}</span>
+                                            <span style="margin-left: 10px;"><i class="fa fa-clock-o"></i> {{ $nt->created_at->format('d M Y, h:i A') }} ({{ $nt->created_at->diffForHumans() }})</span>
+                                            <span style="margin-left: 10px;">
+                                                <span class="badge bg-{{ $nt->source == 'system' ? 'secondary' : 'primary' }}" style="font-size:10px;">{{ $nt->source }}</span>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                                @endforeach
+                            </div>
+                        </div>
+                    </div>
+                    @endif
+
                 </div>
             </div>
         </div>
@@ -332,7 +461,7 @@
     if ($isRes && $order->customer_payable_amount) { $sub = $order->customer_payable_amount - $order->shipping_charge; }
     $ftotal  = $isRes ? $order->customer_payable_amount : $order->amount;
     $tqty    = $order->orderdetails->sum('qty');
-    $pmethod = strtoupper($order->payment_gateway ?? ($order->payment ? $order->payment->payment_method : 'N/A'));
+    $pmethod = strtoupper($order->payment ? $order->payment->payment_method : 'N/A');
     $pstatus = $order->payment_status ?? ($order->payment ? $order->payment->payment_status : 'pending');
     $adv     = \App\Models\Payment::where('order_id',$order->id)->sum('amount');
     $due     = $ftotal - $adv;
@@ -423,7 +552,7 @@
         <div class="ptotal"><span> {{ __('Total Paid') }} </span><span>&#2547; {{ number_format($ftotal,2) }}</span></div>
     </div>
     <hr class="dash">
-    <div class="rs"><span>Order Status :</span><span><strong>{{ $order->status ? $order->status->name : 'Processing' }}</strong></span></div>
+    <div class="rs"><span>Order Status :</span><span><strong>{{ $statusLabel ?? ($order->status ? $order->status->name : 'Processing') }}</strong></span></div>
     <div class="rf">
         <div class="ty"> {{ __('Thank You!') }} </div>
         <div> {{ __('Visit Again!') }} </div>
@@ -456,6 +585,7 @@ function updatePaymentStatus(orderId) {
     .then(data => {
         if (data.status === 'success') {
             toastr.success(data.message, 'Success!');
+            setTimeout(() => location.reload(), 1000);
         } else {
             toastr.error(data.message, 'Error!');
         }
@@ -465,35 +595,155 @@ function updatePaymentStatus(orderId) {
     });
 }
 
-function updateOrderStatus(orderId) {
-    let status = document.getElementById('order_status_' + orderId).value;
+// ═══════════════════════════════════════════════════
+// 🌟 NEW: Action-Based Order Management
+// ═══════════════════════════════════════════════════
+
+let currentAction = null;
+let currentOrderId = null;
+
+function performQuickAction(orderId) {
+    let select = document.getElementById('quick_action_select');
+    let action = select.value;
+    if (!action) {
+        toastr.warning('Please select an action first', 'Warning!');
+        return;
+    }
+    select.value = ''; // reset
+    performAction(action, orderId);
+}
+
+function performAction(action, orderId) {
+    // Ship action needs extra modal with courier fields
+    if (action === 'ship') {
+        document.getElementById('shipModal').style.display = 'block';
+        return;
+    }
+
+    currentAction = action;
+    currentOrderId = orderId;
     
-    if (!status) {
-        toastr.warning('Please select a status', 'Warning!');
+    // Show the action note modal
+    document.getElementById('actionNoteModal').style.display = 'block';
+    document.getElementById('action_note_input').value = '';
+    document.getElementById('action_note_input').focus();
+}
+
+function confirmAction() {
+    let note = document.getElementById('action_note_input').value.trim();
+    document.getElementById('actionNoteModal').style.display = 'none';
+    
+    if (!currentAction || !currentOrderId) return;
+    
+    let routes = {
+        'confirm': '{{ route("admin.order.confirm") }}',
+        'start_picking': '{{ route("admin.order.startPicking") }}',
+        'start_packing': '{{ route("admin.order.startPacking") }}',
+        'mark_packed': '{{ route("admin.order.markPacked") }}',
+        'out_for_delivery': '{{ route("admin.order.outForDelivery") }}',
+        'deliver': '{{ route("admin.order.deliver") }}',
+        'complete': '{{ route("admin.order.complete") }}',
+        'request_return': '{{ route("admin.order.requestReturn") }}',
+        'approve_return': '{{ route("admin.order.approveReturn") }}',
+        'mark_returned': '{{ route("admin.order.markReturned") }}',
+        'close': '{{ route("admin.order.close") }}',
+        'cancel': '{{ route("admin.order.cancel") }}',
+    };
+
+    let url = routes[currentAction];
+    if (!url) {
+        toastr.error('Unknown action: ' + currentAction);
         return;
     }
 
-    // Confirm before changing status
-    if (!confirm('Are you sure you want to change the order status? This will manually override any automatic courier status updates.')) {
-        return;
-    }
-
-    fetch('{{ route("admin.order.updateSingleStatus") }}', {
+    fetch(url, {
         method: 'POST',
         headers: {
             'X-CSRF-TOKEN': '{{ csrf_token() }}',
             'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ order_id: orderId, order_status: status })
+        body: JSON.stringify({ order_id: currentOrderId, note: note })
     })
     .then(res => res.json())
     .then(data => {
         if (data.status === 'success') {
             toastr.success(data.message, 'Success!');
-            // Reload page after 1 second to show updated status
-            setTimeout(function() {
-                location.reload();
-            }, 1000);
+            setTimeout(() => location.reload(), 800);
+        } else {
+            toastr.error(data.message || 'Action failed', 'Error!');
+        }
+    })
+    .catch(err => {
+        toastr.error('Something went wrong!', 'Error!');
+        console.error(err);
+    });
+    
+    currentAction = null;
+    currentOrderId = null;
+}
+
+function cancelAction() {
+    document.getElementById('actionNoteModal').style.display = 'none';
+    currentAction = null;
+    currentOrderId = null;
+}
+
+function submitShip(orderId) {
+    let courierType = document.getElementById('courier_type').value;
+    let trackingId = document.getElementById('courier_tracking_id').value;
+    let note = document.getElementById('ship_note').value;
+
+    fetch('{{ route("admin.order.ship") }}', {
+        method: 'POST',
+        headers: {
+            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            order_id: orderId,
+            courier_type: courierType,
+            courier_tracking_id: trackingId,
+            note: note
+        })
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.status === 'success') {
+            toastr.success(data.message, 'Success!');
+            setTimeout(() => location.reload(), 800);
+        } else {
+            toastr.error(data.message || 'Ship failed', 'Error!');
+        }
+    })
+    .catch(err => {
+        toastr.error('Something went wrong!', 'Error!');
+        console.error(err);
+    });
+}
+
+function addNote(orderId) {
+    let note = document.getElementById('admin_note_input').value.trim();
+    let type = document.getElementById('note_type_select').value;
+
+    if (!note) {
+        toastr.warning('Please enter a note', 'Warning!');
+        return;
+    }
+
+    fetch('{{ route("admin.order.addNote") }}', {
+        method: 'POST',
+        headers: {
+            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ order_id: orderId, note: note, type: type })
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.status === 'success') {
+            toastr.success(data.message, 'Success!');
+            document.getElementById('admin_note_input').value = '';
+            setTimeout(() => location.reload(), 800);
         } else {
             toastr.error(data.message, 'Error!');
         }

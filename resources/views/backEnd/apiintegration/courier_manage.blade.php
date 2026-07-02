@@ -164,7 +164,8 @@
                 <div class="card-body p-4">
                     <form action="{{ route('courierapi.update') }}" method="POST" data-parsley-validate>
                         @csrf
-                        <input type="hidden" name="id" value="{{ $steadfast->id }}">
+                        <input type="hidden" name="id" value="{{ $steadfast->id ?? '' }}">
+                        <input type="hidden" name="type" value="steadfast">
 
                         <div class="mb-3">
                             <label class="form-label">{{ __('API Key') }}<span class="text-danger">*</span></label>

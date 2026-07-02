@@ -8,7 +8,7 @@
     <p>A new order has been placed. Here are the details:</p>
 
     
-    <p><strong>Order Status:</strong> {{ $order->order_status == 1 ? 'Pending' : 'Completed' }}</p>
+    <p><strong>Order Status:</strong> {{ \App\Enums\OrderStatus::tryFrom($order->order_status)?->label() ?? 'Pending' }}</p>
     <table class="body-wrap" style="background:#fff; width: 100%; margin: 0;;padding:0 30px">
         <tbody>
             <tr style="font-family: 'Helvetica Neue',Helvetica,Arial,sans-serif; box-sizing: border-box; font-size: 25px; margin: 0;border:0">

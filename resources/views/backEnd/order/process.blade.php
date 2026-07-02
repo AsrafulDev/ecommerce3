@@ -142,10 +142,9 @@
 
                     <!-- ✅ Payment Gateway + Status Section -->
                     @php
-                        $paymentInfo = DB::table('orders')
-                            ->select('payment_gateway', 'payment_status')
-                            ->where('id', $data->id)
-                            ->first();
+                        $paymentInfo = $data->payment;
+                        $gatewayLabel = $paymentInfo->payment_method ?? 'N/A';
+                        $payStatus = $paymentInfo->payment_status ?? $data->payment_status ?? 'pending';
                     @endphp
 
                     <div class="col-sm-12">
@@ -155,11 +154,7 @@
                                 <div class="col-md-6 mb-3">
                                     <label class="payment-label">Payment Gateway:</label><br>
                                     <span class="payment-value">
-                                        @if(!empty($paymentInfo->payment_gateway))
-                                            {{ strtoupper($paymentInfo->payment_gateway) }}
-                                        @else
-                                            <span class="text-danger"> {{ __('Not Found') }} </span>
-                                        @endif
+                                        {{ strtoupper($gatewayLabel) }}
                                     </span>
                                 </div>
 
@@ -167,13 +162,11 @@
                                     <label class="payment-label">Payment Status:</label>
                                     <div class="d-flex align-items-center">
                                         <select id="payment_status_{{ $data->id }}" class="form-select form-select-sm w-auto">
-                                            <option value="pending" {{ ($paymentInfo->payment_status ?? '') == 'pending' ? 'selected' : '' }}>{{ __('Pending') }}</option>
-                                            <option value="paid" {{ ($paymentInfo->payment_status ?? '') == 'paid' ? 'selected' : '' }}> {{ __('Paid') }} </option>
-                                            <option value="unpaid" {{ ($paymentInfo->payment_status ?? '') == 'unpaid' ? 'selected' : '' }}> {{ __('Unpaid') }} </option>
-                                            <option value="failed" {{ ($paymentInfo->payment_status ?? '') == 'failed' ? 'selected' : '' }}>{{ __('Failed') }}</option>
+                                            <option value="pending" {{ strtolower($payStatus) == 'pending' ? 'selected' : '' }}>{{ __('Pending') }}</option>
+                                            <option value="paid" {{ strtolower($payStatus) == 'paid' ? 'selected' : '' }}> {{ __('Paid') }} </option>
+                                            <option value="unpaid" {{ strtolower($payStatus) == 'unpaid' ? 'selected' : '' }}> {{ __('Unpaid') }} </option>
+                                            <option value="failed" {{ strtolower($payStatus) == 'failed' ? 'selected' : '' }}>{{ __('Failed') }}</option>
                                         </select>
-                                        <button type="button" class="btn btn-success btn-sm ms-2" onclick="updatePaymentStatus({{ $data->id }})">
-                                            <i class="fa fa-check"></i>{{ __('Update') }}</button>
                                     </div>
                                 </div>
                             </div>
@@ -224,7 +217,7 @@
                             <select class="form-control select2-multiple" name="status" data-toggle="select2" required>
                                 <option value=""> {{ __('Select..') }} </option>
                                 @foreach($orderstatus as $value)
-                                    <option value="{{$value->id}}"  @if($data->order_status==$value->id) selected @endif>{{$value->name}}</option>
+                                    <option value="{{$value->slug}}" @if($data->order_status==$value->slug || $data->order_status==$value->id) selected @endif>{{$value->name}}</option>
                                 @endforeach
                             </select>
                         </div>

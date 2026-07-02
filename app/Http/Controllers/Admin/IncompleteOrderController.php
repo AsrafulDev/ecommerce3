@@ -144,7 +144,7 @@ class IncompleteOrderController extends Controller
             $order->discount        = $discount;
             $order->shipping_charge = $shippingAmount;
             $order->customer_id     = $customer->id;
-            $order->order_status    = 1; // pending
+            $order->order_status    = \App\Enums\OrderStatus::PENDING->value;
             $order->note            = null;
             $order->save();
 
