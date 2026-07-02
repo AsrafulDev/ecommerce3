@@ -81,7 +81,13 @@ return new class extends Migration
 
     private function hasIndex(string $table, string $index): bool
     {
-        $indexes = Schema::getConnection()->getDoctrineSchemaManager()->listTableIndexes($table);
-        return array_key_exists($index, $indexes);
+        try {
+            $conn = Schema::getConnection();
+            $dbName = $conn->getDatabaseName();
+            $result = $conn->select("SHOW INDEX FROM `{$dbName}`.`{$table}` WHERE Key_name = ?", [$index]);
+            return count($result) > 0;
+        } catch (\Exception $e) {
+            return false;
+        }
     }
 };
