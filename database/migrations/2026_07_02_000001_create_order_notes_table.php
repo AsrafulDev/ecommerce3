@@ -11,8 +11,8 @@ return new class extends Migration
         if (!Schema::hasTable('order_notes')) {
             Schema::create('order_notes', function (Blueprint $table) {
                 $table->id();
-                $table->unsignedInteger('order_id');
-                $table->unsignedInteger('user_id')->nullable();
+                $table->unsignedBigInteger('order_id');
+                $table->unsignedBigInteger('user_id')->nullable();
                 $table->text('content');
                 $table->string('type', 20)->default('info');
                 // type: info, warning, success, danger
