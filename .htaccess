@@ -19,6 +19,9 @@
     # Uncomment and adjust this if running in a subfolder:
     # RewriteBase /ecommerce3/
 
+    # Route /lang/ URLs through Laravel (lang/ is a physical directory but requests must hit the route)
+    RewriteRule ^lang(/.*)?$ index.php [L,QSA]
+
     # Handle Authorization Header
     RewriteCond %{HTTP:Authorization} .
     RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
