@@ -1027,12 +1027,13 @@ $brands = Brand::where('status', 1)
             'message' => 'required|string',
         ]);
 
-        \App\Models\Contact::create([
-            'name'    => $request->name,
-            'mobile'  => $request->phone,
-            'email'   => $request->email,
-            'subject' => $request->subject,
-            'message' => $request->message,
+        \App\Models\ContactMessage::create([
+            'full_name' => $request->name,
+            'mobile'    => $request->phone,
+            'email'     => $request->email,
+            'subject'   => $request->subject,
+            'details'   => $request->message,
+            'status'    => 0,
         ]);
 
         $adminEmail = 'admin@example.com';
