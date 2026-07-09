@@ -19,10 +19,17 @@ class SupplierController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'name'   => 'required|string|max:255',
-            'phone'  => 'nullable|string|max:50',
-            'email'  => 'nullable|email|max:100',
-            'address'=> 'nullable|string|max:255',
+            'name'           => 'required|string|max:255',
+            'phone'          => 'nullable|string|max:50',
+            'email'          => 'nullable|email|max:100',
+            'address'        => 'nullable|string|max:255',
+            'company'        => 'nullable|string|max:255',
+            'contact_person' => 'nullable|string|max:255',
+            'tax_id'         => 'nullable|string|max:100',
+            'payment_terms'  => 'nullable|string|max:50',
+            'lead_time'      => 'nullable|integer|min:0',
+            'notes'          => 'nullable|string',
+            'is_active'      => 'nullable|boolean',
         ]);
 
         Supplier::create([
@@ -30,6 +37,13 @@ class SupplierController extends Controller
             'phone'           => $request->phone,
             'email'           => $request->email,
             'address'         => $request->address,
+            'company'         => $request->company,
+            'contact_person'  => $request->contact_person,
+            'tax_id'          => $request->tax_id,
+            'payment_terms'   => $request->payment_terms,
+            'lead_time'       => $request->lead_time,
+            'notes'           => $request->notes,
+            'is_active'       => $request->boolean('is_active'),
             'opening_balance' => 0,
             'current_due'     => 0,
         ]);
@@ -58,17 +72,31 @@ class SupplierController extends Controller
         $supplier = Supplier::findOrFail($id);
 
         $request->validate([
-            'name'   => 'required|string|max:255',
-            'phone'  => 'nullable|string|max:50',
-            'email'  => 'nullable|email|max:100',
-            'address'=> 'nullable|string|max:255',
+            'name'           => 'required|string|max:255',
+            'phone'          => 'nullable|string|max:50',
+            'email'          => 'nullable|email|max:100',
+            'address'        => 'nullable|string|max:255',
+            'company'        => 'nullable|string|max:255',
+            'contact_person' => 'nullable|string|max:255',
+            'tax_id'         => 'nullable|string|max:100',
+            'payment_terms'  => 'nullable|string|max:50',
+            'lead_time'      => 'nullable|integer|min:0',
+            'notes'          => 'nullable|string',
+            'is_active'      => 'nullable|boolean',
         ]);
 
         $supplier->update([
-            'name'    => $request->name,
-            'phone'   => $request->phone,
-            'email'   => $request->email,
-            'address' => $request->address,
+            'name'            => $request->name,
+            'phone'           => $request->phone,
+            'email'           => $request->email,
+            'address'         => $request->address,
+            'company'         => $request->company,
+            'contact_person'  => $request->contact_person,
+            'tax_id'          => $request->tax_id,
+            'payment_terms'   => $request->payment_terms,
+            'lead_time'       => $request->lead_time,
+            'notes'           => $request->notes,
+            'is_active'       => $request->boolean('is_active'),
         ]);
 
         return redirect()

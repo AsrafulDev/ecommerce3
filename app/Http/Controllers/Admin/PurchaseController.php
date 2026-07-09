@@ -11,9 +11,11 @@ use App\Models\SupplierPayment;
 use App\Models\Product;
 use App\Models\ProductVariantPrice;
 use App\Models\FundTransaction;
+use App\Services\StockManagementService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class PurchaseController extends Controller
 {
@@ -153,7 +155,7 @@ class PurchaseController extends Controller
             'paid_amount'   => $paid,
             'due_amount'    => $due,
             'note'          => $request->note,
-            'status'        => 'completed',
+            'status'        => 1,
             'created_by'    => Auth::id(),
         ]);
 
@@ -167,18 +169,26 @@ class PurchaseController extends Controller
             'line_total'       => $subtotal,
         ]);
 
-        // STOCK UPDATE
+        // STOCK UPDATE — using StockManagementService for batch tracking
         $product = Product::findOrFail($request->product_id);
-        $product->stock += $qty;
-        $product->purchase_price = $unit_cost;
-        $product->save();
+        
+        app(StockManagementService::class)->stockIn($product, [
+            'quantity'         => $qty,
+            'unit_cost'        => $unit_cost,
+            'supplier_id'      => $request->supplier_id,
+            'purchase_id'      => $purchase->id,
+            'variant_price_id' => $request->variant_price_id ?: null,
+            'batch_no'         => $request->batch_no ?: null,
+            'mfg_date'         => $request->mfg_date ?: null,
+            'exp_date'         => $request->exp_date ?: null,
+            'reference_type'   => 'purchase',
+            'reference_id'     => $purchase->id,
+        ]);
 
-        if ($request->variant_price_id) {
-            $variant = ProductVariantPrice::find($request->variant_price_id);
-            if ($variant) {
-                $variant->stock += $qty;
-                $variant->save();
-            }
+        // Update selling price on product if provided
+        if ($request->filled('selling_price')) {
+            $product->new_price = $request->selling_price;
+            $product->save();
         }
 
         // SUPPLIER DUE
@@ -308,6 +318,24 @@ class PurchaseController extends Controller
         $purchase = Purchase::with(['supplier','items.product','items.variant','payments'])
                             ->findOrFail($id);
         return view('backEnd.purchases.invoice', compact('purchase'));
+    }
+
+    /**
+     * ==============================
+     * Download Invoice as PDF
+     * ==============================
+     */
+    public function downloadInvoice($id)
+    {
+        $purchase = Purchase::with(['supplier','items.product','items.variant','payments'])
+                            ->findOrFail($id);
+
+        $pdf = Pdf::loadView('backEnd.purchases.invoice_pdf', compact('purchase'))
+                  ->setPaper('a4', 'portrait');
+
+        $filename = 'Invoice_' . ($purchase->invoice_no ?? $purchase->id) . '.pdf';
+
+        return $pdf->download($filename);
     }
 
     /**

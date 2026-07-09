@@ -4,10 +4,25 @@
 @section('content')
 <div class="container-fluid">
 
+    <style>
+        @media print {
+            .no-print, .no-print * { display: none !important; }
+            .card { border: none !important; box-shadow: none !important; }
+            .card-body { padding: 0 !important; }
+        }
+    </style>
+
     <div class="card">
-        <div class="card-header d-flex justify-content-between">
+        <div class="card-header d-flex justify-content-between no-print">
             <h4 class="mb-0">Purchase Invoice #{{ $purchase->invoice_no }}</h4>
-            <a href="javascript:window.print()" class="btn btn-sm btn-primary">{{ __('Print') }}</a>
+            <div class="d-flex gap-2">
+                <a href="{{ route('purchases.invoice.download', $purchase->id) }}" class="btn btn-sm btn-outline-secondary" title="{{ __('Download PDF') }}">
+                    <i class="fe-download me-1"></i> {{ __('Download PDF') }}
+                </a>
+                <a href="javascript:window.print()" class="btn btn-sm btn-primary" title="{{ __('Print') }}">
+                    <i class="fe-printer me-1"></i> {{ __('Print') }}
+                </a>
+            </div>
         </div>
         <div class="card-body">
 

@@ -35,7 +35,7 @@
     @endphp
 
     <div class="container">
-        <div class="row" id="cartlist">
+        <div class="row px-3 py-3" id="cartlist">
             <div class="col-sm-9">
                 <div class="vcart-inner">
                     <div class="cart-title">
@@ -90,12 +90,6 @@
                     </div>
                 </div>
 
-                <div class="coupon-form">
-                    <form action="">
-                        <input type="text" placeholder="apply coupon" id="cartCoupon" />
-                        <button type="submit" id="applyCouponBtn">{{ __('Apply') }}</button>
-                    </form>
-                </div>
             </div>
 
             <div class="col-sm-3">
@@ -125,6 +119,14 @@
                             </tr>
                         </tbody>
                     </table>
+
+                    <div class="coupon-form">
+                        <form action="">
+                            <input type="text" placeholder="apply coupon" id="cartCoupon" />
+                            <button type="submit" id="applyCouponBtn">{{ __('Apply') }}</button>
+                        </form>
+                    </div>
+
                     {{-- Checkout button – ট্র্যাকিংয়ের জন্য ID দিলাম --}}
                     <a href="{{route('customer.checkout')}}" class="go_cart" id="checkoutButton">
                         PROCESS TO CHECKOUT

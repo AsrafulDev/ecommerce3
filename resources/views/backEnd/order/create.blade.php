@@ -3,11 +3,7 @@
 
 @section('css')
 <style>
-    body{
-        background:#eef1f8;
-    }
     .pos-shell{
-        background:#eef1f8;
         padding:10px 0 25px;
     }
     .pos-card{
@@ -195,14 +191,32 @@
     {{-- TOP BAR --}}
     <div class="row mb-2">
         <div class="col-12">
-            <div class="d-flex justify-content-between align-items-center">
-                <h4 class="mb-0"> {{ __('Point of Sale') }} </h4>
-                <form method="get" action="{{route('admin.order.cart_clear')}}" class="d-inline">
-                    @csrf
-                    <button type="submit" class="btn btn-sm btn-outline-danger rounded-pill delete-confirm" title="Clear Cart">
-                        <i class="fas fa-trash-alt"></i> Cart Clear
+            <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+                <div class="d-flex align-items-center gap-2">
+                    <h4 class="mb-0"> {{ __('Point of Sale') }} </h4>
+                    {{-- 🆕 Held Orders Button --}}
+                    <button type="button" id="btn-held-orders" class="btn btn-sm btn-info rounded-pill" title="Held Orders">
+                        <i class="fas fa-pause-circle me-1"></i> {{ __('Held Orders') }}
                     </button>
-                </form>
+                </div>
+                <div class="d-flex align-items-center gap-2">
+                    {{-- 🆕 Barcode Scanner Input --}}
+                    <div class="input-group input-group-sm" style="max-width:260px;">
+                        <span class="input-group-text bg-white border-end-0"><i class="fas fa-barcode"></i></span>
+                        <input type="text"
+                               id="barcode_input"
+                               class="form-control form-control-sm border-start-0"
+                               placeholder="Scan barcode..."
+                               autofocus>
+                    </div>
+                    <span id="barcode_msg" class="small text-muted" style="min-width:100px;"></span>
+                    <form method="get" action="{{route('admin.order.cart_clear')}}" class="d-inline">
+                        @csrf
+                        <button type="submit" class="btn btn-sm btn-outline-danger rounded-pill delete-confirm" title="Clear Cart">
+                            <i class="fas fa-trash-alt"></i> Cart Clear
+                        </button>
+                    </form>
+                </div>
             </div>
         </div>
     </div>
@@ -273,7 +287,8 @@
                                    id="name"
                                    class="form-control form-control-sm @error('name') is-invalid @enderror"
                                    placeholder="Customer Name"
-                                   name="name" required>
+                                   name="name" required
+                                   value="{{ Session::pull('pos_customer_name', old('name', '')) }}">
                             @error('name')<span class="invalid-feedback"><strong>{{ $message }}</strong></span>@enderror
                         </div>
 
@@ -282,7 +297,8 @@
                                    id="phone"
                                    class="form-control form-control-sm @error('phone') is-invalid @enderror"
                                    placeholder="Mobile Number"
-                                   name="phone" required>
+                                   name="phone" required
+                                   value="{{ Session::pull('pos_customer_phone', old('phone', '')) }}">
                             @error('phone')<span class="invalid-feedback"><strong>{{ $message }}</strong></span>@enderror
                         </div>
 
@@ -377,7 +393,11 @@
                             </tr>
                         </table>
 
-                        <div class="text-end mt-1">
+                        <div class="text-end mt-1 d-flex gap-2 justify-content-end">
+                            {{-- 🆕 Hold Cart Button --}}
+                            <button type="button" id="btn-hold-cart" class="btn btn-warning rounded-pill btn-sm">
+                                <i class="fas fa-pause me-1"></i> {{ __('Hold Cart') }}
+                            </button>
                             <button type="submit" class="btn btn-pos-primary">
                                 Complete Sale
                             </button>
@@ -687,5 +707,201 @@
         });
     });
 
+    // ============================================================
+    // 🆕 BARCODE SCANNING
+    // ============================================================
+    $("#barcode_input").on("keypress", function (e) {
+        if (e.which === 13) { // Enter key
+            e.preventDefault();
+            var barcode = $(this).val().trim();
+            if (!barcode) return;
+
+            $.ajax({
+                type: "GET",
+                url: "{{ route('admin.order.scan_barcode', ['barcode' => '__BARCODE__']) }}".replace('__BARCODE__', encodeURIComponent(barcode)),
+                dataType: "json",
+                beforeSend: function () {
+                    $("#barcode_msg").removeClass("text-danger text-success").text("Searching...");
+                },
+                success: function (res) {
+                    if (res.success) {
+                        $("#barcode_msg").removeClass("text-danger").addClass("text-success")
+                            .text("✓ " + res.product.name);
+                        cart_content();
+                        cart_details();
+                        $("#barcode_input").val("").focus();
+                    }
+                },
+                error: function (xhr) {
+                    var msg = "Product not found!";
+                    if (xhr.responseJSON && xhr.responseJSON.error) {
+                        msg = xhr.responseJSON.error;
+                    }
+                    $("#barcode_msg").removeClass("text-success").addClass("text-danger").text(msg);
+                    $("#barcode_input").val("").focus();
+                }
+            });
+        }
+    });
+
+    // Auto-focus barcode input unless user is typing elsewhere
+    $(document).on("focusin", function (e) {
+        var tag = e.target.tagName;
+        if (tag === "INPUT" || tag === "SELECT" || tag === "TEXTAREA") {
+            if (e.target.id !== "barcode_input") {
+                window._barcodeAutoFocus = false;
+            }
+        }
+    });
+    $(document).on("focusout", function (e) {
+        var tag = e.target.tagName;
+        if (tag === "INPUT" || tag === "SELECT" || tag === "TEXTAREA") {
+            window._barcodeAutoFocus = true;
+            setTimeout(function () {
+                if (window._barcodeAutoFocus !== false) {
+                    $("#barcode_input").focus();
+                }
+            }, 100);
+        }
+    });
+
+    // ============================================================
+    // 🆕 HOLD CART FUNCTIONALITY
+    // ============================================================
+    $("#btn-hold-cart").on("click", function () {
+        var customerName = $("#name").val() || "Walk-in Customer";
+        var customerPhone = $("#phone").val() || "";
+        var note = "";
+
+        $.ajax({
+            type: "POST",
+            url: "{{ route('admin.order.hold_cart') }}",
+            data: {
+                _token: "{{ csrf_token() }}",
+                customer_name: customerName,
+                customer_phone: customerPhone,
+                note: note
+            },
+            dataType: "json",
+            success: function (res) {
+                if (res.success) {
+                    toastr ? toastr.success(res.message) : alert(res.message);
+                    cart_content();
+                    cart_details();
+                    $("#name, #phone, #address").val("");
+                    $("#pos_coupon_code").val("");
+                    $("#pos_coupon_msg").text("");
+                    $("#pos_remove_coupon").hide();
+                } else {
+                    alert(res.message || "Failed to hold cart");
+                }
+            },
+            error: function () {
+                alert("An error occurred while holding the cart.");
+            }
+        });
+    });
+
+    // 🆕 Held Orders Modal/Panel
+    $("#btn-held-orders").on("click", function () {
+        $.ajax({
+            type: "GET",
+            url: "{{ route('admin.order.held_carts') }}",
+            dataType: "json",
+            success: function (carts) {
+                var html = '<div class="modal fade" id="heldOrdersModal" tabindex="-1">' +
+                    '<div class="modal-dialog modal-lg">' +
+                    '<div class="modal-content">' +
+                    '<div class="modal-header"><h5 class="modal-title">Held Orders</h5>' +
+                    '<button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>' +
+                    '<div class="modal-body">';
+
+                if (!carts || carts.length === 0) {
+                    html += '<p class="text-muted text-center">No held orders found.</p>';
+                } else {
+                    html += '<div class="table-responsive"><table class="table table-sm table-bordered">' +
+                        '<thead><tr><th>#</th><th>Customer</th><th>Items</th><th>Total</th><th>Held At</th><th>Action</th></tr></thead><tbody>';
+
+                    $.each(carts, function (i, c) {
+                        var items = Array.isArray(c.cart_data) ? c.cart_data.length : (typeof c.cart_data === 'object' && c.cart_data ? Object.keys(c.cart_data).length : 0);
+                        var heldAt = c.held_at ? new Date(c.held_at).toLocaleString() : '-';
+                        html += '<tr>' +
+                            '<td>' + (i+1) + '</td>' +
+                            '<td>' + (c.customer_name || '-') + '<br><small>' + (c.customer_phone || '') + '</small></td>' +
+                            '<td>' + items + ' items</td>' +
+                            '<td>৳' + parseFloat(c.grand_total).toFixed(2) + '</td>' +
+                            '<td><small>' + heldAt + '</small></td>' +
+                            '<td>' +
+                            '<button class="btn btn-sm btn-success restore-held me-1" data-id="' + c.id + '">Restore</button>' +
+                            '<button class="btn btn-sm btn-danger delete-held" data-id="' + c.id + '">Delete</button>' +
+                            '</td></tr>';
+                    });
+
+                    html += '</tbody></table></div>';
+                }
+
+                html += '</div></div></div></div>';
+                $("body").append(html);
+                $("#heldOrdersModal").modal("show");
+                $("#heldOrdersModal").on("hidden.bs.modal", function () { $(this).remove(); });
+            }
+        });
+    });
+
+    // Restore held cart
+    $(document).on("click", ".restore-held", function () {
+        var id = $(this).data("id");
+        if (!confirm("Restore this held cart? Current cart will be cleared.")) return;
+
+        $.ajax({
+            type: "POST",
+            url: "{{ route('admin.order.restore_hold', ['id' => '__HOLD_ID__']) }}".replace('__HOLD_ID__', id),
+            data: { _token: "{{ csrf_token() }}" },
+            dataType: "json",
+            success: function (res) {
+                if (res.success) {
+                    $("#heldOrdersModal").modal("hide");
+                    // Refresh cart UI via AJAX instead of full reload
+                    cart_content();
+                    cart_details();
+                    // Re-fetch held orders count
+                    $.get("{{ route('admin.order.held_carts') }}", function (data) {
+                        if (data.success) {
+                            $("#held-orders-count").text(data.heldCarts.length);
+                        }
+                    });
+                } else {
+                    alert("Failed to restore cart");
+                }
+            },
+            error: function () {
+                alert("Error restoring cart");
+            }
+        });
+    });
+
+    // Delete held cart
+    $(document).on("click", ".delete-held", function () {
+        var id = $(this).data("id");
+        if (!confirm("Delete this held cart?")) return;
+
+        $.ajax({
+            type: "POST",
+            url: "{{ route('admin.order.delete_hold', ['id' => '__HOLD_ID__']) }}".replace('__HOLD_ID__', id),
+            data: { _token: "{{ csrf_token() }}", _method: "DELETE" },
+            dataType: "json",
+            success: function (res) {
+                if (res.success) {
+                    $("#heldOrdersModal").modal("hide");
+                    setTimeout(function () { $("#btn-held-orders").click(); }, 300);
+                } else {
+                    alert("Failed to delete cart");
+                }
+            },
+            error: function () {
+                alert("Error deleting cart");
+            }
+        });
+    });
 </script>
 @endsection

@@ -22,9 +22,9 @@
                                     <img class="" src="{{ asset($value->image) }}" alt="" style="border: 2px solid #3c7d17; border-radius: 50%; width: 100%; height: auto;" />
                                 </a>
                             </div>
-                            <div class="cat_name_style">
+                            <div class="text-center cat_name_style">
                                 <a href="{{ route('category', $value->slug) }}">
-                                    <p>{{ $value->name }}</p>
+                                    <p class="text-center ">{{ $value->name }}</p>
                                 </a>
                             </div>
                         </div>

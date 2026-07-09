@@ -18,6 +18,23 @@
     if(!$logo) $logo = 'public/assets/images/CurlBazar.svg';
 @endphp
 
+{{-- 🎨 Theme-aware sidebar overrides --}}
+@if(isset($activeTheme) && $activeTheme)
+<style>
+.sidebar-item:hover { background-color: color-mix(in srgb, var(--primary-color, #4f46e5) 10%, transparent) !important; color: var(--primary-color, #4f46e5) !important; }
+.active-menu { background-color: color-mix(in srgb, var(--primary-color, #4f46e5) 15%, transparent) !important; color: var(--primary-color, #4f46e5) !important; border-right: 3px solid var(--primary-color, #4f46e5) !important; }
+.bg-indigo-600 { background-color: var(--primary-color, #4f46e5) !important; }
+.text-indigo-600 { color: var(--primary-color, #4f46e5) !important; }
+.text-gray-500, .text-gray-600 { color: var(--text-color, #6b7280) !important; }
+.text-gray-800 { color: var(--heading-color, #1f2937) !important; }
+.bg-white { background-color: var(--card-bg, #ffffff) !important; }
+.border-gray-100 { border-color: var(--border-color, #e5e7eb) !important; }
+.bg-red-50 { background-color: color-mix(in srgb, #ef4444 10%, transparent) !important; }
+.text-red-600 { color: #ef4444 !important; }
+.hover\:bg-red-100:hover { background-color: color-mix(in srgb, #ef4444 18%, transparent) !important; }
+.text-red-500 { color: #ef4444 !important; }
+</style>
+@endif
 <aside id="sidebar" class="fixed inset-y-0 left-0 z-40 w-64 bg-white border-r transform -translate-x-full lg:translate-x-0 lg:static lg:inset-auto lg:flex flex-col shrink-0 h-screen transition-transform duration-300">
     <div class="p-4 sm:p-6 flex items-center justify-between lg:justify-start gap-2 border-b border-gray-100">
         @if($logo)

@@ -26,18 +26,73 @@
     
     {{-- 🎨 Dynamic Admin Theme from System Theme --}}
     @if(isset($activeTheme) && $activeTheme)
+    @php
+        // ── Compute safe, contrast-aware colors from theme ──
+        $sidebarBg  = $activeTheme->sidebar_bg_color ?? $activeTheme->header_bg_color ?? '#1e293b';
+        $topbarBg   = $activeTheme->topbar_bg_color ?? $activeTheme->header_bg_color ?? '#0f172a';
+        $bodyBg     = $activeTheme->body_bg_color ?? '#f8f9fa';
+        $cardBg     = $activeTheme->admin_card_bg ?? '#ffffff';
+        $footerBg   = $activeTheme->footer_bg_color ?? '#f8fafc';
+        
+        // Text colors — ALWAYS validated against their background for contrast
+        $sidebarText = $activeTheme->sidebar_text_color 
+            ? ensure_text_contrast($activeTheme->sidebar_text_color, $sidebarBg) 
+            : get_contrast_color($sidebarBg);
+        $headingClr = $activeTheme->heading_color 
+            ? ensure_text_contrast($activeTheme->heading_color, $bodyBg) 
+            : get_contrast_color($bodyBg);
+        $bodyText   = $activeTheme->text_color 
+            ? ensure_text_contrast($activeTheme->text_color, $bodyBg) 
+            : get_contrast_color($bodyBg);
+        $topbarText = get_contrast_color($topbarBg);
+        
+        $sidebarIsDark = is_color_dark($sidebarBg);
+        $topbarIsDark  = is_color_dark($topbarBg);
+        $bodyIsDark    = is_color_dark($bodyBg);
+        $cardIsDark    = is_color_dark($cardBg);
+    @endphp
     <style>
         :root {
             --admin-primary: {{ $activeTheme->primary_color ?? '#6658dd' }};
             --admin-secondary: {{ $activeTheme->secondary_color ?? '#04a31e' }};
             --admin-accent: {{ $activeTheme->accent_color ?? '#eab308' }};
-            --admin-sidebar-bg: {{ $activeTheme->sidebar_bg_color ?? $activeTheme->header_bg_color ?? '#1e293b' }};
-            --admin-sidebar-text: {{ $activeTheme->sidebar_text_color ?? $activeTheme->header_text_color ?? '#fff' }};
-            --admin-topbar-bg: {{ $activeTheme->topbar_bg_color ?? $activeTheme->header_bg_color ?? '#0f172a' }};
-            --admin-footer-bg: {{ $activeTheme->footer_bg_color ?? '#f8fafc' }};
-            --admin-card-bg: {{ $activeTheme->admin_card_bg ?? '#ffffff' }};
+            --admin-sidebar-bg: {{ $sidebarBg }};
+            --admin-sidebar-text: {{ $sidebarText }};
+            --admin-sidebar-is-dark: {{ $sidebarIsDark ? '1' : '0' }};
+            --admin-topbar-bg: {{ $topbarBg }};
+            --admin-topbar-text: {{ $topbarText }};
+            --admin-topbar-is-dark: {{ $topbarIsDark ? '1' : '0' }};
+            --admin-footer-bg: {{ $footerBg }};
+            --admin-card-bg: {{ $cardBg }};
+            --admin-card-is-dark: {{ $cardIsDark ? '1' : '0' }};
             --admin-card-shadow: 0 2px 12px rgba(0,0,0,0.06);
             --admin-border-color: {{ $activeTheme->border_color ?? '#e2e8f0' }};
+            --admin-text-color: {{ $bodyText }};
+            --admin-body-bg: {{ $bodyBg }};
+            --admin-body-is-dark: {{ $bodyIsDark ? '1' : '0' }};
+            --admin-heading-color: {{ $headingClr }};
+            --admin-button-hover: {{ $activeTheme->button_hover_bg_color ?? '#0b5ed7' }};
+        }
+        /* ── Override app.min.css CSS Custom Properties ── */
+        :root {
+            --ct-component-active-bg: var(--admin-primary);
+            --ct-link-color: var(--admin-primary);
+            --ct-link-hover-color: var(--admin-primary);
+            --ct-progress-bar-bg: var(--admin-primary);
+            --ct-btn-link-color: var(--admin-primary);
+            --ct-twocolumn-sidebar-iconview-bg: var(--admin-primary);
+            --ct-input-btn-focus-color: color-mix(in srgb, var(--admin-primary) 25%, transparent);
+            --ct-menu-item-hover: var(--admin-secondary);
+            --ct-menu-item-active: var(--admin-secondary);
+            --ct-menu-sub-item-active: var(--admin-secondary);
+            --ct-menuitem-active-bg: color-mix(in srgb, var(--admin-secondary) 7%, transparent);
+            --ct-bg-leftbar: var(--admin-sidebar-bg);
+            --ct-form-range-thumb-active-bg: color-mix(in srgb, var(--admin-primary) 25%, transparent);
+            --ct-bg-topbar-light: var(--admin-topbar-bg);
+            --ct-form-check-input-checked-bg-color: var(--admin-primary);
+            --ct-form-check-input-checked-border-color: var(--admin-primary);
+            --ct-form-check-input-indeterminate-bg-color: var(--admin-primary);
+            --ct-form-check-input-indeterminate-border-color: var(--admin-primary);
         }
         /* ── Modern Sidebar UI ── */
         #sidebar-menu .menuitem-active > a { color: var(--admin-secondary) !important; }
@@ -47,17 +102,27 @@
         .navbar-custom { background-color: var(--admin-topbar-bg) !important; }
         .footer { background-color: var(--admin-footer-bg) !important; }
         .btn-primary { background-color: var(--admin-primary) !important; border-color: var(--admin-primary) !important; }
+        .btn-primary:hover, .btn-primary:focus, .btn-primary:active { background-color: var(--admin-button-hover) !important; border-color: var(--admin-button-hover) !important; }
         .btn-success { background-color: var(--admin-secondary) !important; border-color: var(--admin-secondary) !important; }
-        .page-title-box .page-title { color: var(--admin-primary) !important; }
+        .btn-success:hover, .btn-success:focus, .btn-success:active { background-color: color-mix(in srgb, var(--admin-secondary) 85%, #000) !important; border-color: var(--admin-secondary) !important; }
+        .btn-info { background-color: var(--admin-accent) !important; border-color: var(--admin-accent) !important; }
+        .btn-outline-primary { color: var(--admin-primary) !important; border-color: var(--admin-primary) !important; }
+        .btn-outline-primary:hover { background-color: var(--admin-primary) !important; border-color: var(--admin-primary) !important; color: #fff !important; }
+        .page-title-box .page-title { color: var(--admin-heading-color) !important; }
         a { color: var(--admin-primary); }
-        .nav-second-level li a { color: var(--admin-sidebar-text) !important; opacity: 0.85; }
-        .nav-second-level li a:hover { color: var(--admin-secondary) !important; opacity: 1; }
-        .card { border-color: var(--admin-border-color) !important; }
+        a:hover { color: var(--admin-button-hover); }
+        .card { border-color: var(--admin-border-color) !important; background-color: var(--admin-card-bg) !important; }
+        .card-header { background-color: color-mix(in srgb, var(--admin-card-bg) 97%, #000) !important; border-bottom-color: var(--admin-border-color) !important; }
+        body { background-color: var(--admin-body-bg) !important; color: var(--admin-text-color) !important; }
+        .text-muted { color: color-mix(in srgb, var(--admin-text-color) 80%, transparent) !important; }
+        h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6 { color: var(--admin-heading-color) !important; }
 
-        /* ── Enhanced Sidebar Styling ── */
+        /* ═══════════════════════════════════════════════
+           ── Sidebar: Base Layout ──
+           ═══════════════════════════════════════════════ */
         .left-side-menu {
             box-shadow: 2px 0 24px rgba(0,0,0,0.06);
-            border-right: 1px solid rgba(255,255,255,0.05);
+            border-right: 1px solid rgba(128,128,128,0.15);
         }
         #side-menu > li { margin: 2px 8px; border-radius: 10px; overflow: hidden; }
         #side-menu > li > a {
@@ -66,37 +131,81 @@
             font-size: 0.9rem; font-weight: 500;
             transition: all 0.2s ease; position: relative;
         }
-        #side-menu > li > a:hover {
-            background: rgba(255,255,255,0.07) !important;
-            padding-left: 20px !important;
-        }
         #side-menu > li > a i, #side-menu > li > a svg {
             width: 20px; height: 20px; flex-shrink: 0; opacity: 0.65;
             transition: opacity 0.2s;
         }
         #side-menu > li > a:hover i, #side-menu > li > a:hover svg { opacity: 1; }
-        #side-menu > li.menuitem-active > a {
-            background: rgba(255,255,255,0.1) !important;
-            font-weight: 600; position: relative;
+        .menu-arrow { margin-left: auto; font-size: 10px; opacity: 0.4; transition: transform 0.2s; }
+        [aria-expanded="true"] .menu-arrow { transform: rotate(90deg); opacity: 0.8; }
+
+        /* ── Sidebar: DARK mode (body[data-leftbar-color="dark"]) ── */
+        body[data-leftbar-color="dark"] #side-menu > li > a:hover {
+            background: rgba(255,255,255,0.07) !important; padding-left: 20px !important;
         }
+        body[data-leftbar-color="dark"] #side-menu > li.menuitem-active > a {
+            background: rgba(255,255,255,0.1) !important; font-weight: 600; position: relative;
+        }
+        body[data-leftbar-color="dark"] .nav-second-level li a:hover {
+            background: rgba(255,255,255,0.06) !important; padding-left: 16px !important;
+        }
+        body[data-leftbar-color="dark"] .left-side-menu .simplebar-scrollbar::before {
+            background: rgba(255,255,255,0.2) !important; width: 4px; border-radius: 4px;
+        }
+        body[data-leftbar-color="dark"] .user-box {
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+        }
+        body[data-leftbar-color="dark"] .left-side-menu {
+            border-right: 1px solid rgba(255,255,255,0.05);
+        }
+
+        /* ── Sidebar: LIGHT mode (body[data-leftbar-color="light"]) ── */
+        body[data-leftbar-color="light"] #side-menu > li > a:hover {
+            background: rgba(0,0,0,0.04) !important; padding-left: 20px !important;
+        }
+        body[data-leftbar-color="light"] #side-menu > li.menuitem-active > a {
+            background: rgba(0,0,0,0.06) !important; font-weight: 600; position: relative;
+        }
+        body[data-leftbar-color="light"] .nav-second-level li a:hover {
+            background: rgba(0,0,0,0.04) !important; padding-left: 16px !important;
+        }
+        body[data-leftbar-color="light"] .left-side-menu .simplebar-scrollbar::before {
+            background: rgba(0,0,0,0.15) !important; width: 4px; border-radius: 4px;
+        }
+        body[data-leftbar-color="light"] .user-box {
+            border-bottom: 1px solid rgba(0,0,0,0.06);
+        }
+        body[data-leftbar-color="light"] .left-side-menu {
+            border-right: 1px solid rgba(0,0,0,0.08);
+        }
+
+        /* ── Sidebar: BRAND / GRADIENT modes ── */
+        body[data-leftbar-color="brand"] #side-menu > li > a:hover,
+        body[data-leftbar-color="gradient"] #side-menu > li > a:hover {
+            background: rgba(255,255,255,0.08) !important; padding-left: 20px !important;
+        }
+        body[data-leftbar-color="brand"] #side-menu > li.menuitem-active > a,
+        body[data-leftbar-color="gradient"] #side-menu > li.menuitem-active > a {
+            background: rgba(255,255,255,0.12) !important; font-weight: 600; position: relative;
+        }
+        body[data-leftbar-color="brand"] .nav-second-level li a:hover,
+        body[data-leftbar-color="gradient"] .nav-second-level li a:hover {
+            background: rgba(255,255,255,0.06) !important; padding-left: 16px !important;
+        }
+
+        /* Active indicator (all modes) */
         #side-menu > li.menuitem-active > a::before {
             content: ''; position: absolute; left: 0; top: 50%; transform: translateY(-50%);
             width: 3px; height: 24px; border-radius: 3px;
             background: var(--admin-secondary, #04a31e);
         }
-        .menu-arrow { margin-left: auto; font-size: 10px; opacity: 0.4; transition: transform 0.2s; }
-        [aria-expanded="true"] .menu-arrow { transform: rotate(90deg); opacity: 0.8; }
 
         /* ── Submenu ── */
         .nav-second-level { padding: 4px 0 8px 0; }
         .nav-second-level li a {
-            padding: 9px 16px 9px 48px !important; border-radius: 8px;
+            padding: 9px 16px 9px 10px !important; border-radius: 8px;
             font-size: 0.84rem; margin: 0 8px; transition: all 0.2s;
             display: flex; align-items: center; gap: 10px;
-        }
-        .nav-second-level li a:hover {
-            background: rgba(255,255,255,0.06) !important;
-            padding-left: 52px !important;
         }
         .nav-second-level li a i, .nav-second-level li a svg {
             width: 15px; height: 15px; flex-shrink: 0; opacity: 0.55;
@@ -105,21 +214,14 @@
 
         /* ── User Box ── */
         .user-box {
-            padding: 1.5rem 1rem 1rem; border-bottom: 1px solid rgba(255,255,255,0.06);
-            margin-bottom: 0.5rem;
+            padding: 1.5rem 1rem 1rem; margin-bottom: 0.5rem;
         }
         .user-box img.avatar-md {
             width: 52px; height: 52px; border-radius: 14px;
-            border: 2px solid rgba(255,255,255,0.15);
+            border: 2px solid rgba(128,128,128,0.2);
             box-shadow: 0 4px 12px rgba(0,0,0,0.15);
         }
         .user-box .dropdown-toggle { color: var(--admin-sidebar-text) !important; font-size: 0.9rem !important; }
-
-        /* ── Scrollbar ── */
-        .left-side-menu .simplebar-scrollbar::before {
-            background: rgba(255,255,255,0.2) !important;
-            width: 4px; border-radius: 4px;
-        }
 
         /* ── Animations ── */
         @keyframes fadeSlideIn {
@@ -132,6 +234,226 @@
             #side-menu > li { margin: 1px 4px; }
             #side-menu > li > a { padding: 10px 12px !important; }
         }
+
+        /* ── Tables ── */
+        .table thead th { background-color: color-mix(in srgb, var(--admin-body-bg) 95%, #000) !important; color: var(--admin-heading-color) !important; border-bottom-color: var(--admin-border-color) !important; }
+        .table td { border-top-color: var(--admin-border-color) !important; }
+        .table-hover tbody tr:hover { background-color: color-mix(in srgb, var(--admin-primary) 5%, transparent) !important; }
+        .table-striped tbody tr:nth-of-type(odd) { background-color: color-mix(in srgb, var(--admin-body-bg) 97%, #000) !important; }
+        .card-body thead { background: color-mix(in srgb, var(--admin-primary) 8%, transparent) !important; }
+
+        /* ── Badges & Labels ── */
+        .badge-primary { background-color: var(--admin-primary) !important; color: #fff !important; }
+        .badge-success { background-color: var(--admin-secondary) !important; color: #fff !important; }
+        .badge-warning { background-color: var(--admin-accent) !important; }
+        .badge-info { background-color: var(--admin-accent) !important; }
+        .label-primary { background-color: var(--admin-primary) !important; color: #fff !important; }
+
+        /* ── Alerts ── */
+        .alert-primary { background-color: color-mix(in srgb, var(--admin-primary) 12%, transparent) !important; border-color: color-mix(in srgb, var(--admin-primary) 30%, transparent) !important; color: var(--admin-text-color) !important; }
+        .alert-success { background-color: color-mix(in srgb, var(--admin-secondary) 12%, transparent) !important; border-color: color-mix(in srgb, var(--admin-secondary) 30%, transparent) !important; color: var(--admin-text-color) !important; }
+        .alert-warning { color: var(--admin-text-color) !important; }
+        .alert-info { color: var(--admin-text-color) !important; }
+        .alert-danger { color: var(--admin-text-color) !important; }
+
+        /* ── Pagination ── */
+        .page-item.active .page-link { background-color: var(--admin-primary) !important; border-color: var(--admin-primary) !important; }
+        .page-link { color: var(--admin-primary) !important; }
+        .page-link:hover { color: var(--admin-button-hover) !important; }
+
+        /* ── Nav Tabs ── */
+        .nav-tabs .nav-link.active { color: var(--admin-primary) !important; border-bottom-color: var(--admin-primary) !important; }
+        .nav-tabs .nav-link:hover { color: var(--admin-button-hover) !important; }
+
+        /* ── Modal ── */
+        .modal-header { background-color: color-mix(in srgb, var(--admin-primary) 8%, transparent) !important; border-bottom-color: var(--admin-border-color) !important; }
+        .modal-header .modal-title { color: var(--admin-heading-color) !important; }
+        .modal-header .btn-close { filter: none; }
+        .modal-footer { border-top-color: var(--admin-border-color) !important; }
+
+        /* ── Dropdown ── */
+        .dropdown-menu { border-color: var(--admin-border-color) !important; }
+        .dropdown-item:hover { background-color: color-mix(in srgb, var(--admin-primary) 8%, transparent) !important; color: var(--admin-primary) !important; }
+
+        /* ── Form Controls ── */
+        .form-control:focus { border-color: var(--admin-primary) !important; box-shadow: 0 0 0 0.2rem color-mix(in srgb, var(--admin-primary) 25%, transparent) !important; }
+        .select2-container--default .select2-selection--single:focus, 
+        .select2-container--default .select2-selection--multiple:focus { border-color: var(--admin-primary) !important; }
+        .select2-container--default .select2-results__option--highlighted[aria-selected] { background-color: var(--admin-primary) !important; }
+
+        /* ── Progress Bars ── */
+        .progress-bar { background-color: var(--admin-primary) !important; }
+
+        /* ── List Group ── */
+        .list-group-item { border-color: var(--admin-border-color) !important; }
+        .list-group-item.active { background-color: var(--admin-primary) !important; border-color: var(--admin-primary) !important; }
+
+        /* ── Custom Switch ── */
+        .custom-control-input:checked ~ .custom-control-label::before { background-color: var(--admin-secondary) !important; border-color: var(--admin-secondary) !important; }
+
+        /* ── Links in cards/widgets ── */
+        .card-footer { border-top-color: var(--admin-border-color) !important; background-color: color-mix(in srgb, var(--admin-card-bg) 97%, #000) !important; }
+
+        /* ── Topbar dropdown ── */
+        .topbar-dropdown .dropdown-menu { border-color: var(--admin-border-color) !important; }
+        .notify-item:hover { background-color: color-mix(in srgb, var(--admin-primary) 5%, transparent) !important; }
+        .notify-item .notify-details { color: var(--admin-heading-color) !important; }
+
+        /* ── Widget box stats ── */
+        .widget-box-2 .widget-detail-2 .badge { background-color: var(--admin-primary) !important; }
+
+        /* ── Switch slider (custom.css uses #2196F3) ── */
+        input:checked + .slider { background-color: var(--admin-secondary) !important; }
+        input:focus + .slider { box-shadow: 0 0 1px var(--admin-secondary) !important; }
+
+        /* ── Select2 theme overrides ── */
+        .select2-container--default .select2-selection--multiple .select2-selection__choice {
+            background-color: var(--admin-primary) !important;
+            border-color: var(--admin-primary) !important;
+        }
+
+        /* ═══════════════════════════════════════════════
+           ── Topbar: Text, Icons, Dropdowns ──
+           ═══════════════════════════════════════════════ */
+        .navbar-custom { 
+            background-color: var(--admin-topbar-bg) !important; 
+            background-image: none !important;
+        }
+        /* Topbar DARK mode */
+        body[data-topbar-color="dark"] .navbar-custom .topnav-menu .nav-link { 
+            color: color-mix(in srgb, var(--admin-topbar-text) 85%, transparent) !important;
+        }
+        body[data-topbar-color="dark"] .navbar-custom .topnav-menu .nav-link:hover { 
+            color: #fff !important; 
+            background-color: rgba(255,255,255,0.1) !important;
+        }
+        body[data-topbar-color="dark"] .navbar-custom .noti-icon { color: var(--admin-topbar-text) !important; opacity: 0.75; }
+        body[data-topbar-color="dark"] .navbar-custom .logo-box {
+            background-color: color-mix(in srgb, var(--admin-topbar-bg) 90%, #000) !important;
+        }
+        /* Topbar LIGHT mode */
+        body[data-topbar-color="light"] .navbar-custom .topnav-menu .nav-link { 
+            color: color-mix(in srgb, var(--admin-topbar-text) 85%, transparent) !important;
+        }
+        body[data-topbar-color="light"] .navbar-custom .topnav-menu .nav-link:hover { 
+            color: var(--admin-topbar-text) !important; 
+            background-color: rgba(0,0,0,0.05) !important;
+        }
+        body[data-topbar-color="light"] .navbar-custom .noti-icon { color: var(--admin-topbar-text) !important; opacity: 0.8; }
+        body[data-topbar-color="light"] .navbar-custom .logo-box {
+            background-color: color-mix(in srgb, var(--admin-topbar-bg) 95%, #fff) !important;
+        }
+        /* Topbar common */
+        .navbar-custom .dropdown .nav-link.show {
+            background-color: rgba(128,128,128,0.12) !important;
+        }
+        .navbar-custom .noti-icon-badge { border-color: var(--admin-topbar-bg) !important; }
+
+        /* ═══════════════════════════════════════════════
+           ── Sidebar: All States & Submenu ──
+           ═══════════════════════════════════════════════ */
+        .left-side-menu { 
+            /* Override app.min.css default #ddd */
+            background: var(--admin-sidebar-bg) !important;
+            background-color: var(--admin-sidebar-bg) !important;
+            background-image: none !important;
+        }
+        #sidebar-menu > ul > li > a { color: var(--admin-sidebar-text) !important; }
+        #sidebar-menu > ul > li > a i, 
+        #sidebar-menu > ul > li > a svg { color: var(--admin-sidebar-text) !important; opacity: 0.65; }
+        #sidebar-menu > ul > li > a:hover i,
+        #sidebar-menu > ul > li > a:hover svg { opacity: 1; }
+        #sidebar-menu .menuitem-active > a { color: var(--admin-secondary) !important; }
+        #sidebar-menu .menuitem-active .active { color: var(--admin-secondary) !important; }
+        #sidebar-menu > ul > li > a.mm-active { color: var(--admin-secondary) !important; }
+        #sidebar-menu .menu-title { color: color-mix(in srgb, var(--admin-sidebar-text) 50%, transparent) !important; }
+        .nav-second-level li a { color: var(--admin-sidebar-text) !important; opacity: 0.8; }
+        .nav-second-level li a:hover, .nav-second-level li a:focus { color: var(--admin-secondary) !important; opacity: 1; }
+        .nav-second-level li.active > a { color: var(--admin-secondary) !important; }
+
+        /* ═══════════════════════════════════════════════
+           ── User Dropdown in Sidebar ──
+           ═══════════════════════════════════════════════ */
+        .user-box .dropdown > a { color: var(--admin-sidebar-text) !important; }
+        .user-pro-dropdown .dropdown-item:hover {
+            background-color: var(--admin-primary) !important; 
+            color: #fff !important;
+        }
+
+        /* ═══════════════════════════════════════════════
+           ── Dark Sidebar Mode Overrides ──
+           (When data-leftbar-color="dark" on body) 
+           ─────────────────────────────────────────── */
+        body[data-leftbar-color="dark"] .left-side-menu #sidebar-menu > ul > li > a { color: var(--admin-sidebar-text) !important; }
+        body[data-leftbar-color="dark"] .left-side-menu #sidebar-menu .menu-title { color: color-mix(in srgb, var(--admin-sidebar-text) 50%, transparent) !important; }
+        body[data-leftbar-color="dark"] .left-side-menu #sidebar-menu .menuitem-active > a { color: var(--admin-secondary) !important; }
+        body[data-leftbar-color="dark"] .left-side-menu #sidebar-menu .menuitem-active .active { color: var(--admin-secondary) !important; }
+        body[data-leftbar-color="dark"] .left-side-menu .nav-second-level li a,
+        body[data-leftbar-color="dark"] .left-side-menu .nav-thrid-level li a { color: var(--admin-sidebar-text) !important; opacity: 0.75; }
+        body[data-leftbar-color="dark"] .left-side-menu .nav-second-level li a:hover,
+        body[data-leftbar-color="dark"] .left-side-menu .nav-second-level li.active > a,
+        body[data-leftbar-color="dark"] .left-side-menu .nav-thrid-level li a:hover,
+        body[data-leftbar-color="dark"] .left-side-menu .nav-thrid-level li.active > a { color: var(--admin-secondary) !important; }
+        body[data-leftbar-color="dark"] .left-side-menu .user-box .dropdown > a { color: var(--admin-sidebar-text) !important; }
+
+        /* ═══════════════════════════════════════════════
+           ── Light Sidebar Mode Overrides ──
+           (When data-leftbar-color="light" on body)
+           ─────────────────────────────────────────── */
+        body[data-leftbar-color="light"] .left-side-menu { 
+            background: var(--admin-sidebar-bg) !important; 
+            background-color: var(--admin-sidebar-bg) !important;
+        }
+        body[data-leftbar-color="light"] .left-side-menu #sidebar-menu > ul > li > a { color: var(--admin-sidebar-text) !important; }
+        body[data-leftbar-color="light"] .left-side-menu #sidebar-menu .menu-title { color: color-mix(in srgb, var(--admin-sidebar-text) 60%, transparent) !important; }
+        body[data-leftbar-color="light"] .left-side-menu #sidebar-menu .menuitem-active > a { color: var(--admin-secondary) !important; }
+        body[data-leftbar-color="light"] .left-side-menu #sidebar-menu .menuitem-active .active { color: var(--admin-secondary) !important; }
+        body[data-leftbar-color="light"] .left-side-menu .nav-second-level li a { color: var(--admin-sidebar-text) !important; }
+        body[data-leftbar-color="light"] .left-side-menu .nav-second-level li a:hover,
+        body[data-leftbar-color="light"] .left-side-menu .nav-second-level li.active > a { color: var(--admin-secondary) !important; }
+
+        /* ═══════════════════════════════════════════════
+           ── Brand/Gradient Sidebar Mode Overrides ──
+           ─────────────────────────────────────────── */
+        body[data-leftbar-color="brand"] .left-side-menu,
+        body[data-leftbar-color="gradient"] .left-side-menu {
+            background: var(--admin-sidebar-bg) !important;
+            background-color: var(--admin-sidebar-bg) !important;
+        }
+        body[data-leftbar-color="brand"] .left-side-menu #sidebar-menu > ul > li > a,
+        body[data-leftbar-color="gradient"] .left-side-menu #sidebar-menu > ul > li > a { color: var(--admin-sidebar-text) !important; }
+        body[data-leftbar-color="brand"] .left-side-menu #sidebar-menu .menuitem-active > a,
+        body[data-leftbar-color="gradient"] .left-side-menu #sidebar-menu .menuitem-active > a { color: var(--admin-secondary) !important; }
+        body[data-leftbar-color="brand"] .left-side-menu .nav-second-level li a,
+        body[data-leftbar-color="gradient"] .left-side-menu .nav-second-level li a { color: var(--admin-sidebar-text) !important; opacity: 0.8; }
+        body[data-leftbar-color="brand"] .left-side-menu .nav-second-level li a:hover,
+        body[data-leftbar-color="gradient"] .left-side-menu .nav-second-level li a:hover { color: var(--admin-secondary) !important; }
+
+        /* ═══════════════════════════════════════════════
+           ── Topbar Mode (dark/light) ──
+           Handled above in main Topbar section
+           ═══════════════════════════════════════════════ */
+
+        /* ═══════════════════════════════════════════════
+           ── Twotones Icons ──
+           ─────────────────────────────────────────── */
+        body[data-sidebar-icon="twotones"] #sidebar-menu > ul > li > a i { color: var(--admin-primary) !important; }
+        body[data-sidebar-icon="twotones"] #sidebar-menu > ul > li > a svg { 
+            color: var(--admin-primary) !important; 
+            fill: color-mix(in srgb, var(--admin-primary) 20%, transparent) !important;
+        }
+
+        /* ═══════════════════════════════════════════════
+           ── Right-bar Theme Settings Panel ──
+           ─────────────────────────────────────────── */
+        .right-bar .nav-link.active { color: var(--admin-primary) !important; }
+
+        /* ═══════════════════════════════════════════════
+           ── Misc: Breadcrumb, Input Groups, etc. ──
+           ─────────────────────────────────────────── */
+        .breadcrumb-item.active { color: var(--admin-primary) !important; }
+        .input-group-text { border-color: var(--admin-border-color) !important; background-color: color-mix(in srgb, var(--admin-body-bg) 95%, #000) !important; }
+        hr { border-top-color: var(--admin-border-color) !important; }
     </style>
     @endif
     <style>.navbar-custom .dropdown-menu .noti-scroll{max-height:230px!important;overflow-y:auto!important}</style>
@@ -139,7 +461,13 @@
   </head>
 
   <!-- body start -->
-  <body data-layout-mode="default" data-theme="light" data-layout-width="fluid" data-topbar-color="dark" data-menu-position="fixed" data-leftbar-color="light" data-leftbar-size="default" data-sidebar-user="false">
+  @php
+      $sidebarBg  = optional($activeTheme)->sidebar_bg_color ?? optional($activeTheme)->header_bg_color ?? null;
+      $topbarBg   = optional($activeTheme)->topbar_bg_color ?? optional($activeTheme)->header_bg_color ?? null;
+      $sidebarIsDark = is_color_dark($sidebarBg);
+      $topbarIsDark  = is_color_dark($topbarBg);
+  @endphp
+  <body data-layout-mode="default" data-theme="light" data-layout-width="fluid" data-topbar-color="{{ $topbarIsDark ? 'dark' : 'light' }}" data-menu-position="fixed" data-leftbar-color="{{ $sidebarIsDark ? 'dark' : 'light' }}" data-leftbar-size="default" data-sidebar-user="false">
     <!-- Begin page -->
     <div id="wrapper">
       <!-- Topbar Start -->
@@ -697,6 +1025,28 @@
   </a>
 </li>
 @endcanany
+
+{{-- ============================================= --}}
+{{--  🆕 SECTION 6.5: STOCK MANAGEMENT             --}}
+{{-- ============================================= --}}
+<li>
+  <a href="#sidebar-stock" data-bs-toggle="collapse">
+    <i data-feather="box"></i>
+    <span>{{ __('Stock Management') }}</span>
+    <span class="menu-arrow"></span>
+  </a>
+  <div class="collapse" id="sidebar-stock">
+    <ul class="nav-second-level">
+      <li><a href="{{ route('admin.stock.dashboard') }}"><i data-feather="airplay"></i> {{ __('Dashboard') }}</a></li>
+      <li><a href="{{ route('admin.stock.batches') }}"><i data-feather="layers"></i> {{ __('Batches') }}</a></li>
+      <li><a href="{{ route('admin.stock.adjustments') }}"><i data-feather="edit"></i> {{ __('Adjustments') }}</a></li>
+      <li><a href="{{ route('admin.stock.valuation') }}"><i data-feather="dollar-sign"></i> {{ __('Valuation') }}</a></li>
+      <li><a href="{{ route('admin.stock.cogs') }}"><i data-feather="trending-down"></i> {{ __('COGS Report') }}</a></li>
+      <li><a href="{{ route('admin.stock.barcode.print') }}"><i data-feather="tag"></i> {{ __('Barcode Labels') }}</a></li>
+      <li><a href="{{ route('admin.stock.supplier-returns') }}"><i data-feather="rotate-ccw"></i> {{ __('Supplier Returns') }}</a></li>
+    </ul>
+  </div>
+</li>
 
 {{-- ============================================= --}}
 {{--  SECTION 7: FINANCE                           --}}

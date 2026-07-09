@@ -296,6 +296,9 @@ if (typeof ttq !== 'undefined') {
 
                                             {{-- ⭐⭐ Wholesale Pricing Tiers - Simple Clean Design ⭐⭐ --}}
                                             @if($details->is_wholesale && $details->wholesalePrices && $details->wholesalePrices->count() > 0)
+                                            @php
+                                                $hasVarPricing = $details->variantPrices->count() > 0 && $details->wholesalePrices->whereNotNull('variant_id')->count() > 0;
+                                            @endphp
                                             <div class="wholesale-pricing-section" style="margin: 20px 0;">
                                                 <h5 style="margin-bottom: 15px; font-size: 16px; font-weight: 600; color: #333;">
                                                     <i class="fa fa-tag me-2"></i> Wholesale Pricing
@@ -309,12 +312,13 @@ if (typeof ttq !== 'undefined') {
                                                                 <th style="padding: 12px; font-size: 14px; font-weight: 600;">{{ __('Stock') }}</th>
                                                             </tr>
                                                         </thead>
-                                                        <tbody>
+                                                        <tbody id="wholesale-tbody">
                                                             @foreach($details->wholesalePrices->sortBy('min_quantity') as $tier)
-                                                            <tr class="wholesale-tier-row" 
+                                                            <tr class="wholesale-tier-row wholesale-tier-{{ $tier->variant_id ? 'variant' : 'global' }}" 
                                                                 data-min-qty="{{ $tier->min_quantity }}" 
                                                                 data-max-qty="{{ $tier->max_quantity ?? 999999 }}" 
                                                                 data-price="{{ $tier->wholesale_price }}"
+                                                                data-variant-id="{{ $tier->variant_id ?? 0 }}"
                                                                 style="cursor: pointer; transition: background 0.2s;">
                                                                 <td style="padding: 12px; font-size: 14px;">
                                                                     {{ $tier->min_quantity }}{{ $tier->max_quantity ? ' - ' . $tier->max_quantity : '+' }} pcs
@@ -340,6 +344,7 @@ if (typeof ttq !== 'undefined') {
                                             <form action="{{ route('cart.store') }}" method="POST" name="formName" class="ajax-cart-form" id="productDetailsCartForm" onsubmit="return handleDetailsCartSubmit(event)">
                                                 @csrf
                                                 <input type="hidden" name="id" value="{{ $details->id }}" />
+                                                <input type="hidden" name="variant_id" id="selected-variant-id" value="" />
 
 
 {{-- ✅ Variant-based Color & Size (with your old design style) --}}
@@ -787,25 +792,7 @@ if (typeof ttq !== 'undefined') {
     const variants = @json($details->variantPrices);
 
     @if($details->is_wholesale && $details->wholesalePrices && $details->wholesalePrices->count() > 0)
-    var wholesaleTiers = [
-        @foreach($details->wholesalePrices->sortBy('min_quantity') as $tier)
-        {
-            min_quantity: {{ $tier->min_quantity }},
-            max_quantity: {{ $tier->max_quantity ?? 999999 }},
-            price: {{ $tier->wholesale_price }}
-        }@if(!$loop->last),@endif
-        @endforeach
-    ];
-    var regularPrice = {{ $details->new_price }};
-
-    function getWholesalePrice(qty) {
-        for (var i = 0; i < wholesaleTiers.length; i++) {
-            if (qty >= wholesaleTiers[i].min_quantity && qty <= wholesaleTiers[i].max_quantity) {
-                return wholesaleTiers[i].price;
-            }
-        }
-        return null;
-    }
+    // Wholesale tiers are defined in the new block below (inside document.ready)
     @endif
 
     function updateVariantPrice() {
@@ -848,15 +835,11 @@ if (typeof ttq !== 'undefined') {
             basePrice = parseFloat(match.price);
         }
 
-        // Apply wholesale price if applicable (wholesale price overrides variant price)
-        @if($details->is_wholesale && $details->wholesalePrices && $details->wholesalePrices->count() > 0)
-        let qty = parseInt($("input[name='qty']").val()) || 1;
-        let wholesalePrice = getWholesalePrice(qty);
-        if (wholesalePrice !== null) {
-            basePrice = parseFloat(wholesalePrice);
-        }
-        @endif
+        // Store base price for wholesale tier fallback
+        window._currentBasePrice = basePrice;
 
+        // Apply wholesale price if applicable (handled by updatePriceBasedOnQuantity below)
+        
         $('#newPrice').text('৳' + basePrice.toFixed(2));
     }
     
@@ -1243,22 +1226,92 @@ if (typeof ttq !== 'undefined') {
             {
                 min_quantity: {{ $tier->min_quantity }},
                 max_quantity: {{ $tier->max_quantity ?? 999999 }},
-                price: {{ $tier->wholesale_price }}
+                price: {{ $tier->wholesale_price }},
+                variant_id: {{ $tier->variant_id ?? 0 }}
             }@if(!$loop->last),@endif
             @endforeach
         ];
-        var regularPrice = {{ $details->new_price }};
+        var productBasePrice = {{ $details->new_price }};
+        window._currentBasePrice = productBasePrice; // will be updated by updateVariantPrice()
+        var hasVariantPricing = {{ ($details->variantPrices->count() > 0 && $details->wholesalePrices->whereNotNull('variant_id')->count() > 0) ? 'true' : 'false' }};
+
+        function getEffectivePrice() {
+            var priceText = $('#newPrice').text().replace('৳', '');
+            var domPrice = parseFloat(priceText);
+            return !isNaN(domPrice) && domPrice > 0 ? domPrice : productBasePrice;
+        }
+
+        function getSelectedVariantId() {
+            var colorEl = $('input[name="product_color"]:checked');
+            var sizeEl = $('input[name="product_size"]:checked');
+            if (colorEl.length || sizeEl.length) {
+                // Find matching variant in the DOM from variant prices
+                var colorId = colorEl.val() || null;
+                var sizeId = sizeEl.val() || null;
+                // Variant lookup — use data attributes from color/size labels or query known mapping
+                // For simplicity, store variant IDs in a data attribute
+                var variantId = null;
+                @foreach($details->variantPrices as $vp)
+                    @php
+                        $colorMatch = is_null($vp->color_id) ? 'true' : "{$vp->color_id} == (colorId || null)";
+                        $sizeMatch = is_null($vp->size_id) ? 'true' : "{$vp->size_id} == (sizeId || null)";
+                    @endphp
+                    if ({!! $colorMatch !!} && {!! $sizeMatch !!}) {
+                        variantId = {{ $vp->id }};
+                    }
+                @endforeach
+                return variantId;
+            }
+            return null;
+        }
 
         function updatePriceBasedOnQuantity() {
             var qty = parseInt($("input[name='qty']").val()) || 1;
-            var selectedPrice = regularPrice;
+            // Use stored base price (set by updateVariantPrice) as fallback, not DOM price
+            var fallbackPrice = (typeof window._currentBasePrice !== 'undefined' && window._currentBasePrice > 0)
+                ? window._currentBasePrice : productBasePrice;
+            var selectedPrice = fallbackPrice;
             var matchedTier = null;
+            var currentVariantId = $('#selected-variant-id').val();
 
-            // Find matching wholesale tier
-            for (var i = 0; i < wholesaleTiers.length; i++) {
-                if (qty >= wholesaleTiers[i].min_quantity && qty <= wholesaleTiers[i].max_quantity) {
-                    selectedPrice = wholesaleTiers[i].price;
-                    matchedTier = wholesaleTiers[i];
+            // Filter tiers: show global (variant_id=0) OR matching variant
+            // When no variant selected, show only global tiers
+            var visibleTiers = wholesaleTiers.filter(function(t) {
+                if (hasVariantPricing) {
+                    if (currentVariantId) {
+                        return t.variant_id == 0 || t.variant_id == currentVariantId;
+                    }
+                    return t.variant_id == 0; // only global when no variant selected
+                }
+                return true; // simple product — show all
+            });
+
+            // Show/hide tier rows based on variant match
+            $('.wholesale-tier-row').each(function() {
+                var rowVariantId = parseInt($(this).data('variant-id'));
+                var show = true;
+                if (hasVariantPricing) {
+                    if (currentVariantId) {
+                        show = (rowVariantId == 0 || rowVariantId == currentVariantId);
+                    } else {
+                        show = (rowVariantId == 0); // only global when no variant
+                    }
+                }
+                $(this).toggle(show);
+            });
+
+            // Sort: variant-specific first, then by min_quantity DESC (best tier for qty)
+            visibleTiers.sort(function(a, b) {
+                if (a.variant_id == 0 && b.variant_id != 0) return 1;  // global after specific
+                if (a.variant_id != 0 && b.variant_id == 0) return -1;  // specific first
+                return b.min_quantity - a.min_quantity;  // highest min first
+            });
+
+            // Find matching wholesale tier from filtered list
+            for (var i = 0; i < visibleTiers.length; i++) {
+                if (qty >= visibleTiers[i].min_quantity && qty <= visibleTiers[i].max_quantity) {
+                    selectedPrice = visibleTiers[i].price;
+                    matchedTier = visibleTiers[i];
                     break;
                 }
             }
@@ -1269,7 +1322,7 @@ if (typeof ttq !== 'undefined') {
             // Highlight matching tier row
             $('.wholesale-tier-row').removeClass('active-tier');
             if (matchedTier) {
-                $('.wholesale-tier-row').each(function() {
+                $('.wholesale-tier-row:visible').each(function() {
                     var minQty = parseInt($(this).data('min-qty'));
                     var maxQty = parseInt($(this).data('max-qty'));
                     if (qty >= minQty && qty <= maxQty) {
@@ -1288,6 +1341,26 @@ if (typeof ttq !== 'undefined') {
         $('.wholesale-tier-row').on('click', function() {
             var minQty = parseInt($(this).data('min-qty'));
             $("input[name='qty']").val(minQty).trigger('change');
+        });
+
+        // When variant is selected, update hidden field and re-evaluate pricing
+        $(document).on('change', 'input[name="product_color"], input[name="product_size"]', function() {
+            var colorEl = $('input[name="product_color"]:checked');
+            var sizeEl = $('input[name="product_size"]:checked');
+            var colorId = colorEl.length ? colorEl.val() : null;
+            var sizeId = sizeEl.length ? sizeEl.val() : null;
+            var variantId = null;
+            @foreach($details->variantPrices as $vp)
+                @php
+                    $colorMatch = is_null($vp->color_id) ? 'true' : "{$vp->color_id} == (colorId || null)";
+                    $sizeMatch = is_null($vp->size_id) ? 'true' : "{$vp->size_id} == (sizeId || null)";
+                @endphp
+                if ({!! $colorMatch !!} && {!! $sizeMatch !!}) {
+                    variantId = {{ $vp->id }};
+                }
+            @endforeach
+            $('#selected-variant-id').val(variantId || '');
+            updatePriceBasedOnQuantity();
         });
 
         // Initial price update

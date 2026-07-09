@@ -203,27 +203,27 @@
     <div class="container d-flex justify-content-center">
         <div class="login-container">
             
-            {{-- বাম পাশ: ছবি --}}
+            {{-- Left Side: Image --}}
 <div class="login-image-area">
     {{-- এখানে আর কোনো <img> ট্যাগ থাকবে না --}}
-    <h2>Welcome Back!</h2>
-    <p><span style="color: white;">আপনার অ্যাকাউন্টে লগিন করে নিরাপদ কেনাকাটা করুন।</span></p>
+    <h2>{{ __('Welcome Back!') }}</h2>
+    <p><span style="color: white;">{{ __('Shop safely by logging into your account.') }}</span></p>
 </div>
 
-            {{-- ডান পাশ: ফর্ম --}}
+            {{-- Right Side: Form --}}
             <div class="login-form-area">
                 <div class="login-header">
-                    <h3>কাস্টমার লগিন 👋</h3>
-                    <p>আপনার ফোন নাম্বার এবং পাসওয়ার্ড দিন</p>
+                    <h3>{{ __('Customer Login') }}</h3>
+                    <p>{{ __('Enter your phone number and password') }}</p>
                 </div>
 
                 {{-- আপনার অরিজিনাল ফর্ম অ্যাকশন এবং মেথড --}}
                 <form action="{{route('customer.signin')}}" method="POST" data-parsley-validate="">
                     @csrf
                     
-                    {{-- ফোন নাম্বার --}}
+                    {{-- Mobile Number --}}
                     <div class="custom-input-group">
-                        <label for="login">{{ __('Mobile Number') }} বা ইমেইল</label>
+                        <label for="login">{{ __('Mobile Number') }} {{ __('Or') }} {{ __('Email') }}</label>
                         <input type="text" id="login" 
                                class="custom-input @error('login') is-invalid @enderror" 
                                name="login" value="{{ old('login') }}" 
@@ -233,14 +233,14 @@
                         @enderror
                     </div>
 
-                    {{-- পাসওয়ার্ড --}}
+                    {{-- Password --}}
                     <div class="custom-input-group">
-                        <label for="password">পাসওয়ার্ড</label>
+                        <label for="password">{{ __('Password') }}</label>
                         <div style="position: relative;">
                             <input type="password" id="password" 
                                    class="custom-input @error('password') is-invalid @enderror" 
                                    name="password" placeholder="********" required>
-                            {{-- পাসওয়ার্ড দেখার আইকন (অপশনাল) --}}
+                            {{-- Show Password Icon (Optional) --}}
                             <span onclick="showPass()" style="position: absolute; right: 15px; top: 15px; cursor: pointer; color: #999;">
                                 <i class="fa fa-eye"></i>
                             </span>
@@ -250,14 +250,14 @@
                         @enderror
                     </div>
 
-                    {{-- ফরগট পাসওয়ার্ড --}}
+                    {{-- Forgot Password --}}
                     <a href="{{route('customer.forgot.password')}}" class="forgot-pass-link">
-                        <i class="fa-solid fa-unlock"></i> পাসওয়ার্ড ভুলে গেছেন?
+                        <i class="fa-solid fa-unlock"></i> {{ __('Forgot Password?') }}
                     </a>
 
-                    {{-- সাবমিট --}}
+                    {{-- Submit --}}
                     <div class="form-group mb-3">
-                        <button class="btn-modern-submit"> লগিন করুন </button>
+                        <button class="btn-modern-submit"> {{ __('Sign In') }} </button>
                     </div>
 
                 </form>
@@ -265,7 +265,7 @@
                 @if(isset($demoMode) && $demoMode)
                 <div class="mt-4 pt-3 border-top">
                     <div class="mb-2">
-                        <small class="d-block mb-1 text-muted">রিসেলার ইউজার</small>
+                        <small class="d-block mb-1 text-muted">{{ __('Reseller User') }}</small>
                         <div class="d-flex gap-2 align-items-center flex-wrap mb-2">
                             <input type="text" class="form-control form-control-sm bg-light" value="01631843149" readonly style="flex:1;min-width:0;border:1px solid #ddd;">
                             <input type="text" class="form-control form-control-sm bg-light" value="12345678" readonly style="width:100px;border:1px solid #ddd;">
@@ -273,7 +273,7 @@
                         </div>
                     </div>
                     <div>
-                        <small class="d-block mb-1 text-muted">ভেন্ড্রর ইউজার</small>
+                        <small class="d-block mb-1 text-muted">{{ __('Vendor User') }}</small>
                         <div class="d-flex gap-2 align-items-center flex-wrap">
                             <input type="text" class="form-control form-control-sm bg-light" value="01870829343" readonly style="flex:1;min-width:0;border:1px solid #ddd;">
                             <input type="text" class="form-control form-control-sm bg-light" value="123456789" readonly style="width:100px;border:1px solid #ddd;">
@@ -283,11 +283,11 @@
                 </div>
                 @endif
 
-                {{-- রেজিস্ট্রেশন --}}
+                {{-- Registration --}}
                 <div class="register-box">
-                    <p class="mb-1 text-muted">একাউন্ট না থাকলে?</p>
+                    <p class="mb-1 text-muted">{{ __("Don't have an account?") }}</p>
                     <a href="{{route('customer.register')}}" class="register-link">
-                        <i data-feather="edit-3"></i> রেজিস্ট্রেশন করুন
+                        <i data-feather="edit-3"></i> {{ __('Sign Up') }}
                     </a>
                 </div>
             </div>
@@ -296,7 +296,7 @@
     </div>
 </section>
 
-{{-- পাসওয়ার্ড শো করার ছোট স্ক্রিপ্ট --}}
+{{-- Show Password Script --}}
 <script>
     function fillDemoCreds(login, pass) {
         document.getElementById('login').value = login;

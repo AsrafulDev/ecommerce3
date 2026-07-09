@@ -6,6 +6,7 @@
     "license": "MIT",
     "require": {
         "php": "^8.2",
+        "barryvdh/laravel-dompdf": "^3.1",
         "brian2694/laravel-toastr": "^5.57",
         "facebook/php-business-sdk": "^24.0",
         "guzzlehttp/guzzle": "^7.2",
@@ -15,6 +16,7 @@
         "laravel/sanctum": "^4.0",
         "laravel/tinker": "^2.7",
         "laravel/ui": "^4.2",
+        "picqer/php-barcode-generator": "^3.2",
         "spatie/laravel-permission": "^6.4",
         "spatie/laravel-sitemap": "^7.0",
         "uddoktapay/laravel-sdk": "^2.1"

@@ -60,13 +60,14 @@ if (typeof ttq !== 'undefined') {
        MODERN CHECKOUT STYLES - PROFESSIONAL E-COMMERCE LOOK
     ================================================================ */
     :root {
-        --primary-color: #0f3460;
-        --secondary-color: #e94560;
+        --primary-color: {{ $activeTheme->primary_color ?? '#0f3460' }};
+        --secondary-color: {{ $activeTheme->secondary_color ?? '#e94560' }};
+        --accent-color: {{ $activeTheme->accent_color ?? '#eab308' }};
+        --border-color: {{ $activeTheme->border_color ?? '#e5e7eb' }};
+        --bg-color: {{ $activeTheme->body_bg_color ?? '#f8f9fa' }};
+        --text-dark: {{ $activeTheme->heading_color ?? '#1f2937' }};
+        --text-light: {{ $activeTheme->text_color ?? '#6b7280' }};
         --success-color: #28a745;
-        --border-color: #e5e7eb;
-        --bg-color: #f8f9fa;
-        --text-dark: #1f2937;
-        --text-light: #6b7280;
     }
 
     .checkout-section {

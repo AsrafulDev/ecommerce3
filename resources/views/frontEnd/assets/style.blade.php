@@ -2477,6 +2477,7 @@ li.recent_pro {
 .coupon-form form {
     display: inline-block;
     width: 300px;
+    max-width: 100%;
 }
 
 .coupon-form form input {

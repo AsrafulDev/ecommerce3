@@ -124,6 +124,12 @@ class Product extends Model
         return $this->hasMany(ProductWholesalePrice::class, 'product_id')->orderBy('min_quantity', 'asc');
     }
 
+    // Stock batches for LIFO/FIFO/Average costing
+    public function stockBatches()
+    {
+        return $this->hasMany(StockBatch::class, 'product_id');
+    }
+
     // ------------------------
     // Digital product related
     // ------------------------

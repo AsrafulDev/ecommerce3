@@ -336,6 +336,9 @@
                                     <a href="{{ route('purchases.invoice',$p->id) }}" class="btn btn-action btn-outline-secondary" target="_blank" title="{{ __('Invoice') }}">
                                         <i class="fe-file-text"></i>
                                     </a>
+                                    <a href="{{ route('purchases.invoice',$p->id) }}" class="btn btn-action btn-outline-primary" title="{{ __('Print') }}">
+                                        <i class="fe-printer"></i>
+                                    </a>
 
                                     @if($p->due_amount > 0)
                                         <form action="{{ route('purchases.pay_due',$p->id) }}" method="POST" class="d-flex align-items-center bg-light rounded p-1 border">

@@ -36,70 +36,88 @@ $totalOrderAmount = \App\Models\Order::where('customer_id', $customerId)->sum('a
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
     <!-- Toastr CSS -->
     <link rel="stylesheet" href="{{asset('public/backEnd/')}}/assets/css/toastr.min.css" />
+    {{-- 🎨 Customer Panel Theme Variables --}}
+    @if(isset($activeTheme) && $activeTheme)
+    <style>
+        :root {
+            --cp-primary: {{ $activeTheme->primary_color ?? '#4f46e5' }};
+            --cp-secondary: {{ $activeTheme->secondary_color ?? '#059669' }};
+            --cp-accent: {{ $activeTheme->accent_color ?? '#eab308' }};
+            --cp-body-bg: {{ $activeTheme->body_bg_color ?? '#F0F2F5' }};
+            --cp-text: {{ $activeTheme->text_color ?? '#6b7280' }};
+            --cp-heading: {{ $activeTheme->heading_color ?? '#1f2937' }};
+            --cp-card-bg: {{ $activeTheme->admin_card_bg ?? '#ffffff' }};
+            --cp-border: {{ $activeTheme->border_color ?? '#e5e7eb' }};
+        }
+        @import url('https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@300;400;500;600;700&display=swap');
+        body { font-family: 'Hind Siliguri', sans-serif; background-color: var(--cp-body-bg); color: var(--cp-text); }
+        .sidebar-item:hover { background-color: color-mix(in srgb, var(--cp-primary) 10%, transparent); color: var(--cp-primary); }
+        .active-menu { background-color: color-mix(in srgb, var(--cp-primary) 15%, transparent); color: var(--cp-primary); border-right: 3px solid var(--cp-primary); }
+        .bg-indigo-600 { background-color: var(--cp-primary) !important; }
+        .text-indigo-600 { color: var(--cp-primary) !important; }
+        .text-gray-800, .text-gray-900 { color: var(--cp-heading) !important; }
+        .text-gray-500, .text-gray-600 { color: var(--cp-text) !important; }
+        .text-gray-400 { color: color-mix(in srgb, var(--cp-text) 65%, transparent) !important; }
+        .bg-white { background-color: var(--cp-card-bg) !important; }
+        .border-gray-100 { border-color: var(--cp-border) !important; }
+        .bg-gray-50 { background-color: var(--cp-body-bg) !important; }
+        .bg-gray-100 { background-color: color-mix(in srgb, var(--cp-body-bg) 60%, #000) !important; }
+        .hover\:bg-gray-100:hover { background-color: color-mix(in srgb, var(--cp-body-bg) 35%, #000) !important; }
+        .bg-red-50.text-red-600 { background-color: color-mix(in srgb, #ef4444 10%, transparent) !important; color: #ef4444 !important; }
+        .hover\:bg-red-100:hover { background-color: color-mix(in srgb, #ef4444 18%, transparent) !important; }
+        .rounded-2xl, .rounded-xl, .rounded-lg { border-radius: {{ $activeTheme->border_radius ?? '12px' }} !important; }
+        #sidebar { transition: transform 0.3s ease-in-out; }
+        
+        /* Profile Image Upload */
+        .profile-image-container { position: relative; display: inline-block; }
+        .profile-image-preview {
+            width: 150px; height: 150px; border-radius: 50%; object-fit: cover;
+            border: 4px solid var(--cp-border);
+            box-shadow: 0 4px 6px -1px color-mix(in srgb, var(--cp-primary) 15%, transparent);
+        }
+        .profile-image-upload-btn {
+            position: absolute; bottom: 0; right: 0; width: 45px; height: 45px;
+            background: var(--cp-primary); border-radius: 50%; display: flex;
+            align-items: center; justify-content: center; cursor: pointer;
+            border: 3px solid white;
+            box-shadow: 0 2px 4px color-mix(in srgb, var(--cp-primary) 30%, transparent);
+            transition: all 0.3s;
+        }
+        .profile-image-upload-btn:hover {
+            background: color-mix(in srgb, var(--cp-primary) 80%, #000);
+            transform: scale(1.1);
+        }
+        .profile-image-upload-btn i { color: white; font-size: 18px; }
+        #profileImageInput { display: none; }
+        
+        /* Select2 Customization */
+        .select2-container--default .select2-selection--single {
+            height: 42px; border: 1px solid var(--cp-border); border-radius: 8px; padding: 4px 12px;
+        }
+        .select2-container--default .select2-selection--single .select2-selection__rendered { line-height: 34px; }
+        .select2-container--default .select2-selection--single .select2-selection__arrow { height: 40px; }
+        .select2-container--default .select2-results__option--highlighted[aria-selected] {
+            background-color: var(--cp-primary) !important;
+        }
+    </style>
+    @else
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@300;400;500;600;700&display=swap');
         body { font-family: 'Hind Siliguri', sans-serif; background-color: #F0F2F5; }
         .sidebar-item:hover { background-color: #f3f4f6; color: #4f46e5; }
         .active-menu { background-color: #EEF2FF; color: #4f46e5; border-right: 3px solid #4f46e5; }
-        
-        /* Mobile Menu Transition */
         #sidebar { transition: transform 0.3s ease-in-out; }
-        
-        /* Profile Image Upload */
-        .profile-image-container {
-            position: relative;
-            display: inline-block;
-        }
-        .profile-image-preview {
-            width: 150px;
-            height: 150px;
-            border-radius: 50%;
-            object-fit: cover;
-            border: 4px solid #e5e7eb;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-        }
-        .profile-image-upload-btn {
-            position: absolute;
-            bottom: 0;
-            right: 0;
-            width: 45px;
-            height: 45px;
-            background: #4f46e5;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            border: 3px solid white;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-            transition: all 0.3s;
-        }
-        .profile-image-upload-btn:hover {
-            background: #4338ca;
-            transform: scale(1.1);
-        }
-        .profile-image-upload-btn i {
-            color: white;
-            font-size: 18px;
-        }
-        #profileImageInput {
-            display: none;
-        }
-        
-        /* Select2 Customization */
-        .select2-container--default .select2-selection--single {
-            height: 42px;
-            border: 1px solid #d1d5db;
-            border-radius: 8px;
-            padding: 4px 12px;
-        }
-        .select2-container--default .select2-selection--single .select2-selection__rendered {
-            line-height: 34px;
-        }
-        .select2-container--default .select2-selection--single .select2-selection__arrow {
-            height: 40px;
-        }
+        .profile-image-container { position: relative; display: inline-block; }
+        .profile-image-preview { width: 150px; height: 150px; border-radius: 50%; object-fit: cover; border: 4px solid #e5e7eb; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); }
+        .profile-image-upload-btn { position: absolute; bottom: 0; right: 0; width: 45px; height: 45px; background: #4f46e5; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; border: 3px solid white; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); transition: all 0.3s; }
+        .profile-image-upload-btn:hover { background: #4338ca; transform: scale(1.1); }
+        .profile-image-upload-btn i { color: white; font-size: 18px; }
+        #profileImageInput { display: none; }
+        .select2-container--default .select2-selection--single { height: 42px; border: 1px solid #d1d5db; border-radius: 8px; padding: 4px 12px; }
+        .select2-container--default .select2-selection--single .select2-selection__rendered { line-height: 34px; }
+        .select2-container--default .select2-selection--single .select2-selection__arrow { height: 40px; }
     </style>
+    @endif
 </head>
 <body class="flex min-h-screen relative">
 

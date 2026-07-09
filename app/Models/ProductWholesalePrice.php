@@ -11,6 +11,7 @@ class ProductWholesalePrice extends Model
 
     protected $fillable = [
         'product_id',
+        'variant_id',
         'min_quantity',
         'max_quantity',
         'wholesale_price',
@@ -20,15 +21,21 @@ class ProductWholesalePrice extends Model
     protected function casts(): array
     {
         return [
-            'min_quantity' => 'integer',
-            'max_quantity' => 'integer',
+            'variant_id'     => 'integer',
+            'min_quantity'   => 'integer',
+            'max_quantity'   => 'integer',
             'wholesale_price' => 'decimal:2',
-            'stock' => 'integer',
+            'stock'          => 'integer',
         ];
     }
 
     public function product()
     {
         return $this->belongsTo(Product::class);
+    }
+
+    public function variant()
+    {
+        return $this->belongsTo(ProductVariantPrice::class, 'variant_id');
     }
 }

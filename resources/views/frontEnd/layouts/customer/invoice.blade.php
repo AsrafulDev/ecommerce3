@@ -61,15 +61,15 @@
     td{ font-size: 16px; }
     
     #invoice-pdf-area { 
-        background: #fff; 
+        background: var(--card-bg, #fff); 
         max-width: 850px; 
         margin: 0 auto; 
         border-radius: 12px; 
-        box-shadow: 0 5px 15px rgba(0,0,0,0.05); 
+        box-shadow: 0 5px 15px color-mix(in srgb, var(--primary-color, #0d6efd) 8%, transparent); 
         padding: 30px;
     }
     #invoice-pdf-area table { width: 100%; border-collapse: collapse; }
-    #invoice-pdf-area .invoice-bar { background: #00aef0; padding: 20px 40px; }
+    #invoice-pdf-area .invoice-bar { background: var(--primary-color, #00aef0); padding: 20px 40px; }
     #invoice-pdf-area .invoice-bar p { color: #fff; font-weight: bold; }
     #invoice-pdf-area .invoice_form p { margin: 3px 0; font-size: 14px; }
     #invoice-pdf-area .invoice_to p { margin: 3px 0; font-size: 14px; }
@@ -117,13 +117,13 @@
                                 <img src="{{asset($generalsetting->white_logo)}}" style="margin-top:25px !important;width:150px">
 
                                 <div style="margin: 20px 0;">
-                                    <p style="font-size: 14px; color: #222; margin-bottom: 5px;">
+                                    <p style="font-size: 14px; color: var(--heading-color, #222); margin-bottom: 5px;">
                                         <strong>Payment Method:</strong> 
                                         <span style="text-transform: uppercase;">{{ $payment_method }}</span>
                                     </p>
                                     
                                     {{-- পেমেন্ট স্ট্যাটাস ডিসপ্লে --}}
-                                    <p style="font-size: 14px; color: #222;">
+                                    <p style="font-size: 14px; color: var(--heading-color, #222);">
                                         <strong>Status:</strong>
                                         @if($paid_amount >= $grand_total)
                                             <span style="color: green; font-weight: bold; text-transform: uppercase;">PAID</span>
@@ -153,13 +153,13 @@
                             </td>
 
                             <td style="width:60%;float: left;">
-                                <div class="invoice-bar" style="background:#00aef0; padding: 15px 30px; border-radius: 4px;">
+                                <div class="invoice-bar" style="background:var(--primary-color, #00aef0); padding: 15px 30px; border-radius: 4px;">
                                     <p style="font-size: 30px; color: #fff; text-align: right; font-weight: bold; margin: 0;">{{ __('Invoice') }}</p>
                                 </div>
 
-                                <div class="invoice-bar" style="background:#e8f4fd; padding: 12px 20px; margin-top: 6px; text-align:right; border-radius: 4px; border: 1px solid #b8d8f0;">
-                                   <p style="display:inline-block; margin: 0 10px; font-size: 15px; color: #1a3a5c;">Invoice Date: <strong style="color: #0d6efd;">{{$order->created_at->format('d-m-y')}}</strong></p>
-                                   <p style="display:inline-block; margin: 0 10px; font-size: 15px; color: #1a3a5c;">Invoice No: <strong style="color: #0d6efd;">{{$order->invoice_id}}</strong></p>
+                                <div class="invoice-bar" style="background:color-mix(in srgb, var(--primary-color, #00aef0) 8%, transparent); padding: 12px 20px; margin-top: 6px; text-align:right; border-radius: 4px; border: 1px solid color-mix(in srgb, var(--primary-color, #00aef0) 25%, transparent);">
+                                   <p style="display:inline-block; margin: 0 10px; font-size: 15px; color: var(--heading-color, #1a3a5c);">Invoice Date: <strong style="color: var(--primary-color, #0d6efd);">{{$order->created_at->format('d-m-y')}}</strong></p>
+                                   <p style="display:inline-block; margin: 0 10px; font-size: 15px; color: var(--heading-color, #1a3a5c);">Invoice No: <strong style="color: var(--primary-color, #0d6efd);">{{$order->invoice_id}}</strong></p>
                                 </div>
 
                                 <div class="invoice_to" style="padding-top: 20px;">
@@ -175,7 +175,7 @@
 
                     {{-- ===================== PRODUCTS TABLE ===================== --}}
                     <table class="table" style="margin-top: 30px;">
-                        <thead style="background: #00aef0; color: #fff;">
+                        <thead style="background: var(--primary-color, #00aef0); color: #fff;">
                             <tr>
                                 <th>{{ __('SL') }}</th>
                                 <th>Product</th>
@@ -227,7 +227,7 @@
 
                     <div class="invoice-bottom">
                         <table class="table" style="width: 300px; float: right; margin-bottom: 30px;">
-                            <tbody style="background:#00aef0; color:#fff;">
+                            <tbody style="background:var(--primary-color, #00aef0); color:#fff;">
 
                                 <tr>
                                     <td><strong>SubTotal</strong></td>

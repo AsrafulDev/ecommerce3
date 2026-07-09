@@ -53,24 +53,24 @@
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap');
 
-    .invoice-wrapper { background: #f8fafc; padding: 30px 15px; font-family: 'Plus Jakarta Sans', sans-serif; }
-    #invoice-pdf-area { background: #fff; max-width: 850px; margin: 0 auto; border-radius: 12px; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); overflow: hidden; }
+    .invoice-wrapper { background: var(--body-bg, #f8fafc); padding: 30px 15px; font-family: 'Plus Jakarta Sans', sans-serif; }
+    #invoice-pdf-area { background: var(--card-bg, #fff); max-width: 850px; margin: 0 auto; border-radius: 12px; box-shadow: 0 10px 15px -3px color-mix(in srgb, var(--primary-color, #0d6efd) 10%, transparent); overflow: hidden; }
     .inv-container { padding: 40px; }
     .inv-header { display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 20px; margin-bottom: 40px; }
     .inv-logo img { width: 150px; height: auto; margin-bottom: 15px; }
-    .inv-title h1 { font-size: 28px; font-weight: 800; color: #0f172a; margin: 0; }
+    .inv-title h1 { font-size: 28px; font-weight: 800; color: var(--heading-color, #0f172a); margin: 0; }
     .inv-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 30px; }
-    .info-label { font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; display: block; margin-bottom: 5px; }
-    .info-val { font-size: 14px; color: #1e293b; line-height: 1.5; }
+    .info-label { font-size: 11px; font-weight: 700; color: var(--text-color, #64748b); text-transform: uppercase; letter-spacing: 0.5px; display: block; margin-bottom: 5px; }
+    .info-val { font-size: 14px; color: var(--heading-color, #1e293b); line-height: 1.5; }
     .table-responsive { margin: 30px 0; }
     .inv-table { width: 100%; border-collapse: collapse; }
-    .inv-table th { background: #f1f5f9; padding: 12px; font-size: 12px; font-weight: 700; text-transform: uppercase; color: #475569; }
-    .inv-table td { padding: 15px 12px; border-bottom: 1px solid #f1f5f9; font-size: 14px; }
+    .inv-table th { background: color-mix(in srgb, var(--primary-color, #0d6efd) 8%, transparent); padding: 12px; font-size: 12px; font-weight: 700; text-transform: uppercase; color: var(--heading-color, #475569); }
+    .inv-table td { padding: 15px 12px; border-bottom: 1px solid var(--border-color, #f1f5f9); font-size: 14px; }
     .sum-wrapper { display: flex; justify-content: flex-end; }
     .sum-box { width: 100%; max-width: 320px; }
     .sum-row { display: flex; justify-content: space-between; padding: 8px 0; font-size: 14px; }
-    .total-row { border-top: 2px solid #0f172a; margin-top: 10px; padding-top: 15px; font-weight: 800; font-size: 18px; color: #000; }
-    .payment-badge-box { background: #0f172a; color: #fff; padding: 15px; border-radius: 8px; margin-top: 15px; }
+    .total-row { border-top: 2px solid var(--heading-color, #0f172a); margin-top: 10px; padding-top: 15px; font-weight: 800; font-size: 18px; color: var(--heading-color, #000); }
+    .payment-badge-box { background: var(--heading-color, #0f172a); color: #fff; padding: 15px; border-radius: 8px; margin-top: 15px; }
     .status-tag { display: inline-block; padding: 4px 12px; border-radius: 50px; font-size: 11px; font-weight: 700; margin-top: 8px; }
     .bg-paid-light { background: #dcfce7; color: #15803d; }
     .bg-due-light { background: #fee2e2; color: #b91c1c; }

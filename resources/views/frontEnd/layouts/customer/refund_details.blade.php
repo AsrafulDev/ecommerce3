@@ -33,15 +33,49 @@ $totalOrderAmount = \App\Models\Order::where('customer_id', $customerId)->sum('a
     <title>{{ __('Refund Details') }} #{{ $refund->refund_id }} | {{ $siteName->name ?? 'Gadget Style' }}</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    {{-- 🎨 Customer Panel Theme Variables --}}
+    @if(isset($activeTheme) && $activeTheme)
+    <style>
+        :root {
+            --cp-primary: {{ $activeTheme->primary_color ?? '#4f46e5' }};
+            --cp-secondary: {{ $activeTheme->secondary_color ?? '#059669' }};
+            --cp-accent: {{ $activeTheme->accent_color ?? '#eab308' }};
+            --cp-body-bg: {{ $activeTheme->body_bg_color ?? '#F0F2F5' }};
+            --cp-text: {{ $activeTheme->text_color ?? '#6b7280' }};
+            --cp-heading: {{ $activeTheme->heading_color ?? '#1f2937' }};
+            --cp-card-bg: {{ $activeTheme->admin_card_bg ?? '#ffffff' }};
+            --cp-border: {{ $activeTheme->border_color ?? '#e5e7eb' }};
+        }
+        @import url('https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@300;400;500;600;700&display=swap');
+        body { font-family: 'Hind Siliguri', sans-serif; background-color: var(--cp-body-bg); color: var(--cp-text); }
+        .sidebar-item:hover { background-color: color-mix(in srgb, var(--cp-primary) 10%, transparent); color: var(--cp-primary); }
+        .active-menu { background-color: color-mix(in srgb, var(--cp-primary) 15%, transparent); color: var(--cp-primary); border-right: 3px solid var(--cp-primary); }
+        .bg-indigo-600 { background-color: var(--cp-primary) !important; }
+        .text-indigo-600 { color: var(--cp-primary) !important; }
+        .text-gray-800, .text-gray-900 { color: var(--cp-heading) !important; }
+        .text-gray-500, .text-gray-600 { color: var(--cp-text) !important; }
+        .text-gray-400 { color: color-mix(in srgb, var(--cp-text) 65%, transparent) !important; }
+        .bg-white { background-color: var(--cp-card-bg) !important; }
+        .border-gray-100 { border-color: var(--cp-border) !important; }
+        .bg-gray-50 { background-color: var(--cp-body-bg) !important; }
+        .bg-gray-100 { background-color: color-mix(in srgb, var(--cp-body-bg) 60%, #000) !important; }
+        .hover\:bg-gray-100:hover { background-color: color-mix(in srgb, var(--cp-body-bg) 35%, #000) !important; }
+        .bg-gray-300 { background-color: color-mix(in srgb, var(--cp-border) 70%, transparent) !important; }
+        .bg-red-50.text-red-600 { background-color: color-mix(in srgb, #ef4444 10%, transparent) !important; color: #ef4444 !important; }
+        .bg-green-50.text-green-600 { background-color: color-mix(in srgb, var(--cp-secondary) 12%, transparent) !important; color: var(--cp-secondary) !important; }
+        .shadow-lg { box-shadow: 0 10px 25px color-mix(in srgb, var(--cp-primary) 10%, transparent) !important; }
+        .rounded-2xl, .rounded-xl, .rounded-lg { border-radius: {{ $activeTheme->border_radius ?? '12px' }} !important; }
+        #sidebar { transition: transform 0.3s ease-in-out; }
+    </style>
+    @else
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@300;400;500;600;700&display=swap');
         body { font-family: 'Hind Siliguri', sans-serif; background-color: #F0F2F5; }
         .sidebar-item:hover { background-color: #f3f4f6; color: #4f46e5; }
         .active-menu { background-color: #EEF2FF; color: #4f46e5; border-right: 3px solid #4f46e5; }
-        
-        /* Mobile Menu Transition */
         #sidebar { transition: transform 0.3s ease-in-out; }
     </style>
+    @endif
 </head>
 <body class="flex min-h-screen relative">
 

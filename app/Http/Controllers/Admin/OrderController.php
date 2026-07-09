@@ -27,11 +27,13 @@ use App\Models\Color;
 use App\Models\Size;
 use App\Models\ProductVariantPrice;
 use App\Models\Coupon;
+use App\Models\PosHoldCart;
 use Carbon\Carbon;
 use App\Models\FundTransaction;
 use App\Helpers\FundHelper;
 use App\Models\Expense;
 use App\Services\RedXService;
+use App\Services\StockManagementService;
 use App\Enums\OrderStatus as OrderStatusEnum;
 use App\Enums\PaymentStatus as PaymentStatusEnum;
 
@@ -67,16 +69,39 @@ class OrderController extends Controller
         $wasActive = $oldEnum->consumesStock();
         $isActive  = $newEnum->consumesStock();
 
-        // 1) Entering active status → decrease stock
+        /** @var StockManagementService $stockService */
+        $stockService = app(StockManagementService::class);
+
+        // 1) Entering active status → decrease stock (with batch tracking)
         if ($isActive && !$wasActive) {
             $details = OrderDetails::where('order_id', $order->id)
-                ->with('product:id,stock')
+                ->with('product')
                 ->get();
 
             foreach ($details as $row) {
-                if ($row->product) {
-                    $row->product->stock = max(0, $row->product->stock - $row->qty);
-                    $row->product->save();
+                if (!$row->product) {
+                    continue;
+                }
+
+                try {
+                    $result = $stockService->stockOut($row->product, (int) $row->qty, [
+                        'type' => 'sale',
+                        'id'   => $order->id,
+                    ]);
+
+                    // Store COGS and batch details on the order detail
+                    $row->update([
+                        'cogs'      => $result['cogs'],
+                        'batch_ids' => $result['batch_details'],
+                    ]);
+                } catch (\RuntimeException $e) {
+                    // Fallback: simple stock decrement if batch tracking fails
+                    $row->product->decrement('stock', (int) $row->qty);
+                    Log::warning('Stock batch deduction failed, used fallback', [
+                        'product' => $row->product_id,
+                        'order'   => $order->id,
+                        'error'   => $e->getMessage(),
+                    ]);
                 }
             }
         }
@@ -84,14 +109,27 @@ class OrderController extends Controller
         // 2) Cancelled → restore stock if was active
         if ($newEnum === OrderStatusEnum::CANCELLED && $wasActive) {
             $details = OrderDetails::where('order_id', $order->id)
-                ->with('product:id,stock')
+                ->with('product')
                 ->get();
 
             foreach ($details as $row) {
-                if ($row->product) {
-                    $row->product->stock = $row->product->stock + $row->qty;
-                    $row->product->save();
+                if (!$row->product) {
+                    continue;
                 }
+
+                // Restore stock — create a positive batch entry
+                $stockService->stockIn($row->product, [
+                    'quantity'       => (int) $row->qty,
+                    'unit_cost'      => (float) ($row->product->purchase_price ?? 0),
+                    'reference_type' => 'sale_return',
+                    'reference_id'   => $order->id,
+                ]);
+
+                // Clear COGS since it's reversed
+                $row->update([
+                    'cogs'       => null,
+                    'batch_ids'  => null,
+                ]);
             }
         }
     }
@@ -1844,8 +1882,6 @@ class OrderController extends Controller
 
     public function order_create()
     {
-        Cart::instance('pos_shopping')->destroy();
-
         // ✅ Limit products for POS dropdown to avoid memory issues
         $products = Product::select('id', 'name', 'new_price','stock', 'product_code')
             ->where(['status' => 1])
@@ -3009,6 +3045,180 @@ class OrderController extends Controller
             'badge_class'  => OrderStatusEnum::tryFrom($order->order_status)?->badgeClass() ?? 'secondary',
             'actions'      => $order->getAvailableActions(),
         ]);
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | BARCODE SCANNING
+    |--------------------------------------------------------------------------
+    */
+    public function scanBarcode($barcode)
+    {
+        // Try to find by product barcode
+        $product = Product::where('barcode', $barcode)->first();
+
+        // If not found, try variant barcode
+        if (!$product) {
+            $variant = ProductVariantPrice::where('barcode', $barcode)->with('product')->first();
+            if ($variant && $variant->product) {
+                $product = $variant->product;
+            }
+        }
+
+        if (!$product) {
+            return response()->json(['error' => 'Product not found for barcode: ' . $barcode], 404);
+        }
+
+        // Add to cart (same logic as clicking a product card)
+        $qty = 1;
+        $cartinfo = Cart::instance('pos_shopping')->add([
+            'id'      => $product->id,
+            'name'    => $product->name,
+            'qty'     => $qty,
+            'price'   => $product->new_price ?? $product->old_price ?? 0,
+            'options' => [
+                'slug'           => $product->slug,
+                'image'          => optional($product->image)->image ?? null,
+                'old_price'      => $product->old_price,
+                'purchase_price' => $product->purchase_price,
+                'product_size'   => null,
+                'product_color'  => null,
+                'size_id'        => null,
+                'color_id'       => null,
+                'barcode'        => $barcode,
+            ],
+        ]);
+
+        return response()->json([
+            'success'  => true,
+            'product'  => ['id' => $product->id, 'name' => $product->name, 'stock' => $product->stock],
+            'cartinfo' => $cartinfo,
+        ]);
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | POS HOLD CART
+    |--------------------------------------------------------------------------
+    */
+    public function holdCart(Request $request)
+    {
+        $cartData = Cart::instance('pos_shopping')->content();
+
+        if ($cartData->count() <= 0) {
+            return response()->json(['success' => false, 'message' => 'Cart is empty']);
+        }
+
+        $subtotalRaw = Cart::instance('pos_shopping')->subtotal();
+        $subtotal   = (float) preg_replace('/[^\d.]/', '', (string) $subtotalRaw);
+        $discount   = (float) (Session::get('pos_discount') ?? 0);
+        $shipping   = (float) (Session::get('pos_shipping') ?? 0);
+        $grandTotal = ($subtotal + $shipping) - $discount;
+
+        $hold = PosHoldCart::create([
+            'customer_name'  => $request->customer_name,
+            'customer_phone' => $request->customer_phone,
+            'cart_data'      => array_values($cartData->toArray()),
+            'subtotal'       => $subtotal,
+            'discount'       => $discount,
+            'shipping_charge'=> $shipping,
+            'grand_total'    => $grandTotal,
+            'note'           => $request->note,
+            'held_by'        => Auth::id(),
+            'held_at'        => now(),
+            'status'         => 'held',
+        ]);
+
+        // Clear current cart
+        Cart::instance('pos_shopping')->destroy();
+        Session::forget(['pos_shipping', 'pos_discount', 'pos_coupon_code']);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Cart held successfully! Reference: #' . $hold->id,
+            'hold'    => $hold,
+        ]);
+    }
+
+    public function heldCarts()
+    {
+        $heldCarts = PosHoldCart::where('status', 'held')
+            ->where('held_by', Auth::id())
+            ->orderBy('held_at', 'desc')
+            ->get();
+
+        if (request()->ajax() || request()->wantsJson()) {
+            return response()->json($heldCarts);
+        }
+
+        return view('backEnd.order.held_carts', compact('heldCarts'));
+    }
+
+    public function restoreHold($id)
+    {
+        $heldCart = PosHoldCart::where('id', $id)
+            ->where('status', 'held')
+            ->where('held_by', Auth::id())
+            ->firstOrFail();
+
+        // Clear current cart
+        Cart::instance('pos_shopping')->destroy();
+        Session::forget(['pos_shipping', 'pos_discount', 'pos_coupon_code']);
+
+        // Restore cart data
+        $cartItems = $heldCart->cart_data;
+        if (is_array($cartItems)) {
+            foreach ($cartItems as $item) {
+                Cart::instance('pos_shopping')->add([
+                    'id'      => $item['id'],
+                    'name'    => $item['name'],
+                    'qty'     => $item['qty'],
+                    'price'   => $item['price'],
+                    'options' => (array) ($item['options'] ?? []),
+                ]);
+            }
+        }
+
+        // Restore session data
+        if ($heldCart->discount > 0) {
+            Session::put('pos_discount', $heldCart->discount);
+        }
+        if ($heldCart->shipping_charge > 0) {
+            Session::put('pos_shipping', $heldCart->shipping_charge);
+        }
+
+        // Restore customer info to session for pre-filling POS form
+        Session::put('pos_customer_name', $heldCart->customer_name);
+        Session::put('pos_customer_phone', $heldCart->customer_phone);
+
+        // Mark as restored
+        $heldCart->update([
+            'status'      => 'restored',
+            'restored_at' => now(),
+        ]);
+
+        if (request()->ajax() || request()->wantsJson()) {
+            return response()->json(['success' => true, 'message' => 'Cart restored successfully']);
+        }
+
+        Toastr::success('Held cart restored successfully', 'Success!');
+        return redirect()->route('admin.order.create');
+    }
+
+    public function deleteHold($id)
+    {
+        $heldCart = PosHoldCart::where('id', $id)
+            ->where('held_by', Auth::id())
+            ->firstOrFail();
+
+        $heldCart->update(['status' => 'cancelled']);
+
+        if (request()->ajax() || request()->wantsJson()) {
+            return response()->json(['success' => true, 'message' => 'Held cart deleted']);
+        }
+
+        Toastr::success('Held cart removed', 'Success!');
+        return redirect()->back();
     }
 
 }

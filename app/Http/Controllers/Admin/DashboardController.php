@@ -155,15 +155,15 @@ class DashboardController extends Controller
             ->select(
                 'categories.id as category_id',
                 'categories.name as category_name',
-                DB::raw('SUM(order_details.sale_price * order_details.qty) as total_sales')
+                DB::raw('SUM(order_details.sale_price * order_details.qty) as total_amount')
             )
             ->groupBy('categories.id', 'categories.name')
-            ->orderBy('total_sales', 'DESC')
+            ->orderBy('total_amount', 'DESC')
             ->get();
 
         // Chart এর জন্য data format
         $categoryLabels = $categorySales->pluck('category_name')->toArray();
-        $categorySeries = $categorySales->pluck('total_sales')->map(function($amount) {
+        $categorySeries = $categorySales->pluck('total_amount')->map(function($amount) {
             return (float) number_format($amount, 2, '.', '');
         })->toArray();
 
@@ -194,7 +194,8 @@ class DashboardController extends Controller
             'today_expenses',
             'monthly_expenses',
             'categoryLabels',
-            'categorySeries'
+            'categorySeries',
+            'categorySales'
         ));
     }
 

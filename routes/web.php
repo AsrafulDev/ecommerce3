@@ -13,6 +13,7 @@ use App\Http\Controllers\Admin\OrderController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\PermissionController;
 use App\Http\Controllers\Admin\EmailSettingController;
+use App\Http\Controllers\Admin\StockController;
 use App\Http\Controllers\Admin\DashboardController;
 use Illuminate\Support\Facades\Response;
 
@@ -539,6 +540,7 @@ Route::delete('purchases/{id}', [PurchaseController::class, 'destroy'])->name('p
 Route::post('purchases/{id}/pay-due', [PurchaseController::class, 'payDue'])->name('purchases.pay_due');
 Route::post('purchase-item/{id}/return', [PurchaseController::class, 'returnItem'])->name('purchases.item_return');
 Route::get('purchases/{id}/invoice', [PurchaseController::class, 'invoice'])->name('purchases.invoice');
+Route::get('purchases/{id}/invoice/download', [PurchaseController::class, 'downloadInvoice'])->name('purchases.invoice.download');
 Route::get('purchases/export', [PurchaseController::class, 'export'])->name('purchases.export');
 // ✅ Purchases AJAX Pagination
 Route::get('purchases/ajax', [PurchaseController::class, 'ajaxIndex'])
@@ -551,6 +553,24 @@ Route::get('reports/purchases',     [ReportController::class, 'purchases'])->nam
 Route::get('reports/expenses',      [ReportController::class, 'expenses'])->name('admin.reports.expenses');
 Route::get('reports/stock',         [ReportController::class, 'stock'])->name('admin.reports.stock');
 Route::get('reports/profit-loss',   [ReportController::class, 'profitLoss'])->name('admin.reports.profit_loss');
+
+// ============================================================
+// 🆕 STOCK MANAGEMENT ROUTES
+// ============================================================
+Route::get('stock/dashboard',         [StockController::class, 'index'])->name('admin.stock.dashboard');
+Route::get('stock/batches',           [StockController::class, 'batches'])->name('admin.stock.batches');
+Route::get('stock/adjustments',       [StockController::class, 'adjustments'])->name('admin.stock.adjustments');
+Route::get('stock/adjustments/create',[StockController::class, 'createAdjustment'])->name('admin.stock.adjustments.create');
+Route::post('stock/adjustments/store',[StockController::class, 'storeAdjustment'])->name('admin.stock.adjustments.store');
+Route::get('stock/valuation',         [StockController::class, 'valuation'])->name('admin.stock.valuation');
+Route::get('stock/cogs',              [StockController::class, 'cogs'])->name('admin.stock.cogs');
+Route::get('stock/barcode/print',     [StockController::class, 'printBarcode'])->name('admin.stock.barcode.print');
+
+// Supplier Returns
+Route::get('stock/supplier-returns',          [StockController::class, 'supplierReturns'])->name('admin.stock.supplier-returns');
+Route::get('stock/supplier-returns/create',   [StockController::class, 'createSupplierReturn'])->name('admin.stock.supplier-returns.create');
+Route::post('stock/supplier-returns/store',   [StockController::class, 'storeSupplierReturn'])->name('admin.stock.supplier-returns.store');
+Route::get('stock/products/{id}/batches',     [StockController::class, 'getProductBatches'])->name('admin.stock.product-batches');
 
     // Supplier Routes
     Route::get('suppliers/manage', [SupplierController::class, 'index'])->name('admin.suppliers.index');
@@ -1001,6 +1021,13 @@ Route::get('dashboard', [DashboardController::class, 'dashboard'])->name('admin.
     Route::get('order/cart/update', [OrderController::class, 'cart_update'])->name('admin.order.cart.update');
     Route::post('order/pos/apply-coupon', [OrderController::class, 'posApplyCoupon'])->name('admin.order.pos.apply_coupon');
     Route::get('order/pos/remove-coupon', [OrderController::class, 'posRemoveCoupon'])->name('admin.order.pos.remove_coupon');
+    // Barcode scanning
+    Route::get('order/scan-barcode/{barcode}', [OrderController::class, 'scanBarcode'])->name('admin.order.scan_barcode');
+    // Hold Cart routes
+    Route::post('order/hold-cart', [OrderController::class, 'holdCart'])->name('admin.order.hold_cart');
+    Route::get('order/held-carts', [OrderController::class, 'heldCarts'])->name('admin.order.held_carts');
+    Route::post('order/restore-hold/{id}', [OrderController::class, 'restoreHold'])->name('admin.order.restore_hold');
+    Route::delete('order/delete-hold/{id}', [OrderController::class, 'deleteHold'])->name('admin.order.delete_hold');
 
     // Order route 
 	Route::get('order/{slug}/ajax', [OrderController::class, 'ajaxIndex'])->name('admin.orders.ajax');

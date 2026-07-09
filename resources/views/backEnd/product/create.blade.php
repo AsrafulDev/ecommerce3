@@ -257,6 +257,49 @@
                                 <input type="text" name="pro_unit" class="form-control" placeholder="e.g. pcs">
                             </div>
                         </div>
+
+                        {{-- 🆕 Barcode & Stock Management Fields --}}
+                        <div class="section-title mt-4"><i class="fe-tag me-1"></i> {{ __('Barcode & Stock Settings') }} </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label"> {{ __('Barcode') }} </label>
+                                <input type="text" name="barcode" class="form-control" value="{{ old('barcode') }}" placeholder="Scan or enter barcode">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label"> {{ __('Barcode Type') }} </label>
+                                <select name="barcode_type" class="form-control form-select">
+                                    <option value="C128" {{ old('barcode_type') === 'C128' ? 'selected' : '' }}>Code 128</option>
+                                    <option value="C39" {{ old('barcode_type') === 'C39' ? 'selected' : '' }}>Code 39</option>
+                                    <option value="EAN13" {{ old('barcode_type') === 'EAN13' ? 'selected' : '' }}>EAN-13</option>
+                                    <option value="UPCA" {{ old('barcode_type') === 'UPCA' ? 'selected' : '' }}>UPC-A</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label"> {{ __('Costing Method') }} </label>
+                                <select name="costing_method" class="form-control form-select">
+                                    <option value="">{{ __('Default (Global Setting)') }}</option>
+                                    <option value="fifo" {{ old('costing_method') === 'fifo' ? 'selected' : '' }}>FIFO (First In, First Out)</option>
+                                    <option value="lifo" {{ old('costing_method') === 'lifo' ? 'selected' : '' }}>LIFO (Last In, First Out)</option>
+                                    <option value="average" {{ old('costing_method') === 'average' ? 'selected' : '' }}>Weighted Average</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label"> {{ __('Low Stock Threshold') }} </label>
+                                <input type="number" name="low_stock_threshold" class="form-control" value="{{ old('low_stock_threshold', 0) }}" placeholder="0 = disabled" min="0">
+                            </div>
+                            <div class="col-md-2 mb-3">
+                                <label class="form-label"> {{ __('Weight') }} </label>
+                                <input type="text" name="weight" class="form-control" value="{{ old('weight') }}" placeholder="e.g. 0.5 kg">
+                            </div>
+                            <div class="col-md-2 mb-3 d-flex align-items-end">
+                                <div class="form-check">
+                                    <input type="checkbox" name="allow_negative_stock" class="form-check-input" value="1" id="allow_negative_stock" {{ old('allow_negative_stock') ? 'checked' : '' }}>
+                                    <label class="form-check-label" for="allow_negative_stock">{{ __('Allow Negative Stock') }}</label>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
 

@@ -4,8 +4,9 @@ namespace App\Http\Controllers\Frontend;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Models\Productprice;
+use App\Models\ProductVariantPrice;
 use App\Models\Product;
+use App\Models\ProductWholesalePrice;
 use App\Models\Coupon;
 use Toastr;
 use Cart;
@@ -195,6 +196,13 @@ class ShoppingController extends Controller
         return redirect()->back();
     }
 
+    // 🟢 Cart page
+    public function cart_show()
+    {
+        $data = Cart::instance('shopping')->content();
+        return view('frontEnd.layouts.pages.cart', compact('data'));
+    }
+
     // 🟢 Add to cart (POST) with variant support
     public function cart_store(Request $request)
     {
@@ -206,46 +214,83 @@ class ShoppingController extends Controller
         }
 
         $price = 0;
+        $variantId = null;
 
 // color + size
 if ($request->filled('product_color') && $request->filled('product_size')) {
-    $variant = Productprice::where('product_id', $product->id)
-        ->where('color', $request->product_color)
-        ->where('size', $request->product_size)
+    $variant = ProductVariantPrice::where('product_id', $product->id)
+        ->where('color_id', $request->product_color)
+        ->where('size_id', $request->product_size)
         ->first();
 
     if ($variant) {
         $price = (float) $variant->price;
+        $variantId = $variant->id;
     }
 }
 
 // only color
 elseif ($request->filled('product_color')) {
-    $variant = Productprice::where('product_id', $product->id)
-        ->where('color', $request->product_color)
-        ->whereNull('size')
+    $variant = ProductVariantPrice::where('product_id', $product->id)
+        ->where('color_id', $request->product_color)
+        ->whereNull('size_id')
         ->first();
 
     if ($variant) {
         $price = (float) $variant->price;
+        $variantId = $variant->id;
     }
 }
 
 // only size
 elseif ($request->filled('product_size')) {
-    $variant = Productprice::where('product_id', $product->id)
-        ->where('size', $request->product_size)
-        ->whereNull('color')
+    $variant = ProductVariantPrice::where('product_id', $product->id)
+        ->where('size_id', $request->product_size)
+        ->whereNull('color_id')
         ->first();
 
     if ($variant) {
         $price = (float) $variant->price;
+        $variantId = $variant->id;
     }
 }
 
 // fallback
 if ($price <= 0) {
     $price = (float) ($product->new_price ?? $product->old_price ?? 1);
+}
+
+// 🟢 WHOLESALE PRICING — apply if product is wholesale enabled
+if ($product->is_wholesale) {
+    $qty = (int) ($request->qty ?? 1);
+
+    // Priority 1: variant-specific tier (exact match on variant_id)
+    $wholesaleTier = ProductWholesalePrice::where('product_id', $product->id)
+        ->where('variant_id', $variantId)
+        ->where('min_quantity', '<=', $qty)
+        ->where(function ($q) use ($qty) {
+            $q->whereNull('max_quantity')
+              ->orWhere('max_quantity', '>=', $qty);
+        })
+        ->orderBy('min_quantity', 'desc')
+        ->first();
+
+    // Priority 2: fallback to global tier (variant_id = null)
+    if (! $wholesaleTier) {
+        $wholesaleTier = ProductWholesalePrice::where('product_id', $product->id)
+            ->whereNull('variant_id')
+            ->where('min_quantity', '<=', $qty)
+            ->where(function ($q) use ($qty) {
+                $q->whereNull('max_quantity')
+                  ->orWhere('max_quantity', '>=', $qty);
+            })
+            ->orderBy('min_quantity', 'desc')
+            ->first();
+    }
+
+    if ($wholesaleTier) {
+        $price = (float) $wholesaleTier->wholesale_price;
+    }
 }
 
         // ✅ Fallback image

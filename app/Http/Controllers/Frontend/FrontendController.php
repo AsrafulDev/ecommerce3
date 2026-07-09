@@ -11,6 +11,7 @@ use App\Models\Subcategory;
 use App\Models\Childcategory;
 use App\Models\Product;
 use App\Models\ProductVariantPrice;
+use App\Models\ProductWholesalePrice;
 use App\Models\Size;
 use App\Models\Color;
 use App\Models\District;
@@ -193,8 +194,12 @@ $brands = Brand::where('status', 1)
         $isHotDealActive = false;
         $isFlashSaleActive = false;
         if ($generalsetting) {
-            $hotDealEndDate = $generalsetting->hot_deal_end_date . 'T23:59:59';
-            $flashSaleEndDate = $generalsetting->flash_sale_end_date . 'T23:59:59';
+            $hotDealEndDate = $generalsetting->hot_deal_end_date
+                ? \Carbon\Carbon::parse($generalsetting->hot_deal_end_date)->format('Y-m-d') . 'T23:59:59'
+                : null;
+            $flashSaleEndDate = $generalsetting->flash_sale_end_date
+                ? \Carbon\Carbon::parse($generalsetting->flash_sale_end_date)->format('Y-m-d') . 'T23:59:59'
+                : null;
             $isHotDealActive = $hotDealEndDate && \Carbon\Carbon::parse($hotDealEndDate)->isFuture();
             $isFlashSaleActive = $flashSaleEndDate && \Carbon\Carbon::parse($flashSaleEndDate)->isFuture();
         }
@@ -341,6 +346,42 @@ $brands = Brand::where('status', 1)
             $finalPrice = $product->old_price;
         } else {
             $finalPrice = 1; // fallback price
+        }
+
+        // =========================================================
+        // 🟢 WHOLESALE PRICING OVERRIDE
+        // =========================================================
+        if ($product->is_wholesale) {
+            $cartQty = max(1, (int) ($request->qty ?? 1));
+            $vid = $variantPrice->id ?? null;
+
+            // Priority 1: variant-specific tier
+            $wholesaleTier = ProductWholesalePrice::where('product_id', $product->id)
+                ->where('variant_id', $vid)
+                ->where('min_quantity', '<=', $cartQty)
+                ->where(function ($q) use ($cartQty) {
+                    $q->whereNull('max_quantity')
+                      ->orWhere('max_quantity', '>=', $cartQty);
+                })
+                ->orderBy('min_quantity', 'desc')
+                ->first();
+
+            // Priority 2: global tier (variant_id = null)
+            if (! $wholesaleTier) {
+                $wholesaleTier = ProductWholesalePrice::where('product_id', $product->id)
+                    ->whereNull('variant_id')
+                    ->where('min_quantity', '<=', $cartQty)
+                    ->where(function ($q) use ($cartQty) {
+                        $q->whereNull('max_quantity')
+                          ->orWhere('max_quantity', '>=', $cartQty);
+                    })
+                    ->orderBy('min_quantity', 'desc')
+                    ->first();
+            }
+
+            if ($wholesaleTier) {
+                $finalPrice = (float) $wholesaleTier->wholesale_price;
+            }
         }
 
         // সাইজ ও কালারের নাম (চেকআউট ও অর্ডার ডিসপ্লে এর জন্য)

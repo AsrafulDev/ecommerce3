@@ -125,10 +125,55 @@
                                    value="{{ old('email', $supplier->email ?? '') }}" placeholder="supplier@example.com">
                         </div>
 
+                        <div class="mb-3">
+                            <label class="form-label-modern">{{ __('Company') }}</label>
+                            <input type="text" name="company" class="form-control form-control-modern" 
+                                   value="{{ old('company', $supplier->company ?? '') }}" placeholder="Company name">
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label-modern">{{ __('Contact Person') }}</label>
+                            <input type="text" name="contact_person" class="form-control form-control-modern" 
+                                   value="{{ old('contact_person', $supplier->contact_person ?? '') }}" placeholder="Alternative contact person">
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label-modern">{{ __('Tax ID') }}</label>
+                                <input type="text" name="tax_id" class="form-control form-control-modern" 
+                                       value="{{ old('tax_id', $supplier->tax_id ?? '') }}" placeholder="Tax/VAT ID">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label-modern">{{ __('Payment Terms') }}</label>
+                                <select name="payment_terms" class="form-control form-control-modern">
+                                    <option value="">Select</option>
+                                    <option value="cod" {{ (old('payment_terms', $supplier->payment_terms ?? '') === 'cod') ? 'selected' : '' }}>Cash on Delivery (COD)</option>
+                                    <option value="15days" {{ (old('payment_terms', $supplier->payment_terms ?? '') === '15days') ? 'selected' : '' }}>15 Days</option>
+                                    <option value="30days" {{ (old('payment_terms', $supplier->payment_terms ?? '') === '30days') ? 'selected' : '' }}>30 Days</option>
+                                    <option value="60days" {{ (old('payment_terms', $supplier->payment_terms ?? '') === '60days') ? 'selected' : '' }}>60 Days</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label-modern">{{ __('Lead Time (days)') }}</label>
+                                <input type="number" min="0" name="lead_time" class="form-control form-control-modern" 
+                                       value="{{ old('lead_time', $supplier->lead_time ?? '') }}" placeholder="Delivery lead time in days">
+                            </div>
+                            <div class="col-md-6 d-flex align-items-end">
+                                <div class="form-check mb-2">
+                                    <input type="checkbox" name="is_active" class="form-check-input" value="1" id="is_active"
+                                           {{ (old('is_active', $supplier->is_active ?? 1)) ? 'checked' : '' }}>
+                                    <label class="form-check-label" for="is_active">{{ __('Active') }}</label>
+                                </div>
+                            </div>
+                        </div>
+
                         <div class="mb-4">
-                            <label class="form-label-modern">{{ __('Address') }}</label>
-                            <textarea name="address" class="form-control form-control-modern" rows="3" 
-                                      placeholder="Full address here...">{{ old('address', $supplier->address ?? '') }}</textarea>
+                            <label class="form-label-modern">{{ __('Notes') }}</label>
+                            <textarea name="notes" class="form-control form-control-modern" rows="2" 
+                                      placeholder="Internal notes about this supplier...">{{ old('notes', $supplier->notes ?? '') }}</textarea>
                         </div>
 
                         <div class="d-grid gap-2">

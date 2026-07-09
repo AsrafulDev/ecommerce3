@@ -140,6 +140,14 @@ class ProductController extends Controller
             'wholesale_price.*.min_quantity' => 'nullable|integer|min:1',
             'wholesale_price.*.max_quantity' => 'nullable|integer|min:1',
             'wholesale_price.*.wholesale_price' => 'nullable|numeric|min:0',
+
+            // 🆕 Barcode & Stock Management
+            'barcode'              => 'nullable|string|max:255|unique:products,barcode',
+            'barcode_type'         => 'nullable|string|max:10',
+            'costing_method'       => 'nullable|in:fifo,lifo,average',
+            'low_stock_threshold'  => 'nullable|integer|min:0',
+            'allow_negative_stock' => 'nullable',
+            'weight'               => 'nullable|string|max:50',
         ]);
 
         $last_id = Product::max('id') + 1;
@@ -194,6 +202,14 @@ class ProductController extends Controller
         $input['new_price']      = $request->filled('new_price') ? $request->new_price : 0;
         $input['purchase_price'] = $request->filled('purchase_price') ? $request->purchase_price : 0;
         $input['stock']          = $request->filled('stock') ? (int) $request->stock : 0;
+
+        // 🆕 Barcode & Stock Management
+        $input['barcode']              = $request->barcode ?: $this->generateUniqueBarcode();
+        $input['barcode_type']         = $request->barcode_type ?? 'C128';
+        $input['costing_method']       = $request->costing_method;
+        $input['low_stock_threshold']  = $request->filled('low_stock_threshold') ? (int) $request->low_stock_threshold : 0;
+        $input['allow_negative_stock'] = $request->allow_negative_stock ? 1 : 0;
+        $input['weight']               = $request->weight;
 
         // Status flags
         $input['status']          = $request->status ? 1 : 0;
@@ -341,6 +357,7 @@ class ProductController extends Controller
                 if (!empty($tier['min_quantity']) && !empty($tier['wholesale_price'])) {
                     ProductWholesalePrice::create([
                         'product_id'      => $product->id,
+                        'variant_id'      => $tier['variant_id'] ?? null,
                         'min_quantity'    => $tier['min_quantity'],
                         'max_quantity'    => $tier['max_quantity'] ?? null,
                         'wholesale_price' => $tier['wholesale_price'],
@@ -419,9 +436,18 @@ class ProductController extends Controller
             // Wholesale fields
             'is_wholesale'        => 'nullable',
             'wholesale_price'    => 'nullable|array',
+            'wholesale_price.*.variant_id'     => 'nullable|integer|exists:product_variant_prices,id',
             'wholesale_price.*.min_quantity' => 'nullable|integer|min:1',
             'wholesale_price.*.max_quantity' => 'nullable|integer|min:1',
             'wholesale_price.*.wholesale_price' => 'nullable|numeric|min:0',
+
+            // 🆕 Barcode & Stock Management
+            'barcode'              => 'nullable|string|max:255|unique:products,barcode,' . $request->id,
+            'barcode_type'         => 'nullable|string|max:10',
+            'costing_method'       => 'nullable|in:fifo,lifo,average',
+            'low_stock_threshold'  => 'nullable|integer|min:0',
+            'allow_negative_stock' => 'nullable',
+            'weight'               => 'nullable|string|max:50',
         ]);
 
         $product = Product::findOrFail($request->id);
@@ -469,6 +495,14 @@ class ProductController extends Controller
         $input['new_price']      = $request->filled('new_price') ? $request->new_price : 0;
         $input['purchase_price'] = $request->filled('purchase_price') ? $request->purchase_price : 0;
         $input['stock']          = $request->filled('stock') ? (int) $request->stock : 0;
+
+        // 🆕 Barcode & Stock Management
+        $input['barcode']              = $request->barcode ?: $this->generateUniqueBarcode();
+        $input['barcode_type']         = $request->barcode_type ?? 'C128';
+        $input['costing_method']       = $request->costing_method;
+        $input['low_stock_threshold']  = $request->filled('low_stock_threshold') ? (int) $request->low_stock_threshold : 0;
+        $input['allow_negative_stock'] = $request->allow_negative_stock ? 1 : 0;
+        $input['weight']               = $request->weight;
 
         // Slug & flags
         $input['slug']            = strtolower(preg_replace('/[\/\s]+/', '-', $request->name.'-'.$product->id));
@@ -623,6 +657,7 @@ class ProductController extends Controller
                 if (!empty($tier['min_quantity']) && !empty($tier['wholesale_price'])) {
                     ProductWholesalePrice::create([
                         'product_id'      => $product->id,
+                        'variant_id'      => $tier['variant_id'] ?? null,
                         'min_quantity'    => $tier['min_quantity'],
                         'max_quantity'    => $tier['max_quantity'] ?? null,
                         'wholesale_price' => $tier['wholesale_price'],
@@ -847,5 +882,18 @@ class ProductController extends Controller
         );
 
         return $matches[1] ?? null;
+    }
+
+    /**
+     * Auto-generate a unique barcode when none is provided.
+     * Format: BC + YYYYMMDDHHII + 3 random digits = 17 chars.
+     */
+    private function generateUniqueBarcode(): string
+    {
+        do {
+            $barcode = 'BC' . now()->format('YmdHis') . str_pad(random_int(0, 999), 3, '0', STR_PAD_LEFT);
+        } while (Product::where('barcode', $barcode)->exists());
+
+        return $barcode;
     }
 }

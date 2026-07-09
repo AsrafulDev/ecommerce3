@@ -38,6 +38,17 @@
     $currentType = old('product_type', $dbType);
     $isDigital   = $currentType === 'digital' || $edit_data->is_digital;
     $isVariable  = $currentType === 'variable' || $hasVariants;
+    // Pre-build variant select options for wholesale JS
+    $wholesaleVariantOptions = '';
+    if ($hasVariants && isset($allVariants)) {
+        $wholesaleVariantOptions .= '<option value="">'.__('Select Variant').'</option>';
+        foreach ($allVariants as $vp) {
+            $vpColorName = $vp->color ? ($vp->color->colorName ?? $vp->color->name) : '';
+            $vpSizeName  = $vp->size ? ($vp->size->sizeName ?? $vp->size->name) : '';
+            $variantLabel = trim($vpColorName . ' ' . $vpSizeName);
+            $wholesaleVariantOptions .= '<option value="'.$vp->id.'">'.($variantLabel ?: __('No Variant')).'</option>';
+        }
+    }
 @endphp
 <div class="container-fluid">
     <div class="row">
@@ -153,90 +164,6 @@
                     </div>
                 </div>
 
-                <div class="card mb-4">
-                    <div class="card-body">
-                        <div class="form-group mb-3">
-                            <label class="d-block form-label"> {{ __('Wholesale Product') }} </label>
-                            <label class="switch">
-                                <input type="checkbox" value="1" name="is_wholesale" id="is_wholesale" {{ old('is_wholesale', $edit_data->is_wholesale ?? 0) ? 'checked' : '' }}>
-                                <span class="slider round"></span>
-                            </label>
-                        </div>
-                    </div>
-                </div>
-
-                {{-- WHOLESALE PRICING TIERS --}}
-                <div id="wholesale_area" style="{{ old('is_wholesale', $edit_data->is_wholesale ?? 0) ? 'display:block;' : 'display:none;' }}" class="card mb-4">
-                    <div class="card-body">
-                        <div class="section-title d-flex justify-content-between align-items-center">
-                            <span><i class="fe-dollar-sign me-1"></i> {{ __('Wholesale Pricing Tiers') }} </span>
-                            <button type="button" class="btn btn-sm btn-success add-wholesale-tier rounded-pill px-3"><i class="fa fa-plus me-1"></i> {{ __('Add New Tier') }} </button>
-                        </div>
-                        
-                        <div id="wholesale-wrapper">
-                            @if($wholesalePrices && $wholesalePrices->count() > 0)
-                                @foreach($wholesalePrices as $key => $tier)
-                                    <div class="variant-card">
-                                        <div class="row align-items-end">
-                                            <div class="col-md-3 mb-2">
-                                                <label class="form-label"> {{ __('Min Quantity') }} </label>
-                                                <input type="number" name="wholesale_price[{{ $key }}][min_quantity]" class="form-control" 
-                                                       value="{{ old('wholesale_price.'.$key.'.min_quantity', $tier->min_quantity) }}">
-                                            </div>
-                                            <div class="col-md-3 mb-2">
-                                                <label class="form-label"> {{ __('Max Quantity') }} </label>
-                                                <input type="number" name="wholesale_price[{{ $key }}][max_quantity]" class="form-control" 
-                                                       value="{{ old('wholesale_price.'.$key.'.max_quantity', $tier->max_quantity) }}" placeholder="Optional">
-                                            </div>
-                                            <div class="col-md-2 mb-2">
-                                                <label class="form-label"> {{ __('Wholesale Price') }} </label>
-                                                <input type="number" step="0.01" name="wholesale_price[{{ $key }}][wholesale_price]" class="form-control" 
-                                                       value="{{ old('wholesale_price.'.$key.'.wholesale_price', $tier->wholesale_price) }}">
-                                            </div>
-                                            <div class="col-md-2 mb-2">
-                                                <label class="form-label"> {{ __('Stock Qty') }} </label>
-                                                <input type="number" name="wholesale_price[{{ $key }}][stock]" class="form-control" 
-                                                       value="{{ old('wholesale_price.'.$key.'.stock', $tier->stock ?? 0) }}" placeholder="0">
-                                            </div>
-                                            <div class="col-md-2 mb-2">
-                                                @if($loop->first)
-                                                    <button type="button" class="btn btn-success add-wholesale-tier w-100"><i class="fa fa-plus"></i></button>
-                                                @else
-                                                    <button type="button" class="btn btn-danger btn-remove-wholesale w-100"><i class="fa fa-trash"></i></button>
-                                                @endif
-                                            </div>
-                                        </div>
-                                    </div>
-                                @endforeach
-                            @else
-                                <div class="variant-card">
-                                    <div class="row align-items-end">
-                                        <div class="col-md-3 mb-2">
-                                            <label class="form-label"> {{ __('Min Quantity') }} </label>
-                                            <input type="number" name="wholesale_price[0][min_quantity]" class="form-control" placeholder="e.g. 10">
-                                        </div>
-                                        <div class="col-md-3 mb-2">
-                                            <label class="form-label"> {{ __('Max Quantity') }} </label>
-                                            <input type="number" name="wholesale_price[0][max_quantity]" class="form-control" placeholder="e.g. 50 (optional)">
-                                        </div>
-                                        <div class="col-md-2 mb-2">
-                                            <label class="form-label"> {{ __('Wholesale Price') }} </label>
-                                            <input type="number" step="0.01" name="wholesale_price[0][wholesale_price]" class="form-control" placeholder="0.00">
-                                        </div>
-                                        <div class="col-md-2 mb-2">
-                                            <label class="form-label"> {{ __('Stock Qty') }} </label>
-                                            <input type="number" name="wholesale_price[0][stock]" class="form-control" placeholder="0">
-                                        </div>
-                                        <div class="col-md-2 mb-2">
-                                            <button type="button" class="btn btn-success add-wholesale-tier w-100"><i class="fa fa-plus"></i></button>
-                                        </div>
-                                    </div>
-                                </div>
-                            @endif
-                        </div>
-                    </div>
-                </div>
-
                 {{-- VARIANT PRICE CARD --}}
                 <div class="card mb-4" id="variant_section" style="{{ $hasVariants ? '' : 'display:none;' }}">
                     <div class="card-body">
@@ -260,7 +187,7 @@
                                 @endphp
                                 <div class="variant-card variant-item">
                                     <div class="row align-items-end">
-                                        <div class="col-md-2 mb-2">
+                                        <div class="col-md-4 mb-2">
                                             <label class="form-label">{{ __('Color') }}</label>
                                             <select name="variant_price[{{ $variantIndex }}][color_id]" class="form-control select2 variant-color-select">
                                                 <option value=""> {{ __('Select Color (Optional)') }} </option>
@@ -272,7 +199,7 @@
                                             </select>
                                         </div>
 
-                                        <div class="col-md-2 mb-2">
+                                        <div class="col-md-4 mb-2">
                                             <label class="form-label">{{ __('Size') }}</label>
                                             <select name="variant_price[{{ $variantIndex }}][size_id]" class="form-control select2 variant-size-select">
                                                 <option value=""> {{ __('Select Size (Optional)') }} </option>
@@ -284,19 +211,19 @@
                                             </select>
                                         </div>
 
-                                        <div class="col-md-2 mb-2">
+                                        <div class="col-md-4 mb-2">
                                             <label class="form-label">{{ __('Price') }}</label>
                                             <input type="number" step="0.01" name="variant_price[{{ $variantIndex }}][price]"
                                                    value="{{ $vp->price }}" class="form-control" placeholder="{{ __('Enter Price') }}">
                                         </div>
 
-                                        <div class="col-md-2 mb-2">
+                                        <div class="col-md-4 mb-2">
                                             <label class="form-label">{{ __('Stock') }}</label>
                                             <input type="number" name="variant_price[{{ $variantIndex }}][stock]"
                                                    value="{{ $vp->stock }}" class="form-control" placeholder="0">
                                         </div>
 
-                                        <div class="col-md-2 mb-2">
+                                        <div class="col-md-6 mb-2">
                                             <label class="form-label"> {{ __('Variant Image') }} </label>
                                             @php
                                                 $matchImg = $edit_data->images->filter(function($img) use ($vp) {
@@ -323,7 +250,7 @@
                                             </div>
                                         </div>
 
-                                        <div class="col-md-1 mb-2 d-flex justify-content-end">
+                                        <div class="col-md-2 mb-2 d-flex justify-content-end">
                                             @if($loop->first)
                                                 <button type="button" class="btn btn-success add-variant" style="margin-top:5px;">
                                                     <i class="fa fa-plus"></i>
@@ -406,6 +333,100 @@
                                     </div>
                                 </div>
                             @endforelse
+                        </div>
+                    </div>
+                </div>
+
+                {{-- WHOLESALE PRICING TIERS --}}
+                <div id="wholesale_area" style="{{ old('is_wholesale', $edit_data->is_wholesale ?? 0) ? 'display:block;' : 'display:none;' }}" class="card mb-4">
+                    <div class="card-body">
+                        <div class="section-title d-flex justify-content-between align-items-center">
+                            <span><i class="fe-dollar-sign me-1"></i> {{ __('Wholesale Pricing Tiers') }} </span>
+                            <button type="button" class="btn btn-sm btn-success add-wholesale-tier rounded-pill px-3"><i class="fa fa-plus me-1"></i> {{ __('Add New Tier') }} </button>
+                        </div>
+                        
+                        <div id="wholesale-wrapper">
+                            @if($wholesalePrices && $wholesalePrices->count() > 0)
+                                @foreach($wholesalePrices as $key => $tier)
+                                    <div class="variant-card">
+                                        <div class="row align-items-end">
+                                            @if($hasVariants)
+                                            <div class="col-md-3 mb-2">
+                                                <label class="form-label"> {{ __('Select Variant') }} </label>
+                                                <select name="wholesale_price[{{ $key }}][variant_id]" class="form-control select2 wholesale-variant-select">
+                                                    <option value=""> {{ __('Select Variant') }} </option>
+                                                    @foreach($allVariants as $vp)
+                                                        @php
+                                                            $vpColorName = $vp->color ? ($vp->color->colorName ?? $vp->color->name) : '';
+                                                            $vpSizeName  = $vp->size ? ($vp->size->sizeName ?? $vp->size->name) : '';
+                                                            $variantLabel = trim($vpColorName . ' ' . $vpSizeName);
+                                                        @endphp
+                                                        <option value="{{ $vp->id }}" {{ $tier->variant_id == $vp->id ? 'selected' : '' }}>
+                                                            {{ $variantLabel ?: __('No Variant') }}
+                                                        </option>
+                                                    @endforeach
+                                                </select>
+                                            </div>
+                                            @endif
+                                            <div class="{{ $hasVariants ? 'col-md-2' : 'col-md-3' }} mb-2">
+                                                <label class="form-label"> {{ __('Min Quantity') }} </label>
+                                                <input type="number" name="wholesale_price[{{ $key }}][min_quantity]" class="form-control" 
+                                                       value="{{ old('wholesale_price.'.$key.'.min_quantity', $tier->min_quantity) }}">
+                                            </div>
+                                            <div class="{{ $hasVariants ? 'col-md-2' : 'col-md-3' }} mb-2">
+                                                <label class="form-label"> {{ __('Max Quantity') }} </label>
+                                                <input type="number" name="wholesale_price[{{ $key }}][max_quantity]" class="form-control" 
+                                                       value="{{ old('wholesale_price.'.$key.'.max_quantity', $tier->max_quantity) }}" placeholder="Optional">
+                                            </div>
+                                            <div class="col-md-2 mb-2">
+                                                <label class="form-label"> {{ __('Wholesale Price') }} </label>
+                                                <input type="number" step="0.01" name="wholesale_price[{{ $key }}][wholesale_price]" class="form-control" 
+                                                       value="{{ old('wholesale_price.'.$key.'.wholesale_price', $tier->wholesale_price) }}">
+                                            </div>
+                                            <div class="col-md-2 mb-2">
+                                                <label class="form-label"> {{ __('Stock Qty') }} </label>
+                                                <input type="number" name="wholesale_price[{{ $key }}][stock]" class="form-control" 
+                                                       value="{{ old('wholesale_price.'.$key.'.stock', $tier->stock ?? 0) }}" placeholder="0">
+                                            </div>
+                                            <div class="{{ $hasVariants ? 'col-md-1' : 'col-md-2' }} mb-2">
+                                                <button type="button" class="btn btn-danger btn-remove-wholesale w-100" title="{{ __('Remove Tier') }}"><i class="fa fa-trash"></i></button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                @endforeach
+                            @else
+                                <div class="variant-card">
+                                    <div class="row align-items-end">
+                                        @if($hasVariants)
+                                        <div class="col-md-3 mb-2">
+                                            <label class="form-label"> {{ __('Select Variant') }} </label>
+                                            <select name="wholesale_price[0][variant_id]" class="form-control select2 wholesale-variant-select">
+                                                {!! $wholesaleVariantOptions !!}
+                                            </select>
+                                        </div>
+                                        @endif
+                                        <div class="{{ $hasVariants ? 'col-md-2' : 'col-md-3' }} mb-2">
+                                            <label class="form-label"> {{ __('Min Quantity') }} </label>
+                                            <input type="number" name="wholesale_price[0][min_quantity]" class="form-control" placeholder="e.g. 10">
+                                        </div>
+                                        <div class="{{ $hasVariants ? 'col-md-2' : 'col-md-3' }} mb-2">
+                                            <label class="form-label"> {{ __('Max Quantity') }} </label>
+                                            <input type="number" name="wholesale_price[0][max_quantity]" class="form-control" placeholder="e.g. 50 (optional)">
+                                        </div>
+                                        <div class="col-md-2 mb-2">
+                                            <label class="form-label"> {{ __('Wholesale Price') }} </label>
+                                            <input type="number" step="0.01" name="wholesale_price[0][wholesale_price]" class="form-control" placeholder="0.00">
+                                        </div>
+                                        <div class="col-md-2 mb-2">
+                                            <label class="form-label"> {{ __('Stock Qty') }} </label>
+                                            <input type="number" name="wholesale_price[0][stock]" class="form-control" placeholder="0">
+                                        </div>
+                                        <div class="{{ $hasVariants ? 'col-md-1' : 'col-md-2' }} mb-2">
+                                            <button type="button" class="btn btn-success add-wholesale-tier w-100" title="{{ __('Add New Tier') }}"><i class="fa fa-plus"></i></button>
+                                        </div>
+                                    </div>
+                                </div>
+                            @endif
                         </div>
                     </div>
                 </div>
@@ -528,6 +549,49 @@
                             @error('brand_id')
                             <span class="invalid-feedback" role="alert"><strong>{{ $message }}</strong></span>
                             @enderror
+                        </div>
+
+                        {{-- 🆕 Barcode & Stock Management Fields --}}
+                        <div class="section-title mt-4"><i class="fe-tag me-1"></i> {{ __('Barcode & Stock Settings') }} </div>
+                        <div class="row">
+                            <div class="col-md-7 mb-3">
+                                <label class="form-label"> {{ __('Barcode') }} </label>
+                                <input type="text" name="barcode" class="form-control" value="{{ old('barcode', $edit_data->barcode) }}" placeholder="Scan or enter barcode">
+                            </div>
+                            <div class="col-md-5 mb-3">
+                                <label class="form-label"> {{ __('Barcode Type') }} </label>
+                                <select name="barcode_type" class="form-control form-select">
+                                    <option value="C128" {{ (old('barcode_type') ?: $edit_data->barcode_type) === 'C128' ? 'selected' : '' }}>Code 128</option>
+                                    <option value="C39" {{ (old('barcode_type') ?: $edit_data->barcode_type) === 'C39' ? 'selected' : '' }}>Code 39</option>
+                                    <option value="EAN13" {{ (old('barcode_type') ?: $edit_data->barcode_type) === 'EAN13' ? 'selected' : '' }}>EAN-13</option>
+                                    <option value="UPCA" {{ (old('barcode_type') ?: $edit_data->barcode_type) === 'UPCA' ? 'selected' : '' }}>UPC-A</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label"> {{ __('Costing Method') }} </label>
+                                <select name="costing_method" class="form-control form-select">
+                                    <option value="">{{ __('Default (Global Setting)') }}</option>
+                                    <option value="fifo" {{ (old('costing_method') ?: $edit_data->costing_method) === 'fifo' ? 'selected' : '' }}>FIFO (First In, First Out)</option>
+                                    <option value="lifo" {{ (old('costing_method') ?: $edit_data->costing_method) === 'lifo' ? 'selected' : '' }}>LIFO (Last In, First Out)</option>
+                                    <option value="average" {{ (old('costing_method') ?: $edit_data->costing_method) === 'average' ? 'selected' : '' }}>Weighted Average</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label"> {{ __('Low Stock Threshold') }} </label>
+                                <input type="number" name="low_stock_threshold" class="form-control" value="{{ old('low_stock_threshold', $edit_data->low_stock_threshold ?? 0) }}" placeholder="0 = disabled" min="0">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label"> {{ __('Weight') }} </label>
+                                <input type="text" name="weight" class="form-control" value="{{ old('weight', $edit_data->weight) }}" placeholder="e.g. 0.5 kg">
+                            </div>
+                            <div class="col-md-6 mb-3 d-flex align-items-end">
+                                <div class="form-check">
+                                    <input type="checkbox" name="allow_negative_stock" class="form-check-input" value="1" id="allow_negative_stock" {{ (old('allow_negative_stock') ?: $edit_data->allow_negative_stock) ? 'checked' : '' }}>
+                                    <label class="form-check-label" for="allow_negative_stock">{{ __('Allow Negative Stock') }}</label>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -766,6 +830,15 @@
                                            value="{{ old('download_expire_days', $edit_data->download_expire_days ?? 7) }}" min="1">
                                 </div>
                             </div>
+                        </div>
+
+                        <div class="row-auto mb-3">
+                         <div class="form-group mb-3">
+                            <label class="d-block form-label"> {{ __('Wholesale Product') }} </label>
+                            <label class="switch">
+                                <input type="checkbox" value="1" name="is_wholesale" id="is_wholesale" {{ old('is_wholesale', $edit_data->is_wholesale ?? 0) ? 'checked' : '' }}>
+                                <span class="slider round"></span>
+                            </label>
                         </div>
 
                         {{-- FLAGS & SWITCHES --}}
@@ -1066,6 +1139,9 @@ function syncProductTypeUI(productTypeValue) {
     var variantCheck = document.getElementById('enable_variants');
     var newPriceField = document.getElementById('new_price');
     var stockField = document.getElementById('stock');
+    var wholesaleToggleCard = document.getElementById('wholesale_toggle_card');
+    var wholesaleArea = document.getElementById('wholesale_area');
+    var wholesaleCheck = document.getElementById('is_wholesale');
 
     if (productTypeValue === 'digital') {
         // Digital: hide variants, show digital fields
@@ -1076,6 +1152,10 @@ function syncProductTypeUI(productTypeValue) {
         if (variantToggleArea) variantToggleArea.style.display = 'none';
         if (variantSection) variantSection.style.display = 'none';
         if (variantCheck) variantCheck.checked = false;
+        // Hide wholesale for digital products
+        if (wholesaleToggleCard) wholesaleToggleCard.style.display = 'none';
+        if (wholesaleArea) wholesaleArea.style.display = 'none';
+        if (wholesaleCheck) wholesaleCheck.checked = false;
         // Enable price/stock
         if (newPriceField) { newPriceField.closest('.col-md-6').style.opacity = '1'; newPriceField.readOnly = false; }
         if (stockField) { stockField.closest('.col-md-6').style.opacity = '1'; stockField.readOnly = false; }
@@ -1090,6 +1170,11 @@ function syncProductTypeUI(productTypeValue) {
         var isVariable = productTypeValue === 'variable';
         if (variantCheck) variantCheck.checked = isVariable;
         if (variantSection) variantSection.style.display = isVariable ? '' : 'none';
+
+        // Wholesale works for both simple and variable products
+        if (wholesaleCheck && wholesaleArea) {
+            wholesaleArea.style.display = wholesaleCheck.checked ? 'block' : 'none';
+        }
         
         // Toggle price/stock based on variable
         if (newPriceField) {
@@ -1151,25 +1236,105 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         });
     }
-    // Wholesale pricing tiers
+    // Wholesale pricing tiers — with variant support
+    var hasVariants = {{ $hasVariants ? 'true' : 'false' }};
+    var wholesaleVariantOptions = {!! json_encode($wholesaleVariantOptions) !!};
     let wholesaleIndex = {{ ($wholesalePrices && $wholesalePrices->count() > 0) ? $wholesalePrices->count() : 1 }};
-    $('.add-wholesale-tier').on('click', function() {
+    
+    $(document).on('click', '.add-wholesale-tier', function() {
         let wrapper = $('#wholesale-wrapper');
-        let firstRow = wrapper.find('.variant-card').first().clone();
+        let firstRow = wrapper.find('.variant-card').first();
         
-        firstRow.find('input').each(function(){
+        if (firstRow.length === 0) {
+            // No rows exist — create a fresh empty row from scratch
+            if (hasVariants) {
+                var html = '<div class="variant-card"><div class="row align-items-end">' +
+                    '<div class="col-md-3 mb-2"><label class="form-label">{{ __("Select Variant") }}</label><select name="wholesale_price[' + wholesaleIndex + '][variant_id]" class="form-control select2 wholesale-variant-select">' + wholesaleVariantOptions + '</select></div>' +
+                    '<div class="col-md-2 mb-2"><label class="form-label">{{ __("Min Quantity") }}</label><input type="number" name="wholesale_price[' + wholesaleIndex + '][min_quantity]" class="form-control" placeholder="e.g. 10"></div>' +
+                    '<div class="col-md-2 mb-2"><label class="form-label">{{ __("Max Quantity") }}</label><input type="number" name="wholesale_price[' + wholesaleIndex + '][max_quantity]" class="form-control" placeholder="e.g. 50 (optional)"></div>' +
+                    '<div class="col-md-2 mb-2"><label class="form-label">{{ __("Wholesale Price") }}</label><input type="number" step="0.01" name="wholesale_price[' + wholesaleIndex + '][wholesale_price]" class="form-control" placeholder="0.00"></div>' +
+                    '<div class="col-md-2 mb-2"><label class="form-label">{{ __("Stock Qty") }}</label><input type="number" name="wholesale_price[' + wholesaleIndex + '][stock]" class="form-control" placeholder="0"></div>' +
+                    '<div class="col-md-1 mb-2"><button type="button" class="btn btn-danger btn-remove-wholesale w-100" title="{{ __("Remove Tier") }}"><i class="fa fa-trash"></i></button></div>' +
+                    '</div></div>';
+            } else {
+                var html = '<div class="variant-card"><div class="row align-items-end">' +
+                    '<div class="col-md-3 mb-2"><label class="form-label">{{ __("Min Quantity") }}</label><input type="number" name="wholesale_price[' + wholesaleIndex + '][min_quantity]" class="form-control" placeholder="e.g. 10"></div>' +
+                    '<div class="col-md-3 mb-2"><label class="form-label">{{ __("Max Quantity") }}</label><input type="number" name="wholesale_price[' + wholesaleIndex + '][max_quantity]" class="form-control" placeholder="e.g. 50 (optional)"></div>' +
+                    '<div class="col-md-2 mb-2"><label class="form-label">{{ __("Wholesale Price") }}</label><input type="number" step="0.01" name="wholesale_price[' + wholesaleIndex + '][wholesale_price]" class="form-control" placeholder="0.00"></div>' +
+                    '<div class="col-md-2 mb-2"><label class="form-label">{{ __("Stock Qty") }}</label><input type="number" name="wholesale_price[' + wholesaleIndex + '][stock]" class="form-control" placeholder="0"></div>' +
+                    '<div class="col-md-2 mb-2"><button type="button" class="btn btn-danger btn-remove-wholesale w-100" title="{{ __("Remove Tier") }}"><i class="fa fa-trash"></i></button></div>' +
+                    '</div></div>';
+            }
+            wrapper.append(html);
+            if (hasVariants) {
+                wrapper.find('.wholesale-variant-select').last().select2({ width: '100%' });
+            }
+            wholesaleIndex++;
+            return;
+        }
+        
+        var newRow = firstRow.clone();
+        
+        // Remove Select2 containers from clone
+        newRow.find('.select2-container').remove();
+        
+        // Rename input and select elements, clear values
+        newRow.find('input, select').each(function(){
             let oldName = $(this).attr('name');
-            $(this).attr('name', oldName.replace(/\[\d+\]/, '[' + wholesaleIndex + ']'));
-            $(this).val('');
+            if (oldName) {
+                $(this).attr('name', oldName.replace(/\[\d+\]/, '[' + wholesaleIndex + ']'));
+            }
+            if ($(this).is('input')) {
+                $(this).val('');
+            } else if ($(this).is('select')) {
+                $(this).val(null);
+            }
         });
 
-        firstRow.find('.btn-remove-wholesale').removeClass('d-none');
-        wrapper.append(firstRow);
+        // Ensure the cloned row has a remove button
+        if (newRow.find('.btn-remove-wholesale').length === 0) {
+            var btnCol = newRow.find('[class*="col-md-"]').last();
+            btnCol.html('<button type="button" class="btn btn-danger btn-remove-wholesale w-100" title="{{ __("Remove Tier") }}"><i class="fa fa-trash"></i></button>');
+        }
+        
+        wrapper.append(newRow);
+        
+        // Reinitialize Select2 on cloned variant selects
+        newRow.find('.wholesale-variant-select').select2({ width: '100%' });
+        
         wholesaleIndex++;
     });
     
-    $("body").on("click", ".btn-remove-wholesale", function () {
-        $(this).parents(".variant-card").remove();
+    $(document).on('click', '.btn-remove-wholesale', function () {
+        var wrapper = $('#wholesale-wrapper');
+        $(this).parents('.variant-card').remove();
+        
+        // If all rows removed, add a fresh blank row so user can start over
+        if (wrapper.find('.variant-card').length === 0) {
+            if (hasVariants) {
+                var html = '<div class="variant-card"><div class="row align-items-end">' +
+                    '<div class="col-md-3 mb-2"><label class="form-label">{{ __("Select Variant") }}</label><select name="wholesale_price[0][variant_id]" class="form-control select2 wholesale-variant-select">' + wholesaleVariantOptions + '</select></div>' +
+                    '<div class="col-md-2 mb-2"><label class="form-label">{{ __("Min Quantity") }}</label><input type="number" name="wholesale_price[0][min_quantity]" class="form-control" placeholder="e.g. 10"></div>' +
+                    '<div class="col-md-2 mb-2"><label class="form-label">{{ __("Max Quantity") }}</label><input type="number" name="wholesale_price[0][max_quantity]" class="form-control" placeholder="e.g. 50 (optional)"></div>' +
+                    '<div class="col-md-2 mb-2"><label class="form-label">{{ __("Wholesale Price") }}</label><input type="number" step="0.01" name="wholesale_price[0][wholesale_price]" class="form-control" placeholder="0.00"></div>' +
+                    '<div class="col-md-2 mb-2"><label class="form-label">{{ __("Stock Qty") }}</label><input type="number" name="wholesale_price[0][stock]" class="form-control" placeholder="0"></div>' +
+                    '<div class="col-md-1 mb-2"><button type="button" class="btn btn-success add-wholesale-tier w-100" title="{{ __("Add New Tier") }}"><i class="fa fa-plus"></i></button></div>' +
+                    '</div></div>';
+            } else {
+                var html = '<div class="variant-card"><div class="row align-items-end">' +
+                    '<div class="col-md-3 mb-2"><label class="form-label">{{ __("Min Quantity") }}</label><input type="number" name="wholesale_price[0][min_quantity]" class="form-control" placeholder="e.g. 10"></div>' +
+                    '<div class="col-md-3 mb-2"><label class="form-label">{{ __("Max Quantity") }}</label><input type="number" name="wholesale_price[0][max_quantity]" class="form-control" placeholder="e.g. 50 (optional)"></div>' +
+                    '<div class="col-md-2 mb-2"><label class="form-label">{{ __("Wholesale Price") }}</label><input type="number" step="0.01" name="wholesale_price[0][wholesale_price]" class="form-control" placeholder="0.00"></div>' +
+                    '<div class="col-md-2 mb-2"><label class="form-label">{{ __("Stock Qty") }}</label><input type="number" name="wholesale_price[0][stock]" class="form-control" placeholder="0"></div>' +
+                    '<div class="col-md-2 mb-2"><button type="button" class="btn btn-success add-wholesale-tier w-100" title="{{ __("Add New Tier") }}"><i class="fa fa-plus"></i></button></div>' +
+                    '</div></div>';
+            }
+            wrapper.append(html);
+            if (hasVariants) {
+                wrapper.find('.wholesale-variant-select').last().select2({ width: '100%' });
+            }
+            wholesaleIndex = 1;
+        }
     });
 
     // Variant Image Add/Remove
