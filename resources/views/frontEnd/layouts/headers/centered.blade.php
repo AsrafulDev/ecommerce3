@@ -23,7 +23,7 @@
                 <li><a href="{{ route('hotdeals') }}" class="d-block px-3 py-2 text-danger fw-semibold">{{ __('Hot Deals') }}</a></li>
                 <li><a href="{{ route('flashsales') }}" class="d-block px-3 py-2 text-muted">{{ __('Flash Sale') }}</a></li>
                 <li><a href="{{ route('brands') }}" class="d-block px-3 py-2 text-muted">{{ __('Brands') }}</a></li>
-                <li><a href="{{ route('blog.details') }}" class="d-block px-3 py-2 text-muted">{{ __('Blog') }}</a></li>
+                <li><a href="{{ route('blogs') }}" class="d-block px-3 py-2 text-muted">{{ __('Blog') }}</a></li>
             </ul>
         </div>
     </nav>

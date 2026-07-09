@@ -203,6 +203,7 @@ class AppServiceProvider extends ServiceProvider
                 return SocialMedia::where('status', 1)->get();
             });
             view()->share('socialicons', $socialicons);
+            view()->share('socials', $socialicons); // Alias for footer style views that use $socials
             
             // Cache pages (30 minutes)
             $pages = Cache::remember('pages_top', 1800, function () {

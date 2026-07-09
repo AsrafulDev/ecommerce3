@@ -10,12 +10,19 @@
                     <a href="{{ $generalsetting->app_store_link ?? '#' }}" target="_blank"><img src="{{ asset('public/assets/images/app.png') }}" alt="App Store" style="height:35px;"></a>
                 </div>
             </div>
-            @foreach([['Shop','shop','hotdeals','flashsales'],['Help','contact','faq','shipping'],['Account','customer.account','orders','customer.account'],['Connect','facebook','instagram','youtube']] as $col)
+            @php
+                $footerCols = [
+                    ['Shop', ['shop' => 'All Products', 'hotdeals' => 'Hot Deals', 'flashsales' => 'Flash Sale', 'blogs' => 'Blog']],
+                    ['Help', ['contact' => 'Contact Us', 'customer.order_track' => 'Track Order', 'complaint' => 'Complaints']],
+                    ['Account', ['customer.account' => 'My Account', 'customer.login' => 'Login', 'customer.register' => 'Register']],
+                ];
+            @endphp
+            @foreach($footerCols as $col)
             <div class="col-lg-2 col-md-3 col-6">
                 <h6 class="fw-bold small mb-3">{{ $col[0] }}</h6>
                 <ul class="list-unstyled small text-secondary">
-                    @foreach(array_slice($col,1) as $item)
-                    <li class="mb-1"><a href="{{ route($item) }}" class="text-secondary text-decoration-none">{{ ucfirst($item) }}</a></li>
+                    @foreach($col[1] as $routeName => $label)
+                    <li class="mb-1"><a href="{{ route($routeName) }}" class="text-secondary text-decoration-none">{{ $label }}</a></li>
                     @endforeach
                 </ul>
             </div>

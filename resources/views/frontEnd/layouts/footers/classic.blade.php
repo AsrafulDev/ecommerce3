@@ -23,7 +23,7 @@
                     <li class="mb-1"><a href="{{ route('shop') }}" class="text-white-50 text-decoration-none">Shop</a></li>
                     <li class="mb-1"><a href="{{ route('hotdeals') }}" class="text-white-50 text-decoration-none">{{ __('Hot Deals') }}</a></li>
                     <li class="mb-1"><a href="{{ route('brands') }}" class="text-white-50 text-decoration-none">{{ __('Brands') }}</a></li>
-                    <li class="mb-1"><a href="{{ route('blog.details') }}" class="text-white-50 text-decoration-none">{{ __('Blog') }}</a></li>
+                    <li class="mb-1"><a href="{{ route('blogs') }}" class="text-white-50 text-decoration-none">{{ __('Blog') }}</a></li>
                 </ul>
             </div>
             {{-- Customer Service --}}

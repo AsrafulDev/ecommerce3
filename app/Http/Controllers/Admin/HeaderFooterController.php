@@ -33,6 +33,14 @@ class HeaderFooterController extends Controller
     public function index()
     {
         $setting = GeneralSetting::first();
+        
+        // Set defaults if not configured
+        if (!$setting->header_style) $setting->header_style = 'custom';
+        if (!$setting->footer_style) $setting->footer_style = 'custom';
+        if (empty($setting->header_components)) $setting->header_components = array_keys(self::headerComponents());
+        if (empty($setting->footer_components)) $setting->footer_components = array_keys(self::footerComponents());
+        $setting->save();
+        
         $hComps = self::headerComponents();
         $fComps = self::footerComponents();
         
@@ -45,8 +53,8 @@ class HeaderFooterController extends Controller
         $availableHeader = array_values(array_diff(array_keys($hComps), $activeHeader));
         $availableFooter = array_values(array_diff(array_keys($fComps), $activeFooter));
 
-        $headerStyles = ['classic'=>'Classic','modern'=>'Modern','minimal'=>'Minimal','centered'=>'Centered','mega'=>'Mega Menu','custom'=>'Custom'];
-        $footerStyles = ['classic'=>'Classic','modern'=>'Modern','dark'=>'Dark','minimal'=>'Minimal','columns'=>'Columns','custom'=>'Custom'];
+        $headerStyles = ['default'=>'Default','classic'=>'Classic','modern'=>'Modern','minimal'=>'Minimal','centered'=>'Centered','mega'=>'Mega Menu','custom'=>'Custom'];
+        $footerStyles = ['default'=>'Default','classic'=>'Classic','modern'=>'Modern','dark'=>'Dark','minimal'=>'Minimal','columns'=>'Columns','custom'=>'Custom'];
 
         return view('backEnd.headerfooter.index', compact(
             'setting','activeHeader','activeFooter','availableHeader','availableFooter','headerStyles','footerStyles','hComps','fComps'
@@ -65,9 +73,22 @@ class HeaderFooterController extends Controller
         $setting->footer_style = $request->footer_style ?? $setting->footer_style;
         $setting->header_top_bar = $request->boolean('header_top_bar');
         $setting->header_sticky = $request->boolean('header_sticky');
+
+        // If switching to custom, set default components if not already set
+        if ($setting->header_style === 'custom' && empty($setting->header_components)) {
+            $setting->header_components = array_keys(self::headerComponents());
+        }
+        if ($setting->footer_style === 'custom' && empty($setting->footer_components)) {
+            $setting->footer_components = array_keys(self::footerComponents());
+        }
+
         $setting->save();
 
-        Toastr::success('Header & Footer updated!', 'Success');
+        // Clear caches so frontend picks up changes immediately
+        Cache::forget('general_setting');
+        Cache::forget('frontend_homepage_v1');
+
+        Toastr::success('Header & Footer updated! Changes are now live.', 'Success');
         return redirect()->back();
     }
 
@@ -137,25 +158,29 @@ class HeaderFooterController extends Controller
             ->with(['subcategories.childcategories'])->get();
         $socials = \App\Models\SocialMedia::where('status',1)->get();
         $brands = \App\Models\Brand::where('status',1)->limit(12)->get();
+        $activeTheme = \App\Models\Theme::where('is_default', true)->first() ?? \App\Models\Theme::first();
 
-        // Preset style
-        $validStyles = ['classic','modern','minimal','centered','mega'];
-        if ($style && in_array($style, $validStyles)) {
+        // Preset style — 'custom' skips this to use component-based rendering below
+        $validHeaderStyles = ['default','classic','modern','minimal','centered','mega'];
+        $validFooterStyles = ['default','classic','modern','dark','minimal','columns'];
+        if ($type === 'header' && $style && in_array($style, $validHeaderStyles)) {
             $view = 'frontEnd.layouts.headers.' . $style;
-        } elseif ($style && in_array($style, ['classic','modern','dark','minimal','columns'])) {
+        } elseif ($type === 'footer' && $style && in_array($style, $validFooterStyles)) {
             $view = 'frontEnd.layouts.footers.' . $style;
         } else {
             $view = null;
         }
+        
         if ($view && view()->exists($view)) {
-            return response()->json(['html' => view($view, compact('setting','contact','menucategories','socials','brands'))->render()]);
+            $bodyHtml = view($view, compact('setting','contact','menucategories','socials','brands','activeTheme'))->render();
+            return response()->json(['html' => $this->wrapPreviewHtml($bodyHtml, $activeTheme)]);
         }
 
-        // Custom components
+        // Custom components — render individually for live builder
         $col = $type . '_components';
         $components = $setting->$col ?: [];
         $allComponents = $type === 'header' ? self::headerComponents() : self::footerComponents();
-        $html = '<div style="font-family:sans-serif;">';
+        $html = '';
         foreach ($components as $comp) {
             if (isset($allComponents[$comp])) {
                 $view = 'frontEnd.layouts.' . $type . 's.parts.' . $comp;
@@ -169,7 +194,75 @@ class HeaderFooterController extends Controller
                 }
             }
         }
-        $html .= '</div>';
-        return response()->json(['html' => $html]);
+        return response()->json(['html' => $this->wrapPreviewHtml($html, $activeTheme)]);
+    }
+
+    /**
+     * Wrap preview HTML in a complete document with all frontend CSS
+     */
+    private function wrapPreviewHtml(string $bodyHtml, $activeTheme = null): string
+    {
+        $themeVars = '';
+        if ($activeTheme) {
+            $themeVars = ':root {
+                --primary-color: ' . ($activeTheme->primary_color ?? '#0d6efd') . ';
+                --secondary-color: ' . ($activeTheme->secondary_color ?? '#198754') . ';
+                --accent-color: ' . ($activeTheme->accent_color ?? '#ff6a00') . ';
+                --text-color: ' . ($activeTheme->text_color ?? '#212529') . ';
+                --heading-color: ' . ($activeTheme->heading_color ?? '#111111') . ';
+                --body-bg: ' . ($activeTheme->body_bg_color ?? '#ffffff') . ';
+                --header-bg: ' . ($activeTheme->header_bg_color ?? '#ffffff') . ';
+                --header-text: ' . ($activeTheme->header_text_color ?? '#212529') . ';
+                --footer-bg: ' . ($activeTheme->footer_bg_color ?? '#1a1a1a') . ';
+                --footer-text: ' . ($activeTheme->footer_text_color ?? '#ffffff') . ';
+                --copyright-bg: ' . ($activeTheme->copyright_bg_color ?? '#000000') . ';
+                --copyright-text: ' . ($activeTheme->copyright_text_color ?? '#ffffff') . ';
+                --button-bg: ' . ($activeTheme->button_bg_color ?? '#0d6efd') . ';
+                --button-text: ' . ($activeTheme->button_text_color ?? '#ffffff') . ';
+                --button-hover-bg: ' . ($activeTheme->button_hover_bg_color ?? '#0b5ed7') . ';
+                --border-color: ' . ($activeTheme->border_color ?? '#dee2e6') . ';
+                --sale-badge-bg: ' . ($activeTheme->sale_badge_bg ?? '#dc3545') . ';
+                --sale-badge-text: ' . ($activeTheme->sale_badge_text ?? '#ffffff') . ';
+                --font-family: ' . ($activeTheme->font_family ?? "'Roboto', sans-serif") . ';
+                --heading-font: ' . ($activeTheme->heading_font ?? "'Jost', sans-serif") . ';
+                --body-font-size: ' . ($activeTheme->body_font_size ?? '14px') . ';
+                --border-radius: ' . ($activeTheme->border_radius ?? '8px') . ';
+            }';
+        }
+
+        $assetBase = asset('public/frontEnd/css');
+        
+        return '<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="' . $assetBase . '/bootstrap.min.css">
+    <link rel="stylesheet" href="' . $assetBase . '/all.min.css">
+    <link rel="stylesheet" href="' . $assetBase . '/mobile-menu.css">
+    <link rel="stylesheet" href="' . $assetBase . '/wsit-menu.css">
+    <link rel="stylesheet" href="' . url('/style.css') . '">
+    <link rel="stylesheet" href="' . url('/dynamic-theme.css') . '">
+    <link rel="stylesheet" href="' . url('/responsive.css') . '">
+    <link rel="stylesheet" href="' . $assetBase . '/main.css">
+    <style>
+        ' . $themeVars . '
+        html, body {
+            margin:0 !important; padding:0 !important;
+            width:100% !important;
+            font-family: var(--font-family);
+            font-size: var(--body-font-size);
+            color: var(--text-color);
+            background: #fff;
+            -webkit-font-smoothing: antialiased;
+            overflow-x: hidden;
+        }
+        a { text-decoration: none; }
+        img { max-width: 100%; height: auto; }
+        .container { max-width: 100% !important; padding-left: 10px !important; padding-right: 10px !important; }
+    </style>
+</head>
+<body>' . $bodyHtml . '</body>
+</html>';
     }
 }
