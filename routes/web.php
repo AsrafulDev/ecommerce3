@@ -63,6 +63,7 @@ use App\Http\Controllers\Frontend\ComplaintController;
 use App\Http\Controllers\Admin\AdminComplaintController;
 use App\Http\Controllers\Admin\ContactMessageController;
 use App\Http\Controllers\Admin\FacebookCapiSettingController;
+use App\Http\Controllers\Admin\GoogleAnalyticSettingController;
 use App\Http\Controllers\Admin\AdsAnalyticsController;
 use App\Http\Controllers\Admin\FacebookPageController;
 use App\Http\Controllers\Frontend\ContactMessageController as FrontendContactMessageController;
@@ -758,6 +759,10 @@ Route::get('dashboard', [DashboardController::class, 'dashboard'])->name('admin.
     // Facebook Conversion API settings
     Route::get('facebook-capi/settings', [FacebookCapiSettingController::class, 'edit'])->name('admin.facebook_capi.edit');
     Route::post('facebook-capi/settings', [FacebookCapiSettingController::class, 'update'])->name('admin.facebook_capi.update');
+
+    // Google Analytics 4 settings
+    Route::get('google-analytics/settings', [GoogleAnalyticSettingController::class, 'edit'])->name('admin.google_analytics.edit');
+    Route::post('google-analytics/settings', [GoogleAnalyticSettingController::class, 'update'])->name('admin.google_analytics.update');
 
     // Ads Analytics - separate pages for each platform
     Route::get('ads-analytics', [AdsAnalyticsController::class, 'dashboard'])->name('admin.ads_analytics.dashboard');

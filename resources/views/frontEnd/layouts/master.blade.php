@@ -46,7 +46,21 @@
             });
             @stack('dataLayer')
         </script>
-		
+
+        {{-- 🎯 Google Analytics 4 (gtag.js) — auto-initialized when Measurement ID is set --}}
+        @php
+            $ga4Setting = \App\Models\GoogleAnalyticSetting::first();
+        @endphp
+        @if($ga4Setting && $ga4Setting->status && $ga4Setting->measurement_id)
+        <script async src="https://www.googletagmanager.com/gtag/js?id={{ $ga4Setting->measurement_id }}"></script>
+        <script>
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', '{{ $ga4Setting->measurement_id }}');
+        </script>
+        @endif
+
 		{{-- 🎨 Theme CSS Variables — injected from active theme --}}
 		<style>
             :root {

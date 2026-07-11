@@ -1227,6 +1227,7 @@
       <li><a href="{{ route('smsgeteway.manage') }}"><i data-feather="file-plus"></i> {{ __('SMS Gateway') }} </a></li>
       <li><a href="{{ route('courierapi.manage') }}"><i data-feather="file-plus"></i> {{ __('Courier API') }} </a></li>
       <li><a href="{{ route('admin.facebook_capi.edit') }}"><i data-feather="facebook"></i> {{ __('Facebook CAPI') }} </a></li>
+      <li><a href="{{ route('admin.google_analytics.edit') }}"><i data-feather="bar-chart-2"></i> {{ __('Google Analytics 4') }} </a></li>
     </ul>
   </div>
 </li>
