@@ -315,6 +315,22 @@
                                 @if($displayColor)
                                     <small>Color: {{ $displayColor }}</small>
                                 @endif 
+                                {{-- 🛡️ Warranty --}}
+                                @if($value->warranty_tier_id)
+                                    @php
+                                        $wt = \App\Models\ProductWarrantyTier::find($value->warranty_tier_id);
+                                        $ws = \App\Models\WarrantySale::where('order_detail_id', $value->id)->first();
+                                    @endphp
+                                    @if($wt && $wt->warranty_days > 0)
+                                        <br><small class="text-success">
+                                            🛡️ {{ $wt->tier_name }} ({{ $wt->warranty_days }}d)
+                                            @if($ws && $ws->warranty_end_date)
+                                                <br>Valid till: {{ $ws->warranty_end_date->format('d M Y') }}
+                                                ({{ max(0, (int) now()->diffInDays($ws->warranty_end_date)) }}d left)
+                                            @endif
+                                        </small>
+                                    @endif
+                                @endif
                                 </td>
                                 <td>৳{{ number_format($displayPrice, 2) }}</td>
                                 <td>{{$value->qty}}</td>

@@ -96,3 +96,38 @@ Route::prefix('updates')->group(function () {
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
+
+// ═══════════════════════════════════════════════════════
+// 🛡️ WARRANTY MANAGEMENT API ROUTES
+// ═══════════════════════════════════════════════════════
+
+// ── Public: Warranty tiers for a product ──────────
+Route::get('v1/products/{product}/warranty-tiers', [App\Http\Controllers\Api\WarrantyApiController::class, 'productTiers']);
+Route::get('v1/products/{product}/warranty-price', [App\Http\Controllers\Api\WarrantyApiController::class, 'calculatePrice']);
+
+// ── Customer: My Warranties & Claims ──────────────
+Route::middleware('auth:sanctum')->prefix('v1/customer')->group(function () {
+    Route::get('my-warranties', [App\Http\Controllers\Api\WarrantyApiController::class, 'myWarranties']);
+    Route::get('my-warranties/{warrantySale}', [App\Http\Controllers\Api\WarrantyApiController::class, 'showWarranty']);
+    Route::post('my-warranties/{warrantySale}/claim', [App\Http\Controllers\Api\WarrantyApiController::class, 'fileClaim']);
+    Route::get('my-claims', [App\Http\Controllers\Api\WarrantyApiController::class, 'myClaims']);
+    Route::get('my-claims/{warrantyClaim}', [App\Http\Controllers\Api\WarrantyApiController::class, 'showClaim']);
+    Route::post('my-claims/{warrantyClaim}/cancel', [App\Http\Controllers\Api\WarrantyApiController::class, 'cancelClaim']);
+});
+
+// ── Admin: Warranty Management ────────────────────
+Route::middleware(['auth:sanctum', 'role:admin'])->prefix('v1/admin/warranty')->group(function () {
+    Route::get('stats', [App\Http\Controllers\Api\Admin\WarrantyAdminController::class, 'stats']);
+    Route::apiResource('supplier', App\Http\Controllers\Api\Admin\WarrantyAdminController::class)->only(['index', 'show', 'store', 'update']);
+    Route::get('sales', [App\Http\Controllers\Api\Admin\WarrantyAdminController::class, 'sales']);
+    Route::get('sales/{warrantySale}', [App\Http\Controllers\Api\Admin\WarrantyAdminController::class, 'showSale']);
+    Route::post('sales/{warrantySale}/void', [App\Http\Controllers\Api\Admin\WarrantyAdminController::class, 'voidSale']);
+    Route::get('claims', [App\Http\Controllers\Api\Admin\WarrantyAdminController::class, 'claims']);
+    Route::get('claims/{warrantyClaim}', [App\Http\Controllers\Api\Admin\WarrantyAdminController::class, 'showClaim']);
+    Route::post('claims/{warrantyClaim}/review', [App\Http\Controllers\Api\Admin\WarrantyAdminController::class, 'reviewClaim']);
+    Route::post('claims/{warrantyClaim}/approve', [App\Http\Controllers\Api\Admin\WarrantyAdminController::class, 'approveClaim']);
+    Route::post('claims/{warrantyClaim}/reject', [App\Http\Controllers\Api\Admin\WarrantyAdminController::class, 'rejectClaim']);
+    Route::post('claims/{warrantyClaim}/advance-stage', [App\Http\Controllers\Api\Admin\WarrantyAdminController::class, 'advanceStage']);
+    Route::post('claims/{warrantyClaim}/resolve', [App\Http\Controllers\Api\Admin\WarrantyAdminController::class, 'resolveClaim']);
+    Route::post('claims/{warrantyClaim}/notes', [App\Http\Controllers\Api\Admin\WarrantyAdminController::class, 'addNote']);
+});

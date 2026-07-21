@@ -380,7 +380,7 @@ $brands = Brand::where('status', 1)
             }
 
             if ($wholesaleTier) {
-                $finalPrice = (float) $wholesaleTier->wholesale_price;
+                $finalPrice = max(0, $finalPrice - (float) ($wholesaleTier->wholesale_price ?? 0));
             }
         }
 

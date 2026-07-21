@@ -38,6 +38,10 @@ class Kernel extends ConsoleKernel
                 default          => $job->everyTwoHours(),
             };
         }
+
+        // ── Warranty ──────────────────────────
+        $schedule->command('warranty:expire')->hourly();
+        $schedule->command('warranty:update-tiers')->dailyAt('03:00');
     }
 
     protected function commands()

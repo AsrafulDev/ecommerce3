@@ -107,4 +107,29 @@
           }
         });
    });
+
+   $(document).on("change", ".cart-warranty-selector", function(){
+        var rowId = $(this).data('id');
+        var warrantyId = $(this).val();
+        $.ajax({
+           cache: false, type:"GET",
+           data:{id:rowId, warranty_tier_id:warrantyId},
+           url:"{{ route('admin.order.cart.update') }}",
+           dataType: "json",
+           success: function(){ cart_content(); cart_details(); }
+        });
+   });
+
+   $(document).on("change", ".cart-batch-selector", function(){
+        var rowId = $(this).data('id');
+        var batchId = $(this).val();
+        $.ajax({
+           cache: false, type:"GET",
+           data:{id:rowId, batch_id:batchId},
+           url:"{{ route('admin.order.cart.update') }}",
+           dataType: "json",
+           success: function(){ cart_content(); cart_details(); }
+        });
+   });
+
 </script>

@@ -130,6 +130,23 @@ class Product extends Model
         return $this->hasMany(StockBatch::class, 'product_id');
     }
 
+    // ── Warranty ──────────────────────────────
+
+    public function warrantyTiers()
+    {
+        return $this->hasMany(ProductWarrantyTier::class, 'product_id');
+    }
+
+    public function supplierWarranties()
+    {
+        return $this->hasMany(SupplierWarranty::class, 'product_id');
+    }
+
+    public function warrantySales()
+    {
+        return $this->hasMany(WarrantySale::class, 'product_id');
+    }
+
     // ------------------------
     // Digital product related
     // ------------------------

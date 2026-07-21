@@ -704,6 +704,19 @@ if (typeof ttq !== 'undefined') {
                                                     @if($value->options->product_size) Size: {{$value->options->product_size}} @endif
                                                     @if($value->options->product_color) | Color: {{$value->options->product_color}} @endif
                                                 </div>
+                                                {{-- Discount/Warranty badges --}}
+                                                @php
+                                                    $wd = $value->options->wholesale_discount ?? 0;
+                                                    $wa = $value->options->warranty_adjustment ?? 0;
+                                                @endphp
+                                                @if($wd > 0)
+                                                    <div class="text-danger small">− ৳{{ number_format($wd, 0) }} wholesale</div>
+                                                @endif
+                                                @if($wa != 0 && ($value->options->warranty_tier_id ?? null))
+                                                    <div class="{{ $wa < 0 ? 'text-danger' : 'text-success' }} small">
+                                                        🛡️ Warranty {{ $wa > 0 ? '+' : '' }}{{ number_format($wa, 0) }} TK
+                                                    </div>
+                                                @endif
                                                 
                                                 {{-- Price & Qty --}}
                                                 <div class="d-flex justify-content-between align-items-center">

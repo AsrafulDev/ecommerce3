@@ -2029,7 +2029,37 @@ class OrderController extends Controller
             $order_details->qty              = $cart->qty;
             $order_details->product_size     = $savedSize;
             $order_details->product_color    = $savedColor;
+
+            // 🛡️ Warranty
+            if ($cart->options->warranty_tier_id ?? null) {
+                $tier = \App\Models\ProductWarrantyTier::find($cart->options->warranty_tier_id);
+                if ($tier && $tier->is_active) {
+                    $order_details->warranty_tier_id = $tier->id;
+                    $order_details->warranty_price   = $tier->price;
+                }
+            }
+
             $order_details->save();
+
+            // 🛡️ Create WarrantySale for POS orders
+            if ($order_details->warranty_tier_id) {
+                $tier = \App\Models\ProductWarrantyTier::find($order_details->warranty_tier_id);
+                if ($tier && $tier->warranty_days > 0) {
+                    \App\Models\WarrantySale::create([
+                        'order_id'                 => $order->id,
+                        'order_detail_id'          => $order_details->id,
+                        'product_warranty_tier_id' => $tier->id,
+                        'customer_id'              => $customer_id,
+                        'product_id'               => $order_details->product_id,
+                        'warranty_type'            => $tier->warranty_type,
+                        'warranty_days'            => $tier->warranty_days,
+                        'warranty_start_date'      => now(),
+                        'warranty_end_date'        => now()->addDays($tier->warranty_days),
+                        'warranty_price'           => $tier->price,
+                        'status'                   => \App\Enums\WarrantySaleStatus::ACTIVE->value,
+                    ]);
+                }
+            }
         }
 
         // নতুন অর্ডার প্লেস করলে স্টক কমানো (oldStatus = 0, newStatus = 1)
@@ -2209,7 +2239,7 @@ class OrderController extends Controller
         $rowId = $request->id;
         $cartItem = Cart::instance('pos_shopping')->content()->where('rowId', $rowId)->first();
 
-        // rowId দিয়ে না পেলে product_id দিয়ে খুঁজুন (update এর পর rowId বদলে যেতে পারে)
+        // rowId দিয়ে না পেলে product_id দিয়ে খুঁজুন (update এর পর rowId বদলে যায়, তাই Cart::get($rowId) ব্যর্থ হয়; update এর রিটার্ন ব্যবহার করুন
         if (!$cartItem && $request->product_id) {
             $cartItem = Cart::instance('pos_shopping')->content()->firstWhere('id', $request->product_id);
             if ($cartItem) {
@@ -2261,7 +2291,18 @@ class OrderController extends Controller
             'image'           => $cartItem->options->image,
             'old_price'       => $cartItem->options->old_price,
             'purchase_price'  => $cartItem->options->purchase_price,
+            'warranty_tier_id' => $request->warranty_tier_id ?? $cartItem->options->warranty_tier_id ?? null,
+            'batch_id'        => $request->batch_id ?? $cartItem->options->batch_id ?? null,
         ];
+
+        // 🛡️ Apply warranty adjustment (NOT replacement)
+        if ($request->filled('warranty_tier_id')) {
+            $tier = \App\Models\ProductWarrantyTier::find($request->warranty_tier_id);
+            if ($tier && $tier->is_active) {
+                $newPrice += (float) ($tier->additional_cost ?? 0);
+            }
+        }
+
         $updatedItem = Cart::instance('pos_shopping')->update($rowId, ['price' => $newPrice, 'options' => $options]);
 
         Log::channel('single')->info('[POS cart_update] Saved', [

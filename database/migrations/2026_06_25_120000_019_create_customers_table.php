@@ -20,7 +20,7 @@ return new class extends Migration
             $table->integer('area')->nullable();
             $table->string('address', 255)->nullable();
             $table->integer('verify')->nullable();
-            $table->string('image', 255)->default('public/uploads/default/user.png');
+            $table->string('image', 255)->default('public/assets/images/user.webp');
             $table->string('password', 255);
             $table->string('remember_token', 255)->nullable();
             $table->string('status', 55);

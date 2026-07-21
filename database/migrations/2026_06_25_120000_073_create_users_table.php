@@ -17,7 +17,7 @@ return new class extends Migration
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password', 255);
             $table->tinyInteger('status');
-            $table->string('image', 255)->default('public/uploads/default/user.png');
+            $table->string('image', 255)->default('public/assets/images/user.webp');
             $table->string('remember_token', 100)->nullable();
             $table->timestamp('created_at')->nullable();
             $table->timestamp('updated_at')->nullable();

@@ -99,6 +99,11 @@ class PurchaseController extends Controller
         $suppliers = Supplier::orderBy('name')->get();
         $products  = Product::orderBy('name')->get();
 
+        $productsJson = json_encode($products->map(function($p) {
+            return ['id' => $p->id, 'name' => $p->name, 'stock' => $p->stock, 'barcode' => $p->barcode ?? '', 'hasVariants' => $p->variantPrices->count() > 0];
+        }));
+        $variantsJson = json_encode(\App\Models\ProductVariantPrice::with(['color','size'])->get()->groupBy('product_id'));
+
         return view('backEnd.purchases.index', compact(
             'currentYear',
             'currentMonth',
@@ -108,7 +113,9 @@ class PurchaseController extends Controller
             'totalDue',
             'purchases',
             'suppliers',
-            'products'
+            'products',
+            'productsJson',
+            'variantsJson'
         ));
     }
 
@@ -123,9 +130,10 @@ class PurchaseController extends Controller
             'supplier_id'   => 'required|exists:suppliers,id',
             'purchase_date' => 'required|date',
             'invoice_no'    => 'required|string|max:50',
-            'product_id'    => 'required|exists:products,id',
-            'qty'           => 'required|integer|min:1',
-            'unit_cost'     => 'required|numeric|min:0',
+            'items'         => 'required|array|min:1',
+            'items.*.product_id' => 'required|exists:products,id',
+            'items.*.qty'        => 'required|integer|min:1',
+            'items.*.unit_cost'  => 'required|numeric|min:0',
             'discount'      => 'nullable|numeric|min:0',
             'shipping_cost' => 'nullable|numeric|min:0',
             'paid_amount'   => 'nullable|numeric|min:0',
@@ -134,11 +142,17 @@ class PurchaseController extends Controller
         $discount      = $request->discount ?? 0;
         $shipping_cost = $request->shipping_cost ?? 0;
 
-        $qty        = (int) $request->qty;
-        $unit_cost  = (float) $request->unit_cost;
-        $subtotal   = $qty * $unit_cost;
-        $grandTotal = $subtotal - $discount + $shipping_cost;
+        // Calculate totals from all items
+        $totalQty = 0;
+        $subtotal = 0;
+        foreach ($request->items as $item) {
+            $qty = (int) ($item['qty'] ?? 0);
+            $cost = (float) ($item['unit_cost'] ?? 0);
+            $totalQty += $qty;
+            $subtotal += $qty * $cost;
+        }
 
+        $grandTotal = $subtotal - $discount + $shipping_cost;
         $paid = min($grandTotal, (float) ($request->paid_amount ?? 0));
         $due  = $grandTotal - $paid;
 
@@ -147,7 +161,7 @@ class PurchaseController extends Controller
             'supplier_id'   => $request->supplier_id,
             'invoice_no'    => $request->invoice_no,
             'purchase_date' => $request->purchase_date,
-            'total_qty'     => $qty,
+            'total_qty'     => $totalQty,
             'subtotal'      => $subtotal,
             'discount'      => $discount,
             'shipping_cost' => $shipping_cost,
@@ -159,36 +173,55 @@ class PurchaseController extends Controller
             'created_by'    => Auth::id(),
         ]);
 
-        // PURCHASE ITEM
-        PurchaseItem::create([
-            'purchase_id'      => $purchase->id,
-            'product_id'       => $request->product_id,
-            'variant_price_id' => $request->variant_price_id ?: null,
-            'qty'              => $qty,
-            'unit_cost'        => $unit_cost,
-            'line_total'       => $subtotal,
-        ]);
+        // CREATE PURCHASE ITEMS + WARRANTY + STOCK per item
+        foreach ($request->items as $item) {
+            $qty   = (int) ($item['qty'] ?? 0);
+            $cost  = (float) ($item['unit_cost'] ?? 0);
+            $line  = $qty * $cost;
+            $pid   = $item['product_id'];
+            $vid   = $item['variant_id'] ?? null;
 
-        // STOCK UPDATE — using StockManagementService for batch tracking
-        $product = Product::findOrFail($request->product_id);
-        
-        app(StockManagementService::class)->stockIn($product, [
-            'quantity'         => $qty,
-            'unit_cost'        => $unit_cost,
-            'supplier_id'      => $request->supplier_id,
-            'purchase_id'      => $purchase->id,
-            'variant_price_id' => $request->variant_price_id ?: null,
-            'batch_no'         => $request->batch_no ?: null,
-            'mfg_date'         => $request->mfg_date ?: null,
-            'exp_date'         => $request->exp_date ?: null,
-            'reference_type'   => 'purchase',
-            'reference_id'     => $purchase->id,
-        ]);
+            $purchaseItem = PurchaseItem::create([
+                'purchase_id'      => $purchase->id,
+                'product_id'       => $pid,
+                'variant_price_id' => $vid,
+                'qty'              => $qty,
+                'unit_cost'        => $cost,
+                'line_total'       => $line,
+            ]);
 
-        // Update selling price on product if provided
-        if ($request->filled('selling_price')) {
-            $product->new_price = $request->selling_price;
+            // 🛡️ Warranty per item
+            $wDays = (int) ($item['warranty_days'] ?? 0);
+            if ($wDays > 0) {
+                $wStart = $item['warranty_start'] ?? now()->format('Y-m-d');
+                \App\Models\SupplierWarranty::create([
+                    'purchase_item_id'   => $purchaseItem->id,
+                    'product_id'         => $pid,
+                    'supplier_id'        => $request->supplier_id,
+                    'warranty_days'      => $wDays,
+                    'warranty_start_date' => $wStart,
+                    'warranty_end_date'  => \Carbon\Carbon::parse($wStart)->addDays($wDays),
+                    'warranty_type'      => 'supplier_warranty',
+                    'warranty_terms'     => $item['warranty_terms'] ?? null,
+                    'is_transferable'    => (bool) ($item['transferable'] ?? true),
+                ]);
+
+                // Also update product supplier_price
+                \App\Models\Product::where('id', $pid)->update(['supplier_price' => $cost]);
+            }
+
+            // Stock
+            $product = Product::findOrFail($pid);
+            $product->supplier_price = $cost;
             $product->save();
+            app(StockManagementService::class)->stockIn($product, [
+                'quantity' => $qty, 'unit_cost' => $cost,
+                'supplier_id' => $request->supplier_id, 'purchase_id' => $purchase->id,
+                'variant_price_id' => $vid, 'reference_type' => 'purchase', 'reference_id' => $purchase->id,
+                'batch_no' => $item['batch_no'] ?? null,
+                'mfg_date' => $item['mfg_date'] ?? null,
+                'exp_date' => $item['exp_date'] ?? null,
+            ]);
         }
 
         // SUPPLIER DUE

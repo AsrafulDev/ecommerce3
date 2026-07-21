@@ -18,7 +18,7 @@ $pendingOrdersCount = \App\Models\Order::where('customer_id', $customerId)
     ->count();
 
 // Profile Image - Use direct image path
-$profileImage = $customer->image ? asset($customer->image) : asset('public/uploads/default/no-image.png');
+$profileImage = $customer->image ? asset($customer->image) : asset('public/assets/images/user.webp');
 
 // Total Order Amount
 $totalOrderAmount = \App\Models\Order::where('customer_id', $customerId)->sum('amount');
@@ -155,7 +155,7 @@ $totalOrderAmount = \App\Models\Order::where('customer_id', $customerId)->sum('a
                     <i class="far fa-bell text-gray-600"></i>
                 </div>
 
-                <img src="{{ $profileImage }}" onerror="this.src='{{ asset('public/uploads/default/no-image.png') }}'" class="w-10 h-10 rounded-full border-2 border-white shadow-sm cursor-pointer" alt="Profile">
+                <img src="{{ $profileImage }}" onerror="this.src='{{ asset('public/assets/images/user.webp') }}'" class="w-10 h-10 rounded-full border-2 border-white shadow-sm cursor-pointer" alt="Profile">
             </div>
         </header>
 

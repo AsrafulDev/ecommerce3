@@ -183,90 +183,145 @@
                         </div>
 
                         <hr class="sidebar-divider my-3">
-                        <h6 class="text-xs font-weight-bold text-uppercase text-gray-500 mb-3">{{ __('Product Details') }}</h6>
-
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label"> {{ __('Product *') }} </label>
-                                <select name="product_id" class="form-control form-select" required>
-                                    <option value="">-- Select Product --</option>
-                                    @foreach($products as $p)
-                                        <option value="{{ $p->id }}">{{ $p->name }} (Stock: {{ $p->stock }})</option>
-                                    @endforeach
-                                </select>
-                            </div>
-                            
-                            <input type="hidden" name="variant_price_id" value="">
-
-                            <div class="col-md-3 mb-3">
-                                <label class="form-label"> {{ __('Quantity *') }} </label>
-                                <input type="number" name="qty" class="form-control" min="1" value="1" required>
-                            </div>
-                            <div class="col-md-3 mb-3">
-                                <label class="form-label">Unit Cost (৳) *</label>
-                                <input type="number" step="0.01" name="unit_cost" class="form-control" placeholder="0.00" required>
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <h6 class="text-xs font-weight-bold text-uppercase text-gray-500 mb-0">{{ __('Product Details') }}</h6>
+                            <div class="d-flex gap-2">
+                                <div class="input-group input-group-sm" style="width:220px;">
+                                    <span class="input-group-text bg-white"><i class="fas fa-barcode"></i></span>
+                                    <input type="text" id="barcode-scan" class="form-control form-control-sm" placeholder="Scan barcode to add..." autofocus>
+                                </div>
+                                <button type="button" id="add-product-row" class="btn btn-sm btn-outline-primary"><i class="fa fa-plus"></i> Add Row</button>
                             </div>
                         </div>
 
-                        <div class="row">
-                            <div class="col-md-3 mb-3">
+                        <div id="product-rows">
+                            <div class="product-row border rounded p-3 mb-2 bg-light">
+                                <div class="row align-items-end">
+                                    <div class="col-md-4 mb-2">
+                                        <label class="form-label small">{{ __('Product *') }}</label>
+                                        <select name="items[0][product_id]" class="form-control form-select form-select-sm product-select" required>
+                                            <option value="">-- Select --</option>
+                                            @foreach($products as $p)
+                                                <option value="{{ $p->id }}" data-barcode="{{ $p->barcode ?? '' }}" data-has-variants="{{ $p->variantPrices->count() > 0 ? '1' : '0' }}">{{ $p->name }} (Stock: {{ $p->stock }})</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                    <div class="col-md-2 mb-2 variant-col" style="display:none;">
+                                        <label class="form-label small">{{ __('Variant') }} <small>(optional)</small></label>
+                                        <select name="items[0][variant_id]" class="form-control form-select form-select-sm variant-select">
+                                            <option value="">All</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-2 mb-2">
+                                        <label class="form-label small">{{ __('Qty *') }}</label>
+                                        <input type="number" name="items[0][qty]" class="form-control form-control-sm" min="1" value="1" required>
+                                    </div>
+                                    <div class="col-md-2 mb-2">
+                                        <label class="form-label small">Unit Cost (৳) *</label>
+                                        <input type="number" step="0.01" name="items[0][unit_cost]" class="form-control form-control-sm" placeholder="0.00" required>
+                                    </div>
+                                    <div class="col-md-2 mb-2">
+                                        <label class="form-label small">Total</label>
+                                        <span class="form-control form-control-sm bg-light text-center row-total">0</span>
+                                    </div>
+                                    <div class="col-md-1 mb-2">
+                                        <button type="button" class="btn btn-danger btn-sm btn-remove-row w-100" title="Remove"><i class="fa fa-times"></i></button>
+                                    </div>
+                                </div>
+                                {{-- Batch info per product --}}
+                                <div class="row mt-1">
+                                    <div class="col-md-3">
+                                        <label class="form-label small">{{ __('Batch No') }}</label>
+                                        <input type="text" name="items[0][batch_no]" class="form-control form-control-sm" placeholder="e.g. BT-001">
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label class="form-label small">{{ __('MFG Date') }}</label>
+                                        <input type="date" name="items[0][mfg_date]" class="form-control form-control-sm">
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label class="form-label small">{{ __('EXP Date') }}</label>
+                                        <input type="date" name="items[0][exp_date]" class="form-control form-control-sm">
+                                    </div>
+                                </div>
+                                {{-- Warranty per product --}}
+                                <div class="row mt-1">
+                                    <div class="col-md-3">
+                                        <label class="form-label small">{{ __('Warranty Days') }}</label>
+                                        <input type="number" name="items[0][warranty_days]" class="form-control form-control-sm" value="0" min="0">
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label class="form-label small">{{ __('Warranty Start') }}</label>
+                                        <input type="date" name="items[0][warranty_start]" class="form-control form-control-sm" value="{{ now()->format('Y-m-d') }}">
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label class="form-label small">{{ __('Terms') }}</label>
+                                        <input type="text" name="items[0][warranty_terms]" class="form-control form-control-sm" placeholder="Optional">
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label class="form-label small">{{ __('Transferable') }}</label>
+                                        <select name="items[0][transferable]" class="form-control form-select form-select-sm">
+                                            <option value="1">Yes</option><option value="0">No</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row mt-3">
+                            <div class="col-md-3 mb-2">
                                 <label class="form-label">{{ __('Discount') }}</label>
-                                <input type="number" step="0.01" name="discount" class="form-control" value="0">
+                                <input type="number" step="0.01" name="discount" class="form-control form-control-sm" value="0" id="global-discount">
                             </div>
-                            <div class="col-md-3 mb-3">
-                                <label class="form-label"> {{ __('Shipping Cost') }} </label>
-                                <input type="number" step="0.01" name="shipping_cost" class="form-control" value="0">
+                            <div class="col-md-3 mb-2">
+                                <label class="form-label">{{ __('Shipping Cost') }}</label>
+                                <input type="number" step="0.01" name="shipping_cost" class="form-control form-control-sm" value="0" id="global-shipping">
                             </div>
-                            <div class="col-md-3 mb-3">
-                                <label class="form-label text-success fw-bold"> {{ __('Paid Amount') }} </label>
-                                <input type="number" step="0.01" name="paid_amount" class="form-control border-success" value="0">
-                                <small class="text-muted" style="font-size:10px;"> {{ __('Deducted from fund') }} </small>
+                            <div class="col-md-3 mb-2">
+                                <label class="form-label text-success fw-bold">{{ __('Paid Amount') }}</label>
+                                <input type="number" step="0.01" name="paid_amount" class="form-control form-control-sm border-success" value="0" id="global-paid">
+                                <small class="text-muted" style="font-size:10px;">Deducted from fund</small>
                             </div>
-                            <div class="col-md-3 mb-3">
+                            <div class="col-md-3 mb-2">
                                 <label class="form-label">{{ __('Note') }}</label>
-                                <input type="text" name="note" class="form-control" placeholder="Optional">
+                                <input type="text" name="note" class="form-control form-control-sm" placeholder="Optional">
                             </div>
                         </div>
 
-                        <div class="mt-3 text-end">
-                            <button type="submit" class="btn btn-primary px-4">
-                                <i class="fe-save me-1"></i> Save Purchase
-                            </button>
+                        <div class="d-flex justify-content-between align-items-center bg-light p-2 rounded mt-2">
+                            <strong>Grand Total: <span id="grand-total-display" class="text-primary">0.00</span> ৳</strong>
+                            <button type="submit" class="btn btn-primary px-4"><i class="fe-save me-1"></i> Save Purchase</button>
                         </div>
                     </form>
                 </div>
             </div>
         </div>
 
-        <div class="col-lg-4 mb-4">
-            <div class="card h-100">
+        {{-- Export moved below form, before history --}}
+        <div class="col-lg-12 mb-4">
+            <div class="card">
                 <div class="card-header py-3 bg-white">
                     <h6 class="m-0 font-weight-bold text-dark"><i class="fe-download me-1"></i> {{ __('Export Report') }} </h6>
                 </div>
                 <div class="card-body">
-                    <form action="{{ route('purchases.export') }}" method="GET" target="_blank">
-                        <div class="mb-3">
-                            <label class="form-label"> {{ __('Filter by Month/Year') }} </label>
-                            <div class="input-group">
-                                <input type="number" name="month" class="form-control" placeholder="Month (1-12)" value="{{ request('month') }}">
-                                <input type="number" name="year" class="form-control" placeholder="{{ __('Year') }}" value="{{ request('year') }}">
-                            </div>
+                    <form action="{{ route('purchases.export') }}" method="GET" target="_blank" class="row g-2">
+                        <div class="col-md-3">
+                            <label class="form-label small">{{ __('Month') }}</label>
+                            <input type="number" name="month" class="form-control form-control-sm" placeholder="1-12" value="{{ request('month') }}">
                         </div>
-                        <div class="mb-3">
-                            <label class="form-label"> {{ __('Date Range') }} </label>
-                            <div class="input-group">
-                                <span class="input-group-text bg-light border-end-0"> {{ __('From') }} </span>
-                                <input type="date" name="from_date" class="form-control" value="{{ request('from_date') }}">
-                            </div>
-                            <div class="input-group mt-2">
-                                <span class="input-group-text bg-light border-end-0" style="width: 58px;">To</span>
-                                <input type="date" name="to_date" class="form-control" value="{{ request('to_date') }}">
-                            </div>
+                        <div class="col-md-3">
+                            <label class="form-label small">{{ __('Year') }}</label>
+                            <input type="number" name="year" class="form-control form-control-sm" placeholder="2026" value="{{ request('year') }}">
                         </div>
-                        <div class="d-grid">
-                            <button type="submit" class="btn btn-outline-dark">
-                                <i class="fe-download-cloud me-2"></i> Download CSV
-                            </button>
+                        <div class="col-md-2">
+                            <label class="form-label small">{{ __('From') }}</label>
+                            <input type="date" name="from_date" class="form-control form-control-sm" value="{{ request('from_date') }}">
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label small">{{ __('To') }}</label>
+                            <input type="date" name="to_date" class="form-control form-control-sm" value="{{ request('to_date') }}">
+                        </div>
+                        <div class="col-md-2 d-flex align-items-end">
+                            <button type="submit" class="btn btn-outline-dark btn-sm w-100"><i class="fe-download-cloud me-1"></i> CSV</button>
                         </div>
                     </form>
                 </div>
@@ -404,5 +459,102 @@
             $('#purchase-table-wrapper').css('opacity', '1');
         });
     });
+
+    // 🛒 MULTI-PRODUCT ROW MANAGEMENT
+    let rowIndex = 1;
+    const allProducts = {!! $productsJson !!};
+    const allVariants = {!! $variantsJson !!};
+
+    function calcGrandTotal() {
+        let total = 0;
+        $('#product-rows .product-row').each(function() {
+            const qty = parseFloat($(this).find('[name*="[qty]"]').val()) || 0;
+            const cost = parseFloat($(this).find('[name*="[unit_cost]"]').val()) || 0;
+            const rowTotal = qty * cost;
+            $(this).find('.row-total').text(rowTotal.toFixed(2));
+            total += rowTotal;
+        });
+        const discount = parseFloat($('#global-discount').val()) || 0;
+        const shipping = parseFloat($('#global-shipping').val()) || 0;
+        $('#grand-total-display').text((total - discount + shipping).toFixed(2));
+    }
+
+    function reindexRows() {
+        $('#product-rows .product-row').each(function(i) {
+            $(this).find('[name]').each(function() {
+                const name = $(this).attr('name');
+                if (name) $(this).attr('name', name.replace(/items\[\d+\]/, 'items[' + i + ']'));
+            });
+        });
+        rowIndex = $('#product-rows .product-row').length;
+    }
+
+    function loadVariants(select, productId) {
+        const row = select.closest('.product-row');
+        const variantCol = row.find('.variant-col');
+        const variantSelect = row.find('.variant-select');
+        variantSelect.html('<option value="">All</option>');
+        if (allVariants[productId]) {
+            variantCol.show();
+            allVariants[productId].forEach(v => {
+                const label = [v.color?.colorName || v.color?.name, v.size?.sizeName || v.size?.name].filter(Boolean).join(' / ') || 'Variant #' + v.id;
+                variantSelect.append('<option value="' + v.id + '">' + label + '</option>');
+            });
+        } else {
+            variantCol.hide();
+        }
+    }
+
+    function addProductRow() {
+        const template = $('#product-rows .product-row').first().clone();
+        template.find('input').val('');
+        template.find('input[name*="qty"]').val('1');
+        template.find('input[name*="[warranty_days]"]').val('0');
+        template.find('.row-total').text('0');
+        template.find('.variant-col').hide();
+        template.find('[name]').each(function() {
+            $(this).attr('name', $(this).attr('name').replace(/items\[\d+\]/, 'items[' + rowIndex + ']'));
+        });
+        $('#product-rows').append(template);
+        rowIndex++;
+        calcGrandTotal();
+    }
+
+    $('#add-product-row').click(addProductRow);
+
+    $('#product-rows').on('click', '.btn-remove-row', function() {
+        if ($('#product-rows .product-row').length > 1) {
+            $(this).closest('.product-row').remove();
+            reindexRows();
+            calcGrandTotal();
+        }
+    });
+
+    $('#product-rows').on('change', '.product-select', function() {
+        const pid = $(this).val();
+        loadVariants($(this), pid);
+    });
+
+    $('#product-rows').on('input', 'input[name*="qty"], input[name*="unit_cost"]', calcGrandTotal);
+    $('#global-discount, #global-shipping').on('input', calcGrandTotal);
+
+    // 🔍 BARCODE SCANNER
+    $('#barcode-scan').on('keypress', function(e) {
+        if (e.which === 13) {
+            e.preventDefault();
+            const code = $(this).val().trim();
+            if (!code) return;
+            const product = allProducts.find(p => p.barcode === code);
+            if (product) {
+                const lastRow = $('#product-rows .product-row').last();
+                lastRow.find('.product-select').val(product.id).trigger('change');
+                lastRow.find('input[name*="qty"]').focus().select();
+            } else {
+                alert('No product found with barcode: ' + code);
+            }
+            $(this).val('');
+        }
+    });
+
 </script>
 @endpush

@@ -57,7 +57,7 @@ $pendingOrdersCount = \App\Models\Order::where('customer_id', $customerId)
     ->count();
 
 // Profile Image - Use direct image path
-$profileImage = $customer->image ? asset($customer->image) : asset('public/uploads/default/no-image.png');
+$profileImage = $customer->image ? asset($customer->image) : asset('public/assets/images/user.webp');
 
 // Total Order Amount
 $totalOrderAmount = \App\Models\Order::where('customer_id', $customerId)->sum('amount');
@@ -225,7 +225,7 @@ $totalOrderAmount = \App\Models\Order::where('customer_id', $customerId)->sum('a
                     <i class="far fa-bell text-gray-600"></i>
                 </div>
 
-                <img src="{{ $profileImage }}" onerror="this.src='{{ asset('public/uploads/default/no-image.png') }}'" class="w-10 h-10 rounded-full border-2 border-white shadow-sm cursor-pointer" alt="Profile">
+                <img src="{{ $profileImage }}" onerror="this.src='{{ asset('public/assets/images/user.webp') }}'" class="w-10 h-10 rounded-full border-2 border-white shadow-sm cursor-pointer" alt="Profile">
             </div>
         </header>
 
@@ -364,8 +364,8 @@ $totalOrderAmount = \App\Models\Order::where('customer_id', $customerId)->sum('a
                                                             $productImage = $detail->image->image;
                                                         }
                                                     @endphp
-                                                    <img src="{{ $productImage ? asset($productImage) : asset('public/uploads/default/no-image.png') }}" 
-                                                         onerror="this.src='{{ asset('public/uploads/default/no-image.png') }}'"
+                                                    <img src="{{ $productImage ? asset($productImage) : asset('public/assets/images/no-image.png') }}" 
+                                                         onerror="this.src='{{ asset('public/assets/images/no-image.png') }}'"
                                                          class="w-12 h-12 rounded object-cover border border-gray-200"
                                                          alt="{{ $detail->product_name ?? 'Product' }}">
                                                 @endforeach

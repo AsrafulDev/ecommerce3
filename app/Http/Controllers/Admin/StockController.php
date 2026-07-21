@@ -124,8 +124,11 @@ class StockController extends Controller
      */
     public function createAdjustment()
     {
-        $products = Product::orderBy('name')->get(['id', 'name', 'stock']);
-        return view('backEnd.stock.adjustment_create', compact('products'));
+        $products = Product::orderBy('name')->get(['id', 'name', 'stock', 'barcode']);
+        $productsJson = json_encode($products->map(function($p) {
+            return ['id' => $p->id, 'name' => $p->name, 'stock' => $p->stock, 'barcode' => $p->barcode ?? ''];
+        }));
+        return view('backEnd.stock.adjustment_create', compact('products', 'productsJson'));
     }
 
     /**
@@ -134,38 +137,55 @@ class StockController extends Controller
     public function storeAdjustment(Request $request)
     {
         $request->validate([
-            'product_id' => 'required|exists:products,id',
-            'type'       => 'required|in:addition,reduction,correction',
-            'quantity'   => 'required|numeric|min:0.01',
-            'reason'     => 'required|string|max:500',
+            'items'                => 'required|array|min:1',
+            'items.*.product_id'   => 'required|exists:products,id',
+            'items.*.type'         => 'required|in:addition,reduction,correction',
+            'items.*.quantity'     => 'required|numeric|min:0.01',
+            'items.*.reason'       => 'nullable|string|max:500',
         ]);
 
-        $product = Product::findOrFail($request->product_id);
-        $currentStock = $product->stock;
+        $count = 0;
+        foreach ($request->items as $item) {
+            $product = Product::findOrFail($item['product_id']);
+            $currentStock = $product->stock;
+            $qty = (float) $item['quantity'];
+            $reason = $item['reason'] ?? 'Manual adjustment';
 
-        // Calculate new stock
-        switch ($request->type) {
-            case 'addition':
-                $newStock = $currentStock + $request->quantity;
-                break;
-            case 'reduction':
-                $newStock = max(0, $currentStock - $request->quantity);
-                break;
-            case 'correction':
-                $newStock = $request->quantity; // quantity is the new stock value
-                break;
+            $newStock = match ($item['type']) {
+                'addition'   => $currentStock + $qty,
+                'reduction'  => max(0, $currentStock - $qty),
+                'correction' => $qty,
+            };
+
+            if ($item['variant_id'] ?? null) {
+                $variant = \App\Models\ProductVariantPrice::find($item['variant_id']);
+                if ($variant) {
+                    $variant->stock = $newStock;
+                    $variant->save();
+                }
+            } else {
+                $this->stockService->adjustStock($product, $newStock, $item['type'], $reason, auth('admin')->id());
+            }
+
+            // Batch-specific adjustment
+            if ($item['batch_id'] ?? null) {
+                $batch = \App\Models\StockBatch::find($item['batch_id']);
+                if ($batch) {
+                    $oldQty = $batch->remaining_qty;
+                    $batch->remaining_qty = match ($item['type']) {
+                        'addition'  => $oldQty + $qty,
+                        'reduction' => max(0, $oldQty - $qty),
+                        'correction'=> $qty,
+                    };
+                    $batch->save();
+                }
+            }
+
+            $count++;
         }
 
-        $adjustment = $this->stockService->adjustStock(
-            $product,
-            $newStock,
-            $request->type,
-            $request->reason,
-            auth('admin')->id()
-        );
-
         return redirect()->route('admin.stock.adjustments')
-            ->with('success', 'Stock adjustment recorded successfully.');
+            ->with('success', $count . ' stock adjustment(s) saved.');
     }
 
     /**

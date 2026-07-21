@@ -18,7 +18,7 @@ $pendingOrdersCount = \App\Models\Order::where('customer_id', $customerId)
     ->count();
 
 // Profile Image - Use direct image path, not accessor
-$profileImage = $profile_edit->image ? asset($profile_edit->image) : asset('public/uploads/default/no-image.png');
+$profileImage = $profile_edit->image ? asset($profile_edit->image) : asset('public/assets/images/user.webp');
 
 // Total Order Amount
 $totalOrderAmount = \App\Models\Order::where('customer_id', $customerId)->sum('amount');
@@ -197,7 +197,7 @@ $totalOrderAmount = \App\Models\Order::where('customer_id', $customerId)->sum('a
                     <i class="far fa-bell text-gray-600"></i>
                 </div>
 
-                <img src="{{ $profileImage }}" onerror="this.src='{{ asset('public/uploads/default/no-image.png') }}'" class="w-10 h-10 rounded-full border-2 border-white shadow-sm cursor-pointer" alt="Profile">
+                <img src="{{ $profileImage }}" onerror="this.src='{{ asset('public/assets/images/user.webp') }}'" class="w-10 h-10 rounded-full border-2 border-white shadow-sm cursor-pointer" alt="Profile">
             </div>
         </header>
 
@@ -214,7 +214,7 @@ $totalOrderAmount = \App\Models\Order::where('customer_id', $customerId)->sum('a
                     {{-- Profile Image Upload Section --}}
                     <div class="flex flex-col items-center mb-6 pb-6 border-b border-gray-100">
                         <div class="profile-image-container mb-4">
-                            <img id="profileImagePreview" src="{{ $profileImage }}" onerror="this.src='{{ asset('public/uploads/default/no-image.png') }}'" class="profile-image-preview" alt="Profile Image">
+                            <img id="profileImagePreview" src="{{ $profileImage }}" onerror="this.src='{{ asset('public/assets/images/user.webp') }}'" class="profile-image-preview" alt="Profile Image">
                             <label for="profileImageInput" class="profile-image-upload-btn">
                                 <i class="fas fa-camera"></i>
                             </label>

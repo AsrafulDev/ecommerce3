@@ -119,6 +119,13 @@ class Order extends Model
         return $this->refunds()->whereIn('status', ['pending', 'approved'])->exists();
     }
 
+    // ── Warranty ──────────────────────────────
+
+    public function warrantySales()
+    {
+        return $this->hasMany(WarrantySale::class, 'order_id');
+    }
+
     // ═══════════════════════════════════════════════════════
     // 🌟 ORDER NOTES (History / Audit Trail)
     // ═══════════════════════════════════════════════════════
@@ -646,7 +653,13 @@ class Order extends Model
         if (!$this->isPosOrder()) {
             return false;
         }
-        // POS goes directly to completed
         return $this->transitionTo(OrderStatus::COMPLETED, $note ?? 'POS order completed', $userId);
+    }
+
+    // ── Boot ──────────────────────────────────
+
+    protected static function booted(): void
+    {
+        static::observe(\App\Observers\OrderWarrantyObserver::class);
     }
 }

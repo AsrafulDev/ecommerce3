@@ -41,7 +41,7 @@
     // Pre-build variant select options for wholesale JS
     $wholesaleVariantOptions = '';
     if ($hasVariants && isset($allVariants)) {
-        $wholesaleVariantOptions .= '<option value="">'.__('Select Variant').'</option>';
+        $wholesaleVariantOptions .= '<option value="">'.__('All Variants').'</option>';
         foreach ($allVariants as $vp) {
             $vpColorName = $vp->color ? ($vp->color->colorName ?? $vp->color->name) : '';
             $vpSizeName  = $vp->size ? ($vp->size->sizeName ?? $vp->size->name) : '';
@@ -352,9 +352,9 @@
                                         <div class="row align-items-end">
                                             @if($hasVariants)
                                             <div class="col-md-3 mb-2">
-                                                <label class="form-label"> {{ __('Select Variant') }} </label>
-                                                <select name="wholesale_price[{{ $key }}][variant_id]" class="form-control select2 wholesale-variant-select">
-                                                    <option value=""> {{ __('Select Variant') }} </option>
+                                                <label class="form-label"> {{ __('Variant') }} </label>
+                                                <select name="wholesale_discount[{{ $key }}][variant_id]" class="form-control select2 wholesale-variant-select">
+                                                    <option value=""> {{ __('All Variants') }} </option>
                                                     @foreach($allVariants as $vp)
                                                         @php
                                                             $vpColorName = $vp->color ? ($vp->color->colorName ?? $vp->color->name) : '';
@@ -370,22 +370,22 @@
                                             @endif
                                             <div class="{{ $hasVariants ? 'col-md-2' : 'col-md-3' }} mb-2">
                                                 <label class="form-label"> {{ __('Min Quantity') }} </label>
-                                                <input type="number" name="wholesale_price[{{ $key }}][min_quantity]" class="form-control" 
+                                                <input type="number" name="wholesale_discount[{{ $key }}][min_quantity]" class="form-control" 
                                                        value="{{ old('wholesale_price.'.$key.'.min_quantity', $tier->min_quantity) }}">
                                             </div>
                                             <div class="{{ $hasVariants ? 'col-md-2' : 'col-md-3' }} mb-2">
                                                 <label class="form-label"> {{ __('Max Quantity') }} </label>
-                                                <input type="number" name="wholesale_price[{{ $key }}][max_quantity]" class="form-control" 
+                                                <input type="number" name="wholesale_discount[{{ $key }}][max_quantity]" class="form-control" 
                                                        value="{{ old('wholesale_price.'.$key.'.max_quantity', $tier->max_quantity) }}" placeholder="Optional">
                                             </div>
                                             <div class="col-md-2 mb-2">
-                                                <label class="form-label"> {{ __('Wholesale Price') }} </label>
-                                                <input type="number" step="0.01" name="wholesale_price[{{ $key }}][wholesale_price]" class="form-control" 
-                                                       value="{{ old('wholesale_price.'.$key.'.wholesale_price', $tier->wholesale_price) }}">
+                                                <label class="form-label"> {{ __('Discount (TK)') }} </label>
+                                                <input type="number" step="0.01" name="wholesale_discount[{{ $key }}][wholesale_price]" class="form-control" 
+                                                       value="{{ old('wholesale_price.'.$key.'.wholesale_price', $tier->wholesale_price) }}" placeholder="0.00">
                                             </div>
                                             <div class="col-md-2 mb-2">
                                                 <label class="form-label"> {{ __('Stock Qty') }} </label>
-                                                <input type="number" name="wholesale_price[{{ $key }}][stock]" class="form-control" 
+                                                <input type="number" name="wholesale_discount[{{ $key }}][stock]" class="form-control" 
                                                        value="{{ old('wholesale_price.'.$key.'.stock', $tier->stock ?? 0) }}" placeholder="0">
                                             </div>
                                             <div class="{{ $hasVariants ? 'col-md-1' : 'col-md-2' }} mb-2">
@@ -399,27 +399,27 @@
                                     <div class="row align-items-end">
                                         @if($hasVariants)
                                         <div class="col-md-3 mb-2">
-                                            <label class="form-label"> {{ __('Select Variant') }} </label>
-                                            <select name="wholesale_price[0][variant_id]" class="form-control select2 wholesale-variant-select">
+                                            <label class="form-label"> {{ __('Variant') }} </label>
+                                            <select name="wholesale_discount[0][variant_id]" class="form-control select2 wholesale-variant-select">
                                                 {!! $wholesaleVariantOptions !!}
                                             </select>
                                         </div>
                                         @endif
                                         <div class="{{ $hasVariants ? 'col-md-2' : 'col-md-3' }} mb-2">
                                             <label class="form-label"> {{ __('Min Quantity') }} </label>
-                                            <input type="number" name="wholesale_price[0][min_quantity]" class="form-control" placeholder="e.g. 10">
+                                            <input type="number" name="wholesale_discount[0][min_quantity]" class="form-control" placeholder="e.g. 10">
                                         </div>
                                         <div class="{{ $hasVariants ? 'col-md-2' : 'col-md-3' }} mb-2">
                                             <label class="form-label"> {{ __('Max Quantity') }} </label>
-                                            <input type="number" name="wholesale_price[0][max_quantity]" class="form-control" placeholder="e.g. 50 (optional)">
+                                            <input type="number" name="wholesale_discount[0][max_quantity]" class="form-control" placeholder="e.g. 50 (optional)">
                                         </div>
                                         <div class="col-md-2 mb-2">
-                                            <label class="form-label"> {{ __('Wholesale Price') }} </label>
-                                            <input type="number" step="0.01" name="wholesale_price[0][wholesale_price]" class="form-control" placeholder="0.00">
+                                            <label class="form-label"> {{ __('Discount (TK)') }} </label>
+                                            <input type="number" step="0.01" name="wholesale_discount[0][wholesale_price]" class="form-control" placeholder="0.00">
                                         </div>
                                         <div class="col-md-2 mb-2">
                                             <label class="form-label"> {{ __('Stock Qty') }} </label>
-                                            <input type="number" name="wholesale_price[0][stock]" class="form-control" placeholder="0">
+                                            <input type="number" name="wholesale_discount[0][stock]" class="form-control" placeholder="0">
                                         </div>
                                         <div class="{{ $hasVariants ? 'col-md-1' : 'col-md-2' }} mb-2">
                                             <button type="button" class="btn btn-success add-wholesale-tier w-100" title="{{ __('Add New Tier') }}"><i class="fa fa-plus"></i></button>
@@ -427,6 +427,49 @@
                                     </div>
                                 </div>
                             @endif
+                        </div>
+                    </div>
+                </div>
+
+                {{-- 🛡️ WARRANTY TIERS --}}
+                @php
+                    $warrantyTiers = $warrantyTiers ?? collect();
+                    $supplierWarranty = $supplierWarranty ?? null;
+                    $supplierDays = $supplierWarranty ? $supplierWarranty->remaining_days : 0;
+                @endphp
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <div class="section-title d-flex justify-content-between align-items-center">
+                            <span><i class="fe-shield me-1"></i> {{ __('Warranty Tiers') }}
+                                @if($supplierWarranty)
+                                <small class="text-success ms-2">(Supplier warranty valid {{ $supplierDays }} days, till {{ $supplierWarranty->warranty_end_date->format('d M') }})</small>
+                                @endif
+                            </span>
+                            <button type="button" id="add-warranty-tier" class="btn btn-sm btn-success rounded-pill px-3">
+                                <i class="fa fa-plus me-1"></i> {{ __('Add Tier') }}
+                            </button>
+                        </div>
+
+                        @if($supplierWarranty)
+                        <div class="alert alert-info py-2 mb-3 small">
+                            Supplier Warranty: {{ $supplierWarranty->warranty_days }} days — 
+                            <strong>{{ $supplierDays }} days remaining</strong> 
+                            (expires {{ $supplierWarranty->warranty_end_date->format('d M Y') }})
+                        </div>
+                        @endif
+
+                        <div id="warranty-wrapper">
+                            @php $wIndex = 0; @endphp
+                            @forelse($warrantyTiers as $tier)
+                                @include('backEnd.product._warranty_row', ['idx' => $wIndex, 'tier' => $tier, 'supplierDays' => $supplierDays, 'supplierWarranty' => $supplierWarranty, 'hasVariants' => $hasVariants, 'allVariants' => $allVariants])
+                                @php $wIndex++; @endphp
+                            @empty
+                                @include('backEnd.product._warranty_row', ['idx' => $wIndex++, 'tier' => null, 'supplierDays' => $supplierDays, 'supplierWarranty' => $supplierWarranty, 'hasVariants' => $hasVariants, 'allVariants' => $allVariants, 'defaultType' => 'none'])
+                                @if($supplierWarranty)
+                                @include('backEnd.product._warranty_row', ['idx' => $wIndex++, 'tier' => null, 'supplierDays' => $supplierDays, 'supplierWarranty' => $supplierWarranty, 'hasVariants' => $hasVariants, 'allVariants' => $allVariants, 'defaultType' => 'supplier_warranty'])
+                                @endif
+                                @include('backEnd.product._warranty_row', ['idx' => $wIndex++, 'tier' => null, 'supplierDays' => $supplierDays, 'supplierWarranty' => $supplierWarranty, 'hasVariants' => $hasVariants, 'allVariants' => $allVariants, 'defaultType' => 'extended_warranty'])
+                            @endforelse
                         </div>
                     </div>
                 </div>
@@ -480,15 +523,6 @@
                     <div class="card-body">
                         <div class="section-title"><i class="fe-dollar-sign me-1"></i> {{ __('Pricing & Inventory') }} </div>
 
-                        <div class="form-group mb-3">
-                            <label for="purchase_price" class="form-label"> {{ __('Purchase Price') }} <small class="text-muted">(Optional)</small></label>
-                            <input type="text" class="form-control border-primary @error('purchase_price') is-invalid @enderror"
-                                   name="purchase_price" value="{{ $edit_data->purchase_price}}" id="purchase_price" placeholder="0" />
-                            @error('purchase_price')
-                            <span class="invalid-feedback" role="alert"><strong>{{ $message }}</strong></span>
-                            @enderror
-                        </div>
-
                         <div class="row">
                             <div class="col-md-6 mb-3">
                                 <label for="old_price" class="form-label"> {{ __('Old Price') }} </label>
@@ -515,6 +549,16 @@
                                    name="reseller_price" value="{{ old('reseller_price', $edit_data->reseller_price) }}" id="reseller_price" placeholder="Reseller price (optional)" />
                             <small class="text-muted"> {{ __('Special price for resellers. Leave empty if not applicable.') }} </small>
                             @error('reseller_price')
+                            <span class="invalid-feedback" role="alert"><strong>{{ $message }}</strong></span>
+                            @enderror
+                        </div>
+
+                        <div class="form-group mb-3">
+                            <label for="supplier_price" class="form-label"> {{ __('Purchase Price') }} <small class="text-muted">(Updated automatically from purchases)</small></label>
+                            <input type="text" step="0.01" class="form-control bg-light @error('supplier_price') is-invalid @enderror"
+                                   name="supplier_price" value="{{ old('supplier_price', $edit_data->supplier_price ?? $edit_data->purchase_price) }}" id="supplier_price" placeholder="From purchase" readonly />
+                            <small class="text-muted"><i class="fe-info me-1"></i> {{ __('This price comes from purchase records. Cannot be edited here.') }}</small>
+                            @error('supplier_price')
                             <span class="invalid-feedback" role="alert"><strong>{{ $message }}</strong></span>
                             @enderror
                         </div>
@@ -1249,19 +1293,19 @@ document.addEventListener('DOMContentLoaded', function () {
             // No rows exist — create a fresh empty row from scratch
             if (hasVariants) {
                 var html = '<div class="variant-card"><div class="row align-items-end">' +
-                    '<div class="col-md-3 mb-2"><label class="form-label">{{ __("Select Variant") }}</label><select name="wholesale_price[' + wholesaleIndex + '][variant_id]" class="form-control select2 wholesale-variant-select">' + wholesaleVariantOptions + '</select></div>' +
-                    '<div class="col-md-2 mb-2"><label class="form-label">{{ __("Min Quantity") }}</label><input type="number" name="wholesale_price[' + wholesaleIndex + '][min_quantity]" class="form-control" placeholder="e.g. 10"></div>' +
-                    '<div class="col-md-2 mb-2"><label class="form-label">{{ __("Max Quantity") }}</label><input type="number" name="wholesale_price[' + wholesaleIndex + '][max_quantity]" class="form-control" placeholder="e.g. 50 (optional)"></div>' +
-                    '<div class="col-md-2 mb-2"><label class="form-label">{{ __("Wholesale Price") }}</label><input type="number" step="0.01" name="wholesale_price[' + wholesaleIndex + '][wholesale_price]" class="form-control" placeholder="0.00"></div>' +
-                    '<div class="col-md-2 mb-2"><label class="form-label">{{ __("Stock Qty") }}</label><input type="number" name="wholesale_price[' + wholesaleIndex + '][stock]" class="form-control" placeholder="0"></div>' +
+                    '<div class="col-md-3 mb-2"><label class="form-label">{{ __("Variant") }}</label><select name="wholesale_discount[' + wholesaleIndex + '][variant_id]" class="form-control select2 wholesale-variant-select">' + wholesaleVariantOptions + '</select></div>' +
+                    '<div class="col-md-2 mb-2"><label class="form-label">{{ __("Min Quantity") }}</label><input type="number" name="wholesale_discount[' + wholesaleIndex + '][min_quantity]" class="form-control" placeholder="e.g. 10"></div>' +
+                    '<div class="col-md-2 mb-2"><label class="form-label">{{ __("Max Quantity") }}</label><input type="number" name="wholesale_discount[' + wholesaleIndex + '][max_quantity]" class="form-control" placeholder="e.g. 50 (optional)"></div>' +
+                    '<div class="col-md-2 mb-2"><label class="form-label">{{ __("Discount (TK)") }}</label><input type="number" step="0.01" name="wholesale_discount[' + wholesaleIndex + '][wholesale_price]" class="form-control" placeholder="0.00"></div>' +
+                    '<div class="col-md-2 mb-2"><label class="form-label">{{ __("Stock Qty") }}</label><input type="number" name="wholesale_discount[' + wholesaleIndex + '][stock]" class="form-control" placeholder="0"></div>' +
                     '<div class="col-md-1 mb-2"><button type="button" class="btn btn-danger btn-remove-wholesale w-100" title="{{ __("Remove Tier") }}"><i class="fa fa-trash"></i></button></div>' +
                     '</div></div>';
             } else {
                 var html = '<div class="variant-card"><div class="row align-items-end">' +
-                    '<div class="col-md-3 mb-2"><label class="form-label">{{ __("Min Quantity") }}</label><input type="number" name="wholesale_price[' + wholesaleIndex + '][min_quantity]" class="form-control" placeholder="e.g. 10"></div>' +
-                    '<div class="col-md-3 mb-2"><label class="form-label">{{ __("Max Quantity") }}</label><input type="number" name="wholesale_price[' + wholesaleIndex + '][max_quantity]" class="form-control" placeholder="e.g. 50 (optional)"></div>' +
-                    '<div class="col-md-2 mb-2"><label class="form-label">{{ __("Wholesale Price") }}</label><input type="number" step="0.01" name="wholesale_price[' + wholesaleIndex + '][wholesale_price]" class="form-control" placeholder="0.00"></div>' +
-                    '<div class="col-md-2 mb-2"><label class="form-label">{{ __("Stock Qty") }}</label><input type="number" name="wholesale_price[' + wholesaleIndex + '][stock]" class="form-control" placeholder="0"></div>' +
+                    '<div class="col-md-3 mb-2"><label class="form-label">{{ __("Min Quantity") }}</label><input type="number" name="wholesale_discount[' + wholesaleIndex + '][min_quantity]" class="form-control" placeholder="e.g. 10"></div>' +
+                    '<div class="col-md-3 mb-2"><label class="form-label">{{ __("Max Quantity") }}</label><input type="number" name="wholesale_discount[' + wholesaleIndex + '][max_quantity]" class="form-control" placeholder="e.g. 50 (optional)"></div>' +
+                    '<div class="col-md-2 mb-2"><label class="form-label">{{ __("Discount (TK)") }}</label><input type="number" step="0.01" name="wholesale_discount[' + wholesaleIndex + '][wholesale_price]" class="form-control" placeholder="0.00"></div>' +
+                    '<div class="col-md-2 mb-2"><label class="form-label">{{ __("Stock Qty") }}</label><input type="number" step="0.01" name="wholesale_discount[' + wholesaleIndex + '][stock]" class="form-control" placeholder="0"></div>' +
                     '<div class="col-md-2 mb-2"><button type="button" class="btn btn-danger btn-remove-wholesale w-100" title="{{ __("Remove Tier") }}"><i class="fa fa-trash"></i></button></div>' +
                     '</div></div>';
             }
@@ -1313,19 +1357,19 @@ document.addEventListener('DOMContentLoaded', function () {
         if (wrapper.find('.variant-card').length === 0) {
             if (hasVariants) {
                 var html = '<div class="variant-card"><div class="row align-items-end">' +
-                    '<div class="col-md-3 mb-2"><label class="form-label">{{ __("Select Variant") }}</label><select name="wholesale_price[0][variant_id]" class="form-control select2 wholesale-variant-select">' + wholesaleVariantOptions + '</select></div>' +
-                    '<div class="col-md-2 mb-2"><label class="form-label">{{ __("Min Quantity") }}</label><input type="number" name="wholesale_price[0][min_quantity]" class="form-control" placeholder="e.g. 10"></div>' +
-                    '<div class="col-md-2 mb-2"><label class="form-label">{{ __("Max Quantity") }}</label><input type="number" name="wholesale_price[0][max_quantity]" class="form-control" placeholder="e.g. 50 (optional)"></div>' +
-                    '<div class="col-md-2 mb-2"><label class="form-label">{{ __("Wholesale Price") }}</label><input type="number" step="0.01" name="wholesale_price[0][wholesale_price]" class="form-control" placeholder="0.00"></div>' +
-                    '<div class="col-md-2 mb-2"><label class="form-label">{{ __("Stock Qty") }}</label><input type="number" name="wholesale_price[0][stock]" class="form-control" placeholder="0"></div>' +
+                    '<div class="col-md-3 mb-2"><label class="form-label">{{ __("Variant") }}</label><select name="wholesale_discount[0][variant_id]" class="form-control select2 wholesale-variant-select">' + wholesaleVariantOptions + '</select></div>' +
+                    '<div class="col-md-2 mb-2"><label class="form-label">{{ __("Min Quantity") }}</label><input type="number" name="wholesale_discount[0][min_quantity]" class="form-control" placeholder="e.g. 10"></div>' +
+                    '<div class="col-md-2 mb-2"><label class="form-label">{{ __("Max Quantity") }}</label><input type="number" name="wholesale_discount[0][max_quantity]" class="form-control" placeholder="e.g. 50 (optional)"></div>' +
+                    '<div class="col-md-2 mb-2"><label class="form-label">{{ __("Discount (TK)") }}</label><input type="number" step="0.01" name="wholesale_discount[0][wholesale_price]" class="form-control" placeholder="0.00"></div>' +
+                    '<div class="col-md-2 mb-2"><label class="form-label">{{ __("Stock Qty") }}</label><input type="number" name="wholesale_discount[0][stock]" class="form-control" placeholder="0"></div>' +
                     '<div class="col-md-1 mb-2"><button type="button" class="btn btn-success add-wholesale-tier w-100" title="{{ __("Add New Tier") }}"><i class="fa fa-plus"></i></button></div>' +
                     '</div></div>';
             } else {
                 var html = '<div class="variant-card"><div class="row align-items-end">' +
-                    '<div class="col-md-3 mb-2"><label class="form-label">{{ __("Min Quantity") }}</label><input type="number" name="wholesale_price[0][min_quantity]" class="form-control" placeholder="e.g. 10"></div>' +
-                    '<div class="col-md-3 mb-2"><label class="form-label">{{ __("Max Quantity") }}</label><input type="number" name="wholesale_price[0][max_quantity]" class="form-control" placeholder="e.g. 50 (optional)"></div>' +
-                    '<div class="col-md-2 mb-2"><label class="form-label">{{ __("Wholesale Price") }}</label><input type="number" step="0.01" name="wholesale_price[0][wholesale_price]" class="form-control" placeholder="0.00"></div>' +
-                    '<div class="col-md-2 mb-2"><label class="form-label">{{ __("Stock Qty") }}</label><input type="number" name="wholesale_price[0][stock]" class="form-control" placeholder="0"></div>' +
+                    '<div class="col-md-3 mb-2"><label class="form-label">{{ __("Min Quantity") }}</label><input type="number" name="wholesale_discount[0][min_quantity]" class="form-control" placeholder="e.g. 10"></div>' +
+                    '<div class="col-md-3 mb-2"><label class="form-label">{{ __("Max Quantity") }}</label><input type="number" name="wholesale_discount[0][max_quantity]" class="form-control" placeholder="e.g. 50 (optional)"></div>' +
+                    '<div class="col-md-2 mb-2"><label class="form-label">{{ __("Discount (TK)") }}</label><input type="number" step="0.01" name="wholesale_discount[0][wholesale_price]" class="form-control" placeholder="0.00"></div>' +
+                    '<div class="col-md-2 mb-2"><label class="form-label">{{ __("Stock Qty") }}</label><input type="number" name="wholesale_discount[0][stock]" class="form-control" placeholder="0"></div>' +
                     '<div class="col-md-2 mb-2"><button type="button" class="btn btn-success add-wholesale-tier w-100" title="{{ __("Add New Tier") }}"><i class="fa fa-plus"></i></button></div>' +
                     '</div></div>';
             }
@@ -1421,6 +1465,56 @@ document.addEventListener('DOMContentLoaded', function () {
         var m = input.match(/(?:youtube\.com\/(?:[^\/\n\s]+\/\S+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
         return m ? m[1] : null;
     }
+
+    // 🛡️ Warranty Tier Management
+    const warrantyWrapper = document.getElementById('warranty-wrapper');
+    const supplierDays = {{ $supplierDays ?? 0 }};
+
+    function updateWarrantyDays(select) {
+        const row = select.closest('.warranty-tier-row');
+        const daysInput = row.querySelector('.warranty-days-input');
+        const type = select.value;
+        if (type === 'none') { daysInput.value = 0; daysInput.readOnly = true; }
+        else if (type === 'supplier_warranty') { daysInput.value = supplierDays; daysInput.readOnly = true; }
+        else { daysInput.readOnly = false; if (daysInput.value == 0) daysInput.value = 90; }
+    }
+
+    function reindexWarrantyRows() {
+        warrantyWrapper.querySelectorAll('.warranty-tier-row').forEach((row, i) => {
+            row.querySelectorAll('select, input').forEach(el => {
+                if (el.name) el.name = el.name.replace(/warranty_tiers\\[\\d+\\]/, 'warranty_tiers[' + i + ']');
+            });
+        });
+    }
+
+    warrantyWrapper.addEventListener('change', function(e) {
+        if (e.target.classList.contains('warranty-type-select')) updateWarrantyDays(e.target);
+    });
+
+    warrantyWrapper.addEventListener('click', function(e) {
+        if (e.target.closest('.btn-remove-warranty')) {
+            const rows = warrantyWrapper.querySelectorAll('.warranty-tier-row');
+            if (rows.length > 1) { e.target.closest('.warranty-tier-row').remove(); reindexWarrantyRows(); }
+        }
+    });
+
+    document.getElementById('add-warranty-tier').addEventListener('click', function() {
+        const rows = warrantyWrapper.querySelectorAll('.warranty-tier-row');
+        const lastRow = rows[rows.length - 1];
+        const clone = lastRow.cloneNode(true);
+        const newIdx = rows.length;
+        clone.querySelectorAll('input').forEach(inp => {
+            inp.value = '';
+            if (inp.classList.contains('warranty-days-input')) { inp.value = 90; inp.readOnly = false; }
+        });
+        clone.querySelectorAll('select').forEach(sel => {
+            if (sel.classList.contains('warranty-type-select')) sel.value = 'extended_warranty';
+            if (sel.name && sel.name.includes('is_active')) sel.value = '1';
+        });
+        reindexWarrantyRows();
+        warrantyWrapper.appendChild(clone);
+    });
+
 })();
 </script>
 @endsection

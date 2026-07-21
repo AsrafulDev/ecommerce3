@@ -523,15 +523,24 @@ public function order_save(Request $request)
         // Order details save
         OrderHelper::saveOrderDetails($order);
 
-        // Stock reduce
-        $details = OrderDetails::where('order_id', $order->id)
-            ->with('product:id,stock')
-            ->get();
-
-        foreach ($details as $row) {
-            if ($row->product) {
-                $row->product->stock = max(0, $row->product->stock - $row->qty);
-                $row->product->save();
+        // 🛡️ Stock reduce — batch-tracked (FIFO/LIFO/Average)
+        $details = OrderDetails::where('order_id', $order->id)->with('product')->get();
+        try {
+            $stockService = app(\App\Services\StockManagementService::class);
+            foreach ($details as $row) {
+                if ($row->product && $row->qty > 0) {
+                    $stockService->stockOut($row->product, $row->qty, [
+                        'type' => 'sale', 'reference_id' => $order->id, 'reference_type' => 'order',
+                    ]);
+                }
+            }
+        } catch (\Throwable $e) {
+            \Log::warning('Batch stock-out failed for order #'.$order->id.': '.$e->getMessage());
+            foreach ($details as $row) {
+                if ($row->product) {
+                    $row->product->stock = max(0, ($row->product->stock ?? 0) - $row->qty);
+                    $row->product->save();
+                }
             }
         }
 

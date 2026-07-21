@@ -427,11 +427,17 @@
                 <div class="pos-products-wrapper">
                     <div class="row">
                         @foreach($products as $p)
-                            @php $img = optional($p->image)->image ?? 'public/no-image.png'; @endphp
+                            @php
+                                $img = optional($p->image)->image ?? 'public/assets/images/no-image.png';
+                                $sw = $p->supplierWarranties()->where('is_transferable',true)->where('warranty_end_date','>',now())->first();
+                            @endphp
                             <div class="col-6 mb-2 pos-product-wrapper" data-name="{{ strtolower($p->name) }}">
                                 <div class="pos-product-card pos-add-product" data-id="{{ $p->id }}">
                                     <span class="pos-stock-badge">Stock: {{ $p->stock}}</span>
-                                    <img src="{{ asset($img) }}" class="pos-product-img" alt="">
+                                    @if($sw)
+                                    <span class="badge bg-success position-absolute" style="top:4px;right:4px;font-size:10px;">🛡️ {{ $sw->remaining_days }}d warranty</span>
+                                    @endif
+                                    <img src="{{ asset($img) }}" onerror="this.src='{{ asset('public/assets/images/no-image.png') }}'" class="pos-product-img" alt="">
                                     <div class="pos-product-name">{{ $p->name }}</div>
                                     <div class="pos-product-price">
                                         TK {{ $p->new_price ?? $p->old_price }}

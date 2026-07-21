@@ -13,7 +13,7 @@ $darkLogo = $siteName->dark_logo ?? null;
 $pendingOrdersCount = \App\Models\Order::where('customer_id', $customerId)
     ->whereNotIn('order_status', ['6', '11'])->count();
 
-$profileImage = $customer->image ? asset($customer->image) : asset('public/uploads/default/no-image.png');
+$profileImage = $customer->image ? asset($customer->image) : asset('public/assets/images/user.webp');
 $totalOrderAmount = \App\Models\Order::where('customer_id', $customerId)->sum('amount');
 
 $complaints = \App\Models\Complaint::where('customer_id', $customerId)
@@ -158,7 +158,7 @@ $complaints = \App\Models\Complaint::where('customer_id', $customerId)
                 <a href="{{ route('complaint') }}" class="bg-indigo-600 hover:bg-indigo-700 text-white text-sm px-4 py-2 rounded-lg font-semibold transition">
                     <i class="fas fa-plus mr-1"></i> {{ __('New Ticket') }}
                 </a>
-                <img src="{{ $profileImage }}" onerror="this.src='{{ asset('public/uploads/default/no-image.png') }}'" class="w-10 h-10 rounded-full border-2 border-white shadow-sm cursor-pointer" alt="Profile">
+                <img src="{{ $profileImage }}" onerror="this.src='{{ asset('public/assets/images/no-image.png') }}'" class="w-10 h-10 rounded-full border-2 border-white shadow-sm cursor-pointer" alt="Profile">
             </div>
         </header>
 

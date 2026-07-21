@@ -775,6 +775,23 @@
 </li>
 @endcanany
 
+{{-- 🛡️ Warranty Management --}}
+<li class="{{ request()->routeIs('admin.warranty.*') ? 'active menuitem-active' : '' }}">
+  <a href="#sidebar-warranty" data-bs-toggle="collapse">
+    <i data-feather="shield"></i>
+    <span> {{ __('Warranty') }} </span>
+    <span class="menu-arrow"></span>
+  </a>
+  <div class="collapse {{ request()->routeIs('admin.warranty.*') ? 'show' : '' }}" id="sidebar-warranty">
+    <ul class="nav-second-level">
+      <li><a href="{{ route('admin.warranty.dashboard') }}"><i data-feather="grid"></i> {{ __('Dashboard') }} </a></li>
+      <li><a href="{{ route('admin.warranty.supplier.index') }}"><i data-feather="truck"></i> {{ __('Supplier Warranties') }} </a></li>
+      <li><a href="{{ route('admin.warranty.sales.index') }}"><i data-feather="shopping-bag"></i> {{ __('Warranty Sales') }} </a></li>
+      <li><a href="{{ route('admin.warranty.claims.index') }}"><i data-feather="tool"></i> {{ __('Claims') }} </a></li>
+    </ul>
+  </div>
+</li>
+
 {{-- ============================================= --}}
 {{--  SECTION 2: PRODUCT CATALOG                   --}}
 {{-- ============================================= --}}
@@ -1006,28 +1023,7 @@
 @endcan
 
 {{-- ============================================= --}}
-{{--  SECTION 6: PROCUREMENT                       --}}
-{{-- ============================================= --}}
-@canany(['purchase-list', 'purchase-create', 'purchase-edit'])
-<li>
-  <a href="{{ route('purchases.index') }}">
-    <i data-feather="file-text"></i>
-    <span> {{ __('Purchases') }} </span>
-  </a>
-</li>
-@endcanany
-
-@canany(['supplier-list', 'supplier-create', 'supplier-edit'])
-<li>
-  <a href="{{ route('admin.suppliers.index') }}">
-    <i data-feather="truck"></i>
-    <span> {{ __('Suppliers') }} </span>
-  </a>
-</li>
-@endcanany
-
-{{-- ============================================= --}}
-{{--  🆕 SECTION 6.5: STOCK MANAGEMENT             --}}
+{{--  🆕 SECTION 6: STOCK & PROCUREMENT            --}}
 {{-- ============================================= --}}
 <li>
   <a href="#sidebar-stock" data-bs-toggle="collapse">
@@ -1038,12 +1034,14 @@
   <div class="collapse" id="sidebar-stock">
     <ul class="nav-second-level">
       <li><a href="{{ route('admin.stock.dashboard') }}"><i data-feather="airplay"></i> {{ __('Dashboard') }}</a></li>
+      <li><a href="{{ route('purchases.index') }}"><i data-feather="file-text"></i> {{ __('Purchases') }}</a></li>
+      <li><a href="{{ route('admin.suppliers.index') }}"><i data-feather="truck"></i> {{ __('Suppliers') }}</a></li>
       <li><a href="{{ route('admin.stock.batches') }}"><i data-feather="layers"></i> {{ __('Batches') }}</a></li>
       <li><a href="{{ route('admin.stock.adjustments') }}"><i data-feather="edit"></i> {{ __('Adjustments') }}</a></li>
       <li><a href="{{ route('admin.stock.valuation') }}"><i data-feather="dollar-sign"></i> {{ __('Valuation') }}</a></li>
-      <li><a href="{{ route('admin.stock.cogs') }}"><i data-feather="trending-down"></i> {{ __('COGS Report') }}</a></li>
-      <li><a href="{{ route('admin.stock.barcode.print') }}"><i data-feather="tag"></i> {{ __('Barcode Labels') }}</a></li>
-      <li><a href="{{ route('admin.stock.supplier-returns') }}"><i data-feather="rotate-ccw"></i> {{ __('Supplier Returns') }}</a></li>
+      <li><a href="{{ route('admin.stock.cogs') }}"><i data-feather="trending-down"></i> {{ __('COGS Report') }} </a></li>
+      <li><a href="{{ route('admin.stock.barcode.print') }}"><i data-feather="tag"></i> {{ __('Barcode Labels') }} </a></li>
+      <li><a href="{{ route('admin.stock.supplier-returns') }}"><i data-feather="rotate-ccw"></i> {{ __('Supplier Returns') }} </a></li>
     </ul>
   </div>
 </li>

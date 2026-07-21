@@ -21,6 +21,8 @@ class OrderDetails extends Model
         'product_size',
         'variant_price_id',
         'product_color',
+        'warranty_tier_id',
+        'warranty_price',
         'qty',
     ];
 
@@ -57,4 +59,10 @@ class OrderDetails extends Model
                     ->select('id', 'product_id', 'image');
     }
 
+    // ── Warranty ──────────────────────────────
+
+    public function warrantySale()
+    {
+        return $this->hasOne(WarrantySale::class, 'order_detail_id');
+    }
 }

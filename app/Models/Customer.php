@@ -47,6 +47,16 @@ class Customer extends Authenticatable
         return $this->hasMany(Order::class, 'customer_id');
     }
 
+    public function warrantySales()
+    {
+        return $this->hasMany(WarrantySale::class, 'customer_id');
+    }
+
+    public function warrantyClaims()
+    {
+        return $this->hasMany(WarrantyClaim::class, 'customer_id');
+    }
+
     /**
      * Get the customer's profile image URL with default fallback
      * 
@@ -55,8 +65,8 @@ class Customer extends Authenticatable
     public function getProfileImageUrlAttribute()
     {
         $image = $this->attributes['image'] ?? null;
-        $defaultImage = 'public/uploads/default/user.png';
-        $fallbackImage = 'public/uploads/default/no-image.png';
+        $defaultImage = 'public/assets/images/user.webp';
+        $fallbackImage = 'public/assets/images/no-image.png';
         
         // If image is empty or doesn't exist, use default
         if (empty($image) || !file_exists(public_path($image))) {

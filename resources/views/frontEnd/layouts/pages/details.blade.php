@@ -294,7 +294,7 @@ if (typeof ttq !== 'undefined') {
                                             </div>
                                             {{-- ⭐⭐ Product Type End ⭐⭐ --}}
 
-                                            {{-- ⭐⭐ Wholesale Pricing Tiers - Simple Clean Design ⭐⭐ --}}
+                                            {{-- ⭐⭐ Wholesale Pricing Tiers ⭐⭐ --}}
                                             @if($details->is_wholesale && $details->wholesalePrices && $details->wholesalePrices->count() > 0)
                                             @php
                                                 $hasVarPricing = $details->variantPrices->count() > 0 && $details->wholesalePrices->whereNotNull('variant_id')->count() > 0;
@@ -308,7 +308,7 @@ if (typeof ttq !== 'undefined') {
                                                         <thead style="background: #f8f9fa;">
                                                             <tr>
                                                                 <th style="padding: 12px; font-size: 14px; font-weight: 600;">{{ __('Quantity') }}</th>
-                                                                <th style="padding: 12px; font-size: 14px; font-weight: 600;">{{ __('Price') }}</th>
+                                                                <th style="padding: 12px; font-size: 14px; font-weight: 600;">{{ __('Discount') }}</th>
                                                                 <th style="padding: 12px; font-size: 14px; font-weight: 600;">{{ __('Stock') }}</th>
                                                             </tr>
                                                         </thead>
@@ -323,8 +323,8 @@ if (typeof ttq !== 'undefined') {
                                                                 <td style="padding: 12px; font-size: 14px;">
                                                                     {{ $tier->min_quantity }}{{ $tier->max_quantity ? ' - ' . $tier->max_quantity : '+' }} pcs
                                                                 </td>
-                                                                <td style="padding: 12px; font-size: 14px; font-weight: 600; color: #28a745;">
-                                                                    ৳{{ number_format($tier->wholesale_price, 2) }}
+                                                                <td style="padding: 12px; font-size: 14px; font-weight: 600; color: #dc3545;">
+                                                                    − ৳{{ number_format($tier->wholesale_price, 2) }}
                                                                 </td>
                                                                 <td style="padding: 12px; font-size: 14px; color: {{ ($tier->stock ?? 0) > 0 ? '#28a745' : '#dc3545' }};">
                                                                     {{ $tier->stock ?? 0 }} pcs
@@ -335,7 +335,7 @@ if (typeof ttq !== 'undefined') {
                                                     </table>
                                                 </div>
                                                 <p class="text-muted mt-2 mb-0" style="font-size: 12px;">
-                                                    <i class="fa fa-info-circle me-1"></i> Quantity select করলে wholesale price automatically apply হবে
+                                                    <i class="fa fa-info-circle me-1"></i> Quantity select করলে wholesale discount automatically apply হবে
                                                 </p>
                                             </div>
                                             @endif
@@ -363,7 +363,7 @@ if (typeof ttq !== 'undefined') {
                     <div class="selector">
                         @foreach ($productcolors as $procolor)
                             <div class="selector-item">
-                                {{-- ✅ এখন color_id পাঠানো হচ্ছে (নাম নয়) --}}
+                                {{-- ✅ এখন color_id পাঠানো হচ্ছে (নাম নয়) --}}
                                 <input type="radio"
                                     id="fc-option{{ $procolor->id }}"
                                     value="{{ $procolor->id }}"
@@ -427,6 +427,10 @@ if (typeof ttq !== 'undefined') {
                                                                 {{ $details->brand ? $details->brand->name : 'N/A' }}
                                                             </p>
                                                         </div>
+
+                                                        {{-- 🛡️ Warranty Selector --}}
+                                                        @include('frontEnd.layouts.sections.warranty-selector', ['product' => $details])
+                                                        <input type="hidden" name="warranty_tier_id" id="warranty-tier-input" value="">
 
                                                         <div class="row">
                                                             <div class="qty-cart col-sm-12">
@@ -641,9 +645,10 @@ if (typeof ttq !== 'undefined') {
                                         <span class="sale-badge-text">
                                             <p>@php $discount=(((($value->old_price)-($value->new_price))*100) / ($value->old_price)) @endphp 
                                                {{ number_format($discount, 0) }}%</p>{{ __('Sale') }}</span>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
                             @endif
 
                             <div class="pro_img">
@@ -828,19 +833,39 @@ if (typeof ttq !== 'undefined') {
             });
         }
 
-        // ✅ update UI
+        // ✅ Step 1: Product sale price (new_price is the current sale price)
         let basePrice = parseFloat({{ $details->new_price }});
-        if (match && match.price !== undefined && match.price !== null) {
-            // Variant price is the actual price for this color/size combination
+
+        // ✅ Step 2: If variant selected AND has its own price, use variant price; else keep product sale price
+        if (match && match.price !== undefined && match.price !== null && parseFloat(match.price) > 0) {
             basePrice = parseFloat(match.price);
         }
 
-        // Store base price for wholesale tier fallback
         window._currentBasePrice = basePrice;
+        window._selectedVariantId = match ? match.id : null;
 
-        // Apply wholesale price if applicable (handled by updatePriceBasedOnQuantity below)
-        
-        $('#newPrice').text('৳' + basePrice.toFixed(2));
+        updateDisplayPrice();
+    }
+
+    // ✅ Unified price display pipeline: base → variant → wholesale discount → warranty adjustment
+    function updateDisplayPrice() {
+        let price = window._currentBasePrice || parseFloat({{ $details->new_price }});
+        let breakdown = '৳' + price.toFixed(2);
+
+        // Step 3: Apply wholesale discount if quantity matches a tier
+        if (window._currentWholesaleDiscount > 0) {
+            price = Math.max(0, price - window._currentWholesaleDiscount);
+            breakdown += ' − ৳' + window._currentWholesaleDiscount.toFixed(2) + ' (wholesale)';
+        }
+
+        // Step 4: Apply warranty adjustment (±)
+        if (window._currentWarrantyAdjustment !== undefined && window._currentWarrantyAdjustment !== 0) {
+            price += window._currentWarrantyAdjustment;
+            breakdown += (window._currentWarrantyAdjustment >= 0 ? ' + ৳' : ' − ৳') + Math.abs(window._currentWarrantyAdjustment).toFixed(2) + ' (warranty)';
+        }
+
+        $('#newPrice').text('৳' + price.toFixed(2));
+        window._finalPrice = price;
     }
     
     // Call on page load if color/size is already selected
@@ -1267,26 +1292,23 @@ if (typeof ttq !== 'undefined') {
 
         function updatePriceBasedOnQuantity() {
             var qty = parseInt($("input[name='qty']").val()) || 1;
-            // Use stored base price (set by updateVariantPrice) as fallback, not DOM price
             var fallbackPrice = (typeof window._currentBasePrice !== 'undefined' && window._currentBasePrice > 0)
                 ? window._currentBasePrice : productBasePrice;
-            var selectedPrice = fallbackPrice;
-            var matchedTier = null;
             var currentVariantId = $('#selected-variant-id').val();
+            window._currentWholesaleDiscount = 0;
 
             // Filter tiers: show global (variant_id=0) OR matching variant
-            // When no variant selected, show only global tiers
             var visibleTiers = wholesaleTiers.filter(function(t) {
                 if (hasVariantPricing) {
                     if (currentVariantId) {
                         return t.variant_id == 0 || t.variant_id == currentVariantId;
                     }
-                    return t.variant_id == 0; // only global when no variant selected
+                    return t.variant_id == 0;
                 }
-                return true; // simple product — show all
+                return true;
             });
 
-            // Show/hide tier rows based on variant match
+            // Show/hide tier rows
             $('.wholesale-tier-row').each(function() {
                 var rowVariantId = parseInt($(this).data('variant-id'));
                 var show = true;
@@ -1294,34 +1316,26 @@ if (typeof ttq !== 'undefined') {
                     if (currentVariantId) {
                         show = (rowVariantId == 0 || rowVariantId == currentVariantId);
                     } else {
-                        show = (rowVariantId == 0); // only global when no variant
+                        show = (rowVariantId == 0);
                     }
                 }
                 $(this).toggle(show);
             });
 
-            // Sort: variant-specific first, then by min_quantity DESC (best tier for qty)
-            visibleTiers.sort(function(a, b) {
-                if (a.variant_id == 0 && b.variant_id != 0) return 1;  // global after specific
-                if (a.variant_id != 0 && b.variant_id == 0) return -1;  // specific first
-                return b.min_quantity - a.min_quantity;  // highest min first
-            });
+            // Sort: highest min_quantity first
+            visibleTiers.sort(function(a, b) { return b.min_quantity - a.min_quantity; });
 
-            // Find matching wholesale tier from filtered list
+            // Find matching tier — wholesale_price is the DISCOUNT amount to subtract
             for (var i = 0; i < visibleTiers.length; i++) {
                 if (qty >= visibleTiers[i].min_quantity && qty <= visibleTiers[i].max_quantity) {
-                    selectedPrice = visibleTiers[i].price;
-                    matchedTier = visibleTiers[i];
+                    window._currentWholesaleDiscount = parseFloat(visibleTiers[i].price) || 0;
                     break;
                 }
             }
 
-            // Update price display
-            $('#newPrice').text('৳' + selectedPrice.toFixed(2));
-
-            // Highlight matching tier row
+            // Highlight matching tier
             $('.wholesale-tier-row').removeClass('active-tier');
-            if (matchedTier) {
+            if (window._currentWholesaleDiscount > 0) {
                 $('.wholesale-tier-row:visible').each(function() {
                     var minQty = parseInt($(this).data('min-qty'));
                     var maxQty = parseInt($(this).data('max-qty'));
@@ -1330,6 +1344,8 @@ if (typeof ttq !== 'undefined') {
                     }
                 });
             }
+
+            updateDisplayPrice();
         }
 
         // Update price when quantity changes

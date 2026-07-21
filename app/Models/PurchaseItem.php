@@ -25,4 +25,9 @@ class PurchaseItem extends Model
     {
         return $this->belongsTo(\App\Models\ProductVariantPrice::class, 'variant_price_id');
     }
+
+    public function supplierWarranties()
+    {
+        return $this->hasMany(SupplierWarranty::class, 'purchase_item_id');
+    }
 }

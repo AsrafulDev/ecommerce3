@@ -444,9 +444,16 @@ Route::group(['prefix'=>'customer','namespace'=>'Frontend','middleware' => ['cus
     // Customer Complaints (Support Tickets)
     Route::get('/complaints', [CustomerController::class, 'complaints'])->name('customer.complaints');
     
-});
+    // ── Warranty ──────────────────────────────
+    Route::get('/warranty-claim/{warranty_sale_id}', fn($id) => view('frontEnd.layouts.customer.file-warranty-claim', ['warranty_sale_id' => $id]))
+        ->name('customer.warranty.claim');
+    Route::post('/warranty-claim', [App\Http\Controllers\Api\WarrantyApiController::class, 'fileClaimWeb'])
+        ->name('customer.warranty.submit-claim');
+    Route::get('/warranty-track/{claim_id}', fn($id) => view('frontEnd.layouts.customer.track-warranty-claim', ['claim_id' => $id]))
+        ->name('customer.warranty.track');
+    Route::post('/warranty-cancel', [App\Http\Controllers\Api\WarrantyApiController::class, 'cancelClaimWeb'])
+        ->name('customer.warranty.cancel-claim');
 
-Route::group(['namespace'=>'Frontend', 'middleware' => ['ipcheck','check_refer']], function() {
         // Contact page
     Route::get('site/contact-us', [FrontendController::class, 'contact'])
         ->name('contact');
@@ -477,6 +484,19 @@ Route::group(['namespace'=>'Admin','prefix'=>'admin','middleware' => ['customer'
 // ajax route
 Route::get('/ajax-product-subcategory', [ProductController::class, 'getSubcategory']);
 Route::get('/ajax-product-childcategory', [ProductController::class, 'getChildcategory']);
+Route::get('/admin/products/{id}/variants', function($id) {
+    $variants = \App\Models\ProductVariantPrice::where('product_id', $id)
+        ->with(['color', 'size'])
+        ->get()
+        ->map(fn($v) => [
+            'id' => $v->id,
+            'color_name' => $v->color->colorName ?? $v->color->name ?? null,
+            'size_name' => $v->size->sizeName ?? $v->size->name ?? null,
+            'stock' => $v->stock ?? 0,
+            'price' => $v->price ?? 0,
+        ]);
+    return response()->json($variants);
+})->name('admin.product.variants');
 
 // auth route
 // admin route group
@@ -1118,5 +1138,31 @@ Route::get('dashboard', [DashboardController::class, 'dashboard'])->name('admin.
     Route::post('refunds/{id}/reject', [\App\Http\Controllers\Admin\RefundController::class, 'reject'])->name('admin.refunds.reject');
     Route::post('refunds/{id}/process', [\App\Http\Controllers\Admin\RefundController::class, 'process'])->name('admin.refunds.process');
     Route::delete('refunds/{id}', [\App\Http\Controllers\Admin\RefundController::class, 'destroy'])->name('admin.refunds.destroy');
+
+    // ═══════════════════════════════════════════
+    // 🛡️ WARRANTY MANAGEMENT (Admin Web)
+    // ═══════════════════════════════════════════
+    Route::prefix('warranty')->name('admin.warranty.')->group(function () {
+        Route::get('dashboard', [App\Http\Controllers\Admin\WarrantyController::class, 'dashboard'])->name('dashboard');
+
+        // Supplier warranties
+        Route::get('supplier', [App\Http\Controllers\Admin\WarrantyController::class, 'supplierIndex'])->name('supplier.index');
+        Route::post('supplier', [App\Http\Controllers\Admin\WarrantyController::class, 'supplierStore'])->name('supplier.store');
+
+        // Product tiers (listing only — editing now in product edit page)
+        Route::get('tiers', [App\Http\Controllers\Admin\WarrantyController::class, 'tierIndex'])->name('tiers.index');
+
+        // Sales
+        Route::get('sales', [App\Http\Controllers\Admin\WarrantyController::class, 'salesIndex'])->name('sales.index');
+        Route::get('sales/{warrantySale}', [App\Http\Controllers\Admin\WarrantyController::class, 'salesShow'])->name('sales.show');
+        Route::post('sales/{warrantySale}/void', [App\Http\Controllers\Admin\WarrantyController::class, 'salesVoid'])->name('sales.void');
+
+        // Claims
+        Route::get('claims', [App\Http\Controllers\Admin\WarrantyController::class, 'claimsIndex'])->name('claims.index');
+        Route::get('claims/{warrantyClaim}', [App\Http\Controllers\Admin\WarrantyController::class, 'claimsShow'])->name('claims.show');
+        Route::post('claims/{warrantyClaim}/{action}', [App\Http\Controllers\Admin\WarrantyController::class, 'claimsAction'])->name('claims.action');
+        Route::post('claims/{warrantyClaim}/reject', [App\Http\Controllers\Admin\WarrantyController::class, 'claimsReject'])->name('claims.reject');
+        Route::post('claims/{warrantyClaim}/note', [App\Http\Controllers\Admin\WarrantyController::class, 'claimsAddNote'])->name('claims.note');
+    });
 
 });

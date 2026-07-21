@@ -1,10 +1,12 @@
 @foreach($cartinfo as $key=>$value)
 <tr>
-  <td><img height="30" src="{{asset($value->options->image)}}"></td>
+  <td><img height="30" src="{{asset($value->options->image)}}" onerror="this.src='{{ asset('public/assets/images/no-image.png') }}'"></td>
   <td>
       <div class="fw-semibold">{{$value->name}}</div>
         @php
             $product = \App\Models\Product::find($value->id);
+            $warrantyTiers = $product ? \App\Models\ProductWarrantyTier::where('product_id', $product->id)->where('is_active', true)->orderBy('sort_order')->get() : collect();
+            $currentWarrantyId = $value->options->warranty_tier_id ?? '';
             $sizesList = collect();
             $colorsList = collect();
             if ($product) {
@@ -51,6 +53,38 @@
                 </select>
             </div>
             @endif
+        </div>
+        @endif
+
+        {{-- 🛡️ Warranty --}}
+        @if($warrantyTiers->isNotEmpty())
+        <div class="mt-1">
+            <label class="form-label small text-muted mb-0" style="font-size:11px">{{ __('Warranty') }}</label>
+            <select class="form-select form-select-sm cart-warranty-selector" data-id="{{ $value->rowId }}" style="min-width:130px;font-size:11px;">
+                @foreach($warrantyTiers as $wt)
+                    @php $adj = (float)($wt->additional_cost ?? 0); @endphp
+                    <option value="{{ $wt->id }}" {{ $currentWarrantyId == $wt->id ? 'selected' : '' }}>
+                        {{ $wt->warranty_days > 0 ? $wt->tier_name.' ('.$wt->warranty_days.'d)' : $wt->tier_name }}
+                        {{ $adj != 0 ? ($adj > 0 ? '+'.$adj : $adj).' TK' : '' }}
+                    </option>
+                @endforeach
+            </select>
+        </div>
+        @endif
+
+        {{-- 📦 Batch --}}
+        @php $batches = $product ? \App\Models\StockBatch::where('product_id', $product->id)->where('remaining_qty', '>', 0)->orderBy('id','asc')->get() : collect(); @endphp
+        @if($batches->isNotEmpty())
+        <div class="mt-1">
+            <label class="form-label small text-muted mb-0" style="font-size:11px">{{ __('Batch') }} <small>({{ $batches->sum('remaining_qty') }} avail)</small></label>
+            <select class="form-select form-select-sm cart-batch-selector" data-id="{{ $value->rowId }}" style="min-width:120px;font-size:11px;">
+                <option value="">{{ __('Auto') }}</option>
+                @foreach($batches as $b)
+                    <option value="{{ $b->id }}" {{ ($value->options->batch_id ?? '') == $b->id ? 'selected' : '' }}>
+                        {{ $b->batch_no ?: 'Batch #'.$b->id }} ({{ $b->remaining_qty }} @ ৳{{ $b->unit_cost }})
+                    </option>
+                @endforeach
+            </select>
         </div>
         @endif
   </td>

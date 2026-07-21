@@ -29,4 +29,14 @@ class Purchase extends Model
     {
         return $this->hasMany(SupplierPayment::class);
     }
+
+    public function supplierWarranties()
+    {
+        return $this->hasManyThrough(
+            SupplierWarranty::class,
+            PurchaseItem::class,
+            'purchase_id',
+            'purchase_item_id'
+        );
+    }
 }

@@ -352,15 +352,15 @@ class ProductController extends Controller
         }
 
         // WHOLESALE PRICING TIERS
-        if ($input['is_wholesale'] && $request->wholesale_price && is_array($request->wholesale_price)) {
-            foreach ($request->wholesale_price as $tier) {
+        if ($input['is_wholesale'] && $request->wholesale_discount && is_array($request->wholesale_discount)) {
+            foreach ($request->wholesale_discount as $tier) {
                 if (!empty($tier['min_quantity']) && !empty($tier['wholesale_price'])) {
                     ProductWholesalePrice::create([
                         'product_id'      => $product->id,
                         'variant_id'      => $tier['variant_id'] ?? null,
                         'min_quantity'    => $tier['min_quantity'],
                         'max_quantity'    => $tier['max_quantity'] ?? null,
-                        'wholesale_price' => $tier['wholesale_price'],
+                        'wholesale_price' => $tier['wholesale_price'] ?? 0,
                         'stock'           => $tier['stock'] ?? 0,
                     ]);
                 }
@@ -410,6 +410,9 @@ class ProductController extends Controller
             'selectcolors'  => Productcolor::where('product_id', $id)->get(),
             'selectsizes'   => Productsize::where('product_id', $id)->get(),
             'wholesalePrices' => \App\Models\ProductWholesalePrice::where('product_id', $id)->get(),
+            'warrantyTiers'  => \App\Models\ProductWarrantyTier::where('product_id', $id)->get(),
+            'supplierWarranty' => \App\Models\SupplierWarranty::where('product_id', $id)
+                ->where('is_transferable', true)->where('warranty_end_date', '>', now())->first(),
         ]);
     }
 
@@ -423,6 +426,7 @@ class ProductController extends Controller
             'category_id'    => 'required',
             'new_price'      => 'nullable|numeric|min:0',
             'purchase_price' => 'nullable|numeric|min:0',
+            'supplier_price' => 'nullable|numeric|min:0',
             'stock'          => 'nullable|integer|min:0',
             'description'    => 'required',
             'reseller_price' => 'nullable|numeric|min:0',
@@ -440,6 +444,14 @@ class ProductController extends Controller
             'wholesale_price.*.min_quantity' => 'nullable|integer|min:1',
             'wholesale_price.*.max_quantity' => 'nullable|integer|min:1',
             'wholesale_price.*.wholesale_price' => 'nullable|numeric|min:0',
+
+            // 🛡️ Warranty tiers
+            'warranty_tiers'       => 'nullable|array',
+            'warranty_tiers.*.variant_id'     => 'nullable|integer',
+            'warranty_tiers.*.warranty_type' => 'required_with:warranty_tiers|in:none,supplier_warranty,extended_warranty',
+            'warranty_tiers.*.warranty_days' => 'nullable|integer|min:0',
+            'warranty_tiers.*.additional_cost' => 'nullable|numeric',
+            'warranty_tiers.*.is_active'     => 'nullable',
 
             // 🆕 Barcode & Stock Management
             'barcode'              => 'nullable|string|max:255|unique:products,barcode,' . $request->id,
@@ -460,6 +472,7 @@ class ProductController extends Controller
             'variant_price',
             'variant_image',
             'wholesale_price',
+            'warranty_tiers',
             'digital_file',
             'proSize',
             'proColor',
@@ -652,16 +665,43 @@ class ProductController extends Controller
         // WHOLESALE PRICING TIERS UPDATE
         ProductWholesalePrice::where('product_id', $product->id)->delete();
 
-        if ($input['is_wholesale'] && $request->wholesale_price && is_array($request->wholesale_price)) {
-            foreach ($request->wholesale_price as $tier) {
+        if ($input['is_wholesale'] && $request->wholesale_discount && is_array($request->wholesale_discount)) {
+            foreach ($request->wholesale_discount as $tier) {
                 if (!empty($tier['min_quantity']) && !empty($tier['wholesale_price'])) {
                     ProductWholesalePrice::create([
                         'product_id'      => $product->id,
                         'variant_id'      => $tier['variant_id'] ?? null,
                         'min_quantity'    => $tier['min_quantity'],
                         'max_quantity'    => $tier['max_quantity'] ?? null,
-                        'wholesale_price' => $tier['wholesale_price'],
+                        'wholesale_price' => $tier['wholesale_price'] ?? 0,
                         'stock'           => $tier['stock'] ?? 0,
+                    ]);
+                }
+            }
+        }
+
+        // 🛡️ WARRANTY TIERS — delete all and recreate
+        \App\Models\ProductWarrantyTier::where('product_id', $product->id)->delete();
+        if ($request->warranty_tiers && is_array($request->warranty_tiers)) {
+            foreach ($request->warranty_tiers as $i => $tier) {
+                if (!empty($tier['warranty_type'])) {
+                    $days = (int) ($tier['warranty_days'] ?? 0);
+                    $type = $tier['warranty_type'];
+                    $tierName = match ($type) {
+                        'none'              => 'No Warranty',
+                        'supplier_warranty' => $days > 0 ? "Supplier Warranty ({$days} Days)" : 'Supplier Warranty',
+                        'extended_warranty' => $days > 0 ? "Extended Warranty ({$days} Days)" : 'Extended Warranty',
+                        default             => 'Warranty',
+                    };
+                    \App\Models\ProductWarrantyTier::create([
+                        'product_id'      => $product->id,
+                        'variant_id'      => $tier['variant_id'] ?? null,
+                        'tier_name'       => $tierName,
+                        'warranty_type'   => $type,
+                        'warranty_days'   => $days,
+                        'additional_cost' => $tier['additional_cost'] ?? 0,
+                        'is_active'       => isset($tier['is_active']),
+                        'sort_order'      => $i,
                     ]);
                 }
             }

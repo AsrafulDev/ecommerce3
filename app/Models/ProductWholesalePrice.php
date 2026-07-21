@@ -21,11 +21,11 @@ class ProductWholesalePrice extends Model
     protected function casts(): array
     {
         return [
-            'variant_id'     => 'integer',
-            'min_quantity'   => 'integer',
-            'max_quantity'   => 'integer',
+            'variant_id'      => 'integer',
+            'min_quantity'    => 'integer',
+            'max_quantity'    => 'integer',
             'wholesale_price' => 'decimal:2',
-            'stock'          => 'integer',
+            'stock'           => 'integer',
         ];
     }
 

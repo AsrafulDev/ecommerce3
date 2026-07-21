@@ -38,7 +38,7 @@ $recommendedProducts = Product::where('status', 1)
 $totalOrderAmount = Order::where('customer_id', $customerId)->sum('amount');
 
 // Profile Image - Use direct image path
-$profileImage = $customer->image ? asset($customer->image) : asset('public/uploads/default/no-image.png');
+$profileImage = $customer->image ? asset($customer->image) : asset('public/assets/images/user.webp');
 
 // Pending Orders Count for Badge
 $pendingOrdersCount = Order::where('customer_id', $customerId)
@@ -221,6 +221,9 @@ $darkLogo = $siteName->dark_logo ?? null;
             <a href="{{ route('customer.complaints') }}" class="{{ request()->is('customer/complaints*') ? 'active-menu' : 'sidebar-item' }} flex items-center px-6 py-3.5 transition-colors">
                 <i class="fas fa-headset w-6"></i> {{ __('Support Ticket') }}
             </a>
+            <a href="{{route('customer.account') }}#warranties" class="sidebar-item flex items-center px-6 py-3.5 transition-colors" onclick="document.getElementById('warranty-section')?.scrollIntoView({behavior:'smooth'}); return false;">
+                <i class="fas fa-shield-alt w-6"></i> {{ __('My Warranties') }}
+            </a>
             <a href="{{route('customer.profile_edit')}}" class="{{request()->is('customer/profile-edit')?'active-menu':'sidebar-item'}} flex items-center px-6 py-3.5 transition-colors">
                 <i class="fas fa-user-cog w-6"></i> {{ __('Settings') }}
             </a>
@@ -259,7 +262,7 @@ $darkLogo = $siteName->dark_logo ?? null;
                     <i class="far fa-bell text-gray-600"></i>
                 </div>
 
-                <img src="{{ $profileImage }}" onerror="this.src='{{ asset('public/uploads/default/no-image.png') }}'" class="w-10 h-10 rounded-full border-2 border-white shadow-sm cursor-pointer" alt="Profile">
+                <img src="{{ $profileImage }}" onerror="this.src='{{ asset('public/assets/images/user.webp') }}'" class="w-10 h-10 rounded-full border-2 border-white shadow-sm cursor-pointer" alt="Profile">
             </div>
         </header>
 
@@ -397,7 +400,7 @@ $darkLogo = $siteName->dark_logo ?? null;
                         <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden group hover:shadow-lg transition-all duration-300 product-card-hover">
                             <div class="product-image-container relative">
                                 <a href="{{ route('product', $product->slug ?? $product->id) }}" class="block w-full h-full">
-                                    <img src="{{ asset($product->image->image ?? 'public/uploads/default/no-image.png') }}" onerror="this.src='{{ asset('public/uploads/default/no-image.png') }}'" class="group-hover:scale-105 transition duration-500" alt="{{ $product->name }}">
+                                    <img src="{{ asset($product->image->image ?? 'public/assets/images/no-image.png') }}" onerror="this.src='{{ asset('public/assets/images/no-image.png') }}'" class="group-hover:scale-105 transition duration-500" alt="{{ $product->name }}">
                                 </a>
                                 @if($discount > 0)
                                     <span class="absolute top-1.5 left-1.5 sm:top-2 sm:left-2 bg-indigo-600 text-white text-[9px] sm:text-xs px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full shadow-md font-bold z-10">{{ $discount }}% OFF</span>
@@ -441,6 +444,11 @@ $darkLogo = $siteName->dark_logo ?? null;
                 </div>
             </div>
             @endif
+
+            {{-- 🛡️ My Warranties Section --}}
+            <div id="warranty-section" class="mt-8">
+                @include('frontEnd.layouts.customer.my-warranties')
+            </div>
 
         </div>
     </main>

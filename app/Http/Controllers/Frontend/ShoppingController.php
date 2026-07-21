@@ -260,7 +260,19 @@ if ($price <= 0) {
     $price = (float) ($product->new_price ?? $product->old_price ?? 1);
 }
 
-// 🟢 WHOLESALE PRICING — apply if product is wholesale enabled
+// 🛡️ WARRANTY — apply adjustment (NOT replacement)
+$warrantyTier = null;
+$warrantyAdjustment = 0;
+$wholesaleDiscount = 0;
+if ($request->filled('warranty_tier_id')) {
+    $warrantyTier = \App\Models\ProductWarrantyTier::find($request->warranty_tier_id);
+    if ($warrantyTier && $warrantyTier->is_active) {
+        $warrantyAdjustment = (float) ($warrantyTier->additional_cost ?? 0);
+        $price += $warrantyAdjustment;
+    }
+}
+
+// �🟢 WHOLESALE PRICING — apply if product is wholesale enabled
 if ($product->is_wholesale) {
     $qty = (int) ($request->qty ?? 1);
 
@@ -289,7 +301,8 @@ if ($product->is_wholesale) {
     }
 
     if ($wholesaleTier) {
-        $price = (float) $wholesaleTier->wholesale_price;
+        $wholesaleDiscount = (float) ($wholesaleTier->wholesale_price ?? 0);
+        $price -= $wholesaleDiscount;
     }
 }
 
@@ -321,6 +334,12 @@ if ($product->is_wholesale) {
 
                 // 🔥 Free Delivery flag
                 'free_delivery'  => (int) ($product->free_delivery ?? 0),
+
+                // 🛡️ Warranty
+                'warranty_tier_id'    => $request->warranty_tier_id ?? null,
+                'warranty_adjustment' => $warrantyAdjustment,
+                'base_price'         => $product->new_price ?? $product->old_price ?? 0,
+                'wholesale_discount' => $wholesaleDiscount,
             ],
         ]);
 

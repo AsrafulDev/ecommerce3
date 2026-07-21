@@ -65,8 +65,35 @@
                                         <td>
                                             <img height="30" src="{{asset($value->options->image)}}" alt="" />
                                         </td>
-                                        <td class="cart_name">{{$value->name}}</td>
-                                        <td>{{$value->price}} ৳</td>
+                                        <td class="cart_name">
+                                            {{$value->name}}
+                                            @php
+                                                $wholesaleDisc = $value->options->wholesale_discount ?? 0;
+                                                $warrantyAdj = $value->options->warranty_adjustment ?? 0;
+                                                $baseP = $value->options->base_price ?? $value->price;
+                                            @endphp
+                                            @if($wholesaleDisc > 0)
+                                                <br><small class="text-danger">− ৳{{ number_format($wholesaleDisc, 0) }} (wholesale discount)</small>
+                                            @endif
+                                            @if($value->options->warranty_tier_id ?? null)
+                                                @php
+                                                    $wt = \App\Models\ProductWarrantyTier::find($value->options->warranty_tier_id);
+                                                @endphp
+                                                @if($wt)
+                                                    <br><small class="{{ $warrantyAdj < 0 ? 'text-danger' : 'text-success' }}">
+                                                        🛡️ {{ $wt->tier_name }} ({{ $warrantyAdj > 0 ? '+' : '' }}{{ $warrantyAdj }} TK)
+                                                    </small>
+                                                @endif
+                                            @endif
+                                        </td>
+                                        <td>
+                                            @if($wholesaleDisc > 0 || $warrantyAdj != 0)
+                                                <small class="text-muted text-decoration-line-through">৳{{ number_format($baseP, 0) }}</small>
+                                                <br><strong>৳{{ number_format($value->price, 0) }}</strong>
+                                            @else
+                                                {{$value->price}} ৳
+                                            @endif
+                                        </td>
                                         <td>
                                             <div class="qty-cart vcart-qty">
                                                 <div class="quantity">

@@ -27,7 +27,7 @@
         $paid_amount = $payment->amount;
     }
 
-    // ২. COD ফিক্স: COD হলে এবং অর্ডার কমপ্লিট না হলে টাকা ০ দেখাবে (ভুল এড়াতে)
+    // ২. COD ফিক্স: COD হলে এবং অর্ডার কমপ্লিট না হলে টাকা ০ দেখাবে (ভুল এড়াতে)
     $is_cod = in_array($payment_method, ['cod', 'cash', 'cash_on_delivery', 'hand cash']);
     $is_order_completed = in_array($order_status, ['completed', 'delivered']) || in_array($admin_status, ['completed', 'delivered']);
 
@@ -209,6 +209,22 @@
                                     @endphp
                                     @if($sizeDisplay) <small>Size: {{ $sizeDisplay }}</small> @endif
                                     @if($colorDisplay) <small>Color: {{ $colorDisplay }}</small> @endif
+                                    {{-- 🛡️ Warranty --}}
+                                    @if($value->warranty_tier_id)
+                                        @php
+                                            $wt = \App\Models\ProductWarrantyTier::find($value->warranty_tier_id);
+                                            $ws = \App\Models\WarrantySale::where('order_detail_id', $value->id)->first();
+                                        @endphp
+                                        @if($wt && $wt->warranty_days > 0)
+                                            <br><small class="text-success">
+                                                🛡️ {{ $wt->tier_name }} ({{ $wt->warranty_days }} Days)
+                                                @if($ws && $ws->warranty_end_date)
+                                                    — Expires: {{ $ws->warranty_end_date->format('d M, Y') }}
+                                                    ({{ max(0, (int) now()->diffInDays($ws->warranty_end_date)) }} days left)
+                                                @endif
+                                            </small>
+                                        @endif
+                                    @endif
                                 </td>
                                 <td>৳{{$value->sale_price}}</td>
                                 <td>{{$value->qty}}</td>
