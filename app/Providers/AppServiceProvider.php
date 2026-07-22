@@ -13,7 +13,57 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        // 🔧 Auto-create required storage directories (framework + logs)
+        $dirs = [
+            storage_path('framework/views'),
+            storage_path('framework/cache/data'),
+            storage_path('framework/sessions'),
+            storage_path('logs'),
+            storage_path('app/public'),
+            storage_path('app/private/digital-products'),
+            storage_path('app/updates'),
+            storage_path('app/updates/backups'),
+        ];
+        foreach ($dirs as $dir) {
+            if (!is_dir($dir)) {
+                @mkdir($dir, 0755, true);
+            }
+        }
+
+        // 🔗 Auto-create public/storage symlink if missing
+        $publicStorage = public_path('storage');
+        if (!is_dir($publicStorage) && !is_link($publicStorage)) {
+            @symlink(storage_path('app/public'), $publicStorage);
+        }
+
+        // 📁 Auto-create public upload directories (all file upload targets)
+        $publicDirs = [
+            'uploads',
+            'uploads/banner',
+            'uploads/blogs',
+            'uploads/brand',
+            'uploads/campaign',
+            'uploads/category',
+            'uploads/customer',
+            'uploads/images',
+            'uploads/popup',
+            'uploads/product',
+            'uploads/product/meta',
+            'uploads/section-previews',
+            'uploads/settings',
+            'uploads/subcategory',
+            'uploads/themes',
+            'uploads/users',
+            'uploads/wholesale_products',
+            'uploads/wholesale_products/meta',
+            'complaints',
+        ];
+        foreach ($publicDirs as $dir) {
+            $path = public_path($dir);
+            if (!is_dir($path)) {
+                @mkdir($path, 0755, true);
+            }
+        }
     }
 
     /**
