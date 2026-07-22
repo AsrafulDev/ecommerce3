@@ -33,7 +33,7 @@
                                    <p><strong>Total Amount:</strong> ৳{{ number_format($order->amount, 2) }}</p>
                                    <p><strong>Shipping Charge:</strong> ৳{{ number_format($order->shipping_charge, 2) }}</p>
                                    <p><strong>Grand Total:</strong> 
-                                       <strong class="text-primary">৳{{ number_format($order->amount + $order->shipping_charge, 2) }}</strong>
+                                       <strong class="text-primary">৳{{ number_format($order->amount, 2) }}</strong>
                                    </p>
                                </div>
                            </div>
@@ -78,12 +78,12 @@
                                               class="form-control @error('amount') is-invalid @enderror" 
                                               id="amount" 
                                               name="amount" 
-                                              value="{{ old('amount', $order->amount) }}" 
+                                              value="{{ old('amount', $order->amount - $order->shipping_charge) }}" 
                                               min="1" 
-                                              max="{{ $order->amount }}" 
+                                              max="{{ $order->amount - $order->shipping_charge }}" 
                                               step="0.01" 
                                               required>
-                                       <small class="text-muted">Maximum: ৳{{ number_format($order->amount, 2) }}</small>
+                                       <small class="text-muted">Maximum: ৳{{ number_format($order->amount - $order->shipping_charge, 2) }}</small>
                                        @error('amount')
                                            <div class="invalid-feedback">{{ $message }}</div>
                                        @enderror

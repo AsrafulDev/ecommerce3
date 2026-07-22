@@ -248,9 +248,11 @@
                             <tr>
                                 <th>{{ __('SL') }}</th>
                                 <th> {{ __('Product') }} </th>
-                                <th>{{ __('Price') }}</th>
+                                <th>{{ __('Unit Price') }}</th>
+                                <th>{{ __('Discount') }}</th>
+                                <th>{{ __('Warranty') }}</th>
                                 <th>{{ __('Qty') }}</th>
-                                <th>{{ __('Total') }}</th>
+                                <th>{{ __('Subtotal') }}</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -287,6 +289,19 @@
                                     // Normal order: show sale_price (main price)
                                     $displayPrice = $value->sale_price;
                                 }
+
+                                // 💰 Product discount (wholesale)
+                                $productDiscount = (float) ($value->product_discount ?? 0);
+
+                                // 🛡️ Warranty price
+                                $warrantyPrice = (float) ($value->warranty_price ?? 0);
+
+                                // Original base price = displayPrice + productDiscount - warrantyPrice
+                                // (since price already has warranty added and wholesale deducted)
+                                $baseUnitPrice = $displayPrice + $productDiscount - $warrantyPrice;
+
+                                // Per-unit subtotal
+                                $lineSubtotal = $displayPrice * $value->qty;
                             @endphp
                             <tr>
                                 <td>{{$loop->iteration}}</td>
@@ -315,7 +330,7 @@
                                 @if($displayColor)
                                     <small>Color: {{ $displayColor }}</small>
                                 @endif 
-                                {{-- 🛡️ Warranty --}}
+                                {{-- 🛡️ Warranty Info --}}
                                 @if($value->warranty_tier_id)
                                     @php
                                         $wt = \App\Models\ProductWarrantyTier::find($value->warranty_tier_id);
@@ -333,8 +348,22 @@
                                 @endif
                                 </td>
                                 <td>৳{{ number_format($displayPrice, 2) }}</td>
+                                <td>
+                                    @if($productDiscount > 0)
+                                        <span class="text-danger">-৳{{ number_format($productDiscount, 2) }}</span>
+                                    @else
+                                        —
+                                    @endif
+                                </td>
+                                <td>
+                                    @if($warrantyPrice > 0)
+                                        <span class="text-primary">+৳{{ number_format($warrantyPrice, 2) }}</span>
+                                    @else
+                                        —
+                                    @endif
+                                </td>
                                 <td>{{$value->qty}}</td>
-                                <td>৳{{ number_format($displayPrice * $value->qty, 2) }}</td>
+                                <td>৳{{ number_format($lineSubtotal, 2) }}</td>
                             </tr>
                             @endforeach
                         </tbody>
@@ -362,6 +391,18 @@
     
     $shipping = $order->shipping_charge;
     $discount = $order->discount;
+
+    // 💰 Total product-level discount (wholesale)
+    $totalProductDiscount = 0;
+    foreach ($order->orderdetails as $item) {
+        $totalProductDiscount += ((float) ($item->product_discount ?? 0)) * $item->qty;
+    }
+
+    // 🛡️ Total warranty charges
+    $totalWarrantyCharge = 0;
+    foreach ($order->orderdetails as $item) {
+        $totalWarrantyCharge += ((float) ($item->warranty_price ?? 0)) * $item->qty;
+    }
     
     // If reseller order, use customer_payable_amount, otherwise use amount
     $finalTotal = $isResellerOrder ? $order->customer_payable_amount : $order->amount;
@@ -373,7 +414,7 @@
     $dueAmount = $finalTotal - $advancePaid;
 @endphp
 
-<table class="table" style="width: 300px; float: right; margin-bottom: 30px;">
+<table class="table" style="width: 350px; float: right; margin-bottom: 30px;">
     <tbody style="background:#f1f9f8">
         @if($isResellerOrder)
             <tr style="background:#ffc107;color:#000">
@@ -385,12 +426,24 @@
             <td><strong> {{ __('SubTotal') }} </strong></td>
             <td><strong>৳{{ number_format($subtotal, 2) }}</strong></td>
         </tr>
+        @if($totalProductDiscount > 0)
+        <tr>
+            <td><strong> {{ __('Wholesale Discount(-)') }} </strong></td>
+            <td><strong class="text-danger">-৳{{ number_format($totalProductDiscount, 2) }}</strong></td>
+        </tr>
+        @endif
+        @if($totalWarrantyCharge > 0)
+        <tr>
+            <td><strong> 🛡️ {{ __('Warranty Charge(+)') }} </strong></td>
+            <td><strong class="text-primary">+৳{{ number_format($totalWarrantyCharge, 2) }}</strong></td>
+        </tr>
+        @endif
         <tr>
             <td><strong> {{ __('Shipping(+)') }} </strong></td>
             <td><strong>৳{{ number_format($shipping, 2) }}</strong></td>
         </tr>
         <tr>
-            <td><strong> {{ __('Discount(-)') }} </strong></td>
+            <td><strong> {{ __('Coupon Discount(-)') }} </strong></td>
             <td><strong>৳{{ number_format($discount, 2) }}</strong></td>
         </tr>
 

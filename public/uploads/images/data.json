@@ -1,0 +1,789 @@
+{
+    "meta": {
+        "name": "Electronics Shop",
+        "slug": "electronics",
+        "description": "Pure electronics & technology store with gadgets, laptops, phones, and accessories.",
+        "live_url": "https://ecommerce2.creativedesign.com.bd/",
+        "color": "#dc2626",
+        "icon": "mdi-laptop"
+    },
+    "general_settings": {
+        "name": "Electronics Shop BD",
+        "white_logo": "public/assets/images/CurlBazar.png",
+        "dark_logo": "public/assets/images/CurlBazar.png",
+        "favicon": "public/favicon.ico",
+        "copyright": "© 2026 Electronics Shop BD. All rights reserved.",
+        "show_all_products": 1,
+        "show_category_wise_products": 1,
+        "vendor_enabled": 0,
+        "reseller_enabled": 0
+    },
+    "theme": {
+        "name": "Electronics Shop",
+        "slug": "electronics",
+        "primary_color": "#dc2626",
+        "secondary_color": "#c81212",
+        "accent_color": "#ff6a00",
+        "text_color": "#212529",
+        "heading_color": "#111111",
+        "body_bg_color": "#ffffff",
+        "header_bg_color": "#ffffff",
+        "header_text_color": "#212529",
+        "footer_bg_color": "#1a1a1a",
+        "footer_text_color": "#cccccc",
+        "is_default": true,
+        "is_active": true
+    },
+    "categories": [
+        {
+            "id": 1,
+            "parent_id": 0,
+            "name": "TV & Monitor",
+            "slug": "tv-&-monitor",
+            "image": "images/category-1773432503-1770953958-1767432776-pngtree-smart-android-tv-png-image_16548885.webp",
+            "status": 1
+        },
+        {
+            "id": 2,
+            "parent_id": 0,
+            "name": "Fridege & AC",
+            "slug": "fridege-&-ac",
+            "image": "images/category-1773432542-1770954010-1767432955-pngtree-air-conditioner-png-png-image_13328969.webp",
+            "status": 1
+        },
+        {
+            "id": 3,
+            "parent_id": 0,
+            "name": "Laptop & Desktop",
+            "slug": "laptop-&-desktop",
+            "image": "images/category-1773432586-1770954056-1767433978-1766067445-1764938707-1762889017-1760731045-1740307427-gaming-computer-png-image.webp",
+            "status": 1
+        },
+        {
+            "id": 4,
+            "parent_id": 0,
+            "name": "Airbuds Items",
+            "slug": "airbuds-items",
+            "image": "images/category-1773432629-1770954090-1767433405-pngtree-effortless-elegance-elevating-your-audio-experience-with-black-wireless-earbuds-sets-png-image_12597748.webp",
+            "status": 1
+        },
+        {
+            "id": 5,
+            "parent_id": 0,
+            "name": "Android Mobile",
+            "slug": "android-mobile",
+            "image": "images/category-1773432669-1770954123-1767433567-pngtree-latest-model-mobile-phone-png-image_18745332.webp",
+            "status": 1
+        },
+        {
+            "id": 6,
+            "parent_id": 0,
+            "name": "Smart Watch",
+            "slug": "smart-watch",
+            "image": "images/category-1773432713-1770954176-1767433704-pngtree-smart-watch-png-image_18808764.webp",
+            "status": 1
+        },
+        {
+            "id": 7,
+            "parent_id": 0,
+            "name": "Power bank",
+            "slug": "power-bank",
+            "image": "images/category-1773432765-1770954302-1767433864-pb436_blue_01.webp",
+            "status": 1
+        },
+        {
+            "id": 8,
+            "parent_id": 0,
+            "name": "Air Coller",
+            "slug": "air-coller",
+            "image": "images/category-1773432810-1770954367-1767434092-pngtree-air-cooler-model-png-image_18746967.webp",
+            "status": 1
+        },
+        {
+            "id": 9,
+            "parent_id": 0,
+            "name": "Air Coller",
+            "slug": "air-coller",
+            "image": "images/category-1773432831-1770954367-1767434092-pngtree-air-cooler-model-png-image_18746967.webp",
+            "status": 1
+        },
+        {
+            "id": 10,
+            "parent_id": 0,
+            "name": "Washing Machine",
+            "slug": "washing-machine",
+            "image": "images/category-1773432875-1770954433-1767434202-pngtree-modern-white-washing-machine-on-a-transparent-background-isolated-png-image_20269437.webp",
+            "status": 1
+        }
+    ],
+    "subcategories": [
+        {
+            "name": "Smart Lamp & Lights",
+            "slug": "smart-lamp-&-lights",
+            "category_id": 1,
+            "image": null,
+            "status": 1,
+            "cat": "tv-&-monitor"
+        },
+        {
+            "name": "TV & Monitor",
+            "slug": "tv-&-monitor",
+            "category_id": 1,
+            "image": null,
+            "status": 1,
+            "cat": "tv-&-monitor"
+        },
+        {
+            "name": "Laptop",
+            "slug": "laptop",
+            "category_id": 1,
+            "image": null,
+            "status": 1,
+            "cat": "tv-&-monitor"
+        },
+        {
+            "name": "Shirt",
+            "slug": "shirt",
+            "category_id": 2,
+            "image": null,
+            "status": 1,
+            "cat": "fridege-&-ac"
+        },
+        {
+            "name": "Pant",
+            "slug": "pant",
+            "category_id": 2,
+            "image": null,
+            "status": 1,
+            "cat": "fridege-&-ac"
+        }
+    ],
+    "brands": [
+        {
+            "name": "RFL",
+            "image": "images/brand-1763623615-rfl-logo-png_seeklogo-250040.webp"
+        },
+        {
+            "name": "Samsung",
+            "image": "images/brand-1765817698-images.webp"
+        },
+        {
+            "name": "LG",
+            "image": "images/brand-1765817784-lg_symbol.svg.webp"
+        },
+        {
+            "name": "Apple",
+            "image": "images/brand-1765817842-apple_logo_grey.svg.webp"
+        },
+        {
+            "name": "Symphony",
+            "image": "images/brand-1765817905-symphony_logo.webp"
+        },
+        {
+            "name": "Pran",
+            "image": "images/brand-1765817987-screenshot_1.webp"
+        },
+        {
+            "name": "Meril",
+            "image": "images/brand-1765818120-89d3708ca6d1c9581bdb42f378fefe0b92.png"
+        },
+        {
+            "name": "Gigabyte",
+            "image": "images/brand-1765818173-gigabyte-logo.webp"
+        },
+        {
+            "name": "Walton",
+            "image": "images/brand-1765818240-walton_group_logo.webp"
+        },
+        {
+            "name": "Teer",
+            "image": "images/brand-1765818411-2021-12-13-61b6e83dd4cf0.webp"
+        },
+        {
+            "name": "Jiver Sadh",
+            "image": "images/brand-1765818574-fa6e45217130135.y3jvccwymtawlde2ndismcwymjg.webp"
+        },
+        {
+            "name": "7 UP",
+            "image": "images/brand-1765818630-7up-logo-2010-768x432-2.webp"
+        },
+        {
+            "name": "Konka",
+            "image": "images/brand-1766001728-konka-logo-png_seeklogo-350032.webp"
+        }
+    ],
+    "products": [
+        {
+            "name": "Jononi Madical Hall",
+            "slug": "jononi-madical-hall-221",
+            "category_id": 2,
+            "brand_id": 1,
+            "new_price": 350,
+            "old_price": 400,
+            "stock": 95,
+            "image": "images/product-1769192911-5c9cf664fcdfd28efbdfb7a7ab0e397b.jpg_720x720q80.jpg",
+            "gallery_images": [
+                "images/product-1769192911-5c9cf664fcdfd28efbdfb7a7ab0e397b.jpg_720x720q80.jpg",
+                "images/product-1769192911-8cf001f7113c8db5554f5563bee70594.jpg",
+                "images/product-1769192911-images-(1).jfif"
+            ],
+            "description": "<ul style=\"margin-right: 0px; margin-bottom: 0px; margin-left: 0px; padding: 0px; list-style: none; overflow: hidden; font-family: Roboto, -apple-system, BlinkMacSystemFont, &quot;Helvetica Neue&quot;, Helvetica, sans-serif; font-size: 12px;\"><li style=\"margin: 0px; padding: 0px 0px 0px 15px; position: relative; font-size: 14px; line-height: 18px; list-style: none; word-break: break-word; break-inside: avoid;\">Product Type:&nbsp;Solid Bandana&nbsp;</li><li style=\"margin: 0px; padding: 0px 0px 0p...[truncated]",
+            "meta_title": "Jononi Madical Hall",
+            "meta_description": "Product Type:&nbsp;Solid Bandana&nbsp;Material: CottonAbsorption moistureSweat-wicking and anti-UVCOOL DESIGN &amp; MULTI-FUNCTIONAL USEColor: BlackThey can use...",
+            "status": 1,
+            "topsale": 1,
+            "flashsale": 1,
+            "feature_product": 0,
+            "cat": "fridege-&-ac",
+            "brand": "RFL",
+            "price": 350,
+            "old": 400
+        },
+        {
+            "name": "3 in 1 Travel Pillow Set",
+            "slug": "3-in-1-travel-pillow-set-222",
+            "category_id": 8,
+            "brand_id": 1,
+            "new_price": 900,
+            "old_price": 800,
+            "stock": 96,
+            "image": "images/product-1769416997-0653647_3-in-1-travel-pillow-set_400.webp",
+            "gallery_images": [
+                "images/product-1769416997-0653647_3-in-1-travel-pillow-set_400.webp"
+            ],
+            "description": "<h2 class=\"pdp-mod-section-title outer-title\" data-spm-anchor-id=\"a2a0e.pdp_revamp.0.i3.1c372807qx0RoM\" style=\"margin-right: 0px; margin-bottom: 0px; margin-left: 0px; padding: 0px 24px; font-family: Roboto-Medium; font-size: 16px; line-height: 52px; color: rgb(33, 33, 33); overflow: hidden; text-overflow: ellipsis; text-wrap-mode: nowrap; height: 52px; background: rgb(250, 250, 250);\">Product details of 3 in 1 Travel Pillow Set</h2><div class=\"pdp-product-detail\" data-spm=\"product_detail\" style...[truncated]",
+            "meta_title": "3 in 1 Travel Pillow Set",
+            "meta_description": "Product details of 3 in 1 Travel Pillow SetProductdetailsSoft surface materialPerfect for car plane or other travelFashionable beautiful and comfortableSoft for...",
+            "status": 1,
+            "topsale": 1,
+            "flashsale": 1,
+            "feature_product": 0,
+            "cat": "air-coller",
+            "brand": "RFL",
+            "price": 900,
+            "old": 800
+        },
+        {
+            "name": "HTC AT-538 Hair And Beard Trimmer For Men",
+            "slug": "htc-at-538-hair-and-beard-trimmer-for-men-223",
+            "category_id": 8,
+            "brand_id": 1,
+            "new_price": 600,
+            "old_price": 500,
+            "stock": 9993,
+            "image": "images/product-1769437447-1797da4d9a7a36afc04ec60ec10f8d0d.jpg_960x960q80.jpg_.webp",
+            "gallery_images": [
+                "images/product-1769437447-1797da4d9a7a36afc04ec60ec10f8d0d.jpg_960x960q80.jpg_.webp"
+            ],
+            "description": "<h2 class=\"pdp-mod-section-title outer-title\" data-spm-anchor-id=\"a2a0e.pdp_revamp.0.i4.61512850B2EHux\" style=\"margin-right: 0px; margin-bottom: 0px; margin-left: 0px; padding: 0px 24px; font-family: Roboto-Medium; font-size: 16px; line-height: 52px; color: rgb(33, 33, 33); overflow: hidden; text-overflow: ellipsis; text-wrap-mode: nowrap; height: 52px; background: rgb(250, 250, 250);\">Product details of HTC AT-538 Hair And Beard Trimmer For Men</h2><div class=\"pdp-product-detail\" data-spm=\"prod...[truncated]",
+            "meta_title": "HTC AT-538 Hair And Beard Trimmer For Men",
+            "meta_description": "Product details of HTC AT-538 Hair And Beard Trimmer For Men• HTC AT-538 Hair And Beard Trimmer for Men.• Perfect for shaving and grooming.• Suitable for hair a...",
+            "status": 1,
+            "topsale": 1,
+            "flashsale": 1,
+            "feature_product": 0,
+            "cat": "air-coller",
+            "brand": "RFL",
+            "price": 600,
+            "old": 500
+        },
+        {
+            "name": "New collection Hit western dress two piece Tops For Women",
+            "slug": "new-collection-hit-western-dress-two-piece-tops-for-women-224",
+            "category_id": 2,
+            "brand_id": 1,
+            "new_price": 2200,
+            "old_price": 2500,
+            "stock": 9993,
+            "image": "images/product-1769439539-9ff3e2671613d5b7fc84c6fcd96fd16d.jpg_720x720q80.jpg",
+            "gallery_images": [
+                "images/product-1769439539-9ff3e2671613d5b7fc84c6fcd96fd16d.jpg_720x720q80.jpg"
+            ],
+            "description": "<p style=\"margin-right: 0px; margin-bottom: 0px; margin-left: 0px; padding: 0px; font-size: 14px; font-family: Roboto, -apple-system, BlinkMacSystemFont, &quot;Helvetica Neue&quot;, Helvetica, sans-serif; white-space-collapse: break-spaces; line-height: 1.7;\"><span data-spm-anchor-id=\"a2a0e.pdp_revamp.product_detail.i0.50b578ad4DlPIA\" style=\"margin: 0px; padding: 0px;\">মোস্ট ডিমান্ডিং ওয়েস্টিন ড্রেস টু পিস </span></p><p style=\"margin-right: 0px; margin-bottom: 0px; margin-left: 0px; padding: 0p...[truncated]",
+            "meta_title": "New collection Hit western dress two piece Tops For Women",
+            "meta_description": "মোস্ট ডিমান্ডিং ওয়েস্টিন ড্রেস টু পিস শার্ট প্যান্ট বাটার সিল্ক শার্ট লম্বা ৪২ ইঞ্চি প্যান্ট&nbsp;লম্বা&nbsp;৩৮&nbsp;ইঞ্চিআমরা একটি প্রসিদ্ধ Brand থেকে এই পণ্য...",
+            "status": 1,
+            "topsale": 1,
+            "flashsale": 1,
+            "feature_product": 0,
+            "cat": "fridege-&-ac",
+            "brand": "RFL",
+            "price": 2200,
+            "old": 2500
+        },
+        {
+            "name": "Intel Dual Core Desktop Computer Full Setup | Customizable 4-8GB RAM, 120GB SSD, 500GB-1TB HDD & Monitor | Affordable Budget Office & Gaming PC Windows 10 Pro 2025",
+            "slug": "intel-dual-core-desktop-computer-full-setup-|-customizable-4-8gb-ram,-120gb-ssd,-500gb-1tb-hdd-&-monitor-|-affordable-budget-office-&-gaming-pc-windows-10-pro-2025-225",
+            "category_id": 4,
+            "brand_id": 1,
+            "new_price": 10250,
+            "old_price": 12000,
+            "stock": 92,
+            "image": "images/product-1769440037-63902183a6b2048cf1f67d74a46db75f.png",
+            "gallery_images": [
+                "images/product-1769440037-63902183a6b2048cf1f67d74a46db75f.png"
+            ],
+            "description": "<h2 class=\"pdp-mod-section-title outer-title\" data-spm-anchor-id=\"a2a0e.pdp_revamp.0.i4.456f6f184yXPhb\" style=\"margin-right: 0px; margin-bottom: 0px; margin-left: 0px; padding: 0px 24px; font-family: Roboto-Medium; font-size: 16px; line-height: 52px; color: rgb(33, 33, 33); overflow: hidden; text-overflow: ellipsis; text-wrap-mode: nowrap; height: 52px; background: rgb(250, 250, 250);\">Product details of Intel Dual Core Desktop Computer Full Setup | Customizable 4-8GB RAM, 120GB SSD, 500GB-1TB H...[truncated]",
+            "meta_title": "Intel Dual Core Desktop Computer Full Setup | Customizable 4-8GB RAM, 120GB SSD, 500GB-1TB HDD & Monitor | Affordable Budget Office & Gaming PC Windows 10 Pro 2025",
+            "meta_description": "Product details of Intel Dual Core Desktop Computer Full Setup | Customizable 4-8GB RAM, 120GB SSD, 500GB-1TB HDD &amp; Monitor | Affordable Budget Office &amp;...",
+            "status": 1,
+            "topsale": 1,
+            "flashsale": 1,
+            "feature_product": 0,
+            "cat": "airbuds-items",
+            "brand": "RFL",
+            "price": 10250,
+            "old": 12000
+        },
+        {
+            "name": "Achillea Two Tone Vintage Jacquard Paisley Pashmina Shawl Wrap Scarf for woman muticolor",
+            "slug": "achillea-two-tone-vintage-jacquard-paisley-pashmina-shawl-wrap-scarf-for-woman-muticolor-226",
+            "category_id": 2,
+            "brand_id": 1,
+            "new_price": 1300,
+            "old_price": 12000,
+            "stock": 9982,
+            "image": "images/product-1769440755-659851fd907b0485fe61bc0b621db51e.jpg",
+            "gallery_images": [
+                "images/product-1769440755-659851fd907b0485fe61bc0b621db51e.jpg"
+            ],
+            "description": "<ul style=\"margin-right: 0px; margin-bottom: 0px; margin-left: 10px; padding: 0px; list-style-position: initial; list-style-image: initial; font-family: Roboto, -apple-system, BlinkMacSystemFont, &quot;Helvetica Neue&quot;, Helvetica, sans-serif; font-size: 12px; white-space-collapse: break-spaces;\"><li style=\"margin: 0px; padding: 0px;\"><div style=\"margin: 0px; padding: 0px; line-height: 1.7;\"><span style=\"margin: 0px; padding: 0px; color: rgb(15, 17, 17); font-size: 10.5pt;\">Blend of silk, fin...[truncated]",
+            "meta_title": "Achillea Two Tone Vintage Jacquard Paisley Pashmina Shawl Wrap Scarf for woman muticolor",
+            "meta_description": "Blend of silk, fine viscose and acrylic. Soft silky feel fabric. Dimensions: APPROX. 28\"W x 78\"L including fringes (3\" fringe tassels on each end). Weight: 6 oz...",
+            "status": 1,
+            "topsale": 1,
+            "flashsale": 1,
+            "feature_product": 0,
+            "cat": "fridege-&-ac",
+            "brand": "RFL",
+            "price": 1300,
+            "old": 12000
+        },
+        {
+            "name": "Paragon Brown Egg 1 Dozen (Bundle of 3)",
+            "slug": "paragon-brown-egg-1-dozen-(bundle-of-3)-227",
+            "category_id": 5,
+            "brand_id": 1,
+            "new_price": 2200,
+            "old_price": 2500,
+            "stock": 9992,
+            "image": "images/product-1769441207-f34d9f24050c32104713693f8c66c1be.jpg",
+            "gallery_images": [
+                "images/product-1769441207-f34d9f24050c32104713693f8c66c1be.jpg"
+            ],
+            "description": "<p><span style=\"color: rgb(33, 37, 41); font-family: Roboto, -apple-system, BlinkMacSystemFont, &quot;Helvetica Neue&quot;, Helvetica, sans-serif; white-space-collapse: break-spaces;\">Quantity: 12 pcs x 3= 36 pcs Natural – Antibiotic-free – No harmful substances – Safe. Certification: ISO 22000, GMP, HACCP, 100% HALAL.</span><span style=\"color: rgb(33, 37, 41); font-family: Roboto, -apple-system, BlinkMacSystemFont, &quot;Helvetica Neue&quot;, Helvetica, sans-serif; white-space-collapse: break-s...[truncated]",
+            "meta_title": "Paragon Brown Egg 1 Dozen (Bundle of 3)",
+            "meta_description": "Quantity: 12 pcs x 3= 36 pcs Natural – Antibiotic-free – No harmful substances – Safe. Certification: ISO 22000, GMP, HACCP, 100% HALAL.Quantity: 12 pcs x 3= 36...",
+            "status": 1,
+            "topsale": 1,
+            "flashsale": 1,
+            "feature_product": 0,
+            "cat": "android-mobile",
+            "brand": "RFL",
+            "price": 2200,
+            "old": 2500
+        },
+        {
+            "name": "zenx 2",
+            "slug": "zenx-2-228",
+            "category_id": 5,
+            "brand_id": 1,
+            "new_price": 4500,
+            "old_price": 3500,
+            "stock": 10000,
+            "image": "images/product-1773433601-1770956532-1767435120-71f4b180-b0b1-40c6-b45a-c24b997aa312.png",
+            "gallery_images": [
+                "images/product-1773433601-1770956532-1767435120-71f4b180-b0b1-40c6-b45a-c24b997aa312.png"
+            ],
+            "description": "<table class=\"spec-grp-tbl\" style=\"width: 908.5px; color: rgb(93, 93, 93); font-size: 15px; font-family: Roboto, sans-serif; background-color: rgba(255, 255, 255, 0.85);\"><tbody><tr style=\"border-width: 1px; border-color: rgba(240, 240, 240, 0.94); border-image: initial;\"><td class=\"td1 ss\" style=\"border-width: 0px; border-style: initial; border-color: initial; width: 226.875px; background-color: rgba(226, 226, 226, 0.13); padding: 7px 10px !important;\">Camera Setup</td><td class=\"td2 ss\" style=...[truncated]",
+            "meta_title": "zenx 2",
+            "meta_description": "Camera SetupDualResolution52 MP, f/2.2, Primary Camera, 2 MP, CameraAutofocus&nbsp;YesFlash&nbsp;LED FlashImage Resolution7200 x 7200 pixelsSettingsExposure com...",
+            "status": 1,
+            "topsale": 1,
+            "flashsale": 1,
+            "feature_product": 0,
+            "cat": "android-mobile",
+            "brand": "RFL",
+            "price": 4500,
+            "old": 3500
+        },
+        {
+            "name": "NEXG N76",
+            "slug": "nexg-n76-232",
+            "category_id": 5,
+            "brand_id": 1,
+            "new_price": 22000,
+            "old_price": 25500,
+            "stock": 10000,
+            "image": "images/product-1773433656-1770956842-1767435757-1712389032j1bgv.webp",
+            "gallery_images": [
+                "images/product-1773433656-1770956842-1767435757-1712389032j1bgv.webp"
+            ],
+            "description": "<div class=\"header bg-white border-bottom p-2\" style=\"color: rgb(98, 98, 98); font-family: Roboto, sans-serif; font-size: 16px; border-bottom: 1px solid rgb(222, 226, 230) !important; padding: 0.5rem !important; background-color: rgb(255, 255, 255) !important;\"><h2 class=\"foswald mb-0 h6 foswald\" style=\"margin-top: 0px; line-height: 1.2; color: rgb(34, 34, 117); font-size: 1rem; margin-bottom: 0px !important; font-family: Oswald, sans-serif !important;\">Walton NEXG N76 Price in Bangladesh 2024 &...[truncated]",
+            "meta_title": "NEXG N76",
+            "meta_description": "Walton NEXG N76 Price in Bangladesh 2024 &amp; Release DateNameWalton NEXG N76Official PriceBDT. 14,499Release Date25-Dec-2025Market StatusIn StockVariantRAM: 8...",
+            "status": 1,
+            "topsale": 1,
+            "flashsale": 1,
+            "feature_product": 0,
+            "cat": "android-mobile",
+            "brand": "RFL",
+            "price": 22000,
+            "old": 25500
+        },
+        {
+            "name": "ORBIT Y72",
+            "slug": "orbit-y72-233",
+            "category_id": 5,
+            "brand_id": 1,
+            "new_price": 18500,
+            "old_price": 16500,
+            "stock": 10000,
+            "image": "images/product-1773433727-1770957108-1767436127-walton-orbit-y72-arctic-blue-official-image-(1).webp",
+            "gallery_images": [
+                "images/product-1773433727-1770957108-1767436127-walton-orbit-y72-arctic-blue-official-image-(1).webp"
+            ],
+            "description": "<div class=\"header bg-white border-bottom p-2\" style=\"color: rgb(98, 98, 98); font-family: Roboto, sans-serif; font-size: 16px; border-bottom: 1px solid rgb(222, 226, 230) !important; padding: 0.5rem !important; background-color: rgb(255, 255, 255) !important;\"><h2 class=\"foswald mb-0 h6 foswald\" style=\"margin-top: 0px; line-height: 1.2; color: rgb(34, 34, 117); font-size: 1rem; margin-bottom: 0px !important; font-family: Oswald, sans-serif !important;\">Walton Orbit Y72 Price in Bangladesh 2024 ...[truncated]",
+            "meta_title": "ORBIT Y72",
+            "meta_description": "Walton Orbit Y72 Price in Bangladesh 2024 &amp; Release DateNameWalton Orbit Y72Official PriceBDT. 10,999Release Date10-Dec-2025Market StatusIn StockVariantRAM:...",
+            "status": 1,
+            "topsale": 1,
+            "flashsale": 1,
+            "feature_product": 0,
+            "cat": "android-mobile",
+            "brand": "RFL",
+            "price": 18500,
+            "old": 16500
+        },
+        {
+            "name": "XANON X1 ULTRA",
+            "slug": "xanon-x1-ultra-234",
+            "category_id": 5,
+            "brand_id": 1,
+            "new_price": 600,
+            "old_price": 1200,
+            "stock": 10000,
+            "image": "images/product-1773433783-1770957288-1767436312-xanon-x1-ultra_id1-364x364.jpg",
+            "gallery_images": [
+                "images/product-1773433783-1770957288-1767436312-xanon-x1-ultra_id1-364x364.jpg"
+            ],
+            "description": "<div class=\"header bg-white border-bottom p-2\" style=\"color: rgb(98, 98, 98); font-family: Roboto, sans-serif; font-size: 16px; border-bottom: 1px solid rgb(222, 226, 230) !important; padding: 0.5rem !important; background-color: rgb(255, 255, 255) !important;\"><h2 class=\"foswald mb-0 h6 foswald\" style=\"margin-top: 0px; line-height: 1.2; color: rgb(34, 34, 117); font-size: 1rem; margin-bottom: 0px !important; font-family: Oswald, sans-serif !important;\">Walton XANON X1 Ultra Price in Bangladesh ...[truncated]",
+            "meta_title": "XANON X1 ULTRA",
+            "meta_description": "Walton XANON X1 Ultra Price in Bangladesh 2024 &amp; Release DateNameWalton XANON X1 UltraOfficial PriceBDT. 17,999Release Date19-Aug-2025Market StatusIn StockV...",
+            "status": 1,
+            "topsale": 1,
+            "flashsale": 1,
+            "feature_product": 0,
+            "cat": "android-mobile",
+            "brand": "RFL",
+            "price": 600,
+            "old": 1200
+        },
+        {
+            "name": "VISION 65\" QLED TV Google Android 4K PQ1 Galaxy Pro",
+            "slug": "vision-65\"-qled-tv-google-android-4k-pq1-galaxy-pro-235",
+            "category_id": 1,
+            "brand_id": 1,
+            "new_price": 12500,
+            "old_price": 24500,
+            "stock": 9999,
+            "image": "images/product-1773433848-1770957538-1767436742-vsn65qled_pq1_galaxy_pro_800x800pxl_trly-4s.jpg.png",
+            "gallery_images": [
+                "images/product-1773433848-1770957538-1767436742-vsn65qled_pq1_galaxy_pro_800x800pxl_trly-4s.jpg.png"
+            ],
+            "description": "<div style=\"box-sizing: inherit; color: rgb(102, 102, 102); font-family: Poppins, sans-serif; font-size: 13px;\"><span style=\"box-sizing: inherit; font-family: Calibri, sans-serif; font-size: medium;\"><span style=\"box-sizing: inherit; font-family: Tahoma, sans-serif; font-size: small;\"><span style=\"box-sizing: inherit; font-weight: bolder;\"><span style=\"box-sizing: inherit; color: rgb(31, 73, 125); font-family: &quot;Times New Roman&quot;, serif;\">VISION</span><span style=\"box-sizing: inherit; co...[truncated]",
+            "meta_title": "VISION 65\" QLED TV Google Android 4K PQ1 Galaxy Pro",
+            "meta_description": "VISION&nbsp;32\" LED TV P20 Primeitem Code : 8740841. Bezel less Classy outlook.2. 2*8 Watt speaker with excellent sound3. ADS Panel technology, Normally black,...",
+            "status": 1,
+            "topsale": 1,
+            "flashsale": 1,
+            "feature_product": 0,
+            "cat": "tv-&-monitor",
+            "brand": "RFL",
+            "price": 12500,
+            "old": 24500
+        },
+        {
+            "name": "VISION 65\" QLED TV Google Android 4K PQ1 Galaxy Pro",
+            "slug": "vision-65\"-qled-tv-google-android-4k-pq1-galaxy-pro-236",
+            "category_id": 1,
+            "brand_id": 1,
+            "new_price": 10250,
+            "old_price": 12000,
+            "stock": 10000,
+            "image": "images/product-1773433903-1770957940-1767436742-vsn65qled_pq1_galaxy_pro_800x800pxl_trly-4s.jpg.png",
+            "gallery_images": [
+                "images/product-1773433903-1770957940-1767436742-vsn65qled_pq1_galaxy_pro_800x800pxl_trly-4s.jpg.png"
+            ],
+            "description": "<div style=\"box-sizing: inherit; color: rgb(102, 102, 102); font-family: Poppins, sans-serif; font-size: 13px;\"><span style=\"box-sizing: inherit; font-family: Calibri, sans-serif; font-size: medium;\"><span style=\"box-sizing: inherit; font-family: Tahoma, sans-serif; font-size: small;\"><span style=\"box-sizing: inherit; font-weight: bolder;\"><span style=\"box-sizing: inherit; color: rgb(31, 73, 125); font-family: &quot;Times New Roman&quot;, serif;\">VISION</span><span style=\"box-sizing: inherit; co...[truncated]",
+            "meta_title": "VISION 65\" QLED TV Google Android 4K PQ1 Galaxy Pro",
+            "meta_description": "VISION&nbsp;32\" LED TV P20 Primeitem Code : 8740841. Bezel less Classy outlook.2. 2*8 Watt speaker with excellent sound3. ADS Panel technology, Normally black,...",
+            "status": 1,
+            "topsale": 1,
+            "flashsale": 1,
+            "feature_product": 0,
+            "cat": "tv-&-monitor",
+            "brand": "RFL",
+            "price": 10250,
+            "old": 12000
+        },
+        {
+            "name": "VISION 65\" QLED TV Google Android 4K PQ1 Galaxy Pro",
+            "slug": "vision-65\"-qled-tv-google-android-4k-pq1-galaxy-pro-237",
+            "category_id": 1,
+            "brand_id": 1,
+            "new_price": 600,
+            "old_price": 1200,
+            "stock": 9999,
+            "image": "images/product-1773433955-1770958176-1767436742-vsn65qled_pq1_galaxy_pro_800x800pxl_trly-4s.jpg.png",
+            "gallery_images": [
+                "images/product-1773433955-1770958176-1767436742-vsn65qled_pq1_galaxy_pro_800x800pxl_trly-4s.jpg.png"
+            ],
+            "description": "<div style=\"box-sizing: inherit; color: rgb(102, 102, 102); font-family: Poppins, sans-serif; font-size: 13px;\"><span style=\"box-sizing: inherit; font-family: Calibri, sans-serif; font-size: medium;\"><span style=\"box-sizing: inherit; font-family: Tahoma, sans-serif; font-size: small;\"><span style=\"box-sizing: inherit; font-weight: bolder;\"><span style=\"box-sizing: inherit; color: rgb(31, 73, 125); font-family: &quot;Times New Roman&quot;, serif;\">VISION</span><span style=\"box-sizing: inherit; co...[truncated]",
+            "meta_title": "VISION 65\" QLED TV Google Android 4K PQ1 Galaxy Pro",
+            "meta_description": "VISION&nbsp;32\" LED TV P20 Primeitem Code : 8740841. Bezel less Classy outlook.2. 2*8 Watt speaker with excellent sound3. ADS Panel technology, Normally black,...",
+            "status": 1,
+            "topsale": 1,
+            "flashsale": 1,
+            "feature_product": 0,
+            "cat": "tv-&-monitor",
+            "brand": "RFL",
+            "price": 600,
+            "old": 1200
+        },
+        {
+            "name": "Vision 32\" Z30 Smart LED Optima Google TV",
+            "slug": "vision-32\"-z30-smart-led-optima-google-tv-238",
+            "category_id": 1,
+            "brand_id": 1,
+            "new_price": 10250,
+            "old_price": 12000,
+            "stock": 9999,
+            "image": "images/product-1773434008-1770958350-1767438577-google_tv_1.jpg.png",
+            "gallery_images": [
+                "images/product-1773434008-1770958350-1767438577-google_tv_1.jpg.png"
+            ],
+            "description": "<table style=\"width: 1056.8px; -webkit-tap-highlight-color: rgba(0, 0, 0, 0); border-spacing: 0px; scrollbar-width: thin; scrollbar-color: rgb(162, 162, 162) transparent; color: rgb(30, 30, 30); font-family: &quot;Times New Roman&quot;, Times, serif; font-size: 13px;\"><tbody style=\"-webkit-tap-highlight-color: rgba(0, 0, 0, 0); scrollbar-width: thin; scrollbar-color: rgb(162, 162, 162) transparent;\"><tr style=\"-webkit-tap-highlight-color: rgba(0, 0, 0, 0); scrollbar-width: thin; scrollbar-color:...[truncated]",
+            "meta_title": "Vision 32\" Z30 Smart LED Optima Google TV",
+            "meta_description": "BASIC SPECIFICATIONS:&nbsp;&nbsp;TV categorySmart TVOperating SystemGoogle TV (Android 14)Voice ControlYesApp StoreGoogle Play StoreAI SystemYes, Google Assista...",
+            "status": 1,
+            "topsale": 1,
+            "flashsale": 1,
+            "feature_product": 0,
+            "cat": "tv-&-monitor",
+            "brand": "RFL",
+            "price": 10250,
+            "old": 12000
+        },
+        {
+            "name": "Vision 32\" LED TV Q10S Google TV",
+            "slug": "vision-32\"-led-tv-q10s-google-tv-239",
+            "category_id": 1,
+            "brand_id": 1,
+            "new_price": 2200,
+            "old_price": 2500,
+            "stock": 9998,
+            "image": "images/product-1773434061-1770958512-1767438894-web-image--2_atdg-d5.jpg.png",
+            "gallery_images": [
+                "images/product-1773434061-1770958512-1767438894-web-image--2_atdg-d5.jpg.png"
+            ],
+            "description": "<table style=\"width: 1056.8px; -webkit-tap-highlight-color: rgba(0, 0, 0, 0); border-spacing: 0px; scrollbar-width: thin; scrollbar-color: rgb(162, 162, 162) transparent; color: rgb(30, 30, 30); font-family: &quot;Times New Roman&quot;, Times, serif; font-size: 13px;\"><tbody style=\"-webkit-tap-highlight-color: rgba(0, 0, 0, 0); scrollbar-width: thin; scrollbar-color: rgb(162, 162, 162) transparent;\"><tr style=\"-webkit-tap-highlight-color: rgba(0, 0, 0, 0); scrollbar-width: thin; scrollbar-color:...[truncated]",
+            "meta_title": "Vision 32\" LED TV Q10S Google TV",
+            "meta_description": "Product Name : VISION 32\" QLED Google TV Q10sItem Code : 751348SPECIFICATIONPANELPanel MakerLGDisplay TypeQLEDAspect Ratio16:9Resolution&nbsp;&nbsp;1366*768Brig...",
+            "status": 1,
+            "topsale": 1,
+            "flashsale": 1,
+            "feature_product": 0,
+            "cat": "tv-&-monitor",
+            "brand": "RFL",
+            "price": 2200,
+            "old": 2500
+        },
+        {
+            "name": "Wireless Earbuds A9 Pro Touch Screen ANC Wireless Earphones - TWS Noise-Cancelling Earbuds, Bluetooth 5.3, Long Battery Life, HiFi Sound Quality",
+            "slug": "wireless-earbuds-a9-pro-touch-screen-anc-wireless-earphones---tws-noise-cancelling-earbuds,-bluetooth-5.3,-long-battery-life,-hifi-sound-quality-240",
+            "category_id": 4,
+            "brand_id": 1,
+            "new_price": 10250,
+            "old_price": 1200,
+            "stock": 10000,
+            "image": "images/product-1773434133-1770958637-1767440969-images.jfif",
+            "gallery_images": [
+                "images/product-1773434133-1770958637-1767440969-images.jfif"
+            ],
+            "description": "<ul style=\"padding: 0px; margin-right: 0px; margin-bottom: 0px; margin-left: 16px; white-space-collapse: break-spaces; list-style-position: initial; list-style-image: initial; overflow: hidden; font-family: Roboto, -apple-system, BlinkMacSystemFont, &quot;Helvetica Neue&quot;, Helvetica, sans-serif; font-size: 12px;\"><h2 class=\"pdp-mod-section-title outer-title\" data-spm-anchor-id=\"a2a0e.pdp_revamp.0.i6.156362951urV3x\" style=\"margin-top: 0px; margin-bottom: 0px; line-height: 52px; color: rgb(33,...[truncated]",
+            "meta_title": "Wireless Earbuds A9 Pro Touch Screen ANC Wireless Earphones - TWS Noise-Cancelling Earbuds, Bluetooth 5.3, Long Battery Life, HiFi Sound Quality",
+            "meta_description": "Product details of Wireless Earbuds A9 Pro Touch Screen ANC Wireless Earphones - TWS Noise-Cancelling Earbuds, Bluetooth 5.3, Long Battery Life, HiFi Sound Qual...",
+            "status": 1,
+            "topsale": 1,
+            "flashsale": 1,
+            "feature_product": 0,
+            "cat": "airbuds-items",
+            "brand": "RFL",
+            "price": 10250,
+            "old": 1200
+        },
+        {
+            "name": "895B TWS Headphones Earphone Bluetooth-compatible 5.3 Earbuds Touch Control Stereo Bass Headphone LED Digital Display 5.4 Wireless Earphone multycolour",
+            "slug": "895b-tws-headphones-earphone-bluetooth-compatible-5.3-earbuds-touch-control-stereo-bass-headphone-led-digital-display-5.4-wireless-earphone-multycolour-241",
+            "category_id": 4,
+            "brand_id": 1,
+            "new_price": 2200,
+            "old_price": 1200,
+            "stock": 9999,
+            "image": "images/product-1773434191-1770958637-1767440969-images.jfif",
+            "gallery_images": [
+                "images/product-1773434191-1770958637-1767440969-images.jfif"
+            ],
+            "description": "<h2 class=\"pdp-mod-section-title outer-title\" data-spm-anchor-id=\"a2a0e.pdp_revamp.0.i4.601d1e80KLuCG9\" style=\"margin-top: 0px; margin-bottom: 0px; line-height: 52px; color: rgb(33, 33, 33); font-size: 16px; font-family: Roboto-Medium; text-wrap-mode: nowrap; padding: 0px 24px; overflow: hidden; text-overflow: ellipsis; height: 52px; background: rgb(250, 250, 250);\">Product details of 895B TWS Headphones Earphone Bluetooth-compatible 5.3 Earbuds Touch Control Stereo Bass Headphone LED Digital Di...[truncated]",
+            "meta_title": "895B TWS Headphones Earphone Bluetooth-compatible 5.3 Earbuds Touch Control Stereo Bass Headphone LED Digital Display 5.4 Wireless Earphone multycolour",
+            "meta_description": "Product details of 895B TWS Headphones Earphone Bluetooth-compatible 5.3 Earbuds Touch Control Stereo Bass Headphone LED Digital Display 5.4 Wireless Earphone m...",
+            "status": 1,
+            "topsale": 1,
+            "flashsale": 1,
+            "feature_product": 0,
+            "cat": "airbuds-items",
+            "brand": "RFL",
+            "price": 2200,
+            "old": 1200
+        },
+        {
+            "name": "M10 tws Wireless Earphone Touch Bluetooth Earplug In Ear Stereo Sport Headsets cvc8.0 Digital Display Black Good If With No Reduction Headphones",
+            "slug": "m10-tws-wireless-earphone-touch-bluetooth-earplug-in-ear-stereo-sport-headsets-cvc8.0-digital-display-black-good-if-with-no-reduction-headphones-242",
+            "category_id": 4,
+            "brand_id": 1,
+            "new_price": 2200,
+            "old_price": 1200,
+            "stock": 9997,
+            "image": "images/product-1773434256-1770959550-1767441247-1caca4b9c31bbfebdf3622831dd3c9ec.png_960x960q80.png_.webp",
+            "gallery_images": [
+                "images/product-1773434256-1770959550-1767441247-1caca4b9c31bbfebdf3622831dd3c9ec.png_960x960q80.png_.webp"
+            ],
+            "description": "<h2 class=\"pdp-mod-section-title outer-title\" data-spm-anchor-id=\"a2a0e.pdp_revamp.0.i4.688e39c5oVtXaJ\" style=\"margin-top: 0px; margin-bottom: 0px; line-height: 52px; color: rgb(33, 33, 33); font-size: 16px; font-family: Roboto-Medium; text-wrap-mode: nowrap; padding: 0px 24px; overflow: hidden; text-overflow: ellipsis; height: 52px; background: rgb(250, 250, 250);\">Product details of M10 tws Wireless Earphone Touch Bluetooth Earplug In Ear Stereo Sport Headsets cvc8.0 Digital Display Black Good...[truncated]",
+            "meta_title": "M10 tws Wireless Earphone Touch Bluetooth Earplug In Ear Stereo Sport Headsets cvc8.0 Digital Display Black Good If With No Reduction Headphones",
+            "meta_description": "Product details of M10 tws Wireless Earphone Touch Bluetooth Earplug In Ear Stereo Sport Headsets cvc8.0 Digital Display Black Good If With No Reduction Headpho...",
+            "status": 1,
+            "topsale": 1,
+            "flashsale": 1,
+            "feature_product": 0,
+            "cat": "airbuds-items",
+            "brand": "RFL",
+            "price": 2200,
+            "old": 1200
+        },
+        {
+            "name": "M10 Tws Wireless Earphone Touch Bluetooth Earplugs In-Ear Stereo Sport Headsets Cvc8.0 Noise Reduction Headphones With Digital Display - Bulotooth Headphone - Bluetooth Headphone",
+            "slug": "m10-tws-wireless-earphone-touch-bluetooth-earplugs-in-ear-stereo-sport-headsets-cvc8.0-noise-reduction-headphones-with-digital-display---bulotooth-headphone---bluetooth-headphone-243",
+            "category_id": 4,
+            "brand_id": 1,
+            "new_price": 2200,
+            "old_price": 12000,
+            "stock": 9998,
+            "image": "images/product-1773434322-1770959635-1767441358-ef4e07f03cb788bed122e72e02c94818.jpg_720x720q80.jpg",
+            "gallery_images": [
+                "images/product-1773434322-1770959635-1767441358-ef4e07f03cb788bed122e72e02c94818.jpg_720x720q80.jpg"
+            ],
+            "description": "<h2 class=\"pdp-mod-section-title outer-title\" data-spm-anchor-id=\"a2a0e.pdp_revamp.0.i4.6caa384fnFrKyD\" style=\"margin-top: 0px; margin-bottom: 0px; line-height: 52px; color: rgb(33, 33, 33); font-size: 16px; font-family: Roboto-Medium; text-wrap-mode: nowrap; padding: 0px 24px; overflow: hidden; text-overflow: ellipsis; height: 52px; background: rgb(250, 250, 250);\">Product details of M10 Tws Wireless Earphone Touch Bluetooth Earplugs In-Ear Stereo Sport Headsets Cvc8.0 Noise Reduction Headphone...[truncated]",
+            "meta_title": "M10 Tws Wireless Earphone Touch Bluetooth Earplugs In-Ear Stereo Sport Headsets Cvc8.0 Noise Reduction Headphones With Digital Display - Bulotooth Headphone - Bluetooth Headphone",
+            "meta_description": "Product details of M10 Tws Wireless Earphone Touch Bluetooth Earplugs In-Ear Stereo Sport Headsets Cvc8.0 Noise Reduction Headphones With Digital Display - Bulo...",
+            "status": 1,
+            "topsale": 1,
+            "flashsale": 1,
+            "feature_product": 0,
+            "cat": "airbuds-items",
+            "brand": "RFL",
+            "price": 2200,
+            "old": 12000
+        },
+        {
+            "name": "M10 Tws Wireless Earphone Touch Bluetooth Earplugs In-Ear Stereo Sport Headsets Cvc8.0 Noise Reduction Headphones With Digital Display - Bulotooth Headphone - Bluetooth Headphone",
+            "slug": "m10-tws-wireless-earphone-touch-bluetooth-earplugs-in-ear-stereo-sport-headsets-cvc8.0-noise-reduction-headphones-with-digital-display---bulotooth-headphone---bluetooth-headphone-244",
+            "category_id": 4,
+            "brand_id": 1,
+            "new_price": 2200,
+            "old_price": 2500,
+            "stock": 9996,
+            "image": "images/product-1773434371-1770959635-1767441358-ef4e07f03cb788bed122e72e02c94818.jpg_720x720q80.jpg",
+            "gallery_images": [
+                "images/product-1773434371-1770959635-1767441358-ef4e07f03cb788bed122e72e02c94818.jpg_720x720q80.jpg"
+            ],
+            "description": "<h2 class=\"pdp-mod-section-title outer-title\" data-spm-anchor-id=\"a2a0e.pdp_revamp.0.i4.6caa384fnFrKyD\" style=\"margin-top: 0px; margin-bottom: 0px; line-height: 52px; color: rgb(33, 33, 33); font-size: 16px; font-family: Roboto-Medium; text-wrap-mode: nowrap; padding: 0px 24px; overflow: hidden; text-overflow: ellipsis; height: 52px; background: rgb(250, 250, 250);\">Product details of M10 Tws Wireless Earphone Touch Bluetooth Earplugs In-Ear Stereo Sport Headsets Cvc8.0 Noise Reduction Headphone...[truncated]",
+            "meta_title": "M10 Tws Wireless Earphone Touch Bluetooth Earplugs In-Ear Stereo Sport Headsets Cvc8.0 Noise Reduction Headphones With Digital Display - Bulotooth Headphone - Bluetooth Headphone",
+            "meta_description": "Product details of M10 Tws Wireless Earphone Touch Bluetooth Earplugs In-Ear Stereo Sport Headsets Cvc8.0 Noise Reduction Headphones With Digital Display - Bulo...",
+            "status": 1,
+            "topsale": 1,
+            "flashsale": 1,
+            "feature_product": 0,
+            "cat": "airbuds-items",
+            "brand": "RFL",
+            "price": 2200,
+            "old": 2500
+        }
+    ],
+    "blogs": [
+        {
+            "title": "Welcome to Electronics Shop BD",
+            "short_desc": "Discover amazing products at great prices.",
+            "views": 1000,
+            "image": "images/banner-177343319217709548571767441718176607125756_1763462883573-website-slider-desktop-width-1920-pixel-x-height-550-pixel-with-gp-offerjpg.jpg"
+        },
+        {
+            "title": "New Arrivals",
+            "short_desc": "Check out our latest collection.",
+            "views": 800,
+            "image": "images/product-1773433848-1770957538-1767436742-vsn65qled_pq1_galaxy_pro_800x800pxl_trly-4s.jpg.png"
+        }
+    ],
+    "shipping_charges": [
+        {
+            "name": "Inside Dhaka",
+            "amount": 60
+        },
+        {
+            "name": "Outside Dhaka",
+            "amount": 110
+        }
+    ],
+    "banners": [
+        {
+            "category_id": 8,
+            "image": "images/banner-173643113867575302_2472100143020289_2326622559207948288_n.jpg",
+            "link": "#"
+        },
+        {
+            "category_id": 8,
+            "image": "images/banner-1736431152118809765_346016253436140_4643575167707946072_n.jpg",
+            "link": "#"
+        },
+        {
+            "category_id": 8,
+            "image": "images/banner-17627569661760726244173643113867575302_2472100143020289_2326622559207948288_n.jpg",
+            "link": "#"
+        },
+        {
+            "category_id": 5,
+            "image": "images/banner-17647804324.webp",
+            "link": "#"
+        },
+        {
+            "category_id": 10,
+            "image": "images/banner-17647805931468277_Protector_DOOR_cat_web.webp",
+            "link": "#"
+        },
+        {
+            "category_id": 6,
+            "image": "images/banner-17647806211468277_Protector_DOOR_cat_web.webp",
+            "link": "#"
+        },
+        {
+            "category_id": 1,
+            "image": "images/banner-17647810191468495_Mobile and gadgets top right side banner web.webp",
+            "link": "#"
+        },
+        {
+            "category_id": 1,
+            "image": "images/banner-17647810521457239_Regal Topslider Web (3).webp",
+            "link": "#"
+        }
+    ]
+}

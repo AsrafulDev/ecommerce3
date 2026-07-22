@@ -15,8 +15,11 @@ class Refund extends Model
         'refund_id',
         'amount',
         'shipping_charge',
+        'refund_amount',
+        'include_shipping',
         'reason',
         'admin_note',
+        'customer_note',
         'status',
         'refund_method',
         'refund_account',
@@ -31,6 +34,8 @@ class Refund extends Model
         return [
             'amount' => 'decimal:2',
             'shipping_charge' => 'decimal:2',
+            'refund_amount' => 'decimal:2',
+            'include_shipping' => 'boolean',
             'processed_at' => 'datetime',
         ];
     }
@@ -71,6 +76,22 @@ class Refund extends Model
     public function isPending()
     {
         return $this->status === 'pending';
+    }
+
+    /**
+     * Get the effective total refund amount.
+     * Uses refund_amount if set (partial refund), otherwise uses amount + optional shipping.
+     */
+    public function totalRefundAmount(): float
+    {
+        if ($this->refund_amount !== null) {
+            return (float) $this->refund_amount;
+        }
+        $total = (float) $this->amount;
+        if ($this->include_shipping) {
+            $total += (float) $this->shipping_charge;
+        }
+        return $total;
     }
 
     public function isApproved()

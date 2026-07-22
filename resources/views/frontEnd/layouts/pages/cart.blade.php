@@ -79,9 +79,9 @@
                                                 @php
                                                     $wt = \App\Models\ProductWarrantyTier::find($value->options->warranty_tier_id);
                                                 @endphp
-                                                @if($wt)
-                                                    <br><small class="{{ $warrantyAdj < 0 ? 'text-danger' : 'text-success' }}">
-                                                        🛡️ {{ $wt->tier_name }} ({{ $warrantyAdj > 0 ? '+' : '' }}{{ $warrantyAdj }} TK)
+                                                @if($wt && $wt->warranty_days > 0)
+                                                    <br><small class="text-success">
+                                                        🛡️ {{ $wt->warranty_days }} Days Warranty
                                                     </small>
                                                 @endif
                                             @endif

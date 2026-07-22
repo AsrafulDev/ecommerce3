@@ -231,7 +231,7 @@ $totalOrderAmount = \App\Models\Order::where('customer_id', $customerId)->sum('a
                                             <div class="text-xs text-gray-400 mt-0.5">{{ __('Invoice ID') }}</div>
                                         </td>
 
-                                        <td class="font-bold text-gray-800">৳{{ number_format($refund->amount + $refund->shipping_charge, 2) }}</td>
+                                        <td class="font-bold text-gray-800">৳{{ number_format($refund->totalRefundAmount(), 2) }}</td>
 
                                         <td>
                                             <span class="{{ $statusClass }} px-3 py-1 rounded-full text-xs font-bold inline-flex items-center gap-1">

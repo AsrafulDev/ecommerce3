@@ -45,6 +45,18 @@
     $due_amount = max(0, $grand_total - $paid_amount);
     $subtotal = ($order->amount + $order->discount) - $order->shipping_charge;
 
+    // 💰 Total product-level discount (wholesale)
+    $totalProductDiscount = 0;
+    foreach ($order->orderdetails as $item) {
+        $totalProductDiscount += ((float) ($item->product_discount ?? 0)) * $item->qty;
+    }
+
+    // 🛡️ Total warranty charges
+    $totalWarrantyCharge = 0;
+    foreach ($order->orderdetails as $item) {
+        $totalWarrantyCharge += ((float) ($item->warranty_price ?? 0)) * $item->qty;
+    }
+
     // ⭐ ডিজিটাল ডাউনলোড লজিক — যদি ফুল পেইড হয় তবেই ডাউনলোড লিংক দেখাবে
     $is_fully_paid = ($paid_amount >= $grand_total);
     $downloads = $is_fully_paid ? \App\Models\DigitalDownload::where('order_id', $order->id)->get() : collect();
@@ -174,13 +186,19 @@
                     <thead>
                         <tr>
                             <th>Product Description</th>
-                            <th class="text-center">{{ __('Price') }}</th>
+                            <th class="text-center">{{ __('Unit Price') }}</th>
+                            <th class="text-center">{{ __('Discount') }}</th>
+                            <th class="text-center">{{ __('Warranty') }}</th>
                             <th class="text-center">{{ __('Qty') }}</th>
-                            <th class="text-end">{{ __('Total') }}</th>
+                            <th class="text-end">{{ __('Subtotal') }}</th>
                         </tr>
                     </thead>
                     <tbody>
                         @foreach($order->orderdetails as $item)
+                        @php
+                            $productDiscount = (float) ($item->product_discount ?? 0);
+                            $warrantyPrice   = (float) ($item->warranty_price ?? 0);
+                        @endphp
                         <tr>
                             <td>
                                 <span class="fw-bold d-block">{{$item->product_name}}</span>
@@ -198,8 +216,27 @@
                                 @endphp
                                 @if($sizeDisplay)<small class="text-muted d-block">Size: {{ $sizeDisplay }}</small>@endif
                                 @if($colorDisplay)<small class="text-muted d-block">Color: {{ $colorDisplay }}</small>@endif
+                                {{-- 🛡️ Warranty Info --}}
+                                @if($item->warranty_tier_id)
+                                    @php
+                                        $wt = \App\Models\ProductWarrantyTier::find($item->warranty_tier_id);
+                                    @endphp
+                                    @if($wt && $wt->warranty_days > 0)
+                                        <small class="text-success d-block">🛡️ {{ $wt->tier_name }} ({{ $wt->warranty_days }}d warranty)</small>
+                                    @endif
+                                @endif
                             </td>
                             <td class="text-center">৳{{number_format($item->sale_price, 2)}}</td>
+                            <td class="text-center">
+                                @if($productDiscount > 0)
+                                    <span class="text-danger">-৳{{number_format($productDiscount, 2)}}</span>
+                                @else — @endif
+                            </td>
+                            <td class="text-center">
+                                @if($warrantyPrice > 0)
+                                    <span class="text-success">+৳{{number_format($warrantyPrice, 2)}}</span>
+                                @else — @endif
+                            </td>
                             <td class="text-center">{{$item->qty}}</td>
                             <td class="text-end fw-bold">৳{{number_format($item->sale_price * $item->qty, 2)}}</td>
                         </tr>
@@ -214,13 +251,25 @@
                         <span class="text-muted">{{ __('Subtotal') }}</span>
                         <span>৳{{number_format($subtotal, 2)}}</span>
                     </div>
+                    @if($totalProductDiscount > 0)
+                    <div class="sum-row text-danger">
+                        <span>🛒 Wholesale Discount</span>
+                        <span>-৳{{number_format($totalProductDiscount, 2)}}</span>
+                    </div>
+                    @endif
+                    @if($totalWarrantyCharge > 0)
+                    <div class="sum-row text-success">
+                        <span>🛡️ Warranty Charge</span>
+                        <span>+৳{{number_format($totalWarrantyCharge, 2)}}</span>
+                    </div>
+                    @endif
                     <div class="sum-row">
                         <span class="text-muted">Shipping Fee</span>
                         <span>৳{{number_format($order->shipping_charge, 2)}}</span>
                     </div>
                     @if($order->discount > 0)
                     <div class="sum-row text-danger">
-                        <span>{{ __('Discount') }}</span>
+                        <span>{{ __('Coupon Discount') }}</span>
                         <span>-৳{{number_format($order->discount, 2)}}</span>
                     </div>
                     @endif

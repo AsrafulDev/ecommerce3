@@ -179,14 +179,21 @@
                             <tr>
                                 <th>{{ __('SL') }}</th>
                                 <th>Product</th>
-                                <th>{{ __('Price') }}</th>
+                                <th>{{ __('Unit Price') }}</th>
+                                <th>{{ __('Discount') }}</th>
+                                <th>{{ __('Warranty') }}</th>
                                 <th>{{ __('Qty') }}</th>
-                                <th>{{ __('Total') }}</th>
+                                <th>{{ __('Subtotal') }}</th>
                             </tr>
                         </thead>
 
                         <tbody>
                             @foreach($order->orderdetails as $value)
+                            @php
+                                $productDiscount = (float) ($value->product_discount ?? 0);
+                                $warrantyPrice   = (float) ($value->warranty_price ?? 0);
+                                $lineSubtotal    = $value->sale_price * $value->qty;
+                            @endphp
                             <tr>
                                 <td>{{$loop->iteration}}</td>
                                 <td>
@@ -226,9 +233,23 @@
                                         @endif
                                     @endif
                                 </td>
-                                <td>৳{{$value->sale_price}}</td>
+                                <td>৳{{ number_format($value->sale_price, 2) }}</td>
+                                <td>
+                                    @if($productDiscount > 0)
+                                        <span class="text-danger">-৳{{ number_format($productDiscount, 2) }}</span>
+                                    @else
+                                        —
+                                    @endif
+                                </td>
+                                <td>
+                                    @if($warrantyPrice > 0)
+                                        <span class="text-success">+৳{{ number_format($warrantyPrice, 2) }}</span>
+                                    @else
+                                        —
+                                    @endif
+                                </td>
                                 <td>{{$value->qty}}</td>
-                                <td>৳{{$value->sale_price * $value->qty}}</td>
+                                <td>৳{{ number_format($lineSubtotal, 2) }}</td>
                             </tr>
                             @endforeach
                         </tbody>
@@ -239,30 +260,56 @@
                         $subtotal = ($order->amount + $order->discount) - $order->shipping_charge;
                         $shipping = $order->shipping_charge;
                         $discount = $order->discount;
+
+                        // 💰 Total product-level discount (wholesale)
+                        $totalProductDiscount = 0;
+                        foreach ($order->orderdetails as $item) {
+                            $totalProductDiscount += ((float) ($item->product_discount ?? 0)) * $item->qty;
+                        }
+
+                        // 🛡️ Total warranty charges
+                        $totalWarrantyCharge = 0;
+                        foreach ($order->orderdetails as $item) {
+                            $totalWarrantyCharge += ((float) ($item->warranty_price ?? 0)) * $item->qty;
+                        }
                     @endphp
 
                     <div class="invoice-bottom">
-                        <table class="table" style="width: 300px; float: right; margin-bottom: 30px;">
+                        <table class="table" style="width: 350px; float: right; margin-bottom: 30px;">
                             <tbody style="background:var(--primary-color, #00aef0); color:#fff;">
 
                                 <tr>
                                     <td><strong>SubTotal</strong></td>
-                                    <td><strong>৳{{$subtotal}}</strong></td>
+                                    <td><strong>৳{{ number_format($subtotal, 2) }}</strong></td>
                                 </tr>
+
+                                @if($totalProductDiscount > 0)
+                                <tr style="background:color-mix(in srgb, var(--primary-color, #00aef0) 70%, #dc3545);">
+                                    <td><strong>Wholesale Discount(-)</strong></td>
+                                    <td><strong>-৳{{ number_format($totalProductDiscount, 2) }}</strong></td>
+                                </tr>
+                                @endif
+
+                                @if($totalWarrantyCharge > 0)
+                                <tr style="background:color-mix(in srgb, var(--primary-color, #00aef0) 70%, #28a745);">
+                                    <td><strong>🛡️ Warranty Charge(+)</strong></td>
+                                    <td><strong>+৳{{ number_format($totalWarrantyCharge, 2) }}</strong></td>
+                                </tr>
+                                @endif
 
                                 <tr>
                                     <td><strong>Shipping(+)</strong></td>
-                                    <td><strong>৳{{$shipping}}</strong></td>
+                                    <td><strong>৳{{ number_format($shipping, 2) }}</strong></td>
                                 </tr>
 
                                 <tr>
-                                    <td><strong>Discount(-)</strong></td>
-                                    <td><strong>৳{{$discount}}</strong></td>
+                                    <td><strong>Coupon Discount(-)</strong></td>
+                                    <td><strong>৳{{ number_format($discount, 2) }}</strong></td>
                                 </tr>
 
                                 <tr>
                                     <td><strong>Total Amount</strong></td>
-                                    <td><strong>৳{{$grand_total}}</strong></td>
+                                    <td><strong>৳{{ number_format($grand_total, 2) }}</strong></td>
                                 </tr>
 
                                 {{-- ========== Paid & Due Display ========== --}}

@@ -25,7 +25,11 @@ class OrderHelper
             $detail->product_size = $cart->options->size_id ?? null;
             $detail->variant_price_id = $cart->options->variant_price_id ?? null;
 
-            // 🛡️ Warranty
+            // � Wholesale / Product Discount
+            $wholesaleDiscount = (float) ($cart->options->wholesale_discount ?? 0);
+            $detail->product_discount = $wholesaleDiscount;
+
+            // �🛡️ Warranty
             $warrantyAdj = $cart->options->warranty_adjustment ?? 0;
             if ($cart->options->warranty_tier_id ?? null) {
                 $tier = ProductWarrantyTier::find($cart->options->warranty_tier_id);

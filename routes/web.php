@@ -445,6 +445,7 @@ Route::group(['prefix'=>'customer','namespace'=>'Frontend','middleware' => ['cus
     Route::get('/complaints', [CustomerController::class, 'complaints'])->name('customer.complaints');
     
     // ── Warranty ──────────────────────────────
+    Route::get('/warranties', fn() => view('frontEnd.layouts.customer.warranties'))->name('customer.warranties');
     Route::get('/warranty-claim/{warranty_sale_id}', fn($id) => view('frontEnd.layouts.customer.file-warranty-claim', ['warranty_sale_id' => $id]))
         ->name('customer.warranty.claim');
     Route::post('/warranty-claim', [App\Http\Controllers\Api\WarrantyApiController::class, 'fileClaimWeb'])

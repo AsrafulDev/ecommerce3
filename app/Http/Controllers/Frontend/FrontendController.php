@@ -240,6 +240,8 @@ $brands = Brand::where('status', 1)
             'qty'           => 'nullable|integer|min:1',
             'product_color' => 'nullable|integer',
             'product_size'  => 'nullable|integer',
+            'warranty_tier_id' => 'nullable|integer',
+            'order_now'     => 'nullable|boolean',
         ]);
         
         // =========================================================
@@ -349,8 +351,24 @@ $brands = Brand::where('status', 1)
         }
 
         // =========================================================
+        // �️ WARRANTY — apply adjustment
+        // =========================================================
+        $warrantyAdjustment = 0;
+        $warrantyTierId = null;
+        if ($request->filled('warranty_tier_id')) {
+            $warrantyTier = \App\Models\ProductWarrantyTier::find($request->warranty_tier_id);
+            if ($warrantyTier && $warrantyTier->is_active) {
+                $warrantyAdjustment = (float) ($warrantyTier->additional_cost ?? 0);
+                $finalPrice += $warrantyAdjustment;
+                $warrantyTierId = $warrantyTier->id;
+            }
+        }
+
+        // =========================================================
         // 🟢 WHOLESALE PRICING OVERRIDE
         // =========================================================
+        $wholesaleDiscount = 0;
+        $basePrice = $finalPrice; // capture before wholesale deduction
         if ($product->is_wholesale) {
             $cartQty = max(1, (int) ($request->qty ?? 1));
             $vid = $variantPrice->id ?? null;
@@ -380,7 +398,8 @@ $brands = Brand::where('status', 1)
             }
 
             if ($wholesaleTier) {
-                $finalPrice = max(0, $finalPrice - (float) ($wholesaleTier->wholesale_price ?? 0));
+                $wholesaleDiscount = (float) ($wholesaleTier->wholesale_price ?? 0);
+                $finalPrice = max(0, $finalPrice - $wholesaleDiscount);
             }
         }
 
@@ -411,6 +430,23 @@ $brands = Brand::where('status', 1)
                 'image'            => $product->image->image ?? null,
                 'slug'             => $product->slug,
                 'purchase_price'   => $product->purchase_price ?? null,
+
+                // 🔥 Advance
+                'advance_amount' => (float) ($product->advance_amount ?? 0),
+
+                // 🔥 Digital flag
+                'is_digital'     => (int) ($product->is_digital ?? 0),
+
+                // 🔥 Free Delivery flag
+                'free_delivery'  => (int) ($product->free_delivery ?? 0),
+
+                // 🛡️ Warranty
+                'warranty_tier_id'    => $warrantyTierId,
+                'warranty_adjustment' => $warrantyAdjustment,
+
+                // 💰 Wholesale / base price tracking
+                'base_price'         => $basePrice,
+                'wholesale_discount' => $wholesaleDiscount,
             ],
         ]);
 
@@ -476,52 +512,52 @@ $brands = Brand::where('status', 1)
     }
 
 	public function brand($slug, Request $request)
-{
-    $brand = Brand::where('slug', $slug)
-        ->where('status', 1)
-        ->firstOrFail();
+    {
+        $brand = Brand::where('slug', $slug)
+            ->where('status', 1)
+            ->firstOrFail();
 
-    $products = Product::where('brand_id', $brand->id)
-        ->where('status', 1)
-        ->where('approval_status', 'approved')
-        ->select('id', 'name', 'slug', 'new_price', 'old_price', 'stock');
+        $products = Product::where('brand_id', $brand->id)
+            ->where('status', 1)
+            ->where('approval_status', 'approved')
+            ->select('id', 'name', 'slug', 'new_price', 'old_price', 'stock');
 
-    // sorting (same pattern as category/shop)
-    if ($request->sort == 1) {
-        $products = $products->orderBy('created_at', 'desc');
-    } elseif ($request->sort == 2) {
-        $products = $products->orderBy('created_at', 'asc');
-    } elseif ($request->sort == 3) {
-        $products = $products->orderBy('new_price', 'desc');
-    } elseif ($request->sort == 4) {
-        $products = $products->orderBy('new_price', 'asc');
-    } elseif ($request->sort == 5) {
-        $products = $products->orderBy('name', 'asc');
-    } elseif ($request->sort == 6) {
-        $products = $products->orderBy('name', 'desc');
-    } else {
-        $products = $products->latest();
+        // sorting (same pattern as category/shop)
+        if ($request->sort == 1) {
+            $products = $products->orderBy('created_at', 'desc');
+        } elseif ($request->sort == 2) {
+            $products = $products->orderBy('created_at', 'asc');
+        } elseif ($request->sort == 3) {
+            $products = $products->orderBy('new_price', 'desc');
+        } elseif ($request->sort == 4) {
+            $products = $products->orderBy('new_price', 'asc');
+        } elseif ($request->sort == 5) {
+            $products = $products->orderBy('name', 'asc');
+        } elseif ($request->sort == 6) {
+            $products = $products->orderBy('name', 'desc');
+        } else {
+            $products = $products->latest();
+        }
+
+        $min_price = $products->min('new_price');
+        $max_price = $products->max('new_price');
+
+        if ($request->min_price && $request->max_price) {
+            $products = $products->whereBetween('new_price', [
+                $request->min_price,
+                $request->max_price
+            ]);
+        }
+
+        $products = $products->paginate(24);
+
+        return view('frontEnd.layouts.pages.brand', compact(
+            'brand',
+            'products',
+            'min_price',
+            'max_price'
+        ));
     }
-
-    $min_price = $products->min('new_price');
-    $max_price = $products->max('new_price');
-
-    if ($request->min_price && $request->max_price) {
-        $products = $products->whereBetween('new_price', [
-            $request->min_price,
-            $request->max_price
-        ]);
-    }
-
-    $products = $products->paginate(24);
-
-    return view('frontEnd.layouts.pages.brand', compact(
-        'brand',
-        'products',
-        'min_price',
-        'max_price'
-    ));
-}
 
     public function storeIncompleteOrder(Request $request)
     {

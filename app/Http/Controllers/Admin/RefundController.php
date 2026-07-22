@@ -53,7 +53,7 @@ class RefundController extends Controller
     }
 
     /**
-     * Approve refund request
+     * Approve refund request (supports partial refund)
      */
     public function approve(Request $request, $id)
     {
@@ -64,19 +64,44 @@ class RefundController extends Controller
             return back();
         }
 
+        $request->validate([
+            'admin_note'       => 'nullable|string|max:2000',
+            'customer_note'     => 'nullable|string|max:2000',
+            'refund_amount'    => 'nullable|numeric|min:0',
+            'include_shipping' => 'nullable|boolean',
+        ]);
+
+        // Determine the actual refund amount
+        $includeShipping = $request->boolean('include_shipping', true);
+        $customAmount = $request->filled('refund_amount') ? (float) $request->refund_amount : null;
+
+        if ($customAmount !== null) {
+            $totalRefundAmount = $customAmount;
+        } else {
+            $totalRefundAmount = (float) $refund->amount;
+            if ($includeShipping) {
+                $totalRefundAmount += (float) $refund->shipping_charge;
+            }
+        }
+
         // Check admin fund balance
         $adminFundBalance = \App\Helpers\FundHelper::balance();
-        $totalRefundAmount = $refund->amount + $refund->shipping_charge;
-        
         if ($adminFundBalance < $totalRefundAmount) {
             Toastr::error('Insufficient fund balance. Current balance: ৳' . number_format($adminFundBalance, 2), 'Error');
             return back();
         }
 
-        DB::transaction(function () use ($refund, $request) {
+        DB::transaction(function () use ($refund, $request, $totalRefundAmount, $customAmount, $includeShipping) {
             $refund->status = 'approved';
             $refund->admin_note = $request->admin_note;
+            $refund->customer_note = $request->customer_note;
             $refund->processed_by = Auth::id();
+
+            // Save partial refund details
+            if ($customAmount !== null) {
+                $refund->refund_amount = $customAmount;
+            }
+            $refund->include_shipping = $includeShipping;
             $refund->save();
 
             // Deduct from admin fund
@@ -84,13 +109,17 @@ class RefundController extends Controller
                 'direction'  => 'out',
                 'source'     => 'refund',
                 'source_id'  => $refund->id,
-                'amount'     => $refund->amount + $refund->shipping_charge,
-                'note'       => 'Refund approved for Order #' . $refund->order->invoice_id . ' - Refund ID: ' . $refund->refund_id,
+                'amount'     => $totalRefundAmount,
+                'note'       => 'Refund approved for Order #' . $refund->order->invoice_id . ' - Refund ID: ' . $refund->refund_id . ($customAmount !== null ? ' (Partial: ৳' . number_format($customAmount, 2) . ')' : ''),
                 'created_by' => Auth::id(),
             ]);
         });
 
-        Toastr::success('Refund approved successfully.', 'Success');
+        $msg = $customAmount !== null
+            ? 'Partial refund of ৳' . number_format($totalRefundAmount, 2) . ' approved successfully.'
+            : 'Refund approved successfully.';
+
+        Toastr::success($msg, 'Success');
         return back();
     }
 
@@ -106,7 +135,14 @@ class RefundController extends Controller
             return back();
         }
 
+        $request->validate([
+            'admin_note'    => 'required|string|max:2000',
+            'customer_note' => 'nullable|string|max:2000',
+        ]);
+
         DB::transaction(function () use ($refund, $request) {
+            $actualAmount = $refund->totalRefundAmount();
+
             // If refund was already approved, reverse the fund transaction
             if ($refund->status === 'approved') {
                 // Find and delete the fund transaction
@@ -121,7 +157,7 @@ class RefundController extends Controller
                         'direction'  => 'in',
                         'source'     => 'refund_reversal',
                         'source_id'  => $refund->id,
-                        'amount'     => $refund->amount + $refund->shipping_charge,
+                        'amount'     => $actualAmount,
                         'note'       => 'Refund rejected - Reversal for Order #' . $refund->order->invoice_id . ' - Refund ID: ' . $refund->refund_id,
                         'created_by' => Auth::id(),
                     ]);
@@ -130,6 +166,7 @@ class RefundController extends Controller
 
             $refund->status = 'rejected';
             $refund->admin_note = $request->admin_note;
+            $refund->customer_note = $request->customer_note;
             $refund->processed_by = Auth::id();
             $refund->processed_at = now();
             $refund->save();
@@ -152,10 +189,12 @@ class RefundController extends Controller
         }
 
         $request->validate([
-            'transaction_id' => 'required|string|max:255',
-            'refund_method' => 'required|in:original_payment,bkash,nagad,bank,manual',
-            'refund_account' => 'required|string|max:255',
-            'refund_account_name' => 'nullable|string|max:255',
+            'transaction_id'     => 'required|string|max:255',
+            'refund_method'      => 'required|in:original_payment,bkash,nagad,bank,manual',
+            'refund_account'     => 'required|string|max:255',
+            'refund_account_name'=> 'nullable|string|max:255',
+            'admin_note'         => 'nullable|string|max:2000',
+            'customer_note'      => 'nullable|string|max:2000',
         ]);
 
         DB::transaction(function () use ($refund, $request) {
@@ -165,6 +204,23 @@ class RefundController extends Controller
             $refund->refund_account = $request->refund_account;
             $refund->refund_account_name = $request->refund_account_name;
             $refund->processed_at = now();
+
+            // Append admin note if provided during processing
+            if ($request->filled('admin_note')) {
+                $existingNote = $refund->admin_note ?? '';
+                $refund->admin_note = $existingNote
+                    ? $existingNote . "\n\n[Processed]: " . $request->admin_note
+                    : '[Processed]: ' . $request->admin_note;
+            }
+
+            // Save customer note if provided
+            if ($request->filled('customer_note')) {
+                $existingCustomerNote = $refund->customer_note ?? '';
+                $refund->customer_note = $existingCustomerNote
+                    ? $existingCustomerNote . "\n\n[Updated]: " . $request->customer_note
+                    : $request->customer_note;
+            }
+
             $refund->save();
 
             // Restore product stock if order was cancelled

@@ -134,6 +134,13 @@
             
             <div class="card-modern">
                 <div class="card-body">
+                    @php
+                        $effectiveTotal = $refund->totalRefundAmount();
+                        $isPartial = $refund->refund_amount !== null;
+                        // order->amount already includes shipping
+                        $orderTotal = (float) $refund->order->amount;
+                        $productOnly = $orderTotal - (float) $refund->order->shipping_charge;
+                    @endphp
                     <div class="d-flex align-items-center justify-content-between">
                         <div>
                             <span class="label-text"> {{ __('Current Status') }} </span>
@@ -148,11 +155,23 @@
                             @endif
                         </div>
                         <div class="text-end">
-                            <span class="label-text"> {{ __('Total Refund Amount') }} </span>
-                            <div class="amount-highlight text-primary">৳{{ number_format($refund->amount + $refund->shipping_charge, 2) }}</div>
-                            @if($refund->shipping_charge > 0)
-                                <small class="text-muted">(Includes Shipping: ৳{{ number_format($refund->shipping_charge, 2) }})</small>
-                            @endif
+                            <span class="label-text">
+                                {{ __('Refund Amount') }}
+                                @if($isPartial)
+                                    <span class="badge bg-warning text-dark ms-1" style="font-size:10px;">PARTIAL</span>
+                                @endif
+                            </span>
+                            <div class="amount-highlight text-primary">৳{{ number_format($effectiveTotal, 2) }}</div>
+                            <small class="text-muted">
+                                Order Total: ৳{{ number_format($orderTotal, 2) }}
+                                (Product: ৳{{ number_format($productOnly, 2) }}
+                                @if($refund->include_shipping && $refund->shipping_charge > 0)
+                                    + Shipping: ৳{{ number_format($refund->shipping_charge, 2) }}
+                                @else
+                                    , Shipping excluded
+                                @endif
+                                )
+                            </small>
                         </div>
                     </div>
                     
@@ -195,7 +214,7 @@
                         </div>
                         <div class="col-md-4">
                             <span class="label-text"> {{ __('Grand Total') }} </span>
-                            <span class="value-text">৳{{ number_format($refund->order->amount + $refund->order->shipping_charge, 2) }}</span>
+                            <span class="value-text">৳{{ number_format((float) $refund->order->amount, 2) }}</span>
                         </div>
                     </div>
                     
@@ -206,17 +225,35 @@
                                     <th> {{ __('Product Name') }} </th>
                                     <th class="text-center">{{ __('Qty') }}</th>
                                     <th class="text-end"> {{ __('Unit Price') }} </th>
-                                    <th class="text-end">{{ __('Total') }}</th>
+                                    <th class="text-end">{{ __('Discount') }}</th>
+                                    <th class="text-end">{{ __('Warranty') }}</th>
+                                    <th class="text-end">{{ __('Subtotal') }}</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 @foreach($refund->order->orderdetails as $item)
+                                    @php
+                                        $pd = (float) ($item->product_discount ?? 0);
+                                        $wp = (float) ($item->warranty_price ?? 0);
+                                    @endphp
                                     <tr>
                                         <td>
                                             <span class="d-block text-dark fw-bold">{{ $item->product_name }}</span>
+                                            @if($item->warranty_tier_id)
+                                                @php $wt = \App\Models\ProductWarrantyTier::find($item->warranty_tier_id); @endphp
+                                                @if($wt && $wt->warranty_days > 0)
+                                                    <small class="text-success">🛡️ {{ $wt->tier_name }} ({{ $wt->warranty_days }}d)</small>
+                                                @endif
+                                            @endif
                                         </td>
                                         <td class="text-center">{{ $item->qty }}</td>
                                         <td class="text-end">৳{{ number_format($item->sale_price, 2) }}</td>
+                                        <td class="text-end">
+                                            @if($pd > 0)<span class="text-danger">-৳{{ number_format($pd, 2) }}</span>@else — @endif
+                                        </td>
+                                        <td class="text-end">
+                                            @if($wp > 0)<span class="text-success">+৳{{ number_format($wp, 2) }}</span>@else — @endif
+                                        </td>
                                         <td class="text-end fw-bold">৳{{ number_format($item->sale_price * $item->qty, 2) }}</td>
                                     </tr>
                                 @endforeach
@@ -226,11 +263,20 @@
                 </div>
             </div>
 
-            @if($refund->admin_note)
+            {{-- Admin & Customer Notes --}}
+            @if($refund->admin_note || $refund->customer_note)
             <div class="card-modern border-start border-4 border-secondary">
                 <div class="card-body">
+                    @if($refund->admin_note)
                     <h6 class="fw-bold text-dark mb-2"><i class="fe-clipboard me-2"></i> {{ __('Admin Note') }} </h6>
-                    <p class="text-secondary mb-1">{{ $refund->admin_note }}</p>
+                    <p class="text-secondary mb-1">{!! nl2br(e($refund->admin_note)) !!}</p>
+                    @endif
+
+                    @if($refund->customer_note)
+                    <h6 class="fw-bold text-primary mt-3 mb-2"><i class="fe-message-circle me-2"></i> {{ __('Customer Note') }} </h6>
+                    <p class="text-dark mb-1 bg-light p-3 rounded">{!! nl2br(e($refund->customer_note)) !!}</p>
+                    @endif
+
                     @if($refund->processedBy)
                         <small class="text-muted mt-2 d-block">— Processed by: <strong>{{ $refund->processedBy->name }}</strong></small>
                     @endif
@@ -333,10 +379,9 @@
     </div>
 </div>
 
-{{-- MODALS SECTION --}}
-
+{{-- ════════════════ APPROVE MODAL (Partial Refund + Shipping Toggle) ════════════════ --}}
 <div class="modal fade" id="approveModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content border-0 shadow-lg">
             <div class="modal-header border-bottom-0 pb-0">
                 <h5 class="modal-title fw-bold"> {{ __('Approve Refund Request') }} </h5>
@@ -345,18 +390,76 @@
             <form action="{{ route('admin.refunds.approve', $refund->id) }}" method="POST">
                 @csrf
                 <div class="modal-body">
-                    <div class="alert bg-soft-primary border-0 d-flex align-items-center mb-4">
-                        <i class="fe-info me-2 fs-5"></i>
-                        <div> {{ __('This will approve') }} <strong>৳{{ number_format($refund->amount + $refund->shipping_charge, 2) }}</strong> {{ __('to be refunded.') }} </div>
+                    {{-- Refund Amount Breakdown --}}
+                    <div class="p-3 bg-light rounded mb-3">
+                        @php
+                            $productSubtotal = (float) $refund->order->amount - (float) $refund->order->shipping_charge;
+                        @endphp
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Product Amount:</span>
+                            <strong>৳{{ number_format($productSubtotal, 2) }}</strong>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Shipping Charge:</span>
+                            <strong>৳{{ number_format($refund->order->shipping_charge, 2) }}</strong>
+                        </div>
+                        <hr class="my-2">
+                        <div class="d-flex justify-content-between">
+                            <span>Order Total:</span>
+                            <strong>৳{{ number_format((float) $refund->order->amount, 2) }}</strong>
+                        </div>
                     </div>
+
+                    {{-- Shipping Toggle --}}
+                    <div class="form-check form-switch mb-3">
+                        <input class="form-check-input" type="checkbox" role="switch"
+                               id="include_shipping" name="include_shipping" value="1"
+                               {{ $refund->include_shipping ? 'checked' : '' }}>
+                        <label class="form-check-label" for="include_shipping">
+                            <strong>{{ __('Include Shipping Charge') }}</strong>
+                            <small class="text-muted d-block">Toggle off to exclude shipping (৳{{ number_format($refund->shipping_charge, 2) }}) from refund</small>
+                        </label>
+                    </div>
+
+                    {{-- Partial Refund Amount --}}
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">
+                            {{ __('Custom Refund Amount (Optional)') }}
+                            <small class="text-muted fw-normal">— Leave empty for full refund</small>
+                        </label>
+                        <div class="input-group">
+                            <span class="input-group-text">৳</span>
+                            <input type="number" name="refund_amount" class="form-control form-control-modern"
+                                   step="0.01" min="0"
+                                   max="{{ (float) $refund->order->amount }}"
+                                   placeholder="Enter partial amount..."
+                                   value="{{ $refund->refund_amount }}">
+                        </div>
+                        <small class="text-muted">Set a specific amount for partial refund. Max: ৳{{ number_format((float) $refund->order->amount, 2) }}</small>
+                    </div>
+
+                    {{-- Admin Note --}}
+                    <div class="form-group mb-3">
+                        <label class="form-label fw-bold"> {{ __('Admin Note') }} </label>
+                        <textarea name="admin_note" class="form-control form-control-modern" rows="2"
+                                  placeholder="Add an internal note (visible only to admins)...">{{ $refund->admin_note }}</textarea>
+                    </div>
+
+                    {{-- Customer Note --}}
                     <div class="form-group">
-                        <label class="label-text"> {{ __('Admin Note (Optional)') }} </label>
-                        <textarea name="admin_note" class="form-control form-control-modern" rows="3" placeholder="Add an internal note...">{{ $refund->admin_note }}</textarea>
+                        <label class="form-label fw-bold">
+                            {{ __('Customer Note') }}
+                            <small class="text-muted fw-normal">— Visible to customer</small>
+                        </label>
+                        <textarea name="customer_note" class="form-control form-control-modern" rows="2"
+                                  placeholder="Add a note for the customer...">{{ $refund->customer_note }}</textarea>
                     </div>
                 </div>
                 <div class="modal-footer border-top-0 pt-0">
                     <button type="button" class="btn btn-light" data-bs-dismiss="modal">{{ __('Cancel') }}</button>
-                    <button type="submit" class="btn btn-success px-4"> {{ __('Approve') }} </button>
+                    <button type="submit" class="btn btn-success px-4" id="approveSubmitBtn">
+                        <i class="fe-check me-1"></i> {{ __('Approve Refund') }}
+                    </button>
                 </div>
             </form>
         </div>
@@ -373,9 +476,17 @@
             <form action="{{ route('admin.refunds.reject', $refund->id) }}" method="POST">
                 @csrf
                 <div class="modal-body">
-                    <div class="form-group">
+                    <div class="form-group mb-3">
                         <label class="label-text"> {{ __('Rejection Reason') }} <span class="text-danger">*</span></label>
-                        <textarea name="admin_note" class="form-control form-control-modern" rows="3" placeholder="Why are you rejecting this?" required>{{ $refund->admin_note }}</textarea>
+                        <textarea name="admin_note" class="form-control form-control-modern" rows="2" placeholder="Why are you rejecting this?" required>{{ $refund->admin_note }}</textarea>
+                    </div>
+                    <div class="form-group">
+                        <label class="label-text">
+                            {{ __('Customer Note (Optional)') }}
+                            <small class="text-muted">— Visible to customer</small>
+                        </label>
+                        <textarea name="customer_note" class="form-control form-control-modern" rows="2"
+                                  placeholder="Add a note for the customer (e.g., reason for rejection)...">{{ $refund->customer_note }}</textarea>
                     </div>
                 </div>
                 <div class="modal-footer border-top-0 pt-0">
@@ -415,13 +526,35 @@
                         </div>
                         <div class="col-md-6 mb-3">
                             <label class="label-text">{{ __('Amount') }}</label>
-                            <input type="text" class="form-control form-control-modern bg-light" value="৳{{ number_format($refund->amount + $refund->shipping_charge, 2) }}" readonly>
+                            <input type="text" class="form-control form-control-modern bg-light" value="৳{{ number_format($refund->totalRefundAmount(), 2) }}" readonly>
                         </div>
                     </div>
 
                     <div class="mb-3">
-                        <label class="label-text"> {{ __('Sent To (Account)') }} </label>
+                        <label class="label-text"> {{ __('Sent To (Account)') }} <span class="text-danger">*</span></label>
                         <input type="text" name="refund_account" class="form-control form-control-modern" required value="{{ $refund->refund_account }}">
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="label-text"> {{ __('Account Holder Name') }} </label>
+                        <input type="text" name="refund_account_name" class="form-control form-control-modern" value="{{ $refund->refund_account_name }}">
+                    </div>
+
+                    {{-- Admin Note --}}
+                    <div class="form-group mb-3">
+                        <label class="form-label fw-bold"> {{ __('Processing Note (Optional)') }} </label>
+                        <textarea name="admin_note" class="form-control form-control-modern" rows="2"
+                                  placeholder="Add a note about this payment..."></textarea>
+                    </div>
+
+                    {{-- Customer Note --}}
+                    <div class="form-group">
+                        <label class="form-label fw-bold">
+                            {{ __('Customer Note (Optional)') }}
+                            <small class="text-muted fw-normal">— Visible to customer</small>
+                        </label>
+                        <textarea name="customer_note" class="form-control form-control-modern" rows="2"
+                                  placeholder="Add a note for the customer..."></textarea>
                     </div>
                 </div>
                 <div class="modal-footer border-top-0 pt-0">

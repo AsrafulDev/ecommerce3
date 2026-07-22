@@ -232,9 +232,9 @@ $totalOrderAmount = \App\Models\Order::where('customer_id', $customerId)->sum('a
                     <div class="bg-gradient-to-br from-indigo-600 to-purple-600 rounded-2xl shadow-lg p-6 text-white mb-6">
                         <div class="text-center">
                             <p class="text-sm opacity-90 mb-2">{{ __('Total Refund Amount') }}</p>
-                            <h2 class="text-4xl font-bold mb-2">৳{{ number_format($refund->amount + $refund->shipping_charge, 2) }}</h2>
+                            <h2 class="text-4xl font-bold mb-2">৳{{ number_format($refund->totalRefundAmount(), 2) }}</h2>
                             <p class="text-xs opacity-80">
-                                ({{ __('Product:') }} ৳{{ number_format($refund->amount, 2) }} + {{ __('Delivery:') }} ৳{{ number_format($refund->shipping_charge, 2) }})
+                                {{ __('Order Total:') }} ৳{{ number_format((float) $refund->order->amount, 2) }}
                             </p>
                         </div>
                     </div>
@@ -303,7 +303,7 @@ $totalOrderAmount = \App\Models\Order::where('customer_id', $customerId)->sum('a
                                 </div>
                                 <div>
                                     <p class="text-xs text-gray-500 uppercase mb-1">{{ __('Total Order') }}</p>
-                                    <p class="font-bold text-gray-800">৳{{ number_format($refund->order->amount + $refund->order->shipping_charge, 2) }}</p>
+                                    <p class="font-bold text-gray-800">৳{{ number_format((float) $refund->order->amount, 2) }}</p>
                                 </div>
                             </div>
 
@@ -320,7 +320,17 @@ $totalOrderAmount = \App\Models\Order::where('customer_id', $customerId)->sum('a
                                     <i class="fas fa-user-shield text-yellow-600"></i>
                                     <h5 class="font-bold text-gray-800">{{ __('Admin Response') }}</h5>
                                 </div>
-                                <p class="text-gray-700 text-sm">{{ $refund->admin_note }}</p>
+                                <p class="text-gray-700 text-sm">{!! nl2br(e($refund->admin_note)) !!}</p>
+                            </div>
+                            @endif
+
+                            @if($refund->customer_note)
+                            <div class="mt-4 bg-green-50 border-l-4 border-green-500 p-4 rounded-r-lg">
+                                <div class="flex items-center gap-2 mb-2">
+                                    <i class="fas fa-comment-dots text-green-600"></i>
+                                    <h5 class="font-bold text-gray-800">{{ __('Message from Store') }}</h5>
+                                </div>
+                                <p class="text-gray-700 text-sm">{!! nl2br(e($refund->customer_note)) !!}</p>
                             </div>
                             @endif
                         </div>

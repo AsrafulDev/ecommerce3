@@ -94,11 +94,13 @@ class RefundController extends Controller
             return back();
         }
 
-        // Validate refund amount (should not exceed order amount)
-        $maxRefundAmount = $order->amount + $order->shipping_charge;
+        // Validate refund amount (should not exceed order total)
+        // order->amount already includes shipping, so max product refund = amount - shipping
+        $maxProductRefund = $order->amount - $order->shipping_charge;
         $requestedAmount = $request->amount + ($request->shipping_charge ?? 0);
+        $maxTotalRefund = $order->amount;
         
-        if ($requestedAmount > $maxRefundAmount) {
+        if ($requestedAmount > $maxTotalRefund) {
             Toastr::error('Refund amount cannot exceed order total amount.', 'Error');
             return back();
         }

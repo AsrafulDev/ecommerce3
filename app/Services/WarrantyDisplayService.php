@@ -38,7 +38,7 @@ class WarrantyDisplayService
                 'label'=>$label, 'badge'=>$badge, 'warranty_days'=>$days,
                 'additional_cost'=>$adj, 'final_price'=>$finalPrice,
                 'formatted_price'=>number_format($finalPrice,2).' TK',
-                'features'=>$tier->features??[], 'is_default'=>$tier->is_default??($type==='with_warranty'),
+                'features'=>$tier->features??[], 'is_default'=>$tier->is_default ?: ($type==='no_warranty' || $type==='with_warranty'),
                 'is_global'=>$tier->is_global,
             ];
         }

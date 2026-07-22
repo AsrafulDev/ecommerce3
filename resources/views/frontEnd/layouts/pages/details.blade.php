@@ -644,16 +644,20 @@ if (typeof ttq !== 'undefined') {
                                     <div class="sale-badge-box">
                                         <span class="sale-badge-text">
                                             <p>@php $discount=(((($value->old_price)-($value->new_price))*100) / ($value->old_price)) @endphp 
-                                               {{ number_format($discount, 0) }}%</p>{{ __('Sale') }}</span>
-                                            </div>
-                                        </div>
+                                               {{ number_format($discount, 0) }}%</p>{{ __('Sale') }}
+                                        </span>
                                     </div>
                                 </div>
+                            </div>
                             @endif
 
                             <div class="pro_img">
                                 <a href="{{ route('product', $value->slug) }}">
-                                    <img src="{{ asset($value->image ? $value->image->image : '') }}"
+                                    @php
+                                        $relImg = $value->image ? $value->image->image : null;
+                                        $relSrc = ($relImg && file_exists(public_path($relImg))) ? asset($relImg) : asset('public/assets/images/no-image.png');
+                                    @endphp
+                                    <img src="{{ $relSrc }}"
                                         alt="{{ $value->name }}" />
                                 </a>
                             </div>

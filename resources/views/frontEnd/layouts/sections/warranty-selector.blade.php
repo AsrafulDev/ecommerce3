@@ -13,8 +13,12 @@
     <div class="d-flex align-items-center flex-wrap gap-2">
         <small class="text-muted fw-semibold me-1">🛡️ Warranty:</small>
         @foreach($tiers as $tier)
-        <label class="warranty-chip {{ $tier['is_default'] ? 'active' : '' }}" style="cursor:pointer;">
-            <input type="radio" name="warranty_tier_id" value="{{ $tier['id'] }}"
+        <label class="warranty-chip {{ $tier['is_default'] ? 'active' : '' }}"
+               data-tier-id="{{ $tier['id'] }}"
+               data-adjustment="{{ $tier['additional_cost'] }}"
+               data-label="{{ $tier['label'] }}"
+               style="cursor:pointer;">
+            <input type="radio" value="{{ $tier['id'] }}"
                 data-adjustment="{{ $tier['additional_cost'] }}"
                 data-label="{{ $tier['label'] }}"
                 {{ $tier['is_default'] ? 'checked' : '' }}>
@@ -43,22 +47,50 @@
 </style>
 
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    window._currentWarrantyAdjustment = 0;
-    const chips = document.querySelectorAll('.warranty-chip input');
-    function update() {
-        const sel = document.querySelector('.warranty-chip input:checked');
-        chips.forEach(c => c.parentElement.classList.remove('active'));
-        if (sel) {
-            sel.parentElement.classList.add('active');
-            window._currentWarrantyAdjustment = parseFloat(sel.dataset.adjustment) || 0;
+(function() {
+    function initWarrantySelector() {
+        const chips = document.querySelectorAll('.warranty-chip[data-tier-id]');
+        if (!chips.length) return;
+
+        function selectChip(chip) {
+            // Update visual state
+            chips.forEach(c => c.classList.remove('active'));
+            chip.classList.add('active');
+
+            // Check the radio inside
+            const radio = chip.querySelector('input[type="radio"]');
+            if (radio) radio.checked = true;
+
+            // Update global state
+            const adj = parseFloat(chip.dataset.adjustment) || 0;
+            window._currentWarrantyAdjustment = adj;
+
+            // Set hidden form input
             const hidden = document.getElementById('warranty-tier-input');
-            if (hidden) hidden.value = sel.value;
+            if (hidden) hidden.value = chip.dataset.tierId;
+
+            // Update price display
             if (typeof updateDisplayPrice === 'function') updateDisplayPrice();
         }
+
+        // Click handler on labels
+        chips.forEach(chip => {
+            chip.addEventListener('click', function(e) {
+                e.preventDefault();
+                selectChip(this);
+            });
+        });
+
+        // Initialize: select the active/default chip
+        const activeChip = document.querySelector('.warranty-chip.active[data-tier-id]');
+        if (activeChip) selectChip(activeChip);
     }
-    chips.forEach(c => c.addEventListener('change', update));
-    update();
-});
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initWarrantySelector);
+    } else {
+        initWarrantySelector();
+    }
+})();
 </script>
 @endif

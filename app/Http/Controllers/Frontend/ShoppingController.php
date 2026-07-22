@@ -139,6 +139,12 @@ class ShoppingController extends Controller
 
                 // 🔥 Free Delivery flag
                 'free_delivery'  => (int) ($productInfo->free_delivery ?? 0),
+
+                // 🛡️ Warranty
+                'warranty_tier_id'    => null,
+                'warranty_adjustment' => 0,
+                'base_price'          => (float) ($productInfo->new_price ?? $productInfo->old_price ?? 1),
+                'wholesale_discount'  => 0,
             ],
         ]);
 
@@ -379,6 +385,12 @@ if ($product->is_wholesale) {
 
                     // 🔥 Free Delivery flag আগের মতোই থাকবে
                     'free_delivery'  => $cartItem->options->free_delivery ?? 0,
+
+                    // 🛡️ Warranty — preserve on cart update
+                    'warranty_tier_id'    => $cartItem->options->warranty_tier_id ?? null,
+                    'warranty_adjustment' => $cartItem->options->warranty_adjustment ?? 0,
+                    'base_price'          => $cartItem->options->base_price ?? 0,
+                    'wholesale_discount'  => $cartItem->options->wholesale_discount ?? 0,
                 ],
             ]);
         }
@@ -478,6 +490,12 @@ if ($product->is_wholesale) {
 
                 // 🔥 Free Delivery flag
                 'free_delivery'  => (int) ($product->free_delivery ?? 0),
+
+                // 🛡️ Warranty
+                'warranty_tier_id'    => null,
+                'warranty_adjustment' => 0,
+                'base_price'          => (float) ($product->new_price ?? $product->old_price ?? 1),
+                'wholesale_discount'  => 0,
             ],
         ]);
 

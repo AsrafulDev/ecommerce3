@@ -226,8 +226,8 @@
                                         </td>
 
                                         <td>
-                                            <div class="fw-bold-custom" style="font-size: 15px;">৳{{ number_format($refund->amount + $refund->shipping_charge, 2) }}</div>
-                                            @if($refund->shipping_charge > 0)
+                                            <div class="fw-bold-custom" style="font-size: 15px;">৳{{ number_format($refund->totalRefundAmount(), 2) }}</div>
+                                            @if($refund->shipping_charge > 0 && $refund->include_shipping)
                                                 <small class="text-muted d-block" style="font-size: 10px;">(Incl. Shipping)</small>
                                             @endif
                                         </td>
@@ -350,7 +350,7 @@
                 <form action="{{ route('admin.refunds.approve', $refund->id) }}" method="POST">
                     @csrf
                     <div class="modal-body">
-                        <p class="text-muted mb-3"> {{ __('Approve refund of') }} <strong>৳{{ number_format($refund->amount + $refund->shipping_charge, 2) }}</strong>?</p>
+                        <p class="text-muted mb-3"> {{ __('Approve refund of') }} <strong>৳{{ number_format($refund->totalRefundAmount(), 2) }}</strong>?</p>
                         <div class="form-group">
                             <label class="form-label text-small fw-bold"> {{ __('Admin Note (Optional)') }} </label>
                             <textarea name="admin_note" class="form-control bg-light border-0" rows="2">{{ $refund->admin_note }}</textarea>

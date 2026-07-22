@@ -450,6 +450,16 @@ if (typeof ttq !== 'undefined') {
         // ⭐ Grand Total Calculation - Free delivery হলে shipping charge 0
         $grand_total = $subtotal + $shipping - $discount;
 
+        // 💰 Calculate wholesale discount & warranty totals from cart
+        $totalWholesaleDiscount = 0;
+        $totalWarrantyCharge = 0;
+        foreach (Cart::instance('shopping')->content() as $item) {
+            $wd = (float) ($item->options->wholesale_discount ?? 0);
+            $wa = (float) ($item->options->warranty_adjustment ?? 0);
+            $totalWholesaleDiscount += $wd * $item->qty;
+            $totalWarrantyCharge += $wa * $item->qty;
+        }
+
         // ✅ JS ডেটা অ্যারে
         $cartItemsForJs = [];
         $hasDigital = false;
@@ -703,19 +713,25 @@ if (typeof ttq !== 'undefined') {
                                                 <div class="meta text-muted small mb-1">
                                                     @if($value->options->product_size) Size: {{$value->options->product_size}} @endif
                                                     @if($value->options->product_color) | Color: {{$value->options->product_color}} @endif
+                                                    {{-- 🛡️ Warranty as variant --}}
+                                                    @if($value->options->warranty_tier_id)
+                                                        @php
+                                                            $wtCheckout = \App\Models\ProductWarrantyTier::find($value->options->warranty_tier_id);
+                                                        @endphp
+                                                        @if($wtCheckout && $wtCheckout->warranty_days > 0)
+                                                            | <span class="text-success fw-semibold">🛡️ {{ $wtCheckout->tier_name }}</span>
+                                                        @endif
+                                                    @endif
                                                 </div>
-                                                {{-- Discount/Warranty badges --}}
+                                                {{-- Discount badge + Unit Price --}}
                                                 @php
                                                     $wd = $value->options->wholesale_discount ?? 0;
                                                     $wa = $value->options->warranty_adjustment ?? 0;
+                                                    $bp = $value->options->base_price ?? $value->price;
+                                                    $hasAdjustment = ($wd > 0 || $wa != 0);
                                                 @endphp
                                                 @if($wd > 0)
                                                     <div class="text-danger small">− ৳{{ number_format($wd, 0) }} wholesale</div>
-                                                @endif
-                                                @if($wa != 0 && ($value->options->warranty_tier_id ?? null))
-                                                    <div class="{{ $wa < 0 ? 'text-danger' : 'text-success' }} small">
-                                                        🛡️ Warranty {{ $wa > 0 ? '+' : '' }}{{ number_format($wa, 0) }} TK
-                                                    </div>
                                                 @endif
                                                 
                                                 {{-- Price & Qty --}}
@@ -725,7 +741,13 @@ if (typeof ttq !== 'undefined') {
                                                         <span class="qty-val qty-value">{{ $value->qty }}</span>
                                                         <button type="button" class="qty-btn plus"><i class="fas fa-plus" style="font-size:10px;"></i></button>
                                                     </div>
-                                                    <div class="fw-bold text-dark">৳ {{ number_format($value->price * $value->qty, 0) }}</div>
+                                                    <div class="text-end">
+                                                        @if($hasAdjustment)
+                                                            <small class="text-muted text-decoration-line-through d-block">৳{{ number_format($bp, 0) }}</small>
+                                                        @endif
+                                                        <span class="fw-bold text-dark">৳{{ number_format($value->price, 0) }} × {{ $value->qty }}</span>
+                                                        <span class="fw-bold text-dark"> = ৳{{ number_format($value->price * $value->qty, 0) }}</span>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
@@ -751,6 +773,12 @@ if (typeof ttq !== 'undefined') {
                                 {{-- Calculation --}}
                                 <div class="summary-totals">
                                     <div class="total-row"><span>{{ __('Subtotal') }}</span> <span id="subtotalAmount">৳ {{ number_format($subtotal, 2) }}</span></div>
+                                    @if($totalWholesaleDiscount > 0)
+                                        <div class="total-row text-danger"><span>{{ __('Wholesale Discount') }}</span> <span>- ৳ {{ number_format($totalWholesaleDiscount, 2) }}</span></div>
+                                    @endif
+                                    @if($totalWarrantyCharge > 0)
+                                        <div class="total-row text-success"><span>🛡️ {{ __('Warranty Charge') }}</span> <span>+ ৳ {{ number_format($totalWarrantyCharge, 2) }}</span></div>
+                                    @endif
                                     <div class="total-row"><span>{{ __('Delivery Charge') }}</span> <span id="shippingAmount">৳ {{ number_format($shipping, 2) }}</span></div>
                                     @if($discount > 0)
                                         <div class="total-row text-success"><span>{{ __('Coupon Discount') }}</span> <span id="discountAmount">- ৳ {{ number_format($discount, 2) }}</span></div>

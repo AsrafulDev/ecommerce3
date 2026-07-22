@@ -221,7 +221,7 @@ $darkLogo = $siteName->dark_logo ?? null;
             <a href="{{ route('customer.complaints') }}" class="{{ request()->is('customer/complaints*') ? 'active-menu' : 'sidebar-item' }} flex items-center px-6 py-3.5 transition-colors">
                 <i class="fas fa-headset w-6"></i> {{ __('Support Ticket') }}
             </a>
-            <a href="{{route('customer.account') }}#warranties" class="sidebar-item flex items-center px-6 py-3.5 transition-colors" onclick="document.getElementById('warranty-section')?.scrollIntoView({behavior:'smooth'}); return false;">
+            <a href="{{route('customer.warranties')}}" class="sidebar-item flex items-center px-6 py-3.5 transition-colors">
                 <i class="fas fa-shield-alt w-6"></i> {{ __('My Warranties') }}
             </a>
             <a href="{{route('customer.profile_edit')}}" class="{{request()->is('customer/profile-edit')?'active-menu':'sidebar-item'}} flex items-center px-6 py-3.5 transition-colors">
@@ -444,12 +444,6 @@ $darkLogo = $siteName->dark_logo ?? null;
                 </div>
             </div>
             @endif
-
-            {{-- 🛡️ My Warranties Section --}}
-            <div id="warranty-section" class="mt-8">
-                @include('frontEnd.layouts.customer.my-warranties')
-            </div>
-
         </div>
     </main>
 
