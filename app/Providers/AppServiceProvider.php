@@ -204,6 +204,26 @@ class AppServiceProvider extends ServiceProvider
         /**
          * 🧠 Global View Share (Optimized with Cache)
          */
+        // 🔒 Fallback defaults — always set, even if DB queries fail
+        view()->share('generalsetting', null);
+        view()->share('demoMode', false);
+        view()->share('activeTheme', null);
+        view()->share('sidecategories', collect());
+        view()->share('menucategories', collect());
+        view()->share('contact', null);
+        view()->share('socialicons', collect());
+        view()->share('socials', collect());
+        view()->share('pages', collect());
+        view()->share('pagesright', collect());
+        view()->share('cmnmenu', collect());
+        view()->share('brands', collect());
+        view()->share('neworder', 0);
+        view()->share('pendingorder', collect());
+        view()->share('orderstatus', collect());
+        view()->share('pixels', collect());
+        view()->share('gtm_code', collect());
+        view()->share('pending_reviews', 0);
+
         try {
             // Cache pending reviews count (5 minutes)
             $pending_reviews = Cache::remember('pending_reviews_count', 300, function () {
