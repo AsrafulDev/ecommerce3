@@ -2066,7 +2066,7 @@ class OrderController extends Controller
         $this->handleStockChange($order, 0, (int) $order->order_status);
 
         // 💰 Payment received হলে ফান্ডে টাকা যোগ করুন
-        if (in_array($paymentStatusInput, ['paid', 'completed', 'success', 'approved'], true)) {
+        if (in_array($order->payment_status, ['paid', 'completed', 'success', 'approved'], true)) {
             FundTransaction::create([
                 'direction' => 'in',
                 'source'    => 'sale',
