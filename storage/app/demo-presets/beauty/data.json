@@ -1,0 +1,793 @@
+{
+    "meta": {
+        "name": "Beauty Shop",
+        "slug": "beauty",
+        "description": "Beauty products, skincare, makeup, hair care, and cosmetics store.",
+        "live_url": "https://ecommerce7.creativedesign.com.bd/",
+        "color": "#ec4899",
+        "icon": "mdi-spray-bottle"
+    },
+    "general_settings": {
+        "name": "Beauty Shop BD",
+        "white_logo": "public/assets/images/CurlBazar.png",
+        "dark_logo": "public/assets/images/CurlBazar.png",
+        "favicon": "public/favicon.ico",
+        "copyright": "© 2026 Beauty Shop BD. All rights reserved.",
+        "show_all_products": 1,
+        "show_category_wise_products": 1,
+        "vendor_enabled": 0,
+        "reseller_enabled": 0
+    },
+    "theme": {
+        "name": "Beauty Shop",
+        "slug": "beauty",
+        "primary_color": "#ec4899",
+        "secondary_color": "#d83485",
+        "accent_color": "#ff6a00",
+        "text_color": "#212529",
+        "heading_color": "#111111",
+        "body_bg_color": "#ffffff",
+        "header_bg_color": "#ffffff",
+        "header_text_color": "#212529",
+        "footer_bg_color": "#1a1a1a",
+        "footer_text_color": "#cccccc",
+        "is_default": true,
+        "is_active": true
+    },
+    "categories": [
+        {
+            "id": 1,
+            "parent_id": 0,
+            "name": "Makeup",
+            "slug": "makeup",
+            "image": "public/uploads/images/category-1774246076-makeup-min.webp",
+            "status": 1
+        },
+        {
+            "id": 2,
+            "parent_id": 0,
+            "name": "Skin",
+            "slug": "skin",
+            "image": "public/uploads/images/category-1774246099-skin-care-min.webp",
+            "status": 1
+        },
+        {
+            "id": 3,
+            "parent_id": 0,
+            "name": "Hair",
+            "slug": "hair",
+            "image": "public/uploads/images/category-1774246129-k-beauty-min.webp",
+            "status": 1
+        },
+        {
+            "id": 4,
+            "parent_id": 0,
+            "name": "Personal Care",
+            "slug": "personal-care",
+            "image": "public/uploads/images/category-1774246152-hair-care-min.webp",
+            "status": 1
+        },
+        {
+            "id": 5,
+            "parent_id": 0,
+            "name": "Mom & Baby",
+            "slug": "mom-&-baby",
+            "image": "public/uploads/images/category-1774246174-mom-baby-min.webp",
+            "status": 1
+        },
+        {
+            "id": 6,
+            "parent_id": 0,
+            "name": "Fragrance",
+            "slug": "fragrance",
+            "image": "public/uploads/images/category-1774246194-fragrance-min.webp",
+            "status": 1
+        },
+        {
+            "id": 7,
+            "parent_id": 0,
+            "name": "UNDERGARMENTS",
+            "slug": "undergarments",
+            "image": "public/uploads/images/category-1774246219-undergarments-min.webp",
+            "status": 1
+        },
+        {
+            "id": 8,
+            "parent_id": 0,
+            "name": "EID GIGA SALE",
+            "slug": "eid-giga-sale",
+            "image": "public/uploads/images/category-1774246238-accessories-min.webp",
+            "status": 1
+        },
+        {
+            "id": 9,
+            "parent_id": 0,
+            "name": "Jewellery",
+            "slug": "jewellery",
+            "image": "public/uploads/images/category-1774207270-screenshot_4.webp",
+            "status": 1
+        },
+        {
+            "id": 10,
+            "parent_id": 0,
+            "name": "CLEARANCE SALE",
+            "slug": "clearance-sale",
+            "image": "public/uploads/images/category-1774207296-screenshot_4.webp",
+            "status": 1
+        },
+        {
+            "id": 11,
+            "parent_id": 0,
+            "name": "MEN",
+            "slug": "men",
+            "image": "public/uploads/images/category-1774207319-screenshot_4.webp",
+            "status": 1
+        }
+    ],
+    "subcategories": [
+        {
+            "name": "FACE",
+            "slug": "face",
+            "category_id": 1,
+            "image": null,
+            "status": 1,
+            "cat": "makeup"
+        },
+        {
+            "name": "Eyes",
+            "slug": "eyes",
+            "category_id": 1,
+            "image": null,
+            "status": 1,
+            "cat": "makeup"
+        },
+        {
+            "name": "Lips",
+            "slug": "lips",
+            "category_id": 1,
+            "image": null,
+            "status": 1,
+            "cat": "makeup"
+        },
+        {
+            "name": "Face",
+            "slug": "face",
+            "category_id": 2,
+            "image": null,
+            "status": 1,
+            "cat": "skin"
+        },
+        {
+            "name": "Bra",
+            "slug": "bra",
+            "category_id": 7,
+            "image": null,
+            "status": 1,
+            "cat": "undergarments"
+        }
+    ],
+    "brands": [
+        {
+            "name": "Mac",
+            "image": "public/uploads/images/brand-1774269188-screenshot_2.webp"
+        },
+        {
+            "name": "Khabar Ghar",
+            "image": "public/uploads/images/brand-1774010405-1771043253-1767451895-019e5a224907345.y3jvccwxnzu3ldeznzqsnjezldmyng.webp"
+        },
+        {
+            "name": "Kacci Biriyani",
+            "image": "public/uploads/images/brand-1774010426-1771043287-1767451895-019e5a224907345.y3jvccwxnzu3ldeznzqsnjezldmyng.webp"
+        },
+        {
+            "name": "Banglaliana",
+            "image": "public/uploads/images/brand-1774010489-1771043341-1767451895-019e5a224907345.y3jvccwxnzu3ldeznzqsnjezldmyng.webp"
+        },
+        {
+            "name": "Pran",
+            "image": "public/uploads/images/brand-1774010526-1765817987-screenshot_1.webp"
+        },
+        {
+            "name": "Mach Vath",
+            "image": "public/uploads/images/brand-1774010583-1771043430-1767452217-43e9df217342767.y3jvccwymtawlde2ndismcwymjg.webp"
+        },
+        {
+            "name": "Deli",
+            "image": "public/uploads/images/brand-1774010666-1771043456-1767452303-28f9ca916fb96a6a05bed222bf86d75e.webp"
+        },
+        {
+            "name": "Takoa",
+            "image": "public/uploads/images/brand-1774010698-1771043478-1767452370-screenshot_1.webp"
+        },
+        {
+            "name": "Tripti",
+            "image": "public/uploads/images/brand-1774010720-1771043499-1767452418-screenshot_2.webp"
+        },
+        {
+            "name": "Teer",
+            "image": "public/uploads/images/brand-1765818411-2021-12-13-61b6e83dd4cf0.webp"
+        },
+        {
+            "name": "Jiver Sadh",
+            "image": "public/uploads/images/brand-1765818574-fa6e45217130135.y3jvccwymtawlde2ndismcwymjg.webp"
+        },
+        {
+            "name": "7 UP",
+            "image": "public/uploads/images/brand-1765818630-7up-logo-2010-768x432-2.webp"
+        },
+        {
+            "name": "Lunch Box",
+            "image": "public/uploads/images/brand-1774010808-1771043253-1767451895-019e5a224907345.y3jvccwxnzu3ldeznzqsnjezldmyng.webp"
+        },
+        {
+            "name": "NYX",
+            "image": "public/uploads/images/brand-1774329534-image_part_003.webp"
+        },
+        {
+            "name": "Revlon",
+            "image": "public/uploads/images/brand-1774329557-image_part_006.webp"
+        },
+        {
+            "name": "Revlon",
+            "image": "public/uploads/images/brand-1774329557-image_part_006.webp"
+        },
+        {
+            "name": "Flamer",
+            "image": "public/uploads/images/brand-1774329580-image_part_008.webp"
+        },
+        {
+            "name": "Waradh",
+            "image": "public/uploads/images/brand-1774329604-image_part_004.webp"
+        }
+    ],
+    "products": [
+        {
+            "name": "Palmer's Cocoa Butter Formula Foot Magic Cream",
+            "slug": "palmer's-cocoa-butter-formula-foot-magic-cream-232",
+            "category_id": 2,
+            "brand_id": 1,
+            "new_price": 2200,
+            "old_price": 1200,
+            "stock": 9999,
+            "image": "public/uploads/images/1773946596-1771041487-1767455662-1764855917-1762932216-1736431595-2024-07-16-6696757bd2081.jpg",
+            "gallery_images": [
+                "public/uploads/images/product-1774333012-alix-avien-cc-cream-neutral-color-correcting-skin-perfector-spf-15-uvauvb-1.jpg"
+            ],
+            "description": "<p style=\"border: 0px solid rgb(229, 231, 235); --tw-border-spacing-x: 0; --tw-border-spacing-y: 0; --tw-translate-x: 0; --tw-translate-y: 0; --tw-rotate: 0; --tw-skew-x: 0; --tw-skew-y: 0; --tw-scale-x: 1; --tw-scale-y: 1; --tw-pan-x: ; --tw-pan-y: ; --tw-pinch-zoom: ; --tw-scroll-snap-strictness: proximity; --tw-ordinal: ; --tw-slashed-zero: ; --tw-numeric-figure: ; --tw-numeric-spacing: ; --tw-numeric-fraction: ; --tw-ring-inset: ; --tw-ring-offset-width: 0px; --tw-ring-offset-color: #fff; --...[truncated]",
+            "meta_title": "লিচু ফুলের মধু | Litchi Flower Honey",
+            "meta_description": "পুষ্টিগুণ ও উপাদেয়তার দিকটি বিবেচনা করে যদি আমরা খাবারের একটি তালিকা করি, সে তালিকার প্রথম সারিতেই থাকবে ‘মধু’র নাম। এটি শরীরের জন্য উপকারী এবং নিয়মিত মধু সেবন...",
+            "status": 1,
+            "topsale": 1,
+            "flashsale": 1,
+            "feature_product": 0,
+            "cat": "skin",
+            "brand": "Mac",
+            "price": 2200,
+            "old": 1200
+        },
+        {
+            "name": "Vaseline Original Healing Jelly",
+            "slug": "vaseline-original-healing-jelly-233",
+            "category_id": 2,
+            "brand_id": 1,
+            "new_price": 10250,
+            "old_price": 2009,
+            "stock": 9999,
+            "image": "public/uploads/images/1773946699-1771041345-1767455182-1764856396-1762932519-1736431804-2024-07-16-66966f64be627.jpg",
+            "gallery_images": [
+                "public/uploads/images/product-1774331841-vaseline-original-healing-jelly-1.jpg"
+            ],
+            "description": "<p style=\"border: 0px solid rgb(229, 231, 235); --tw-border-spacing-x: 0; --tw-border-spacing-y: 0; --tw-translate-x: 0; --tw-translate-y: 0; --tw-rotate: 0; --tw-skew-x: 0; --tw-skew-y: 0; --tw-scale-x: 1; --tw-scale-y: 1; --tw-pan-x: ; --tw-pan-y: ; --tw-pinch-zoom: ; --tw-scroll-snap-strictness: proximity; --tw-ordinal: ; --tw-slashed-zero: ; --tw-numeric-figure: ; --tw-numeric-spacing: ; --tw-numeric-fraction: ; --tw-ring-inset: ; --tw-ring-offset-width: 0px; --tw-ring-offset-color: #fff; --...[truncated]",
+            "meta_title": "মিশ্র ফুলের মধু | Mix Flower Honey",
+            "meta_description": "পবিত্র কোরআন ও হাদিসের ভাষ্যমতে যেহেতু কালোজিরা কে সাম অর্থাৎ মৃত্যু বাদে সকল রোগের মহৌষধ বলা হয়েছে সেহেতু নিঃসন্দেহে এই মধু সর্বোত্তম। আপনি যদি কালোজিরা মধুর স...",
+            "status": 1,
+            "topsale": 1,
+            "flashsale": 1,
+            "feature_product": 0,
+            "cat": "skin",
+            "brand": "Mac",
+            "price": 10250,
+            "old": 2009
+        },
+        {
+            "name": "Topface B B Skin Editor Matte Finish 002",
+            "slug": "topface-b-b-skin-editor-matte-finish-002-234",
+            "category_id": 2,
+            "brand_id": 1,
+            "new_price": 600,
+            "old_price": 1200,
+            "stock": 10000,
+            "image": "public/uploads/images/1773946840-1771041279-1767455182-1764856396-1762932519-1736431804-2024-07-16-66966f64be627.jpg",
+            "gallery_images": [
+                "public/uploads/images/product-1774331750-1topface-b-b-skin-editor-matte-finish-001-1.jpg"
+            ],
+            "description": "Sesa Anti-Hair Fall shampoo is a medicinal shampoo crafted with Bhringraj, Onion and 6 Ayurvedic Herbs that helps to reduce hair fall, prevents split ends and improves hair’s shine and softness.",
+            "meta_title": "কালোজিরা ফুলের মধু | Black Seed Flower Honey",
+            "meta_description": "পবিত্র কোরআন ও হাদিসের ভাষ্যমতে যেহেতু কালোজিরা কে সাম অর্থাৎ মৃত্যু বাদে সকল রোগের মহৌষধ বলা হয়েছে সেহেতু নিঃসন্দেহে এই মধু সর্বোত্তম। আপনি যদি কালোজিরা মধুর স...",
+            "status": 1,
+            "topsale": 1,
+            "flashsale": 1,
+            "feature_product": 0,
+            "cat": "skin",
+            "brand": "Mac",
+            "price": 600,
+            "old": 1200
+        },
+        {
+            "name": "3W Clinic Intensive Dr.Kim Sun BB Cream",
+            "slug": "3w-clinic-intensive-dr.kim-sun-bb-cream-235",
+            "category_id": 1,
+            "brand_id": 1,
+            "new_price": 2200,
+            "old_price": 2500,
+            "stock": 9998,
+            "image": "public/uploads/images/1773946936-1771044867-shosti-ghee-500gm.webp",
+            "gallery_images": [
+                "public/uploads/images/product-1774331650-3w-clinic-intensive-drkim-sun-bb-cream-50-ml-1.jpg"
+            ],
+            "description": "<p style=\"border: 0px solid rgb(229, 231, 235); --tw-border-spacing-x: 0; --tw-border-spacing-y: 0; --tw-translate-x: 0; --tw-translate-y: 0; --tw-rotate: 0; --tw-skew-x: 0; --tw-skew-y: 0; --tw-scale-x: 1; --tw-scale-y: 1; --tw-pan-x: ; --tw-pan-y: ; --tw-pinch-zoom: ; --tw-scroll-snap-strictness: proximity; --tw-ordinal: ; --tw-slashed-zero: ; --tw-numeric-figure: ; --tw-numeric-spacing: ; --tw-numeric-fraction: ; --tw-ring-inset: ; --tw-ring-offset-width: 0px; --tw-ring-offset-color: #fff; --...[truncated]",
+            "meta_title": "Gawa Ghee/গাওয়া ঘি (500 গ্রাম)",
+            "meta_description": "খাঁটি গাওয়া ঘি দুধের একটি প্রক্রিয়াজাত খাদ্য উপাদান। হাজার বছর আগে বাঙালির খাবারে ঘি-এর উৎপত্তি। শুধু পোলাও, বিরিয়ানি বা ভর্তা নয়, গরম সাদা ভাতের সাথেও ঘি অন...",
+            "status": 1,
+            "topsale": 1,
+            "flashsale": 1,
+            "feature_product": 0,
+            "cat": "makeup",
+            "brand": "Mac",
+            "price": 2200,
+            "old": 2500
+        },
+        {
+            "name": "Alix Avien CC Cream – Neutral Color Correcting Skin Perfector spf 15 UVA/UVB",
+            "slug": "alix-avien-cc-cream-–-neutral-color-correcting-skin-perfector-spf-15-uva-uvb-236",
+            "category_id": 1,
+            "brand_id": 1,
+            "new_price": 600,
+            "old_price": 1200,
+            "stock": 9998,
+            "image": "public/uploads/images/1773947032-1771043113-1767452777-1764859233-400gm.webp",
+            "gallery_images": [
+                "public/uploads/images/product-1774331574-alix-avien-cc-cream-neutral-color-correcting-skin-perfector-spf-15-uvauvb-1.jpg"
+            ],
+            "description": "<p style=\"border: 0px solid rgb(229, 231, 235); --tw-border-spacing-x: 0; --tw-border-spacing-y: 0; --tw-translate-x: 0; --tw-translate-y: 0; --tw-rotate: 0; --tw-skew-x: 0; --tw-skew-y: 0; --tw-scale-x: 1; --tw-scale-y: 1; --tw-pan-x: ; --tw-pan-y: ; --tw-pinch-zoom: ; --tw-scroll-snap-strictness: proximity; --tw-ordinal: ; --tw-slashed-zero: ; --tw-numeric-figure: ; --tw-numeric-spacing: ; --tw-numeric-fraction: ; --tw-ring-inset: ; --tw-ring-offset-width: 0px; --tw-ring-offset-color: #fff; --...[truncated]",
+            "meta_title": "Gawa Ghee/গাওয়া ঘি (400 গ্রাম)",
+            "meta_description": "খাঁটি গাওয়া ঘি দুধের একটি প্রক্রিয়াজাত খাদ্য উপাদান। হাজার বছর আগে বাঙালির খাবারে ঘি-এর উৎপত্তি। শুধু পোলাও, বিরিয়ানি বা ভর্তা নয়, গরম সাদা ভাতের সাথেও ঘি অন...",
+            "status": 1,
+            "topsale": 1,
+            "flashsale": 1,
+            "feature_product": 0,
+            "cat": "makeup",
+            "brand": "Mac",
+            "price": 600,
+            "old": 1200
+        },
+        {
+            "name": "Tresemme Shampoo Keratin Smooth 340ml",
+            "slug": "tresemme-shampoo-keratin-smooth-340ml-237",
+            "category_id": 3,
+            "brand_id": 1,
+            "new_price": 700,
+            "old_price": 600,
+            "stock": 10000,
+            "image": "public/uploads/images/1773947125-1771043060-1767453114-1764858474-1762933997-1736438895-roasted-cashew-500-h.webp",
+            "gallery_images": [
+                "public/uploads/images/product-1774331300-tresemme-shampoo-keratin-smooth-340ml-new4.png"
+            ],
+            "description": "<p style=\"border: 0px solid rgb(229, 231, 235); --tw-border-spacing-x: 0; --tw-border-spacing-y: 0; --tw-translate-x: 0; --tw-translate-y: 0; --tw-rotate: 0; --tw-skew-x: 0; --tw-skew-y: 0; --tw-scale-x: 1; --tw-scale-y: 1; --tw-pan-x: ; --tw-pan-y: ; --tw-pinch-zoom: ; --tw-scroll-snap-strictness: proximity; --tw-ordinal: ; --tw-slashed-zero: ; --tw-numeric-figure: ; --tw-numeric-spacing: ; --tw-numeric-fraction: ; --tw-ring-inset: ; --tw-ring-offset-width: 0px; --tw-ring-offset-color: #fff; --...[truncated]",
+            "meta_title": "Roasted Cashew Nuts (নোনা কাজু বাদাম)",
+            "meta_description": "কাজু বাদাম (Cashew Nut) দেখতে অনেকটা বাঁকানো, কিডনি আকৃতির। অফ হোয়াইট রঙের এই&nbsp;বাদাম&nbsp;খেতে যেমন সুস্বাদু তেমনি পুষ্টিগুণেও সেরা। এর উৎপত্তিস্থল ব্রাজিল...",
+            "status": 1,
+            "topsale": 1,
+            "flashsale": 1,
+            "feature_product": 0,
+            "cat": "hair",
+            "brand": "Mac",
+            "price": 700,
+            "old": 600
+        },
+        {
+            "name": "Pantene Pro-V Smooth & Silky Shampoo",
+            "slug": "pantene-pro-v-smooth-&-silky-shampoo-238",
+            "category_id": 3,
+            "brand_id": 1,
+            "new_price": 990,
+            "old_price": 1200,
+            "stock": 1200,
+            "image": "public/uploads/images/1773947185-1771043004-1767453331-1764858328-1762933846-1743836769-screenshot_1.png",
+            "gallery_images": [
+                "public/uploads/images/product-1774331118-pantene-pro-v-smooth-amp-silky-shampoo.jpg",
+                "public/uploads/images/product-1774331118-pantene-pro-v-smooth-amp-silky-shampoo.jpg"
+            ],
+            "description": "<ul style=\"border: 0px solid rgb(229, 231, 235); --tw-border-spacing-x: 0; --tw-border-spacing-y: 0; --tw-translate-x: 0; --tw-translate-y: 0; --tw-rotate: 0; --tw-skew-x: 0; --tw-skew-y: 0; --tw-scale-x: 1; --tw-scale-y: 1; --tw-pan-x: ; --tw-pan-y: ; --tw-pinch-zoom: ; --tw-scroll-snap-strictness: proximity; --tw-ordinal: ; --tw-slashed-zero: ; --tw-numeric-figure: ; --tw-numeric-spacing: ; --tw-numeric-fraction: ; --tw-ring-inset: ; --tw-ring-offset-width: 0px; --tw-ring-offset-color: #fff; -...[truncated]",
+            "meta_title": "Ajwa Dates (আজওয়া খেজুর)",
+            "meta_description": "আজওয়া খেজুর (Ajwa&nbsp;Dates) সৌদি আরবের এক অতি পরিচিত&nbsp;খেজুর। আরবের প্রাচীনতম প্রসিদ্ধ খেজুরগুলোর মধ্যে অন্যতম এই আজওয়া খেজুর। সৌদির বিভিন্ন অঞ্চলে বিশেষত...",
+            "status": 1,
+            "topsale": 1,
+            "flashsale": 1,
+            "feature_product": 0,
+            "cat": "hair",
+            "brand": "Mac",
+            "price": 990,
+            "old": 1200
+        },
+        {
+            "name": "Dove Straight & Silky Shampoo",
+            "slug": "dove-straight-&-silky-shampoo-239",
+            "category_id": 3,
+            "brand_id": 1,
+            "new_price": 1000,
+            "old_price": 700,
+            "stock": 10000,
+            "image": "public/uploads/images/1773947330-1771042960-1767453482-1764858224-1762948704-ajwa-dates-250-gm.png",
+            "gallery_images": [
+                "public/uploads/images/product-1774330909-dove-straight-amp-silky-shampoo.jpg",
+                "public/uploads/images/product-1774330909-dove-straight-amp-silky-shampoo.jpg"
+            ],
+            "description": "<p style=\"border: 0px solid rgb(229, 231, 235); --tw-border-spacing-x: 0; --tw-border-spacing-y: 0; --tw-translate-x: 0; --tw-translate-y: 0; --tw-rotate: 0; --tw-skew-x: 0; --tw-skew-y: 0; --tw-scale-x: 1; --tw-scale-y: 1; --tw-pan-x: ; --tw-pan-y: ; --tw-pinch-zoom: ; --tw-scroll-snap-strictness: proximity; --tw-ordinal: ; --tw-slashed-zero: ; --tw-numeric-figure: ; --tw-numeric-spacing: ; --tw-numeric-fraction: ; --tw-ring-inset: ; --tw-ring-offset-width: 0px; --tw-ring-offset-color: #fff; --...[truncated]",
+            "meta_title": "Ajwa Dates (আজওয়া খেজুর)",
+            "meta_description": "আজওয়া খেজুর (Ajwa&nbsp;Dates) সৌদি আরবের এক অতি পরিচিত&nbsp;খেজুর। আরবের প্রাচীনতম প্রসিদ্ধ খেজুরগুলোর মধ্যে অন্যতম এই আজওয়া খেজুর। সৌদির বিভিন্ন অঞ্চলে বিশেষত...",
+            "status": 1,
+            "topsale": 1,
+            "flashsale": 1,
+            "feature_product": 0,
+            "cat": "hair",
+            "brand": "Mac",
+            "price": 1000,
+            "old": 700
+        },
+        {
+            "name": "Mielle Pomegranate & Honey Curl Refreshing Spray",
+            "slug": "mielle-pomegranate-&-honey-curl-refreshing-spray-240",
+            "category_id": 3,
+            "brand_id": 1,
+            "new_price": 2200,
+            "old_price": 1200,
+            "stock": 10000,
+            "image": "public/uploads/images/1773947469-1771042876-1767453751-1764858062-1762933638-1736438717-mariyamdates.webp",
+            "gallery_images": [
+                "public/uploads/images/product-1774330688-mielle-pomegranate-amp-honey-curl-refreshing-spray.jpg"
+            ],
+            "description": "<ul style=\"border: 0px solid rgb(229, 231, 235); --tw-border-spacing-x: 0; --tw-border-spacing-y: 0; --tw-translate-x: 0; --tw-translate-y: 0; --tw-rotate: 0; --tw-skew-x: 0; --tw-skew-y: 0; --tw-scale-x: 1; --tw-scale-y: 1; --tw-pan-x: ; --tw-pan-y: ; --tw-pinch-zoom: ; --tw-scroll-snap-strictness: proximity; --tw-ordinal: ; --tw-slashed-zero: ; --tw-numeric-figure: ; --tw-numeric-spacing: ; --tw-numeric-fraction: ; --tw-ring-inset: ; --tw-ring-offset-width: 0px; --tw-ring-offset-color: #fff; -...[truncated]",
+            "meta_title": "Maryam Dates (Saudi) (মরিয়ম খেজুর)",
+            "meta_description": "মরিয়ম খেজুর (Maryam Dates) সৌদি আরবের এক অতি পরিচিত&nbsp;খেজুর। আরবের প্রাচীনতম প্রসিদ্ধ খেজুরগুলোর মধ্যে অন্যতম এই মরিয়ম খেজুর। সৌদির বিভিন্ন অঞ্চলে এর উপস্থিত...",
+            "status": 1,
+            "topsale": 1,
+            "flashsale": 1,
+            "feature_product": 0,
+            "cat": "hair",
+            "brand": "Mac",
+            "price": 2200,
+            "old": 1200
+        },
+        {
+            "name": "OGX Argan Oil of Morocco Conditioner",
+            "slug": "ogx-argan-oil-of-morocco-conditioner-241",
+            "category_id": 3,
+            "brand_id": 1,
+            "new_price": 2200,
+            "old_price": 1200,
+            "stock": 10000,
+            "image": "public/uploads/images/1773947549-1771042819-1767453870-1764857874-1762933442-1736438635-almond.webp",
+            "gallery_images": [
+                "public/uploads/images/product-1774330586-ogx-argan-oil-of-morocco-conditioner-5.jpg"
+            ],
+            "description": "<p style=\"border: 0px solid rgb(229, 231, 235); --tw-border-spacing-x: 0; --tw-border-spacing-y: 0; --tw-translate-x: 0; --tw-translate-y: 0; --tw-rotate: 0; --tw-skew-x: 0; --tw-skew-y: 0; --tw-scale-x: 1; --tw-scale-y: 1; --tw-pan-x: ; --tw-pan-y: ; --tw-pinch-zoom: ; --tw-scroll-snap-strictness: proximity; --tw-ordinal: ; --tw-slashed-zero: ; --tw-numeric-figure: ; --tw-numeric-spacing: ; --tw-numeric-fraction: ; --tw-ring-inset: ; --tw-ring-offset-width: 0px; --tw-ring-offset-color: #fff; --...[truncated]",
+            "meta_title": "Almond (কাঠ বাদাম)",
+            "meta_description": "কাঠ বাদাম (Almond) বেশ জনপ্রিয় ও স্বাস্থ্যকর খাবাদের তালিকায় এক অনন্য জায়গা ধরে রেখেছে। যদিও অনেকে বাদামকে ফ্যাটের ভালো উৎস ভেবে গ্রহণ করা থেকে বিরত থাকেন। তবে...",
+            "status": 1,
+            "topsale": 1,
+            "flashsale": 1,
+            "feature_product": 0,
+            "cat": "hair",
+            "brand": "Mac",
+            "price": 2200,
+            "old": 1200
+        },
+        {
+            "name": "Skin Cafe Micellar Water",
+            "slug": "skin-cafe-micellar-water-242",
+            "category_id": 1,
+            "brand_id": 1,
+            "new_price": 10250,
+            "old_price": 1200,
+            "stock": 10000,
+            "image": "public/uploads/images/1773947615-1771042749-1767454111-1764857313-1762933110-1736438385-signatute-ghee.webp",
+            "gallery_images": [
+                "public/uploads/images/product-1774330461-skincafe-micellar-water-1.jpg"
+            ],
+            "description": "<ul style=\"border: 0px solid rgb(229, 231, 235); --tw-border-spacing-x: 0; --tw-border-spacing-y: 0; --tw-translate-x: 0; --tw-translate-y: 0; --tw-rotate: 0; --tw-skew-x: 0; --tw-skew-y: 0; --tw-scale-x: 1; --tw-scale-y: 1; --tw-pan-x: ; --tw-pan-y: ; --tw-pinch-zoom: ; --tw-scroll-snap-strictness: proximity; --tw-ordinal: ; --tw-slashed-zero: ; --tw-numeric-figure: ; --tw-numeric-spacing: ; --tw-numeric-fraction: ; --tw-ring-inset: ; --tw-ring-offset-width: 0px; --tw-ring-offset-color: #fff; -...[truncated]",
+            "meta_title": "Khaas Signature Ghee",
+            "meta_description": "KHAAS SIGNATURE&nbsp; GHEE: PURE, ARTISANAL, AND LUXURIOUSDiscover the Essence of Tradition with Khaas Signature GheePURE ARTISANAL CRAFTSMANSHIPExperience the...",
+            "status": 1,
+            "topsale": 1,
+            "flashsale": 1,
+            "feature_product": 0,
+            "cat": "makeup",
+            "brand": "Mac",
+            "price": 10250,
+            "old": 1200
+        },
+        {
+            "name": "Sesa Anti-Hair Fall Shampoo 500ml",
+            "slug": "sesa-anti-hair-fall-shampoo-500ml-243",
+            "category_id": 3,
+            "brand_id": 1,
+            "new_price": 10250,
+            "old_price": 12000,
+            "stock": 1200,
+            "image": "public/uploads/images/1773947688-1771042689-1767454292-1764857184-1762933062-1736438310-peanut-butter-1.webp",
+            "gallery_images": [
+                "public/uploads/images/product-1774330370-ponds-perfect-radiance-bb-translucent-powder-1.jpg"
+            ],
+            "description": "Sesa Anti-Hair Fall shampoo is a medicinal shampoo crafted with Bhringraj, Onion and 6 Ayurvedic Herbs that helps to reduce hair fall, prevents split ends and improves hair’s shine and softness.",
+            "meta_title": "Peanut Butter (Diabetics)",
+            "meta_description": "Peanut Butter&nbsp;(Diabetics) মূলত ডায়াবেটিক রোগীদের কথা বিবেচনায় রেখে প্রস্তুত করা। ডায়াবেটিক রোগীদের চিনি বা চিনিজাতীয় খাবারের প্রতি একটা আকর্ষণ থাকে। কিন্তু...",
+            "status": 1,
+            "topsale": 1,
+            "flashsale": 1,
+            "feature_product": 0,
+            "cat": "hair",
+            "brand": "Mac",
+            "price": 10250,
+            "old": 12000
+        },
+        {
+            "name": "Ponds Perfect Radiance BB Translucent Powder",
+            "slug": "ponds-perfect-radiance-bb-translucent-powder-244",
+            "category_id": 1,
+            "brand_id": 1,
+            "new_price": 600,
+            "old_price": 1200,
+            "stock": 9999,
+            "image": "public/uploads/images/1773947789-1771042608-1767454486-1764857030-1762932792-1736432215-black-seed-honey-500-1.webp",
+            "gallery_images": [
+                "public/uploads/images/product-1774330209-ponds-perfect-radiance-bb-translucent-powder-1.jpg"
+            ],
+            "description": "<ul class=\"a-unordered-list a-vertical\" style=\"border: 0px solid rgb(229, 231, 235); --tw-border-spacing-x: 0; --tw-border-spacing-y: 0; --tw-translate-x: 0; --tw-translate-y: 0; --tw-rotate: 0; --tw-skew-x: 0; --tw-skew-y: 0; --tw-scale-x: 1; --tw-scale-y: 1; --tw-pan-x: ; --tw-pan-y: ; --tw-pinch-zoom: ; --tw-scroll-snap-strictness: proximity; --tw-ordinal: ; --tw-slashed-zero: ; --tw-numeric-figure: ; --tw-numeric-spacing: ; --tw-numeric-fraction: ; --tw-ring-inset: ; --tw-ring-offset-width: ...[truncated]",
+            "meta_title": "Pure Ghee (ঘি)",
+            "meta_description": "ঘি (Ghee) বাঙালি রসনার এক ঐতিহ্যবাহী উপাদান। গরম ভাত অথবা ভর্তার সাথে একটুখানি&nbsp;&nbsp;ঘি&nbsp;খাবারের স্বাদকে বাড়িয়ে দেয় বহুগুণে। শুধু ভাত ভর্তাই নয়, পোলাও,...",
+            "status": 1,
+            "topsale": 1,
+            "flashsale": 1,
+            "feature_product": 0,
+            "cat": "makeup",
+            "brand": "Mac",
+            "price": 600,
+            "old": 1200
+        },
+        {
+            "name": "Gawa Ghee – গাওয়া ঘি",
+            "slug": "gawa-ghee-–-গাওয়া-ঘি-245",
+            "category_id": 1,
+            "brand_id": 1,
+            "new_price": 2200,
+            "old_price": 2500,
+            "stock": 9996,
+            "image": "public/uploads/images/product-1773947855-1771042559-1767454636-1764856917-1762932892-1743836818-screenshot_3.png",
+            "gallery_images": [
+                "public/uploads/images/product-1773947855-1771042559-1767454636-1764856917-1762932892-1743836818-screenshot_3.png"
+            ],
+            "description": "<p style=\"margin-right: 0px; margin-bottom: 0px; margin-left: 0px; padding: 0px; border: 0px; vertical-align: baseline; font-variant-numeric: inherit; font-variant-east-asian: inherit; font-variant-alternates: inherit; font-variant-position: inherit; font-variant-emoji: inherit; font-stretch: inherit; line-height: inherit; font-family: Lato, Arial, Helvetica, sans-serif; font-optical-sizing: inherit; font-size-adjust: inherit; font-kerning: inherit; font-feature-settings: inherit; font-variation...[truncated]",
+            "meta_title": "Gawa Ghee – গাওয়া ঘি",
+            "meta_description": "Gawa ghee&nbsp;is specially customized for the East Indian taste palette. It is made from good quality milk; it has a rich brownish color. Its aroma will give y...",
+            "status": 1,
+            "topsale": 1,
+            "flashsale": 1,
+            "feature_product": 0,
+            "cat": "makeup",
+            "brand": "Mac",
+            "price": 2200,
+            "old": 2500
+        },
+        {
+            "name": "Cerave Skin Renewing Night Cream",
+            "slug": "cerave-skin-renewing-night-cream-246",
+            "category_id": 2,
+            "brand_id": 1,
+            "new_price": 850,
+            "old_price": 650,
+            "stock": 9999,
+            "image": "public/uploads/images/1773947942-1771042499-1767454767-1764856747-1762932792-1736432215-black-seed-honey-500-1.webp",
+            "gallery_images": [
+                "public/uploads/images/product-1774330076-cerave-skin-renewing-night-cream.jpg"
+            ],
+            "description": "<h3 style=\"margin-top: 0px; margin-bottom: 20px; font-weight: 600; line-height: 1.4; color: rgb(45, 42, 42); font-size: 22px; font-family: Poppins, Arial, Helvetica, sans-serif; padding: 0px; border: 0px; vertical-align: baseline; font-variant-numeric: inherit; font-variant-east-asian: inherit; font-variant-alternates: inherit; font-variant-position: inherit; font-variant-emoji: inherit; font-stretch: inherit; font-optical-sizing: inherit; font-size-adjust: inherit; font-kerning: inherit; font-f...[truncated]",
+            "meta_title": "Black Seed Honey",
+            "meta_description": "সুস্বাস্থ্য ও রূপচর্চায় কালোজিরা মধুর প্রাকৃতিক গুণাবলি১। এতে রয়েছে বেশ কিছু খনিজ উপাদান যা শারীরিক সুস্থতা প্রদানে বেশ গুরুত্বপূর্ণ ভূমিকা রাখে।২। দেহে তাপ ও শ...",
+            "status": 1,
+            "topsale": 1,
+            "flashsale": 1,
+            "feature_product": 0,
+            "cat": "skin",
+            "brand": "Mac",
+            "price": 850,
+            "old": 650
+        },
+        {
+            "name": "Cerave Skin Renewing Night Cream",
+            "slug": "cerave-skin-renewing-night-cream-247",
+            "category_id": 2,
+            "brand_id": 1,
+            "new_price": 450,
+            "old_price": 1200,
+            "stock": 10000,
+            "image": "public/uploads/images/1773948074-1771042411-1767454937-1764856649-1762932738-1736432082-2024-07-15-6695b4dbdaf63.webp",
+            "gallery_images": [
+                "public/uploads/images/product-1774329984-cerave-skin-renewing-night-cream.jpg"
+            ],
+            "description": "<h2 style=\"margin-top: 0px; margin-bottom: 20px; font-weight: 600; line-height: 1.4; color: rgb(45, 42, 42); font-size: 24px; font-family: lato, Arial, Helvetica, sans-serif; border: 0px; padding: 0px; vertical-align: baseline; font-variant-numeric: inherit; font-variant-east-asian: inherit; font-variant-alternates: inherit; font-variant-position: inherit; font-stretch: inherit; font-optical-sizing: inherit; font-kerning: inherit; font-feature-settings: inherit; font-variation-settings: inherit;...[truncated]",
+            "meta_title": "Blended Floral Honey (ব্লেন্ডেড ফ্লোরাল হানি)",
+            "meta_description": "ব্লেন্ডেড ফ্লোরাল হানি (Blended Floral Honey)ব্লেন্ডেড ফ্লোরাল মধু (Blended Floral Honey) মূলত মৌমাছি কর্তৃক সরিষা ও লিচু ফুলের নেক্টার থেকে সংগৃহীত এক প্রকার ব...",
+            "status": 1,
+            "topsale": 1,
+            "flashsale": 1,
+            "feature_product": 0,
+            "cat": "skin",
+            "brand": "Mac",
+            "price": 450,
+            "old": 1200
+        },
+        {
+            "name": "L.A. Girl Pro Concealer Natural GC972",
+            "slug": "l.a.-girl-pro-concealer-natural-gc972-248",
+            "category_id": 1,
+            "brand_id": 1,
+            "new_price": 600,
+            "old_price": 1200,
+            "stock": 9999,
+            "image": "public/uploads/images/1773985135-1771042689-1767454292-1764857184-1762933062-1736438310-peanut-butter-1.webp",
+            "gallery_images": [
+                "public/uploads/images/product-1774329876-la-girl-pro-concealer-natural.jpg"
+            ],
+            "description": "<p style=\"border: 0px solid rgb(229, 231, 235); --tw-border-spacing-x: 0; --tw-border-spacing-y: 0; --tw-translate-x: 0; --tw-translate-y: 0; --tw-rotate: 0; --tw-skew-x: 0; --tw-skew-y: 0; --tw-scale-x: 1; --tw-scale-y: 1; --tw-pan-x: ; --tw-pan-y: ; --tw-pinch-zoom: ; --tw-scroll-snap-strictness: proximity; --tw-ordinal: ; --tw-slashed-zero: ; --tw-numeric-figure: ; --tw-numeric-spacing: ; --tw-numeric-fraction: ; --tw-ring-inset: ; --tw-ring-offset-width: 0px; --tw-ring-offset-color: #fff; --...[truncated]",
+            "meta_title": "Peanut Butter (Diabetics)",
+            "meta_description": "Peanut Butter&nbsp;(Diabetics) মূলত ডায়াবেটিক রোগীদের কথা বিবেচনায় রেখে প্রস্তুত করা। ডায়াবেটিক রোগীদের চিনি বা চিনিজাতীয় খাবারের প্রতি একটা আকর্ষণ থাকে। কিন্তু...",
+            "status": 1,
+            "topsale": 1,
+            "flashsale": 1,
+            "feature_product": 0,
+            "cat": "makeup",
+            "brand": "Mac",
+            "price": 600,
+            "old": 1200
+        },
+        {
+            "name": "Swiss Beauty Liquid Concealer - Sand Sable 02",
+            "slug": "swiss-beauty-liquid-concealer---sand-sable-02-249",
+            "category_id": 1,
+            "brand_id": 1,
+            "new_price": 600,
+            "old_price": 1200,
+            "stock": 9998,
+            "image": "public/uploads/images/1774010222-1771042354-1767455074-1764856496-1762932628-1736431896-2024-07-16-66966ee025159.jpg",
+            "gallery_images": [
+                "public/uploads/images/product-1774329799-swiss-beauty-liquid-concealer-sand-sable-021.jpg"
+            ],
+            "description": "<p style=\"border: 0px solid rgb(229, 231, 235); --tw-border-spacing-x: 0; --tw-border-spacing-y: 0; --tw-translate-x: 0; --tw-translate-y: 0; --tw-rotate: 0; --tw-skew-x: 0; --tw-skew-y: 0; --tw-scale-x: 1; --tw-scale-y: 1; --tw-pan-x: ; --tw-pan-y: ; --tw-pinch-zoom: ; --tw-scroll-snap-strictness: proximity; --tw-ordinal: ; --tw-slashed-zero: ; --tw-numeric-figure: ; --tw-numeric-spacing: ; --tw-numeric-fraction: ; --tw-ring-inset: ; --tw-ring-offset-width: 0px; --tw-ring-offset-color: #fff; --...[truncated]",
+            "meta_title": "সুন্দরবনের চাকের মধু | Sundarbans Natural Honey",
+            "meta_description": "সুন্দরবনের প্রাকৃতিক চাকের মধু (Sundarbans Natural Honey) এর চাহিদা বরাবরই ভিন্ন। খাঁটি মধু বলতেই সবার আগে এর কথাই মাথায় আসে। প্রাকৃতিক মধু সংগ্রহের জন্য&nbsp;আ...",
+            "status": 1,
+            "topsale": 1,
+            "flashsale": 1,
+            "feature_product": 0,
+            "cat": "makeup",
+            "brand": "Mac",
+            "price": 600,
+            "old": 1200
+        },
+        {
+            "name": "Qolore All Blur Pro Face Primer",
+            "slug": "qolore-all-blur-pro-face-primer-250",
+            "category_id": 1,
+            "brand_id": 1,
+            "new_price": 2200,
+            "old_price": 1200,
+            "stock": 9998,
+            "image": "public/uploads/images/product-1774295209-qolore-all-blur-pro-face-primer.png",
+            "gallery_images": [
+                "public/uploads/images/product-1774295209-qolore-all-blur-pro-face-primer.png"
+            ],
+            "description": "<p><span style=\"border: 0px solid rgb(229, 231, 235); --tw-border-spacing-x: 0; --tw-border-spacing-y: 0; --tw-translate-x: 0; --tw-translate-y: 0; --tw-rotate: 0; --tw-skew-x: 0; --tw-skew-y: 0; --tw-scale-x: 1; --tw-scale-y: 1; --tw-pan-x: ; --tw-pan-y: ; --tw-pinch-zoom: ; --tw-scroll-snap-strictness: proximity; --tw-ordinal: ; --tw-slashed-zero: ; --tw-numeric-figure: ; --tw-numeric-spacing: ; --tw-numeric-fraction: ; --tw-ring-inset: ; --tw-ring-offset-width: 0px; --tw-ring-offset-color: #f...[truncated]",
+            "meta_title": "Qolore All Blur Pro Face Primer",
+            "meta_description": "Product Features:• Professional-grade blurring effect for a flawless finish• Smooths skin texture and minimizes the appearance of pores• Lightweight, non-greasy...",
+            "status": 1,
+            "topsale": 1,
+            "flashsale": 1,
+            "feature_product": 0,
+            "cat": "makeup",
+            "brand": "Mac",
+            "price": 2200,
+            "old": 1200
+        },
+        {
+            "name": "Palmer's Cocoa Butter Formula Foot Magic Cream",
+            "slug": "palmer's-cocoa-butter-formula-foot-magic-cream-251",
+            "category_id": 2,
+            "brand_id": 1,
+            "new_price": 2200,
+            "old_price": 2500,
+            "stock": 100,
+            "image": "public/uploads/images/product-1774333101-3w-clinic-intensive-drkim-sun-bb-cream-50-ml-1.jpg",
+            "gallery_images": [
+                "public/uploads/images/product-1774333101-3w-clinic-intensive-drkim-sun-bb-cream-50-ml-1.jpg"
+            ],
+            "description": "<p style=\"border: 0px solid rgb(229, 231, 235); --tw-border-spacing-x: 0; --tw-border-spacing-y: 0; --tw-translate-x: 0; --tw-translate-y: 0; --tw-rotate: 0; --tw-skew-x: 0; --tw-skew-y: 0; --tw-scale-x: 1; --tw-scale-y: 1; --tw-pan-x: ; --tw-pan-y: ; --tw-pinch-zoom: ; --tw-scroll-snap-strictness: proximity; --tw-ordinal: ; --tw-slashed-zero: ; --tw-numeric-figure: ; --tw-numeric-spacing: ; --tw-numeric-fraction: ; --tw-ring-inset: ; --tw-ring-offset-width: 0px; --tw-ring-offset-color: #fff; --...[truncated]",
+            "meta_title": "Palmer's Cocoa Butter Formula Foot Magic Cream",
+            "meta_description": "Pure Cocoa Butter, enriched with Vitamin E and other natural emollients, provides a deep penetrating treatment for the feet. This unique formulation moisturises...",
+            "status": 1,
+            "topsale": 1,
+            "flashsale": 1,
+            "feature_product": 0,
+            "cat": "skin",
+            "brand": "Mac",
+            "price": 2200,
+            "old": 2500
+        }
+    ],
+    "blogs": [
+        {
+            "title": "Welcome to Beauty Shop BD",
+            "short_desc": "Discover amazing products at great prices.",
+            "views": 1000,
+            "image": "public/uploads/images/product-1762866138-images.jfif"
+        },
+        {
+            "title": "New Arrivals",
+            "short_desc": "Check out our latest collection.",
+            "views": 800,
+            "image": "public/uploads/images/product-1759499529-b5a9b2b56e61cee18211068aeec6e4af.jpg"
+        }
+    ],
+    "shipping_charges": [
+        {
+            "name": "Inside Dhaka",
+            "amount": 60
+        },
+        {
+            "name": "Outside Dhaka",
+            "amount": 110
+        }
+    ],
+    "banners": [
+        {
+            "category_id": 1,
+            "image": "public/uploads/images/banner-173643113867575302_2472100143020289_2326622559207948288_n.jpg",
+            "link": "#"
+        },
+        {
+            "category_id": 1,
+            "image": "public/uploads/images/banner-1736431152118809765_346016253436140_4643575167707946072_n.jpg",
+            "link": "#"
+        },
+        {
+            "category_id": 1,
+            "image": "public/uploads/images/banner-17627569661760726244173643113867575302_2472100143020289_2326622559207948288_n.jpg",
+            "link": "#"
+        },
+        {
+            "category_id": 5,
+            "image": "public/uploads/images/banner-17647804324.webp",
+            "link": "#"
+        },
+        {
+            "category_id": 6,
+            "image": "public/uploads/images/banner-17647805931468277_Protector_DOOR_cat_web.webp",
+            "link": "#"
+        },
+        {
+            "category_id": 8,
+            "image": "public/uploads/images/banner-17647806211468277_Protector_DOOR_cat_web.webp",
+            "link": "#"
+        },
+        {
+            "category_id": 10,
+            "image": "public/uploads/images/banner-17647810191468495_Mobile and gadgets top right side banner web.webp",
+            "link": "#"
+        },
+        {
+            "category_id": 10,
+            "image": "public/uploads/images/banner-17647810521457239_Regal Topslider Web (3).webp",
+            "link": "#"
+        }
+    ]
+}

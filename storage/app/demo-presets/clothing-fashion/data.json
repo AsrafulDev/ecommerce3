@@ -1,0 +1,671 @@
+{
+    "meta": {
+        "name": "Clothing Fashion",
+        "slug": "clothing-fashion",
+        "description": "Apparel, fashion wear, accessories, and designer clothing collection.",
+        "live_url": "https://ecommerce6.creativedesign.com.bd/",
+        "color": "#9333ea",
+        "icon": "mdi-hanger"
+    },
+    "general_settings": {
+        "name": "Clothing Fashion Store",
+        "white_logo": "public/assets/images/CurlBazar.png",
+        "dark_logo": "public/assets/images/CurlBazar.png",
+        "favicon": "public/favicon.ico",
+        "copyright": "© 2026 Clothing Fashion Store. All rights reserved.",
+        "show_all_products": 1,
+        "show_category_wise_products": 1,
+        "vendor_enabled": 0,
+        "reseller_enabled": 0
+    },
+    "theme": {
+        "name": "Clothing Fashion",
+        "slug": "clothing-fashion",
+        "primary_color": "#9333ea",
+        "secondary_color": "#7f1fd6",
+        "accent_color": "#ff6a00",
+        "text_color": "#212529",
+        "heading_color": "#111111",
+        "body_bg_color": "#ffffff",
+        "header_bg_color": "#ffffff",
+        "header_text_color": "#212529",
+        "footer_bg_color": "#1a1a1a",
+        "footer_text_color": "#cccccc",
+        "is_default": true,
+        "is_active": true
+    },
+    "categories": [
+        {
+            "id": 1,
+            "parent_id": 0,
+            "name": "Men",
+            "slug": "men",
+            "image": "public/uploads/images/category-1773840608-67c4f8805a51e-square.webp",
+            "status": 1
+        },
+        {
+            "id": 2,
+            "parent_id": 0,
+            "name": "Women",
+            "slug": "women",
+            "image": "public/uploads/images/category-1773766148-69b54e435cc97-square.webp",
+            "status": 1
+        },
+        {
+            "id": 3,
+            "parent_id": 0,
+            "name": "Teens",
+            "slug": "teens",
+            "image": "public/uploads/images/category-1773766220-68f4c0b04d1a5-square.webp",
+            "status": 1
+        },
+        {
+            "id": 4,
+            "parent_id": 0,
+            "name": "Kids",
+            "slug": "kids",
+            "image": "public/uploads/images/category-1773766277-69b6ac4273128-square.webp",
+            "status": 1
+        },
+        {
+            "id": 5,
+            "parent_id": 0,
+            "name": "Sports",
+            "slug": "sports",
+            "image": "public/uploads/images/category-1773766352-677135917ff00-square.webp",
+            "status": 1
+        }
+    ],
+    "subcategories": [
+        {
+            "name": "Topwear",
+            "slug": "topwear",
+            "category_id": 1,
+            "image": null,
+            "status": 1,
+            "cat": "men"
+        },
+        {
+            "name": "Bottomwear",
+            "slug": "bottomwear",
+            "category_id": 1,
+            "image": null,
+            "status": 1,
+            "cat": "men"
+        },
+        {
+            "name": "Accessories",
+            "slug": "accessories",
+            "category_id": 1,
+            "image": null,
+            "status": 1,
+            "cat": "men"
+        },
+        {
+            "name": "Western & Ethnic",
+            "slug": "western-&-ethnic",
+            "category_id": 2,
+            "image": null,
+            "status": 1,
+            "cat": "women"
+        },
+        {
+            "name": "Boys",
+            "slug": "boys",
+            "category_id": 3,
+            "image": null,
+            "status": 1,
+            "cat": "teens"
+        },
+        {
+            "name": "Girls",
+            "slug": "girls",
+            "category_id": 3,
+            "image": null,
+            "status": 1,
+            "cat": "teens"
+        },
+        {
+            "name": "Boys",
+            "slug": "boys",
+            "category_id": 4,
+            "image": null,
+            "status": 1,
+            "cat": "kids"
+        },
+        {
+            "name": "Girls",
+            "slug": "girls",
+            "category_id": 4,
+            "image": null,
+            "status": 1,
+            "cat": "kids"
+        },
+        {
+            "name": "Sportswear",
+            "slug": "sportswear",
+            "category_id": 5,
+            "image": "images/subcategory-1773805075-61a794e19d4b4-square.webp",
+            "status": 1,
+            "cat": "sports"
+        }
+    ],
+    "brands": [
+        {
+            "name": "RFL",
+            "image": "public/uploads/images/brand-1763623615-rfl-logo-png_seeklogo-250040.webp"
+        },
+        {
+            "name": "Samsung",
+            "image": "public/uploads/images/brand-1765817698-images.webp"
+        },
+        {
+            "name": "LG",
+            "image": "public/uploads/images/brand-1765817784-lg_symbol.svg.webp"
+        },
+        {
+            "name": "Apple",
+            "image": "public/uploads/images/brand-1765817842-apple_logo_grey.svg.webp"
+        },
+        {
+            "name": "Symphony",
+            "image": "public/uploads/images/brand-1765817905-symphony_logo.webp"
+        },
+        {
+            "name": "Pran",
+            "image": "public/uploads/images/brand-1765817987-screenshot_1.webp"
+        },
+        {
+            "name": "Meril",
+            "image": "public/uploads/images/brand-1765818120-89d3708ca6d1c9581bdb42f378fefe0b92.png"
+        },
+        {
+            "name": "Gigabyte",
+            "image": "public/uploads/images/brand-1765818173-gigabyte-logo.webp"
+        },
+        {
+            "name": "Walton",
+            "image": "public/uploads/images/brand-1765818240-walton_group_logo.webp"
+        },
+        {
+            "name": "Teer",
+            "image": "public/uploads/images/brand-1765818411-2021-12-13-61b6e83dd4cf0.webp"
+        },
+        {
+            "name": "Jiver Sadh",
+            "image": "public/uploads/images/brand-1765818574-fa6e45217130135.y3jvccwymtawlde2ndismcwymjg.webp"
+        },
+        {
+            "name": "7 UP",
+            "image": "public/uploads/images/brand-1765818630-7up-logo-2010-768x432-2.webp"
+        },
+        {
+            "name": "Konka",
+            "image": "public/uploads/images/brand-1766001728-konka-logo-png_seeklogo-350032.webp"
+        }
+    ],
+    "products": [
+        {
+            "name": "Single Jersey Knitted Cotton Polo - Iceberg Green",
+            "slug": "single-jersey-knitted-cotton-polo---iceberg-green-231",
+            "category_id": 1,
+            "brand_id": 1,
+            "new_price": 2400,
+            "old_price": 1300,
+            "stock": 999,
+            "image": "public/uploads/images/product-1773840996-650182af39a77-square.jpeg",
+            "gallery_images": [
+                "public/uploads/images/product-1773840996-650182af39a77-square.jpeg",
+                "public/uploads/images/product-1773840996-69baaa64142be-650182af39a77-square.jpeg",
+                "public/uploads/images/product-1773840996-69baaa64142be-650182af39a77-square.jpeg",
+                "public/uploads/images/product-1773840996-69baaa64142be-650182af39a77-square.jpeg"
+            ],
+            "description": "<div class=\"self-product-description type-description\" style=\"box-sizing: inherit; color: rgb(55, 58, 60); font-family: Assistant, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Roboto, sans-serif; font-size: 14.4px; padding: 0px 0px 15px;\"><p style=\"box-sizing: inherit;\"><span style=\"box-sizing: inherit; font-weight: bolder;\">Premium Single Jersey Polo T-shirt</span></p><p style=\"box-sizing: inherit;\">The Polo t-shirt is made with single jersey fabric, featuring premium 100% combed co...[truncated]",
+            "meta_title": "Single Jersey Knitted Cotton Polo - Iceberg Green",
+            "meta_description": "Premium Single Jersey Polo T-shirtThe Polo t-shirt is made with single jersey fabric, featuring premium 100% combed compact organic cotton. The t-shirt has a so...",
+            "status": 1,
+            "topsale": 1,
+            "flashsale": 1,
+            "feature_product": 0,
+            "cat": "men",
+            "brand": "RFL",
+            "price": 2400,
+            "old": 1300
+        },
+        {
+            "name": "Classical Edition Single Jersey Knitted Polo- Saltshake",
+            "slug": "classical-edition-single-jersey-knitted-polo--saltshake-232",
+            "category_id": 1,
+            "brand_id": 1,
+            "new_price": 2200,
+            "old_price": 1200,
+            "stock": 100,
+            "image": "public/uploads/images/product-1773841161-650182af39a77-square.jpeg",
+            "gallery_images": [
+                "public/uploads/images/product-1773841161-650182af39a77-square.jpeg",
+                "public/uploads/images/product-1773841161-69baab099fdb5-650182af39a77-square.jpeg",
+                "public/uploads/images/product-1773841161-69baab099fdb5-650182af39a77-square.jpeg",
+                "public/uploads/images/product-1773841161-69baab099fdb5-650182af39a77-square.jpeg"
+            ],
+            "description": "<div class=\"self-product-description type-description\" style=\"box-sizing: inherit; color: rgb(55, 58, 60); font-family: Assistant, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Roboto, sans-serif; font-size: 14.4px; padding: 0px 0px 15px;\"><p style=\"box-sizing: inherit;\"><span style=\"box-sizing: inherit; font-weight: bolder;\">Premium Single Jersey Polo T-shirt</span></p><p style=\"box-sizing: inherit;\">This Polo t-shirt is made with single jersey fabric, featuring premium 100% combed c...[truncated]",
+            "meta_title": "Classical Edition Single Jersey Knitted Polo- Saltshake",
+            "meta_description": "Premium Single Jersey Polo T-shirtThis Polo t-shirt is made with single jersey fabric, featuring premium 100% combed compact organic cotton. The t-shirt has a s...",
+            "status": 1,
+            "topsale": 1,
+            "flashsale": 1,
+            "feature_product": 0,
+            "cat": "men",
+            "brand": "RFL",
+            "price": 2200,
+            "old": 1200
+        },
+        {
+            "name": "Designer Edition Single Jersey Knitted Cotton Polo - Ingenious",
+            "slug": "designer-edition-single-jersey-knitted-cotton-polo---ingenious-233",
+            "category_id": 1,
+            "brand_id": 1,
+            "new_price": 2200,
+            "old_price": 2500,
+            "stock": 100,
+            "image": "public/uploads/images/product-1773841315-632c5f39e01ce-square.jpg",
+            "gallery_images": [
+                "public/uploads/images/product-1773841315-632c5f39e01ce-square.jpg",
+                "public/uploads/images/product-1773841315-69baaba32b0a0-632c5f39e01ce-square.jpg",
+                "public/uploads/images/product-1773841315-69baaba32b0a0-632c5f39e01ce-square.jpg",
+                "public/uploads/images/product-1773841315-69baaba32b0a0-632c5f39e01ce-square.jpg",
+                "public/uploads/images/product-1773841315-69baaba32b0a0-632c5f39e01ce-square.jpg"
+            ],
+            "description": "<div class=\"self-product-description type-description\" style=\"box-sizing: inherit; color: rgb(55, 58, 60); font-family: Assistant, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Roboto, sans-serif; font-size: 14.4px; padding: 0px 0px 15px;\"><p style=\"box-sizing: inherit;\"><span style=\"box-sizing: inherit; font-weight: bolder;\">Premium Single Jersey Polo T-shirt</span></p><p style=\"box-sizing: inherit;\">This Polo t-shirt is made with single jersey fabric featuring premium 100% combed co...[truncated]",
+            "meta_title": "Designer Edition Single Jersey Knitted Cotton Polo - Ingenious",
+            "meta_description": "Premium Single Jersey Polo T-shirtThis Polo t-shirt is made with single jersey fabric featuring premium 100% combed compact organic cotton. The t-shirt has a so...",
+            "status": 1,
+            "topsale": 1,
+            "flashsale": 1,
+            "feature_product": 0,
+            "cat": "men",
+            "brand": "RFL",
+            "price": 2200,
+            "old": 2500
+        },
+        {
+            "name": "Premium Designer Edition Double PK Cotton Polo - Altair",
+            "slug": "premium-designer-edition-double-pk-cotton-polo---altair-234",
+            "category_id": 1,
+            "brand_id": 1,
+            "new_price": 600,
+            "old_price": 2500,
+            "stock": 100,
+            "image": "public/uploads/images/product-1773841448-69a803c9ecb0b-square.jpg",
+            "gallery_images": [
+                "public/uploads/images/product-1773841448-69a803c9ecb0b-square.jpg"
+            ],
+            "description": "<div class=\"self-product-description type-description\" style=\"box-sizing: inherit; color: rgb(55, 58, 60); font-family: Assistant, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Roboto, sans-serif; font-size: 14.4px; padding: 0px 0px 15px;\"><p style=\"box-sizing: inherit;\">The Polo t-shirt is made with double PK fabric, featuring premium 100% combed compact organic cotton. The t-shirt has a soft touch, making it very comfortable for all-day wear.</p><p style=\"box-sizing: inherit;\">It ha...[truncated]",
+            "meta_title": "Premium Designer Edition Double PK Cotton Polo - Altair",
+            "meta_description": "The Polo t-shirt is made with double PK fabric, featuring premium 100% combed compact organic cotton. The t-shirt has a soft touch, making it very comfortable f...",
+            "status": 1,
+            "topsale": 1,
+            "flashsale": 1,
+            "feature_product": 0,
+            "cat": "men",
+            "brand": "RFL",
+            "price": 600,
+            "old": 2500
+        },
+        {
+            "name": "Mens Elegant Polo - Viniyard",
+            "slug": "mens-elegant-polo---viniyard-235",
+            "category_id": 1,
+            "brand_id": 1,
+            "new_price": 2200,
+            "old_price": 2500,
+            "stock": 100,
+            "image": "public/uploads/images/product-1773841519-68c4e9b2b148e-square.jpg",
+            "gallery_images": [
+                "public/uploads/images/product-1773841519-68c4e9b2b148e-square.jpg"
+            ],
+            "description": "<div class=\"self-product-description type-description\" style=\"box-sizing: inherit; color: rgb(55, 58, 60); font-family: Assistant, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Roboto, sans-serif; font-size: 14.4px; padding: 0px 0px 15px;\"><p style=\"box-sizing: inherit;\">Elevate your style with the Premium Elegant Polo - Intense, designed for those who appreciate sophistication and comfort.</p><p style=\"box-sizing: inherit;\">✔&nbsp;<span style=\"box-sizing: inherit; font-weight: bolder...[truncated]",
+            "meta_title": "Mens Elegant Polo - Viniyard",
+            "meta_description": "Elevate your style with the Premium Elegant Polo - Intense, designed for those who appreciate sophistication and comfort.✔&nbsp;Fabric:&nbsp;High Quality AeroSt...",
+            "status": 1,
+            "topsale": 1,
+            "flashsale": 1,
+            "feature_product": 0,
+            "cat": "men",
+            "brand": "RFL",
+            "price": 2200,
+            "old": 2500
+        },
+        {
+            "name": "Mens Premium Limited Edition Polo - Bluebind",
+            "slug": "mens-premium-limited-edition-polo---bluebind-236",
+            "category_id": 1,
+            "brand_id": 1,
+            "new_price": 2200,
+            "old_price": 2500,
+            "stock": 100,
+            "image": "public/uploads/images/product-1773841580-69a803c9f1101-square.jpg",
+            "gallery_images": [
+                "public/uploads/images/product-1773841580-69a803c9f1101-square.jpg"
+            ],
+            "description": "<div class=\"self-product-description type-description\" style=\"box-sizing: inherit; color: rgb(55, 58, 60); font-family: Assistant, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Roboto, sans-serif; font-size: 14.4px; padding: 0px 0px 15px;\"><p style=\"box-sizing: inherit;\"><span style=\"box-sizing: inherit; font-weight: bolder;\">Specifications</span></p><p style=\"box-sizing: inherit;\"><span style=\"box-sizing: inherit; font-weight: bolder;\">Fabric Type:</span>&nbsp;Interlock Knit<br style...[truncated]",
+            "meta_title": "Mens Premium Limited Edition Polo - Bluebind",
+            "meta_description": "SpecificationsFabric Type:&nbsp;Interlock KnitComposition:&nbsp;Polyamide 69% + Elastane 22% + Polyester 9%GSM:&nbsp;190 – 220Fit Type:&nbsp;Regular / Smart Cas...",
+            "status": 1,
+            "topsale": 1,
+            "flashsale": 1,
+            "feature_product": 0,
+            "cat": "men",
+            "brand": "RFL",
+            "price": 2200,
+            "old": 2500
+        },
+        {
+            "name": "Premium Designer Edition Double PK Cotton Polo - Sapphirish",
+            "slug": "premium-designer-edition-double-pk-cotton-polo---sapphirish-237",
+            "category_id": 1,
+            "brand_id": 1,
+            "new_price": 2200,
+            "old_price": 2500,
+            "stock": 100,
+            "image": "public/uploads/images/product-1773841658-1.jpg",
+            "gallery_images": [
+                "public/uploads/images/product-1773841658-1.jpg"
+            ],
+            "description": "<div class=\"self-product-description type-description\" style=\"box-sizing: inherit; color: rgb(55, 58, 60); font-family: Assistant, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Roboto, sans-serif; font-size: 14.4px; padding: 0px 0px 15px;\"><p style=\"box-sizing: inherit;\">The Polo t-shirt is made with Double PK fabric, featuring premium 80% combed compact organic cotton. The t-shirt has a soft touch with a&nbsp;<span style=\"box-sizing: inherit; font-weight: bolder;\">tape</span>, making...[truncated]",
+            "meta_title": "Premium Designer Edition Double PK Cotton Polo - Sapphirish",
+            "meta_description": "The Polo t-shirt is made with Double PK fabric, featuring premium 80% combed compact organic cotton. The t-shirt has a soft touch with a&nbsp;tape, making it ve...",
+            "status": 1,
+            "topsale": 1,
+            "flashsale": 1,
+            "feature_product": 0,
+            "cat": "men",
+            "brand": "RFL",
+            "price": 2200,
+            "old": 2500
+        },
+        {
+            "name": "Premium Designer Edition Double PK Cotton Polo - Altair",
+            "slug": "premium-designer-edition-double-pk-cotton-polo---altair-238",
+            "category_id": 1,
+            "brand_id": 1,
+            "new_price": 2200,
+            "old_price": 2500,
+            "stock": 99,
+            "image": "public/uploads/images/product-1773841764-69a803c9ecb0b-square.jpg",
+            "gallery_images": [
+                "public/uploads/images/product-1773841764-69a803c9ecb0b-square.jpg"
+            ],
+            "description": "<div class=\"self-product-description type-description\" style=\"box-sizing: inherit; color: rgb(55, 58, 60); font-family: Assistant, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Roboto, sans-serif; font-size: 14.4px; padding: 0px 0px 15px;\"><p style=\"box-sizing: inherit;\">The Polo t-shirt is made with double PK fabric, featuring premium 100% combed compact organic cotton. The t-shirt has a soft touch, making it very comfortable for all-day wear.</p><p style=\"box-sizing: inherit;\">It ha...[truncated]",
+            "meta_title": "Premium Designer Edition Double PK Cotton Polo - Altair",
+            "meta_description": "The Polo t-shirt is made with double PK fabric, featuring premium 100% combed compact organic cotton. The t-shirt has a soft touch, making it very comfortable f...",
+            "status": 1,
+            "topsale": 1,
+            "flashsale": 1,
+            "feature_product": 0,
+            "cat": "men",
+            "brand": "RFL",
+            "price": 2200,
+            "old": 2500
+        },
+        {
+            "name": "Mens Premium Hoodie - Air Black",
+            "slug": "mens-premium-hoodie---air-black-239",
+            "category_id": 3,
+            "brand_id": 1,
+            "new_price": 2200,
+            "old_price": 2500,
+            "stock": 100,
+            "image": "public/uploads/images/product-1773842838-6956896f2db42-square.jpg",
+            "gallery_images": [
+                "public/uploads/images/product-1773842838-6956896f2db42-square.jpg"
+            ],
+            "description": "<div class=\"self-product-description type-description\" style=\"box-sizing: inherit; color: rgb(55, 58, 60); font-family: Assistant, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Roboto, sans-serif; font-size: 14.4px; padding: 0px 0px 15px;\"><p style=\"box-sizing: inherit;\"><span style=\"box-sizing: inherit; font-weight: bolder;\">Premium Hoodie</span></p><ul style=\"box-sizing: inherit;\"><li style=\"box-sizing: inherit;\"><p style=\"box-sizing: inherit;\">Regular Fit</p></li><li style=\"box-siz...[truncated]",
+            "meta_title": "Mens Premium Hoodie - Air Black",
+            "meta_description": "Premium HoodieRegular FitMade from&nbsp;soft fleece fabric&nbsp;with an ultra-smooth interior for warmth and comfortFlexible, breathable, and durable, perfect f...",
+            "status": 1,
+            "topsale": 1,
+            "flashsale": 1,
+            "feature_product": 0,
+            "cat": "teens",
+            "brand": "RFL",
+            "price": 2200,
+            "old": 2500
+        },
+        {
+            "name": "Mens Premium Hoodie - Drak Shadow",
+            "slug": "mens-premium-hoodie---drak-shadow-240",
+            "category_id": 3,
+            "brand_id": 1,
+            "new_price": 2200,
+            "old_price": 2500,
+            "stock": 100,
+            "image": "public/uploads/images/product-1773842905-695e654113041-square.jpg",
+            "gallery_images": [
+                "public/uploads/images/product-1773842905-695e654113041-square.jpg"
+            ],
+            "description": "<div class=\"self-product-description type-description\" style=\"box-sizing: inherit; color: rgb(55, 58, 60); font-family: Assistant, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Roboto, sans-serif; font-size: 14.4px; padding: 0px 0px 15px;\"><p style=\"box-sizing: inherit;\"><span style=\"box-sizing: inherit; font-weight: bolder;\">Premium Hoodie</span></p><ul style=\"box-sizing: inherit;\"><li style=\"box-sizing: inherit;\"><p style=\"box-sizing: inherit;\">Regular Fit</p></li><li style=\"box-siz...[truncated]",
+            "meta_title": "Mens Premium Hoodie - Drak Shadow",
+            "meta_description": "Premium HoodieRegular FitMade from&nbsp;soft fleece fabric&nbsp;with an ultra-smooth interior for warmth and comfort.Flexible, breathable, and durable, perfect...",
+            "status": 1,
+            "topsale": 1,
+            "flashsale": 1,
+            "feature_product": 0,
+            "cat": "teens",
+            "brand": "RFL",
+            "price": 2200,
+            "old": 2500
+        },
+        {
+            "name": "Mens Premium Hoodie - Drak Shadow",
+            "slug": "mens-premium-hoodie---drak-shadow-241",
+            "category_id": 3,
+            "brand_id": 1,
+            "new_price": 10250,
+            "old_price": 1200,
+            "stock": 10000,
+            "image": "public/uploads/images/product-1773842969-69522d80d8c7d-square.jpg",
+            "gallery_images": [
+                "public/uploads/images/product-1773842969-69522d80d8c7d-square.jpg"
+            ],
+            "description": "<div class=\"self-product-description type-description\" style=\"box-sizing: inherit; color: rgb(55, 58, 60); font-family: Assistant, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Roboto, sans-serif; font-size: 14.4px; padding: 0px 0px 15px;\"><p style=\"box-sizing: inherit;\"><span style=\"box-sizing: inherit; font-weight: bolder;\">Premium Hoodie</span></p><ul style=\"box-sizing: inherit;\"><li style=\"box-sizing: inherit;\"><p style=\"box-sizing: inherit;\">Regular Fit</p></li><li style=\"box-siz...[truncated]",
+            "meta_title": "Mens Premium Hoodie - Drak Shadow",
+            "meta_description": "Premium HoodieRegular FitMade from&nbsp;soft fleece fabric&nbsp;with an ultra-smooth interior for warmth and comfort.Flexible, breathable, and durable, perfect...",
+            "status": 1,
+            "topsale": 1,
+            "flashsale": 1,
+            "feature_product": 0,
+            "cat": "teens",
+            "brand": "RFL",
+            "price": 10250,
+            "old": 1200
+        },
+        {
+            "name": "Mens Premium Hoodie- Disguise",
+            "slug": "mens-premium-hoodie--disguise-242",
+            "category_id": 3,
+            "brand_id": 1,
+            "new_price": 2200,
+            "old_price": 2500,
+            "stock": 100,
+            "image": "public/uploads/images/product-1773843215-69148f18d6425-square.jpg",
+            "gallery_images": [
+                "public/uploads/images/product-1773843215-69148f18d6425-square.jpg"
+            ],
+            "description": "<div class=\"self-product-description type-description\" style=\"box-sizing: inherit; color: rgb(55, 58, 60); font-family: Assistant, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Roboto, sans-serif; font-size: 14.4px; padding: 0px 0px 15px;\"><p style=\"box-sizing: inherit;\"><span style=\"box-sizing: inherit; font-weight: bolder;\">Premium Hoodie</span></p><ul style=\"box-sizing: inherit;\"><li style=\"box-sizing: inherit;\"><p style=\"box-sizing: inherit;\">Regular Fit</p></li><li style=\"box-siz...[truncated]",
+            "meta_title": "Mens Premium Hoodie- Disguise",
+            "meta_description": "Premium HoodieRegular FitMade from&nbsp;soft fleece fabric&nbsp;with an ultra-smooth interior for warmth and comfort.Flexible, breathable, and durable, perfect...",
+            "status": 1,
+            "topsale": 1,
+            "flashsale": 1,
+            "feature_product": 0,
+            "cat": "teens",
+            "brand": "RFL",
+            "price": 2200,
+            "old": 2500
+        },
+        {
+            "name": "Men Premium Hoodie - Dunkan",
+            "slug": "men-premium-hoodie---dunkan-243",
+            "category_id": 3,
+            "brand_id": 1,
+            "new_price": 10250,
+            "old_price": 1200,
+            "stock": 9998,
+            "image": "public/uploads/images/product-1773843272-69149128def85-square.jpg",
+            "gallery_images": [
+                "public/uploads/images/product-1773843272-69149128def85-square.jpg"
+            ],
+            "description": "<div class=\"self-product-description type-description\" style=\"box-sizing: inherit; color: rgb(55, 58, 60); font-family: Assistant, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Roboto, sans-serif; font-size: 14.4px; padding: 0px 0px 15px;\"><p style=\"box-sizing: inherit;\"><span style=\"box-sizing: inherit; font-weight: bolder;\">Premium Hoodie</span></p><ul style=\"box-sizing: inherit;\"><li style=\"box-sizing: inherit;\"><p style=\"box-sizing: inherit;\">Regular Fit</p></li><li style=\"box-siz...[truncated]",
+            "meta_title": "Men Premium Hoodie - Dunkan",
+            "meta_description": "Premium HoodieRegular FitMid Weight 280 GSMSoft, breathable fabric with a smooth brushed textureDesigned for cozy warmth and casual everyday wearStylish two-ton...",
+            "status": 1,
+            "topsale": 1,
+            "flashsale": 1,
+            "feature_product": 0,
+            "cat": "teens",
+            "brand": "RFL",
+            "price": 10250,
+            "old": 1200
+        },
+        {
+            "name": "Mens Premium Hoodie - Nanodime",
+            "slug": "mens-premium-hoodie---nanodime-244",
+            "category_id": 3,
+            "brand_id": 1,
+            "new_price": 2200,
+            "old_price": 2500,
+            "stock": 99,
+            "image": "public/uploads/images/product-1773843355-69146226c9d20-square.jpg",
+            "gallery_images": [
+                "public/uploads/images/product-1773843355-69146226c9d20-square.jpg",
+                "public/uploads/images/product-1773843355-69bab39b74791-69146226c9d20-square.jpg",
+                "public/uploads/images/product-1773843355-69bab39b74791-69146226c9d20-square.jpg"
+            ],
+            "description": "<div class=\"self-product-description type-description\" style=\"box-sizing: inherit; color: rgb(55, 58, 60); font-family: Assistant, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Roboto, sans-serif; font-size: 14.4px; padding: 0px 0px 15px;\"><p style=\"box-sizing: inherit;\"><span style=\"box-sizing: inherit; font-weight: bolder;\">Premium Hoodie</span></p><ul style=\"box-sizing: inherit;\"><li style=\"box-sizing: inherit;\"><p style=\"box-sizing: inherit;\">Regular Fit</p></li><li style=\"box-siz...[truncated]",
+            "meta_title": "Mens Premium Hoodie - Nanodime",
+            "meta_description": "Premium HoodieRegular FitMid Weight 280 GSMSoft, breathable fabric with a smooth brushed textureDesigned for cozy warmth and casual everyday wearStylish two-ton...",
+            "status": 1,
+            "topsale": 1,
+            "flashsale": 1,
+            "feature_product": 0,
+            "cat": "teens",
+            "brand": "RFL",
+            "price": 2200,
+            "old": 2500
+        },
+        {
+            "name": "Mens Multi-Shades Hoodie - Navy",
+            "slug": "mens-multi-shades-hoodie---navy-245",
+            "category_id": 3,
+            "brand_id": 1,
+            "new_price": 2200,
+            "old_price": 1200,
+            "stock": 10000,
+            "image": "public/uploads/images/product-1773843403-6927eab73f701-square.jpg",
+            "gallery_images": [
+                "public/uploads/images/product-1773843403-6927eab73f701-square.jpg"
+            ],
+            "description": "<div class=\"self-product-description type-description\" style=\"box-sizing: inherit; color: rgb(55, 58, 60); font-family: Assistant, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Roboto, sans-serif; font-size: 14.4px; padding: 0px 0px 15px;\"><p style=\"box-sizing: inherit;\"><span style=\"box-sizing: inherit; font-weight: bolder;\">Premium Hoodie</span></p><ul style=\"box-sizing: inherit;\"><li style=\"box-sizing: inherit;\">Relaxed-fit hoodie made from a cotton-blend fabric with a soft brushed...[truncated]",
+            "meta_title": "Mens Multi-Shades Hoodie - Navy",
+            "meta_description": "Premium HoodieRelaxed-fit hoodie made from a cotton-blend fabric with a soft brushed interior. It features a jersey-lined wrapover hood with a drawstring, side...",
+            "status": 1,
+            "topsale": 1,
+            "flashsale": 1,
+            "feature_product": 0,
+            "cat": "teens",
+            "brand": "RFL",
+            "price": 2200,
+            "old": 1200
+        },
+        {
+            "name": "Mens Premium Hoodie Designer Edition- EndZone",
+            "slug": "mens-premium-hoodie-designer-edition--endzone-246",
+            "category_id": 3,
+            "brand_id": 1,
+            "new_price": 2200,
+            "old_price": 1200,
+            "stock": 100,
+            "image": "public/uploads/images/product-1773843452-68d53195022aa-square.jpg",
+            "gallery_images": [
+                "public/uploads/images/product-1773843452-68d53195022aa-square.jpg"
+            ],
+            "description": "<div class=\"self-product-description type-description\" style=\"box-sizing: inherit; color: rgb(55, 58, 60); font-family: Assistant, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Roboto, sans-serif; font-size: 14.4px; padding: 0px 0px 15px;\"><p style=\"box-sizing: inherit;\"><span style=\"box-sizing: inherit; font-weight: bolder;\">Premium Hoodie</span></p><ul style=\"box-sizing: inherit;\"><li style=\"box-sizing: inherit;\">Relaxed-fit hoodie made from a cotton-blend fabric with a soft brushed...[truncated]",
+            "meta_title": "Mens Premium Hoodie Designer Edition- EndZone",
+            "meta_description": "Premium HoodieRelaxed-fit hoodie made from a cotton-blend fabric with a soft brushed interior. It features a jersey-lined wrapover hood with a drawstring, side...",
+            "status": 1,
+            "topsale": 1,
+            "flashsale": 1,
+            "feature_product": 0,
+            "cat": "teens",
+            "brand": "RFL",
+            "price": 2200,
+            "old": 1200
+        }
+    ],
+    "blogs": [
+        {
+            "title": "Welcome to Clothing Fashion Store",
+            "short_desc": "Discover amazing products at great prices.",
+            "views": 1000,
+            "image": "public/uploads/images/banner-17647810191468495_Mobile and gadgets top right side banner web.webp"
+        },
+        {
+            "title": "New Arrivals",
+            "short_desc": "Check out our latest collection.",
+            "views": 800,
+            "image": "public/uploads/images/product-1769441207-f34d9f24050c32104713693f8c66c1be.jpg"
+        }
+    ],
+    "shipping_charges": [
+        {
+            "name": "Inside Dhaka",
+            "amount": 60
+        },
+        {
+            "name": "Outside Dhaka",
+            "amount": 110
+        }
+    ],
+    "banners": [
+        {
+            "category_id": 1,
+            "image": "public/uploads/images/banner-173643113867575302_2472100143020289_2326622559207948288_n.jpg",
+            "link": "#"
+        },
+        {
+            "category_id": 1,
+            "image": "public/uploads/images/banner-1736431152118809765_346016253436140_4643575167707946072_n.jpg",
+            "link": "#"
+        },
+        {
+            "category_id": 1,
+            "image": "public/uploads/images/banner-17627569661760726244173643113867575302_2472100143020289_2326622559207948288_n.jpg",
+            "link": "#"
+        },
+        {
+            "category_id": 5,
+            "image": "public/uploads/images/banner-17647804324.webp",
+            "link": "#"
+        },
+        {
+            "category_id": 6,
+            "image": "public/uploads/images/banner-17647805931468277_Protector_DOOR_cat_web.webp",
+            "link": "#"
+        },
+        {
+            "category_id": 8,
+            "image": "public/uploads/images/banner-17647806211468277_Protector_DOOR_cat_web.webp",
+            "link": "#"
+        },
+        {
+            "category_id": 10,
+            "image": "public/uploads/images/banner-17647810191468495_Mobile and gadgets top right side banner web.webp",
+            "link": "#"
+        },
+        {
+            "category_id": 10,
+            "image": "public/uploads/images/banner-17647810521457239_Regal Topslider Web (3).webp",
+            "link": "#"
+        }
+    ]
+}

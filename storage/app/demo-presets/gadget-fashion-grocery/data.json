@@ -1,0 +1,894 @@
+{
+    "meta": {
+        "name": "Gadget + Fashion + Grocery",
+        "slug": "gadget-fashion-grocery",
+        "description": "Multi-category shop selling gadgets, fashion items, electronics, and grocery products.",
+        "live_url": "https://ecommerce1.creativedesign.com.bd/",
+        "color": "#0d6efd",
+        "icon": "mdi-store"
+    },
+    "general_settings": {
+        "name": "Gadget & Fashion Store",
+        "white_logo": "public/assets/images/CurlBazar.png",
+        "dark_logo": "public/assets/images/CurlBazar.png",
+        "favicon": "public/favicon.ico",
+        "copyright": "© 2026 Gadget & Fashion Store. All rights reserved.",
+        "show_all_products": 1,
+        "show_category_wise_products": 1,
+        "vendor_enabled": 0,
+        "reseller_enabled": 0
+    },
+    "theme": {
+        "name": "Gadget + Fashion + Grocery",
+        "slug": "gadget-fashion-grocery",
+        "primary_color": "#0d6efd",
+        "secondary_color": "#005ae9",
+        "accent_color": "#ff6a00",
+        "text_color": "#212529",
+        "heading_color": "#111111",
+        "body_bg_color": "#ffffff",
+        "header_bg_color": "#ffffff",
+        "header_text_color": "#212529",
+        "footer_bg_color": "#1a1a1a",
+        "footer_text_color": "#cccccc",
+        "is_default": true,
+        "is_active": true
+    },
+    "categories": [
+        {
+            "id": 1,
+            "parent_id": 0,
+            "name": "Electronics",
+            "slug": "electronics",
+            "image": "public/uploads/images/category-1764783860-tv.webp",
+            "status": 1
+        },
+        {
+            "id": 2,
+            "parent_id": 0,
+            "name": "Fashion",
+            "slug": "fashion",
+            "image": "public/uploads/images/category-1764783596-th.webp",
+            "status": 1
+        },
+        {
+            "id": 3,
+            "parent_id": 0,
+            "name": "Beauty",
+            "slug": "beauty",
+            "image": "public/uploads/images/category-1764783394-health.webp",
+            "status": 1
+        },
+        {
+            "id": 4,
+            "parent_id": 0,
+            "name": "Appliances",
+            "slug": "appliances",
+            "image": "public/uploads/images/category-1764783272-applince.webp",
+            "status": 1
+        },
+        {
+            "id": 5,
+            "parent_id": 0,
+            "name": "Groceries",
+            "slug": "groceries",
+            "image": "public/uploads/images/category-1764783064-gro.webp",
+            "status": 1
+        },
+        {
+            "id": 6,
+            "parent_id": 0,
+            "name": "Kids",
+            "slug": "kids",
+            "image": "public/uploads/images/category-1764782777-kids.webp",
+            "status": 1
+        },
+        {
+            "id": 7,
+            "parent_id": 0,
+            "name": "Books",
+            "slug": "books",
+            "image": "public/uploads/images/category-1764782610-books.webp",
+            "status": 1
+        },
+        {
+            "id": 8,
+            "parent_id": 0,
+            "name": "Trendy",
+            "slug": "trendy",
+            "image": "public/uploads/images/category-1764782518-trendy.webp",
+            "status": 1
+        },
+        {
+            "id": 9,
+            "parent_id": 0,
+            "name": "Smart Watch",
+            "slug": "smart-watch",
+            "image": "public/uploads/images/category-1764782268-watch.webp",
+            "status": 1
+        },
+        {
+            "id": 10,
+            "parent_id": 0,
+            "name": "Digital Items",
+            "slug": "digital-items",
+            "image": "public/uploads/images/category-1764782095-software.webp",
+            "status": 1
+        }
+    ],
+    "subcategories": [
+        {
+            "name": "Smart Lamp & Lights",
+            "slug": "smart-lamp-&-lights",
+            "category_id": 1,
+            "image": null,
+            "status": 1,
+            "cat": "electronics"
+        },
+        {
+            "name": "TV & Monitor",
+            "slug": "tv-&-monitor",
+            "category_id": 1,
+            "image": null,
+            "status": 1,
+            "cat": "electronics"
+        },
+        {
+            "name": "Laptop",
+            "slug": "laptop",
+            "category_id": 1,
+            "image": null,
+            "status": 1,
+            "cat": "electronics"
+        },
+        {
+            "name": "Shirt",
+            "slug": "shirt",
+            "category_id": 2,
+            "image": null,
+            "status": 1,
+            "cat": "fashion"
+        },
+        {
+            "name": "Pant",
+            "slug": "pant",
+            "category_id": 2,
+            "image": null,
+            "status": 1,
+            "cat": "fashion"
+        }
+    ],
+    "brands": [
+        {
+            "name": "RFL",
+            "image": "public/uploads/images/brand-1763623615-rfl-logo-png_seeklogo-250040.webp"
+        },
+        {
+            "name": "Samsung",
+            "image": "public/uploads/images/brand-1765817698-images.webp"
+        },
+        {
+            "name": "LG",
+            "image": "public/uploads/images/brand-1765817784-lg_symbol.svg.webp"
+        },
+        {
+            "name": "Apple",
+            "image": "public/uploads/images/brand-1765817842-apple_logo_grey.svg.webp"
+        },
+        {
+            "name": "Symphony",
+            "image": "public/uploads/images/brand-1765817905-symphony_logo.webp"
+        },
+        {
+            "name": "Pran",
+            "image": "public/uploads/images/brand-1765817987-screenshot_1.webp"
+        },
+        {
+            "name": "Meril",
+            "image": "public/uploads/images/brand-1765818120-89d3708ca6d1c9581bdb42f378fefe0b92.png"
+        },
+        {
+            "name": "Gigabyte",
+            "image": "public/uploads/images/brand-1765818173-gigabyte-logo.webp"
+        },
+        {
+            "name": "Walton",
+            "image": "public/uploads/images/brand-1765818240-walton_group_logo.webp"
+        },
+        {
+            "name": "Teer",
+            "image": "public/uploads/images/brand-1765818411-2021-12-13-61b6e83dd4cf0.webp"
+        },
+        {
+            "name": "Jiver Sadh",
+            "image": "public/uploads/images/brand-1765818574-fa6e45217130135.y3jvccwymtawlde2ndismcwymjg.webp"
+        },
+        {
+            "name": "7 UP",
+            "image": "public/uploads/images/brand-1765818630-7up-logo-2010-768x432-2.webp"
+        },
+        {
+            "name": "Konka",
+            "image": "public/uploads/images/brand-1766001728-konka-logo-png_seeklogo-350032.webp"
+        }
+    ],
+    "products": [
+        {
+            "name": "Ugreen Car Charger With FM Modulator PD 2x Usb 1x Type-C Bluetooth QC 3.0 Car Charger 80910 CD229",
+            "slug": "ugreen-car-charger-with-fm-modulator-pd-2x-usb-1x-type-c-bluetooth-qc-3.0-car-charger-80910-cd229-180",
+            "category_id": 1,
+            "brand_id": 1,
+            "new_price": 1300,
+            "old_price": 1200,
+            "stock": 959,
+            "image": "public/uploads/images/1736431595-2024-07-16-6696757bd2081.jpg",
+            "gallery_images": [
+                "public/uploads/images/product-1759501857-1740310249-80910-ugreen-ge.webp",
+                "public/uploads/images/product-1762866514-images.jfif",
+                "public/uploads/images/product-1762866514-JOYROOM-JR-CL06-154W-Multi-Port-Car-Cigarette-Lighter-Car-Charger.jpg",
+                "public/uploads/images/product-1762866514-sku_08295929-202e-487c-983b-6d657f2ba069.webp"
+            ],
+            "description": "<h4 style=\"margin-top: 0px; margin-bottom: 20px; line-height: 1.4; font-size: 18px; padding: 0px; border: 0px; vertical-align: baseline; font-variant-numeric: inherit; font-variant-east-asian: inherit; font-variant-alternates: inherit; font-variant-position: inherit; font-variant-emoji: inherit; font-stretch: inherit; font-optical-sizing: inherit; font-size-adjust: inherit; font-kerning: inherit; font-feature-settings: inherit; font-variation-settings: inherit; margin-block: 0px; color: rgb(48, ...[truncated]",
+            "meta_title": "Ugreen Car Charger With FM Modulator PD 2x Usb 1x Type-C Bluetooth QC 3.0 Car Charger 80910 CD229",
+            "meta_description": "Ugreen Car Charger With FM Modulator PD 2x Usb 1x Type-C Bluetooth Car Charger 80910 CD229Ugreen Car Charger 80910 CD229&nbsp; Features :&nbsp;Car charger with...",
+            "status": 1,
+            "topsale": 1,
+            "flashsale": 1,
+            "feature_product": 0,
+            "cat": "electronics",
+            "brand": "RFL",
+            "price": 1300,
+            "old": 1200
+        },
+        {
+            "name": "JR-CL06 154W Car cigarette lighter adapter with three sockets + 6 ports",
+            "slug": "jr-cl06-154w-car-cigarette-lighter-adapter-with-three-sockets-+-6-ports-181",
+            "category_id": 1,
+            "brand_id": 1,
+            "new_price": 2600,
+            "old_price": 1900,
+            "stock": 942,
+            "image": "public/uploads/images/1736431595-2024-07-16-6696757bd2081.jpg",
+            "gallery_images": [
+                "public/uploads/images/product-1759501963-1740309960-sku_08295929-202e-487c-983b-6d657f2ba069.webp",
+                "public/uploads/images/product-1762866561-images.jfif",
+                "public/uploads/images/product-1762866561-JOYROOM-JR-CL06-154W-Multi-Port-Car-Cigarette-Lighter-Car-Charger.jpg",
+                "public/uploads/images/product-1762866561-sku_08295929-202e-487c-983b-6d657f2ba069.webp"
+            ],
+            "description": "<h1 class=\"product-meta__title heading h3\" style=\"margin-top: 0px; margin-bottom: 20px; line-height: 1.4; font-size: 28px; padding: 0px; border: 0px; vertical-align: baseline; font-variant-numeric: inherit; font-variant-east-asian: inherit; font-variant-alternates: inherit; font-variant-position: inherit; font-variant-emoji: inherit; font-stretch: inherit; font-optical-sizing: inherit; font-size-adjust: inherit; font-kerning: inherit; font-feature-settings: inherit; font-variation-settings: inhe...[truncated]",
+            "meta_title": "JR-CL06 154W Car cigarette lighter adapter with three sockets + 6 ports",
+            "meta_description": "JR-CL06&nbsp;154W Car cigarette lighter adapter with three sockets + 6 portsThe JR-CL06 154W Car Cigarette Lighter Adapter is a high-power, versatile charging s...",
+            "status": 1,
+            "topsale": 0,
+            "flashsale": 1,
+            "feature_product": 0,
+            "cat": "electronics",
+            "brand": "RFL",
+            "price": 2600,
+            "old": 1900
+        },
+        {
+            "name": "Premium Chiffon Hijab",
+            "slug": "premium-chiffon-hijab-183",
+            "category_id": 2,
+            "brand_id": 1,
+            "new_price": 1200,
+            "old_price": 1900,
+            "stock": 979,
+            "image": "public/uploads/images/1736431595-2024-07-16-6696757bd2081.jpg",
+            "gallery_images": [
+                "public/uploads/images/product-1759502255-1757777751-thofeb23-03549.webp",
+                "public/uploads/images/product-1762866138-images (1).jfif",
+                "public/uploads/images/product-1762866138-images.jfif",
+                "public/uploads/images/product-1762866138-premium-chiffon-hijab-heather-960585.webp",
+                "public/uploads/images/product-1762866138-premium-chiffon-hijab-taupe-841181.webp"
+            ],
+            "description": "<p>A timeless light-blue denim jacket with a comfortable fit. Perfect for casual outings or layering over your favorite tee. Durable stitching and premium cotton for long-lasting wear.</p>",
+            "meta_title": "Premium Chiffon Hijab",
+            "meta_description": "A timeless light-blue denim jacket with a comfortable fit. Perfect for casual outings or layering over your favorite tee. Durable stitching and premium cotton f...",
+            "status": 1,
+            "topsale": 1,
+            "flashsale": 1,
+            "feature_product": 0,
+            "cat": "fashion",
+            "brand": "RFL",
+            "price": 1200,
+            "old": 1900
+        },
+        {
+            "name": "Jersey Stretch Hijab",
+            "slug": "jersey-stretch-hijab-184",
+            "category_id": 2,
+            "brand_id": 1,
+            "new_price": 600,
+            "old_price": 1200,
+            "stock": 969,
+            "image": "public/uploads/images/1736431595-2024-07-16-6696757bd2081.jpg",
+            "gallery_images": [
+                "public/uploads/images/product-1759502330-1757778001-screenshot-at-sep-13-21-39-24.webp",
+                "public/uploads/images/product-1762865984-183965129-origpic-8f5ac5.webp",
+                "public/uploads/images/product-1762865984-images.jfif",
+                "public/uploads/images/product-1762865984-images (1).jfif"
+            ],
+            "description": "<p>A timeless light-blue denim jacket with a comfortable fit. Perfect for casual outings or layering over your favorite tee. Durable stitching and premium cotton for long-lasting wear.</p>",
+            "meta_title": "Jersey Stretch Hijab",
+            "meta_description": "A timeless light-blue denim jacket with a comfortable fit. Perfect for casual outings or layering over your favorite tee. Durable stitching and premium cotton f...",
+            "status": 1,
+            "topsale": 1,
+            "flashsale": 1,
+            "feature_product": 0,
+            "cat": "fashion",
+            "brand": "RFL",
+            "price": 600,
+            "old": 1200
+        },
+        {
+            "name": "Fresh Green Vegetables Basket",
+            "slug": "fresh-green-vegetables-basket-185",
+            "category_id": 5,
+            "brand_id": 1,
+            "new_price": 800,
+            "old_price": 1200,
+            "stock": 1186,
+            "image": "public/uploads/images/1736431595-2024-07-16-6696757bd2081.jpg",
+            "gallery_images": [
+                "public/uploads/images/product-1759503396-1757779801-istockphoto-121111860-612x612.webp"
+            ],
+            "description": "<p><b>Fresh Green Vegetables Basket</b></p><p>Description: A curated basket of fresh, locally sourced green vegetables including spinach, carrots, beans, and cucumbers. Grown without harmful chemicals, these vegetables are full of nutrients and flavor. Perfect for daily meals, salads, or cooking, this basket brings farm-fresh goodness directly to your kitchen. Enjoy healthy, tasty meals while supporting local farmers.</p>",
+            "meta_title": "Fresh Green Vegetables Basket",
+            "meta_description": "Fresh Green Vegetables BasketDescription: A curated basket of fresh, locally sourced green vegetables including spinach, carrots, beans, and cucumbers. Grown wi...",
+            "status": 1,
+            "topsale": 1,
+            "flashsale": 1,
+            "feature_product": 0,
+            "cat": "groceries",
+            "brand": "RFL",
+            "price": 800,
+            "old": 1200
+        },
+        {
+            "name": "Pure Mustard Oil (1L)",
+            "slug": "pure-mustard-oil-(1l)-186",
+            "category_id": 5,
+            "brand_id": 1,
+            "new_price": 1200,
+            "old_price": 1900,
+            "stock": 980,
+            "image": "public/uploads/images/1736431595-2024-07-16-6696757bd2081.jpg",
+            "gallery_images": [
+                "public/uploads/images/product-1759503464-1757779231-mustard-oil-100percent-organic-wooden-cold-pressed-and-double-filtered-1000ml-oil-in-reusable-glass-bottle-kachi-ghani-satopradhan-1-32290742599906.webp",
+                "public/uploads/images/product-1762866283-71e3c97a534922babe9192f4245deeb1.png_720x720q80.png",
+                "public/uploads/images/product-1762866283-aci-pure-mustard-oil-1-ltr.jfif",
+                "public/uploads/images/product-1762866283-giant_324301.png"
+            ],
+            "description": "<p>Cold-pressed from high-quality mustard seeds, this 1-liter mustard oil delivers the perfect pungent aroma and rich flavor essential in Bangladeshi kitchens. Ideal for cooking traditional dishes, frying, or marinating. Packed with natural antioxidants, it adds both taste and nutritional benefits to your meals. Use it to bring authentic, bold flavors to your everyday cooking.</p>",
+            "meta_title": "Pure Mustard Oil (1L)",
+            "meta_description": "Cold-pressed from high-quality mustard seeds, this 1-liter mustard oil delivers the perfect pungent aroma and rich flavor essential in Bangladeshi kitchens. Ide...",
+            "status": 1,
+            "topsale": 1,
+            "flashsale": 1,
+            "feature_product": 0,
+            "cat": "groceries",
+            "brand": "RFL",
+            "price": 1200,
+            "old": 1900
+        },
+        {
+            "name": "Radiance Glow Face Serum",
+            "slug": "radiance-glow-face-serum-196",
+            "category_id": 3,
+            "brand_id": 1,
+            "new_price": 1300,
+            "old_price": 1200,
+            "stock": 983,
+            "image": "public/uploads/images/1736431595-2024-07-16-6696757bd2081.jpg",
+            "gallery_images": [
+                "public/uploads/images/product-1762867027-1759503555-1757778250-good_vibes_rosehip_radiant_glow_face_ser-good_vibes-0db57-405414.webp",
+                "public/uploads/images/product-1762867027-images-(1).jfif",
+                "public/uploads/images/product-1762867027-good_vibes_rosehip_radiant_glow_face_ser-good_vibes-41fba-405414.jpg"
+            ],
+            "description": "<p>Cold-pressed from high-quality mustard seeds, this 1-liter mustard oil delivers the perfect pungent aroma and rich flavor essential in Bangladeshi kitchens. Ideal for cooking traditional dishes, frying, or marinating. Packed with natural antioxidants, it adds both taste and nutritional benefits to your meals. Use it to bring authentic, bold flavors to your everyday cooking.</p>",
+            "meta_title": "Radiance Glow Face Serum",
+            "meta_description": "Cold-pressed from high-quality mustard seeds, this 1-liter mustard oil delivers the perfect pungent aroma and rich flavor essential in Bangladeshi kitchens. Ide...",
+            "status": 1,
+            "topsale": 1,
+            "flashsale": 1,
+            "feature_product": 0,
+            "cat": "beauty",
+            "brand": "RFL",
+            "price": 1300,
+            "old": 1200
+        },
+        {
+            "name": "Herbal Green Tea Face Wash",
+            "slug": "herbal-green-tea-face-wash-197",
+            "category_id": 3,
+            "brand_id": 1,
+            "new_price": 1200,
+            "old_price": 2100,
+            "stock": 983,
+            "image": "public/uploads/images/1736431595-2024-07-16-6696757bd2081.jpg",
+            "gallery_images": [
+                "public/uploads/images/product-1762867269-1759503635-1757779000-71snyaacrzl.webp",
+                "public/uploads/images/product-1762867269-images.jfif",
+                "public/uploads/images/product-1762867269-1759503635-1757779000-71snyaacrzl.webp",
+                "public/uploads/images/product-1762867269-61bjy+if0ks.jpg"
+            ],
+            "description": "<p>Cold-pressed from high-quality mustard seeds, this 1-liter mustard oil delivers the perfect pungent aroma and rich flavor essential in Bangladeshi kitchens. Ideal for cooking traditional dishes, frying, or marinating. Packed with natural antioxidants, it adds both taste and nutritional benefits to your meals. Use it to bring authentic, bold flavors to your everyday cooking.</p>",
+            "meta_title": "Herbal Green Tea Face Wash",
+            "meta_description": "Cold-pressed from high-quality mustard seeds, this 1-liter mustard oil delivers the perfect pungent aroma and rich flavor essential in Bangladeshi kitchens. Ide...",
+            "status": 1,
+            "topsale": 1,
+            "flashsale": 1,
+            "feature_product": 0,
+            "cat": "beauty",
+            "brand": "RFL",
+            "price": 1200,
+            "old": 2100
+        },
+        {
+            "name": "Premium Cotton Full Sleeve Casual Shirt For Men",
+            "slug": "premium-cotton-full-sleeve-casual-shirt-for-men-198",
+            "category_id": 2,
+            "brand_id": 1,
+            "new_price": 1300,
+            "old_price": 1900,
+            "stock": 984,
+            "image": "public/uploads/images/1736431595-2024-07-16-6696757bd2081.jpg",
+            "gallery_images": [
+                "public/uploads/images/product-1762867779-4e3bc358294ed154f3763ae25e84d91c.jpg",
+                "public/uploads/images/product-1762867779-107f548c79d19e4b79ed268bd81cd58d.jpg_720x720q80.jpg",
+                "public/uploads/images/product-1762867779-833aecc8c7a04d8a20a5fb3d846883ff.jpg_720x720q80.jpg"
+            ],
+            "description": "<p>Product Type: Casual Shirt</p><p>Main Material: Cotton</p><p>Gender: Men</p><p>Stylish and fashionable</p><p>Perfect Fitting</p><p>Collection for Men</p><p>Comfortable to wear</p><p>Perfect for any Occasion</p><p>Size M L XL XXLM-length;28.''chest;39''L- length: 29\", chest; 41''XL-length: 30\", chest; 43'</p>",
+            "meta_title": "Premium Cotton Full Sleeve Casual Shirt For Men",
+            "meta_description": "Product Type: Casual ShirtMain Material: CottonGender: MenStylish and fashionablePerfect FittingCollection for MenComfortable to wearPerfect for any OccasionSiz...",
+            "status": 1,
+            "topsale": 1,
+            "flashsale": 1,
+            "feature_product": 0,
+            "cat": "fashion",
+            "brand": "RFL",
+            "price": 1300,
+            "old": 1900
+        },
+        {
+            "name": "New Stylish & Smart Looking Trendy Cotton Oxford Long Sleeve Casual Shirt For Men By SALMA XPORT (LX)",
+            "slug": "new-stylish-&-smart-looking-trendy-cotton-oxford-long-sleeve-casual-shirt-for-men-by-salma-xport-(lx)-199",
+            "category_id": 2,
+            "brand_id": 1,
+            "new_price": 2600,
+            "old_price": 1200,
+            "stock": 65,
+            "image": "public/uploads/images/1736431595-2024-07-16-6696757bd2081.jpg",
+            "gallery_images": [
+                "public/uploads/images/product-1762868036-images.jfif",
+                "public/uploads/images/product-1762868036-4e3bc358294ed154f3763ae25e84d91c.jpg",
+                "public/uploads/images/product-1762868036-107f548c79d19e4b79ed268bd81cd58d.jpg_720x720q80.jpg",
+                "public/uploads/images/product-1762868036-833aecc8c7a04d8a20a5fb3d846883ff.jpg_720x720q80.jpg"
+            ],
+            "description": "<p>Product Type: Casual Shirt</p><p>Main Material: Cotton</p><p>Gender: Men</p><p>Stylish and fashionable</p><p>Perfect Fitting</p><p>Collection for Men</p><p>Comfortable to wear</p><p>Perfect for any Occasion</p><p>Size M L XL XXLM-length;28.''chest;39''L- length: 29\", chest; 41''XL-length: 30\", chest; 43'</p><div><br></div>",
+            "meta_title": "New Stylish & Smart Looking Trendy Cotton Oxford Long Sleeve Casual Shirt For Men By SALMA XPORT (LX)",
+            "meta_description": "Product Type: Casual ShirtMain Material: CottonGender: MenStylish and fashionablePerfect FittingCollection for MenComfortable to wearPerfect for any OccasionSiz...",
+            "status": 1,
+            "topsale": 1,
+            "flashsale": 1,
+            "feature_product": 0,
+            "cat": "fashion",
+            "brand": "RFL",
+            "price": 2600,
+            "old": 1200
+        },
+        {
+            "name": "Linenn Clothing Customized Man Casual Lightweight Linen Trousers Elastic Waist Straight Leg Men Pants",
+            "slug": "linenn-clothing-customized-man-casual-lightweight-linen-trousers-elastic-waist-straight-leg-men-pants-200",
+            "category_id": 2,
+            "brand_id": 1,
+            "new_price": 1300,
+            "old_price": 1200,
+            "stock": 966,
+            "image": "public/uploads/images/1736431595-2024-07-16-6696757bd2081.jpg",
+            "gallery_images": [
+                "public/uploads/images/product-1762868343-6b3a9e8c518630293a361e7da1762b48.jpg",
+                "public/uploads/images/product-1762868344-0e1e78da1b33be8787926bbfe26133de.jpg",
+                "public/uploads/images/product-1762868344-82c7603c7c840c47bfddf71db4d39cf9.jpg_720x720q80.jpg_.webp"
+            ],
+            "description": "<p>Product details of Linen Clothing Customized Man Casual Lightweight Linen Trousers Elastic Waist Straight Leg Men Pants</p><p>Men 100% Linen Pants</p><p>Fabric Type: LinenFeature: Anti-Static, Anti-pilling, Sustainable, QUICK DRY, Anti-wrinkle, Breathable, Waterproof, Windproof, Men 100% Linen PantsPattern: Harem PantsMaterial: Linen / Cotton, Linen / CottonTechnics: Plain DyedGender: MenSeason: SpringFit Type: LooseFront Style: FlatClosure Type: Elastic WaistWaist Type: HighThickness: lightw...[truncated]",
+            "meta_title": "Linen Clothing Customized Man Casual Lightweight Linen Trousers Elastic Waist Straight Leg Men Pants",
+            "meta_description": "Product details of Linen Clothing Customized Man Casual Lightweight Linen Trousers Elastic Waist Straight Leg Men PantsMen 100% Linen PantsFabric Type: LinenFea...",
+            "status": 1,
+            "topsale": 1,
+            "flashsale": 1,
+            "feature_product": 0,
+            "cat": "fashion",
+            "brand": "RFL",
+            "price": 1300,
+            "old": 1200
+        },
+        {
+            "name": "Cotton Narrow Fit Pajama for Men White Color",
+            "slug": "cotton-narrow-fit-pajama-for-men-white-color-201",
+            "category_id": 2,
+            "brand_id": 1,
+            "new_price": 1300,
+            "old_price": 1900,
+            "stock": 928,
+            "image": "public/uploads/images/1736431595-2024-07-16-6696757bd2081.jpg",
+            "gallery_images": [
+                "public/uploads/images/product-1762868543-82c7603c7c840c47bfddf71db4d39cf9.jpg_720x720q80.jpg_.webp",
+                "public/uploads/images/product-1772902605-69ac58cd150fb-1762868543-0e1e78da1b33be8787926bbfe26133de.jpg",
+                "public/uploads/images/product-1772902605-69ac58cd1807e-1762868543-6b3a9e8c518630293a361e7da1762b48.jpg",
+                "public/uploads/images/product-1772902605-69ac58cd19a6a-images.jfif"
+            ],
+            "description": "<p>Cotton Narrow Fit Pajama for Men White Color\",</p><p>&nbsp; \"Category Path\": \"Fashion&gt;Men&gt;Clothing&gt;Suits&gt;Suit Pants\",</p><p>&nbsp; \"Main Material\": \"Cotton\"</p><p>\"comfortable, stylish, sleepwear, lounge, relaxation\"</p><p>Introducing the Cotton Narrow Fit Pajama for Men in White Color, perfect for lounging and relaxation. Crafted from high-quality cotton, these pajamas offer a comfortable and stylish fit. Ideal for sleepwear, the narrow-fit design adds a modern touch to your loun...[truncated]",
+            "meta_title": "Cotton Narrow Fit Pajama for Men White Color",
+            "meta_description": "Cotton Narrow Fit Pajama for Men White Color\",&nbsp; \"Category Path\": \"Fashion&gt;Men&gt;Clothing&gt;Suits&gt;Suit Pants\",&nbsp; \"Main Material\": \"Cotton\"\"comfo...",
+            "status": 1,
+            "topsale": 1,
+            "flashsale": 1,
+            "feature_product": 0,
+            "cat": "fashion",
+            "brand": "RFL",
+            "price": 1300,
+            "old": 1900
+        },
+        {
+            "name": "CanvaProOwner (500 Member Add)",
+            "slug": "canvaproowner-(500-member-add)-208",
+            "category_id": 10,
+            "brand_id": 1,
+            "new_price": 1300,
+            "old_price": 1200,
+            "stock": 978,
+            "image": "public/uploads/images/product-1764788259-canva_31d.jpg2_.jpg",
+            "gallery_images": [
+                "public/uploads/images/product-1764788259-canva_31d.jpg2_.jpg"
+            ],
+            "description": "<div style=\"box-sizing: inherit; color: rgb(75, 79, 88); font-family: Rubik, sans-serif; font-size: 16px; background-color: rgb(230, 241, 242);\"><div class=\"x14vqqas x1a8lsjc\" style=\"box-sizing: inherit;\"><div class=\"x78zum5 xdt5ytf x4cne27 xifccgj\" style=\"box-sizing: inherit;\"><div class=\"xzueoph x1k70j0n\" style=\"box-sizing: inherit;\"><span class=\"x193iq5w xeuugli x13faqbe x1vvkbs x1xmvt09 x1lliihq x1s928wv xhkezso x1gmr53x x1cpjm7i x1fgarty x1943h6x xtoi2st x3x7a5m x1603h9y x1u7k74 x1xlr1w8 xz...[truncated]",
+            "meta_title": "CanvaProOwner (500 Member Add)",
+            "meta_description": "CanvaProOwner (500 Member Add)৫০০ টি ক্যানভা প্রিমিয়াম একাউন্ট মাত্র ৪৯০ টাকায়&nbsp;জ্বি বস, আপনি ঠিকই শুনেছেন এখন মাত্র ৪৯০ টাকায় পাচ্ছেন Canva Owner Account,...",
+            "status": 1,
+            "topsale": 0,
+            "flashsale": null,
+            "feature_product": 0,
+            "cat": "digital-items",
+            "brand": "RFL",
+            "price": 1300,
+            "old": 1200
+        },
+        {
+            "name": "Premium Membership (Digital Product & Agency Business)",
+            "slug": "premium-membership-(digital-product-&-agency-business)-209",
+            "category_id": 10,
+            "brand_id": 1,
+            "new_price": 3,
+            "old_price": 1200,
+            "stock": 940,
+            "image": "public/uploads/images/product-1764788491-premium-mebership.jpg",
+            "gallery_images": [
+                "public/uploads/images/product-1764788491-premium-mebership.jpg"
+            ],
+            "description": "<div dir=\"auto\" style=\"box-sizing: inherit; color: rgb(75, 79, 88); font-family: Rubik, sans-serif; font-size: 16px; background-color: rgb(230, 241, 242);\">আপনি কি এমন একটি বিজনেস খুঁজছেন যেখানে স্টক, ডেলিভারি বা বড় ইনভেস্টমেন্টের প্রয়োজন নেই, কিন্তু লিমিটলেস ইনকাম করার সুযোগ আছে?&nbsp;<span class=\"html-span xexx8yu x4uap5 x18d9i69 xkhd6sd x1hl2dhg x16tdsg8 x1vvkbs x3nfvp2 x1j61x8r x1fcty0u xdj266r xat24cr xgzva0m xhhsvwb xxymvpz xlup9mm x1kky2od\" style=\"box-sizing: inherit;\"></span></div><div d...[truncated]",
+            "meta_title": "Premium Membership (Digital Product & Agency Business)",
+            "meta_description": "আপনি কি এমন একটি বিজনেস খুঁজছেন যেখানে স্টক, ডেলিভারি বা বড় ইনভেস্টমেন্টের প্রয়োজন নেই, কিন্তু লিমিটলেস ইনকাম করার সুযোগ আছে?&nbsp;তাহলে ডিজিটাল এজেন্সি বিজনেস...",
+            "status": 1,
+            "topsale": 1,
+            "flashsale": 1,
+            "feature_product": 0,
+            "cat": "digital-items",
+            "brand": "RFL",
+            "price": 3,
+            "old": 1200
+        },
+        {
+            "name": "Samsung A0724",
+            "slug": "samsung-a0724-210",
+            "category_id": 1,
+            "brand_id": 1,
+            "new_price": 1,
+            "old_price": 12000,
+            "stock": 923,
+            "image": "public/uploads/images/product-1764937354-a07-black.jpg",
+            "gallery_images": [
+                "public/uploads/images/product-1764937354-a07-black.jpg",
+                "public/uploads/images/product-1764937354-a07-silver.jpg",
+                "public/uploads/images/product-1764937354-a07-black.jpg"
+            ],
+            "description": "<p data-start=\"302\" data-end=\"448\">⭐ <strong data-start=\"304\" data-end=\"322\">কিস্তি সুবিধা:</strong><br data-start=\"322\" data-end=\"325\">rn🔹 ডাউনপেমেন্ট: মাত্র <strong data-start=\"347\" data-end=\"354\">২০%</strong><br data-start=\"354\" data-end=\"357\">rn🔹 সময়: <strong data-start=\"365\" data-end=\"378\">৯ মাস EMI</strong><br data-start=\"378\" data-end=\"381\">rn🔹 ইনস্ট্যান্ট কিস্তি অনুমোদন<br data-start=\"410\" data-end=\"413\">rn🔹 শুধু এনআইডি থাকলেই প্রসেস শুরু</p>",
+            "meta_title": "Samsung A07",
+            "meta_description": "⭐ কিস্তি সুবিধা:rn🔹 ডাউনপেমেন্ট: মাত্র ২০%rn🔹 সময়: ৯ মাস EMIrn🔹 ইনস্ট্যান্ট কিস্তি অনুমোদনrn🔹 শুধু এনআইডি থাকলেই প্রসেস শুরু",
+            "status": 1,
+            "topsale": 1,
+            "flashsale": 1,
+            "feature_product": 0,
+            "cat": "electronics",
+            "brand": "RFL",
+            "price": 1,
+            "old": 12000
+        },
+        {
+            "name": "TV Box",
+            "slug": "tv-box-217",
+            "category_id": 1,
+            "brand_id": 1,
+            "new_price": 2200,
+            "old_price": 2500,
+            "stock": 235,
+            "image": "public/uploads/images/product-1766668528-tvb.png",
+            "gallery_images": [
+                "public/uploads/images/product-1766668528-tvb.png"
+            ],
+            "description": "<p>মূল টিএক্স 3 4 কে অ্যান্ড্রয়েড টিভি বক্স</p><p>র‌্যাম 2 জিবি + রম: 16 জিবি</p><p>চীনের তৈরী</p>",
+            "meta_title": "TV Box",
+            "meta_description": "মূল টিএক্স 3 4 কে অ্যান্ড্রয়েড টিভি বক্সর‌্যাম 2 জিবি + রম: 16 জিবিচীনের তৈরী",
+            "status": 1,
+            "topsale": 1,
+            "flashsale": 1,
+            "feature_product": 0,
+            "cat": "electronics",
+            "brand": "RFL",
+            "price": 2200,
+            "old": 2500
+        },
+        {
+            "name": "The only reason",
+            "slug": "the-only-reason-220",
+            "category_id": 1,
+            "brand_id": 1,
+            "new_price": 3000,
+            "old_price": 2009,
+            "stock": 86,
+            "image": "public/uploads/images/product-1769092647-img_2323.jpeg",
+            "gallery_images": [
+                "public/uploads/images/product-1769092647-img_2323.jpeg"
+            ],
+            "description": "<p>Sisii</p>",
+            "meta_title": "The only reason",
+            "meta_description": "Sisii",
+            "status": 1,
+            "topsale": 0,
+            "flashsale": 1,
+            "feature_product": 0,
+            "cat": "electronics",
+            "brand": "RFL",
+            "price": 3000,
+            "old": 2009
+        },
+        {
+            "name": "Jononi Madical Hall",
+            "slug": "jononi-madical-hall-221",
+            "category_id": 2,
+            "brand_id": 1,
+            "new_price": 350,
+            "old_price": 400,
+            "stock": 94,
+            "image": "public/uploads/images/product-1769192911-5c9cf664fcdfd28efbdfb7a7ab0e397b.jpg_720x720q80.jpg",
+            "gallery_images": [
+                "public/uploads/images/product-1769192911-5c9cf664fcdfd28efbdfb7a7ab0e397b.jpg_720x720q80.jpg",
+                "public/uploads/images/product-1769192911-8cf001f7113c8db5554f5563bee70594.jpg",
+                "public/uploads/images/product-1769192911-images-(1).jfif"
+            ],
+            "description": "<ul style=\"margin-right: 0px; margin-bottom: 0px; margin-left: 0px; padding: 0px; list-style: none; overflow: hidden; font-family: Roboto, -apple-system, BlinkMacSystemFont, &quot;Helvetica Neue&quot;, Helvetica, sans-serif; font-size: 12px;\"><li style=\"margin: 0px; padding: 0px 0px 0px 15px; position: relative; font-size: 14px; line-height: 18px; list-style: none; word-break: break-word; break-inside: avoid;\">Product Type:&nbsp;Solid Bandana&nbsp;</li><li style=\"margin: 0px; padding: 0px 0px 0p...[truncated]",
+            "meta_title": "Jononi Madical Hall",
+            "meta_description": "Product Type:&nbsp;Solid Bandana&nbsp;Material: CottonAbsorption moistureSweat-wicking and anti-UVCOOL DESIGN &amp; MULTI-FUNCTIONAL USEColor: BlackThey can use...",
+            "status": 1,
+            "topsale": 1,
+            "flashsale": 1,
+            "feature_product": 0,
+            "cat": "fashion",
+            "brand": "RFL",
+            "price": 350,
+            "old": 400
+        },
+        {
+            "name": "3 in 1 Travel Pillow Set",
+            "slug": "3-in-1-travel-pillow-set-222",
+            "category_id": 8,
+            "brand_id": 1,
+            "new_price": 900,
+            "old_price": 800,
+            "stock": 96,
+            "image": "public/uploads/images/product-1769416997-0653647_3-in-1-travel-pillow-set_400.webp",
+            "gallery_images": [
+                "public/uploads/images/product-1769416997-0653647_3-in-1-travel-pillow-set_400.webp"
+            ],
+            "description": "<h2 class=\"pdp-mod-section-title outer-title\" data-spm-anchor-id=\"a2a0e.pdp_revamp.0.i3.1c372807qx0RoM\" style=\"margin-right: 0px; margin-bottom: 0px; margin-left: 0px; padding: 0px 24px; font-family: Roboto-Medium; font-size: 16px; line-height: 52px; color: rgb(33, 33, 33); overflow: hidden; text-overflow: ellipsis; text-wrap-mode: nowrap; height: 52px; background: rgb(250, 250, 250);\">Product details of 3 in 1 Travel Pillow Set</h2><div class=\"pdp-product-detail\" data-spm=\"product_detail\" style...[truncated]",
+            "meta_title": "3 in 1 Travel Pillow Set",
+            "meta_description": "Product details of 3 in 1 Travel Pillow SetProductdetailsSoft surface materialPerfect for car plane or other travelFashionable beautiful and comfortableSoft for...",
+            "status": 1,
+            "topsale": 1,
+            "flashsale": 1,
+            "feature_product": 0,
+            "cat": "trendy",
+            "brand": "RFL",
+            "price": 900,
+            "old": 800
+        },
+        {
+            "name": "HTC AT-538 Hair And Beard Trimmer For Men",
+            "slug": "htc-at-538-hair-and-beard-trimmer-for-men-223",
+            "category_id": 8,
+            "brand_id": 1,
+            "new_price": 600,
+            "old_price": 500,
+            "stock": 9993,
+            "image": "public/uploads/images/product-1769437447-1797da4d9a7a36afc04ec60ec10f8d0d.jpg_960x960q80.jpg_.webp",
+            "gallery_images": [
+                "public/uploads/images/product-1769437447-1797da4d9a7a36afc04ec60ec10f8d0d.jpg_960x960q80.jpg_.webp"
+            ],
+            "description": "<h2 class=\"pdp-mod-section-title outer-title\" data-spm-anchor-id=\"a2a0e.pdp_revamp.0.i4.61512850B2EHux\" style=\"margin-right: 0px; margin-bottom: 0px; margin-left: 0px; padding: 0px 24px; font-family: Roboto-Medium; font-size: 16px; line-height: 52px; color: rgb(33, 33, 33); overflow: hidden; text-overflow: ellipsis; text-wrap-mode: nowrap; height: 52px; background: rgb(250, 250, 250);\">Product details of HTC AT-538 Hair And Beard Trimmer For Men</h2><div class=\"pdp-product-detail\" data-spm=\"prod...[truncated]",
+            "meta_title": "HTC AT-538 Hair And Beard Trimmer For Men",
+            "meta_description": "Product details of HTC AT-538 Hair And Beard Trimmer For Men• HTC AT-538 Hair And Beard Trimmer for Men.• Perfect for shaving and grooming.• Suitable for hair a...",
+            "status": 1,
+            "topsale": 1,
+            "flashsale": 1,
+            "feature_product": 0,
+            "cat": "trendy",
+            "brand": "RFL",
+            "price": 600,
+            "old": 500
+        },
+        {
+            "name": "New collection Hit western dress two piece Tops For Women",
+            "slug": "new-collection-hit-western-dress-two-piece-tops-for-women-224",
+            "category_id": 2,
+            "brand_id": 1,
+            "new_price": 2200,
+            "old_price": 2500,
+            "stock": 9992,
+            "image": "public/uploads/images/product-1769439539-9ff3e2671613d5b7fc84c6fcd96fd16d.jpg_720x720q80.jpg",
+            "gallery_images": [
+                "public/uploads/images/product-1769439539-9ff3e2671613d5b7fc84c6fcd96fd16d.jpg_720x720q80.jpg"
+            ],
+            "description": "<p style=\"margin-right: 0px; margin-bottom: 0px; margin-left: 0px; padding: 0px; font-size: 14px; font-family: Roboto, -apple-system, BlinkMacSystemFont, &quot;Helvetica Neue&quot;, Helvetica, sans-serif; white-space-collapse: break-spaces; line-height: 1.7;\"><span data-spm-anchor-id=\"a2a0e.pdp_revamp.product_detail.i0.50b578ad4DlPIA\" style=\"margin: 0px; padding: 0px;\">মোস্ট ডিমান্ডিং ওয়েস্টিন ড্রেস টু পিস </span></p><p style=\"margin-right: 0px; margin-bottom: 0px; margin-left: 0px; padding: 0p...[truncated]",
+            "meta_title": "New collection Hit western dress two piece Tops For Women",
+            "meta_description": "মোস্ট ডিমান্ডিং ওয়েস্টিন ড্রেস টু পিস শার্ট প্যান্ট বাটার সিল্ক শার্ট লম্বা ৪২ ইঞ্চি প্যান্ট&nbsp;লম্বা&nbsp;৩৮&nbsp;ইঞ্চিআমরা একটি প্রসিদ্ধ Brand থেকে এই পণ্য...",
+            "status": 1,
+            "topsale": 1,
+            "flashsale": 1,
+            "feature_product": 0,
+            "cat": "fashion",
+            "brand": "RFL",
+            "price": 2200,
+            "old": 2500
+        },
+        {
+            "name": "Intel Dual Core Desktop Computer Full Setup | Customizable 4-8GB RAM, 120GB SSD, 500GB-1TB HDD & Monitor | Affordable Budget Office & Gaming PC Windows 10 Pro 2025",
+            "slug": "intel-dual-core-desktop-computer-full-setup-|-customizable-4-8gb-ram,-120gb-ssd,-500gb-1tb-hdd-&-monitor-|-affordable-budget-office-&-gaming-pc-windows-10-pro-2025-225",
+            "category_id": 4,
+            "brand_id": 1,
+            "new_price": 10250,
+            "old_price": 12000,
+            "stock": 91,
+            "image": "public/uploads/images/product-1769440037-63902183a6b2048cf1f67d74a46db75f.png",
+            "gallery_images": [
+                "public/uploads/images/product-1769440037-63902183a6b2048cf1f67d74a46db75f.png"
+            ],
+            "description": "<h2 class=\"pdp-mod-section-title outer-title\" data-spm-anchor-id=\"a2a0e.pdp_revamp.0.i4.456f6f184yXPhb\" style=\"margin-right: 0px; margin-bottom: 0px; margin-left: 0px; padding: 0px 24px; font-family: Roboto-Medium; font-size: 16px; line-height: 52px; color: rgb(33, 33, 33); overflow: hidden; text-overflow: ellipsis; text-wrap-mode: nowrap; height: 52px; background: rgb(250, 250, 250);\">Product details of Intel Dual Core Desktop Computer Full Setup | Customizable 4-8GB RAM, 120GB SSD, 500GB-1TB H...[truncated]",
+            "meta_title": "Intel Dual Core Desktop Computer Full Setup | Customizable 4-8GB RAM, 120GB SSD, 500GB-1TB HDD & Monitor | Affordable Budget Office & Gaming PC Windows 10 Pro 2025",
+            "meta_description": "Product details of Intel Dual Core Desktop Computer Full Setup | Customizable 4-8GB RAM, 120GB SSD, 500GB-1TB HDD &amp; Monitor | Affordable Budget Office &amp;...",
+            "status": 1,
+            "topsale": 1,
+            "flashsale": 1,
+            "feature_product": 0,
+            "cat": "appliances",
+            "brand": "RFL",
+            "price": 10250,
+            "old": 12000
+        },
+        {
+            "name": "Achillea Two Tone Vintage Jacquard Paisley Pashmina Shawl Wrap Scarf for woman muticolor",
+            "slug": "achillea-two-tone-vintage-jacquard-paisley-pashmina-shawl-wrap-scarf-for-woman-muticolor-226",
+            "category_id": 2,
+            "brand_id": 1,
+            "new_price": 1300,
+            "old_price": 12000,
+            "stock": 9980,
+            "image": "public/uploads/images/product-1769440755-659851fd907b0485fe61bc0b621db51e.jpg",
+            "gallery_images": [
+                "public/uploads/images/product-1769440755-659851fd907b0485fe61bc0b621db51e.jpg"
+            ],
+            "description": "<ul style=\"margin-right: 0px; margin-bottom: 0px; margin-left: 10px; padding: 0px; list-style-position: initial; list-style-image: initial; font-family: Roboto, -apple-system, BlinkMacSystemFont, &quot;Helvetica Neue&quot;, Helvetica, sans-serif; font-size: 12px; white-space-collapse: break-spaces;\"><li style=\"margin: 0px; padding: 0px;\"><div style=\"margin: 0px; padding: 0px; line-height: 1.7;\"><span style=\"margin: 0px; padding: 0px; color: rgb(15, 17, 17); font-size: 10.5pt;\">Blend of silk, fin...[truncated]",
+            "meta_title": "Achillea Two Tone Vintage Jacquard Paisley Pashmina Shawl Wrap Scarf for woman muticolor",
+            "meta_description": "Blend of silk, fine viscose and acrylic. Soft silky feel fabric. Dimensions: APPROX. 28\"W x 78\"L including fringes (3\" fringe tassels on each end). Weight: 6 oz...",
+            "status": 1,
+            "topsale": 1,
+            "flashsale": 1,
+            "feature_product": 0,
+            "cat": "fashion",
+            "brand": "RFL",
+            "price": 1300,
+            "old": 12000
+        },
+        {
+            "name": "Paragon Brown Egg 1 Dozen (Bundle of 3)",
+            "slug": "paragon-brown-egg-1-dozen-(bundle-of-3)-227",
+            "category_id": 5,
+            "brand_id": 1,
+            "new_price": 2200,
+            "old_price": 2500,
+            "stock": 9992,
+            "image": "public/uploads/images/product-1769441207-f34d9f24050c32104713693f8c66c1be.jpg",
+            "gallery_images": [
+                "public/uploads/images/product-1769441207-f34d9f24050c32104713693f8c66c1be.jpg"
+            ],
+            "description": "<p><span style=\"color: rgb(33, 37, 41); font-family: Roboto, -apple-system, BlinkMacSystemFont, &quot;Helvetica Neue&quot;, Helvetica, sans-serif; white-space-collapse: break-spaces;\">Quantity: 12 pcs x 3= 36 pcs Natural – Antibiotic-free – No harmful substances – Safe. Certification: ISO 22000, GMP, HACCP, 100% HALAL.</span><span style=\"color: rgb(33, 37, 41); font-family: Roboto, -apple-system, BlinkMacSystemFont, &quot;Helvetica Neue&quot;, Helvetica, sans-serif; white-space-collapse: break-s...[truncated]",
+            "meta_title": "Paragon Brown Egg 1 Dozen (Bundle of 3)",
+            "meta_description": "Quantity: 12 pcs x 3= 36 pcs Natural – Antibiotic-free – No harmful substances – Safe. Certification: ISO 22000, GMP, HACCP, 100% HALAL.Quantity: 12 pcs x 3= 36...",
+            "status": 1,
+            "topsale": 1,
+            "flashsale": 1,
+            "feature_product": 0,
+            "cat": "groceries",
+            "brand": "RFL",
+            "price": 2200,
+            "old": 2500
+        }
+    ],
+    "blogs": [
+        {
+            "title": "Welcome to Gadget & Fashion Store",
+            "short_desc": "Discover amazing products at great prices.",
+            "views": 1000,
+            "image": "public/uploads/images/product-1769192911-images-(1).jfif"
+        },
+        {
+            "title": "New Arrivals",
+            "short_desc": "Check out our latest collection.",
+            "views": 800,
+            "image": "public/uploads/images/category-1764786836-icon-617654.webp"
+        }
+    ],
+    "shipping_charges": [
+        {
+            "name": "Inside Dhaka",
+            "amount": 60
+        },
+        {
+            "name": "Outside Dhaka",
+            "amount": 110
+        }
+    ],
+    "banners": [
+        {
+            "category_id": 1,
+            "image": "public/uploads/images/banner-173643113867575302_2472100143020289_2326622559207948288_n.jpg",
+            "link": "#"
+        },
+        {
+            "category_id": 1,
+            "image": "public/uploads/images/banner-1736431152118809765_346016253436140_4643575167707946072_n.jpg",
+            "link": "#"
+        },
+        {
+            "category_id": 1,
+            "image": "public/uploads/images/banner-17627569661760726244173643113867575302_2472100143020289_2326622559207948288_n.jpg",
+            "link": "#"
+        },
+        {
+            "category_id": 5,
+            "image": "public/uploads/images/banner-17647804324.webp",
+            "link": "#"
+        },
+        {
+            "category_id": 6,
+            "image": "public/uploads/images/banner-17647805931468277_Protector_DOOR_cat_web.webp",
+            "link": "#"
+        },
+        {
+            "category_id": 8,
+            "image": "public/uploads/images/banner-17647806211468277_Protector_DOOR_cat_web.webp",
+            "link": "#"
+        },
+        {
+            "category_id": 10,
+            "image": "public/uploads/images/banner-17647810191468495_Mobile and gadgets top right side banner web.webp",
+            "link": "#"
+        },
+        {
+            "category_id": 10,
+            "image": "public/uploads/images/banner-17647810521457239_Regal Topslider Web (3).webp",
+            "link": "#"
+        }
+    ]
+}
