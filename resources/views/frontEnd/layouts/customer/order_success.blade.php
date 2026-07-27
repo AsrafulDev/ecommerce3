@@ -43,7 +43,6 @@
 
     // Due
     $due_amount = max(0, $grand_total - $paid_amount);
-    $subtotal = ($order->amount + $order->discount) - $order->shipping_charge;
 
     // 💰 Total product-level discount (wholesale)
     $totalProductDiscount = 0;
@@ -56,6 +55,9 @@
     foreach ($order->orderdetails as $item) {
         $totalWarrantyCharge += ((float) ($item->warranty_price ?? 0)) * $item->qty;
     }
+
+    // ⭐ Subtotal = product prices only (warranty excluded — it's shown as a separate line)
+    $subtotal = ($order->amount + $order->discount) - $order->shipping_charge - $totalWarrantyCharge;
 
     // ⭐ ডিজিটাল ডাউনলোড লজিক — যদি ফুল পেইড হয় তবেই ডাউনলোড লিংক দেখাবে
     $is_fully_paid = ($paid_amount >= $grand_total);

@@ -274,34 +274,27 @@
                             @endphp
                             @foreach($order->orderdetails as $key=>$value)
                             @php
-                                // For reseller orders: Calculate price from customer_payable_amount proportionally
-                                // customer_payable_amount = custom_price + shipping
-                                // custom_price = reseller যে দামে sell করেছে (total)
-                                // For normal orders: show sale_price (main price)
-                                
-                                if ($isResellerOrderItem && $customPrice && $totalProductValue > 0) {
-                                    // Reseller order: Calculate per product price from customer_payable_amount
-                                    // This product's share = (this product's value / total value) * custom_price
-                                    $thisProductValue = $value->sale_price * $value->qty;
-                                    $thisProductShare = ($thisProductValue / $totalProductValue) * $customPrice;
-                                    $displayPrice = $thisProductShare / $value->qty; // Per unit price
-                                } else {
-                                    // Normal order: show sale_price (main price)
-                                    $displayPrice = $value->sale_price;
-                                }
-
                                 // 💰 Product discount (wholesale)
                                 $productDiscount = (float) ($value->product_discount ?? 0);
 
-                                // 🛡️ Warranty price
-                                $warrantyPrice = (float) ($value->warranty_price ?? 0);
+                                // 🛡️ Warranty price — from tier's additional_cost (correct value)
+                                $warrantyPrice = 0;
+                                if ($value->warranty_tier_id) {
+                                    $warrantyTier = \App\Models\ProductWarrantyTier::find($value->warranty_tier_id);
+                                    $warrantyPrice = $warrantyTier ? (float)($warrantyTier->additional_cost ?? 0) : 0;
+                                }
 
-                                // Original base price = displayPrice + productDiscount - warrantyPrice
-                                // (since price already has warranty added and wholesale deducted)
-                                $baseUnitPrice = $displayPrice + $productDiscount - $warrantyPrice;
+                                if ($isResellerOrderItem && $customPrice && $totalProductValue > 0) {
+                                    $thisProductValue = $value->sale_price * $value->qty;
+                                    $thisProductShare = ($thisProductValue / $totalProductValue) * $customPrice;
+                                    $displayPrice = $thisProductShare / $value->qty;
+                                } else {
+                                    // Show actual sale_price — the price customer paid per unit
+                                    $displayPrice = $value->sale_price;
+                                }
 
-                                // Per-unit subtotal
-                                $lineSubtotal = $displayPrice * $value->qty;
+                                // Per-unit subtotal (always = sale_price × qty)
+                                $lineSubtotal = $value->sale_price * $value->qty;
                             @endphp
                             <tr>
                                 <td>{{$loop->iteration}}</td>
@@ -331,20 +324,26 @@
                                     <small>Color: {{ $displayColor }}</small>
                                 @endif 
                                 {{-- 🛡️ Warranty Info --}}
-                                @if($value->warranty_tier_id)
-                                    @php
+                                @php
+                                    $wt = null; $ws = null; $showWarranty = false;
+                                    if ($value->warranty_tier_id) {
                                         $wt = \App\Models\ProductWarrantyTier::find($value->warranty_tier_id);
                                         $ws = \App\Models\WarrantySale::where('order_detail_id', $value->id)->first();
-                                    @endphp
-                                    @if($wt && $wt->warranty_days > 0)
-                                        <br><small class="text-success">
-                                            🛡️ {{ $wt->tier_name }} ({{ $wt->warranty_days }}d)
-                                            @if($ws && $ws->warranty_end_date)
-                                                <br>Valid till: {{ $ws->warranty_end_date->format('d M Y') }}
-                                                ({{ max(0, (int) now()->diffInDays($ws->warranty_end_date)) }}d left)
-                                            @endif
-                                        </small>
-                                    @endif
+                                        if ($wt && $wt->warranty_days > 0) { $showWarranty = true; }
+                                    }
+                                @endphp
+                                @if($showWarranty)
+                                    <br><small class="text-success">
+                                        🛡️ {{ $wt->tier_name }}
+                                        @if($ws && $ws->warranty_end_date)
+                                            <br>— Expires: {{ $ws->warranty_end_date->format('d M, Y') }}
+                                        @endif
+                                    </small>
+                                    {{-- supplier warranty info if available --}}
+                                @elseif($value->supplier_warranty_days > 0)
+                                    <br><small class="text-success">🛡️ Supplier Warranty — Expires: {{ \Carbon\Carbon::parse($value->supplier_warranty_end_date)->format('d M, Y') }}</small>
+                                @else
+                                    <br><small class="text-muted">— No Warranty —</small>
                                 @endif
                                 </td>
                                 <td>৳{{ number_format($displayPrice, 2) }}</td>
@@ -375,20 +374,6 @@
     // Reseller orders ALWAYS have customer_payable_amount field set
     $isResellerOrder = !empty($order->customer_payable_amount);
 
-    // Calculate subtotal - for reseller orders, calculate from customer_payable_amount
-    if ($isResellerOrder && $order->customer_payable_amount) {
-        // customer_payable_amount = custom_price + shipping
-        // custom_price = reseller যে দামে sell করেছে (total)
-        // So subtotal = customer_payable_amount - shipping
-        $subtotal = $order->customer_payable_amount - $order->shipping_charge;
-    } else {
-        // Normal order: calculate from sale_price
-        $subtotal = 0;
-        foreach ($order->orderdetails as $item) {
-            $subtotal += ($item->sale_price * $item->qty);
-        }
-    }
-    
     $shipping = $order->shipping_charge;
     $discount = $order->discount;
 
@@ -402,6 +387,16 @@
     $totalWarrantyCharge = 0;
     foreach ($order->orderdetails as $item) {
         $totalWarrantyCharge += ((float) ($item->warranty_price ?? 0)) * $item->qty;
+    }
+
+    // ⭐ Subtotal = sum of per-item line subtotals (includes warranty per-item, no separate row needed)
+    if ($isResellerOrder && $order->customer_payable_amount) {
+        $subtotal = $order->customer_payable_amount - $order->shipping_charge;
+    } else {
+        $subtotal = 0;
+        foreach ($order->orderdetails as $item) {
+            $subtotal += ($item->sale_price * $item->qty);
+        }
     }
     
     // If reseller order, use customer_payable_amount, otherwise use amount
@@ -430,12 +425,6 @@
         <tr>
             <td><strong> {{ __('Wholesale Discount(-)') }} </strong></td>
             <td><strong class="text-danger">-৳{{ number_format($totalProductDiscount, 2) }}</strong></td>
-        </tr>
-        @endif
-        @if($totalWarrantyCharge > 0)
-        <tr>
-            <td><strong> 🛡️ {{ __('Warranty Charge(+)') }} </strong></td>
-            <td><strong class="text-primary">+৳{{ number_format($totalWarrantyCharge, 2) }}</strong></td>
         </tr>
         @endif
         <tr>

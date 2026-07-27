@@ -257,7 +257,6 @@
 
                     {{-- ===================== TOTAL CALCULATION ===================== --}}
                     @php
-                        $subtotal = ($order->amount + $order->discount) - $order->shipping_charge;
                         $shipping = $order->shipping_charge;
                         $discount = $order->discount;
 
@@ -272,6 +271,9 @@
                         foreach ($order->orderdetails as $item) {
                             $totalWarrantyCharge += ((float) ($item->warranty_price ?? 0)) * $item->qty;
                         }
+
+                        // ⭐ Subtotal = product prices only (warranty excluded — shown as separate line)
+                        $subtotal = ($order->amount + $order->discount) - $order->shipping_charge - $totalWarrantyCharge;
                     @endphp
 
                     <div class="invoice-bottom">

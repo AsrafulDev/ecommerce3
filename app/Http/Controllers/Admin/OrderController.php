@@ -2041,7 +2041,7 @@ class OrderController extends Controller
                 $tier = \App\Models\ProductWarrantyTier::find($cart->options->warranty_tier_id);
                 if ($tier && $tier->is_active) {
                     $order_details->warranty_tier_id = $tier->id;
-                    $order_details->warranty_price   = $tier->price;
+                    $order_details->warranty_price   = (float)($tier->additional_cost ?? 0);
                 }
             }
 
@@ -2051,6 +2051,23 @@ class OrderController extends Controller
             if ($order_details->warranty_tier_id) {
                 $tier = \App\Models\ProductWarrantyTier::find($order_details->warranty_tier_id);
                 if ($tier && $tier->warranty_days > 0) {
+                    $startDate = now();
+                    $endDate   = now()->addDays($tier->warranty_days);
+                    $supplierWarrantyId = null;
+
+                    // 🏭 Supplier warranty: use SupplierWarranty end_date if available
+                    if ($tier->warranty_type === 'supplier_warranty') {
+                        $sw = \App\Models\SupplierWarranty::where('product_id', $order_details->product_id)
+                            ->where('is_transferable', true)
+                            ->where('warranty_end_date', '>', now())
+                            ->orderBy('warranty_end_date', 'asc')
+                            ->first();
+                        if ($sw) {
+                            $supplierWarrantyId = $sw->id;
+                            $endDate = $sw->warranty_end_date;
+                        }
+                    }
+
                     \App\Models\WarrantySale::updateOrCreate(
                         ['order_detail_id' => $order_details->id],
                         [
@@ -2058,11 +2075,12 @@ class OrderController extends Controller
                             'product_warranty_tier_id' => $tier->id,
                             'customer_id'              => $customer_id,
                             'product_id'               => $order_details->product_id,
+                            'supplier_warranty_id'     => $supplierWarrantyId,
                             'warranty_type'            => $tier->warranty_type,
                             'warranty_days'            => $tier->warranty_days,
-                            'warranty_start_date'      => now(),
-                            'warranty_end_date'        => now()->addDays($tier->warranty_days),
-                            'warranty_price'           => $tier->price,
+                            'warranty_start_date'      => $startDate,
+                            'warranty_end_date'        => $endDate,
+                            'warranty_price'           => (float)($tier->additional_cost ?? 0),
                             'status'                   => \App\Enums\WarrantySaleStatus::ACTIVE->value,
                         ]
                     );
@@ -2304,12 +2322,15 @@ class OrderController extends Controller
         ];
 
         // 🛡️ Apply warranty adjustment (NOT replacement)
+        $warrantyAdjustment = 0;
         if ($request->filled('warranty_tier_id')) {
             $tier = \App\Models\ProductWarrantyTier::find($request->warranty_tier_id);
             if ($tier && $tier->is_active) {
-                $newPrice += (float) ($tier->additional_cost ?? 0);
+                $warrantyAdjustment = (float) ($tier->additional_cost ?? 0);
+                $newPrice += $warrantyAdjustment;
             }
         }
+        $options['warranty_adjustment'] = $warrantyAdjustment;
 
         $updatedItem = Cart::instance('pos_shopping')->update($rowId, ['price' => $newPrice, 'options' => $options]);
 
@@ -2546,7 +2567,57 @@ class OrderController extends Controller
             $detail->product_size     = isset($cart->options->product_size) ? $cart->options->product_size : null;
             $detail->sale_price       = $cart->price;
             $detail->qty              = $cart->qty;
+
+            // 🛡️ Warranty
+            if ($cart->options->warranty_tier_id ?? null) {
+                $tier = \App\Models\ProductWarrantyTier::find($cart->options->warranty_tier_id);
+                $detail->warranty_tier_id = $tier->id ?? null;
+                $detail->warranty_price   = $tier ? (float)($tier->additional_cost ?? 0) : 0;
+            } else {
+                $detail->warranty_tier_id = null;
+                $detail->warranty_price   = 0;
+            }
+
             $detail->save();
+
+            // 🛡️ Create/Update WarrantySale
+            if ($detail->warranty_tier_id) {
+                $tier = \App\Models\ProductWarrantyTier::find($detail->warranty_tier_id);
+                if ($tier && $tier->warranty_days > 0) {
+                    $startDate = now();
+                    $endDate   = now()->addDays($tier->warranty_days);
+                    $supplierWarrantyId = null;
+
+                    if ($tier->warranty_type === 'supplier_warranty') {
+                        $sw = \App\Models\SupplierWarranty::where('product_id', $detail->product_id)
+                            ->where('is_transferable', true)
+                            ->where('warranty_end_date', '>', now())
+                            ->orderBy('warranty_end_date', 'asc')
+                            ->first();
+                        if ($sw) {
+                            $supplierWarrantyId = $sw->id;
+                            $endDate = $sw->warranty_end_date;
+                        }
+                    }
+
+                    \App\Models\WarrantySale::updateOrCreate(
+                        ['order_detail_id' => $detail->id],
+                        [
+                            'order_id'                 => $order->id,
+                            'product_warranty_tier_id' => $tier->id,
+                            'customer_id'              => $order->customer_id,
+                            'product_id'               => $detail->product_id,
+                            'supplier_warranty_id'     => $supplierWarrantyId,
+                            'warranty_type'            => $tier->warranty_type,
+                            'warranty_days'            => $tier->warranty_days,
+                            'warranty_start_date'      => $startDate,
+                            'warranty_end_date'        => $endDate,
+                            'warranty_price'           => (float)($tier->additional_cost ?? 0),
+                            'status'                   => \App\Enums\WarrantySaleStatus::ACTIVE->value,
+                        ]
+                    );
+                }
+            }
 
             $updatedIds[] = $detail->id;
         }

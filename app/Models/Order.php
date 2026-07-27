@@ -33,7 +33,7 @@ class Order extends Model
     // অর্ডারের সব প্রোডাক্ট আইটেম (order_details টেবিল)
     public function orderdetails()
     {
-        return $this->hasMany(OrderDetails::class, 'order_id');
+        return $this->hasMany(OrderDetails::class, 'order_id')->orderBy('id');
     }
 
     // alias: items()
