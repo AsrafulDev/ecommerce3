@@ -97,7 +97,19 @@
       </div>
   </div>
   </td>
-  <td>{{$value->price}}</td>
+  <td>
+    @php
+        $wa = $value->options->warranty_adjustment ?? 0;
+        $bp = $value->options->base_price ?? $value->price;
+    @endphp
+    @if($wa != 0)
+      <small class="text-muted text-decoration-line-through">{{$bp}}</small>
+      <span class="d-block fw-semibold">{{$value->price}}</span>
+      @if($wa > 0)<small class="text-success">+{{$wa}} warranty</small>@endif
+    @else
+      {{$value->price}}
+    @endif
+  </td>
   <td>{{$value->price * $value->qty}}</td>
   <td class="text-center">
     <button type="button" class="btn btn-light btn-sm cart_remove" data-id="{{$value->rowId}}">

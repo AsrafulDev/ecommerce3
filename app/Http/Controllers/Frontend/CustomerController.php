@@ -436,8 +436,14 @@ public function order_save(Request $request)
         // কার্টের advance item গুলোর মোট
         $advanceTotal = \App\Http\Controllers\Frontend\ShoppingController::getCartAdvanceAmount();
 
-        // ইনভয়েসে দেখানোর মোট (Grand Total)
-        $grandTotal = ($subtotal + $shippingfee) - $discount;
+        // 🛡️ Calculate warranty charges from cart
+        $warrantyCharge = 0;
+        foreach (Cart::instance('shopping')->content() as $item) {
+            $warrantyCharge += (float)($item->options->warranty_adjustment ?? 0) * $item->qty;
+        }
+
+        // ইনভয়েসে দেখানোর মোট (Grand Total) — includes warranty
+        $grandTotal = ($subtotal + $shippingfee + $warrantyCharge) - $discount;
 
         // =========================================================
         // ⭐ ফিক্সড লজিক: গেটওয়েতে কত টাকা পাঠাবো?

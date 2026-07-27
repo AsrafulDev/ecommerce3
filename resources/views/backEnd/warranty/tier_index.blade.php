@@ -27,7 +27,7 @@
                                 @endforeach
                             </td>
                             <td>
-                                <a href="{{ route('admin.warranty.tiers.edit', $product) }}" class="btn btn-sm btn-primary">Edit Tiers</a>
+                                <a href="{{ route('products.edit', $product->id) }}" class="btn btn-sm btn-primary">Edit Tiers</a>
                             </td>
                         </tr>
                         @endforeach

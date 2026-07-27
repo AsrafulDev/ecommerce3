@@ -83,20 +83,22 @@ class WarrantyService
                     ->first();
             }
 
-            return WarrantySale::create([
-                'order_id'                 => $order->id,
-                'order_detail_id'          => $orderDetail->id,
-                'product_warranty_tier_id' => $tier->id,
-                'customer_id'              => $order->customer_id,
-                'product_id'               => $orderDetail->product_id,
-                'supplier_warranty_id'     => $supplierWarranty?->id,
-                'warranty_type'            => $tier->warranty_type,
-                'warranty_days'            => $tier->warranty_days,
-                'warranty_start_date'      => null,
-                'warranty_end_date'        => null,
-                'warranty_price'           => $tier->price,
-                'status'                   => WarrantySaleStatus::ACTIVE->value,
-            ]);
+            return WarrantySale::updateOrCreate(
+                ['order_detail_id' => $orderDetail->id],
+                [
+                    'order_id'                 => $order->id,
+                    'product_warranty_tier_id' => $tier->id,
+                    'customer_id'              => $order->customer_id,
+                    'product_id'               => $orderDetail->product_id,
+                    'supplier_warranty_id'     => $supplierWarranty?->id,
+                    'warranty_type'            => $tier->warranty_type,
+                    'warranty_days'            => $tier->warranty_days,
+                    'warranty_start_date'      => null,
+                    'warranty_end_date'        => null,
+                    'warranty_price'           => $tier->price,
+                    'status'                   => WarrantySaleStatus::ACTIVE->value,
+                ]
+            );
         });
     }
 

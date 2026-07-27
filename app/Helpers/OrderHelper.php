@@ -67,20 +67,22 @@ class OrderHelper
                         $endDate   = now()->addDays($tier->warranty_days);
                     }
 
-                    WarrantySale::create([
-                        'order_id'                 => $order->id,
-                        'order_detail_id'          => $detail->id,
-                        'product_warranty_tier_id' => $tier->id,
-                        'customer_id'              => $order->customer_id,
-                        'product_id'               => $detail->product_id,
-                        'supplier_warranty_id'     => $supplierWarrantyId,
-                        'warranty_type'            => $tier->warranty_type,
-                        'warranty_days'            => $tier->warranty_days,
-                        'warranty_start_date'      => $startDate,
-                        'warranty_end_date'        => $endDate,
-                        'warranty_price'           => $warrantyAdj,
-                        'status'                   => WarrantySaleStatus::ACTIVE->value,
-                    ]);
+                    WarrantySale::updateOrCreate(
+                        ['order_detail_id' => $detail->id],
+                        [
+                            'order_id'                 => $order->id,
+                            'product_warranty_tier_id' => $tier->id,
+                            'customer_id'              => $order->customer_id,
+                            'product_id'               => $detail->product_id,
+                            'supplier_warranty_id'     => $supplierWarrantyId,
+                            'warranty_type'            => $tier->warranty_type,
+                            'warranty_days'            => $tier->warranty_days,
+                            'warranty_start_date'      => $startDate,
+                            'warranty_end_date'        => $endDate,
+                            'warranty_price'           => $warrantyAdj,
+                            'status'                   => WarrantySaleStatus::ACTIVE->value,
+                        ]
+                    );
                 }
             }
         }

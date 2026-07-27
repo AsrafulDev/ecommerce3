@@ -428,6 +428,21 @@
                             </div>
                         </div>
 
+                        {{-- WARRANTY METHOD --}}
+                        <div class="form-group mb-3">
+                            <label for="warranty_method" class="form-label">🛡️ {{ __('Warranty Method') }} </label>
+                            <select class="form-control" id="warranty_method" name="warranty_method">
+                                <option value="active" {{ old('warranty_method') === 'active' ? 'selected' : '' }}>{{ __('Active') }}</option>
+                                <option value="inactive" {{ old('warranty_method') === 'inactive' ? 'selected' : '' }}>{{ __('Inactive') }}</option>
+                                <option value="hidden" {{ old('warranty_method') === 'hidden' ? 'selected' : '' }}>{{ __('Hidden') }}</option>
+                            </select>
+                            <small class="text-muted d-block mt-1">
+                                <strong>Active:</strong> {{ __('Show warranty options on product page') }} |
+                                <strong>Inactive:</strong> {{ __('Hide warranty section completely') }} |
+                                <strong>Hidden:</strong> {{ __('Hide from frontend but keep warranty data') }}
+                            </small>
+                        </div>
+
                         <div class="row text-center mb-3">
                             <div class="col-4 mb-2">
                                 <label class="d-block form-label">{{ __('Status') }}</label>

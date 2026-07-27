@@ -2,6 +2,7 @@
 /public/build
 /public/hot
 /public/storage
+/public/uploads
 /storage/*.key
 /storage/framework/cache/data
 /storage/framework/sessions

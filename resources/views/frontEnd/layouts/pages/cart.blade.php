@@ -82,6 +82,9 @@
                                                 @if($wt && $wt->warranty_days > 0)
                                                     <br><small class="text-success">
                                                         🛡️ {{ $wt->warranty_days }} Days Warranty
+                                                        @if($warrantyAdj > 0)
+                                                            (+ ৳{{ number_format($warrantyAdj, 0) }})
+                                                        @endif
                                                     </small>
                                                 @endif
                                             @endif

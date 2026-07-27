@@ -447,8 +447,6 @@ if (typeof ttq !== 'undefined') {
         }
 
         $discount = Session::get('discount', 0);
-        // ⭐ Grand Total Calculation - Free delivery হলে shipping charge 0
-        $grand_total = $subtotal + $shipping - $discount;
 
         // 💰 Calculate wholesale discount & warranty totals from cart
         $totalWholesaleDiscount = 0;
@@ -459,6 +457,12 @@ if (typeof ttq !== 'undefined') {
             $totalWholesaleDiscount += $wd * $item->qty;
             $totalWarrantyCharge += $wa * $item->qty;
         }
+
+        // ⭐ Subtotal excluding warranty (warranty is added to price in cart_store)
+        $subtotalExcludingWarranty = $subtotal - $totalWarrantyCharge;
+
+        // ⭐ Grand Total Calculation
+        $grand_total = $subtotalExcludingWarranty + $shipping - $discount + $totalWarrantyCharge;
 
         // ✅ JS ডেটা অ্যারে
         $cartItemsForJs = [];
@@ -772,7 +776,7 @@ if (typeof ttq !== 'undefined') {
 
                                 {{-- Calculation --}}
                                 <div class="summary-totals">
-                                    <div class="total-row"><span>{{ __('Subtotal') }}</span> <span id="subtotalAmount">৳ {{ number_format($subtotal, 2) }}</span></div>
+                                    <div class="total-row"><span>{{ __('Subtotal') }}</span> <span id="subtotalAmount">৳ {{ number_format($subtotalExcludingWarranty, 2) }}</span></div>
                                     @if($totalWholesaleDiscount > 0)
                                         <div class="total-row text-danger"><span>{{ __('Wholesale Discount') }}</span> <span>- ৳ {{ number_format($totalWholesaleDiscount, 2) }}</span></div>
                                     @endif
@@ -896,8 +900,9 @@ if (typeof ttq !== 'undefined') {
         // 2. SHIPPING & TOTAL CALCULATION
         // ==========================================
         
-        const baseSubtotal = parseFloat("{{ $subtotal ?? 0 }}");
+        const baseSubtotal = parseFloat("{{ $subtotalExcludingWarranty ?? 0 }}");
         const baseDiscount = parseFloat("{{ $discount ?? 0 }}");
+        const baseWarrantyCharge = parseFloat("{{ $totalWarrantyCharge ?? 0 }}");
         const advanceAmount = parseFloat("{{ $advance_amount ?? 0 }}");
         const hasAdvance = @json($hasAdvance ?? false);
         const requiresShipping = @json($requires_shipping ?? false);
@@ -931,7 +936,7 @@ if (typeof ttq !== 'undefined') {
             var isFreeDelivery = checkFreeDelivery();
             var shippingCharge = isFreeDelivery ? 0 : selectedCharge;
             
-            var grandTotal = baseSubtotal + shippingCharge - baseDiscount;
+            var grandTotal = baseSubtotal + shippingCharge - baseDiscount + baseWarrantyCharge;
             var dueAmount = hasAdvance ? (grandTotal - advanceAmount) : 0;
 
             // টেক্সট আপডেট
@@ -961,7 +966,7 @@ if (typeof ttq !== 'undefined') {
             
             if (isFreeDeliveryOnLoad) {
                 var shippingCharge = 0;
-                var grandTotal = baseSubtotal + shippingCharge - baseDiscount;
+                var grandTotal = baseSubtotal + shippingCharge - baseDiscount + baseWarrantyCharge;
                 var dueAmount = hasAdvance ? (grandTotal - advanceAmount) : 0;
 
                 // টেক্সট আপডেট
@@ -978,7 +983,7 @@ if (typeof ttq !== 'undefined') {
             } else {
                 // Free delivery না হলে current shipping charge use করবে
                 var currentShipping = parseFloat($('#shippingAmount').text().replace(/[৳,\s]/g, '').trim()) || 0;
-                var grandTotal = baseSubtotal + currentShipping - baseDiscount;
+                var grandTotal = baseSubtotal + currentShipping - baseDiscount + baseWarrantyCharge;
                 var dueAmount = hasAdvance ? (grandTotal - advanceAmount) : 0;
                 
                 // Grand total update
@@ -1019,7 +1024,7 @@ if (typeof ttq !== 'undefined') {
                 // ⭐ Free Delivery Check
                 var isFreeDelivery = checkFreeDelivery();
                 var shippingCharge = isFreeDelivery ? 0 : selectedCharge;
-                var total = (baseSubtotal + shippingCharge - baseDiscount).toFixed(2);
+                var total = (baseSubtotal + shippingCharge - baseDiscount + baseWarrantyCharge).toFixed(2);
 
                 // ডাটা পাঠানো
                 $.ajax({
@@ -1055,7 +1060,7 @@ if (typeof ttq !== 'undefined') {
             var selectedCharge = parseFloat($('#area option:selected').attr('data-charge')) || 0;
             var isFreeDelivery = typeof checkFreeDelivery === 'function' ? checkFreeDelivery() : false;
             var shippingCharge = isFreeDelivery ? 0 : selectedCharge;
-            var total = (baseSubtotal + shippingCharge - baseDiscount).toFixed(2);
+            var total = (baseSubtotal + shippingCharge - baseDiscount + baseWarrantyCharge).toFixed(2);
             var payload = JSON.stringify({
                 name: name, phone: phone, address: address,
                 items: cartItems, total_amount: total,

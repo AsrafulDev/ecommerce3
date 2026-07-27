@@ -1919,6 +1919,12 @@ class OrderController extends Controller
         $discount   = (float) (Session::get('pos_discount') ?? 0);
         $shippingfee = ShippingCharge::find($request->area);
 
+        // 🛡️ Calculate warranty charges from POS cart
+        $warrantyCharge = 0;
+        foreach (Cart::instance('pos_shopping')->content() as $item) {
+            $warrantyCharge += (float)($item->options->warranty_adjustment ?? 0) * $item->qty;
+        }
+
         $exits_customer = Customer::where('phone', $request->phone)
             ->select('phone', 'id')->first();
 
@@ -1939,7 +1945,7 @@ class OrderController extends Controller
 
         $order                  = new Order();
         $order->invoice_id      = rand(11111, 99999);
-        $order->amount          = ($subtotal + (isset($shippingfee->amount) ? $shippingfee->amount : 0)) - $discount;
+        $order->amount          = ($subtotal + (isset($shippingfee->amount) ? $shippingfee->amount : 0) + $warrantyCharge) - $discount;
         $order->discount        = $discount ? $discount : 0;
         $order->shipping_charge = isset($shippingfee->amount) ? $shippingfee->amount : 0;
         $order->customer_id     = $customer_id;
@@ -2041,23 +2047,25 @@ class OrderController extends Controller
 
             $order_details->save();
 
-            // 🛡️ Create WarrantySale for POS orders
+            // 🛡️ Create/Update WarrantySale for POS orders
             if ($order_details->warranty_tier_id) {
                 $tier = \App\Models\ProductWarrantyTier::find($order_details->warranty_tier_id);
                 if ($tier && $tier->warranty_days > 0) {
-                    \App\Models\WarrantySale::create([
-                        'order_id'                 => $order->id,
-                        'order_detail_id'          => $order_details->id,
-                        'product_warranty_tier_id' => $tier->id,
-                        'customer_id'              => $customer_id,
-                        'product_id'               => $order_details->product_id,
-                        'warranty_type'            => $tier->warranty_type,
-                        'warranty_days'            => $tier->warranty_days,
-                        'warranty_start_date'      => now(),
-                        'warranty_end_date'        => now()->addDays($tier->warranty_days),
-                        'warranty_price'           => $tier->price,
-                        'status'                   => \App\Enums\WarrantySaleStatus::ACTIVE->value,
-                    ]);
+                    \App\Models\WarrantySale::updateOrCreate(
+                        ['order_detail_id' => $order_details->id],
+                        [
+                            'order_id'                 => $order->id,
+                            'product_warranty_tier_id' => $tier->id,
+                            'customer_id'              => $customer_id,
+                            'product_id'               => $order_details->product_id,
+                            'warranty_type'            => $tier->warranty_type,
+                            'warranty_days'            => $tier->warranty_days,
+                            'warranty_start_date'      => now(),
+                            'warranty_end_date'        => now()->addDays($tier->warranty_days),
+                            'warranty_price'           => $tier->price,
+                            'status'                   => \App\Enums\WarrantySaleStatus::ACTIVE->value,
+                        ]
+                    );
                 }
             }
         }
@@ -2459,6 +2467,12 @@ class OrderController extends Controller
         $discount    = Session::get('pos_discount', 0) + Session::get('product_discount', 0);
         $shippingfee = ShippingCharge::find($request->area);
 
+        // 🛡️ Calculate warranty charges from POS cart
+        $warrantyCharge = 0;
+        foreach (Cart::instance('pos_shopping')->content() as $item) {
+            $warrantyCharge += (float)($item->options->warranty_adjustment ?? 0) * $item->qty;
+        }
+
         $customer = Customer::firstOrCreate(
             ['phone' => $request->phone],
             [
@@ -2471,7 +2485,7 @@ class OrderController extends Controller
         );
 
         $order                  = Order::findOrFail($request->order_id);
-        $order->amount          = ($subtotal + (isset($shippingfee->amount) ? $shippingfee->amount : 0)) - $discount;
+        $order->amount          = ($subtotal + (isset($shippingfee->amount) ? $shippingfee->amount : 0) + $warrantyCharge) - $discount;
         $order->discount        = isset($discount) ? $discount : 0;
         $order->shipping_charge = isset($shippingfee->amount) ? $shippingfee->amount : 0;
         $order->customer_id     = $customer->id;
@@ -3154,7 +3168,13 @@ class OrderController extends Controller
         $subtotal   = (float) preg_replace('/[^\d.]/', '', (string) $subtotalRaw);
         $discount   = (float) (Session::get('pos_discount') ?? 0);
         $shipping   = (float) (Session::get('pos_shipping') ?? 0);
-        $grandTotal = ($subtotal + $shipping) - $discount;
+
+        // 🛡️ Calculate warranty charges from POS cart
+        $warrantyCharge = 0;
+        foreach (Cart::instance('pos_shopping')->content() as $item) {
+            $warrantyCharge += (float)($item->options->warranty_adjustment ?? 0) * $item->qty;
+        }
+        $grandTotal = ($subtotal + $shipping + $warrantyCharge) - $discount;
 
         $hold = PosHoldCart::create([
             'customer_name'  => $request->customer_name,

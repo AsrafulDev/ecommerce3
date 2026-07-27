@@ -41,7 +41,8 @@
                     ৳ {{ $product->new_price }} 
                 </p>
                 @php
-                    $hasWarranty = $product->warrantyTiers()->where('is_active', true)->where('warranty_type', '!=', 'none')->exists();
+                    $warrantyMethod = $product->warranty_method ?? 'active';
+                    $hasWarranty = $warrantyMethod === 'active' && $product->warrantyTiers()->where('is_active', true)->where('warranty_type', '!=', 'none')->exists();
                 @endphp
                 @if($hasWarranty)
                     <small class="text-success" style="font-size: 11px;">🛡️ Warranty Available</small>

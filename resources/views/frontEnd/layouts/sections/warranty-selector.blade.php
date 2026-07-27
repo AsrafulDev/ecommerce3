@@ -8,7 +8,7 @@
     $tiers = $displayService->getDisplayableTiers($product);
 @endphp
 
-@if(count($tiers) > 1)
+@if(count($tiers) > 0)
 <div class="warranty-selector-section mt-3 mb-3">
     <div class="d-flex align-items-center flex-wrap gap-2">
         <small class="text-muted fw-semibold me-1">🛡️ Warranty:</small>

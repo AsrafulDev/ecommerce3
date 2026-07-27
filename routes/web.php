@@ -277,11 +277,7 @@ Route::match(['get', 'post'], '/aamarpay/success', [AamarPayController::class, '
 Route::match(['get', 'post'], '/aamarpay/fail', [AamarPayController::class, 'fail'])->name('aamarpay.fail');
 Route::get('/aamarpay/cancel', [AamarPayController::class, 'cancel'])->name('aamarpay.cancel');
 
-// ✅ অর্ডার সফলতার রাউট (CustomerController থেকে)
-Route::get('customer/order-success/{id}', [CustomerController::class, 'order_success'])
-     ->name('customer.order_success');
-	 
-	 // ✅ Manual Payment Status Change
+// ✅ Manual Payment Status Change
 Route::post('admin/order/update-payment-status', [App\Http\Controllers\Admin\OrderController::class, 'updatePaymentStatus'])
      ->middleware(['auth:admin', 'admin', 'demo_mode'])->name('admin.order.updatePaymentStatus');
 

@@ -141,6 +141,9 @@ class ProductController extends Controller
             'wholesale_price.*.max_quantity' => 'nullable|integer|min:1',
             'wholesale_price.*.wholesale_price' => 'nullable|numeric|min:0',
 
+            // 🛡️ Warranty method
+            'warranty_method'     => 'nullable|in:active,inactive,hidden',
+
             // 🆕 Barcode & Stock Management
             'barcode'              => 'nullable|string|max:255|unique:products,barcode',
             'barcode_type'         => 'nullable|string|max:10',
@@ -221,6 +224,9 @@ class ProductController extends Controller
         
         // Wholesale settings
         $input['is_wholesale'] = $request->is_wholesale ? 1 : 0;
+
+        // 🛡️ Warranty method
+        $input['warranty_method'] = $request->warranty_method ?? 'active';
 
         // SEO
         $input['meta_title']       = $request->meta_title ?? $request->name;
@@ -445,6 +451,9 @@ class ProductController extends Controller
             'wholesale_price.*.max_quantity' => 'nullable|integer|min:1',
             'wholesale_price.*.wholesale_price' => 'nullable|numeric|min:0',
 
+            // 🛡️ Warranty method
+            'warranty_method'      => 'nullable|in:active,inactive,hidden',
+
             // 🛡️ Warranty tiers
             'warranty_tiers'       => 'nullable|array',
             'warranty_tiers.*.variant_id'     => 'nullable|integer',
@@ -529,6 +538,9 @@ class ProductController extends Controller
         
         // Wholesale settings
         $input['is_wholesale'] = $request->is_wholesale ? 1 : 0;
+
+        // 🛡️ Warranty method
+        $input['warranty_method'] = $request->warranty_method ?? 'active';
 
         // SEO
         $input['meta_title']       = $request->meta_title ?? $request->name;
