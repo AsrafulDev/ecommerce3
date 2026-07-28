@@ -475,24 +475,15 @@
         $(".select2").select2();
     });
 
-    // -------- CART CONTENT LOADERS ----------
-    function cart_content() {
+    // -------- SINGLE CART REFRESH ----------
+    function cart_refresh() {
         $.ajax({
             type: "GET",
-            url: "{{route('admin.order.cart_content')}}",
-            dataType: "html",
-            success: function (cartinfo) {
-                $("#cartTable").html(cartinfo);
-            },
-        });
-    }
-    function cart_details() {
-        $.ajax({
-            type: "GET",
-            url: "{{route('admin.order.cart_details')}}",
-            dataType: "html",
-            success: function (cartinfo) {
-                $("#cart_details").html(cartinfo);
+            url: "{{route('admin.order.cart_refresh')}}",
+            dataType: "json",
+            success: function (res) {
+                $("#cartTable").html(res.cart_html);
+                $("#cart_details").html(res.details_html);
             },
         });
     }
@@ -509,7 +500,7 @@
                 url: "{{route('admin.order.cart_add')}}",
                 dataType: "json",
                 success: function (cartinfo) {
-                    cart_content();
+                    cart_refresh();
                     cart_details();
                 },
             });
@@ -529,7 +520,7 @@
                 url: "{{route('admin.order.cart_increment')}}",
                 dataType: "json",
                 success: function (cartinfo) {
-                    cart_content();
+                    cart_refresh();
                     cart_details();
                 },
             });
@@ -548,7 +539,7 @@
                 url: "{{route('admin.order.cart_decrement')}}",
                 dataType: "json",
                 success: function (cartinfo) {
-                    cart_content();
+                    cart_refresh();
                     cart_details();
                 },
             });
@@ -567,7 +558,7 @@
                 url: "{{route('admin.order.cart_remove')}}",
                 dataType: "json",
                 success: function (cartinfo) {
-                    cart_content();
+                    cart_refresh();
                     cart_details();
                 },
             });
@@ -626,7 +617,7 @@
             url: "{{route('admin.order.cart_shipping')}}",
             dataType: "json",
             success: function () {
-                cart_content();
+                cart_refresh();
                 cart_details();
             },
         });
@@ -648,7 +639,7 @@
             url: "{{ route('admin.order.cart.update') }}",
             dataType: "json",
             success: function () {
-                cart_content();
+                cart_refresh();
                 cart_details();
             },
         });
@@ -664,6 +655,46 @@
         var productId = $(this).data("product-id");
         var colorId = $(this).val();
         updateCartVariant(rowId, productId, undefined, colorId);
+    });
+
+    // -------- WARRANTY / BATCH / SN SELECT (delegated) ----------
+    $(document).on("change", ".cart-warranty-selector", function(){
+        var rowId = $(this).data('id');
+        var productId = $(this).data('product-id');
+        var warrantyId = $(this).val();
+        $.ajax({
+           cache: false, type:"GET",
+           data:{id:rowId, product_id:productId, warranty_tier_id:warrantyId},
+           url:"{{ route('admin.order.cart.update') }}",
+           dataType: "json",
+           success: function(){ cart_refresh(); }
+        });
+    });
+
+    $(document).on("change", ".cart-batch-selector", function(){
+        var rowId = $(this).data('id');
+        var productId = $(this).data('product-id');
+        var batchId = $(this).val();
+        $.ajax({
+           cache: false, type:"GET",
+           data:{id:rowId, product_id:productId, batch_id:batchId},
+           url:"{{ route('admin.order.cart.update') }}",
+           dataType: "json",
+           success: function(){ cart_refresh(); }
+        });
+    });
+
+    $(document).on("change blur", ".cart-sn-input", function(){
+        var rowId = $(this).data('id');
+        var productId = $(this).data('product-id');
+        var sn = $(this).val();
+        $.ajax({
+           cache: false, type:"GET",
+           data:{id:rowId, product_id:productId, serial_numbers:sn},
+           url:"{{ route('admin.order.cart.update') }}",
+           dataType: "json",
+           success: function(){ cart_refresh(); }
+        });
     });
 
     // -------- FORM SUBMIT - আগে Size/Color সিঙ্ক করুন --------
@@ -735,7 +766,7 @@
                     if (res.success) {
                         $("#barcode_msg").removeClass("text-danger").addClass("text-success")
                             .text("✓ " + res.product.name);
-                        cart_content();
+                        cart_refresh();
                         cart_details();
                         $("#barcode_input").val("").focus();
                     }
@@ -794,7 +825,7 @@
             success: function (res) {
                 if (res.success) {
                     toastr ? toastr.success(res.message) : alert(res.message);
-                    cart_content();
+                    cart_refresh();
                     cart_details();
                     $("#name, #phone, #address").val("");
                     $("#pos_coupon_code").val("");
@@ -870,7 +901,7 @@
                 if (res.success) {
                     $("#heldOrdersModal").modal("hide");
                     // Refresh cart UI via AJAX instead of full reload
-                    cart_content();
+                    cart_refresh();
                     cart_details();
                     // Re-fetch held orders count
                     $.get("{{ route('admin.order.held_carts') }}", function (data) {

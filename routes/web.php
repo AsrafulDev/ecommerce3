@@ -1033,6 +1033,7 @@ Route::get('dashboard', [DashboardController::class, 'dashboard'])->name('admin.
     Route::post('order/store', [OrderController::class,'order_store'])->name('admin.order.store');
     Route::get('order/cart-add', [OrderController::class,'cart_add'])->name('admin.order.cart_add');
     Route::get('order/cart-content', [OrderController::class,'cart_content'])->name('admin.order.cart_content');
+    Route::get('order/cart-refresh', [OrderController::class,'cart_refresh'])->name('admin.order.cart_refresh');
     Route::get('order/cart-increment', [OrderController::class,'cart_increment'])->name('admin.order.cart_increment');
     Route::get('order/cart-decrement', [OrderController::class,'cart_decrement'])->name('admin.order.cart_decrement');
     Route::get('order/cart-remove', [OrderController::class,'cart_remove'])->name('admin.order.cart_remove');
@@ -1160,6 +1161,20 @@ Route::get('dashboard', [DashboardController::class, 'dashboard'])->name('admin.
         Route::post('claims/{warrantyClaim}/{action}', [App\Http\Controllers\Admin\WarrantyController::class, 'claimsAction'])->name('claims.action');
         Route::post('claims/{warrantyClaim}/reject', [App\Http\Controllers\Admin\WarrantyController::class, 'claimsReject'])->name('claims.reject');
         Route::post('claims/{warrantyClaim}/note', [App\Http\Controllers\Admin\WarrantyController::class, 'claimsAddNote'])->name('claims.note');
+
+        // 🆕 Claim Pipeline Actions
+        Route::post('claims/{warrantyClaim}/receive-product', [App\Http\Controllers\Admin\WarrantyController::class, 'receiveProduct'])->name('claims.receive-product');
+        Route::post('claims/{warrantyClaim}/send-to-supplier', [App\Http\Controllers\Admin\WarrantyController::class, 'sendToSupplier'])->name('claims.send-to-supplier');
+        Route::post('claims/{warrantyClaim}/supplier-return', [App\Http\Controllers\Admin\WarrantyController::class, 'supplierReturn'])->name('claims.supplier-return');
+        Route::post('claims/{warrantyClaim}/ready-for-delivery', [App\Http\Controllers\Admin\WarrantyController::class, 'readyForDelivery'])->name('claims.ready-for-delivery');
+        Route::post('claims/{warrantyClaim}/deliver', [App\Http\Controllers\Admin\WarrantyController::class, 'deliverToCustomer'])->name('claims.deliver');
+
+        // 🆕 File claim on behalf of customer (admin)
+        Route::post('claims/file-for-customer', [App\Http\Controllers\Admin\WarrantyController::class, 'fileClaimForCustomer'])->name('claims.file-for-customer');
+
+        // 🆕 Challans
+        Route::get('claims/{warrantyClaim}/challans', [App\Http\Controllers\Admin\WarrantyController::class, 'challans'])->name('claims.challans');
+        Route::get('challans/{challan}/print', [App\Http\Controllers\Admin\WarrantyController::class, 'printChallan'])->name('challans.print');
     });
 
 });

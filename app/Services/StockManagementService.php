@@ -32,7 +32,7 @@ class StockManagementService
 
         // 3) Global default
         $global = GeneralSetting::first();
-        return $global->default_costing_method ?? 'average';
+        return $global->default_costing_method ?? 'fifo';
     }
 
     /**
@@ -94,11 +94,12 @@ class StockManagementService
      * @param Product $product
      * @param int $qty
      * @param array $reference  Keys: type (sale, purchase_return, adjustment), id
+     * @param int|null $preferredBatchId  Optional: deduct from this specific batch first
      * @return array  ['cogs' => float, 'batch_details' => [...], 'remaining' => int]
      *
      * @throws \RuntimeException if insufficient stock
      */
-    public function stockOut(Product $product, int $qty, array $reference = []): array
+    public function stockOut(Product $product, int $qty, array $reference = [], ?int $preferredBatchId = null): array
     {
         if ($qty <= 0) {
             throw new \InvalidArgumentException('Stock-out quantity must be positive.');
@@ -120,10 +121,34 @@ class StockManagementService
         $batchDetails = [];
         $remaining = $qty;
 
+        // ✅ Try user-selected batch first (if specified and has stock)
+        if ($preferredBatchId && $remaining > 0) {
+            $preferredBatch = StockBatch::where('id', $preferredBatchId)
+                ->where('product_id', $product->id)
+                ->where('remaining_qty', '>', 0)
+                ->first();
+
+            if ($preferredBatch) {
+                $deduct = min($remaining, $preferredBatch->remaining_qty);
+                $cogs = $deduct * (float) $preferredBatch->unit_cost;
+                $preferredBatch->decrement('remaining_qty', $deduct);
+                $batchDetails[] = [
+                    'batch_id'  => $preferredBatch->id,
+                    'qty'       => $deduct,
+                    'unit_cost' => (float) $preferredBatch->unit_cost,
+                    'cogs'      => $cogs,
+                ];
+                $totalCogs += $cogs;
+                $remaining -= $deduct;
+            }
+        }
+
+        // ✅ Remaining qty: use costing method (FIFO/LIFO/Average)
+        if ($remaining > 0) {
         if ($method === 'average') {
             // Average Cost: COGS = current purchase_price * qty
             $avgCost = (float) ($product->purchase_price ?? 0);
-            $totalCogs = $avgCost * $qty;
+            $totalCogs += $avgCost * $remaining;
 
             // Deduct proportionally from all batches (simplified: FIFO order but with avg cost)
             $batches = $this->getAvailableBatches($product, 'fifo');
@@ -165,6 +190,7 @@ class StockManagementService
                 $remaining -= $deduct;
             }
         }
+        } // end if ($remaining > 0)
 
         if ($remaining > 0 && !$allowNegative) {
             throw new \RuntimeException("Insufficient stock in batches for product: {$product->name}");

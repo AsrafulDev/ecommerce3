@@ -16,7 +16,11 @@ class WarrantySale extends Model
         'product_warranty_tier_id',
         'customer_id',
         'product_id',
+        'serial_numbers',
         'supplier_warranty_id',
+        'stock_batch_id',
+        'purchase_id',
+        'sold_by',
         'warranty_type',
         'warranty_days',
         'warranty_start_date',
@@ -32,6 +36,7 @@ class WarrantySale extends Model
             'warranty_start_date' => 'date',
             'warranty_end_date'   => 'date',
             'warranty_price'      => 'decimal:2',
+            'serial_numbers'      => 'array',
         ];
     }
 
@@ -65,6 +70,21 @@ class WarrantySale extends Model
     public function supplierWarranty()
     {
         return $this->belongsTo(SupplierWarranty::class);
+    }
+
+    public function soldBy()
+    {
+        return $this->belongsTo(User::class, 'sold_by');
+    }
+
+    public function stockBatch()
+    {
+        return $this->belongsTo(StockBatch::class);
+    }
+
+    public function purchase()
+    {
+        return $this->belongsTo(Purchase::class);
     }
 
     public function claims()

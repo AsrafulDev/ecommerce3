@@ -5,7 +5,7 @@
 @php
     $customer = Auth::guard('customer')->user();
     $warranties = \App\Models\WarrantySale::where('customer_id', $customer->id)
-        ->with(['product:id,name,slug', 'activeClaim'])
+        ->with(['product:id,name,slug', 'activeClaim', 'claims', 'order'])
         ->latest()
         ->limit(10)
         ->get();
@@ -42,9 +42,13 @@
                                 @endif
                             </span>
                             <strong>{{ $sale->product->name ?? 'Product' }}</strong>
+                            @if($sale->serial_numbers)
+                                <small class="text-muted ms-2">SN: <code>{{ implode(', ', $sale->serial_numbers) }}</code></small>
+                            @endif
                             <br>
                             <small class="text-muted">
                                 {{ $sale->warranty_type === 'none' ? 'No Warranty' : $sale->warranty_days . ' Days Warranty' }}
+                                | Claims: {{ $sale->claims->count() }}
                                 @if($sale->warranty_end_date && $sale->warranty_days > 0)
                                     | Expires: {{ $sale->warranty_end_date->format('d M, Y') }}
                                     | <span class="{{ $sale->remaining_days <= 7 ? 'text-danger' : 'text-success' }}">
@@ -61,8 +65,15 @@
                         </div>
                         <div>
                             @if($sale->status === 'active')
-                                <a href="{{ route('customer.warranty.claim', $sale->id) }}"
-                                   class="btn btn-sm btn-outline-danger">File Claim</a>
+                                @php $orderCompleted = $sale->order && in_array($sale->order->order_status, ['completed', 'delivered', 5, 6]); @endphp
+                                @if($orderCompleted)
+                                    <a href="{{ route('customer.warranty.claim', $sale->id) }}"
+                                       class="btn btn-sm btn-outline-danger">File Claim</a>
+                                @else
+                                    <span class="text-muted small" title="Claim available after order is completed">
+                                        ⏳ Pending Order
+                                    </span>
+                                @endif
                             @elseif($sale->status === 'claimed' && $sale->activeClaim)
                                 <a href="{{ route('customer.warranty.track', $sale->activeClaim->id) }}"
                                    class="btn btn-sm btn-outline-warning">Track Claim →</a>

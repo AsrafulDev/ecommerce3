@@ -26,16 +26,42 @@ class WarrantyClaim extends Model
         'servicing_cost',
         'store_bears_cost',
         'claimed_at',
+        // Pipeline fields
+        'product_received_at',
+        'receive_challan_no',
+        'receive_notes',
+        'sent_to_supplier_at',
+        'supplier_challan_no',
+        'sent_supplier_id',
+        'supplier_send_notes',
+        'returned_from_supplier_at',
+        'supplier_return_challan_no',
+        'replacement_sn',
+        'return_type',
+        'supplier_return_notes',
+        'ready_for_delivery_at',
+        'delivery_challan_no',
+        'delivered_to_customer_at',
+        'delivery_notes',
+        'supplier_charge',
+        'customer_charge',
     ];
 
     protected function casts(): array
     {
         return [
-            'attachments'      => 'array',
-            'claimed_at'       => 'datetime',
-            'resolved_at'      => 'datetime',
-            'servicing_cost'   => 'decimal:2',
-            'store_bears_cost' => 'boolean',
+            'attachments'            => 'array',
+            'claimed_at'             => 'datetime',
+            'resolved_at'            => 'datetime',
+            'servicing_cost'         => 'decimal:2',
+            'store_bears_cost'       => 'boolean',
+            'product_received_at'    => 'datetime',
+            'sent_to_supplier_at'    => 'datetime',
+            'returned_from_supplier_at' => 'datetime',
+            'ready_for_delivery_at'  => 'datetime',
+            'delivered_to_customer_at' => 'datetime',
+            'supplier_charge'        => 'decimal:2',
+            'customer_charge'        => 'decimal:2',
         ];
     }
 
@@ -61,6 +87,11 @@ class WarrantyClaim extends Model
         return $this->belongsTo(Product::class);
     }
 
+    public function sentSupplier()
+    {
+        return $this->belongsTo(Supplier::class, 'sent_supplier_id');
+    }
+
     public function stages()
     {
         return $this->hasMany(WarrantyClaimStage::class)->orderBy('started_at');
@@ -69,6 +100,11 @@ class WarrantyClaim extends Model
     public function notes()
     {
         return $this->hasMany(WarrantyClaimNote::class)->latest();
+    }
+
+    public function challans()
+    {
+        return $this->hasMany(WarrantyChallan::class);
     }
 
     public function currentStage()

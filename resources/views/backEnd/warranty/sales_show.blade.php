@@ -15,6 +15,18 @@
                     <table class="table table-bordered mb-0">
                         <tr><th style="width:180px">Customer</th><td>{{ $warrantySale->customer->name ?? 'N/A' }} ({{ $warrantySale->customer->phone ?? '' }})</td></tr>
                         <tr><th>Product</th><td>{{ $warrantySale->product->name ?? 'N/A' }}</td></tr>
+                        @if($warrantySale->serial_numbers)
+                        <tr><th>Serial Numbers</th><td><strong style="font-family:monospace;font-size:14px;">{{ implode(', ', $warrantySale->serial_numbers) }}</strong></td></tr>
+                        @endif
+                        @if($warrantySale->stockBatch)
+                        <tr><th>Batch</th><td>{{ $warrantySale->stockBatch->batch_no ?: 'Batch #'.$warrantySale->stockBatch->id }} (Unit Cost: ৳{{ number_format($warrantySale->stockBatch->unit_cost, 2) }})</td></tr>
+                        @endif
+                        @if($warrantySale->purchase)
+                        <tr><th>Purchase Invoice</th><td>#{{ $warrantySale->purchase->invoice_no ?? $warrantySale->purchase->id }}</td></tr>
+                        @endif
+                        @if($warrantySale->soldBy)
+                        <tr><th>Sold By</th><td>{{ $warrantySale->soldBy->name ?? 'N/A' }}</td></tr>
+                        @endif
                         <tr><th>Order</th><td>#{{ $warrantySale->order_id }} ({{ $warrantySale->order->invoice_id ?? 'N/A' }})</td></tr>
                         <tr><th>Warranty Type</th><td>{{ ucfirst($warrantySale->warranty_type) }}</td></tr>
                         <tr><th>Warranty Days</th><td>{{ $warrantySale->warranty_days }} days</td></tr>

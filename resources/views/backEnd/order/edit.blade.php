@@ -269,23 +269,15 @@ function updatePaymentStatus(orderId) {
     });
 </script>
 <script>
-    function cart_content(){
+    // ✅ Single AJAX refresh — updates cart table + totals in one call
+    function cart_refresh(){
            $.ajax({
              type:"GET",
-             url:"{{route('admin.order.cart_content')}}",
-             dataType: "html",
-             success: function(cartinfo){
-               $('#cartTable').html(cartinfo)
-             }
-          });
-      }
-      function cart_details(){
-           $.ajax({
-             type:"GET",
-             url:"{{route('admin.order.cart_details')}}",
-             dataType: "html",
-             success: function(cartinfo){
-               $('#cart_details').html(cartinfo)
+             url:"{{route('admin.order.cart_refresh')}}",
+             dataType: "json",
+             success: function(res){
+               $('#cartTable').html(res.cart_html);
+               $('#cart_details').html(res.details_html);
              }
           });
       }
@@ -300,7 +292,7 @@ function updatePaymentStatus(orderId) {
             url:"{{route('admin.order.cart_add')}}",
             dataType: "json",
             success: function(cartinfo){
-                return cart_content()+cart_details();
+                return cart_refresh();
             }
             });
         }
@@ -317,7 +309,7 @@ function updatePaymentStatus(orderId) {
                url:"{{route('admin.order.cart_increment')}}",
                dataType: "json",
             success: function(cartinfo){
-                return cart_content()+cart_details();
+                return cart_refresh();
             }
           });
         }
@@ -334,7 +326,7 @@ function updatePaymentStatus(orderId) {
                url:"{{route('admin.order.cart_decrement')}}",
                dataType: "json",
             success: function(cartinfo){
-                return cart_content()+cart_details();
+                return cart_refresh();
             }
           });
         }
@@ -350,7 +342,7 @@ function updatePaymentStatus(orderId) {
                url:"{{route('admin.order.cart_remove')}}",
                dataType: "json",
               success: function(cartinfo){
-                return cart_content()+cart_details();
+                return cart_refresh();
             }
           });
         }
@@ -365,7 +357,7 @@ function updatePaymentStatus(orderId) {
            url:"{{route('admin.order.product_discount')}}",
            dataType: "json",
           success: function(cartinfo){
-            return cart_content()+cart_details();
+            return cart_refresh();
           }
         });
    });
@@ -376,7 +368,7 @@ function updatePaymentStatus(orderId) {
            url:"{{route('admin.order.cart_clear')}}",
            dataType: "json",
           success: function(cartinfo){
-            return cart_content()+cart_details();
+            return cart_refresh();
           }
        });
    });// pshippingfee from total
@@ -388,7 +380,7 @@ function updatePaymentStatus(orderId) {
             url: "{{route('admin.order.cart_shipping')}}",
             dataType: "html",
             success: function(cartinfo){
-               return cart_content()+cart_details();
+               return cart_refresh();
             }
         });
     });
@@ -404,7 +396,7 @@ $(document).on("change", ".cart-size-selector", function(){
            url:"{{ route('admin.order.cart.update') }}",
            dataType: "json",
             success: function(cartinfo){
-            return cart_content()+cart_details();
+            return cart_refresh();
           }
         });
 });
@@ -422,7 +414,7 @@ $(document).on("change", ".cart-color-selector", function(){
            url:"{{ route('admin.order.cart.update') }}",
            dataType: "json",
             success: function(cartinfo){
-            return cart_content()+cart_details();
+            return cart_refresh();
           }
         });
 });
@@ -437,7 +429,7 @@ $(document).on("change", ".cart-warranty-selector", function(){
        data:{id:rowId, product_id:productId, warranty_tier_id:warrantyId},
        url:"{{ route('admin.order.cart.update') }}",
        dataType: "json",
-       success: function(){ cart_content(); cart_details(); }
+       success: function(){ cart_refresh(); }
     });
 });
 
@@ -448,16 +440,26 @@ $(document).on("change", ".cart-batch-selector", function(){
     var batchId = $(this).val();
     $.ajax({
        cache: false, type:"GET",
-       data:{id:rowId, batch_id:batchId},
+       data:{id:rowId, product_id:productId, batch_id:batchId},
        url:"{{ route('admin.order.cart.update') }}",
        dataType: "json",
-       success: function(){ cart_content(); cart_details(); }
+       success: function(){ cart_refresh(); }
     });
 });
 
-// ✅ Auto-refresh cart on page load to ensure batch/warranty info is synced
-cart_content();
-cart_details();
+// ✅ Serial Numbers input (auto-save on blur/change)
+$(document).on("change blur", ".cart-sn-input", function(){
+    var rowId = $(this).data('id');
+    var productId = $(this).data('product-id');
+    var sn = $(this).val();
+    $.ajax({
+       cache: false, type:"GET",
+       data:{id:rowId, product_id:productId, serial_numbers:sn},
+       url:"{{ route('admin.order.cart.update') }}",
+       dataType: "json",
+       success: function(){ cart_refresh(); }
+    });
+});
 </script>
 @endsection
 

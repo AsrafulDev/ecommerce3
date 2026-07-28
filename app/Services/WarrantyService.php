@@ -142,6 +142,27 @@ class WarrantyService
             throw new \RuntimeException('This warranty is not eligible for claims.');
         }
 
+        // 🆕 Order must be completed/delivered
+        $order = $warrantySale->order;
+        if ($order && !in_array($order->order_status, ['completed', 'delivered', 5, 6])) {
+            throw new \RuntimeException('Order must be completed before filing a warranty claim.');
+        }
+
+        // 🆕 No active claim already exists
+        $existingClaim = WarrantyClaim::where('warranty_sale_id', $warrantySale->id)
+            ->whereNotIn('status', ['resolved', 'rejected', 'cancelled'])
+            ->exists();
+        if ($existingClaim) {
+            throw new \RuntimeException('An active claim already exists for this warranty.');
+        }
+
+        // 🆕 Check claim count limit
+        $maxClaims = config('warranty.max_claims_per_sale', 3);
+        $claimCount = WarrantyClaim::where('warranty_sale_id', $warrantySale->id)->count();
+        if ($claimCount >= $maxClaims) {
+            throw new \RuntimeException("Maximum claims ({$maxClaims}) reached for this warranty.");
+        }
+
         return DB::transaction(function () use ($warrantySale, $data) {
             $warrantySale->update(['status' => WarrantySaleStatus::CLAIMED->value]);
 

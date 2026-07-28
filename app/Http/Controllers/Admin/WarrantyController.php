@@ -7,6 +7,7 @@ use App\Models\Product;
 use App\Models\ProductWarrantyTier;
 use App\Models\SupplierWarranty;
 use App\Models\WarrantyClaim;
+use App\Models\WarrantyChallan;
 use App\Models\WarrantySale;
 use App\Services\WarrantyDisplayService;
 use App\Services\WarrantyService;
@@ -31,6 +32,8 @@ class WarrantyController extends Controller
             'expired_warranties' => WarrantySale::where('status', 'expired')->count(),
             'pending_claims'     => WarrantyClaim::pending()->count(),
             'active_claims'      => WarrantyClaim::active()->count(),
+            'supplier_warranties'=> SupplierWarranty::where('is_transferable', true)
+                ->where('warranty_end_date', '>', now())->count(),
         ];
 
         $expiringSoon = WarrantySale::where('status', 'active')
@@ -137,7 +140,7 @@ class WarrantyController extends Controller
 
     public function salesShow(WarrantySale $warrantySale): View
     {
-        $warrantySale->load(['product', 'customer', 'order', 'claims.stages', 'claims.notes']);
+        $warrantySale->load(['product', 'customer', 'order', 'soldBy', 'stockBatch', 'purchase', 'claims.stages', 'claims.notes']);
         return view('backEnd.warranty.sales_show', compact('warrantySale'));
     }
 
@@ -201,5 +204,153 @@ class WarrantyController extends Controller
         ]);
 
         return back()->with('success', 'Note added.');
+    }
+
+    // ── Pipeline Actions ──────────────────────
+
+    public function receiveProduct(Request $request, WarrantyClaim $warrantyClaim)
+    {
+        $request->validate([
+            'condition'   => 'required|string',
+            'accessories' => 'nullable|string',
+            'notes'       => 'nullable|string',
+        ]);
+
+        $challanService = app(\App\Services\WarrantyChallanService::class);
+        $challan = $challanService->generateReceiveChallan($warrantyClaim, $request->all());
+
+        if ($request->expectsJson()) {
+            return response()->json([
+                'success'   => true,
+                'message'   => 'Product received. Challan #' . $challan->challan_no . ' generated.',
+                'challan'   => $challan,
+                'print_url' => route('admin.warranty.challans.print', $challan),
+            ]);
+        }
+
+        return back()->with('success', 'Product received. Challan #' . $challan->challan_no . ' generated.');
+    }
+
+    public function sendToSupplier(Request $request, WarrantyClaim $warrantyClaim)
+    {
+        $request->validate([
+            'supplier_id' => 'required|exists:suppliers,id',
+            'courier'     => 'nullable|string',
+            'tracking_id' => 'nullable|string',
+            'notes'       => 'nullable|string',
+        ]);
+
+        $challanService = app(\App\Services\WarrantyChallanService::class);
+        $challan = $challanService->generateSendToSupplierChallan($warrantyClaim, $request->all());
+
+        if ($request->expectsJson()) {
+            return response()->json([
+                'success'   => true,
+                'message'   => 'Product sent to supplier. Challan #' . $challan->challan_no . ' generated.',
+                'challan'   => $challan,
+                'print_url' => route('admin.warranty.challans.print', $challan),
+            ]);
+        }
+
+        return back()->with('success', 'Sent to supplier. Challan #' . $challan->challan_no . ' generated.');
+    }
+
+    public function supplierReturn(Request $request, WarrantyClaim $warrantyClaim)
+    {
+        $request->validate([
+            'return_type'             => 'required|in:repaired,replaced,refunded',
+            'replacement_sn'          => 'nullable|string|max:100',
+            'supplier_return_challan' => 'nullable|string|max:50',
+            'supplier_charge'         => 'nullable|numeric|min:0',
+            'notes'                   => 'nullable|string',
+        ]);
+
+        $challanService = app(\App\Services\WarrantyChallanService::class);
+        $challan = $challanService->generateSupplierReturnChallan($warrantyClaim, $request->all());
+
+        if ($request->expectsJson()) {
+            return response()->json([
+                'success'   => true,
+                'message'   => 'Supplier return recorded. Challan #' . $challan->challan_no . ' generated.',
+                'challan'   => $challan,
+                'print_url' => route('admin.warranty.challans.print', $challan),
+            ]);
+        }
+
+        return back()->with('success', 'Supplier return recorded. Challan #' . $challan->challan_no . ' generated.');
+    }
+
+    public function readyForDelivery(Request $request, WarrantyClaim $warrantyClaim)
+    {
+        $warrantyClaim->update([
+            'status'                => \App\Enums\WarrantyClaimStatus::READY_FOR_DELIVERY->value,
+            'ready_for_delivery_at' => now(),
+        ]);
+
+        $warrantyClaim->stages()->create([
+            'stage'        => 'ready_for_return',
+            'status'       => 'completed',
+            'notes'        => 'Product ready for delivery to customer.',
+            'started_at'   => now(),
+            'completed_at' => now(),
+        ]);
+
+        return back()->with('success', 'Marked ready for delivery.');
+    }
+
+    public function deliverToCustomer(Request $request, WarrantyClaim $warrantyClaim)
+    {
+        $request->validate([
+            'delivery_method' => 'nullable|string',
+            'notes'           => 'nullable|string',
+        ]);
+
+        $challanService = app(\App\Services\WarrantyChallanService::class);
+        $challan = $challanService->generateDeliveryChallan($warrantyClaim, $request->all());
+
+        if ($request->expectsJson()) {
+            return response()->json([
+                'success'   => true,
+                'message'   => 'Product delivered. Challan #' . $challan->challan_no . ' generated.',
+                'challan'   => $challan,
+                'print_url' => route('admin.warranty.challans.print', $challan),
+            ]);
+        }
+
+        return back()->with('success', 'Delivered to customer. Challan #' . $challan->challan_no . ' generated.');
+    }
+
+    public function challans(WarrantyClaim $warrantyClaim): View
+    {
+        $challans = $warrantyClaim->challans()->latest()->get();
+        return view('backEnd.warranty.claim_challans', compact('warrantyClaim', 'challans'));
+    }
+
+    public function printChallan(WarrantyChallan $challan): View
+    {
+        $challan->load('warrantyClaim.product', 'warrantyClaim.customer', 'warrantyClaim.warrantySale');
+        return view('backEnd.warranty.challan_print', compact('challan'));
+    }
+
+    public function fileClaimForCustomer(Request $request): RedirectResponse
+    {
+        $request->validate([
+            'warranty_sale_id'  => 'required|exists:warranty_sales,id',
+            'issue_description' => 'required|string|min:5',
+            'issue_type'        => 'required|string',
+        ]);
+
+        $warrantySale = \App\Models\WarrantySale::findOrFail($request->warranty_sale_id);
+        $data = [
+            'issue_description' => $request->issue_description,
+            'issue_type'        => $request->issue_type,
+            'customer_id'       => $warrantySale->customer_id,
+            'attachments'       => $request->attachments ?? [],
+        ];
+
+        $claim = $this->warrantyService->fileClaim($warrantySale, $data);
+
+        return redirect()->route('admin.warranty.claims.show', $claim)
+            ->with('success', 'Claim filed on behalf of customer.');
     }
 }

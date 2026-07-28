@@ -75,7 +75,7 @@ class OrderController extends Controller
         // 1) Entering active status → decrease stock (with batch tracking)
         if ($isActive && !$wasActive) {
             $details = OrderDetails::where('order_id', $order->id)
-                ->with('product')
+                ->with('product', 'warrantySale')
                 ->get();
 
             foreach ($details as $row) {
@@ -84,10 +84,12 @@ class OrderController extends Controller
                 }
 
                 try {
+                    // ✅ Pass user-selected batch from WarrantySale if available
+                    $preferredBatchId = optional($row->warrantySale)->stock_batch_id;
                     $result = $stockService->stockOut($row->product, (int) $row->qty, [
                         'type' => 'sale',
                         'id'   => $order->id,
-                    ]);
+                    ], $preferredBatchId);
 
                     // Store COGS and batch details on the order detail
                     $row->update([
@@ -2028,7 +2030,7 @@ class OrderController extends Controller
 
             $order_details                   = new OrderDetails();
             $order_details->order_id         = $order->id;
-            $order_details->product_id       = $cart->id;
+            $order_details->product_id       = $cart->options->product_id ?? $cart->id;
             $order_details->product_name     = $cart->name;
             $order_details->purchase_price   = isset($cart->options->purchase_price) ? $cart->options->purchase_price : 0;
             $order_details->product_discount = isset($cart->options->product_discount) ? $cart->options->product_discount : 0;
@@ -2048,7 +2050,19 @@ class OrderController extends Controller
 
             $order_details->save();
 
-            // 🛡️ Create/Update WarrantySale for POS orders
+            // 🛡️ Always create/update WarrantySale (for SN tracking even without warranty)
+            $warrantyData = [
+                'order_id'       => $order->id,
+                'customer_id'    => $customer_id,
+                'product_id'     => $order_details->product_id,
+                'serial_numbers' => $cart->options->serial_numbers ?? [],
+                'stock_batch_id' => $cart->options->batch_id ?? null,
+                'purchase_id'    => $this->resolvePurchaseId($order_details->product_id, $cart->options->batch_id ?? null),
+                'sold_by'        => auth()->id(),
+                'warranty_type'  => 'none',
+                'status'         => \App\Enums\WarrantySaleStatus::ACTIVE->value,
+            ];
+
             if ($order_details->warranty_tier_id) {
                 $tier = \App\Models\ProductWarrantyTier::find($order_details->warranty_tier_id);
                 if ($tier && $tier->warranty_days > 0) {
@@ -2056,7 +2070,6 @@ class OrderController extends Controller
                     $endDate   = now()->addDays($tier->warranty_days);
                     $supplierWarrantyId = null;
 
-                    // 🏭 Supplier warranty: use SupplierWarranty end_date if available
                     if ($tier->warranty_type === 'supplier_warranty') {
                         $sw = \App\Models\SupplierWarranty::where('product_id', $order_details->product_id)
                             ->where('is_transferable', true)
@@ -2069,24 +2082,22 @@ class OrderController extends Controller
                         }
                     }
 
-                    \App\Models\WarrantySale::updateOrCreate(
-                        ['order_detail_id' => $order_details->id],
-                        [
-                            'order_id'                 => $order->id,
-                            'product_warranty_tier_id' => $tier->id,
-                            'customer_id'              => $customer_id,
-                            'product_id'               => $order_details->product_id,
-                            'supplier_warranty_id'     => $supplierWarrantyId,
-                            'warranty_type'            => $tier->warranty_type,
-                            'warranty_days'            => $tier->warranty_days,
-                            'warranty_start_date'      => $startDate,
-                            'warranty_end_date'        => $endDate,
-                            'warranty_price'           => (float)($tier->additional_cost ?? 0),
-                            'status'                   => \App\Enums\WarrantySaleStatus::ACTIVE->value,
-                        ]
-                    );
+                    $warrantyData = array_merge($warrantyData, [
+                        'product_warranty_tier_id' => $tier->id,
+                        'supplier_warranty_id'     => $supplierWarrantyId,
+                        'warranty_type'            => $tier->warranty_type,
+                        'warranty_days'            => $tier->warranty_days,
+                        'warranty_start_date'      => $startDate,
+                        'warranty_end_date'        => $endDate,
+                        'warranty_price'           => (float)($tier->additional_cost ?? 0),
+                    ]);
                 }
             }
+
+            \App\Models\WarrantySale::updateOrCreate(
+                ['order_detail_id' => $order_details->id],
+                $warrantyData
+            );
         }
 
         // নতুন অর্ডার প্লেস করলে স্টক কমানো (oldStatus = 0, newStatus = 1)
@@ -2116,6 +2127,33 @@ class OrderController extends Controller
         $product = Product::select('id', 'name', 'stock', 'new_price', 'old_price', 'purchase_price', 'slug')
             ->where(['id' => $request->id])->first();
 
+        // ✅ Merge only when ALL unconfigured: same product + variant, no warranty, no batch, no SN
+        $existing = Cart::instance('pos_shopping')->search(function ($cartItem) use ($product) {
+            $itemProductId = $cartItem->options->product_id ?? $cartItem->id;
+            $sizeId     = $cartItem->options->size_id ?? null;
+            $colorId    = $cartItem->options->color_id ?? null;
+            $warrantyId = $cartItem->options->warranty_tier_id ?? null;
+            $batchId    = $cartItem->options->batch_id ?? null;
+            $sn         = $cartItem->options->serial_numbers ?? [];
+
+            return $itemProductId == $product->id
+                && $sizeId === null
+                && $colorId === null
+                && $warrantyId === null
+                && $batchId === null
+                && empty($sn);
+        })->first();
+
+        if ($existing) {
+            $newQty = $existing->qty + 1;
+            Cart::instance('pos_shopping')->update($existing->rowId, [
+                'qty' => $newQty,
+                'options' => $existing->options->toArray(),
+            ]);
+            $cartinfo = Cart::instance('pos_shopping')->content();
+            return response()->json(compact('cartinfo'));
+        }
+
         $qty      = 1;
         $cartinfo = Cart::instance('pos_shopping')->add([
             'id'      => $product->id,
@@ -2136,6 +2174,7 @@ class OrderController extends Controller
                 'warranty_adjustment' => 0,
                 'base_price'      => $product->new_price,
                 'batch_id'        => null,
+                'serial_numbers'  => [],
             ],
         ]);
         return response()->json(compact('cartinfo'));
@@ -2205,6 +2244,25 @@ class OrderController extends Controller
         return view('backEnd.order.cart_details', compact('cartinfo'));
     }
 
+    /**
+     * Single AJAX endpoint — returns both cart table + details in one response.
+     */
+    public function cart_refresh()
+    {
+        $cartinfo = Cart::instance('pos_shopping')->content();
+
+        $productDisc = 0;
+        foreach ($cartinfo as $item) {
+            $productDisc += (float)($item->options->product_discount ?? 0) * $item->qty;
+        }
+        Session::put('product_discount', $productDisc);
+
+        return response()->json([
+            'cart_html'    => view('backEnd.order.cart_table_rows', compact('cartinfo'))->render(),
+            'details_html' => view('backEnd.order.cart_details', compact('cartinfo'))->render(),
+        ]);
+    }
+
     public function cart_increment(Request $request)
     {
         $qty  = $request->qty + 1;
@@ -2227,6 +2285,7 @@ class OrderController extends Controller
                 'base_price'      => $cart->options->base_price ?? $cart->price,
                 'batch_id'        => $cart->options->batch_id ?? null,
                 'details_id'      => $cart->options->details_id ?? null,
+                '_unique_key'     => $cart->options->_unique_key ?? null,
                 'product_color_name' => $cart->options->product_color_name ?? null,
                 'product_size_name'  => $cart->options->product_size_name ?? null,
             ],
@@ -2256,6 +2315,7 @@ class OrderController extends Controller
                 'base_price'      => $cart->options->base_price ?? $cart->price,
                 'batch_id'        => $cart->options->batch_id ?? null,
                 'details_id'      => $cart->options->details_id ?? null,
+                '_unique_key'     => $cart->options->_unique_key ?? null,
                 'product_color_name' => $cart->options->product_color_name ?? null,
                 'product_size_name'  => $cart->options->product_size_name ?? null,
             ],
@@ -2291,6 +2351,7 @@ class OrderController extends Controller
                 'base_price'      => $cart->options->base_price ?? $cart->price,
                 'batch_id'        => $cart->options->batch_id ?? null,
                 'details_id'      => $cart->options->details_id ?? null,
+                '_unique_key'     => $cart->options->_unique_key ?? null,
                 'product_color_name' => $cart->options->product_color_name ?? null,
                 'product_size_name'  => $cart->options->product_size_name ?? null,
             ],
@@ -2310,9 +2371,24 @@ class OrderController extends Controller
         $rowId = $request->id;
         $cartItem = Cart::instance('pos_shopping')->content()->where('rowId', $rowId)->first();
 
-        // rowId দিয়ে না পেলে product_id দিয়ে খুঁজুন (update এর পর rowId বদলে যায়, তাই Cart::get($rowId) ব্যর্থ হয়; update এর রিটার্ন ব্যবহার করুন
+        // rowId stale after Cart::update? Find by product + full criteria match
         if (!$cartItem && $request->product_id) {
-            $cartItem = Cart::instance('pos_shopping')->content()->firstWhere('id', $request->product_id);
+            $warrantyId = $request->warranty_tier_id ?? null;
+            $batchId    = $request->batch_id ?? null;
+            $sn         = $request->serial_numbers ?? null;
+
+            $cartItem = Cart::instance('pos_shopping')->content()
+                ->filter(function ($item) use ($request, $warrantyId, $batchId, $sn) {
+                    $itemProductId = $item->options->product_id ?? $item->id;
+                    if ($itemProductId != $request->product_id) return false;
+                    // Match warranty, batch, SN to find the right row (not just first)
+                    if ($warrantyId && ($item->options->warranty_tier_id ?? null) != $warrantyId) return false;
+                    if ($batchId && ($item->options->batch_id ?? null) != $batchId) return false;
+                    if ($sn && ($item->options->serial_numbers ?? []) != array_filter(array_map('trim', explode(',', $sn)))) return false;
+                    return true;
+                })
+                ->first();
+
             if ($cartItem) {
                 $rowId = $cartItem->rowId;
             }
@@ -2326,13 +2402,17 @@ class OrderController extends Controller
         $sizeId  = $request->size_id ?: ($request->product_size ?: null);
         $colorId = $request->color_id ?: ($request->product_color ?: null);
 
-        $product = Product::find($cartItem->id);
-        // ✅ Start from base_price (stripped of warranty) to avoid accumulation bug
+        $pid = $cartItem->options->product_id ?? $cartItem->id;
+        $product = Product::find($pid);
+        // ✅ Start from current price — only recalculate when size/color/warranty changes
         $newPrice = (float)($cartItem->options->base_price ?? $cartItem->price);
         $sizeName = null;
         $colorName = null;
 
-        if ($product) {
+        // Only recalculate price when size or color is explicitly being changed
+        $isVariantChange = $request->has('size_id') || $request->has('color_id') || $request->has('product_size') || $request->has('product_color');
+
+        if ($product && $isVariantChange) {
             $variant = ProductVariantPrice::where('product_id', $product->id)
                 ->when($sizeId, fn($q) => $q->where('size_id', $sizeId))
                 ->when($colorId, fn($q) => $q->where('color_id', $colorId))
@@ -2357,27 +2437,37 @@ class OrderController extends Controller
         $options = [
             'product_size'    => $sizeName ?? $cartItem->options->product_size,
             'product_color'   => $colorName ?? $cartItem->options->product_color,
+            'product_color_name' => $cartItem->options->product_color_name ?? null,
+            'product_size_name'  => $cartItem->options->product_size_name ?? null,
             'size_id'         => $sizeId,
             'color_id'        => $colorId,
             'slug'            => $cartItem->options->slug,
             'image'           => $cartItem->options->image,
             'old_price'       => $cartItem->options->old_price,
             'purchase_price'  => $cartItem->options->purchase_price,
+            'product_discount'=> $cartItem->options->product_discount ?? 0,
+            'details_id'      => $cartItem->options->details_id ?? null,
+            '_unique_key'     => $cartItem->options->_unique_key ?? null,  // ✅ Preserve unique key
             'warranty_tier_id' => $request->warranty_tier_id ?? $cartItem->options->warranty_tier_id ?? null,
             'batch_id'        => $request->batch_id ?? $cartItem->options->batch_id ?? null,
+            'serial_numbers'  => $request->has('serial_numbers') 
+                ? array_filter(array_map('trim', explode(',', $request->serial_numbers))) 
+                : ($cartItem->options->serial_numbers ?? []),
         ];
 
-        // 🛡️ Apply warranty adjustment (NOT replacement)
+        // 🛡️ Apply warranty adjustment — recalculate from product base price
         $warrantyAdjustment = 0;
         if ($request->filled('warranty_tier_id')) {
             $tier = \App\Models\ProductWarrantyTier::find($request->warranty_tier_id);
             if ($tier && $tier->is_active) {
                 $warrantyAdjustment = (float) ($tier->additional_cost ?? 0);
-                $newPrice += $warrantyAdjustment;
+                // ✅ Recalculate from product's base price, NOT from cart base_price (which may include old warranty)
+                $productBasePrice = $product->new_price ?? $product->old_price ?? $cartItem->price;
+                $newPrice = $productBasePrice + $warrantyAdjustment;
             }
         }
         $options['warranty_adjustment'] = $warrantyAdjustment;
-        $options['base_price']          = $newPrice - $warrantyAdjustment; // ✅ preserve base for future recalculations
+        $options['base_price']          = $newPrice - $warrantyAdjustment;
 
         $updatedItem = Cart::instance('pos_shopping')->update($rowId, ['price' => $newPrice, 'options' => $options]);
 
@@ -2483,20 +2573,15 @@ class OrderController extends Controller
         Session::put('pos_shipping', $order->shipping_charge);
 
         $orderdetails = OrderDetails::where('order_id', $order->id)
-            ->with(['image', 'color', 'size'])
+            ->with(['image', 'color', 'size', 'warrantySale'])
             ->get();
 
         foreach ($orderdetails as $ordetails) {
-            // 🛡️ Resolve warranty tier & adjustment from saved order detail
+            // 🛡️ Resolve warranty tier from saved order detail
             $warrantyTierId = $ordetails->warranty_tier_id ?? null;
-            $warrantyAdj = 0;
-            if ($warrantyTierId) {
-                $tier = \App\Models\ProductWarrantyTier::find($warrantyTierId);
-                if ($tier && $tier->is_active) {
-                    $warrantyAdj = (float)($tier->additional_cost ?? 0);
-                }
-            }
-            $basePrice = $ordetails->sale_price - $warrantyAdj;
+            // ✅ sale_price is the actual price paid. Use as-is for display.
+            // warranty_adjustment is only applied when user CHANGES warranty via cart_update
+            $actualPrice = $ordetails->sale_price;
 
             // 📦 Resolve batch from saved batch_ids (JSON array → first batch ID)
             $batchId = null;
@@ -2518,11 +2603,12 @@ class OrderController extends Controller
             }
 
             Cart::instance('pos_shopping')->add([
-                'id'      => $ordetails->product_id,
+                'id'      => $ordetails->id,           // ✅ Use OrderDetail ID for unique cart rowId
                 'name'    => $ordetails->product_name,
                 'qty'     => $ordetails->qty,
-                'price'   => $ordetails->sale_price,
+                'price'   => $actualPrice,
                 'options' => [
+                    'product_id'        => $ordetails->product_id,
                     'image'             => (isset($ordetails->image) && isset($ordetails->image->image) ? $ordetails->image->image : 'public/no-image.png'),
                     'purchase_price'    => $ordetails->purchase_price,
                     'product_discount'  => $ordetails->product_discount,
@@ -2534,9 +2620,10 @@ class OrderController extends Controller
                     'size_id'           => $sizeId,
                     'color_id'          => $colorId,
                     'warranty_tier_id'  => $warrantyTierId,
-                    'warranty_adjustment' => $warrantyAdj,
-                    'base_price'        => $basePrice,
+                    'warranty_adjustment' => 0,       // ✅ 0 on load — only changes when user selects new warranty
+                    'base_price'        => $actualPrice,
                     'batch_id'          => $batchId,
+                    'serial_numbers'    => optional($ordetails->warrantySale)->serial_numbers ?? [],
                 ],
             ]);
         }
@@ -2641,7 +2728,7 @@ class OrderController extends Controller
             } else {
                 $detail              = new OrderDetails();
                 $detail->order_id    = $order->id;
-                $detail->product_id  = $cart->id;
+                $detail->product_id  = $cart->options->product_id ?? $cart->id;
                 $detail->product_name= $cart->name;
             }
 
@@ -2664,7 +2751,19 @@ class OrderController extends Controller
 
             $detail->save();
 
-            // 🛡️ Create/Update WarrantySale
+            // 🛡️ Always create/update WarrantySale (for SN tracking even without warranty)
+            $warrantyData = [
+                'order_id'       => $order->id,
+                'customer_id'    => $order->customer_id,
+                'product_id'     => $detail->product_id,
+                'serial_numbers' => $cart->options->serial_numbers ?? [],
+                'stock_batch_id' => $cart->options->batch_id ?? null,
+                'purchase_id'    => $this->resolvePurchaseId($detail->product_id, $cart->options->batch_id ?? null),
+                'sold_by'        => auth()->id(),
+                'warranty_type'  => 'none',
+                'status'         => \App\Enums\WarrantySaleStatus::ACTIVE->value,
+            ];
+
             if ($detail->warranty_tier_id) {
                 $tier = \App\Models\ProductWarrantyTier::find($detail->warranty_tier_id);
                 if ($tier && $tier->warranty_days > 0) {
@@ -2684,24 +2783,22 @@ class OrderController extends Controller
                         }
                     }
 
-                    \App\Models\WarrantySale::updateOrCreate(
-                        ['order_detail_id' => $detail->id],
-                        [
-                            'order_id'                 => $order->id,
-                            'product_warranty_tier_id' => $tier->id,
-                            'customer_id'              => $order->customer_id,
-                            'product_id'               => $detail->product_id,
-                            'supplier_warranty_id'     => $supplierWarrantyId,
-                            'warranty_type'            => $tier->warranty_type,
-                            'warranty_days'            => $tier->warranty_days,
-                            'warranty_start_date'      => $startDate,
-                            'warranty_end_date'        => $endDate,
-                            'warranty_price'           => (float)($tier->additional_cost ?? 0),
-                            'status'                   => \App\Enums\WarrantySaleStatus::ACTIVE->value,
-                        ]
-                    );
+                    $warrantyData = array_merge($warrantyData, [
+                        'product_warranty_tier_id' => $tier->id,
+                        'supplier_warranty_id'     => $supplierWarrantyId,
+                        'warranty_type'            => $tier->warranty_type,
+                        'warranty_days'            => $tier->warranty_days,
+                        'warranty_start_date'      => $startDate,
+                        'warranty_end_date'        => $endDate,
+                        'warranty_price'           => (float)($tier->additional_cost ?? 0),
+                    ]);
                 }
             }
+
+            \App\Models\WarrantySale::updateOrCreate(
+                ['order_detail_id' => $detail->id],
+                $warrantyData
+            );
 
             $updatedIds[] = $detail->id;
         }
@@ -2730,6 +2827,29 @@ class OrderController extends Controller
         }
 
         return ucwords(str_replace(['-', '_'], ' ', $gateway));
+    }
+
+    /**
+     * Resolve the purchase_id from a stock batch.
+     */
+    protected function resolvePurchaseId($productId, $batchId): ?int
+    {
+        if ($batchId) {
+            $batch = \App\Models\StockBatch::find($batchId);
+            $pid = $batch?->purchase_id;
+            if ($pid && \App\Models\Purchase::where('id', $pid)->exists()) {
+                return $pid;
+            }
+        }
+        // Fallback: find the most recent purchase that includes this product
+        $purchaseItem = \App\Models\PurchaseItem::where('product_id', $productId)
+            ->latest()
+            ->first();
+        $pid = $purchaseItem?->purchase_id;
+        if ($pid && \App\Models\Purchase::where('id', $pid)->exists()) {
+            return $pid;
+        }
+        return null;
     }
 
     /*

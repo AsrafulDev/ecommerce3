@@ -26,10 +26,39 @@
 
     <div class="card mb-4">
         <div class="card-body">
-            <p class="mb-1"><strong>Product:</strong> {{ $claim->product->name ?? 'N/A' }}</p>
+            <p class="mb-1"><strong>Product:</strong> {{ $claim->product->name ?? 'N/A' }}
+                @if($claim->warrantySale && $claim->warrantySale->serial_numbers)
+                    <small class="text-muted ms-2">SN: <code>{{ implode(', ', $claim->warrantySale->serial_numbers) }}</code></small>
+                @endif
+            </p>
             <p class="mb-1"><strong>Filed:</strong> {{ $claim->created_at->format('d M, Y h:i A') }}</p>
             <p class="mb-0"><strong>Issue Type:</strong> {{ ucfirst(str_replace('_', ' ', $claim->issue_type ?? 'N/A')) }}</p>
         </div>
+    </div>
+
+    {{-- 🆕 Pipeline Status Message --}}
+    @php
+        $statusMsg = match($claim->status) {
+            'submitted'           => ['📋 Claim submitted. Our team will review within 24 hours.', 'info'],
+            'under_review'        => ['🔍 Under review. Expected time: 1-2 business days.', 'info'],
+            'approved'            => ['✅ Claim approved. Please bring/send the product to our service center.', 'success'],
+            'awaiting_product'    => ['📦 Waiting for you to send the product. Please bring it to our store.', 'warning'],
+            'product_received'    => ['📦 Product received at our service center. Challan #' . ($claim->receive_challan_no ?? 'N/A'), 'warning'],
+            'in_service'          => ['🔧 Product is being serviced at our center.', 'info'],
+            'sent_to_supplier'    => ['🚚 Product sent to supplier for inspection. Estimated return: 7-14 days.', 'info'],
+            'awaiting_supplier_return' => ['⏳ Awaiting return from supplier.', 'info'],
+            'supplier_returned'   => ['📥 Product returned from supplier. ' . ($claim->return_type ? 'Status: ' . ucfirst($claim->return_type) : ''), 'success'],
+            'serviced'            => ['✅ Servicing complete. Preparing for delivery.', 'success'],
+            'ready_for_delivery'  => ['🎉 Product ready for delivery! We will contact you shortly.', 'success'],
+            'delivered'           => ['🚀 Product delivered back to you. Thank you for your patience!', 'success'],
+            'resolved'            => ['✅ Claim resolved. Thank you!', 'success'],
+            'rejected'            => ['❌ Claim rejected: ' . ($claim->rejection_reason ?? 'No reason provided'), 'danger'],
+            'cancelled'           => ['✕ Claim cancelled.', 'dark'],
+            default               => ['Processing...', 'secondary'],
+        };
+    @endphp
+    <div class="alert alert-{{ $statusMsg[1] }} mb-4">
+        {{ $statusMsg[0] }}
     </div>
 
     {{-- Progress Timeline --}}

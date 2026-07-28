@@ -194,7 +194,7 @@ class PurchaseController extends Controller
             $wDays = (int) ($item['warranty_days'] ?? 0);
             if ($wDays > 0) {
                 $wStart = $item['warranty_start'] ?? now()->format('Y-m-d');
-                \App\Models\SupplierWarranty::create([
+                $supplierWarranty = \App\Models\SupplierWarranty::create([
                     'purchase_item_id'   => $purchaseItem->id,
                     'product_id'         => $pid,
                     'supplier_id'        => $request->supplier_id,
@@ -205,6 +205,9 @@ class PurchaseController extends Controller
                     'warranty_terms'     => $item['warranty_terms'] ?? null,
                     'is_transferable'    => (bool) ($item['transferable'] ?? true),
                 ]);
+
+                // ✅ Auto-generate product warranty tiers from supplier warranty
+                app(\App\Services\WarrantyService::class)->generateTiers($product, $supplierWarranty);
 
                 // Also update product supplier_price
                 \App\Models\Product::where('id', $pid)->update(['supplier_price' => $cost]);

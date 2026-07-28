@@ -4,7 +4,8 @@
   <td>
       <div class="fw-semibold">{{$value->name}}</div>
         @php
-            $product = \App\Models\Product::find($value->id);
+            $pid = $value->options->product_id ?? $value->id;
+            $product = \App\Models\Product::find($pid);
             $warrantyTiers = $product ? \App\Models\ProductWarrantyTier::where('product_id', $product->id)->where('is_active', true)->orderBy('sort_order')->get() : collect();
             $currentWarrantyId = $value->options->warranty_tier_id ?? '';
             $sizesList = collect();
@@ -34,7 +35,7 @@
             @if($hasSizes)
             <div>
                 <label class="form-label small text-muted mb-0" style="font-size:11px">{{ __('Size') }}</label>
-                <select class="form-select form-select-sm cart-size-selector" data-id="{{ $value->rowId }}" data-product-id="{{ $value->id }}" style="min-width:100px">
+                <select class="form-select form-select-sm cart-size-selector" data-id="{{ $value->rowId }}" data-product-id="{{ $pid }}" style="min-width:100px">
                     <option value="">{{ __('Select') }}</option>
                     @foreach($sizesList as $s)
                     <option value="{{ $s->id }}" {{ $currentSizeId == $s->id ? 'selected' : '' }}>{{ $s->sizeName ?? $s->size_name ?? 'N/A' }}</option>
@@ -45,7 +46,7 @@
             @if($hasColors)
             <div>
                 <label class="form-label small text-muted mb-0" style="font-size:11px">{{ __('Color') }}</label>
-                <select class="form-select form-select-sm cart-color-selector" data-id="{{ $value->rowId }}" data-product-id="{{ $value->id }}" style="min-width:100px">
+                <select class="form-select form-select-sm cart-color-selector" data-id="{{ $value->rowId }}" data-product-id="{{ $pid }}" style="min-width:100px">
                     <option value="">{{ __('Select') }}</option>
                     @foreach($colorsList as $c)
                     <option value="{{ $c->id }}" {{ $currentColorId == $c->id ? 'selected' : '' }}>{{ $c->colorName ?? $c->color_name ?? 'N/A' }}</option>
@@ -60,7 +61,7 @@
         @if($warrantyTiers->isNotEmpty())
         <div class="mt-1">
             <label class="form-label small text-muted mb-0" style="font-size:11px">{{ __('Warranty') }}</label>
-            <select class="form-select form-select-sm cart-warranty-selector" data-id="{{ $value->rowId }}" data-product-id="{{ $value->id }}" style="min-width:130px;font-size:11px;">
+            <select class="form-select form-select-sm cart-warranty-selector" data-id="{{ $value->rowId }}" data-product-id="{{ $pid }}" style="min-width:130px;font-size:11px;">
                 @foreach($warrantyTiers as $wt)
                     @php $adj = (float)($wt->additional_cost ?? 0); @endphp
                     <option value="{{ $wt->id }}" {{ $currentWarrantyId == $wt->id ? 'selected' : '' }}>
@@ -77,7 +78,7 @@
         @if($batches->isNotEmpty())
         <div class="mt-1">
             <label class="form-label small text-muted mb-0" style="font-size:11px">{{ __('Batch') }} <small>({{ $batches->sum('remaining_qty') }} avail)</small></label>
-            <select class="form-select form-select-sm cart-batch-selector" data-id="{{ $value->rowId }}" data-product-id="{{ $value->id }}" style="min-width:120px;font-size:11px;">
+            <select class="form-select form-select-sm cart-batch-selector" data-id="{{ $value->rowId }}" data-product-id="{{ $pid }}" style="min-width:120px;font-size:11px;">
                 <option value="">{{ __('Auto') }}</option>
                 @foreach($batches as $b)
                     <option value="{{ $b->id }}" {{ ($value->options->batch_id ?? '') == $b->id ? 'selected' : '' }}>
@@ -87,6 +88,20 @@
             </select>
         </div>
         @endif
+
+        {{-- 🔢 Serial Numbers (always available, one per qty, comma-separated) --}}
+        <div class="mt-1">
+            <label class="form-label small text-muted mb-0" style="font-size:11px">
+                {{ __('Product SN') }} <small>(qty: {{ $value->qty }})</small>
+            </label>
+            <input type="text"
+                   class="form-control form-control-sm cart-sn-input"
+                   data-id="{{ $value->rowId }}"
+                   data-product-id="{{ $pid }}"
+                   placeholder="SN1, SN2, SN3..."
+                   value="{{ is_array($value->options->serial_numbers ?? null) ? implode(', ', $value->options->serial_numbers) : '' }}"
+                   style="min-width:130px;font-size:11px;">
+        </div>
   </td>
   <td>
     <div class="qty-cart vcart-qty">

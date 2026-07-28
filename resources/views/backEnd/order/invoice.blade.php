@@ -22,7 +22,7 @@
     @media print {
         /* Hide admin layout */
         .navbar-custom, .left-side-menu, .right-bar,
-        .customer-invoice, .invoice_btn, .no-print,
+        .invoice_btn, .no-print,
         header, footer { display: none !important; }
 
         body { background: #fff !important; }
@@ -30,8 +30,13 @@
             padding: 0 !important; margin: 0 !important;
         }
 
-        /* Show receipt */
-        .pos-receipt { display: block !important; }
+        /* A4 mode: show customer invoice, hide POS receipt */
+        body.print-a4 .pos-receipt { display: none !important; }
+        body.print-a4 .customer-invoice { display: block !important; }
+
+        /* POS mode (default): hide customer invoice, show POS receipt */
+        body:not(.print-a4) .customer-invoice { display: none !important; }
+        body:not(.print-a4) .pos-receipt { display: block !important; }
 
         /* Receipt styles */
         .pos-receipt * { font-family: 'Courier New', Courier, monospace; }
@@ -65,7 +70,9 @@
                 <a href="/admin/order/all" class="no-print"><strong><i class="fe-arrow-left"></i> {{ __('Back To Order') }} </strong></a>
             </div>
             <div class="col-sm-6 text-end">
-                <button onclick="printFunction()" class="no-print btn btn-xs btn-success waves-effect waves-light"><i class="fa fa-print"></i></button>
+                <button onclick="printPOS()" class="no-print btn btn-xs btn-success waves-effect waves-light" title="POS Thermal Print"><i class="fa fa-print"></i> POS</button>
+                <button onclick="printA4()" class="no-print btn btn-xs btn-primary waves-effect waves-light ms-1" title="A4 Customer Invoice"><i class="fa fa-file-text"></i> A4 Invoice</button>
+                <button onclick="printA4Detail()" class="no-print btn btn-xs btn-info waves-effect waves-light ms-1" title="A4 Detailed Invoice with Warranty"><i class="fa fa-file-text-o"></i> A4 Detail</button>
             </div>
 
             <div class="col-sm-12 mt-3">
@@ -331,6 +338,8 @@
                                         $ws = \App\Models\WarrantySale::where('order_detail_id', $value->id)->first();
                                         if ($wt && $wt->warranty_days > 0) { $showWarranty = true; }
                                     }
+                                    // 🔢 Serial Numbers
+                                    $sns = $ws?->serial_numbers ?? [];
                                 @endphp
                                 @if($showWarranty)
                                     <br><small class="text-success">
@@ -339,11 +348,15 @@
                                             <br>— Expires: {{ $ws->warranty_end_date->format('d M, Y') }}
                                         @endif
                                     </small>
-                                    {{-- supplier warranty info if available --}}
-                                @elseif($value->supplier_warranty_days > 0)
+                                    {{-- Only show "No Warranty" if supplier warranty exists but not selected --}}
+                                    @elseif($value->supplier_warranty_days > 0)
                                     <br><small class="text-success">🛡️ Supplier Warranty — Expires: {{ \Carbon\Carbon::parse($value->supplier_warranty_end_date)->format('d M, Y') }}</small>
-                                @else
-                                    <br><small class="text-muted">— No Warranty —</small>
+                                @endif
+                                {{-- 🔢 Serial Numbers --}}
+                                @if(!empty($sns))
+                                    <br><small class="text-dark" style="font-family:monospace;font-size:12px;">
+                                        🔢 SN: {{ implode(', ', $sns) }}
+                                    </small>
                                 @endif
                                 </td>
                                 <td>৳{{ number_format($displayPrice, 2) }}</td>
@@ -583,12 +596,16 @@
                     $szd = $sm ? ($sm->sizeName ?? null) : (is_numeric($value->product_size) ? null : $value->product_size);
                 }
                 $cld = ($value->color && $value->color->colorName) ? $value->color->colorName : ((!is_numeric($value->product_color) && $value->product_color) ? $value->product_color : null);
+                // 🔢 Serial Numbers
+                $posSns = \App\Models\WarrantySale::where('order_detail_id', $value->id)->value('serial_numbers');
+                $posSnStr = !empty($posSns) ? implode(', ', $posSns) : '';
             @endphp
             <tr>
                 <td>{{ $loop->iteration }}</td>
                 <td>
                     <strong>{{ $value->product_name }}</strong>
                     @if($szd || $cld)<br><small>@if($szd)Sz:{{ $szd }}@endif @if($szd&&$cld)| @endif @if($cld){{ $cld }}@endif</small>@endif
+                    @if($posSnStr)<br><small style="font-size:9px;">SN:{{ $posSnStr }}</small>@endif
                 </td>
                 <td style="text-align:center;">{{ $value->qty }}</td>
                 <td style="text-align:right;">{{ number_format($dp,2) }}</td>
@@ -634,8 +651,31 @@
 <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" rel="stylesheet">
 
 <script>
-function printFunction() {
+function printPOS() {
+    // POS thermal print
+    document.body.classList.remove('print-a4');
     window.print();
+}
+
+function printA4() {
+    // A4 customer invoice (hide POS receipt, show invoice)
+    document.body.classList.add('print-a4');
+    window.print();
+    document.body.classList.remove('print-a4');
+}
+
+function printA4Detail() {
+    // A4 detailed — shows both invoice + POS
+    document.body.classList.add('print-a4');
+    var pos = document.querySelector('.pos-receipt');
+    if (pos) pos.style.display = 'block';
+    window.print();
+    document.body.classList.remove('print-a4');
+    if (pos) pos.style.display = 'none';
+}
+
+function printFunction() {
+    printPOS();
 }
 
 function updatePaymentStatus(orderId) {

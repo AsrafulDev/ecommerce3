@@ -15,35 +15,51 @@
 
     {{-- Stats Cards --}}
     <div class="row g-3 mb-4">
-        <div class="col-md-3">
+        <div class="col-md-2">
             <div class="card bg-primary text-white">
-                <div class="card-body">
-                    <h1 class="mb-0">{{ $stats['total_warranties'] }}</h1>
-                    <small>Total Warranties</small>
+                <div class="card-body text-center">
+                    <h3 class="mb-0">{{ $stats['total_warranties'] }}</h3>
+                    <small>Total Sold</small>
                 </div>
             </div>
         </div>
-        <div class="col-md-3">
+        <div class="col-md-2">
             <div class="card bg-success text-white">
-                <div class="card-body">
-                    <h1 class="mb-0">{{ $stats['active_warranties'] }}</h1>
-                    <small>Active Warranties</small>
+                <div class="card-body text-center">
+                    <h3 class="mb-0">{{ $stats['active_warranties'] }}</h3>
+                    <small>Active</small>
                 </div>
             </div>
         </div>
-        <div class="col-md-3">
+        <div class="col-md-2">
+            <div class="card bg-info text-white">
+                <div class="card-body text-center">
+                    <h3 class="mb-0">{{ $stats['supplier_warranties'] }}</h3>
+                    <small>Supplier Warranties</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-2">
             <div class="card bg-secondary text-white">
-                <div class="card-body">
-                    <h1 class="mb-0">{{ $stats['expired_warranties'] }}</h1>
+                <div class="card-body text-center">
+                    <h3 class="mb-0">{{ $stats['expired_warranties'] }}</h3>
                     <small>Expired</small>
                 </div>
             </div>
         </div>
-        <div class="col-md-3">
+        <div class="col-md-2">
             <div class="card bg-warning text-dark">
-                <div class="card-body">
-                    <h1 class="mb-0">{{ $stats['pending_claims'] }}</h1>
+                <div class="card-body text-center">
+                    <h3 class="mb-0">{{ $stats['pending_claims'] }}</h3>
                     <small>Pending Claims</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-2">
+            <div class="card bg-danger text-white">
+                <div class="card-body text-center">
+                    <h3 class="mb-0">{{ $stats['active_claims'] }}</h3>
+                    <small>Active Claims</small>
                 </div>
             </div>
         </div>
