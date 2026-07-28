@@ -24,7 +24,17 @@ class OrderDetails extends Model
         'warranty_tier_id',
         'warranty_price',
         'qty',
+        'batch_ids',
+        'cogs',
     ];
+
+    protected function casts(): array
+    {
+        return [
+            'batch_ids' => 'array',
+            'cogs'      => 'decimal:2',
+        ];
+    }
 
     // ✅ অর্ডারের সাথে রিলেশন
     public function order()

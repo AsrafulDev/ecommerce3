@@ -81,7 +81,6 @@
                                         <td>
                                             <div class="button-list custom-btn-list">
                                                 <a href="{{ route('admin.order.invoice', ['invoice_id' => $value->invoice_id]) }}" title="{{ __('Invoice') }}"><i class="fe-eye"></i></a>
-                                                <a href="{{ route('admin.order.process', ['invoice_id' => $value->invoice_id]) }}" title="Process"><i class="fe-settings"></i></a>
                                                 <a href="{{ route('admin.order.edit', ['invoice_id' => $value->invoice_id]) }}" title="{{ __('Edit') }}"><i class="fe-edit"></i></a>
                                                 <form method="post" action="{{ route('admin.order.destroy') }}" class="d-inline">
                                                     @csrf

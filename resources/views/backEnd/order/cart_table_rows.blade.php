@@ -60,7 +60,7 @@
         @if($warrantyTiers->isNotEmpty())
         <div class="mt-1">
             <label class="form-label small text-muted mb-0" style="font-size:11px">{{ __('Warranty') }}</label>
-            <select class="form-select form-select-sm cart-warranty-selector" data-id="{{ $value->rowId }}" style="min-width:130px;font-size:11px;">
+            <select class="form-select form-select-sm cart-warranty-selector" data-id="{{ $value->rowId }}" data-product-id="{{ $value->id }}" style="min-width:130px;font-size:11px;">
                 @foreach($warrantyTiers as $wt)
                     @php $adj = (float)($wt->additional_cost ?? 0); @endphp
                     <option value="{{ $wt->id }}" {{ $currentWarrantyId == $wt->id ? 'selected' : '' }}>
@@ -77,11 +77,11 @@
         @if($batches->isNotEmpty())
         <div class="mt-1">
             <label class="form-label small text-muted mb-0" style="font-size:11px">{{ __('Batch') }} <small>({{ $batches->sum('remaining_qty') }} avail)</small></label>
-            <select class="form-select form-select-sm cart-batch-selector" data-id="{{ $value->rowId }}" style="min-width:120px;font-size:11px;">
+            <select class="form-select form-select-sm cart-batch-selector" data-id="{{ $value->rowId }}" data-product-id="{{ $value->id }}" style="min-width:120px;font-size:11px;">
                 <option value="">{{ __('Auto') }}</option>
                 @foreach($batches as $b)
                     <option value="{{ $b->id }}" {{ ($value->options->batch_id ?? '') == $b->id ? 'selected' : '' }}>
-                        {{ $b->batch_no ?: 'Batch #'.$b->id }} ({{ $b->remaining_qty }} @ ৳{{ $b->unit_cost }})
+                        {{ $b->batch_no ?: 'Batch #'.$b->id }} ({{ $b->remaining_qty }} @ ৳{{ $b->unit_cost }}){{ $b->expiry_date ? ' Exp: '.$b->expiry_date->format('Y-m-d') : '' }}
                     </option>
                 @endforeach
             </select>

@@ -1945,7 +1945,8 @@ class OrderController extends Controller
 
         $order                  = new Order();
         $order->invoice_id      = rand(11111, 99999);
-        $order->amount          = ($subtotal + (isset($shippingfee->amount) ? $shippingfee->amount : 0) + $warrantyCharge) - $discount;
+        // ✅ Cart::subtotal() already includes warranty_adjustment in price, so don't add $warrantyCharge again
+        $order->amount          = ($subtotal + (isset($shippingfee->amount) ? $shippingfee->amount : 0)) - $discount;
         $order->discount        = $discount ? $discount : 0;
         $order->shipping_charge = isset($shippingfee->amount) ? $shippingfee->amount : 0;
         $order->customer_id     = $customer_id;
@@ -1981,7 +1982,7 @@ class OrderController extends Controller
         $shipping->name        = $request->name;
         $shipping->phone       = $request->phone;
         $shipping->address     = $request->address;
-        $shipping->area        = isset($shippingfee->name) ? $shippingfee->name : '';
+        $shipping->area        = isset($shippingfee->name) ? $shippingfee->name : ($request->area == '0' ? 'Store Pickup' : '');
         $shipping->save();
 
         $payment                 = new Payment();
@@ -2130,6 +2131,11 @@ class OrderController extends Controller
                 'product_color'   => null,
                 'size_id'         => null,
                 'color_id'        => null,
+                'product_discount'=> 0,
+                'warranty_tier_id'=> null,
+                'warranty_adjustment' => 0,
+                'base_price'      => $product->new_price,
+                'batch_id'        => null,
             ],
         ]);
         return response()->json(compact('cartinfo'));
@@ -2174,12 +2180,28 @@ class OrderController extends Controller
     public function cart_content()
     {
         $cartinfo = Cart::instance('pos_shopping')->content();
+
+        // ✅ Recalculate per-item product_discount session on every cart refresh
+        $productDisc = 0;
+        foreach ($cartinfo as $item) {
+            $productDisc += (float)($item->options->product_discount ?? 0) * $item->qty;
+        }
+        Session::put('product_discount', $productDisc);
+
         return view('backEnd.order.cart_content', compact('cartinfo'));
     }
 
     public function cart_details()
     {
         $cartinfo = Cart::instance('pos_shopping')->content();
+
+        // ✅ Recalculate per-item product_discount session
+        $productDisc = 0;
+        foreach ($cartinfo as $item) {
+            $productDisc += (float)($item->options->product_discount ?? 0) * $item->qty;
+        }
+        Session::put('product_discount', $productDisc);
+
         return view('backEnd.order.cart_details', compact('cartinfo'));
     }
 
@@ -2199,6 +2221,14 @@ class OrderController extends Controller
                 'product_color'   => $cart->options->product_color,
                 'size_id'         => $cart->options->size_id ?? null,
                 'color_id'        => $cart->options->color_id ?? null,
+                'product_discount'=> $cart->options->product_discount ?? 0,
+                'warranty_tier_id'=> $cart->options->warranty_tier_id ?? null,
+                'warranty_adjustment' => $cart->options->warranty_adjustment ?? 0,
+                'base_price'      => $cart->options->base_price ?? $cart->price,
+                'batch_id'        => $cart->options->batch_id ?? null,
+                'details_id'      => $cart->options->details_id ?? null,
+                'product_color_name' => $cart->options->product_color_name ?? null,
+                'product_size_name'  => $cart->options->product_size_name ?? null,
             ],
         ]);
         return response()->json($cartinfo);
@@ -2220,6 +2250,14 @@ class OrderController extends Controller
                 'product_color'   => $cart->options->product_color,
                 'size_id'         => $cart->options->size_id ?? null,
                 'color_id'        => $cart->options->color_id ?? null,
+                'product_discount'=> $cart->options->product_discount ?? 0,
+                'warranty_tier_id'=> $cart->options->warranty_tier_id ?? null,
+                'warranty_adjustment' => $cart->options->warranty_adjustment ?? 0,
+                'base_price'      => $cart->options->base_price ?? $cart->price,
+                'batch_id'        => $cart->options->batch_id ?? null,
+                'details_id'      => $cart->options->details_id ?? null,
+                'product_color_name' => $cart->options->product_color_name ?? null,
+                'product_size_name'  => $cart->options->product_size_name ?? null,
             ],
         ]);
 
@@ -2248,6 +2286,13 @@ class OrderController extends Controller
                 'product_color'   => $cart->options->product_color,
                 'size_id'         => $cart->options->size_id ?? null,
                 'color_id'        => $cart->options->color_id ?? null,
+                'warranty_tier_id'=> $cart->options->warranty_tier_id ?? null,
+                'warranty_adjustment' => $cart->options->warranty_adjustment ?? 0,
+                'base_price'      => $cart->options->base_price ?? $cart->price,
+                'batch_id'        => $cart->options->batch_id ?? null,
+                'details_id'      => $cart->options->details_id ?? null,
+                'product_color_name' => $cart->options->product_color_name ?? null,
+                'product_size_name'  => $cart->options->product_size_name ?? null,
             ],
         ]);
         return response()->json($cartinfo);
@@ -2282,7 +2327,8 @@ class OrderController extends Controller
         $colorId = $request->color_id ?: ($request->product_color ?: null);
 
         $product = Product::find($cartItem->id);
-        $newPrice = $cartItem->price;
+        // ✅ Start from base_price (stripped of warranty) to avoid accumulation bug
+        $newPrice = (float)($cartItem->options->base_price ?? $cartItem->price);
         $sizeName = null;
         $colorName = null;
 
@@ -2331,6 +2377,7 @@ class OrderController extends Controller
             }
         }
         $options['warranty_adjustment'] = $warrantyAdjustment;
+        $options['base_price']          = $newPrice - $warrantyAdjustment; // ✅ preserve base for future recalculations
 
         $updatedItem = Cart::instance('pos_shopping')->update($rowId, ['price' => $newPrice, 'options' => $options]);
 
@@ -2440,6 +2487,36 @@ class OrderController extends Controller
             ->get();
 
         foreach ($orderdetails as $ordetails) {
+            // 🛡️ Resolve warranty tier & adjustment from saved order detail
+            $warrantyTierId = $ordetails->warranty_tier_id ?? null;
+            $warrantyAdj = 0;
+            if ($warrantyTierId) {
+                $tier = \App\Models\ProductWarrantyTier::find($warrantyTierId);
+                if ($tier && $tier->is_active) {
+                    $warrantyAdj = (float)($tier->additional_cost ?? 0);
+                }
+            }
+            $basePrice = $ordetails->sale_price - $warrantyAdj;
+
+            // 📦 Resolve batch from saved batch_ids (JSON array → first batch ID)
+            $batchId = null;
+            if (!empty($ordetails->batch_ids)) {
+                $batchIds = is_array($ordetails->batch_ids) ? $ordetails->batch_ids : json_decode($ordetails->batch_ids, true);
+                if (is_array($batchIds) && count($batchIds) > 0) {
+                    $batchId = $batchIds[0];
+                }
+            }
+
+            // 🎨 Resolve size_id / color_id from saved values
+            $sizeId = null;
+            $colorId = null;
+            if (is_numeric($ordetails->product_size)) {
+                $sizeId = $ordetails->product_size;
+            }
+            if (is_numeric($ordetails->product_color)) {
+                $colorId = $ordetails->product_color;
+            }
+
             Cart::instance('pos_shopping')->add([
                 'id'      => $ordetails->product_id,
                 'name'    => $ordetails->product_name,
@@ -2454,6 +2531,12 @@ class OrderController extends Controller
                     'product_size'      => $ordetails->product_size,
                     'product_color_name'=> isset($ordetails->color->name) ? $ordetails->color->name : (isset($ordetails->product_color) ? $ordetails->product_color : 'N/A'),
                     'product_size_name' => isset($ordetails->size->name) ? $ordetails->size->name : (isset($ordetails->product_size) ? $ordetails->product_size : 'N/A'),
+                    'size_id'           => $sizeId,
+                    'color_id'          => $colorId,
+                    'warranty_tier_id'  => $warrantyTierId,
+                    'warranty_adjustment' => $warrantyAdj,
+                    'base_price'        => $basePrice,
+                    'batch_id'          => $batchId,
                 ],
             ]);
         }
@@ -2506,7 +2589,8 @@ class OrderController extends Controller
         );
 
         $order                  = Order::findOrFail($request->order_id);
-        $order->amount          = ($subtotal + (isset($shippingfee->amount) ? $shippingfee->amount : 0) + $warrantyCharge) - $discount;
+        // ✅ Cart::subtotal() already includes warranty_adjustment in price, so don't add $warrantyCharge again
+        $order->amount          = ($subtotal + (isset($shippingfee->amount) ? $shippingfee->amount : 0)) - $discount;
         $order->discount        = isset($discount) ? $discount : 0;
         $order->shipping_charge = isset($shippingfee->amount) ? $shippingfee->amount : 0;
         $order->customer_id     = $customer->id;
@@ -2524,7 +2608,7 @@ class OrderController extends Controller
         $shipping->name     = $request->name;
         $shipping->phone    = $request->phone;
         $shipping->address  = $request->address;
-        $shipping->area     = isset($shippingfee->name) ? $shippingfee->name : $shipping->area;
+        $shipping->area     = isset($shippingfee->name) ? $shippingfee->name : ($request->area == '0' ? 'Store Pickup' : $shipping->area);
         $shipping->save();
 
         $payment                 = Payment::where('order_id', $order->id)->firstOrNew(['order_id' => $order->id]);
@@ -3245,7 +3329,8 @@ class OrderController extends Controller
         foreach (Cart::instance('pos_shopping')->content() as $item) {
             $warrantyCharge += (float)($item->options->warranty_adjustment ?? 0) * $item->qty;
         }
-        $grandTotal = ($subtotal + $shipping + $warrantyCharge) - $discount;
+        // ✅ Cart::subtotal() already includes warranty in price, so don't add again
+        $grandTotal = ($subtotal + $shipping) - $discount;
 
         $hold = PosHoldCart::create([
             'customer_name'  => $request->customer_name,

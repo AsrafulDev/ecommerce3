@@ -316,6 +316,8 @@
                                     class="form-control form-control-sm @error('area') is-invalid @enderror"
                                     name="area" required>
                                 <option value="">ডেলিভারি এরিয়া নির্বাচন করুন...</option>
+                                {{-- ✅ Default 0 TK shipping (admin only) --}}
+                                <option value="0" {{ old('area') == '0' ? 'selected' : '' }}>Store Pickup (৳0)</option>
                                 @foreach($shippingcharge ?? [] as $area)
                                 <option value="{{ $area->id }}" {{ old('area') == $area->id ? 'selected' : '' }}>
                                     {{ $area->name }} (৳{{ $area->amount }})

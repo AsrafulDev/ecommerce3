@@ -75,13 +75,14 @@
    });
    $(document).on("change", ".cart-size-selector", function(){
         var rowId = $(this).data('id');
+        var productId = $(this).data('product-id');
         var $row = $(this).closest('tr');
         var sizeId = $(this).val();
         var colorId = $row.find('.cart-color-selector').val() || '';
         $.ajax({
            cache: false,
            type:"GET",
-           data:{id:rowId, size_id:sizeId, color_id:colorId},
+           data:{id:rowId, product_id:productId, size_id:sizeId, color_id:colorId},
            url:"{{ route('admin.order.cart.update') }}",
            dataType: "json",
            success: function(){
@@ -92,13 +93,14 @@
    });
    $(document).on("change", ".cart-color-selector", function(){
         var rowId = $(this).data('id');
+        var productId = $(this).data('product-id');
         var $row = $(this).closest('tr');
         var colorId = $(this).val();
         var sizeId = $row.find('.cart-size-selector').val() || '';
         $.ajax({
            cache: false,
            type:"GET",
-           data:{id:rowId, size_id:sizeId, color_id:colorId},
+           data:{id:rowId, product_id:productId, size_id:sizeId, color_id:colorId},
            url:"{{ route('admin.order.cart.update') }}",
            dataType: "json",
            success: function(){
@@ -110,10 +112,11 @@
 
    $(document).on("change", ".cart-warranty-selector", function(){
         var rowId = $(this).data('id');
+        var productId = $(this).data('product-id');
         var warrantyId = $(this).val();
         $.ajax({
            cache: false, type:"GET",
-           data:{id:rowId, warranty_tier_id:warrantyId},
+           data:{id:rowId, product_id:productId, warranty_tier_id:warrantyId},
            url:"{{ route('admin.order.cart.update') }}",
            dataType: "json",
            success: function(){ cart_content(); cart_details(); }
@@ -122,10 +125,11 @@
 
    $(document).on("change", ".cart-batch-selector", function(){
         var rowId = $(this).data('id');
+        var productId = $(this).data('product-id');
         var batchId = $(this).val();
         $.ajax({
            cache: false, type:"GET",
-           data:{id:rowId, batch_id:batchId},
+           data:{id:rowId, product_id:productId, batch_id:batchId},
            url:"{{ route('admin.order.cart.update') }}",
            dataType: "json",
            success: function(){ cart_content(); cart_details(); }

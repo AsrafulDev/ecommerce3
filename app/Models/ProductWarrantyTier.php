@@ -70,6 +70,25 @@ class ProductWarrantyTier extends Model
         return $this->warranty_days . ' Days — ' . $this->tier_name;
     }
 
+    // ── Live warranty_days for supplier_warranty tiers ──────────────────
+    // Automatically counts down from the linked SupplierWarranty.warranty_end_date.
+    // No cron needed — always shows the current remaining days.
+    public function getWarrantyDaysAttribute($value): int
+    {
+        if ($this->warranty_type === \App\Enums\WarrantyType::SUPPLIER_WARRANTY->value) {
+            $sw = \App\Models\SupplierWarranty::where('product_id', $this->product_id)
+                ->where('is_transferable', true)
+                ->where('warranty_end_date', '>', now())
+                ->orderBy('warranty_end_date')
+                ->first();
+            if ($sw) {
+                return $sw->remaining_days;
+            }
+            return 0;
+        }
+        return (int) $value;
+    }
+
     public function getFormattedPriceAttribute(): string
     {
         return number_format($this->price, 2) . ' TK';

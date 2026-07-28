@@ -399,8 +399,13 @@
         }
     }
     
-    // If reseller order, use customer_payable_amount, otherwise use amount
-    $finalTotal = $isResellerOrder ? $order->customer_payable_amount : $order->amount;
+    // ✅ Compute final total from order details (robust — not relying on stored order->amount)
+    if ($isResellerOrder) {
+        $finalTotal = $order->customer_payable_amount;
+    } else {
+        // subtotal (includes warranty in price) - product discount + shipping - coupon discount
+        $finalTotal = max(0, $subtotal - $totalProductDiscount + $shipping - $discount);
+    }
 
     // Payment Table থেকে নেওয়া Paid/Advance Amount
     $advancePaid = \App\Models\Payment::where('order_id', $order->id)->sum('amount');
@@ -515,9 +520,14 @@
 @php
     $isRes   = !empty($order->customer_payable_amount);
     $sub     = 0;
-    foreach ($order->orderdetails as $od) { $sub += ($od->sale_price * $od->qty); }
+    $prodDisc = 0;
+    foreach ($order->orderdetails as $od) {
+        $sub += ($od->sale_price * $od->qty);
+        $prodDisc += ((float)($od->product_discount ?? 0)) * $od->qty;
+    }
     if ($isRes && $order->customer_payable_amount) { $sub = $order->customer_payable_amount - $order->shipping_charge; }
-    $ftotal  = $isRes ? $order->customer_payable_amount : $order->amount;
+    // ✅ Compute total from details — warranty already in sale_price
+    $ftotal  = $isRes ? $order->customer_payable_amount : max(0, $sub - $prodDisc + $order->shipping_charge - $order->discount);
     $tqty    = $order->orderdetails->sum('qty');
     $pmethod = strtoupper($order->payment ? $order->payment->payment_method : 'N/A');
     $pstatus = $order->payment_status ?? ($order->payment ? $order->payment->payment_status : 'pending');

@@ -70,40 +70,16 @@
                                 <thead>
                                     <tr>
                                         <th>{{ __('Image') }}</th>
-                                        <th>{{ __('Name') }}</th>
-										  <th>{{ __('Color') }}</th>
-										  <th>{{ __('Size') }}</th>
+                                        <th>{{ __('Product') }}</th>
                                         <th>{{ __('Qty') }}</th>
-                                        <th> {{ __('Sell Price') }} </th>
-                                        <th>{{ __('Discount') }}</th>
-                                        <th> {{ __('Sub Total') }} </th>
+                                        <th>{{ __('Price') }}</th>
+                                        <th>{{ __('Sub Total') }}</th>
                                         <th>{{ __('Action') }}</th>
                                     </tr>
                                 </thead>
                                 <tbody id="cartTable">
-                                    @php $product_discount = 0; @endphp
-                                    @foreach($cartinfo as $key=>$value)
-                                    <tr>
-                                        <td><img height="30" src="{{asset($value->options->image)}}"></td>
-                                        <td>{{$value->name}}</td>
-										<td>{{ $value->options->product_color_name ?? 'N/A' }}</td>
-<td>{{ $value->options->product_size_name ?? 'N/A' }}</td>
-                                        <td>
-                                            <div class="quantity">
-                 
-                                                <input type="text" value="{{$value->qty}}" readonly />
-                                            </div>
-                                        </td>
-                                        <td>{{$value->price}}</td>
-                                        <td><input type="number" class="product_discount" value="{{$value->options->product_discount}}" data-id="{{$value->rowId}}"></td>
-                                        <td>{{($value->price - $value->options->product_discount)*$value->qty}}</td>
-                                        <td><button type="button" class="btn btn-danger btn-xs cart_remove" data-id="{{$value->rowId}}"><i class="fa fa-times"></i></button></td>
-                                    </tr>
-                                    @php
-                                        $product_discount += $value->options->product_discount*$value->qty;
-                                        Session::put('product_discount',$product_discount);
-                                    @endphp
-                                    @endforeach
+                                    {{-- ✅ Use the full cart_table_rows partial so batch & warranty dropdowns show on page load --}}
+                                    @include('backEnd.order.cart_table_rows')
                                 </tbody>
                             </table>
                         </div>
@@ -123,6 +99,8 @@
                                 <div class="col-sm-12 mb-3">
                                     <select id="area" class="form-control" name="area" required>
                                         <option value=""> {{ __('Delivery Area') }} </option>
+                                        {{-- ✅ Default 0 TK shipping (admin only) --}}
+                                        <option value="0" @if($shippinginfo->area == 'Store Pickup') selected @endif>Store Pickup (৳0)</option>
                                         @foreach($shippingcharge as $key=>$value)
                                             <option value="{{$value->id}}" @if($shippinginfo->area == $value->name) selected @endif>{{$value->name}}</option>
                                         @endforeach
@@ -136,6 +114,13 @@
     <table class="table table-bordered">
         <tbody id="cart_details">
             @php
+                // ✅ Calculate product_discount from cart (replaces old inline foreach)
+                $productDisc = 0;
+                foreach($cartinfo as $item) {
+                    $productDisc += (float)($item->options->product_discount ?? 0) * $item->qty;
+                }
+                Session::put('product_discount', $productDisc);
+
                 // আগের মতই cart total হিসাব
                 $subtotal = Cart::instance('pos_shopping')->subtotal();
                 $subtotal = str_replace([',','.00'], '', $subtotal);
@@ -407,40 +392,72 @@ function updatePaymentStatus(orderId) {
             }
         });
     });
-// Event listener for size selector change
-$('.cart-size-selector').on('change', function() {
-    var rowId = $(this).data('id'); // Get the row ID
-    var selectedSize = $(this).val(); // Get the selected size
+// Event listener for size selector change (delegated)
+$(document).on("change", ".cart-size-selector", function(){
+    var rowId = $(this).data('id');
+    var productId = $(this).data('product-id');
+    var sizeId = $(this).val();
      $.ajax({
            cache: false,
            type:"GET",
-           data:{'id':rowId,'product_size':selectedSize},
+           data:{id:rowId, product_id:productId, size_id:sizeId},
            url:"{{ route('admin.order.cart.update') }}",
            dataType: "json",
             success: function(cartinfo){
             return cart_content()+cart_details();
           }
         });
-
 });
 
 
-// Event listener for color selector change
-$('.cart-color-selector').on('change', function() {
-    var rowId = $(this).data('id'); // Get the row ID
-    var selectedColor = $(this).val(); // Get the selected color
+// Event listener for color selector change (delegated)
+$(document).on("change", ".cart-color-selector", function(){
+    var rowId = $(this).data('id');
+    var productId = $(this).data('product-id');
+    var colorId = $(this).val();
     $.ajax({
            cache: false,
            type:"GET",
-           data:{'id':rowId,'product_color':selectedColor},
+           data:{id:rowId, product_id:productId, color_id:colorId},
            url:"{{ route('admin.order.cart.update') }}",
            dataType: "json",
             success: function(cartinfo){
             return cart_content()+cart_details();
           }
         });
-
 });
+
+// ✅ Warranty selector change (delegated — works on initial load + AJAX refresh)
+$(document).on("change", ".cart-warranty-selector", function(){
+    var rowId = $(this).data('id');
+    var productId = $(this).data('product-id');
+    var warrantyId = $(this).val();
+    $.ajax({
+       cache: false, type:"GET",
+       data:{id:rowId, product_id:productId, warranty_tier_id:warrantyId},
+       url:"{{ route('admin.order.cart.update') }}",
+       dataType: "json",
+       success: function(){ cart_content(); cart_details(); }
+    });
+});
+
+// ✅ Batch selector change (delegated — works on initial load + AJAX refresh)
+$(document).on("change", ".cart-batch-selector", function(){
+    var rowId = $(this).data('id');
+    var productId = $(this).data('product-id');
+    var batchId = $(this).val();
+    $.ajax({
+       cache: false, type:"GET",
+       data:{id:rowId, batch_id:batchId},
+       url:"{{ route('admin.order.cart.update') }}",
+       dataType: "json",
+       success: function(){ cart_content(); cart_details(); }
+    });
+});
+
+// ✅ Auto-refresh cart on page load to ensure batch/warranty info is synced
+cart_content();
+cart_details();
 </script>
 @endsection
 
