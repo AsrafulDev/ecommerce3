@@ -2263,7 +2263,8 @@ class OrderController extends Controller
      */
     public function cart_refresh()
     {
-        $cartinfo = Cart::instance('pos_shopping')->content();
+        $cartinfo = Cart::instance('pos_shopping')->content()
+            ->sortBy(fn($item) => ($item->options->details_id ?? $item->id));
 
         $productDisc = 0;
         foreach ($cartinfo as $item) {
@@ -2285,6 +2286,7 @@ class OrderController extends Controller
         $cartinfo = Cart::instance('pos_shopping')->update($request->id, [
             'qty'     => $qty,
             'options' => [
+                'product_id'      => $cart->options->product_id ?? $cart->id,
                 'slug'            => $cart->options->slug,
                 'image'           => $cart->options->image,
                 'old_price'       => $cart->options->old_price,
@@ -2298,6 +2300,7 @@ class OrderController extends Controller
                 'warranty_adjustment' => $cart->options->warranty_adjustment ?? 0,
                 'base_price'      => $cart->options->base_price ?? $cart->price,
                 'batch_id'        => $cart->options->batch_id ?? null,
+                'serial_numbers'  => $cart->options->serial_numbers ?? [],
                 'details_id'      => $cart->options->details_id ?? null,
                 '_unique_key'     => $cart->options->_unique_key ?? null,
                 'product_color_name' => $cart->options->product_color_name ?? null,
@@ -2315,6 +2318,7 @@ class OrderController extends Controller
         $cartinfo = Cart::instance('pos_shopping')->update($request->id, [
             'qty'     => $qty,
             'options' => [
+                'product_id'      => $cart->options->product_id ?? $cart->id,
                 'slug'            => $cart->options->slug,
                 'image'           => $cart->options->image,
                 'old_price'       => $cart->options->old_price,
@@ -2328,6 +2332,7 @@ class OrderController extends Controller
                 'warranty_adjustment' => $cart->options->warranty_adjustment ?? 0,
                 'base_price'      => $cart->options->base_price ?? $cart->price,
                 'batch_id'        => $cart->options->batch_id ?? null,
+                'serial_numbers'  => $cart->options->serial_numbers ?? [],
                 'details_id'      => $cart->options->details_id ?? null,
                 '_unique_key'     => $cart->options->_unique_key ?? null,
                 'product_color_name' => $cart->options->product_color_name ?? null,
@@ -2351,6 +2356,7 @@ class OrderController extends Controller
 
         $cartinfo = Cart::instance('pos_shopping')->update($request->id, [
             'options' => [
+                'product_id'      => $cart->options->product_id ?? $cart->id,
                 'slug'            => $cart->options->slug,
                 'image'           => $cart->options->image,
                 'old_price'       => $cart->options->old_price,
@@ -2364,6 +2370,7 @@ class OrderController extends Controller
                 'warranty_adjustment' => $cart->options->warranty_adjustment ?? 0,
                 'base_price'      => $cart->options->base_price ?? $cart->price,
                 'batch_id'        => $cart->options->batch_id ?? null,
+                'serial_numbers'  => $cart->options->serial_numbers ?? [],
                 'details_id'      => $cart->options->details_id ?? null,
                 '_unique_key'     => $cart->options->_unique_key ?? null,
                 'product_color_name' => $cart->options->product_color_name ?? null,
@@ -2418,8 +2425,8 @@ class OrderController extends Controller
 
         $pid = $cartItem->options->product_id ?? $cartItem->id;
         $product = Product::find($pid);
-        // ✅ Start from current price — only recalculate when size/color/warranty changes
-        $newPrice = (float)($cartItem->options->base_price ?? $cartItem->price);
+        // ✅ Start from current price (base + warranty) — recalculate only when size/color/warranty changes
+        $newPrice = (float)(($cartItem->options->base_price ?? $cartItem->price) + ($cartItem->options->warranty_adjustment ?? 0));
         $sizeName = null;
         $colorName = null;
 
@@ -2449,6 +2456,7 @@ class OrderController extends Controller
         }
 
         $options = [
+            'product_id'      => $cartItem->options->product_id ?? $cartItem->id,
             'product_size'    => $sizeName ?? $cartItem->options->product_size,
             'product_color'   => $colorName ?? $cartItem->options->product_color,
             'product_color_name' => $cartItem->options->product_color_name ?? null,
@@ -2470,14 +2478,16 @@ class OrderController extends Controller
         ];
 
         // 🛡️ Apply warranty adjustment — recalculate from product base price
-        $warrantyAdjustment = 0;
+        $effectiveWarrantyId = $request->warranty_tier_id ?? $cartItem->options->warranty_tier_id ?? null;
+        $warrantyAdjustment = (float)($cartItem->options->warranty_adjustment ?? 0);
         if ($request->filled('warranty_tier_id')) {
             $tier = \App\Models\ProductWarrantyTier::find($request->warranty_tier_id);
             if ($tier && $tier->is_active) {
                 $warrantyAdjustment = (float) ($tier->additional_cost ?? 0);
-                // ✅ Recalculate from product's base price, NOT from cart base_price (which may include old warranty)
                 $productBasePrice = $product->new_price ?? $product->old_price ?? $cartItem->price;
                 $newPrice = $productBasePrice + $warrantyAdjustment;
+            } else {
+                $warrantyAdjustment = 0;
             }
         }
         $options['warranty_adjustment'] = $warrantyAdjustment;
@@ -2491,6 +2501,8 @@ class OrderController extends Controller
             'colorId' => $colorId,
             'sizeName' => $sizeName,
             'colorName' => $colorName,
+            'batch_id' => $options['batch_id'] ?? null,
+            'warranty_tier_id' => $options['warranty_tier_id'] ?? null,
         ]);
 
         // update() options বদলালে rowId বদলে যায়, তাই Cart::get($rowId) ব্যর্থ হয়; update এর রিটার্ন ব্যবহার করুন
@@ -2593,8 +2605,9 @@ class OrderController extends Controller
         foreach ($orderdetails as $ordetails) {
             // 🛡️ Resolve warranty tier from saved order detail
             $warrantyTierId = $ordetails->warranty_tier_id ?? null;
+            $tier = $warrantyTierId ? \App\Models\ProductWarrantyTier::find($warrantyTierId) : null;
+            $warrantyAdjustment = ($tier && $tier->is_active) ? (float)($tier->additional_cost ?? 0) : 0;
             // ✅ sale_price is the actual price paid. Use as-is for display.
-            // warranty_adjustment is only applied when user CHANGES warranty via cart_update
             $actualPrice = $ordetails->sale_price;
 
             // 📦 Resolve batch from saved batch_ids (JSON array → first batch ID)
@@ -2634,8 +2647,8 @@ class OrderController extends Controller
                     'size_id'           => $sizeId,
                     'color_id'          => $colorId,
                     'warranty_tier_id'  => $warrantyTierId,
-                    'warranty_adjustment' => 0,       // ✅ 0 on load — only changes when user selects new warranty
-                    'base_price'        => $actualPrice,
+                    'warranty_adjustment' => $warrantyAdjustment,
+                    'base_price'        => $actualPrice - $warrantyAdjustment,
                     'batch_id'          => $batchId,
                     'serial_numbers'    => optional($ordetails->warrantySale)->serial_numbers ?? [],
                 ],
@@ -2762,6 +2775,9 @@ class OrderController extends Controller
                 $detail->warranty_tier_id = null;
                 $detail->warranty_price   = 0;
             }
+
+            // 📦 Save batch_ids for re-opening in edit
+            $detail->batch_ids = $cart->options->batch_id ? json_encode([$cart->options->batch_id]) : null;
 
             $detail->save();
 

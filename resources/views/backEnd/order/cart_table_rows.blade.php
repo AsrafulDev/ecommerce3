@@ -82,25 +82,37 @@
                 <option value="">{{ __('Auto') }}</option>
                 @foreach($batches as $b)
                     <option value="{{ $b->id }}" {{ ($value->options->batch_id ?? '') == $b->id ? 'selected' : '' }}>
-                        {{ $b->batch_no ?: 'Batch #'.$b->id }} ({{ $b->remaining_qty }} @ ৳{{ $b->unit_cost }}){{ $b->expiry_date ? ' Exp: '.$b->expiry_date->format('Y-m-d') : '' }}
+                        {{ $b->batch_no ?: 'Batch #'.$b->id }} ({{ $b->remaining_qty }} @ ৳{{ $b->unit_cost }})
+                        {{ $b->expiry_date ? ' Exp: '.$b->expiry_date->format('Y-m-d') : '' }}
+                        {{ $b->supplier_warranty_days ? ' 🛡️'.$b->supplier_warranty_days.'d' : '' }}
                     </option>
                 @endforeach
             </select>
         </div>
         @endif
 
-        {{-- 🔢 Serial Numbers (always available, one per qty, comma-separated) --}}
-        <div class="mt-1">
-            <label class="form-label small text-muted mb-0" style="font-size:11px">
+        {{-- 🔢 Serial Numbers — per-unit input with add/remove --}}
+        <div class="mt-1 sn-inputs-container" data-id="{{ $value->rowId }}" data-product-id="{{ $pid }}">
+            <label class="form-label small text-muted mb-1" style="font-size:11px">
                 {{ __('Product SN') }} <small>(qty: {{ $value->qty }})</small>
             </label>
-            <input type="text"
-                   class="form-control form-control-sm cart-sn-input"
-                   data-id="{{ $value->rowId }}"
-                   data-product-id="{{ $pid }}"
-                   placeholder="SN1, SN2, SN3..."
-                   value="{{ is_array($value->options->serial_numbers ?? null) ? implode(', ', $value->options->serial_numbers) : '' }}"
-                   style="min-width:130px;font-size:11px;">
+            @php
+                $sns = is_array($value->options->serial_numbers ?? null) ? $value->options->serial_numbers : [];
+                if (empty($sns)) $sns = [''];
+            @endphp
+            @foreach($sns as $i => $sn)
+            <div class="input-group input-group-sm mb-1 sn-input-row">
+                <input type="text"
+                       class="form-control form-control-sm cart-sn-input"
+                       data-id="{{ $value->rowId }}"
+                       data-product-id="{{ $pid }}"
+                       placeholder="Scan/type SN..."
+                       value="{{ $sn }}"
+                       style="font-size:11px;">
+                <button type="button" class="btn btn-sm btn-outline-danger sn-remove-btn" title="Remove SN" tabindex="-1">×</button>
+            </div>
+            @endforeach
+            <button type="button" class="btn btn-sm btn-outline-secondary sn-add-btn" style="font-size:10px;" tabindex="-1">＋ Add SN</button>
         </div>
   </td>
   <td>

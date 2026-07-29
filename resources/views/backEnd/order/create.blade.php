@@ -684,17 +684,48 @@
         });
     });
 
+    // ✅ Serial Numbers — per-input with add/remove
     $(document).on("change blur", ".cart-sn-input", function(){
-        var rowId = $(this).data('id');
-        var productId = $(this).data('product-id');
-        var sn = $(this).val();
+        var container = $(this).closest('.sn-inputs-container');
+        var rowId = container.data('id');
+        var productId = container.data('product-id');
+        var sns = [];
+        container.find('.cart-sn-input').each(function(){
+            var v = $.trim($(this).val());
+            if (v) sns.push(v);
+        });
         $.ajax({
            cache: false, type:"GET",
-           data:{id:rowId, product_id:productId, serial_numbers:sn},
+           data:{id:rowId, product_id:productId, serial_numbers:sns.join(',')},
            url:"{{ route('admin.order.cart.update') }}",
            dataType: "json",
            success: function(){ cart_refresh(); }
         });
+    });
+
+    $(document).on("click", ".sn-add-btn", function(){
+        var container = $(this).closest('.sn-inputs-container');
+        var rowId = container.data('id');
+        var productId = container.data('product-id');
+        var row = $('<div class="input-group input-group-sm mb-1 sn-input-row">' +
+            '<input type="text" class="form-control form-control-sm cart-sn-input" ' +
+            'data-id="' + rowId + '" data-product-id="' + productId + '" ' +
+            'placeholder="Scan/type SN..." style="font-size:11px;">' +
+            '<button type="button" class="btn btn-sm btn-outline-danger sn-remove-btn" title="Remove SN" tabindex="-1">×</button>' +
+            '</div>');
+        $(this).before(row);
+        row.find('.cart-sn-input').focus();
+    });
+
+    $(document).on("click", ".sn-remove-btn", function(){
+        var container = $(this).closest('.sn-inputs-container');
+        var row = $(this).closest('.sn-input-row');
+        if (container.find('.sn-input-row').length <= 1) {
+            row.find('.cart-sn-input').val('').trigger('change');
+            return;
+        }
+        row.remove();
+        container.find('.cart-sn-input:first').trigger('change');
     });
 
     // -------- FORM SUBMIT - আগে Size/Color সিঙ্ক করুন --------

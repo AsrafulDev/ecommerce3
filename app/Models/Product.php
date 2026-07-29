@@ -20,6 +20,7 @@ class Product extends Model
             'download_limit'       => 'integer',
             'download_expire_days' => 'integer',
             'is_wholesale'         => 'boolean',
+            'is_sn_required'       => 'boolean',
             'min_wholesale_quantity' => 'integer',
             'free_delivery'        => 'boolean',
         ];
