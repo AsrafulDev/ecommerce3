@@ -167,6 +167,7 @@ class WarrantyChallanService
         if (($data['return_type'] ?? '') === 'replaced' && !empty($data['replacement_sn'])) {
             $oldSn = $this->formatSerialNumbers($claim->warrantySale->serial_numbers ?? []);
             $claim->warrantySale->update(['serial_numbers' => [$data['replacement_sn']]]);
+
             $claim->notes()->create([
                 'user_id' => auth()->id(),
                 'note'    => "Serial Number updated: {$oldSn} → {$data['replacement_sn']} (replaced by supplier)",
@@ -252,11 +253,14 @@ class WarrantyChallanService
         return strtoupper($prefix) . '-' . date('Ymd') . '-' . strtoupper(Str::random(4));
     }
 
-    private function formatSerialNumbers(?array $serialNumbers): string
+    private function formatSerialNumbers(mixed $serialNumbers): string
     {
         if (empty($serialNumbers)) {
             return 'N/A';
         }
-        return implode(', ', array_filter($serialNumbers));
+        if (is_string($serialNumbers)) {
+            return $serialNumbers;
+        }
+        return implode(', ', array_filter((array) $serialNumbers));
     }
 }

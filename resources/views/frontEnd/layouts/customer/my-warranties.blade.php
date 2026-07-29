@@ -28,57 +28,65 @@
             <p>No warranty purchases yet. Warranties will appear here after your orders are delivered.</p>
         </div>
     @else
-        <div class="warranty-list">
+        <div class="space-y-2">
             @foreach($warranties as $sale)
-            <div class="card mb-2 border-{{ $sale->status === 'active' ? 'success' : ($sale->status === 'claimed' ? 'warning' : 'secondary') }}">
-                <div class="card-body py-2 px-3">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <span class="me-2">
+            <div class="rounded-xl p-4 border
+                {{ $sale->status === 'active' ? 'border-green-200 bg-green-50/30' : '' }}
+                {{ $sale->status === 'claimed' ? 'border-yellow-200 bg-yellow-50/30' : '' }}
+                {{ $sale->status === 'expired' ? 'border-gray-200 bg-gray-50/50' : '' }}
+            ">
+                <div class="flex justify-between items-start gap-3">
+                    <div class="flex-1 min-w-0">
+                        <div class="flex items-center gap-2 mb-1">
+                            <span class="text-sm">
                                 @if($sale->status === 'active') 🟢
                                 @elseif($sale->status === 'claimed') 🟡
                                 @elseif($sale->status === 'expired') 🔴
                                 @else ⚪
                                 @endif
                             </span>
-                            <strong>{{ $sale->product->name ?? 'Product' }}</strong>
+                            <strong class="text-gray-800">{{ $sale->product->name ?? 'Product' }}</strong>
                             @if($sale->serial_numbers)
-                                <small class="text-muted ms-2">SN: <code>{{ implode(', ', $sale->serial_numbers) }}</code></small>
-                            @endif
-                            <br>
-                            <small class="text-muted">
-                                {{ $sale->warranty_type === 'none' ? 'No Warranty' : $sale->warranty_days . ' Days Warranty' }}
-                                | Claims: {{ $sale->claims->count() }}
-                                @if($sale->warranty_end_date && $sale->warranty_days > 0)
-                                    | Expires: {{ $sale->warranty_end_date->format('d M, Y') }}
-                                    | <span class="{{ $sale->remaining_days <= 7 ? 'text-danger' : 'text-success' }}">
-                                        {{ $sale->remaining_days }} days left
-                                    </span>
-                                @endif
-                            </small>
-                            @if($sale->warranty_days > 0)
-                            <div class="progress mt-1" style="height: 4px; width: 150px;">
-                                <div class="progress-bar bg-{{ $sale->warranty_progress_percent > 80 ? 'danger' : 'success' }}"
-                                    style="width: {{ $sale->warranty_progress_percent }}%"></div>
-                            </div>
+                                <small class="text-gray-400 ml-1">SN: <code class="bg-gray-100 px-1.5 py-0.5 rounded text-xs text-gray-600">{{ is_array($sale->serial_numbers) ? implode(', ', $sale->serial_numbers) : ($sale->serial_numbers ?: 'N/A') }}</code></small>
                             @endif
                         </div>
-                        <div>
-                            @if($sale->status === 'active')
-                                @php $orderCompleted = $sale->order && in_array($sale->order->order_status, ['completed', 'delivered', 5, 6]); @endphp
-                                @if($orderCompleted)
-                                    <a href="{{ route('customer.warranty.claim', $sale->id) }}"
-                                       class="btn btn-sm btn-outline-danger">File Claim</a>
-                                @else
-                                    <span class="text-muted small" title="Claim available after order is completed">
-                                        ⏳ Pending Order
-                                    </span>
-                                @endif
-                            @elseif($sale->status === 'claimed' && $sale->activeClaim)
-                                <a href="{{ route('customer.warranty.track', $sale->activeClaim->id) }}"
-                                   class="btn btn-sm btn-outline-warning">Track Claim →</a>
+                        <p class="text-xs text-gray-500 space-x-3">
+                            <span>{{ $sale->warranty_type === 'none' ? 'No Warranty' : $sale->warranty_days . ' Days Warranty' }}</span>
+                            <span>| Claims: {{ $sale->claims->count() }}</span>
+                            @if($sale->warranty_end_date && $sale->warranty_days > 0)
+                                <span>| Expires: {{ $sale->warranty_end_date->format('d M, Y') }}</span>
+                                <span class="{{ $sale->remaining_days <= 7 ? 'text-red-500 font-semibold' : 'text-green-600' }}">
+                                    {{ $sale->remaining_days }} days left
+                                </span>
                             @endif
+                        </p>
+                        @if($sale->warranty_days > 0)
+                        <div class="mt-1 w-full max-w-[150px] bg-gray-200 rounded-full h-1.5">
+                            <div class="h-1.5 rounded-full {{ $sale->warranty_progress_percent > 80 ? 'bg-red-500' : 'bg-green-500' }}"
+                                style="width: {{ $sale->warranty_progress_percent }}%"></div>
                         </div>
+                        @endif
+                    </div>
+                    <div class="shrink-0">
+                        @if($sale->status === 'active')
+                            @php $orderCompleted = $sale->order && in_array($sale->order->order_status, ['completed', 'delivered', 5, 6]); @endphp
+                            @php $nowarenty = $sale->warranty_type === 'none' || $sale->warranty_days <= 0; @endphp
+                            @if($orderCompleted && (!$sale->activeClaim || $sale->activeClaim->status === 'rejected') && !$nowarenty)
+                                <a href="{{ route('customer.warranty.claim', $sale->id) }}"
+                                   class="inline-block px-3 py-1.5 bg-red-500 hover:bg-red-600 text-white text-xs font-semibold rounded-lg transition shadow-sm">
+                                    {{ __('Claim') }}
+                                </a>
+                            @else
+                                <span class="text-xs text-gray-400" title="Claim available after order is completed">
+                                    ⏳ {{ __('Pending Order') }}
+                                </span>
+                            @endif
+                        @elseif($sale->status === 'claimed' && $sale->activeClaim)
+                            <a href="{{ route('customer.warranty.track', $sale->activeClaim->id) }}"
+                               class="inline-block px-3 py-1.5 bg-yellow-500 hover:bg-yellow-600 text-white text-xs font-semibold rounded-lg transition shadow-sm">
+                                {{ __('Track Claim') }} →
+                            </a>
+                        @endif
                     </div>
                 </div>
             </div>

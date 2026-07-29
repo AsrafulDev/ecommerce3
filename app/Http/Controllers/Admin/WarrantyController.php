@@ -11,6 +11,7 @@ use App\Models\WarrantyChallan;
 use App\Models\WarrantySale;
 use App\Services\WarrantyDisplayService;
 use App\Services\WarrantyService;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -48,7 +49,32 @@ class WarrantyController extends Controller
             ->limit(5)
             ->get();
 
-        return view('backEnd.warranty.dashboard', compact('stats', 'expiringSoon', 'recentClaims'));
+        // 🆕 Total claim count for utilization
+        $stats['total_claims'] = WarrantyClaim::count();
+
+        // 🆕 Supplier-wise warranty stats
+        $supplierWarrantyStats = \App\Models\SupplierWarranty::with('supplier:id,name')
+            ->where('is_transferable', true)
+            ->get()
+            ->groupBy('supplier_id')
+            ->map(function ($group) {
+                $supplierId = $group->first()->supplier_id;
+                return [
+                    'supplier_name' => $group->first()->supplier->name ?? 'Unknown',
+                    'available'     => $group->where('warranty_end_date', '>', now())->count(),
+                    'total'         => $group->count(),
+                    'sold'          => \App\Models\WarrantySale::whereIn('supplier_warranty_id', $group->pluck('id'))->count(),
+                    'claims'        => \App\Models\WarrantyClaim::whereIn('warranty_sale_id',
+                        \App\Models\WarrantySale::whereIn('supplier_warranty_id', $group->pluck('id'))->pluck('id')
+                    )->count(),
+                ];
+            })
+            ->sortByDesc('sold')
+            ->take(10)
+            ->values()
+            ->toArray();
+
+        return view('backEnd.warranty.dashboard', compact('stats', 'expiringSoon', 'recentClaims', 'supplierWarrantyStats'));
     }
 
     // ── Supplier Warranties ────────────────────
@@ -131,6 +157,7 @@ class WarrantyController extends Controller
     public function salesIndex(Request $request): View
     {
         $sales = WarrantySale::with(['product:id,name', 'customer:id,name,phone'])
+            ->withCount('claims')
             ->when($request->status, fn($q, $s) => $q->where('status', $s))
             ->latest()
             ->paginate(30);
@@ -171,9 +198,10 @@ class WarrantyController extends Controller
     public function claimsAction(WarrantyClaim $warrantyClaim, string $action, Request $request): RedirectResponse
     {
         $actions = [
-            'review'  => \App\Enums\WarrantyClaimStatus::UNDER_REVIEW,
-            'approve' => \App\Enums\WarrantyClaimStatus::APPROVED,
-            'resolve' => \App\Enums\WarrantyClaimStatus::RESOLVED,
+            'review'        => \App\Enums\WarrantyClaimStatus::UNDER_REVIEW,
+            'approve'       => \App\Enums\WarrantyClaimStatus::APPROVED,
+            'await-product' => \App\Enums\WarrantyClaimStatus::AWAITING_PRODUCT,
+            'resolve'       => \App\Enums\WarrantyClaimStatus::RESOLVED,
         ];
 
         if (!isset($actions[$action])) {
@@ -211,10 +239,20 @@ class WarrantyController extends Controller
     public function receiveProduct(Request $request, WarrantyClaim $warrantyClaim)
     {
         $request->validate([
-            'condition'   => 'required|string',
-            'accessories' => 'nullable|string',
-            'notes'       => 'nullable|string',
+            'condition'     => 'required|string',
+            'accessories'   => 'nullable|string',
+            'notes'         => 'nullable|string',
+            'product_image' => 'nullable|image|max:5120',
         ]);
+
+        // Handle image upload
+        if ($request->hasFile('product_image')) {
+            $path = $request->file('product_image')->store('warranty-claims', 'public');
+            $warrantyClaim->notes()->create([
+                'note'    => 'Product image uploaded: ' . asset('storage/' . $path),
+                'user_id' => auth()->id(),
+            ]);
+        }
 
         $challanService = app(\App\Services\WarrantyChallanService::class);
         $challan = $challanService->generateReceiveChallan($warrantyClaim, $request->all());
@@ -320,6 +358,31 @@ class WarrantyController extends Controller
         return back()->with('success', 'Delivered to customer. Challan #' . $challan->challan_no . ' generated.');
     }
 
+    /**
+     * Manually update serial number (e.g., store replacement from own stock).
+     */
+    public function updateSerialNumber(Request $request, WarrantyClaim $warrantyClaim)
+    {
+        $request->validate([
+            'new_serial_number' => 'required|string|max:100',
+        ]);
+
+        $warrantySale = $warrantyClaim->warrantySale;
+        $oldSn = is_array($warrantySale->serial_numbers)
+            ? implode(', ', $warrantySale->serial_numbers)
+            : ($warrantySale->serial_numbers ?: 'N/A');
+
+        $warrantySale->update(['serial_numbers' => [$request->new_serial_number]]);
+        $warrantyClaim->update(['replacement_sn' => $request->new_serial_number]);
+
+        $warrantyClaim->notes()->create([
+            'user_id' => auth()->id(),
+            'note'    => "Serial Number manually updated: {$oldSn} → {$request->new_serial_number}",
+        ]);
+
+        return back()->with('success', 'Serial number updated successfully.');
+    }
+
     public function challans(WarrantyClaim $warrantyClaim): View
     {
         $challans = $warrantyClaim->challans()->latest()->get();
@@ -330,6 +393,16 @@ class WarrantyController extends Controller
     {
         $challan->load('warrantyClaim.product', 'warrantyClaim.customer', 'warrantyClaim.warrantySale');
         return view('backEnd.warranty.challan_print', compact('challan'));
+    }
+
+    public function downloadChallanPdf(WarrantyChallan $challan)
+    {
+        $challan->load('warrantyClaim.product', 'warrantyClaim.customer', 'warrantyClaim.warrantySale');
+
+        $pdf = Pdf::loadView('backEnd.warranty.challan_pdf', compact('challan'))
+                  ->setPaper('a4', 'portrait');
+
+        return $pdf->download($challan->challan_no . '.pdf');
     }
 
     public function fileClaimForCustomer(Request $request): RedirectResponse
@@ -349,6 +422,14 @@ class WarrantyController extends Controller
         ];
 
         $claim = $this->warrantyService->fileClaim($warrantySale, $data);
+
+        // Add admin note if provided
+        if ($request->filled('admin_note')) {
+            $claim->notes()->create([
+                'note'    => '[Admin] ' . $request->admin_note,
+                'user_id' => auth()->id(),
+            ]);
+        }
 
         return redirect()->route('admin.warranty.claims.show', $claim)
             ->with('success', 'Claim filed on behalf of customer.');

@@ -23,6 +23,12 @@
 
                 {{-- 🆕 Pipeline action buttons --}}
                 @if($warrantyClaim->status === 'approved')
+                    <form action="{{ route('admin.warranty.claims.action', [$warrantyClaim, 'await-product']) }}" method="POST" class="d-inline">
+                        @csrf
+                        <button class="btn btn-info btn-sm">📦 Awaiting Product</button>
+                    </form>
+                @endif
+                @if($warrantyClaim->status === 'awaiting_product')
                     <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#receiveModal">
                         📦 Product Received
                     </button>
@@ -58,11 +64,27 @@
                 @endif
             @endif
 
-            {{-- Challan history button --}}
-            @if($warrantyClaim->challans()->exists())
-                <a href="{{ route('admin.warranty.claims.challans', $warrantyClaim) }}" class="btn btn-outline-secondary btn-sm">
-                    🧾 Challans ({{ $warrantyClaim->challans()->count() }})
+            {{-- 📄 Direct print/download for latest challan — 1 click from claim page --}}
+            @php $latestChallan = $warrantyClaim->challans()->latest()->first(); @endphp
+            @if($latestChallan)
+                <a href="{{ route('admin.warranty.challans.print', $latestChallan) }}?autoprint=1" target="_blank" class="btn btn-primary btn-sm">
+                    🖨 Print {{ $latestChallan->challan_type_label }}
                 </a>
+                <a href="{{ route('admin.warranty.challans.pdf', $latestChallan) }}" class="btn btn-danger btn-sm">
+                    📥 PDF
+                </a>
+                @if($warrantyClaim->challans()->count() > 1)
+                <a href="{{ route('admin.warranty.claims.challans', $warrantyClaim) }}" class="btn btn-outline-secondary btn-sm">
+                    🧾 All ({{ $warrantyClaim->challans()->count() }})
+                </a>
+                @endif
+            @endif
+
+            {{-- 🆕 Update SN button (always available for active claims) --}}
+            @if($warrantyClaim->status_enum->isActive() && !in_array($warrantyClaim->status, ['submitted', 'under_review', 'rejected', 'cancelled', 'resolved', 'delivered']))
+                <button class="btn btn-outline-warning btn-sm" data-bs-toggle="modal" data-bs-target="#updateSnModal">
+                    🔄 Update SN
+                </button>
             @endif
         </div>
     </div>
@@ -153,8 +175,42 @@
                     <p class="mb-1">Days: {{ $ws->warranty_days ?? 0 }}</p>
                     <p class="mb-1">Remaining: {{ $ws->remaining_days ?? 0 }} days</p>
                     <p class="mb-1">Status: <span class="badge bg-{{ \App\Enums\WarrantySaleStatus::from($ws->status ?? 'active')->badgeClass() }}">{{ ucfirst($ws->status ?? 'N/A') }}</span></p>
+                    @php
+                        $sns = $ws->serial_numbers ?? [];
+                        $replacementSn = $warrantyClaim->replacement_sn;
+                    @endphp
+                    <p class="mb-0"><small class="text-muted">SN: {{ is_array($sns) ? implode(', ', $sns) : ($sns ?: 'N/A') }}</small></p>
+                    @if($replacementSn)
+                        <p class="mb-0"><small class="text-success">↳ Replaced SN: {{ $replacementSn }}</small></p>
+                    @endif
                 </div>
             </div>
+
+            {{-- 🆕 Challans (inline, no separate page needed) --}}
+            @php $claimChallans = $warrantyClaim->challans()->latest()->get(); @endphp
+            @if($claimChallans->isNotEmpty())
+            <div class="card mb-3">
+                <div class="card-header d-flex justify-content-between align-items-center py-2">
+                    <strong>📄 Challans</strong>
+                    <a href="{{ route('admin.warranty.claims.challans', $warrantyClaim) }}" class="btn btn-sm btn-outline-secondary">View All</a>
+                </div>
+                <div class="card-body p-0">
+                    @foreach($claimChallans as $ch)
+                    <div class="d-flex justify-content-between align-items-center px-3 py-2 border-bottom">
+                        <div>
+                            <span class="badge bg-{{ match($ch->challan_type) {'receive'=>'primary','send_to_supplier'=>'warning','receive_return'=>'info','delivery'=>'success',default=>'secondary'} }} me-1">{{ $ch->challan_type_label }}</span>
+                            <small class="text-muted">{{ $ch->challan_no }}</small>
+                            <br><small class="text-muted">{{ $ch->created_at->format('d M, h:i A') }}</small>
+                        </div>
+                        <div class="d-flex gap-1">
+                            <a href="{{ route('admin.warranty.challans.print', $ch) }}?autoprint=1" target="_blank" class="btn btn-sm btn-outline-primary" title="Print">🖨</a>
+                            <a href="{{ route('admin.warranty.challans.pdf', $ch) }}" class="btn btn-sm btn-outline-danger" title="Download PDF">📥</a>
+                        </div>
+                    </div>
+                    @endforeach
+                </div>
+            </div>
+            @endif
         </div>
     </div>
 
@@ -180,10 +236,10 @@
     {{-- 🆕 Pipeline Modals --}}
 
     {{-- Receive Product Modal --}}
-    @if($warrantyClaim->status === 'approved')
+    @if($warrantyClaim->status === 'awaiting_product')
     <div class="modal fade" id="receiveModal" tabindex="-1">
         <div class="modal-dialog">
-            <form action="{{ route('admin.warranty.claims.receive-product', $warrantyClaim) }}" method="POST" class="modal-content">
+            <form action="{{ route('admin.warranty.claims.receive-product', $warrantyClaim) }}" method="POST" enctype="multipart/form-data" class="modal-content">
                 @csrf
                 <div class="modal-header"><h5>📦 Receive Product from Customer</h5></div>
                 <div class="modal-body">
@@ -196,6 +252,8 @@
                     </select>
                     <label class="form-label">Accessories Received</label>
                     <input type="text" name="accessories" class="form-control mb-2" placeholder="Charger, box, manual...">
+                    <label class="form-label">Product Image (Optional)</label>
+                    <input type="file" name="product_image" class="form-control mb-2" accept="image/*">
                     <label class="form-label">Notes</label>
                     <textarea name="notes" class="form-control" rows="2" placeholder="Any observations..."></textarea>
                 </div>
@@ -287,6 +345,10 @@
                         <option value="Courier">Courier</option>
                         <option value="Hand Delivery">Hand Delivery</option>
                     </select>
+                    <label class="form-label">Serial Number</label>
+                    <input type="text" class="form-control mb-2 bg-light" value="{{ is_array($ws->serial_numbers ?? []) ? implode(', ', $ws->serial_numbers ?? []) : ($ws->serial_numbers ?? 'N/A') }}" readonly>
+                    <small class="text-muted">Current SN on record — use 🔄 Update SN button to change</small>
+                    <hr>
                     <label class="form-label">Notes</label>
                     <textarea name="notes" class="form-control" rows="2" placeholder="Delivery notes..."></textarea>
                 </div>
@@ -298,5 +360,26 @@
         </div>
     </div>
     @endif
+
+    {{-- 🆕 Update Serial Number Modal --}}
+    <div class="modal fade" id="updateSnModal" tabindex="-1">
+        <div class="modal-dialog">
+            <form action="{{ route('admin.warranty.claims.update-serial', $warrantyClaim) }}" method="POST" class="modal-content">
+                @csrf
+                <div class="modal-header"><h5>🔄 Update Serial Number</h5></div>
+                <div class="modal-body">
+                    @php $currentSn = is_array($ws->serial_numbers ?? []) ? implode(', ', $ws->serial_numbers ?? []) : ($ws->serial_numbers ?? 'N/A'); @endphp
+                    <p class="text-muted mb-3">Current SN: <code>{{ $currentSn }}</code></p>
+                    <label class="form-label">New Serial Number <span class="text-danger">*</span></label>
+                    <input type="text" name="new_serial_number" class="form-control mb-2" placeholder="Enter new serial number" required>
+                    <small class="text-muted">⚠️ This updates the warranty sale, claim, and original order detail record.</small>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button class="btn btn-warning">Update Serial Number</button>
+                </div>
+            </form>
+        </div>
+    </div>
 </div>
 @endsection

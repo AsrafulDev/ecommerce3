@@ -30,6 +30,8 @@
                             <th>ID</th>
                             <th>Customer</th>
                             <th>Product</th>
+                            <th>Order ID</th>
+                            <th>Claim Count</th>
                             <th>Type</th>
                             <th>Days</th>
                             <th>Expiry</th>
@@ -44,6 +46,16 @@
                             <td>{{ $sale->id }}</td>
                             <td>{{ $sale->customer->name ?? 'N/A' }}</td>
                             <td>{{ $sale->product->name ?? 'N/A' }}</td>
+                            <td>{{ $sale->order_id ?? 'N/A' }}</td>
+                            <td>
+                                @if($sale->claims_count > 0)
+                                    <a href="{{ route('admin.warranty.claims.index', ['warranty_sale_id' => $sale->id]) }}" class="btn btn-sm btn-outline-info">
+                                        {{ $sale->claims_count }} claim(s)
+                                    </a>
+                                @else
+                                    <span class="text-muted">—</span>
+                                @endif
+                            </td>
                             <td>{{ ucfirst($sale->warranty_type) }}</td>
                             <td>{{ $sale->warranty_days }}d</td>
                             <td>{{ $sale->warranty_end_date?->format('d M, Y') ?? 'N/A' }}</td>
@@ -64,7 +76,7 @@
                             </td>
                         </tr>
                         @empty
-                        <tr><td colspan="9" class="text-center">No warranty sales found.</td></tr>
+                        <tr><td colspan="10" class="text-center">No warranty sales found.</td></tr>
                         @endforelse
                     </tbody>
                 </table>

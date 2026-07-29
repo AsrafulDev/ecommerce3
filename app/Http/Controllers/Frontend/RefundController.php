@@ -35,7 +35,7 @@ class RefundController extends Controller
         
         $order = Order::where('id', $order_id)
             ->where('customer_id', $customer->id)
-            ->with(['orderdetails.product', 'payment'])
+            ->with(['orderdetails.product', 'payment', 'status'])
             ->firstOrFail();
 
         // Check if order is eligible for refund

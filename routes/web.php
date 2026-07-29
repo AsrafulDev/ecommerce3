@@ -442,14 +442,26 @@ Route::group(['prefix'=>'customer','namespace'=>'Frontend','middleware' => ['cus
     
     // ── Warranty ──────────────────────────────
     Route::get('/warranties', fn() => view('frontEnd.layouts.customer.warranties'))->name('customer.warranties');
-    Route::get('/warranty-claim/{warranty_sale_id}', fn($id) => view('frontEnd.layouts.customer.file-warranty-claim', ['warranty_sale_id' => $id]))
-        ->name('customer.warranty.claim');
+    Route::get('/warranty-claim/{warranty_sale_id}', function ($warranty_sale_id) {
+        $warrantySale = \App\Models\WarrantySale::with(['product', 'order', 'claims', 'activeClaim'])->findOrFail($warranty_sale_id);
+        return view('frontEnd.layouts.customer.file-warranty-claim', compact('warrantySale'));
+    })->name('customer.warranty.claim');
     Route::post('/warranty-claim', [App\Http\Controllers\Api\WarrantyApiController::class, 'fileClaimWeb'])
         ->name('customer.warranty.submit-claim');
-    Route::get('/warranty-track/{claim_id}', fn($id) => view('frontEnd.layouts.customer.track-warranty-claim', ['claim_id' => $id]))
-        ->name('customer.warranty.track');
+    Route::get('/warranty-track/{claim_id}', function ($claim_id) {
+        $claim = \App\Models\WarrantyClaim::with(['product', 'warrantySale', 'stages', 'notes.user', 'challans'])->findOrFail($claim_id);
+        return view('frontEnd.layouts.customer.track-warranty-claim', compact('claim'));
+    })->name('customer.warranty.track');
     Route::post('/warranty-cancel', [App\Http\Controllers\Api\WarrantyApiController::class, 'cancelClaimWeb'])
         ->name('customer.warranty.cancel-claim');
+    Route::get('/warranty-challan/{challan}', function (\App\Models\WarrantyChallan $challan) {
+        $customer = auth('customer')->user();
+        if (!$customer || $challan->warrantyClaim->customer_id !== $customer->id) {
+            abort(403, 'Unauthorized access to this challan.');
+        }
+        $challan->load('warrantyClaim.product', 'warrantyClaim.warrantySale');
+        return view('frontEnd.layouts.customer.challan_print', compact('challan'));
+    })->name('customer.warranty.challan');
 
         // Contact page
     Route::get('site/contact-us', [FrontendController::class, 'contact'])
@@ -1158,7 +1170,8 @@ Route::get('dashboard', [DashboardController::class, 'dashboard'])->name('admin.
         // Claims
         Route::get('claims', [App\Http\Controllers\Admin\WarrantyController::class, 'claimsIndex'])->name('claims.index');
         Route::get('claims/{warrantyClaim}', [App\Http\Controllers\Admin\WarrantyController::class, 'claimsShow'])->name('claims.show');
-        Route::post('claims/{warrantyClaim}/{action}', [App\Http\Controllers\Admin\WarrantyController::class, 'claimsAction'])->name('claims.action');
+
+        // Specific claim actions — MUST be before the wildcard {action} route
         Route::post('claims/{warrantyClaim}/reject', [App\Http\Controllers\Admin\WarrantyController::class, 'claimsReject'])->name('claims.reject');
         Route::post('claims/{warrantyClaim}/note', [App\Http\Controllers\Admin\WarrantyController::class, 'claimsAddNote'])->name('claims.note');
 
@@ -1169,12 +1182,19 @@ Route::get('dashboard', [DashboardController::class, 'dashboard'])->name('admin.
         Route::post('claims/{warrantyClaim}/ready-for-delivery', [App\Http\Controllers\Admin\WarrantyController::class, 'readyForDelivery'])->name('claims.ready-for-delivery');
         Route::post('claims/{warrantyClaim}/deliver', [App\Http\Controllers\Admin\WarrantyController::class, 'deliverToCustomer'])->name('claims.deliver');
 
+        // Wildcard action route — must be LAST to avoid capturing specific routes above
+        Route::post('claims/{warrantyClaim}/{action}', [App\Http\Controllers\Admin\WarrantyController::class, 'claimsAction'])->name('claims.action');
+
         // 🆕 File claim on behalf of customer (admin)
         Route::post('claims/file-for-customer', [App\Http\Controllers\Admin\WarrantyController::class, 'fileClaimForCustomer'])->name('claims.file-for-customer');
+
+        // 🆕 Manually update serial number (e.g., store replacement)
+        Route::post('claims/{warrantyClaim}/update-serial', [App\Http\Controllers\Admin\WarrantyController::class, 'updateSerialNumber'])->name('claims.update-serial');
 
         // 🆕 Challans
         Route::get('claims/{warrantyClaim}/challans', [App\Http\Controllers\Admin\WarrantyController::class, 'challans'])->name('claims.challans');
         Route::get('challans/{challan}/print', [App\Http\Controllers\Admin\WarrantyController::class, 'printChallan'])->name('challans.print');
+        Route::get('challans/{challan}/pdf', [App\Http\Controllers\Admin\WarrantyController::class, 'downloadChallanPdf'])->name('challans.pdf');
     });
 
 });

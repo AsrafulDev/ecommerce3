@@ -1,207 +1,38 @@
 @php
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Str;
 
-$customer = Auth::guard('customer')->user();
-$customerId = $customer->id;
-
-// Site Name & Logo
-$siteName = \App\Models\GeneralSetting::first();
-$siteInitial = strtoupper(substr($siteName->name ?? 'G', 0, 1));
-$siteDisplayName = Str::limit($siteName->name ?? 'GadgetShop', 8);
-$generalsetting = $siteName;
-$darkLogo = $siteName->dark_logo ?? null;
-
-// Pending Orders Count for Badge
-$pendingOrdersCount = \App\Models\Order::where('customer_id', $customerId)
-    ->whereNotIn('order_status', ['6', '11'])
-    ->count();
-
-// Profile Image - Use direct image path, not accessor
-$profileImage = $profile_edit->image ? asset($profile_edit->image) : asset('public/assets/images/user.webp');
-
-// Total Order Amount
-$totalOrderAmount = \App\Models\Order::where('customer_id', $customerId)->sum('amount');
+$customerId = Auth::guard('customer')->id();
+$profileImage = Auth::guard('customer')->user()->image 
+    ? asset(Auth::guard('customer')->user()->image) 
+    : asset('public/assets/images/user.webp');
+// $profile_edit, $districts, $areas passed from controller
 @endphp
 
-<!DOCTYPE html>
-<html lang="bn">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>{{ __('Settings') }} | {{ $siteName->name ?? 'Gadget Style' }}</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
-    <!-- Toastr CSS -->
-    <link rel="stylesheet" href="{{asset('public/backEnd/')}}/assets/css/toastr.min.css" />
-    {{-- 🎨 Customer Panel Theme Variables --}}
-    @if(isset($activeTheme) && $activeTheme)
-    <style>
-        :root {
-            --cp-primary: {{ $activeTheme->primary_color ?? '#4f46e5' }};
-            --cp-secondary: {{ $activeTheme->secondary_color ?? '#059669' }};
-            --cp-accent: {{ $activeTheme->accent_color ?? '#eab308' }};
-            --cp-body-bg: {{ $activeTheme->body_bg_color ?? '#F0F2F5' }};
-            --cp-text: {{ $activeTheme->text_color ?? '#6b7280' }};
-            --cp-heading: {{ $activeTheme->heading_color ?? '#1f2937' }};
-            --cp-card-bg: {{ $activeTheme->admin_card_bg ?? '#ffffff' }};
-            --cp-border: {{ $activeTheme->border_color ?? '#e5e7eb' }};
-        }
-        @import url('https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@300;400;500;600;700&display=swap');
-        body { font-family: 'Hind Siliguri', sans-serif; background-color: var(--cp-body-bg); color: var(--cp-text); }
-        .sidebar-item:hover { background-color: color-mix(in srgb, var(--cp-primary) 10%, transparent); color: var(--cp-primary); }
-        .active-menu { background-color: color-mix(in srgb, var(--cp-primary) 15%, transparent); color: var(--cp-primary); border-right: 3px solid var(--cp-primary); }
-        .bg-indigo-600 { background-color: var(--cp-primary) !important; }
-        .text-indigo-600 { color: var(--cp-primary) !important; }
-        .text-gray-800, .text-gray-900 { color: var(--cp-heading) !important; }
-        .text-gray-500, .text-gray-600 { color: var(--cp-text) !important; }
-        .text-gray-400 { color: color-mix(in srgb, var(--cp-text) 65%, transparent) !important; }
-        .bg-white { background-color: var(--cp-card-bg) !important; }
-        .border-gray-100 { border-color: var(--cp-border) !important; }
-        .bg-gray-50 { background-color: var(--cp-body-bg) !important; }
-        .bg-gray-100 { background-color: color-mix(in srgb, var(--cp-body-bg) 60%, #000) !important; }
-        .hover\:bg-gray-100:hover { background-color: color-mix(in srgb, var(--cp-body-bg) 35%, #000) !important; }
-        .bg-red-50.text-red-600 { background-color: color-mix(in srgb, #ef4444 10%, transparent) !important; color: #ef4444 !important; }
-        .hover\:bg-red-100:hover { background-color: color-mix(in srgb, #ef4444 18%, transparent) !important; }
-        .rounded-2xl, .rounded-xl, .rounded-lg { border-radius: {{ $activeTheme->border_radius ?? '12px' }} !important; }
-        #sidebar { transition: transform 0.3s ease-in-out; }
-        
-        /* Profile Image Upload */
-        .profile-image-container { position: relative; display: inline-block; }
-        .profile-image-preview {
-            width: 150px; height: 150px; border-radius: 50%; object-fit: cover;
-            border: 4px solid var(--cp-border);
-            box-shadow: 0 4px 6px -1px color-mix(in srgb, var(--cp-primary) 15%, transparent);
-        }
-        .profile-image-upload-btn {
-            position: absolute; bottom: 0; right: 0; width: 45px; height: 45px;
-            background: var(--cp-primary); border-radius: 50%; display: flex;
-            align-items: center; justify-content: center; cursor: pointer;
-            border: 3px solid white;
-            box-shadow: 0 2px 4px color-mix(in srgb, var(--cp-primary) 30%, transparent);
-            transition: all 0.3s;
-        }
-        .profile-image-upload-btn:hover {
-            background: color-mix(in srgb, var(--cp-primary) 80%, #000);
-            transform: scale(1.1);
-        }
-        .profile-image-upload-btn i { color: white; font-size: 18px; }
-        #profileImageInput { display: none; }
-        
-        /* Select2 Customization */
-        .select2-container--default .select2-selection--single {
-            height: 42px; border: 1px solid var(--cp-border); border-radius: 8px; padding: 4px 12px;
-        }
-        .select2-container--default .select2-selection--single .select2-selection__rendered { line-height: 34px; }
-        .select2-container--default .select2-selection--single .select2-selection__arrow { height: 40px; }
-        .select2-container--default .select2-results__option--highlighted[aria-selected] {
-            background-color: var(--cp-primary) !important;
-        }
-    </style>
-    @else
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@300;400;500;600;700&display=swap');
-        body { font-family: 'Hind Siliguri', sans-serif; background-color: #F0F2F5; }
-        .sidebar-item:hover { background-color: #f3f4f6; color: #4f46e5; }
-        .active-menu { background-color: #EEF2FF; color: #4f46e5; border-right: 3px solid #4f46e5; }
-        #sidebar { transition: transform 0.3s ease-in-out; }
-        .profile-image-container { position: relative; display: inline-block; }
-        .profile-image-preview { width: 150px; height: 150px; border-radius: 50%; object-fit: cover; border: 4px solid #e5e7eb; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); }
-        .profile-image-upload-btn { position: absolute; bottom: 0; right: 0; width: 45px; height: 45px; background: #4f46e5; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; border: 3px solid white; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); transition: all 0.3s; }
-        .profile-image-upload-btn:hover { background: #4338ca; transform: scale(1.1); }
-        .profile-image-upload-btn i { color: white; font-size: 18px; }
-        #profileImageInput { display: none; }
-        .select2-container--default .select2-selection--single { height: 42px; border: 1px solid #d1d5db; border-radius: 8px; padding: 4px 12px; }
-        .select2-container--default .select2-selection--single .select2-selection__rendered { line-height: 34px; }
-        .select2-container--default .select2-selection--single .select2-selection__arrow { height: 40px; }
-    </style>
-    @endif
-</head>
-<body class="flex min-h-screen relative">
+@extends('frontEnd.layouts.customer.panel')
 
-    <div id="overlay" onclick="toggleSidebar()" class="fixed inset-0 bg-black bg-opacity-50 z-30 hidden lg:hidden"></div>
+@php
+    $pageTitle = __('Settings');
+    $headerTitle = __('Settings');
+    $headerSubtitle = __('Update your profile information');
+@endphp
 
-    <aside id="sidebar" class="fixed inset-y-0 left-0 z-40 w-64 bg-white border-r transform -translate-x-full lg:translate-x-0 lg:static lg:inset-auto lg:flex flex-col shrink-0 h-screen transition-transform duration-300">
-        <div class="p-4 sm:p-6 flex items-center justify-between lg:justify-start gap-2 border-b border-gray-100">
-            @if($darkLogo)
-                <a href="{{ route('home') }}" class="flex items-center gap-2 flex-1">
-                    <img src="{{ asset($darkLogo) }}" alt="{{ $siteName->name ?? 'Logo' }}" class="h-8 sm:h-10 w-auto max-w-full object-contain">
-                </a>
-            @else
-                <div class="flex items-center gap-2">
-                    <div class="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center text-white font-bold">{{ $siteInitial }}</div>
-                    <h1 class="text-xl sm:text-2xl font-bold text-gray-800 tracking-tight">{{ $siteDisplayName }}</h1>
-                </div>
-            @endif
-            <button onclick="toggleSidebar()" class="lg:hidden text-gray-500 hover:text-red-500">
-                <i class="fas fa-times text-xl"></i>
-            </button>
-        </div>
+@push('styles')
+<style>
+    .profile-image-container { position: relative; display: inline-block; }
+    .profile-image-preview { width: 150px; height: 150px; border-radius: 50%; object-fit: cover; border: 4px solid #e5e7eb; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); }
+    .profile-image-upload-btn { position: absolute; bottom: 0; right: 0; width: 45px; height: 45px; background: #4f46e5; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; border: 3px solid white; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); transition: all 0.3s; }
+    .profile-image-upload-btn:hover { background: #4338ca; transform: scale(1.1); }
+    .profile-image-upload-btn i { color: white; font-size: 18px; }
+    #profileImageInput { display: none; }
+    .select2-container--default .select2-selection--single { height: 42px; border: 1px solid #d1d5db; border-radius: 8px; padding: 4px 12px; }
+    .select2-container--default .select2-selection--single .select2-selection__rendered { line-height: 34px; }
+    .select2-container--default .select2-selection--single .select2-selection__arrow { height: 40px; }
+</style>
+@endpush
 
-        <nav class="flex-1 px-0 text-gray-500 font-medium space-y-1 mt-2 overflow-y-auto">
-            <a href="{{route('customer.account')}}" class="{{request()->is('customer/account')?'active-menu':'sidebar-item'}} flex items-center px-6 py-3.5 transition-colors">
-                <i class="fas fa-home w-6"></i> {{ __('Dashboard') }}
-            </a>
-            <a href="{{route('customer.orders')}}" class="{{request()->is('customer/orders')?'active-menu':'sidebar-item'}} flex items-center px-6 py-3.5 transition-colors">
-                <i class="fas fa-box-open w-6"></i> {{ __('My Orders') }} 
-                @if($pendingOrdersCount > 0)
-                    <span class="ml-auto bg-red-100 text-red-600 text-xs px-2 py-0.5 rounded-full">{{ $pendingOrdersCount }}</span>
-                @endif
-            </a>
-            <a href="{{route('customer.order_track')}}" class="{{request()->is('customer/order-track*')?'active-menu':'sidebar-item'}} flex items-center px-6 py-3.5 transition-colors">
-                <i class="fas fa-truck w-6"></i> {{ __('Track Order') }}
-            </a>
-            <a href="{{route('customer.refunds')}}" class="{{request()->is('customer/refunds*')?'active-menu':'sidebar-item'}} flex items-center px-6 py-3.5 transition-colors">
-                <i class="fas fa-undo w-6"></i> {{ __('Refund Request') }}
-            </a>
-            <a href="{{ route('customer.complaints') }}" class="{{ request()->is('customer/complaints*') ? 'active-menu' : 'sidebar-item' }} flex items-center px-6 py-3.5 transition-colors">
-                <i class="fas fa-headset w-6"></i> {{ __('Support Ticket') }}
-            </a>
-            <a href="{{route('customer.profile_edit')}}" class="{{request()->is('customer/profile-edit')?'active-menu':'sidebar-item'}} flex items-center px-6 py-3.5 transition-colors">
-                <i class="fas fa-user-cog w-6"></i> {{ __('Settings') }}
-            </a>
-        </nav>
+@section('content')
 
-        <div class="p-6 border-t">
-            <a href="{{ route('customer.logout') }}" 
-               onclick="event.preventDefault(); document.getElementById('logout-form').submit();"
-               class="w-full flex items-center justify-center px-4 py-2.5 text-red-500 bg-red-50 hover:bg-red-100 rounded-lg font-bold transition">
-                <i class="fas fa-sign-out-alt mr-2"></i> {{ __('Logout') }}
-            </a>
-            <form id="logout-form" action="{{ route('customer.logout') }}" method="POST" style="display: none;">
-                @csrf
-            </form>
-        </div>
-    </aside>
-
-    <main class="flex-1 overflow-y-auto h-screen w-full">
-        
-        <header class="bg-white px-6 lg:px-8 py-4 flex justify-between items-center sticky top-0 z-20 shadow-sm border-b">
-            <div class="lg:hidden mr-4">
-                <button onclick="toggleSidebar()" class="text-gray-600 text-xl p-2"><i class="fas fa-bars"></i></button>
-            </div>
-
-            <div class="flex-1">
-                <h2 class="text-xl font-bold text-gray-800">{{ __('Settings') }}</h2>
-                <p class="text-xs text-gray-400 mt-0.5 hidden sm:block">{{ __('Update your profile information') }}</p>
-            </div>
-
-            <div class="flex items-center gap-4">
-                <div class="hidden sm:flex bg-green-50 text-green-700 px-4 py-2 rounded-full items-center font-bold text-sm border border-green-100">
-                    <i class="fas fa-wallet mr-2"></i> {{ __('Total:') }} ৳{{ number_format($totalOrderAmount, 0) }}
-                </div>
-                
-                <div class="relative cursor-pointer w-10 h-10 bg-gray-50 rounded-full flex items-center justify-center hover:bg-gray-100 transition">
-                    <i class="far fa-bell text-gray-600"></i>
-                </div>
-
-                <img src="{{ $profileImage }}" onerror="this.src='{{ asset('public/assets/images/user.webp') }}'" class="w-10 h-10 rounded-full border-2 border-white shadow-sm cursor-pointer" alt="Profile">
-            </div>
-        </header>
-
-        <div class="p-4 lg:p-8 max-w-4xl mx-auto">
+<div class="p-4 lg:p-8 max-w-4xl mx-auto">
             
             <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
                 <div class="p-6 border-b border-gray-50">
@@ -315,135 +146,43 @@ $totalOrderAmount = \App\Models\Order::where('customer_id', $customerId)->sum('a
             </div>
 
         </div>
-    </main>
+    
+            </div>
+@endsection
 
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
-    <!-- Toastr JS -->
-    <script src="{{asset('public/backEnd/')}}/assets/js/toastr.min.js"></script>
-    {!! Toastr::message() !!}
-    <script>
-        // Toastr Configuration
-        toastr.options = {
-            "closeButton": true,
-            "debug": false,
-            "newestOnTop": true,
-            "progressBar": true,
-            "positionClass": "toast-top-right",
-            "preventDuplicates": false,
-            "onclick": null,
-            "showDuration": "300",
-            "hideDuration": "1000",
-            "timeOut": "5000",
-            "extendedTimeOut": "1000",
-            "showEasing": "swing",
-            "hideEasing": "linear",
-            "showMethod": "fadeIn",
-            "hideMethod": "fadeOut"
-        };
-
-        // Display session messages
-        @if(Session::has('success'))
-            toastr.success("{{ Session::get('success') }}", "{{ __('Success!') }}");
-        @endif
-        @if(Session::has('error'))
-            toastr.error("{{ Session::get('error') }}", "{{ __('Error!') }}");
-        @endif
-        @if(Session::has('info'))
-            toastr.info("{{ Session::get('info') }}", "{{ __('Info!') }}");
-        @endif
-        @if(Session::has('warning'))
-            toastr.warning("{{ Session::get('warning') }}", "{{ __('Warning!') }}");
-        @endif
-    </script>
-    <script>
-        function toggleSidebar() {
-            const sidebar = document.getElementById('sidebar');
-            const overlay = document.getElementById('overlay');
-            
-            if (sidebar.classList.contains('-translate-x-full')) {
-                sidebar.classList.remove('-translate-x-full');
-                overlay.classList.remove('hidden');
-            } else {
-                sidebar.classList.add('-translate-x-full');
-                overlay.classList.add('hidden');
-            }
+@push('scripts')
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" rel="stylesheet" />
+<script>
+function previewProfileImage(input) {
+    if (input.files && input.files[0]) {
+        var reader = new FileReader();
+        reader.onload = function(e) {
+            document.getElementById('profileImagePreview').src = e.target.result;
+            document.getElementById('imageFileName').textContent = input.files[0].name;
+            document.getElementById('imageFileName').classList.remove('hidden');
         }
-
-        // Profile Image Preview
-        function previewProfileImage(input) {
-            if (input.files && input.files[0]) {
-                const file = input.files[0];
-                const maxSize = 2 * 1024 * 1024; // 2MB
-                
-                // Check file size
-                if (file.size > maxSize) {
-                    alert('{{ __('Image size cannot exceed 2MB!') }}');
-                    input.value = '';
-                    return;
+        reader.readAsDataURL(input.files[0]);
+    }
+}
+$(document).ready(function() {
+    $('.select2').select2({ placeholder: 'Select...', allowClear: true });
+    $('#district').on('change', function() {
+        var district = $(this).val();
+        if (district) {
+            $.ajax({ url: '/get-area/' + district, type: 'GET', dataType: 'json',
+                success: function(data) {
+                    $('#area').empty().append('<option value="">Select...</option>');
+                    $.each(data, function(key, value) {
+                        $('#area').append('<option value="'+ value.id +'">'+ value.area_name +'</option>');
+                    });
                 }
-                
-                // Check file type
-                const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
-                if (!allowedTypes.includes(file.type)) {
-                    alert('{{ __('Only JPG, PNG or WEBP images are allowed!') }}');
-                    input.value = '';
-                    return;
-                }
-                
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    document.getElementById('profileImagePreview').src = e.target.result;
-                    document.getElementById('imageFileName').textContent = file.name;
-                    document.getElementById('imageFileName').classList.remove('hidden');
-                }
-                reader.readAsDataURL(file);
-            }
-        }
-        
-        // Form submission validation
-        document.getElementById('profileForm').addEventListener('submit', function(e) {
-            const imageInput = document.getElementById('profileImageInput');
-            if (imageInput.files && imageInput.files[0]) {
-                const file = imageInput.files[0];
-                const maxSize = 2 * 1024 * 1024; // 2MB
-                
-                if (file.size > maxSize) {
-                    e.preventDefault();
-                    alert('{{ __('Image size cannot exceed 2MB!') }}');
-                    return false;
-                }
-            }
-        });
-
-        // Select2 Initialization
-    $(document).ready(function() {
-            $('.select2').select2({
-                theme: 'default',
-                width: '100%'
             });
+        }
     });
-
-        // District Change Handler
-        $('.district').on('change', function(){
-    var id = $(this).val();
-        $.ajax({
-                type: "GET",
-                data: {'id': id},
-                url: "{{route('districts')}}",
-                success: function(res){               
-            if(res){
-                $(".area").empty();
-                        $(".area").append('<option value="">নির্বাচন করুন...</option>');
-                        $.each(res, function(key, value){
-                            $(".area").append('<option value="'+key+'">'+value+'</option>');
-                        });
-                    } else {
-               $(".area").empty();
-            }
-           }
-        });  
-   });
+});
 </script>
-</body>
-</html>
+@endpush

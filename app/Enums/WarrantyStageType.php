@@ -7,6 +7,8 @@ enum WarrantyStageType: string
     case SUBMITTED        = 'submitted';
     case DOCUMENT_VERIFY  = 'document_verification';
     case PRODUCT_INSPECT  = 'product_inspection';
+    case SENT_TO_SUPPLIER = 'sent_to_supplier';
+    case SUPPLIER_RETURN  = 'supplier_return';
     case REPAIR           = 'repair';
     case REPLACEMENT      = 'replacement';
     case QUALITY_CHECK    = 'quality_check';
@@ -20,6 +22,8 @@ enum WarrantyStageType: string
             self::SUBMITTED        => 'Claim Submitted',
             self::DOCUMENT_VERIFY  => 'Document Verification',
             self::PRODUCT_INSPECT  => 'Product Inspection',
+            self::SENT_TO_SUPPLIER => 'Sent to Supplier',
+            self::SUPPLIER_RETURN  => 'Supplier Return',
             self::REPAIR           => 'Repair / Service',
             self::REPLACEMENT      => 'Replacement',
             self::QUALITY_CHECK    => 'Quality Check',
@@ -35,6 +39,8 @@ enum WarrantyStageType: string
             self::SUBMITTED        => 'fa-paper-plane',
             self::DOCUMENT_VERIFY  => 'fa-file-alt',
             self::PRODUCT_INSPECT  => 'fa-search',
+            self::SENT_TO_SUPPLIER => 'fa-truck',
+            self::SUPPLIER_RETURN  => 'fa-undo-alt',
             self::REPAIR           => 'fa-tools',
             self::REPLACEMENT      => 'fa-exchange-alt',
             self::QUALITY_CHECK    => 'fa-clipboard-check',

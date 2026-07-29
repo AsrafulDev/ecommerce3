@@ -2050,12 +2050,26 @@ class OrderController extends Controller
 
             $order_details->save();
 
+            // � SN uniqueness validation
+            $serialNumbers = $cart->options->serial_numbers ?? [];
+            if (!empty($serialNumbers)) {
+                foreach ($serialNumbers as $sn) {
+                    $exists = \App\Models\WarrantySale::where('product_id', $order_details->product_id)
+                        ->whereJsonContains('serial_numbers', $sn)
+                        ->whereIn('status', ['active', 'claimed'])
+                        ->exists();
+                    if ($exists) {
+                        throw new \RuntimeException("Serial number '{$sn}' is already registered for this product.");
+                    }
+                }
+            }
+
             // 🛡️ Always create/update WarrantySale (for SN tracking even without warranty)
             $warrantyData = [
                 'order_id'       => $order->id,
                 'customer_id'    => $customer_id,
                 'product_id'     => $order_details->product_id,
-                'serial_numbers' => $cart->options->serial_numbers ?? [],
+                'serial_numbers' => $serialNumbers,
                 'stock_batch_id' => $cart->options->batch_id ?? null,
                 'purchase_id'    => $this->resolvePurchaseId($order_details->product_id, $cart->options->batch_id ?? null),
                 'sold_by'        => auth()->id(),
@@ -2751,12 +2765,26 @@ class OrderController extends Controller
 
             $detail->save();
 
+            // � SN uniqueness validation (skip for existing details — updating their own SN is fine)
+            $serialNumbers = $cart->options->serial_numbers ?? [];
+            if (!empty($serialNumbers) && empty($detail->id)) {
+                foreach ($serialNumbers as $sn) {
+                    $exists = \App\Models\WarrantySale::where('product_id', $detail->product_id)
+                        ->whereJsonContains('serial_numbers', $sn)
+                        ->whereIn('status', ['active', 'claimed'])
+                        ->exists();
+                    if ($exists) {
+                        throw new \RuntimeException("Serial number '{$sn}' is already registered for this product.");
+                    }
+                }
+            }
+
             // 🛡️ Always create/update WarrantySale (for SN tracking even without warranty)
             $warrantyData = [
                 'order_id'       => $order->id,
                 'customer_id'    => $order->customer_id,
                 'product_id'     => $detail->product_id,
-                'serial_numbers' => $cart->options->serial_numbers ?? [],
+                'serial_numbers' => $serialNumbers,
                 'stock_batch_id' => $cart->options->batch_id ?? null,
                 'purchase_id'    => $this->resolvePurchaseId($detail->product_id, $cart->options->batch_id ?? null),
                 'sold_by'        => auth()->id(),

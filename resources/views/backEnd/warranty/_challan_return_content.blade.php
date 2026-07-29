@@ -32,7 +32,4 @@
 @endif
 
 <div class="footer-text">{{ $d['footer_text'] }}</div>
-<div style="display:flex;justify-content:space-between;margin-top:40px;">
-    <div>Supplier Signature: _______________</div>
-    <div>Store Signature: _______________</div>
-</div>
+
