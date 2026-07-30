@@ -75,14 +75,27 @@
 <div class="container-fluid">
     
     <div class="row mb-3 mt-3">
-        <div class="col-12 d-flex justify-content-between align-items-center">
+        <div class="col-12 d-flex justify-content-between align-items-center flex-wrap gap-2">
             <div>
                 <h4 class="page-title mb-0" style="font-weight: 700; color: #2d3436;"> {{ __('Permissions') }} </h4>
-                <p class="text-muted font-size-13 mb-0"> {{ __('Manage system permissions and access levels.') }} </p>
+                <p class="text-muted font-size-13 mb-0">
+                    {{ __('Manage system permissions and access levels.') }}
+                    <span class="badge bg-soft-info text-info ms-2" style="font-weight:500;">
+                        {{ $totalExisting ?? 0 }} / {{ $totalActive ?? 76 }} permissions exist
+                    </span>
+                </p>
             </div>
-            <a href="{{route('permissions.create')}}" class="btn btn-primary rounded-pill shadow-sm px-4">
-                <i class="fe-plus me-1"></i> Add New Permission
-            </a>
+            <div class="d-flex gap-2">
+                <form action="{{ route('permissions.sync') }}" method="POST" style="display:inline;">
+                    @csrf
+                    <button type="submit" class="btn btn-success rounded-pill shadow-sm px-4" title="Scan controllers & create all missing permissions">
+                        <i class="fe-refresh-cw me-1"></i> Sync All Permissions
+                    </button>
+                </form>
+                <a href="{{route('permissions.create')}}" class="btn btn-primary rounded-pill shadow-sm px-4">
+                    <i class="fe-plus me-1"></i> Add New Permission
+                </a>
+            </div>
         </div>
     </div>
 

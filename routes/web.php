@@ -697,12 +697,12 @@ Route::get('dashboard', [DashboardController::class, 'dashboard'])->name('admin.
 
     // permissions
     Route::get('permissions/manage', [PermissionController::class,'index'])->name('permissions.index');
-    Route::get('permissions/{id}/show', [PermissionController::class,'show'])->name('permissions.show');
     Route::get('permissions/create', [PermissionController::class,'create'])->name('permissions.create');
     Route::post('permissions/save', [PermissionController::class,'store'])->name('permissions.store');
     Route::get('permissions/{id}/edit', [PermissionController::class,'edit'])->name('permissions.edit');
     Route::post('permissions/update', [PermissionController::class,'update'])->name('permissions.update');
     Route::post('permissions/destroy', [PermissionController::class,'destroy'])->name('permissions.destroy');
+    Route::post('permissions/sync', [PermissionController::class,'syncPermissions'])->name('permissions.sync');
 
     // categories
     Route::get('categories/manage', [CategoryController::class,'index'])->name('categories.index');
