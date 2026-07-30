@@ -45,7 +45,20 @@
         $paid_amount = $grand_total;
     }
 
-    // ৪. ডিউ ক্যালকুলেশন
+    // 💰 Total product-level discount (wholesale)
+    $totalProductDiscount = 0;
+    $totalWarrantyCharge = 0;
+    $totalItemSubtotal = 0;
+    foreach ($order->orderdetails as $item) {
+        $totalProductDiscount += ((float) ($item->product_discount ?? 0)) * $item->qty;
+        $totalWarrantyCharge += ((float) ($item->warranty_price ?? 0)) * $item->qty;
+        $totalItemSubtotal += (float)($item->sale_price ?? 0) * $item->qty;
+    }
+
+    // ⭐ Override grand_total from components (handles old orders with double-counted warranty)
+    $grand_total = $totalItemSubtotal + (float)$order->shipping_charge - (float)$order->discount;
+
+    // ৪. ডিউ ক্যালকুলেশন (after grand_total override)
     $due_amount = max(0, $grand_total - $paid_amount);
 
     // ৫. স্ট্যাটাস চেক (ডিসপ্লে এর জন্য)
@@ -99,8 +112,6 @@
             </div>
 
             <div class="col-sm-6 text-end">
-                <button onclick="downloadPDF()" class="no-print invoice_btn btn btn-success me-2">
-                    <i class="fa fa-download"></i>{{ __('Download Invoice') }}</button>
                 <button onclick="printFunction()" class="no-print invoice_btn btn btn-primary">
                     <i class="fa fa-print"></i>{{ __('Print') }}</button>
             </div>
@@ -233,7 +244,7 @@
                                         @endif
                                     @endif
                                 </td>
-                                <td>৳{{ number_format($value->sale_price, 2) }}</td>
+                                <td>৳{{ number_format($value->sale_price - $warrantyPrice, 2) }}</td>
                                 <td>
                                     @if($productDiscount > 0)
                                         <span class="text-danger">-৳{{ number_format($productDiscount, 2) }}</span>
@@ -260,20 +271,13 @@
                         $shipping = $order->shipping_charge;
                         $discount = $order->discount;
 
-                        // 💰 Total product-level discount (wholesale)
-                        $totalProductDiscount = 0;
+                        // ⭐ Subtotal = base product prices (without warranty)
+                        // sale_price = base_price + warranty - discount, so base = sale_price - warranty + discount
+                        $subtotal = 0;
                         foreach ($order->orderdetails as $item) {
-                            $totalProductDiscount += ((float) ($item->product_discount ?? 0)) * $item->qty;
+                            $basePrice = (float)($item->sale_price ?? 0) - (float)($item->warranty_price ?? 0) + (float)($item->product_discount ?? 0);
+                            $subtotal += $basePrice * $item->qty;
                         }
-
-                        // 🛡️ Total warranty charges
-                        $totalWarrantyCharge = 0;
-                        foreach ($order->orderdetails as $item) {
-                            $totalWarrantyCharge += ((float) ($item->warranty_price ?? 0)) * $item->qty;
-                        }
-
-                        // ⭐ Subtotal = product prices only (warranty excluded — shown as separate line)
-                        $subtotal = ($order->amount + $order->discount) - $order->shipping_charge - $totalWarrantyCharge;
                     @endphp
 
                     <div class="invoice-bottom">
@@ -366,51 +370,26 @@
 
 <script>
     function printFunction() {
-        window.print();
+        const printContent = document.getElementById('invoice-pdf-area').innerHTML;
+        const style = document.querySelector('style').innerHTML;
+        const win = window.open('', '_blank');
+        win.document.write(`
+            <html>
+                <head>
+                    <title>Print Invoice</title>
+                    <style>${style}</style>
+                    <style>
+                        body { margin: 0; padding:0 20px; background: #fff; }
+                        #invoice-pdf-area { box-shadow: none; margin: 0; max-width: 100%; }
+                        .no-print { display: none !important; }
+                    </style>
+                </head>
+                <body>${printContent}</body>
+            </html>
+        `);
+        win.document.close();
+        win.focus();
+        setTimeout(() => { win.print(); win.close(); }, 500);
     }
 </script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-<script>
-function downloadPDF() {
-    const element = document.getElementById('invoice-pdf-area');
-    const invoice_id = "{{ $order->invoice_id }}";
-    const opt = {
-        margin: [10, 10, 10, 10],
-        filename: 'Invoice-' + invoice_id + '.pdf',
-        image: { type: 'jpeg', quality: 0.98 },
-        html2canvas: { scale: 2, useCORS: true },
-        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
-        pagebreak: { mode: ['css', 'legacy'] }
-    };
-    
-    // Clone & clean the DOM for PDF (remove transforms, fix widths)
-    const clone = element.cloneNode(true);
-    clone.style.width = '800px';
-    clone.style.maxWidth = '100%';
-    clone.style.transform = 'none';
-    // Remove skew transforms
-    clone.querySelectorAll('[style*="skew"]').forEach(el => {
-        el.style.transform = 'none';
-    });
-    // Fix float-right tables
-    clone.querySelectorAll('[style*="float"]').forEach(el => {
-        el.style.float = 'none';
-        el.style.width = '100%';
-    });
-    // Fix margin-left on bars
-    clone.querySelectorAll('[style*="margin-left"]').forEach(el => {
-        el.style.marginLeft = '0';
-    });
-    // Temporarily replace
-    const parent = element.parentNode;
-    parent.insertBefore(clone, element);
-    element.style.display = 'none';
-    
-    html2pdf().set(opt).from(clone).save().then(() => {
-        clone.remove();
-        element.style.display = '';
-    });
-}
-</script>
-
 @endsection

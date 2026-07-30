@@ -729,6 +729,8 @@ if (typeof ttq !== 'undefined') {
                                                 </div>
                                                 {{-- Discount badge + Unit Price --}}
                                                 @php
+                                                    $rp = $value->options->regular_price ?? $value->options->base_price ?? $value->price;
+                                                    $sp = $value->options->sale_price ?? $value->options->base_price ?? $value->price;
                                                     $wd = $value->options->wholesale_discount ?? 0;
                                                     $wa = $value->options->warranty_adjustment ?? 0;
                                                     $bp = $value->options->base_price ?? $value->price;
@@ -747,7 +749,7 @@ if (typeof ttq !== 'undefined') {
                                                     </div>
                                                     <div class="text-end">
                                                         @if($hasAdjustment)
-                                                            <small class="text-muted text-decoration-line-through d-block">৳{{ number_format($bp, 0) }}</small>
+                                                            <small class="text-muted text-decoration-line-through d-block">৳{{ number_format($bp + $wd - $wa, 0) }}</small>
                                                         @endif
                                                         <span class="fw-bold text-dark">৳{{ number_format($value->price, 0) }} × {{ $value->qty }}</span>
                                                         <span class="fw-bold text-dark"> = ৳{{ number_format($value->price * $value->qty, 0) }}</span>

@@ -41,9 +41,6 @@
         $paid_amount = $grand_total;
     }
 
-    // Due
-    $due_amount = max(0, $grand_total - $paid_amount);
-
     // 💰 Total product-level discount (wholesale)
     $totalProductDiscount = 0;
     foreach ($order->orderdetails as $item) {
@@ -52,12 +49,24 @@
 
     // 🛡️ Total warranty charges
     $totalWarrantyCharge = 0;
+    $totalItemSubtotal = 0; // sum of (sale_price * qty) for all items
     foreach ($order->orderdetails as $item) {
         $totalWarrantyCharge += ((float) ($item->warranty_price ?? 0)) * $item->qty;
+        $totalItemSubtotal += (float)($item->sale_price ?? 0) * $item->qty;
     }
 
-    // ⭐ Subtotal = product prices only (warranty excluded — it's shown as a separate line)
-    $subtotal = ($order->amount + $order->discount) - $order->shipping_charge - $totalWarrantyCharge;
+    // ⭐ Subtotal = product base prices only (warranty & wholesale excluded — shown as separate lines)
+    // sale_price already has wholesale subtracted & warranty added, so reverse both to get base price
+    $subtotal = $totalItemSubtotal - $totalWarrantyCharge + $totalProductDiscount;
+
+    // ⭐ Recalculate grand total from components (handles both old orders with double-counted warranty and new orders)
+    $calculatedGrandTotal = $totalItemSubtotal + (float)$order->shipping_charge - (float)$order->discount;
+
+    // Override grand_total with the correct calculated value for display/calculation
+    $grand_total = $calculatedGrandTotal;
+
+    // Due (calculated after grand_total override so it uses the correct total)
+    $due_amount = max(0, $grand_total - $paid_amount);
 
     // ⭐ ডিজিটাল ডাউনলোড লজিক — যদি ফুল পেইড হয় তবেই ডাউনলোড লিংক দেখাবে
     $is_fully_paid = ($paid_amount >= $grand_total);
@@ -228,7 +237,7 @@
                                     @endif
                                 @endif
                             </td>
-                            <td class="text-center">৳{{number_format($item->sale_price, 2)}}</td>
+                            <td class="text-center">৳{{number_format($item->sale_price - $warrantyPrice, 2)}}</td>
                             <td class="text-center">
                                 @if($productDiscount > 0)
                                     <span class="text-danger">-৳{{number_format($productDiscount, 2)}}</span>

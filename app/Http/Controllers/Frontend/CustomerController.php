@@ -442,8 +442,9 @@ public function order_save(Request $request)
             $warrantyCharge += (float)($item->options->warranty_adjustment ?? 0) * $item->qty;
         }
 
-        // ইনভয়েসে দেখানোর মোট (Grand Total) — includes warranty
-        $grandTotal = ($subtotal + $shippingfee + $warrantyCharge) - $discount;
+        // ইনভয়েসে দেখানোর মোট (Grand Total)
+        // $subtotal ইতিমধ্যেই cart price-তে warranty সহ calculated, তাই আলাদা করে warranty যোগ করার দরকার নেই
+        $grandTotal = $subtotal + $shippingfee - $discount;
 
         // =========================================================
         // ⭐ ফিক্সড লজিক: গেটওয়েতে কত টাকা পাঠাবো?

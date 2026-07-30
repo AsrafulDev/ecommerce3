@@ -440,12 +440,16 @@ $brands = Brand::where('status', 1)
                 // 🔥 Free Delivery flag
                 'free_delivery'  => (int) ($product->free_delivery ?? 0),
 
+                // 🏷️ Original prices
+                'regular_price'       => (float) ($product->old_price ?? 0),
+                'sale_price'          => (float) ($product->new_price ?? 0),
+                'base_price'          => $basePrice,
+
                 // 🛡️ Warranty
                 'warranty_tier_id'    => $warrantyTierId,
                 'warranty_adjustment' => $warrantyAdjustment,
 
                 // 💰 Wholesale / base price tracking
-                'base_price'         => $basePrice,
                 'wholesale_discount' => $wholesaleDiscount,
             ],
         ]);
@@ -1164,6 +1168,25 @@ $brands = Brand::where('status', 1)
                     'image'          => $product->image->image,
                     'old_price'      => $product->old_price,
                     'purchase_price' => $product->purchase_price,
+
+                    // 🔥 Advance
+                    'advance_amount' => (float) ($product->advance_amount ?? 0),
+
+                    // 🔥 Digital flag
+                    'is_digital'     => (int) ($product->is_digital ?? 0),
+
+                    // 🔥 Free Delivery flag
+                    'free_delivery'  => (int) ($product->free_delivery ?? 0),
+
+                    // 🏷️ Original prices
+                    'regular_price'       => (float) ($product->old_price ?? 0),
+                    'sale_price'          => (float) ($product->new_price ?? 0),
+                    'base_price'          => (float) ($product->new_price ?? $product->old_price ?? 1),
+
+                    // 🛡️ Warranty
+                    'warranty_tier_id'    => null,
+                    'warranty_adjustment' => 0,
+                    'wholesale_discount'  => 0,
                 ],
             ]);
         }
