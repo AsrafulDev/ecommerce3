@@ -257,7 +257,7 @@
         .alert-danger { color: var(--admin-text-color) !important; }
 
         /* ── Pagination ── */
-        .page-item.active .page-link { background-color: var(--admin-primary) !important; border-color: var(--admin-primary) !important; }
+        .page-item.active .page-link { color: #fff !important; background-color: var(--admin-primary) !important; border-color: var(--admin-primary) !important; }
         .page-link { color: var(--admin-primary) !important; }
         .page-link:hover { color: var(--admin-button-hover) !important; }
 
