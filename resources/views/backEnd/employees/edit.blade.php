@@ -112,7 +112,7 @@
 
                             <div class="col-md-6">
                                 <label class="form-label-custom"> {{ __('Phone Number') }} </label>
-                                <input type="text" name="phone" class="form-control form-control-custom" value="{{ old('phone', $employee->phone) }}">
+                                <input type="tel" name="phone" class="form-control form-control-custom" value="{{ old('phone', $employee->phone) }}">
                             </div>
 
                             <div class="col-md-6">

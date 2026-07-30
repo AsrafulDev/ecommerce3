@@ -248,7 +248,7 @@
                         <div class="col-md-6">
                             <div class="input-wrapper">
                                 <label class="elite-label"> {{ __('Primary Phone (Mobile) *') }} </label>
-                                <input type="text" class="elite-input" name="phone" value="{{ old('phone', $contact->phone) }}" required>
+                                <input type="tel" class="elite-input" name="phone" value="{{ old('phone', $contact->phone) }}" required>
                                 <i class="fe-smartphone"></i>
                             </div>
                         </div>

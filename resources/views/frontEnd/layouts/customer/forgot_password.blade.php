@@ -151,7 +151,7 @@
                     <div class="custom-input-group">
                         <label for="phone">{{ __('Mobile Number') }}</label>
                         <i class="fas fa-phone-alt input-icon"></i>
-                        <input type="number" id="phone" 
+                        <input type="tel" id="phone"
                                class="custom-input @error('phone') is-invalid @enderror" 
                                name="phone" value="{{ old('phone') }}" 
                                placeholder="017xxxxxxxx" required>

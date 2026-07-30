@@ -143,7 +143,7 @@
                                     <div class="col-md-6">
                                         <div class="form-group mb-4">
                                             <label class="form-label"> {{ __('Phone Number') }} <span class="text-danger">*</span></label>
-                                            <input type="text" class="form-control" name="phone" value="{{ $edit_data->phone }}" required>
+                                            <input type="tel" class="form-control" name="phone" value="{{ $edit_data->phone }}" required>
                                             @error('phone') <div class="text-danger small mt-1">{{ $message }}</div> @enderror
                                         </div>
                                     </div>

@@ -79,7 +79,7 @@ $profileImage = Auth::guard('customer')->user()->image
                         {{-- Phone Number --}}
                         <div>
                             <label for="phone" class="block text-sm font-semibold text-gray-700 mb-2">{{ __('Phone Number *') }}</label>
-                            <input type="number" id="phone" name="phone" value="{{old('phone', $profile_edit->phone)}}" required
+                            <input type="tel" id="phone" name="phone" value="{{old('phone', $profile_edit->phone)}}" required
                                    class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition @error('phone') border-red-500 @enderror">
                                 @error('phone')
                                 <p class="text-red-500 text-xs mt-1">{{ $message }}</p>

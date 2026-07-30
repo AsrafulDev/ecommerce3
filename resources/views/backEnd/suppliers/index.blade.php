@@ -115,7 +115,7 @@
 
                         <div class="mb-3">
                             <label class="form-label-modern"> {{ __('Phone Number') }} </label>
-                            <input type="text" name="phone" class="form-control form-control-modern" 
+                            <input type="tel" name="phone" class="form-control form-control-modern" 
                                    value="{{ old('phone', $supplier->phone ?? '') }}" placeholder="e.g. 017xxxxxxxx">
                         </div>
 

@@ -116,7 +116,7 @@
                     <div class="col-sm-6">
                         <div class="form-group mb-3">
                             <label for="phone" class="form-label"> {{ __('Customer Phone') }} </label>
-                            <input type="text" class="form-control" name="phone" value="{{$data->shipping?$data->shipping->phone:''}}" placeholder="Phone Number">
+                            <input type="tel" class="form-control" name="phone" value="{{$data->shipping?$data->shipping->phone:''}}" placeholder="Phone Number">
                         </div>
                     </div>
 

@@ -223,7 +223,7 @@
                     <div>
                         <label class="input-label">{{ __('Mobile Number') }}</label>
                         <div class="input-wrapper">
-                            <input type="number" name="phone" 
+                            <input type="tel" name="phone" 
                                    class="modern-input @error('phone') is-invalid @enderror" 
                                    value="{{ old('phone') }}" 
                                    placeholder="017xxxxxxxx">

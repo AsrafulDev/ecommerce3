@@ -293,7 +293,7 @@
                         </div>
 
                         <div class="mb-2">
-                            <input type="number"
+                            <input type="tel"
                                    id="phone"
                                    class="form-control form-control-sm @error('phone') is-invalid @enderror"
                                    placeholder="Mobile Number"
@@ -707,7 +707,7 @@
         var container = $(this).closest('.sn-inputs-container');
         var rowId = container.data('id');
         var productId = container.data('product-id');
-        var row = $('<div class="input-group input-group-sm mb-1 sn-input-row">' +
+        var row = $('<div class="input-group input-group-sm mb-1 sn-input-row" style="flex-wrap:nowrap;">' +
             '<input type="text" class="form-control form-control-sm cart-sn-input" ' +
             'data-id="' + rowId + '" data-product-id="' + productId + '" ' +
             'placeholder="Scan/type SN..." style="font-size:11px;">' +

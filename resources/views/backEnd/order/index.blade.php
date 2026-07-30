@@ -184,7 +184,16 @@
                                             ৳{{ number_format($showAmount, 2) }}
                                         </td>
 
-                                        <td>{{ $value->status ? $value->status->name : '' }}</td>
+                                        <td>
+                                            @php
+                                                $stEnum = \App\Enums\OrderStatus::tryFrom($value->order_status);
+                                            @endphp
+                                            @if($stEnum)
+                                                <span class="badge bg-{{ $stEnum->badgeClass() }}" style="font-size:12px;">{{ $stEnum->label() }}</span>
+                                            @else
+                                                {{ $value->status ? $value->status->name : '' }}
+                                            @endif
+                                        </td>
 
                                         {{-- Courier Information --}}
                                         <td>
@@ -341,13 +350,9 @@
                 <label class="form-label">{{ __('Select Status') }}<span class="text-danger">*</span></label>
                 <select name="order_status" id="order_status" class="form-control">
                     <option value=""> {{ __('Select Status..') }} </option>
-                    @if(isset($orderstatus) && $orderstatus->count() > 0)
-                        @foreach($orderstatus as $s)
-                            <option value="{{ $s->id }}">{{ $s->name }}</option>
-                        @endforeach
-                    @else
-                        <option value=""> {{ __('No status available') }} </option>
-                    @endif
+                    @foreach(\App\Enums\OrderStatus::cases() as $statusEnum)
+                        <option value="{{ $statusEnum->value }}">{{ $statusEnum->label() }}</option>
+                    @endforeach
                 </select>
                 <small class="text-muted"> {{ __('Select orders first, then choose status') }} </small>
                 <div class="invalid-feedback" id="status_error" style="display: none;"> {{ __('Please select a status') }} </div>
@@ -871,26 +876,16 @@ $(document).ready(function(){
             return false;
         }
         
-        // Validate status selected - check multiple conditions
+        // Validate status selected
         var statusValue = String(order_status || '').trim();
         if(!statusValue || statusValue === '' || statusValue === 'null' || statusValue === 'undefined' || statusValue === '0'){
             $statusSelect.addClass('is-invalid');
             $statusError.text('Please select a status').show();
             toastr.error('Please Select A Status First !');
-            // Focus on select field and scroll to it
             $statusSelect.focus();
             $('html, body').animate({
                 scrollTop: $statusSelect.offset().top - 100
             }, 300);
-            return false;
-        }
-        
-        // Additional check - make sure it's a valid number
-        if(isNaN(parseInt(statusValue)) || parseInt(statusValue) <= 0){
-            $statusSelect.addClass('is-invalid');
-            $statusError.text('Please select a valid status').show();
-            toastr.error('Please Select A Valid Status !');
-            $statusSelect.focus();
             return false;
         }
 

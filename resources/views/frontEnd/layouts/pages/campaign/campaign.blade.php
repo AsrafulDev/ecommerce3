@@ -752,7 +752,7 @@
                                     <div class="col-sm-12">
                                         <div class="form-group mb-3">
                                             <label for="phone">আপনার মোবাইল লিখুন *</label>
-                                            <input type="number" minlength="11" id="number" maxlength="11" pattern="0[0-9]+" title="please enter number only and 0 must first character" title="Please enter an 11-digit number." id="phone" class="form-control @error('phone') is-invalid @enderror" name="phone" value="{{old('phone')}}" placeholder="+৮৮ বাদে ১১ সংখ্যা "  required>
+                                            <input type="tel" minlength="11" id="number" maxlength="11" pattern="0[0-9]+" title="please enter number only and 0 must first character" title="Please enter an 11-digit number." id="phone" class="form-control @error('phone') is-invalid @enderror" name="phone" value="{{old('phone')}}" placeholder="+৮৮ বাদে ১১ সংখ্যা "  required>
                                             @error('phone')
                                                 <span class="invalid-feedback" role="alert">
                                                     <strong>{{ $message }}</strong>
@@ -765,7 +765,7 @@
                                         <div class="form-group mb-3">
                                             <label for="address">আপনার ঠিকানা লিখুন   *</label>
                                             <input type="address" id="address" class="form-control @error('address') is-invalid @enderror" placeholder="জেলা, থানা, গ্রাম " name="address" value="{{old('address')}}"  required>
-                                            @error('email')
+                                            @error('address')
                                                 <span class="invalid-feedback" role="alert">
                                                     <strong>{{ $message }}</strong>
                                                 </span>
@@ -780,7 +780,7 @@
                                                 <option value="{{$value->id}}">{{$value->name}}</option>
                                                 @endforeach
                                             </select>
-                                            @error('email')
+                                            @error('area')
                                                 <span class="invalid-feedback" role="alert">
                                                     <strong>{{ $message }}</strong>
                                                 </span>

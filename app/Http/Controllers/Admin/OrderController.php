@@ -1267,12 +1267,6 @@ class OrderController extends Controller
     // ✅ Bulk status change + stock handle
     public function order_status(Request $request)
     {
-        // Check if this is AJAX request
-        if (!$request->ajax() && !$request->wantsJson()) {
-            // For non-AJAX requests, validate and return JSON anyway
-        }
-        
-        // Manual validation to avoid redirect
         $orderStatus = $request->input('order_status');
         $orderIds = $request->input('order_ids', []);
         
@@ -1292,15 +1286,23 @@ class OrderController extends Controller
             ], 422);
         }
         
-        // Validate status exists
-        $orderStatusModel = OrderStatus::find($orderStatus);
-        if (!$orderStatusModel) {
+        // ✅ Resolve target status: support both enum string and legacy int ID
+        if (is_numeric($orderStatus)) {
+            $targetEnum = OrderStatusEnum::fromLegacyId((int) $orderStatus);
+        } else {
+            $targetEnum = OrderStatusEnum::tryFrom($orderStatus);
+        }
+        
+        if (!$targetEnum) {
             return response()->json([
                 'status' => 'error',
                 'message' => 'Selected status is invalid',
                 'errors' => ['order_status' => ['Selected status is invalid']]
             ], 422);
         }
+        
+        $targetStatusValue = $targetEnum->value;
+        $targetLabel = $targetEnum->label();
         
         // Validate order IDs exist
         $validOrderIds = Order::whereIn('id', $orderIds)->pluck('id')->toArray();
@@ -1315,39 +1317,44 @@ class OrderController extends Controller
         $sms_gateway  = SmsGateway::where('status', 1)->first();
         $site_setting = GeneralSetting::where('status', 1)->first();
 
-        $targetStatus = (int) $orderStatus;
-        
-        // Use validated order IDs
-        $orderIdsToProcess = $validOrderIds;
-
-        // ✅ Eager load customers to avoid N+1 query
-        $orders = Order::whereIn('id', $orderIdsToProcess)
+        $orders = Order::whereIn('id', $validOrderIds)
             ->with('customer:id,id,name,phone')
             ->get();
 
         foreach ($orders as $order) {
+            $oldStatus = $order->order_status;
+            $oldEnum = OrderStatusEnum::tryFrom($oldStatus);
 
-            $oldStatus = (int) $order->order_status;
+            $order->order_status = $targetStatusValue;
+            $order->save();
+            
+            // Auto-note the status change
+            $order->addNote(
+                content: "Bulk status change: " . ($oldEnum?->label() ?? $oldStatus) . " → {$targetLabel}",
+                type: 'info',
+                source: 'system',
+                userId: auth()->id()
+            );
 
-            $order->order_status = $targetStatus;
-            $order->update();
-
-            if ($targetStatus == 6 && $oldStatus != 6) {
-                FundTransaction::create([
-                    'direction'  => 'in',
-                    'source'     => 'sale',
-                    'source_id'  => $order->id,
-                    'amount'     => $order->amount,
-                    'note'       => 'Order complete (#' . $order->invoice_id . ')',
-                    'created_by' => auth()->id(),
-                ]);
-
+            // Fund transaction if completing
+            if ($targetEnum === OrderStatusEnum::COMPLETED && $oldStatus !== OrderStatusEnum::COMPLETED->value) {
+                $exists = FundTransaction::where('source', 'sale')->where('source_id', $order->id)->exists();
+                if (!$exists) {
+                    FundTransaction::create([
+                        'direction'  => 'in',
+                        'source'     => 'sale',
+                        'source_id'  => $order->id,
+                        'amount'     => $order->amount,
+                        'note'       => 'Order complete (#' . $order->invoice_id . ') - Bulk update',
+                        'created_by' => auth()->id(),
+                    ]);
+                }
             }
 
-            // স্টক হ্যান্ডেল
-            $this->handleStockChange($order, $oldStatus, $targetStatus);
+            // Stock handling (pass string values, handleStockChange converts internally)
+            $this->handleStockChange($order, $oldStatus, $targetStatusValue);
 
-            // ✅ Use eager loaded customer instead of find()
+            // SMS notification
             if ($sms_gateway && $order->customer) {
                 $url  = $sms_gateway->url;
                 $data = [
@@ -1357,7 +1364,7 @@ class OrderController extends Controller
                     "senderid" => $sms_gateway->serderid,
                     "message"  => "Dear {$order->customer->name},\r\n"
                         . "Your order (Order ID: {$order->invoice_id}) status has been updated to: "
-                        . "{$orderStatusModel->name}.\r\n"
+                        . "{$targetLabel}.\r\n"
                         . "Thank you for using " . (isset($site_setting->name) ? $site_setting->name : 'our service') . "!",
                 ];
 
@@ -2114,8 +2121,8 @@ class OrderController extends Controller
             );
         }
 
-        // নতুন অর্ডার প্লেস করলে স্টক কমানো (oldStatus = 0, newStatus = 1)
-        $this->handleStockChange($order, 0, (int) $order->order_status);
+        // নতুন অর্ডার প্লেস করলে স্টক কমানো (pass string enum value, NOT cast to int)
+        $this->handleStockChange($order, 0, $order->order_status);
 
         // 💰 Payment received হলে ফান্ডে টাকা যোগ করুন
         if (in_array($order->payment_status, ['paid', 'completed', 'success', 'approved'], true)) {
@@ -2175,6 +2182,7 @@ class OrderController extends Controller
             'qty'     => $qty,
             'price'   => $product->new_price,
             'options' => [
+                'product_id'      => $product->id,
                 'slug'            => $product->slug,
                 'image'           => (isset($product->image) && isset($product->image->image)) ? $product->image->image : null,
                 'old_price'       => $product->old_price,
@@ -2847,8 +2855,8 @@ class OrderController extends Controller
             $updatedIds[] = $detail->id;
         }
 
-        if ((int) $oldOrderStatus !== (int) $order->order_status) {
-            $this->handleStockChange($order, (int) $oldOrderStatus, (int) $order->order_status);
+        if ($oldOrderStatus !== $order->order_status) {
+            $this->handleStockChange($order, $oldOrderStatus, $order->order_status);
         }
 
         OrderDetails::where('order_id', $order->id)
@@ -2859,7 +2867,7 @@ class OrderController extends Controller
         Session::forget(['pos_shipping', 'pos_discount', 'product_discount']);
 
         Toastr::success('Order updated successfully!', 'Success!');
-        return redirect()->route('admin.orders', 'pending');
+        return redirect()->route('admin.orders', 'all');
     }
 
     protected function resolvePaymentMethodLabel(string $gateway): string
@@ -3069,7 +3077,7 @@ class OrderController extends Controller
             ], 422);
         }
 
-        $this->handleStockChange($order, (int) $oldStatus, (int) $order->getOriginal('order_status'));
+        $this->handleStockChange($order, $oldStatus, $order->getOriginal('order_status'));
 
         return response()->json([
             'status'      => 'success',
@@ -3390,7 +3398,7 @@ class OrderController extends Controller
         ]);
 
         $order = Order::findOrFail($request->order_id);
-        $oldStatus = (int) $order->order_status;
+        $oldStatus = $order->order_status;
         $success = $order->cancel($request->note, auth()->id());
 
         if (!$success) {
@@ -3401,7 +3409,7 @@ class OrderController extends Controller
         }
 
         // Restore stock on cancellation
-        $this->handleStockChange($order, $oldStatus, (int) OrderStatusEnum::CANCELLED->value);
+        $this->handleStockChange($order, $oldStatus, OrderStatusEnum::CANCELLED->value);
 
         return $this->actionSuccessResponse($order, 'Order cancelled');
     }
@@ -3451,15 +3459,22 @@ class OrderController extends Controller
             'qty'     => $qty,
             'price'   => $product->new_price ?? $product->old_price ?? 0,
             'options' => [
-                'slug'           => $product->slug,
-                'image'          => optional($product->image)->image ?? null,
-                'old_price'      => $product->old_price,
-                'purchase_price' => $product->purchase_price,
-                'product_size'   => null,
-                'product_color'  => null,
-                'size_id'        => null,
-                'color_id'       => null,
-                'barcode'        => $barcode,
+                'product_id'      => $product->id,
+                'slug'            => $product->slug,
+                'image'           => optional($product->image)->image ?? null,
+                'old_price'       => $product->old_price,
+                'purchase_price'  => $product->purchase_price,
+                'product_size'    => null,
+                'product_color'   => null,
+                'size_id'         => null,
+                'color_id'        => null,
+                'product_discount'=> 0,
+                'warranty_tier_id'=> null,
+                'warranty_adjustment' => 0,
+                'base_price'      => $product->new_price ?? $product->old_price ?? 0,
+                'batch_id'        => null,
+                'serial_numbers'  => [],
+                'barcode'         => $barcode,
             ],
         ]);
 

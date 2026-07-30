@@ -107,7 +107,7 @@
 
                             <div class="col-md-6">
                                 <label class="form-label-custom"> {{ __('Phone Number') }} </label>
-                                <input type="text" name="phone" class="form-control form-control-custom" value="{{ old('phone') }}" placeholder="+880 1xxxxxxxxx">
+                                <input type="tel" name="phone" class="form-control form-control-custom" value="{{ old('phone') }}" placeholder="+880 1xxxxxxxxx">
                             </div>
 
                             <div class="col-md-6">

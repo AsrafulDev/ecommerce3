@@ -91,7 +91,7 @@
                                     <input type="text" id="name" class="form-control" placeholder="Customer Name" name="name" value="{{$shippinginfo->name}}" required>
                                 </div>
                                 <div class="col-sm-12 mb-2">
-                                    <input type="number" id="phone" class="form-control" placeholder="Customer Number" name="phone" value="{{$shippinginfo->phone}}" required>
+                                    <input type="tel" id="phone" class="form-control" placeholder="Customer Number" name="phone" value="{{$shippinginfo->phone}}" required>
                                 </div>
                                 <div class="col-sm-12 mb-3">
                                     <input type="text" id="address" class="form-control" placeholder="{{ __('Address') }}" name="address" value="{{$shippinginfo->address}}" required>
@@ -471,7 +471,7 @@ $(document).on("click", ".sn-add-btn", function(){
     var container = $(this).closest('.sn-inputs-container');
     var rowId = container.data('id');
     var productId = container.data('product-id');
-    var row = $('<div class="input-group input-group-sm mb-1 sn-input-row">' +
+    var row = $('<div class="input-group input-group-sm mb-1 sn-input-row" style="flex-wrap:nowrap;">' +
         '<input type="text" class="form-control form-control-sm cart-sn-input" ' +
         'data-id="' + rowId + '" data-product-id="' + productId + '" ' +
         'placeholder="Scan/type SN..." style="font-size:11px;">' +

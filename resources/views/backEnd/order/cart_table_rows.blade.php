@@ -101,7 +101,7 @@
                 if (empty($sns)) $sns = [''];
             @endphp
             @foreach($sns as $i => $sn)
-            <div class="input-group input-group-sm mb-1 sn-input-row">
+            <div class="input-group input-group-sm mb-1 sn-input-row" style="flex-wrap:nowrap;">
                 <input type="text"
                        class="form-control form-control-sm cart-sn-input"
                        data-id="{{ $value->rowId }}"
