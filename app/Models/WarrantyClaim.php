@@ -45,6 +45,10 @@ class WarrantyClaim extends Model
         'delivery_notes',
         'supplier_charge',
         'customer_charge',
+        // 🆕 Finance links + replacement stock reference
+        'supplier_expense_id',
+        'customer_earning_fund_id',
+        'replacement_order_detail_id',
     ];
 
     protected function casts(): array
@@ -112,6 +116,44 @@ class WarrantyClaim extends Model
         return $this->hasOne(WarrantyClaimStage::class)
                     ->whereNull('completed_at')
                     ->latest('started_at');
+    }
+
+    // ── 🆕 Reminders & Damage ─────────────────
+
+    public function reminders()
+    {
+        return $this->hasMany(WarrantyClaimReminder::class);
+    }
+
+    public function damageProducts()
+    {
+        return $this->hasMany(DamageProduct::class);
+    }
+
+    public function supplierExpense()
+    {
+        return $this->belongsTo(Expense::class, 'supplier_expense_id');
+    }
+
+    public function customerEarningFund()
+    {
+        return $this->belongsTo(FundTransaction::class, 'customer_earning_fund_id');
+    }
+
+    public function replacementOrderDetail()
+    {
+        return $this->belongsTo(OrderDetails::class, 'replacement_order_detail_id');
+    }
+
+    /**
+     * Get the active (pending) reminder for a given step, if any.
+     */
+    public function activeReminderFor(string $step): ?WarrantyClaimReminder
+    {
+        return $this->reminders()
+            ->where('step', $step)
+            ->where('status', 'pending')
+            ->first();
     }
 
     // ── Helpers ───────────────────────────────

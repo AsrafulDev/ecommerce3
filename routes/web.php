@@ -1064,6 +1064,12 @@ Route::get('dashboard', [DashboardController::class, 'dashboard'])->name('admin.
     Route::post('order/restore-hold/{id}', [OrderController::class, 'restoreHold'])->name('admin.order.restore_hold');
     Route::delete('order/delete-hold/{id}', [OrderController::class, 'deleteHold'])->name('admin.order.delete_hold');
 
+    // 🆕 One-page POS: print / recent / load / receive payment (BEFORE the {slug} wildcard)
+    Route::get('order/recent', [OrderController::class, 'recentOrders'])->name('admin.order.recent');
+    Route::get('order/load/{invoice_id}', [OrderController::class, 'loadOrderIntoCart'])->name('admin.order.load');
+    Route::get('order/print/{invoice_id}', [OrderController::class, 'printInvoice'])->name('admin.order.print');
+    Route::post('order/receive-payment', [OrderController::class, 'receivePayment'])->name('admin.order.receive_payment');
+
     // Order route 
 	Route::get('order/{slug}/ajax', [OrderController::class, 'ajaxIndex'])->name('admin.orders.ajax');
 
@@ -1181,6 +1187,15 @@ Route::get('dashboard', [DashboardController::class, 'dashboard'])->name('admin.
         Route::post('claims/{warrantyClaim}/supplier-return', [App\Http\Controllers\Admin\WarrantyController::class, 'supplierReturn'])->name('claims.supplier-return');
         Route::post('claims/{warrantyClaim}/ready-for-delivery', [App\Http\Controllers\Admin\WarrantyController::class, 'readyForDelivery'])->name('claims.ready-for-delivery');
         Route::post('claims/{warrantyClaim}/deliver', [App\Http\Controllers\Admin\WarrantyController::class, 'deliverToCustomer'])->name('claims.deliver');
+
+        // 🆕 Reminders & Instant Replacement (BEFORE the wildcard {action} route)
+        Route::post('claims/{warrantyClaim}/reminder', [App\Http\Controllers\Admin\WarrantyController::class, 'storeReminder'])->name('claims.reminder');
+        Route::post('reminders/{reminder}/complete', [App\Http\Controllers\Admin\WarrantyController::class, 'completeReminder'])->name('reminders.complete');
+        Route::post('claims/{warrantyClaim}/replacement', [App\Http\Controllers\Admin\WarrantyController::class, 'giveReplacement'])->name('claims.replacement');
+
+        // 🆕 Damage products
+        Route::get('damage', [App\Http\Controllers\Admin\WarrantyController::class, 'damageIndex'])->name('damage.index');
+        Route::post('damage/{damageProduct}/status', [App\Http\Controllers\Admin\WarrantyController::class, 'updateDamageStatus'])->name('damage.status');
 
         // Wildcard action route — must be LAST to avoid capturing specific routes above
         Route::post('claims/{warrantyClaim}/{action}', [App\Http\Controllers\Admin\WarrantyController::class, 'claimsAction'])->name('claims.action');

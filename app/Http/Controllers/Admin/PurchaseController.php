@@ -188,6 +188,7 @@ class PurchaseController extends Controller
                 'qty'              => $qty,
                 'unit_cost'        => $cost,
                 'line_total'       => $line,
+                'custom_field'     => $item['custom_field'] ?? null,
             ]);
 
             // 🛡️ Warranty per item
@@ -224,6 +225,7 @@ class PurchaseController extends Controller
                 'batch_no' => $item['batch_no'] ?? null,
                 'mfg_date' => $item['mfg_date'] ?? null,
                 'exp_date' => $item['exp_date'] ?? null,
+                'custom_field' => $item['custom_field'] ?? null,
             ]);
         }
 

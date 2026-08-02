@@ -64,6 +64,7 @@ class StockManagementService
             'selling_price'   => $data['selling_price'] ?? null,
             'mfg_date'        => $data['mfg_date'] ?? null,
             'exp_date'        => $data['exp_date'] ?? null,
+            'custom_field'    => $data['custom_field'] ?? null,
             'type'            => 'in',
             'reference_type'  => $data['reference_type'] ?? 'purchase',
             'reference_id'    => $data['reference_id'] ?? null,

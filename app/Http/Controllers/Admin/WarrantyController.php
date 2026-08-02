@@ -3,12 +3,19 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Enums\DamageStatus;
+use App\Enums\WarrantyClaimStatus;
+use App\Models\DamageProduct;
+use App\Models\Expense;
+use App\Models\FundTransaction;
 use App\Models\Product;
 use App\Models\ProductWarrantyTier;
 use App\Models\SupplierWarranty;
 use App\Models\WarrantyClaim;
+use App\Models\WarrantyClaimReminder;
 use App\Models\WarrantyChallan;
 use App\Models\WarrantySale;
+use App\Services\StockManagementService;
 use App\Services\WarrantyDisplayService;
 use App\Services\WarrantyService;
 use Barryvdh\DomPDF\Facade\Pdf;
@@ -74,7 +81,30 @@ class WarrantyController extends Controller
             ->values()
             ->toArray();
 
-        return view('backEnd.warranty.dashboard', compact('stats', 'expiringSoon', 'recentClaims', 'supplierWarrantyStats'));
+        // 🆕 Reminder tasks for Today / Tomorrow / Overdue
+        $todayTasks    = WarrantyClaimReminder::with('warrantyClaim.product')
+            ->dueToday()->get();
+        $tomorrowTasks = WarrantyClaimReminder::with('warrantyClaim.product')
+            ->dueTomorrow()->get();
+        $overdueTasks  = WarrantyClaimReminder::with('warrantyClaim.product')
+            ->overdue()->get();
+
+        // 🆕 New (unreviewed) claims from customers
+        $newClaims = WarrantyClaim::with(['product:id,name', 'customer:id,name,phone'])
+            ->where('status', 'submitted')
+            ->latest()
+            ->get();
+
+        return view('backEnd.warranty.dashboard', compact(
+            'stats',
+            'expiringSoon',
+            'recentClaims',
+            'supplierWarrantyStats',
+            'todayTasks',
+            'tomorrowTasks',
+            'overdueTasks',
+            'newClaims'
+        ));
     }
 
     // ── Supplier Warranties ────────────────────
@@ -191,7 +221,7 @@ class WarrantyController extends Controller
 
     public function claimsShow(WarrantyClaim $warrantyClaim): View
     {
-        $warrantyClaim->load(['product', 'customer', 'order', 'warrantySale', 'stages', 'notes.user']);
+        $warrantyClaim->load(['product', 'customer', 'order', 'warrantySale', 'stages', 'notes.user', 'reminders', 'damageProducts']);
         return view('backEnd.warranty.claims_show', compact('warrantyClaim'));
     }
 
@@ -306,6 +336,43 @@ class WarrantyController extends Controller
         $challanService = app(\App\Services\WarrantyChallanService::class);
         $challan = $challanService->generateSupplierReturnChallan($warrantyClaim, $request->all());
 
+        // ⏰ Inline reminder (supplier return due)
+        $this->createReminderFromRequest($warrantyClaim, $request);
+
+        // 💰 Supplier charge → auto Expense (default checked)
+        $supplierCharge = (float) $request->supplier_charge;
+        $addToExpenses  = $request->boolean('add_to_expenses', true);
+
+        if ($supplierCharge > 0 && $addToExpenses) {
+            $expense = Expense::create([
+                'title'        => 'Warranty supplier charge — Claim #' . $warrantyClaim->claim_number,
+                'amount'       => $supplierCharge,
+                'expense_date' => now()->toDateString(),
+                'category'     => 'warranty',
+                'note'         => 'Supplier charge for product ' . ($warrantyClaim->product->name ?? 'N/A'),
+                'created_by'   => auth()->id(),
+            ]);
+
+            $fund = FundTransaction::create([
+                'direction' => 'out',
+                'source'    => 'expense',
+                'source_id' => $expense->id,
+                'amount'    => $supplierCharge,
+                'note'      => 'Warranty expense — Claim #' . $warrantyClaim->claim_number,
+                'created_by'=> auth()->id(),
+            ]);
+
+            $expense->update(['fund_transaction_id' => $fund->id]);
+            $warrantyClaim->update(['supplier_expense_id' => $expense->id]);
+
+            $warrantyClaim->notes()->create([
+                'user_id' => auth()->id(),
+                'note'    => 'Supplier charge ৳' . number_format($supplierCharge, 2) . ' added to expenses.',
+            ]);
+        } elseif ($supplierCharge > 0) {
+            $warrantyClaim->update(['supplier_charge' => $supplierCharge]);
+        }
+
         if ($request->expectsJson()) {
             return response()->json([
                 'success'   => true,
@@ -345,6 +412,36 @@ class WarrantyController extends Controller
 
         $challanService = app(\App\Services\WarrantyChallanService::class);
         $challan = $challanService->generateDeliveryChallan($warrantyClaim, $request->all());
+
+        // ⏰ Inline reminder (customer delivery due)
+        $this->createReminderFromRequest($warrantyClaim, $request);
+
+        // 💰 Customer charge → auto Earning (default checked)
+        $customerCharge = (float) ($request->customer_charge ?? $warrantyClaim->customer_charge ?? 0);
+        $applyToEarnings = $request->boolean('apply_to_earnings', true);
+
+        if ($customerCharge > 0 && $applyToEarnings) {
+            $fund = FundTransaction::create([
+                'direction' => 'in',
+                'source'    => 'warranty',
+                'source_id' => $warrantyClaim->id,
+                'amount'    => $customerCharge,
+                'note'      => 'Warranty customer charge — Claim #' . $warrantyClaim->claim_number,
+                'created_by'=> auth()->id(),
+            ]);
+
+            $warrantyClaim->update([
+                'customer_charge'          => $customerCharge,
+                'customer_earning_fund_id' => $fund->id,
+            ]);
+
+            $warrantyClaim->notes()->create([
+                'user_id' => auth()->id(),
+                'note'    => 'Customer charge ৳' . number_format($customerCharge, 2) . ' applied to earnings.',
+            ]);
+        } elseif ($customerCharge > 0) {
+            $warrantyClaim->update(['customer_charge' => $customerCharge]);
+        }
 
         if ($request->expectsJson()) {
             return response()->json([
@@ -433,5 +530,307 @@ class WarrantyController extends Controller
 
         return redirect()->route('admin.warranty.claims.show', $claim)
             ->with('success', 'Claim filed on behalf of customer.');
+    }
+
+    // ── ⏰ Reminders ───────────────────────────
+
+    public function storeReminder(WarrantyClaim $warrantyClaim, Request $request): RedirectResponse
+    {
+        $request->validate([
+            'step'      => 'required|string',
+            'label'     => 'required|string',
+            'remind_at' => 'required|date',
+            'note'      => 'nullable|string',
+        ]);
+
+        // One active reminder per step — replace instead of duplicate
+        WarrantyClaimReminder::updateOrCreate(
+            [
+                'warranty_claim_id' => $warrantyClaim->id,
+                'step'              => $request->step,
+            ],
+            [
+                'label'      => $request->label,
+                'remind_at'  => $request->remind_at,
+                'note'       => $request->note,
+                'status'     => 'pending',
+                'created_by' => auth()->id(),
+            ]
+        );
+
+        return back()->with('success', 'Reminder set.');
+    }
+
+    /**
+     * Create a reminder from inline step-modal fields (remind_at + reminder_step + reminder_label).
+     */
+    protected function createReminderFromRequest(WarrantyClaim $warrantyClaim, Request $request): void
+    {
+        if (!$request->filled('remind_at') || !$request->filled('reminder_step')) {
+            return;
+        }
+
+        WarrantyClaimReminder::updateOrCreate(
+            [
+                'warranty_claim_id' => $warrantyClaim->id,
+                'step'              => $request->reminder_step,
+            ],
+            [
+                'label'      => $request->reminder_label ?? ucwords(str_replace('_', ' ', $request->reminder_step)),
+                'remind_at'  => $request->remind_at,
+                'note'       => $request->reminder_note ?? null,
+                'status'     => 'pending',
+                'created_by' => auth()->id(),
+            ]
+        );
+    }
+
+    public function completeReminder(WarrantyClaimReminder $reminder): RedirectResponse
+    {
+        $reminder->update(['status' => 'done']);
+
+        return back()->with('success', 'Reminder completed.');
+    }
+
+    // ── 💥 Instant Replacement (auto stock adjustment) ──
+
+    public function giveReplacement(WarrantyClaim $warrantyClaim, Request $request)
+    {
+        $request->validate([
+            'damage_type'           => 'required|in:partial,full',
+            'replacement_product_id'=> 'required|exists:products,id',
+            'replacement_sn'        => 'nullable|string|max:100',
+            'condition_note'        => 'nullable|string|max:255',
+            'accessories'           => 'nullable|string|max:255',
+        ]);
+
+        $product = Product::findOrFail($request->replacement_product_id);
+        $stockService = app(StockManagementService::class);
+
+        // 1️⃣ stock OUT the replacement unit given to the customer (1 unit)
+        // Try batch-based stockOut first; fall back to simple decrement (same pattern as OrderController::handleStockChange)
+        try {
+            $stockService->stockOut($product, 1, [
+                'type' => 'warranty_replacement',
+                'id'   => $warrantyClaim->id,
+            ]);
+        } catch (\RuntimeException $e) {
+            if ($product->stock < 1) {
+                return back()->with('error', 'Insufficient stock for replacement: ' . $e->getMessage());
+            }
+            $product->decrement('stock', 1);
+            \Illuminate\Support\Facades\Log::warning('Warranty replacement batch deduction failed, used fallback', [
+                'product' => $product->id,
+                'claim'   => $warrantyClaim->id,
+                'error'   => $e->getMessage(),
+            ]);
+        }
+
+        // 2️⃣ record the received damaged unit into damage inventory
+        $sale = $warrantyClaim->warrantySale;
+        $rawSn = $sale?->serial_numbers;
+        $originalSn = is_array($rawSn) ? implode(', ', $rawSn) : ($rawSn ?: null);
+
+        $damage = DamageProduct::create([
+            'warranty_claim_id'         => $warrantyClaim->id,
+            'warranty_sale_id'          => $warrantyClaim->warranty_sale_id,
+            'product_id'                => $warrantyClaim->product_id,
+            'original_serial_number'    => $originalSn,
+            'replacement_serial_number' => $request->replacement_sn,
+            'damage_type'               => $request->damage_type,
+            'status'                    => DamageStatus::ON_WARRANTY->value,
+            'condition_note'            => $request->condition_note,
+            'accessories'               => $request->accessories,
+            'received_at'               => now(),
+            'created_by'                => auth()->id(),
+        ]);
+
+        // 3️⃣ update warranty sale / claim serial to the replacement unit
+        if ($sale) {
+            $sale->update(['serial_numbers' => [$request->replacement_sn]]);
+        }
+        $warrantyClaim->update([
+            'replacement_sn' => $request->replacement_sn,
+            'return_type'    => 'replaced',
+            'status'         => WarrantyClaimStatus::READY_FOR_DELIVERY->value,
+        ]);
+
+        $warrantyClaim->stages()->create([
+            'stage'        => 'replacement',
+            'status'       => 'completed',
+            'notes'        => 'Instant replacement issued. Damaged unit moved to damage stock (' . $request->damage_type . ').',
+            'started_at'   => now(),
+            'completed_at' => now(),
+        ]);
+
+        $warrantyClaim->notes()->create([
+            'user_id' => auth()->id(),
+            'note'    => "Instant replacement given (SN: {$request->replacement_sn}). Damaged unit → Damage stock #{$damage->id} ({$request->damage_type}).",
+        ]);
+
+        return back()->with('success', 'Replacement issued & stock adjusted.');
+    }
+
+    // ── 🔄 Damage Product status updates ──────
+
+    public function updateDamageStatus(DamageProduct $damageProduct, Request $request)
+    {
+        $request->validate([
+            'status'       => 'required|in:on_warranty,supplier_hold,in_service,resellable,unsellable,discarded',
+            'service_cost' => 'nullable|numeric|min:0',
+            'damage_cost'  => 'nullable|numeric|min:0',
+            'resell_price' => 'nullable|numeric|min:0',
+        ]);
+
+        $oldStatus = $damageProduct->status;
+        $newStatus = $request->status;
+
+        // 🆕 Always update price fields when provided (not gated on status transition)
+        if ($request->filled('service_cost')) {
+            $damageProduct->service_cost = (float) $request->service_cost;
+        }
+        if ($request->filled('damage_cost')) {
+            $damageProduct->damage_cost = (float) $request->damage_cost;
+        }
+        if ($request->filled('resell_price')) {
+            $damageProduct->resell_price = (float) $request->resell_price;
+        }
+
+        // ── RESELLABLE: stockIn + earning fund ──
+        if ($newStatus === 'resellable') {
+            if ($oldStatus !== 'resellable') {
+                // First transition → stockIn + create earning
+                app(StockManagementService::class)->stockIn($damageProduct->product, [
+                    'quantity'       => 1,
+                    'unit_cost'      => (float) $damageProduct->service_cost,
+                    'reference_type' => 'warranty_repair',
+                    'reference_id'   => $damageProduct->id,
+                ]);
+
+                // Create earning fund for the resale value
+                if ((float) $damageProduct->resell_price > 0) {
+                    $fund = FundTransaction::create([
+                        'direction'  => 'in',
+                        'source'     => 'warranty_resell',
+                        'source_id'  => $damageProduct->id,
+                        'amount'     => (float) $damageProduct->resell_price,
+                        'note'       => "Warranty repair resale — Damage #{$damageProduct->id}",
+                        'created_by' => auth()->id(),
+                    ]);
+                    $damageProduct->earning_fund_id = $fund->id;
+                }
+
+                // Also record the repair cost as an expense
+                if ((float) $damageProduct->service_cost > 0) {
+                    $repairExpense = Expense::create([
+                        'title'        => "Warranty repair cost — Damage #{$damageProduct->id}",
+                        'amount'       => (float) $damageProduct->service_cost,
+                        'expense_date' => now()->toDateString(),
+                        'category'     => 'warranty_repair',
+                        'note'         => 'Repair cost for damage product (Claim #' . ($damageProduct->warranty_claim_id ?? 'N/A') . ')',
+                        'created_by'   => auth()->id(),
+                    ]);
+                    $repairFund = FundTransaction::create([
+                        'direction' => 'out',
+                        'source'    => 'expense',
+                        'source_id' => $repairExpense->id,
+                        'amount'    => (float) $damageProduct->service_cost,
+                        'note'      => 'Warranty repair — Damage #' . $damageProduct->id,
+                        'created_by'=> auth()->id(),
+                    ]);
+                    $repairExpense->update(['fund_transaction_id' => $repairFund->id]);
+                    $damageProduct->expense_id = $repairExpense->id;
+                }
+            } else {
+                // Already resellable → update the earning fund if resell_price changed
+                if ($damageProduct->earning_fund_id) {
+                    FundTransaction::where('id', $damageProduct->earning_fund_id)->update([
+                        'amount' => (float) $damageProduct->resell_price,
+                        'note'   => "Warranty repair resale (updated) — Damage #{$damageProduct->id}",
+                    ]);
+                }
+                // Update repair expense if service_cost changed
+                if ($damageProduct->expense_id) {
+                    $e = Expense::find($damageProduct->expense_id);
+                    if ($e) {
+                        $e->update(['amount' => (float) $damageProduct->service_cost]);
+                        FundTransaction::where('id', $e->fund_transaction_id)->update([
+                            'amount' => (float) $damageProduct->service_cost,
+                        ]);
+                    }
+                }
+            }
+        }
+
+        // ── UNSELLABLE: write-off expense ──
+        if ($newStatus === 'unsellable') {
+            if ($oldStatus !== 'unsellable') {
+                // First transition → create expense
+                $damageProduct->disposed_at = now();
+                if ((float) $damageProduct->damage_cost > 0) {
+                    $expense = Expense::create([
+                        'title'        => "Warranty write-off — Damage #{$damageProduct->id}",
+                        'amount'       => (float) $damageProduct->damage_cost,
+                        'expense_date' => now()->toDateString(),
+                        'category'     => 'warranty_loss',
+                        'note'         => 'Damaged product written off (Claim #' . ($damageProduct->warranty_claim_id ?? 'N/A') . ')',
+                        'created_by'   => auth()->id(),
+                    ]);
+
+                    $fund = FundTransaction::create([
+                        'direction' => 'out',
+                        'source'    => 'expense',
+                        'source_id' => $expense->id,
+                        'amount'    => (float) $damageProduct->damage_cost,
+                        'note'      => 'Warranty write-off — Damage #' . $damageProduct->id,
+                        'created_by'=> auth()->id(),
+                    ]);
+
+                    $expense->update(['fund_transaction_id' => $fund->id]);
+                    $damageProduct->expense_id = $expense->id;
+                }
+            } else {
+                // Already unsellable → update the linked expense if damage_cost changed
+                if ($damageProduct->expense_id) {
+                    $e = Expense::find($damageProduct->expense_id);
+                    if ($e && $e->category === 'warranty_loss') {
+                        $e->update(['amount' => (float) $damageProduct->damage_cost]);
+                        FundTransaction::where('id', $e->fund_transaction_id)->update([
+                            'amount' => (float) $damageProduct->damage_cost,
+                        ]);
+                    }
+                }
+            }
+        }
+
+        // ── DISCARDED ──
+        if ($newStatus === 'discarded' && $oldStatus !== 'discarded') {
+            $damageProduct->disposed_at = now();
+        }
+
+        // ── Save ──
+        $damageProduct->status = $newStatus;
+        $damageProduct->save();
+
+        if ($damageProduct->warrantyClaim) {
+            $damageProduct->warrantyClaim->notes()->create([
+                'user_id' => auth()->id(),
+                'note'    => "Damage product #{$damageProduct->id} status: {$oldStatus} → {$newStatus} (service: {$damageProduct->service_cost}, loss: {$damageProduct->damage_cost})",
+            ]);
+        }
+
+        return back()->with('success', 'Damage product status updated.');
+    }
+
+    // ── 🗄️ Damage Products list ───────────────
+
+    public function damageIndex(Request $request): View
+    {
+        $damageProducts = DamageProduct::with(['product:id,name,stock', 'warrantyClaim:id,claim_number'])
+            ->byStatus($request->status)
+            ->latest()
+            ->paginate(30);
+
+        return view('backEnd.warranty.damage_index', compact('damageProducts'));
     }
 }

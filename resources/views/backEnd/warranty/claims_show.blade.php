@@ -38,7 +38,7 @@
                         🚚 Send to Supplier
                     </button>
                 @endif
-                @if($warrantyClaim->status === 'sent_to_supplier')
+                @if(in_array($warrantyClaim->status, ['sent_to_supplier', 'awaiting_supplier_return', 'supplier_returned', 'serviced', 'resolved', 'product_received']))
                     <button class="btn btn-info btn-sm" data-bs-toggle="modal" data-bs-target="#supplierReturnModal">
                         📥 Supplier Return Received
                     </button>
@@ -86,8 +86,46 @@
                     🔄 Update SN
                 </button>
             @endif
+
+            {{-- 🆕 Instant Replacement button (approved / awaiting_product / product_received) --}}
+            @if(in_array($warrantyClaim->status, ['approved', 'awaiting_product', 'product_received', 'under_review']))
+                <button class="btn btn-outline-success btn-sm" data-bs-toggle="modal" data-bs-target="#replacementModal">
+                    💥 Instant Replacement
+                </button>
+            @endif
         </div>
     </div>
+
+    {{-- 🆕 Reminders strip --}}
+    @php $activeReminders = $warrantyClaim->reminders->where('status', 'pending'); @endphp
+    @if($activeReminders->isNotEmpty())
+    <div class="row mb-3">
+        <div class="col-12">
+            <div class="card border-warning">
+                <div class="card-header py-2"><strong>⏰ Reminders</strong></div>
+                <div class="card-body py-2">
+                    @foreach($activeReminders as $rem)
+                    <div class="d-flex justify-content-between align-items-center py-1 {{ $rem->is_overdue ? 'text-danger' : '' }}">
+                        <span>
+                            <i class="fa {{ $rem->is_overdue ? 'fa-exclamation-circle' : 'fa-clock' }} me-1"></i>
+                            <strong>{{ $rem->label }}</strong>
+                            <small class="text-muted">— {{ $rem->remind_at->format('d M, Y h:i A') }}</small>
+                            @if($rem->is_overdue)<span class="badge bg-danger ms-1">Overdue</span>@endif
+                        </span>
+                        <span class="d-flex gap-2 align-items-center">
+                            <a href="{{ route('admin.warranty.claims.show', $warrantyClaim) }}" class="btn btn-sm btn-outline-primary">Open</a>
+                            <form action="{{ route('admin.warranty.reminders.complete', $rem) }}" method="POST" class="d-inline">
+                                @csrf
+                                <button class="btn btn-sm btn-success">✅ Done</button>
+                            </form>
+                        </span>
+                    </div>
+                    @endforeach
+                </div>
+            </div>
+        </div>
+    </div>
+    @endif
 
     <div class="row">
         <div class="col-md-8">
@@ -183,6 +221,70 @@
                     @if($replacementSn)
                         <p class="mb-0"><small class="text-success">↳ Replaced SN: {{ $replacementSn }}</small></p>
                     @endif
+                </div>
+            </div>
+
+            {{-- 🆕 Damage Products card --}}
+            @php $damageProducts = $warrantyClaim->damageProducts; @endphp
+            <div class="card mb-3">
+                <div class="card-header d-flex justify-content-between align-items-center py-2">
+                    <strong>💥 Damage Products ({{ $damageProducts->count() }})</strong>
+                    <a href="{{ route('admin.warranty.damage.index') }}" class="btn btn-sm btn-outline-secondary">View All</a>
+                </div>
+                <div class="card-body p-0">
+                    @forelse($damageProducts as $dp)
+                    <div class="d-flex justify-content-between align-items-center px-3 py-2 border-bottom">
+                        <div>
+                            <span class="badge bg-{{ $dp->damage_type_enum->badgeClass() }} me-1">{{ $dp->damage_type_enum->label() }}</span>
+                            <span class="badge bg-{{ $dp->status_enum->badgeClass() }}">{{ $dp->status_enum->label() }}</span>
+                            <br><small class="text-muted">
+                                @if($dp->original_serial_number) SN: {{ $dp->original_serial_number }} @else Damage #{{ $dp->id }} @endif
+                                @if($dp->service_cost > 0) · Service: ৳{{ $dp->service_cost }} @endif
+                                @if($dp->damage_cost > 0) · Loss: ৳{{ $dp->damage_cost }} @endif
+                            </small>
+                        </div>
+                        <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#damageStatusModal{{ $dp->id }}">
+                            Update Status
+                        </button>
+                    </div>
+
+                    {{-- Damage Status Update Modal --}}
+                    <div class="modal fade" id="damageStatusModal{{ $dp->id }}" tabindex="-1">
+                        <div class="modal-dialog">
+                            <form action="{{ route('admin.warranty.damage.status', $dp) }}" method="POST" class="modal-content">
+                                @csrf
+                                <div class="modal-header"><h5>Update Damage Product #{{ $dp->id }}</h5></div>
+                                <div class="modal-body">
+                                    <label class="form-label">Status</label>
+                                    <select name="status" class="form-select mb-2">
+                                        @foreach(\App\Enums\DamageStatus::cases() as $st)
+                                            <option value="{{ $st->value }}" {{ $dp->status === $st->value ? 'selected' : '' }}>{{ $st->label() }}</option>
+                                        @endforeach
+                                    </select>
+                                    <div class="mb-2">
+                                        <label class="form-label">Service Cost (→ Resellable)</label>
+                                        <input type="number" name="service_cost" class="form-control" value="{{ $dp->service_cost }}" step="0.01" min="0">
+                                    </div>
+                                    <div class="mb-2">
+                                        <label class="form-label">Damage Cost (→ Unsellable)</label>
+                                        <input type="number" name="damage_cost" class="form-control" value="{{ $dp->damage_cost }}" step="0.01" min="0">
+                                    </div>
+                                    <div class="mb-2">
+                                        <label class="form-label">Resell Price (→ Resellable)</label>
+                                        <input type="number" name="resell_price" class="form-control" value="{{ $dp->resell_price }}" step="0.01" min="0">
+                                    </div>
+                                    <small class="text-muted">Resellable: stock +1 back to sellable. Unsellable: write-off loss.</small>
+                                </div>
+                                <div class="modal-footer">
+                                    <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                    <button class="btn btn-primary">Update Status</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                    @empty
+                    <p class="text-muted text-center py-3 mb-0">No damage products for this claim.</p>
+                    @endforelse
                 </div>
             </div>
 
@@ -298,7 +400,7 @@
     @endif
 
     {{-- Supplier Return Modal --}}
-    @if($warrantyClaim->status === 'sent_to_supplier')
+    @if(in_array($warrantyClaim->status, ['sent_to_supplier', 'awaiting_supplier_return', 'supplier_returned', 'serviced', 'resolved', 'product_received']))
     <div class="modal fade" id="supplierReturnModal" tabindex="-1">
         <div class="modal-dialog">
             <form action="{{ route('admin.warranty.claims.supplier-return', $warrantyClaim) }}" method="POST" class="modal-content">
@@ -318,7 +420,17 @@
                     <label class="form-label">Supplier's Return Challan No</label>
                     <input type="text" name="supplier_return_challan" class="form-control mb-2" placeholder="Supplier's challan reference">
                     <label class="form-label">Supplier Charge (if any)</label>
-                    <input type="number" name="supplier_charge" class="form-control mb-2" placeholder="0.00" step="0.01" min="0">
+                    <input type="number" name="supplier_charge" id="supplier_charge_input" class="form-control mb-2" placeholder="0.00" step="0.01" min="0">
+                    <div class="form-check mb-2">
+                        <input class="form-check-input" type="checkbox" name="add_to_expenses" id="add_to_expenses" value="1" checked>
+                        <label class="form-check-label" for="add_to_expenses">💰 Add to Expenses</label>
+                    </div>
+                    <small class="text-muted d-block mb-2">Supplier charge will be recorded as an expense in the fund ledger.</small>
+                    <hr>
+                    <label class="form-label">⏰ Remind me (supplier return due)</label>
+                    <input type="datetime-local" name="remind_at" class="form-control mb-2">
+                    <input type="hidden" name="reminder_step" value="supplier_delivery">
+                    <input type="hidden" name="reminder_label" value="Supplier Return Due">
                     <label class="form-label">Notes</label>
                     <textarea name="notes" class="form-control" rows="2"></textarea>
                 </div>
@@ -349,12 +461,66 @@
                     <input type="text" class="form-control mb-2 bg-light" value="{{ is_array($ws->serial_numbers ?? []) ? implode(', ', $ws->serial_numbers ?? []) : ($ws->serial_numbers ?? 'N/A') }}" readonly>
                     <small class="text-muted">Current SN on record — use 🔄 Update SN button to change</small>
                     <hr>
+                    <label class="form-label">Customer Charge (if any)</label>
+                    <input type="number" name="customer_charge" class="form-control mb-2" placeholder="0.00" step="0.01" min="0" value="{{ $warrantyClaim->customer_charge ?? 0 }}">
+                    <div class="form-check mb-2">
+                        <input class="form-check-input" type="checkbox" name="apply_to_earnings" id="apply_to_earnings" value="1" checked>
+                        <label class="form-check-label" for="apply_to_earnings">💵 Apply to Earnings</label>
+                    </div>
+                    <small class="text-muted d-block mb-2">Customer charge will be recorded as earning in the fund ledger.</small>
+                    <hr>
+                    <label class="form-label">⏰ Remind me (customer delivery due)</label>
+                    <input type="datetime-local" name="remind_at" class="form-control mb-2">
+                    <input type="hidden" name="reminder_step" value="customer_delivery">
+                    <input type="hidden" name="reminder_label" value="Customer Delivery Due">
                     <label class="form-label">Notes</label>
                     <textarea name="notes" class="form-control" rows="2" placeholder="Delivery notes..."></textarea>
                 </div>
                 <div class="modal-footer">
                     <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
                     <button class="btn btn-success">Generate Delivery Challan</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    @endif
+
+    {{-- 💥 Instant Replacement Modal --}}
+    @if(in_array($warrantyClaim->status, ['approved', 'awaiting_product', 'product_received', 'under_review']))
+    <div class="modal fade" id="replacementModal" tabindex="-1">
+        <div class="modal-dialog">
+            <form action="{{ route('admin.warranty.claims.replacement', $warrantyClaim) }}" method="POST" class="modal-content">
+                @csrf
+                <div class="modal-header"><h5>💥 Instant Replacement</h5></div>
+                <div class="modal-body">
+                    <p class="text-muted">Give the customer a new unit immediately. The damaged unit will be recorded in damage stock and your sellable stock will decrease by 1.</p>
+                    <label class="form-label">Replacement Product <span class="text-danger">*</span></label>
+                    <select name="replacement_product_id" class="form-select mb-2" required>
+                        <option value="">-- Select product (from stock) --</option>
+                        @foreach(\App\Models\Product::select('id','name','stock','new_price')->where('status',1)->limit(200)->get() as $rp)
+                            <option value="{{ $rp->id }}" @if($rp->id === $warrantyClaim->product_id) selected @endif>
+                                {{ $rp->name }} (Stock: {{ $rp->stock }})
+                            </option>
+                        @endforeach
+                    </select>
+                    <label class="form-label">Replacement Serial Number</label>
+                    <input type="text" name="replacement_sn" class="form-control mb-2" placeholder="New unit SN">
+                    <label class="form-label">Damage Type <span class="text-danger">*</span></label>
+                    <select name="damage_type" class="form-select mb-2" required>
+                        <option value="partial">Partial Damage</option>
+                        <option value="full">Full Damage</option>
+                    </select>
+                    <label class="form-label">Condition Note</label>
+                    <input type="text" name="condition_note" class="form-control mb-2" placeholder="e.g. screen cracked, no accessories">
+                    <label class="form-label">Accessories Received</label>
+                    <input type="text" name="accessories" class="form-control mb-2" placeholder="Charger, box, manual...">
+                    <div class="alert alert-warning py-2 mb-0">
+                        <small>⚠️ Replaces the warranty serial number with the new unit's SN.</small>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button class="btn btn-success">Issue Replacement & Adjust Stock</button>
                 </div>
             </form>
         </div>

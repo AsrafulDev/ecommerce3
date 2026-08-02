@@ -53,18 +53,18 @@
     {{-- SUMMARY CARDS --}}
     <div class="row mb-4">
         <div class="col-md-6">
-            <div class="card bg-primary text-white">
+            <div class="card bg-primary">
                 <div class="card-body">
-                    <h5 class="mb-1" style="color:#fff !important;"> {{ __('Total Edits') }} </h5>
-                    <h3 class="mb-0" style="color:#fff !important;">{{ $total_edits }}</h3>
+                    <h5 class="mb-1" > {{ __('Total Edits') }} </h5>
+                    <h3 class="mb-0" >{{ $total_edits }}</h3>
                 </div>
             </div>
         </div>
         <div class="col-md-6">
-            <div class="card bg-danger text-white">
+            <div class="card bg-danger">
                 <div class="card-body">
-                    <h5 class="mb-1" style="color:#fff !important;"> {{ __('Total Deletes') }} </h5>
-                    <h3 class="mb-0" style="color:#fff !important;">{{ $total_deletes }}</h3>
+                    <h5 class="mb-1" > {{ __('Total Deletes') }} </h5>
+                    <h3 class="mb-0" >{{ $total_deletes }}</h3>
                 </div>
             </div>
         </div>

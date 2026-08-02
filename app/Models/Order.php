@@ -81,6 +81,42 @@ class Order extends Model
         return $this->hasOne(Payment::class, 'order_id', 'id');
     }
 
+    // 🆕 Payment history ledger (one row per collection)
+    public function paymentHistory()
+    {
+        return $this->hasMany(OrderPayment::class, 'order_id');
+    }
+
+    // 🆕 Payment totals helpers (partial payment / due)
+    public function isPaid(): bool
+    {
+        return (float) $this->due_amount <= 0;
+    }
+
+    public function isPartial(): bool
+    {
+        return $this->payment_status === 'partial' && (float) $this->due_amount > 0;
+    }
+
+    public function hasDue(): bool
+    {
+        return (float) $this->due_amount > 0;
+    }
+
+    public function dueAmount(): float
+    {
+        return max(0, (float) ($this->due_amount ?? 0));
+    }
+
+    public function recalculatePaymentTotals(): void
+    {
+        $paid = (float) $this->paymentHistory()->sum('amount');
+        $this->paid_amount = $paid;
+        $this->due_amount  = max(0, (float) $this->amount - $paid);
+        $this->payment_status = $this->due_amount > 0 ? ($paid > 0 ? 'partial' : 'pending') : 'paid';
+        $this->save();
+    }
+
     // কাস্টমার (frontend user)
     public function customer()
     {

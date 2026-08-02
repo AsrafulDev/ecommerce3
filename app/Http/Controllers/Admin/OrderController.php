@@ -13,6 +13,7 @@ use App\Models\OrderStatus;
 use App\Models\Order;
 use App\Models\OrderDetails;
 use App\Models\OrderNote;
+use App\Models\OrderPayment;
 use App\Models\Shipping;
 use App\Models\ShippingCharge;
 use App\Models\Payment;
@@ -1960,24 +1961,34 @@ class OrderController extends Controller
         $order->shipping_charge = isset($shippingfee->amount) ? $shippingfee->amount : 0;
         $order->customer_id     = $customer_id;
 
-        // 🆕 Payment type: paid or cod (from POS form)
+        // 🆕 Payment type: paid | partial | cod (from POS form)
         $paymentType            = strtolower(trim((string) $request->input('payment_type', 'paid')));
         $paymentSubMethod       = trim((string) $request->input('payment_method', 'Cash'));
         $paymentNote            = trim((string) $request->input('payment_note', ''));
 
-        $order->order_type      = $paymentType === 'cod' ? 'cod' : 'pos';
-        // POS paid → completed immediately (skip fulfillment)
+        // 💰 Compute paid / due
+        $total = (float) $order->amount;
+        $paid  = min((float) ($request->paid_amount ?? $total), $total);
+        $due   = max(0, $total - $paid);
+
+        $order->paid_amount   = $paid;
+        $order->due_amount    = $due;
+        $order->order_type    = $paymentType === 'cod' ? 'cod' : 'pos';
+        // POS fully paid → completed immediately (skip fulfillment)
+        // POS partial → completed (goods given) but still has due
         // POS COD → pending (will complete on delivery/payment)
-        $order->order_status    = $paymentType === 'cod' 
-            ? OrderStatusEnum::PENDING->value 
+        $order->order_status  = $paymentType === 'cod'
+            ? OrderStatusEnum::PENDING->value
             : OrderStatusEnum::COMPLETED->value;
-        $order->payment_status  = $paymentType === 'cod' ? 'pending' : 'paid';
-        $order->note            = $request->note;
+        $order->payment_status = $paid >= $total ? 'paid' : ($paid > 0 ? 'partial' : 'pending');
+        $order->note           = $request->note;
         $order->save();
 
         // Record order note with payment info
         $order->addNote(
-            content: 'POS order created | Payment: ' . strtoupper($paymentType) 
+            content: 'POS order created | Payment: ' . strtoupper($paymentType)
+                . ' | Paid: ৳' . number_format($paid, 2)
+                . ($due > 0 ? ' | Due: ৳' . number_format($due, 2) : '')
                 . ' | Method: ' . $paymentSubMethod
                 . ($paymentNote ? ' | Ref: ' . $paymentNote : ''),
             type: 'info',
@@ -1994,11 +2005,23 @@ class OrderController extends Controller
         $shipping->area        = isset($shippingfee->name) ? $shippingfee->name : ($request->area == '0' ? 'Store Pickup' : '');
         $shipping->save();
 
+        // 🆕 Payment history ledger (one row per collection)
+        if ($paid > 0) {
+            OrderPayment::create([
+                'order_id'       => $order->id,
+                'customer_id'    => $customer_id,
+                'amount'         => $paid,
+                'payment_method' => $paymentSubMethod,
+                'trx_note'       => $paymentNote ?: null,
+                'created_by'     => auth()->id(),
+            ]);
+        }
+
         $payment                 = new Payment();
         $payment->order_id       = $order->id;
         $payment->customer_id    = $customer_id;
         $payment->payment_method = $this->resolvePaymentMethodLabel($paymentSubMethod);
-        $payment->amount         = $order->amount;
+        $payment->amount         = $paid;
         $payment->payment_status = $order->payment_status;
         $payment->save();
 
@@ -2124,13 +2147,13 @@ class OrderController extends Controller
         // নতুন অর্ডার প্লেস করলে স্টক কমানো (pass string enum value, NOT cast to int)
         $this->handleStockChange($order, 0, $order->order_status);
 
-        // 💰 Payment received হলে ফান্ডে টাকা যোগ করুন
-        if (in_array($order->payment_status, ['paid', 'completed', 'success', 'approved'], true)) {
+        // 💰 Payment received হলে ফান্ডে টাকা যোগ করুন (only the paid amount)
+        if ($paid > 0) {
             FundTransaction::create([
                 'direction' => 'in',
                 'source'    => 'sale',
                 'source_id' => $order->id,
-                'amount'    => $order->amount,
+                'amount'    => $paid,
                 'note'      => 'POS Order #' . $order->invoice_id,
                 'created_by'=> auth()->id(),
             ]);
@@ -2140,7 +2163,16 @@ class OrderController extends Controller
         Session::forget(['pos_shipping', 'pos_discount', 'pos_coupon_code']);
 
         Toastr::success('Thanks, Your order place successfully', 'Success!');
-        return redirect('admin/order/pending');
+        // 🆕 Stay on the POS page — show the Sale Complete panel (no page move)
+        Session::flash('just_created', $order->invoice_id);
+        if ($request->expectsJson()) {
+            return response()->json([
+                'status'     => 'success',
+                'message'    => 'Order placed successfully',
+                'invoice_id' => $order->invoice_id,
+            ]);
+        }
+        return redirect()->route('admin.order.create');
     }
 
     public function cart_add(Request $request)
@@ -2600,6 +2632,26 @@ class OrderController extends Controller
         $order          = Order::where('invoice_id', $invoice_id)->firstOrFail();
         $paymentGateways = PaymentGateway::where('status', 1)->orderBy('type')->get();
 
+        $this->buildCartFromOrder($order);
+
+        $cartinfo     = Cart::instance('pos_shopping')->content();
+        $shippinginfo = Shipping::where('order_id', $order->id)->first();
+
+        return view('backEnd.order.edit', compact(
+            'products',
+            'cartinfo',
+            'shippingcharge',
+            'shippinginfo',
+            'order',
+            'paymentGateways'
+        ));
+    }
+
+    /**
+     * Load an existing order's items into the POS cart (used by edit + AJAX load).
+     */
+    protected function buildCartFromOrder(Order $order): void
+    {
         Cart::instance('pos_shopping')->destroy();
 
         $shippinginfo = Shipping::where('order_id', $order->id)->first();
@@ -2662,17 +2714,6 @@ class OrderController extends Controller
                 ],
             ]);
         }
-
-        $cartinfo = Cart::instance('pos_shopping')->content();
-
-        return view('backEnd.order.edit', compact(
-            'products',
-            'cartinfo',
-            'shippingcharge',
-            'shippinginfo',
-            'order',
-            'paymentGateways'
-        ));
     }
 
     public function order_update(Request $request)
@@ -2724,6 +2765,16 @@ class OrderController extends Controller
             $order->order_status = 'completed';
         }
         $order->note            = $request->note;
+
+        // 💰 Recompute paid / due on the new total (keep existing paid unless new payment given)
+        $total = (float) $order->amount;
+        $alreadyPaid = (float) ($order->paid_amount ?? 0);
+        $newPaid = min((float) ($request->paid_amount ?? 0), max(0, $total - $alreadyPaid));
+        $order->paid_amount = $alreadyPaid + $newPaid;
+        $order->due_amount  = max(0, $total - $order->paid_amount);
+        $order->payment_status = $order->due_amount <= 0
+            ? ($order->paid_amount > 0 ? 'paid' : 'pending')
+            : ($order->paid_amount > 0 ? 'partial' : 'pending');
         $order->save();
 
         $shipping           = Shipping::where('order_id', $order->id)->firstOrFail();
@@ -2733,21 +2784,34 @@ class OrderController extends Controller
         $shipping->area     = isset($shippingfee->name) ? $shippingfee->name : ($request->area == '0' ? 'Store Pickup' : $shipping->area);
         $shipping->save();
 
+        // 🆕 Record new partial payment in history ledger
+        if ($newPaid > 0) {
+            OrderPayment::create([
+                'order_id'       => $order->id,
+                'customer_id'    => $customer->id,
+                'amount'         => $newPaid,
+                'payment_method' => $this->resolvePaymentMethodLabel($paymentGatewayInput),
+                'trx_note'       => $request->payment_note ?: null,
+                'created_by'     => auth()->id(),
+            ]);
+        }
+
         $payment                 = Payment::where('order_id', $order->id)->firstOrNew(['order_id' => $order->id]);
         $payment->customer_id    = $customer->id;
         $payment->payment_method = $this->resolvePaymentMethodLabel($paymentGatewayInput);
-        $payment->amount         = $order->amount;
-        $payment->payment_status = $paymentStatusInput;
+        $payment->amount         = $order->paid_amount;
+        $payment->payment_status = $order->payment_status;
         $payment->save();
 
-        if (in_array($paymentStatusInput, ['paid', 'completed', 'success', 'approved'], true)) {
-            $exists = FundTransaction::where('source', 'sale')->where('source_id', $order->id)->exists();
+        if ($newPaid > 0) {
+            $exists = FundTransaction::where('source', 'sale')->where('source_id', $order->id)
+                ->where('amount', $newPaid)->exists();
             if (!$exists) {
                 FundTransaction::create([
                     'direction'  => 'in',
                     'source'     => 'sale',
                     'source_id'  => $order->id,
-                    'amount'     => $order->amount,
+                    'amount'     => $newPaid,
                     'note'       => 'Payment received — Order #' . $order->invoice_id,
                     'created_by' => auth()->id(),
                 ]);
@@ -2867,7 +2931,16 @@ class OrderController extends Controller
         Session::forget(['pos_shipping', 'pos_discount', 'product_discount']);
 
         Toastr::success('Order updated successfully!', 'Success!');
-        return redirect()->route('admin.orders', 'all');
+        // 🆕 Stay on the POS page (no page move)
+        Session::flash('just_updated', $order->invoice_id);
+        if ($request->expectsJson()) {
+            return response()->json([
+                'status'     => 'success',
+                'message'    => 'Order updated successfully',
+                'invoice_id' => $order->invoice_id,
+            ]);
+        }
+        return redirect()->route('admin.order.create');
     }
 
     protected function resolvePaymentMethodLabel(string $gateway): string
@@ -3617,4 +3690,170 @@ class OrderController extends Controller
         return redirect()->back();
     }
 
+    /*
+    |--------------------------------------------------------------------------
+    | 🖨️ ONE-PAGE POS: PRINT / RECENT / LOAD / RECEIVE PAYMENT
+    |--------------------------------------------------------------------------
+    */
+
+    /**
+     * Print a single order as POS receipt or A4 invoice (standalone page).
+     */
+    public function printInvoice($invoice_id, Request $request)
+    {
+        $order = Order::where('invoice_id', $invoice_id)
+            ->with(['orderdetails', 'orderdetails.size', 'orderdetails.color', 'payment', 'shipping', 'customer'])
+            ->firstOrFail();
+
+        $type = $request->get('type', 'pos'); // 'pos' | 'a4'
+
+        $generalsetting = \App\Models\GeneralSetting::first();
+        $contact        = \App\Models\Contact::first();
+
+        return view('backEnd.order.print_invoice', compact('order', 'type', 'generalsetting', 'contact'));
+    }
+
+    /**
+     * Recent orders for the bottom drawer (AJAX search + filter).
+     */
+    public function recentOrders(Request $request)
+    {
+        $q      = trim((string) $request->get('q'));
+        $filter = $request->get('filter', 'all');
+
+        $orders = Order::latest()
+            ->with(['shipping:id,order_id,name,phone', 'orderdetails:id,order_id,qty'])
+            ->limit(10);
+
+        if ($q !== '') {
+            $orders->where(function ($query) use ($q) {
+                $query->where('invoice_id', 'LIKE', "%{$q}%")
+                    ->orWhereHas('shipping', fn ($s) => $s->where('name', 'LIKE', "%{$q}%")->orWhere('phone', 'LIKE', "%{$q}%"))
+                    ->orWhereHas('customer', fn ($s) => $s->where('name', 'LIKE', "%{$q}%")->orWhere('phone', 'LIKE', "%{$q}%"));
+            });
+        }
+
+        $orders = match ($filter) {
+            'pos'       => $orders->where('order_type', 'pos'),
+            'cod'       => $orders->where('order_type', 'cod'),
+            'paid'      => $orders->where('payment_status', 'paid'),
+            'partial'   => $orders->where('payment_status', 'partial'),
+            'due'       => $orders->where('due_amount', '>', 0),
+            'pending'   => $orders->where('order_status', 'pending'),
+            'completed' => $orders->where('order_status', 'completed'),
+            default     => $orders,
+        };
+
+        return response()->json([
+            'status' => 'success',
+            'html'   => view('backEnd.order.partials.recent_orders_rows', ['orders' => $orders->get()])->render(),
+        ]);
+    }
+
+    /**
+     * Load an existing order into the POS cart (AJAX edit mode, no page move).
+     */
+    public function loadOrderIntoCart($invoice_id)
+    {
+        $order = Order::where('invoice_id', $invoice_id)
+            ->with(['shipping'])
+            ->firstOrFail();
+
+        $this->buildCartFromOrder($order);
+
+        $shipping = $order->shipping;
+
+        return response()->json([
+            'status'   => 'success',
+            'order_id' => $order->id,
+            'invoice_id' => $order->invoice_id,
+            'customer' => [
+                'name'    => $shipping->name ?? '',
+                'phone'   => $shipping->phone ?? '',
+                'address' => $shipping->address ?? '',
+                'area'    => $shipping->area ?? '',
+            ],
+            'payment_status' => $order->payment_status,
+            'paid_amount'    => (float) $order->paid_amount,
+            'due_amount'     => (float) $order->due_amount,
+            'cart_html'      => view('backEnd.order.cart_table_rows', ['cartinfo' => Cart::instance('pos_shopping')->content()])->render(),
+        ]);
+    }
+
+    /**
+     * Collect remaining due on a saved order (AJAX).
+     */
+    public function receivePayment(Request $request)
+    {
+        $request->validate([
+            'order_id'       => 'required|exists:orders,id',
+            'amount'         => 'required|numeric|min:0.01',
+            'payment_method' => 'nullable|string',
+            'trx_note'       => 'nullable|string',
+        ]);
+
+        $order = Order::findOrFail($request->order_id);
+        $amount = (float) $request->amount;
+        $remaining = max(0, (float) $order->due_amount);
+
+        if ($amount > $remaining) {
+            return response()->json([
+                'status'  => 'error',
+                'message' => 'Invalid amount (max due ৳' . number_format($remaining, 2) . ')',
+            ], 422);
+        }
+
+        $method = trim((string) $request->input('payment_method', 'Cash'));
+
+        // 1) History ledger
+        OrderPayment::create([
+            'order_id'       => $order->id,
+            'customer_id'    => $order->customer_id,
+            'amount'         => $amount,
+            'payment_method' => $method,
+            'trx_note'       => $request->trx_note ?: null,
+            'created_by'     => auth()->id(),
+        ]);
+
+        // 2) Recalc + status
+        $order->paid_amount += $amount;
+        $order->due_amount   = max(0, (float) $order->amount - $order->paid_amount);
+        $order->payment_status = $order->due_amount > 0 ? 'partial' : 'paid';
+        $order->save();
+
+        // 3) Sync payments current-state row
+        $payment = Payment::where('order_id', $order->id)->first();
+        if ($payment) {
+            $payment->amount         = $order->paid_amount;
+            $payment->payment_status = $order->payment_status;
+            $payment->payment_method = $this->resolvePaymentMethodLabel($method);
+            $payment->save();
+        }
+
+        // 4) Fund credit
+        FundTransaction::create([
+            'direction'  => 'in',
+            'source'     => 'sale',
+            'source_id'  => $order->id,
+            'amount'     => $amount,
+            'note'       => 'Payment received — Order #' . $order->invoice_id,
+            'created_by' => auth()->id(),
+        ]);
+
+        // 5) Note
+        $order->addNote(
+            content: 'Payment received ৳' . number_format($amount, 2) . ' (' . $method . ')' . ($request->trx_note ? ' | Ref: ' . $request->trx_note : ''),
+            type: 'success',
+            source: 'system',
+            userId: auth()->id()
+        );
+
+        return response()->json([
+            'status'   => 'success',
+            'message'  => 'Payment received',
+            'due'      => $order->due_amount,
+            'paid'     => $order->paid_amount,
+            'pay_status' => $order->payment_status,
+        ]);
+    }
 }

@@ -9,7 +9,8 @@
             <a href="{{ route('admin.warranty.supplier.index') }}" class="btn btn-outline-primary btn-sm me-2">📦 Supplier Warranties</a>
             <a href="{{ route('admin.warranty.tiers.index') }}" class="btn btn-outline-info btn-sm me-2">🏷️ Warranty Tiers</a>
             <a href="{{ route('admin.warranty.sales.index') }}" class="btn btn-outline-success btn-sm me-2">🧾 Sales</a>
-            <a href="{{ route('admin.warranty.claims.index') }}" class="btn btn-outline-warning btn-sm">🔧 Claims</a>
+            <a href="{{ route('admin.warranty.claims.index') }}" class="btn btn-outline-warning btn-sm me-2">🔧 Claims</a>
+            <a href="{{ route('admin.warranty.damage.index') }}" class="btn btn-outline-danger btn-sm">💥 Damage</a>
         </div>
     </div>
 
@@ -60,6 +61,120 @@
                 <div class="card-body text-center">
                     <h3 class="mb-0">{{ $stats['active_claims'] }}</h3>
                     <small>Active Claims</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {{-- ⚠️ NEW CLAIMS (unreviewed, from customers) --}}
+    @if($newClaims->isNotEmpty())
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card border-danger bg-danger bg-opacity-10">
+                <div class="card-header bg-danger text-white d-flex justify-content-between align-items-center py-2">
+                    <strong>⚠️ New Claims Awaiting Review ({{ $newClaims->count() }})</strong>
+                    <a href="{{ route('admin.warranty.claims.index') }}" class="btn btn-sm btn-light">View All Claims</a>
+                </div>
+                <div class="card-body py-2">
+                    @foreach($newClaims as $nc)
+                    <div class="d-flex justify-content-between align-items-center py-2 border-bottom">
+                        <div>
+                            <a href="{{ route('admin.warranty.claims.show', $nc) }}" class="fw-bold">{{ $nc->claim_number }}</a>
+                            <span class="text-muted">— {{ $nc->product->name ?? 'N/A' }}</span>
+                            <br><small class="text-muted">
+                                Customer: {{ $nc->customer->name ?? 'N/A' }} ({{ $nc->customer->phone ?? '' }}) ·
+                                Filed: {{ $nc->created_at->diffForHumans() }}
+                            </small>
+                        </div>
+                        <div class="d-flex gap-1">
+                            <a href="{{ route('admin.warranty.claims.show', $nc) }}" class="btn btn-sm btn-primary">Review</a>
+                            <form action="{{ route('admin.warranty.claims.action', [$nc, 'review']) }}" method="POST" class="d-inline">
+                                @csrf
+                                <button class="btn btn-sm btn-success">Start Review</button>
+                            </form>
+                        </div>
+                    </div>
+                    @endforeach
+                </div>
+            </div>
+        </div>
+    </div>
+    @endif
+
+    {{-- 🗓️ Today's & Tomorrow's Tasks --}}
+    <div class="row g-3 mb-4">
+        <div class="col-md-6">
+            <div class="card h-100 border-warning">
+                <div class="card-header d-flex justify-content-between align-items-center py-2">
+                    <strong>⏰ Today's Tasks ({{ $todayTasks->count() }})</strong>
+                    @if($overdueTasks->isNotEmpty())
+                        <span class="badge bg-danger">{{ $overdueTasks->count() }} Overdue</span>
+                    @endif
+                </div>
+                <div class="card-body py-2">
+                    @if($overdueTasks->isNotEmpty())
+                        @foreach($overdueTasks as $task)
+                        <div class="d-flex justify-content-between align-items-center py-2 border-bottom text-danger">
+                            <div>
+                                @if($task->warranty_claim)
+                                <a href="{{ route('admin.warranty.claims.show', $task->warranty_claim) }}" class="text-danger"><strong>{{ $task->warranty_claim->claim_number }}</strong></a>
+                                <span class="text-muted">— {{ $task->warranty_claim->product->name ?? 'N/A' }}</span>
+                                @else
+                                <strong class="text-muted">Claim #N/A</strong>
+                                @endif
+                                <br><small>{{ $task->label }} · due {{ $task->remind_at->format('d M, h:i A') }}</small>
+                            </div>
+                            <form action="{{ route('admin.warranty.reminders.complete', $task) }}" method="POST">
+                                @csrf
+                                <button class="btn btn-sm btn-success">✅ Done</button>
+                            </form>
+                        </div>
+                        @endforeach
+                    @endif
+                    @forelse($todayTasks as $task)
+                        <div class="d-flex justify-content-between align-items-center py-2 border-bottom">
+                            <div>
+                                @if($task->warranty_claim)
+                                <a href="{{ route('admin.warranty.claims.show', $task->warranty_claim) }}"><strong>{{ $task->warranty_claim->claim_number }}</strong></a>
+                                <span class="text-muted">— {{ $task->warranty_claim->product->name ?? 'N/A' }}</span>
+                                @else
+                                <strong class="text-muted">Claim #N/A</strong>
+                                @endif
+                                <br><small>{{ $task->label }} · due {{ $task->remind_at->format('h:i A') }}</small>
+                            </div>
+                            <form action="{{ route('admin.warranty.reminders.complete', $task) }}" method="POST">
+                                @csrf
+                                <button class="btn btn-sm btn-success">✅ Done</button>
+                            </form>
+                        </div>
+                    @empty
+                        @if($overdueTasks->isEmpty())
+                        <p class="text-muted mb-0 text-center py-2">No tasks due today. 🎉</p>
+                        @endif
+                    @endforelse
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card h-100">
+                <div class="card-header py-2"><strong>📅 Tomorrow's Tasks ({{ $tomorrowTasks->count() }})</strong></div>
+                <div class="card-body py-2">
+                    @forelse($tomorrowTasks as $task)
+                        <div class="d-flex justify-content-between align-items-center py-2 border-bottom">
+                            <div>
+                                @if($task->warranty_claim)
+                                <a href="{{ route('admin.warranty.claims.show', $task->warranty_claim) }}"><strong>{{ $task->warranty_claim->claim_number }}</strong></a>
+                                <span class="text-muted">— {{ $task->warranty_claim->product->name ?? 'N/A' }}</span>
+                                @else
+                                <strong class="text-muted">Claim #N/A</strong>
+                                @endif
+                                <br><small>{{ $task->label }} · due {{ $task->remind_at->format('d M, h:i A') }}</small>
+                            </div>
+                            <span class="text-muted small">{{ $task->remind_at->diffForHumans() }}</span>
+                        </div>
+                    @empty
+                        <p class="text-muted mb-0 text-center py-2">No tasks due tomorrow.</p>
+                    @endforelse
                 </div>
             </div>
         </div>

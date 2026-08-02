@@ -261,6 +261,7 @@ class StockController extends Controller
     {
         $product  = null;
         $quantity = $request->quantity ?? 10;
+        $batches  = collect();
 
         if ($request->has('product_id')) {
             $request->validate([
@@ -269,9 +270,15 @@ class StockController extends Controller
             ]);
             $product = Product::findOrFail($request->product_id);
             $quantity = min($request->quantity ?? 10, 100);
+
+            // Fetch batches with remaining stock for this product
+            $batches = \App\Models\StockBatch::where('product_id', $product->id)
+                ->where('remaining_qty', '>', 0)
+                ->orderBy('created_at', 'desc')
+                ->get(['id', 'batch_no', 'custom_field', 'remaining_qty']);
         }
 
-        return view('backEnd.stock.barcode_print', compact('product', 'quantity'));
+        return view('backEnd.stock.barcode_print', compact('product', 'quantity', 'batches'));
     }
 
     // ============================================================

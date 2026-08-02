@@ -242,6 +242,10 @@
                                         <label class="form-label small">{{ __('EXP Date') }}</label>
                                         <input type="date" name="items[0][exp_date]" class="form-control form-control-sm">
                                     </div>
+                                    <div class="col-md-3">
+                                        <label class="form-label small">{{ __('Custom Field') }} <small class="text-muted">(optional)</small></label>
+                                        <input type="text" name="items[0][custom_field]" class="form-control form-control-sm" placeholder="Any extra info...">
+                                    </div>
                                 </div>
                                 {{-- Warranty per product --}}
                                 <div class="row mt-1">

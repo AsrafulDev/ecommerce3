@@ -788,6 +788,7 @@
       <li><a href="{{ route('admin.warranty.supplier.index') }}"><i data-feather="truck"></i> {{ __('Supplier Warranties') }} </a></li>
       <li><a href="{{ route('admin.warranty.sales.index') }}"><i data-feather="shopping-bag"></i> {{ __('Warranty Sales') }} </a></li>
       <li><a href="{{ route('admin.warranty.claims.index') }}"><i data-feather="tool"></i> {{ __('Claims') }} </a></li>
+      <li><a href="{{ route('admin.warranty.damage.index') }}"><i data-feather="alert-triangle"></i> {{ __('Damage Products') }} </a></li>
     </ul>
   </div>
 </li>

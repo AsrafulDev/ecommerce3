@@ -180,6 +180,34 @@
         color:#94a3b8;
         font-size:13px;
     }
+
+    /* 🕘 RECENT ORDERS DRAWER */
+    .recent-drawer{
+        position:fixed;
+        left:0;
+        right:0;
+        bottom:0;
+        z-index:1050;
+        background:#fff;
+        border-top:2px solid #4f46e5;
+        box-shadow:0 -10px 30px rgba(15,23,42,.18);
+        transform:translateY(105%);
+        transition:transform .28s ease;
+        max-height:60vh;
+        display:flex;
+        flex-direction:column;
+    }
+    .recent-drawer.open{ transform:translateY(0); }
+    .recent-drawer-header{
+        display:flex;
+        align-items:center;
+        gap:10px;
+        padding:10px 16px;
+        background:#f8fafc;
+        border-bottom:1px solid #e2e8f0;
+    }
+    .recent-drawer-body{ overflow-y:auto; padding:0 16px; }
+    .recent-drawer-body table thead{ position:sticky; top:0; background:#f1f5f9; z-index:1; }
 </style>
 <link href="{{asset('public/backEnd')}}/assets/libs/select2/css/select2.min.css" rel="stylesheet" type="text/css" />
 <link href="{{asset('public/backEnd')}}/assets/libs/summernote/summernote-lite.min.css" rel="stylesheet" type="text/css" />
@@ -198,8 +226,21 @@
                     <button type="button" id="btn-held-orders" class="btn btn-sm btn-info rounded-pill" title="Held Orders">
                         <i class="fas fa-pause-circle me-1"></i> {{ __('Held Orders') }}
                     </button>
+                    {{-- 🆕 Recent Orders Button --}}
+                    <button type="button" id="btn-recent-orders" class="btn btn-sm btn-outline-secondary rounded-pill" title="Recent Orders">
+                        <i class="fas fa-clock me-1"></i> {{ __('Recent Orders') }}
+                    </button>
                 </div>
                 <div class="d-flex align-items-center gap-2">
+                    {{-- 🆕 Invoice/Order # to load for edit --}}
+                    <div class="input-group input-group-sm" style="max-width:200px;">
+                        <span class="input-group-text bg-white border-end-0"><i class="fas fa-edit"></i></span>
+                        <input type="text"
+                               id="edit_order_input"
+                               class="form-control form-control-sm border-start-0"
+                               placeholder="Order / Invoice #">
+                        <button type="button" id="btn_load_order" class="btn btn-sm btn-outline-primary" title="Load Order">Go</button>
+                    </div>
                     {{-- 🆕 Barcode Scanner Input --}}
                     <div class="input-group input-group-sm" style="max-width:260px;">
                         <span class="input-group-text bg-white border-end-0"><i class="fas fa-barcode"></i></span>
@@ -280,7 +321,12 @@
 
                     {{-- CUSTOMER --}}
                     <div class="col-md-6">
-                        <div class="pos-section-title"> {{ __('Customer') }} </div>
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <span class="pos-section-title mb-0"> {{ __('Customer') }} </span>
+                            <button type="button" id="btn-guest-customer" class="btn btn-sm btn-outline-secondary rounded-pill" title="Walk-in Guest">
+                                <i class="fas fa-user"></i> {{ __('Guest') }}
+                            </button>
+                        </div>
 
                         <div class="mb-2">
                             <input type="text"
@@ -329,13 +375,40 @@
 
                         {{-- 🆕 Payment Gateway Selection --}}
                         <div class="mb-2">
-                            <label class="form-label small mb-1"><strong>Payment Method:</strong></label>
+                            <label class="form-label small mb-1"><strong>Payment Type:</strong></label>
                             <select id="pos_payment_type"
                                     class="form-control form-control-sm"
                                     name="payment_type">
-                                <option value="paid">{{ __('Paid (Cash/Card/Bank/MFS)') }}</option>
+                                <option value="paid">{{ __('Paid (Full)') }}</option>
+                                <option value="partial">{{ __('Partial (With Due)') }}</option>
                                 <option value="cod">{{ __('Cash on Delivery (COD)') }}</option>
                             </select>
+                        </div>
+
+                        {{-- 🆕 Paid Amount + Due (partial payment) --}}
+                        @php
+                            $_sub = Cart::instance('pos_shopping')->subtotal();
+                            $_sub = (float) str_replace(',', '', $_sub);
+                            $_ship = (float) Session::get('pos_shipping', 0);
+                            $_disc = (float) Session::get('pos_discount', 0);
+                            $posGrand = ($_sub + $_ship) - $_disc;
+                        @endphp
+                        <div class="mb-2" id="pos_paid_amount_wrap">
+                            <label class="form-label small mb-1"><strong>Paid Amount (৳):</strong></label>
+                            <input type="number"
+                                   id="pos_paid_amount"
+                                   class="form-control form-control-sm"
+                                   name="paid_amount"
+                                   value="{{ $posGrand }}"
+                                   step="0.01" min="0">
+                        </div>
+                        <div class="mb-2" id="pos_due_amount_wrap">
+                            <label class="form-label small mb-1"><strong>Due Amount:</strong></label>
+                            <input type="text"
+                                   id="pos_due_amount"
+                                   class="form-control form-control-sm bg-light"
+                                   value="৳0.00"
+                                   readonly>
                         </div>
 
                         {{-- 🆕 Payment Sub-Method (shown for both paid and COD) --}}
@@ -400,13 +473,41 @@
                             <button type="button" id="btn-hold-cart" class="btn btn-warning rounded-pill btn-sm">
                                 <i class="fas fa-pause me-1"></i> {{ __('Hold Cart') }}
                             </button>
-                            <button type="submit" class="btn btn-pos-primary">
+                            <button type="submit" id="pos_submit_btn" class="btn btn-pos-primary">
                                 Complete Sale
                             </button>
+                        </div>
+
+                        {{-- 🆕 Update mode hidden field --}}
+                        <input type="hidden" name="order_id" id="pos_order_id" value="">
+
+                        {{-- 🆕 Update Mode Banner --}}
+                        <div id="pos_update_banner" class="alert alert-warning mt-2 mb-0 py-2" style="display:none;">
+                            <strong>✏️ Editing Order #<span id="pos_update_invoice"></span></strong>
+                            <button type="button" id="pos_cancel_edit" class="btn btn-sm btn-outline-secondary ms-2">Cancel Edit</button>
                         </div>
                     </div>
 
                 </form>
+
+                {{-- 🆕 Sale Complete Panel (shown after order placed / updated) --}}
+                @php
+                    $justCreated = Session::get('just_created');
+                    $justUpdated = Session::get('just_updated');
+                    $saleInvoice = $justCreated ?? $justUpdated;
+                @endphp
+                @if($saleInvoice)
+                <div class="alert alert-success mt-2 mb-0 py-2 d-flex justify-content-between align-items-center flex-wrap gap-2">
+                    <div>
+                        <strong>✅ {{ $justUpdated ? 'Order Updated' : 'Sale Complete' }} — Invoice #{{ $saleInvoice }}</strong>
+                    </div>
+                    <div class="d-flex gap-1">
+                        <button type="button" class="btn btn-sm btn-success sale-print-pos" data-invoice="{{ $saleInvoice }}">🖨 POS</button>
+                        <button type="button" class="btn btn-sm btn-primary sale-print-a4" data-invoice="{{ $saleInvoice }}">🖨 A4</button>
+                        <button type="button" class="btn btn-sm btn-outline-secondary" id="pos_dismiss_sale">✖</button>
+                    </div>
+                </div>
+                @endif
             </div>
         </div>
 
@@ -454,6 +555,50 @@
         </div>
 
     </div>
+
+    {{-- ══════════ 🕘 RECENT ORDERS DRAWER ══════════ --}}
+    <div class="recent-drawer" id="recentDrawer">
+        <div class="recent-drawer-header">
+            <strong><i class="fas fa-clock me-1"></i> Recent Orders</strong>
+            <div class="d-flex align-items-center gap-2 flex-grow-1 justify-content-center">
+                <input type="text" id="recent_search" class="form-control form-control-sm" placeholder="🔍 Search invoice / name / phone..." style="max-width:280px;">
+                <select id="recent_filter" class="form-select form-select-sm" style="max-width:160px;">
+                    <option value="all">All</option>
+                    <option value="pos">POS</option>
+                    <option value="cod">COD</option>
+                    <option value="paid">Paid</option>
+                    <option value="partial">Partial</option>
+                    <option value="due">Due</option>
+                    <option value="pending">Pending</option>
+                    <option value="completed">Completed</option>
+                </select>
+            </div>
+            <button type="button" class="btn btn-sm btn-outline-secondary" id="recent_close">✖</button>
+        </div>
+        <div class="recent-drawer-body table-responsive">
+            <table class="table table-sm table-hover mb-0">
+                <thead>
+                    <tr>
+                        <th>Invoice</th>
+                        <th>Customer</th>
+                        <th>Items</th>
+                        <th>Total</th>
+                        <th>Payment</th>
+                        <th>Status</th>
+                        <th>Date</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="recent_orders_list">
+                    <tr><td colspan="8" class="text-center text-muted py-3">Loading...</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    {{-- 💸 Collect Due Modal --}}
+    @include('backEnd.order.partials.collect_due_modal')
+
 </div>
 @endsection
 
@@ -729,39 +874,14 @@
     });
 
     // -------- FORM SUBMIT - আগে Size/Color সিঙ্ক করুন --------
-    var posFormSubmitting = false;
+    // Note: The AJAX submit handler (defined at the bottom) takes over submission.
+    // This block only performs the size/color sync before delegating.
     $("#pos_order_form").on("submit", function (e) {
-        if (posFormSubmitting) return;
         e.preventDefault();
-        var form = this;
-        var rows = [];
-        $(".cart-size-selector, .cart-color-selector").each(function () {
-            var rowId = $(this).data("id");
-            if (rowId && rows.indexOf(rowId) === -1) rows.push(rowId);
-        });
-        if (rows.length === 0) {
-            posFormSubmitting = true;
-            form.submit();
-            return;
+        // Delegate to the AJAX handler (bound later) — trigger it if present.
+        if (typeof window.__posAjaxSubmit === "function") {
+            window.__posAjaxSubmit.call(this);
         }
-        var promises = [];
-        rows.forEach(function (rowId) {
-            var $row = $('.cart-size-selector[data-id="'+rowId+'"]').closest('tr');
-            if (!$row.length) $row = $('.cart-color-selector[data-id="'+rowId+'"]').closest('tr');
-            var sId = $row.find('.cart-size-selector').val() || '';
-            var cId = $row.find('.cart-color-selector').val() || '';
-            var productId = $row.find('.cart-size-selector, .cart-color-selector').first().data('product-id') || '';
-            promises.push($.ajax({
-                type: "GET",
-                url: "{{ route('admin.order.cart.update') }}",
-                data: { id: rowId, product_id: productId, size_id: sId, color_id: cId },
-                dataType: "json"
-            }));
-        });
-        $.when.apply($, promises).always(function () {
-            posFormSubmitting = true;
-            setTimeout(function () { form.submit(); }, 150);
-        });
     });
 
     // -------- PRODUCT SEARCH (Right side) ----------
@@ -832,6 +952,68 @@
                     $("#barcode_input").focus();
                 }
             }, 100);
+        }
+    });
+
+    // ============================================================
+    // 🆕 GUEST CUSTOMER BUTTON
+    // ============================================================
+    $("#btn-guest-customer").on("click", function () {
+        $("#name").val("Walk-in Customer");
+        $("#phone").val("01");
+        $("#address").val("Walk-in");
+        toastr && toastr.info("Guest / Walk-in customer filled");
+    });
+
+    // ============================================================
+    // 🆕 ORDER LOAD BY INVOICE # (left of barcode)
+    // ============================================================
+    function loadOrderByInvoice(invoice) {
+        if (!invoice) return;
+        $.ajax({
+            type: "GET",
+            url: "{{ route('admin.order.load', ['invoice_id' => '__INV__']) }}".replace('__INV__', invoice),
+            dataType: "json",
+            success: function (res) {
+                if (res.status === "success") {
+                    $("#name").val(res.customer.name);
+                    $("#phone").val(res.customer.phone);
+                    $("#address").val(res.customer.address);
+                    var areaVal = res.customer.area;
+                    // area might be text (like "Store Pickup") — select option 0
+                    if (areaVal === "Store Pickup" || areaVal == 0 || areaVal === "0") {
+                        $("#area").val("0").trigger("change");
+                    } else {
+                        $("#area").val(areaVal).trigger("change");
+                    }
+                    $("#pos_order_id").val(res.order_id);
+                    $("#pos_update_invoice").text(res.invoice_id);
+                    $("#pos_update_banner").show();
+                    $("#pos_submit_btn").html('<i class="fas fa-sync me-1"></i> Update Order');
+                    $("#pos_payment_type").val(res.payment_status === "paid" ? "paid" : (res.payment_status === "pending" ? "cod" : "partial"));
+                    $("#pos_paid_amount").val(res.paid_amount);
+                    cart_refresh();
+                    cart_details();
+                    updateDueCalc();
+                    toastr && toastr.success("Order #" + res.invoice_id + " loaded");
+                    $("#edit_order_input").val("");
+                } else {
+                    toastr && toastr.error("Order not found");
+                }
+            },
+            error: function (xhr) {
+                var msg = xhr.responseJSON && xhr.responseJSON.message ? xhr.responseJSON.message : "Order not found";
+                toastr && toastr.error(msg);
+            }
+        });
+    }
+    $("#btn_load_order").on("click", function () {
+        loadOrderByInvoice($("#edit_order_input").val().trim());
+    });
+    $("#edit_order_input").on("keypress", function (e) {
+        if (e.which === 13) {
+            e.preventDefault();
+            loadOrderByInvoice($(this).val().trim());
         }
     });
 
@@ -973,5 +1155,237 @@
             }
         });
     });
+
+    // ============================================================
+    // 🆕 ONE-PAGE POS: PARTIAL PAYMENT, PRINT, RECENT ORDERS, EDIT
+    // ============================================================
+
+    // -------- Paid / Due live calc --------
+    function posGrandTotal() {
+        var txt = $("#cart_details").find(".pos-grand-total").text().replace(/[^\d.]/g, "");
+        return parseFloat(txt) || 0;
+    }
+    function updateDueCalc() {
+        var type = $("#pos_payment_type").val();
+        var grand = posGrandTotal();
+        var paid = parseFloat($("#pos_paid_amount").val()) || 0;
+
+        if (type === "cod") {
+            // COD = no upfront payment, full due
+            paid = 0;
+            $("#pos_paid_amount").val(0);
+            $("#pos_paid_amount").prop("disabled", true);
+        } else if (type === "paid") {
+            paid = grand;
+            $("#pos_paid_amount").val(grand);
+            $("#pos_paid_amount").prop("disabled", true);
+        } else {
+            // partial
+            $("#pos_paid_amount").prop("disabled", false);
+            if (paid > grand) paid = grand;
+        }
+
+        var due = Math.max(0, grand - paid);
+        $("#pos_due_amount").val("৳" + due.toFixed(2));
+    }
+    $(document).on("change keyup input", "#pos_payment_type, #pos_paid_amount", function () {
+        updateDueCalc();
+    });
+
+    // -------- Print (open standalone print page) --------
+    function openPrint(invoiceId, type) {
+        var url = "{{ route('admin.order.print', ['invoice_id' => '__INV__']) }}".replace('__INV__', invoiceId) + "?type=" + type + "&autoprint=1";
+        window.open(url, "_blank", "width=820,height=600");
+    }
+    $(document).on("click", ".sale-print-pos", function () { openPrint($(this).data("invoice"), "pos"); });
+    $(document).on("click", ".sale-print-a4", function () { openPrint($(this).data("invoice"), "a4"); });
+    $(document).on("click", ".recent-print-pos", function () { openPrint($(this).data("invoice"), "pos"); });
+    $(document).on("click", ".recent-print-a4", function () { openPrint($(this).data("invoice"), "a4"); });
+
+    // Dismiss sale complete panel
+    $("#pos_dismiss_sale").on("click", function () {
+        $(this).closest(".alert").remove();
+    });
+
+    // -------- Recent Orders drawer --------
+    function loadRecentOrders() {
+        var q = $("#recent_search").val();
+        var f = $("#recent_filter").val();
+        $.ajax({
+            type: "GET",
+            url: "{{ route('admin.order.recent') }}",
+            data: { q: q, filter: f },
+            dataType: "json",
+            success: function (res) {
+                $("#recent_orders_list").html(res.html);
+            }
+        });
+    }
+    $("#btn-recent-orders").on("click", function () {
+        $("#recentDrawer").toggleClass("open");
+        if ($("#recentDrawer").hasClass("open")) loadRecentOrders();
+    });
+    $("#recent_close").on("click", function () { $("#recentDrawer").removeClass("open"); });
+    $(document).on("keyup", "#recent_search", function () {
+        clearTimeout(window._recentTimer);
+        window._recentTimer = setTimeout(loadRecentOrders, 300);
+    });
+    $(document).on("change", "#recent_filter", loadRecentOrders);
+
+    // -------- Edit order (load into cart, no page move) --------
+    $(document).on("click", ".recent-edit", function () {
+        var invoice = $(this).data("invoice");
+        $.ajax({
+            type: "GET",
+            url: "{{ route('admin.order.load', ['invoice_id' => '__INV__']) }}".replace('__INV__', invoice),
+            dataType: "json",
+            success: function (res) {
+                if (res.status === "success") {
+                    $("#name").val(res.customer.name);
+                    $("#phone").val(res.customer.phone);
+                    $("#address").val(res.customer.address);
+                    var areaVal = res.customer.area;
+                    $("#area").val(areaVal).trigger("change");
+
+                    // Enter update mode
+                    $("#pos_order_id").val(res.order_id);
+                    $("#pos_update_invoice").text(res.invoice_id);
+                    $("#pos_update_banner").show();
+                    $("#pos_submit_btn").html('<i class="fas fa-sync me-1"></i> Update Order');
+
+                    // Set payment info
+                    $("#pos_payment_type").val(res.payment_status === "paid" ? "paid" : (res.payment_status === "pending" ? "cod" : "partial"));
+                    $("#pos_paid_amount").val(res.paid_amount);
+
+                    // Refresh cart UI (cart was loaded server-side)
+                    cart_refresh();
+                    cart_details();
+                    updateDueCalc();
+
+                    $("#recentDrawer").removeClass("open");
+                    $("html, body").animate({ scrollTop: 0 }, 300);
+                } else {
+                    alert("Failed to load order");
+                }
+            },
+            error: function (xhr) {
+                alert(xhr.responseJSON && xhr.responseJSON.message ? xhr.responseJSON.message : "Error loading order");
+            }
+        });
+    });
+
+    // -------- Cancel edit --------
+    $("#pos_cancel_edit").on("click", function () {
+        if (!confirm("Cancel editing? Cart will be cleared.")) return;
+        $.get("{{ route('admin.order.cart_clear') }}", function () {
+            location.reload();
+        });
+    });
+
+    // -------- Collect Due --------
+    $(document).on("click", ".recent-collect", function () {
+        $("#collect_order_id").val($(this).data("id"));
+        $("#collect_invoice").text("#" + $(this).data("invoice"));
+        $("#collect_due").text("৳" + parseFloat($(this).data("due")).toFixed(2));
+        $("#collect_amount").val("");
+        $("#collect_trx").val("");
+        $("#collect_msg").text("");
+        $("#collectDueModal").modal("show");
+    });
+    $("#collect_btn").on("click", function () {
+        var orderId = $("#collect_order_id").val();
+        var amount = parseFloat($("#collect_amount").val());
+        var due = parseFloat($("#collect_due").text().replace(/[^\d.]/g, ""));
+        if (!amount || amount <= 0) { $("#collect_msg").addClass("text-danger").removeClass("text-success").text("Enter a valid amount"); return; }
+        if (amount > due) { $("#collect_msg").addClass("text-danger").removeClass("text-success").text("Amount exceeds remaining due"); return; }
+
+        $.ajax({
+            type: "POST",
+            url: "{{ route('admin.order.receive_payment') }}",
+            data: {
+                _token: "{{ csrf_token() }}",
+                order_id: orderId,
+                amount: amount,
+                payment_method: $("#collect_method").val(),
+                trx_note: $("#collect_trx").val()
+            },
+            dataType: "json",
+            success: function (res) {
+                $("#collectDueModal").modal("hide");
+                toastr ? toastr.success(res.message) : alert(res.message);
+                loadRecentOrders();
+            },
+            error: function (xhr) {
+                var msg = xhr.responseJSON && xhr.responseJSON.message ? xhr.responseJSON.message : "Error";
+                $("#collect_msg").addClass("text-danger").removeClass("text-success").text(msg);
+            }
+        });
+    });
+
+    // -------- Form submit: route to store or update (AJAX, no page move) --------
+    window.__posAjaxSubmit = function () {
+        var form = this;
+        var isUpdate = !!$("#pos_order_id").val();
+
+        // Sync size/color first
+        var rows = [];
+        $(".cart-size-selector, .cart-color-selector").each(function () {
+            var rowId = $(this).data("id");
+            if (rowId && rows.indexOf(rowId) === -1) rows.push(rowId);
+        });
+
+        var doSubmit = function () {
+            var data = $(form).serialize();
+            var url = isUpdate
+                ? "{{ route('admin.order.update') }}"
+                : "{{ route('admin.order.store') }}";
+
+            $.ajax({
+                type: "POST",
+                url: url,
+                data: data,
+                dataType: "json",
+                beforeSend: function () {
+                    $("#pos_submit_btn").prop("disabled", true).html('<i class="fas fa-spinner fa-spin me-1"></i> Saving...');
+                },
+                success: function (res) {
+                    location.reload();
+                },
+                error: function (xhr) {
+                    $("#pos_submit_btn").prop("disabled", false).html(isUpdate ? "Update Order" : "Complete Sale");
+                    var msg = "Error saving order";
+                    if (xhr.responseJSON && xhr.responseJSON.errors) {
+                        msg = Object.values(xhr.responseJSON.errors).flat().join(", ");
+                    } else if (xhr.responseJSON && xhr.responseJSON.message) {
+                        msg = xhr.responseJSON.message;
+                    } else if (xhr.responseText && xhr.responseText.indexOf("success") !== -1) {
+                        location.reload();
+                        return;
+                    }
+                    alert(msg);
+                }
+            });
+        };
+
+        if (rows.length === 0) { doSubmit(); return; }
+
+        var promises = [];
+        rows.forEach(function (rowId) {
+            var $row = $('.cart-size-selector[data-id="' + rowId + '"]').closest('tr');
+            if (!$row.length) $row = $('.cart-color-selector[data-id="' + rowId + '"]').closest('tr');
+            var sId = $row.find('.cart-size-selector').val() || '';
+            var cId = $row.find('.cart-color-selector').val() || '';
+            var productId = $row.find('.cart-size-selector, .cart-color-selector').first().data('product-id') || '';
+            promises.push($.ajax({
+                type: "GET",
+                url: "{{ route('admin.order.cart.update') }}",
+                data: { id: rowId, product_id: productId, size_id: sId, color_id: cId },
+                dataType: "json"
+            }));
+        });
+        $.when.apply($, promises).always(function () {
+            setTimeout(doSubmit, 150);
+        });
+    };
 </script>
 @endsection

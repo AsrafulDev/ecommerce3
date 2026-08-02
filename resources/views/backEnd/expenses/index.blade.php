@@ -30,11 +30,11 @@
 
       {{-- Available Balance --}}
 <div class="col-md-3 mb-3">
-    <div class="card bg-success text-white" style="color:#fff !important;">
-        <div class="card-body" style="color:#fff !important;">
-            <h5 class="mb-1" style="color:#fff !important;"> {{ __('Available Balance') }} </h5>
-            <h2 class="mb-0" style="color:#fff !important;">{{ number_format($balance, 2) }} ৳</h2>
-            <small class="opacity-75 d-block mt-1" style="color:#fff !important;">
+    <div class="card bg-success" >
+        <div class="card-body" >
+            <h5 class="mb-1" > {{ __('Available Balance') }} </h5>
+            <h2 class="mb-0" >{{ number_format($balance, 2) }} ৳</h2>
+            <small class="opacity-75 d-block mt-1" >
                 বর্তমানে তহবিলে অবশিষ্ট ব্যালেন্স
             </small>
         </div>
@@ -43,11 +43,11 @@
 
 {{-- This Year Expense --}}
 <div class="col-md-3 mb-3">
-    <div class="card bg-primary text-white" style="color:#fff !important;">
-        <div class="card-body" style="color:#fff !important;">
-            <h5 class="mb-1" style="color:#fff !important;">This Year ({{ $currentYear }})</h5>
-            <h3 class="mb-0" style="color:#fff !important;">{{ number_format($yearlyExpense, 2) }} ৳</h3>
-            <small class="opacity-75 d-block mt-1" style="color:#fff !important;">
+    <div class="card bg-primary" >
+        <div class="card-body" >
+            <h5 class="mb-1" >This Year ({{ $currentYear }})</h5>
+            <h3 class="mb-0" >{{ number_format($yearlyExpense, 2) }} ৳</h3>
+            <small class="opacity-75 d-block mt-1" >
                 এই বছরে মোট খরচ হয়েছে
             </small>
         </div>
@@ -56,13 +56,13 @@
 
 {{-- This Month Expense --}}
 <div class="col-md-3 mb-3">
-    <div class="card bg-info text-white" style="color:#fff !important;">
-        <div class="card-body" style="color:#fff !important;">
-            <h5 class="mb-1" style="color:#fff !important;">
+    <div class="card bg-info" >
+        <div class="card-body" >
+            <h5 class="mb-1" >
                 This Month ({{ \Carbon\Carbon::createFromDate(now()->year, $currentMonth, 1)->format('F') }})
             </h5>
-            <h3 class="mb-0" style="color:#fff !important;">{{ number_format($monthlyExpense, 2) }} ৳</h3>
-            <small class="opacity-75 d-block mt-1" style="color:#fff !important;">
+            <h3 class="mb-0" >{{ number_format($monthlyExpense, 2) }} ৳</h3>
+            <small class="opacity-75 d-block mt-1" >
                 এই মাসে মোট খরচ হয়েছে
             </small>
         </div>
@@ -71,11 +71,11 @@
 
 {{-- Today Expense --}}
 <div class="col-md-3 mb-3">
-    <div class="card bg-danger text-white" style="color:#fff !important;">
-        <div class="card-body" style="color:#fff !important;">
-            <h5 class="mb-1" style="color:#fff !important;">Today ({{ now()->format('d M, Y') }})</h5>
-            <h3 class="mb-0" style="color:#fff !important;">{{ number_format($todayExpense, 2) }} ৳</h3>
-            <small class="opacity-75 d-block mt-1" style="color:#fff !important;">
+    <div class="card bg-danger" >
+        <div class="card-body" >
+            <h5 class="mb-1" >Today ({{ now()->format('d M, Y') }})</h5>
+            <h3 class="mb-0" >{{ number_format($todayExpense, 2) }} ৳</h3>
+            <small class="opacity-75 d-block mt-1" >
                 আজকে মোট খরচ হয়েছে
             </small>
         </div>

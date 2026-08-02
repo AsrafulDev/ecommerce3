@@ -12,6 +12,7 @@ enum PaymentStatus: string
 {
     case PENDING            = 'pending';
     case PAID               = 'paid';
+    case PARTIAL            = 'partial';
     case PARTIALLY_REFUNDED = 'partially_refunded';
     case REFUNDED           = 'refunded';
     case FAILED             = 'failed';
@@ -22,6 +23,7 @@ enum PaymentStatus: string
         return match ($this) {
             self::PENDING            => 'Pending',
             self::PAID               => 'Paid',
+            self::PARTIAL            => 'Partially Paid',
             self::PARTIALLY_REFUNDED => 'Partially Refunded',
             self::REFUNDED           => 'Refunded',
             self::FAILED             => 'Failed',
@@ -34,6 +36,7 @@ enum PaymentStatus: string
         return match ($this) {
             self::PENDING            => 'warning',
             self::PAID               => 'success',
+            self::PARTIAL            => 'info',
             self::PARTIALLY_REFUNDED => 'info',
             self::REFUNDED           => 'secondary',
             self::FAILED             => 'danger',
