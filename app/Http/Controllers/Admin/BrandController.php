@@ -51,6 +51,7 @@ class BrandController extends Controller
 
         $input = $request->all();
         $input['slug'] = strtolower(preg_replace('/\s+/u', '-', trim($request->name)));
+        $input['name_bn'] = $request->name_bn ?? $request->name;
         $input['image'] = $imageUrl;
         Brand::create($input);
         Toastr::success('Success','Data insert successfully');
@@ -93,6 +94,7 @@ class BrandController extends Controller
             $input['image'] = $update_data->image;
         }
         $input['status'] = $request->status?1:0;
+        $input['name_bn'] = $request->name_bn ?? $request->name;
         $update_data->update($input);
 
         Toastr::success('Success','Data update successfully');

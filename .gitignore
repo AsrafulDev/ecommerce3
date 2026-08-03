@@ -2,7 +2,12 @@
 /public/build
 /public/hot
 /public/storage
-/public/uploads
+/public/uploads/*
+/public/uploads/images
+# Ignore all images in the uploads folder, except for the default image but create a subfolder for the default image to avoid ignoring it
+!/public/uploads/default/
+!/public/uploads/default/*
+
 /storage/*.key
 /storage/framework/cache/data
 /storage/framework/sessions

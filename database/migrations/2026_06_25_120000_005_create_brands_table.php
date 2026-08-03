@@ -12,7 +12,7 @@ return new class extends Migration
             Schema::create('brands', function (Blueprint $table) {
             $table->increments('id');
             $table->string('name', 255);
-            $table->string('name_bn', 255);
+            $table->string('name_bn', 255)->nullable();
             $table->string('slug', 255);
             $table->string('image', 255)->default('public/uploads/category/default.png');
             $table->tinyInteger('status');
