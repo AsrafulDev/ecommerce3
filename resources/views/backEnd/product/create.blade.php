@@ -120,10 +120,6 @@
                                         <input type="number" step="0.01" name="wholesale_price[0][wholesale_price]" class="form-control" placeholder="0.00">
                                     </div>
                                     <div class="col-md-2 mb-2">
-                                        <label class="form-label"> {{ __('Stock Qty') }} </label>
-                                        <input type="number" name="wholesale_price[0][stock]" class="form-control" placeholder="0">
-                                    </div>
-                                    <div class="col-md-2 mb-2">
                                         <button type="button" class="btn btn-success add-wholesale-tier w-100"><i class="fa fa-plus"></i></button>
                                     </div>
                                 </div>
@@ -163,10 +159,6 @@
                                     <div class="col-md-2 mb-2">
                                         <label class="form-label">{{ __('Price') }}</label>
                                         <input type="number" step="0.01" name="variant_price[0][price]" class="form-control" placeholder="0.00">
-                                    </div>
-                                    <div class="col-md-2 mb-2">
-                                        <label class="form-label">{{ __('Stock') }}</label>
-                                        <input type="number" name="variant_price[0][stock]" class="form-control" placeholder="0">
                                     </div>
                                     <div class="col-md-3 mb-2">
                                         <label class="form-label"> {{ __('Variant Image') }} </label>
@@ -610,11 +602,10 @@
                 let colorId = $row.find('.variant-color-select').val() || null;
                 let sizeId = $row.find('.variant-size-select').val() || null;
                 let price = $row.find('input[name*="[price]"]').val() || 0;
-                let stock = $row.find('input[name*="[stock]"]').val() || 0;
                 
                 if (!colorId && !sizeId) return;
                 
-                variantData.push({ index: variantIndex++, color_id: colorId, size_id: sizeId, price: price, stock: stock, image_row: rowIndex });
+                variantData.push({ index: variantIndex++, color_id: colorId, size_id: sizeId, price: price, image_row: rowIndex });
                 rowIndex++;
             });
             
@@ -625,7 +616,6 @@
                 $('<input>').attr({ type: 'hidden', name: 'variant_price[' + v.index + '][color_id]', value: v.color_id }).appendTo($('form[data-parsley-validate]'));
                 $('<input>').attr({ type: 'hidden', name: 'variant_price[' + v.index + '][size_id]', value: v.size_id || '' }).appendTo($('form[data-parsley-validate]'));
                 $('<input>').attr({ type: 'hidden', name: 'variant_price[' + v.index + '][price]', value: v.price }).appendTo($('form[data-parsley-validate]'));
-                $('<input>').attr({ type: 'hidden', name: 'variant_price[' + v.index + '][stock]', value: v.stock }).appendTo($('form[data-parsley-validate]'));
                 $('<input>').attr({ type: 'hidden', name: 'variant_price[' + v.index + '][image_row]', value: v.image_row }).appendTo($('form[data-parsley-validate]'));
             });
         });

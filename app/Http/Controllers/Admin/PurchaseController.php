@@ -181,6 +181,9 @@ class PurchaseController extends Controller
             $pid   = $item['product_id'];
             $vid   = $item['variant_id'] ?? null;
 
+            // Load the product up-front — needed for warranty tiers AND stock below
+            $product = Product::findOrFail($pid);
+
             $purchaseItem = PurchaseItem::create([
                 'purchase_id'      => $purchase->id,
                 'product_id'       => $pid,
@@ -215,7 +218,6 @@ class PurchaseController extends Controller
             }
 
             // Stock
-            $product = Product::findOrFail($pid);
             $product->supplier_price = $cost;
             $product->save();
             app(StockManagementService::class)->stockIn($product, [

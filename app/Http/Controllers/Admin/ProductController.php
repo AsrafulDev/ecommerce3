@@ -207,7 +207,8 @@ class ProductController extends Controller
         // Price & stock optional – না দিলে ০ ধরা হবে
         $input['new_price']      = $request->filled('new_price') ? $request->new_price : 0;
         $input['purchase_price'] = $request->filled('purchase_price') ? $request->purchase_price : 0;
-        $input['stock']          = $request->filled('stock') ? (int) $request->stock : 0;
+        // Total stock is maintained via purchase batches / stock adjustments only — never from this form
+        $input['stock']          = 0;
 
         // 🆕 Barcode & Stock Management
         $input['barcode']              = $request->barcode ?: $this->generateUniqueBarcode();
@@ -322,7 +323,6 @@ class ProductController extends Controller
                 $colorId = $variant['color_id'] ?? null;
                 $sizeId  = $variant['size_id'] ?? null;
                 $price   = $variant['price'] ?? 0;
-                $stock   = $variant['stock'] ?? 0;
 
                 // Handle if size_id is accidentally an array
                 if (is_array($sizeId)) {
@@ -335,7 +335,8 @@ class ProductController extends Controller
                         'color_id'   => $colorId ?: null,
                         'size_id'    => $sizeId ?: null,
                         'price'      => $price,
-                        'stock'      => $stock,
+                        // Stock is maintained via purchase batches / stock adjustments only
+                        'stock'      => 0,
                     ]);
                 }
             }
@@ -384,7 +385,8 @@ class ProductController extends Controller
                         'min_quantity'    => $tier['min_quantity'],
                         'max_quantity'    => $tier['max_quantity'] ?? null,
                         'wholesale_price' => $tier['wholesale_price'] ?? 0,
-                        'stock'           => $tier['stock'] ?? 0,
+                        // Stock is maintained via purchase batches / stock adjustments only
+                        'stock'           => 0,
                     ]);
                 }
             }
@@ -542,9 +544,8 @@ class ProductController extends Controller
         // Price & stock optional – আপডেটে না দিলে ০ ধরা হবে
         $input['new_price']      = $request->filled('new_price') ? $request->new_price : 0;
         $input['purchase_price'] = $request->filled('purchase_price') ? $request->purchase_price : 0;
-        // Stock counter is maintained via purchase batches — preserve existing when the
-        // "Total Stock" input is absent (it was removed from the edit form).
-        $input['stock']          = $request->filled('stock') ? (int) $request->stock : (int) $product->stock;
+        // Total stock is maintained via purchase batches / stock adjustments only — never from this form
+        $input['stock']          = (int) $product->stock;
 
         // 🆕 Barcode & Stock Management
         $input['barcode']              = $request->barcode ?: $this->generateUniqueBarcode();
@@ -698,6 +699,14 @@ class ProductController extends Controller
         }
 
         // VARIANTS UPDATE - Single size per variant
+        // Preserve existing variant stock (maintained via purchase batches / stock adjustments)
+        $existingVariantStock = [];
+        ProductVariantPrice::where('product_id', $product->id)
+            ->get()
+            ->each(function ($vp) use (&$existingVariantStock) {
+                $existingVariantStock[($vp->color_id ?: 0) . '_' . ($vp->size_id ?: 0)] = (int) $vp->stock;
+            });
+
         ProductVariantPrice::where('product_id', $product->id)->delete();
 
         if ($request->variant_price && is_array($request->variant_price)) {
@@ -705,7 +714,6 @@ class ProductController extends Controller
                 $colorId = $variant['color_id'] ?? null;
                 $sizeId  = $variant['size_id'] ?? null;
                 $price   = $variant['price'] ?? 0;
-                $stock   = $variant['stock'] ?? 0;
 
                 // Handle if size_id is accidentally an array
                 if (is_array($sizeId)) {
@@ -713,6 +721,10 @@ class ProductController extends Controller
                 }
 
                 if (!empty($colorId) || !empty($sizeId)) {
+                    // Stock is maintained via purchase batches / stock adjustments only — preserve existing
+                    $stockKey = ($colorId ?: 0) . '_' . ($sizeId ?: 0);
+                    $stock    = $existingVariantStock[$stockKey] ?? 0;
+
                     ProductVariantPrice::create([
                         'product_id' => $product->id,
                         'color_id'   => $colorId ?: null,
@@ -725,18 +737,27 @@ class ProductController extends Controller
         }
 
         // WHOLESALE PRICING TIERS UPDATE
+        // Preserve existing wholesale stock (maintained via purchase batches / stock adjustments)
+        $existingWholesaleStock = [];
+        ProductWholesalePrice::where('product_id', $product->id)
+            ->get()
+            ->each(function ($tier) use (&$existingWholesaleStock) {
+                $existingWholesaleStock[($tier->variant_id ?: 0) . '_' . ($tier->min_quantity ?: 0)] = (int) $tier->stock;
+            });
+
         ProductWholesalePrice::where('product_id', $product->id)->delete();
 
         if ($input['is_wholesale'] && $request->wholesale_discount && is_array($request->wholesale_discount)) {
             foreach ($request->wholesale_discount as $tier) {
                 if (!empty($tier['min_quantity']) && !empty($tier['wholesale_price'])) {
+                    $stockKey = (($tier['variant_id'] ?? null) ?: 0) . '_' . ($tier['min_quantity'] ?: 0);
                     ProductWholesalePrice::create([
                         'product_id'      => $product->id,
                         'variant_id'      => $tier['variant_id'] ?? null,
                         'min_quantity'    => $tier['min_quantity'],
                         'max_quantity'    => $tier['max_quantity'] ?? null,
                         'wholesale_price' => $tier['wholesale_price'] ?? 0,
-                        'stock'           => $tier['stock'] ?? 0,
+                        'stock'           => $existingWholesaleStock[$stockKey] ?? 0,
                     ]);
                 }
             }

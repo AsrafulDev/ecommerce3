@@ -23,6 +23,7 @@ return new class extends Migration
             $table->integer('stock');
             $table->string('pro_unit', 50)->nullable();
             $table->text('meta_description')->nullable();
+            $table->string('meta_image', 255)->nullable();
             $table->text('description')->nullable();
             $table->tinyInteger('topsale')->nullable();
             $table->tinyInteger('flashsale')->default(0);
