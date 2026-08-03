@@ -671,7 +671,8 @@ Route::get('stock/products/{id}/batches',     [StockController::class, 'getProdu
     Route::post('seo-settings', [App\Http\Controllers\Admin\SeoSettingController::class, 'update'])
         ->name('admin.seo_settings.update');
 
-Route::get('dashboard', [DashboardController::class, 'dashboard'])->name('admin.dashboard');
+    Route::get('dashboard', [DashboardController::class, 'dashboard'])->name('admin.dashboard');
+    Route::get('activity-logs', [App\Http\Controllers\Admin\ActivityLogController::class, 'index'])->name('admin.activity_logs.index');
 
     Route::get('change-password', [DashboardController::class, 'changepassword'])->name('change_password');
     Route::post('new-password', [DashboardController::class, 'newpassword'])->name('new_password');
@@ -839,7 +840,8 @@ Route::get('dashboard', [DashboardController::class, 'dashboard'])->name('admin.
     Route::post('color/inactive', [ColorController::class,'inactive'])->name('colors.inactive');
     Route::post('color/active', [ColorController::class,'active'])->name('colors.active');
     Route::post('color/destroy', [ColorController::class,'destroy'])->name('colors.destroy');
-    
+    Route::post('color/import-default', [ColorController::class,'importDefault'])->name('colors.import_default');
+
     // size
     Route::get('size/manage', [SizeController::class,'index'])->name('sizes.index');
     Route::get('size/{id}/show', [SizeController::class,'show'])->name('sizes.show');
@@ -850,6 +852,7 @@ Route::get('dashboard', [DashboardController::class, 'dashboard'])->name('admin.
     Route::post('size/inactive', [SizeController::class,'inactive'])->name('sizes.inactive');
     Route::post('size/active', [SizeController::class,'active'])->name('sizes.active');
     Route::post('size/destroy', [SizeController::class,'destroy'])->name('sizes.destroy');
+    Route::post('size/import-default', [SizeController::class,'importDefault'])->name('sizes.import_default');
    
    
     // Inhouse Products
@@ -1164,6 +1167,8 @@ Route::get('dashboard', [DashboardController::class, 'dashboard'])->name('admin.
         // Supplier warranties
         Route::get('supplier', [App\Http\Controllers\Admin\WarrantyController::class, 'supplierIndex'])->name('supplier.index');
         Route::post('supplier', [App\Http\Controllers\Admin\WarrantyController::class, 'supplierStore'])->name('supplier.store');
+        Route::post('supplier/update', [App\Http\Controllers\Admin\WarrantyController::class, 'supplierUpdate'])->name('supplier.update');
+        Route::post('supplier/{supplierWarranty}/destroy', [App\Http\Controllers\Admin\WarrantyController::class, 'supplierDestroy'])->name('supplier.destroy');
 
         // Product tiers (listing only — editing now in product edit page)
         Route::get('tiers', [App\Http\Controllers\Admin\WarrantyController::class, 'tierIndex'])->name('tiers.index');

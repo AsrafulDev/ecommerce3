@@ -26,10 +26,10 @@
                 <i class="fa fa-print"></i>
             </button>
             <button type="button" class="btn btn-sm btn-outline-primary recent-print-a4" data-invoice="{{ $order->invoice_id }}" title="Print A4">
-                <i class="fa fa-file-text-o"></i>
+                <i class="fa fa-print"></i>
             </button>
             <button type="button" class="btn btn-sm btn-outline-warning recent-edit" data-invoice="{{ $order->invoice_id }}" title="Edit / Update">
-                <i class="fa fa-pencil"></i>
+                <i class="fa fa-edit"></i>
             </button>
             @if($order->due_amount > 0)
             <button type="button" class="btn btn-sm btn-outline-info recent-collect" data-id="{{ $order->id }}" data-invoice="{{ $order->invoice_id }}" data-due="{{ $order->due_amount }}" title="Collect Due">

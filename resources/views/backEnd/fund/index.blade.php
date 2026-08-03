@@ -18,33 +18,33 @@
 
        {{-- Total Balance --}}
 <div class="col-md-4 mb-3">
-    <div class="card" style="background:#198754; color:#fff;">
+    <div class="card" style="background:#198754;">
         <div class="card-body">
-            <h5 class="mb-1" style="color:#fff !important;"> {{ __('Available Balance') }} </h5>
-            <h2 class="mb-0" style="color:#fff !important;">{{ number_format($balance, 2) }} ৳</h2>
-            <small style="color:#fff !important; opacity:0.85;">In – Out এর পার্থক্য</small>
+            <h5 class="mb-1" > {{ __('Available Balance') }} </h5>
+            <h2 class="mb-0" >{{ number_format($balance, 2) }} ৳</h2>
+            <small>In – Out এর পার্থক্য</small>
         </div>
     </div>
 </div>
 
 {{-- This Year --}}
 <div class="col-md-4 mb-3">
-    <div class="card" style="background:#0d6efd; color:#fff;">
+    <div class="card" style="background:#0d6efd;">
         <div class="card-body">
-            <h5 class="mb-1" style="color:#fff !important;">This Year ({{ $currentYear }})</h5>
-            <h3 class="mb-0" style="color:#fff !important;">{{ number_format($yearlyAdded, 2) }} ৳</h3>
-            <small style="color:#fff !important; opacity:0.85;">এই বছরে মোট ফান্ড যোগ হয়েছে</small>
+            <h5 class="mb-1" >This Year ({{ $currentYear }})</h5>
+            <h3 class="mb-0" >{{ number_format($yearlyAdded, 2) }} ৳</h3>
+            <small>এই বছরে মোট ফান্ড যোগ হয়েছে</small>
         </div>
     </div>
 </div>
 
 {{-- This Month --}}
 <div class="col-md-4 mb-3">
-    <div class="card" style="background:#222275; color:#fff;">
+    <div class="card" style="background:#222275;">
         <div class="card-body">
-            <h5 class="mb-1" style="color:#fff !important;">This Month ({{ \Carbon\Carbon::create()->month($currentMonth)->format('F') }})</h5>
-            <h3 class="mb-0" style="color:#fff !important;">{{ number_format($monthlyAdded, 2) }} ৳</h3>
-            <small style="color:#fff !important; opacity:0.85;">এই মাসে মোট ফান্ড যোগ হয়েছে</small>
+            <h5 class="mb-1" >This Month ({{ \Carbon\Carbon::create()->month($currentMonth)->format('F') }})</h5>
+            <h3 class="mb-0" >{{ number_format($monthlyAdded, 2) }} ৳</h3>
+            <small>এই মাসে মোট ফান্ড যোগ হয়েছে</small>
         </div>
     </div>
 </div>
@@ -231,6 +231,7 @@
                             <td>{{ $t->created_at->format('d M Y, h:i A') }}</td>
                             @if($isAdmin)
                             <td>
+                                @if($t->isEditable())
                                 <div class="d-flex gap-2">
                                     <a href="{{ route('admin.fund.edit', $t->id) }}" class="btn btn-sm btn-outline-primary" title="{{ __('Edit') }}">
                                         <i class="fe-edit"></i>
@@ -243,6 +244,11 @@
                                         </button>
                                     </form>
                                 </div>
+                                @else
+                                <span class="badge bg-secondary" title="Linked to {{ $t->source }} record — not editable">
+                                    🔒 {{ __('System') }}
+                                </span>
+                                @endif
                             </td>
                             @endif
                         </tr>

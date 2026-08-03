@@ -144,7 +144,10 @@ class ProductController extends Controller
             // 🛡️ Warranty method
             'warranty_method'     => 'nullable|in:active,inactive,hidden',
 
-            // 🆕 Barcode & Stock Management
+            // �️ Publish status
+            'publish_status'      => 'nullable|in:active,draft,private',
+
+            // �🆕 Barcode & Stock Management
             'barcode'              => 'nullable|string|max:255|unique:products,barcode',
             'barcode_type'         => 'nullable|string|max:10',
             'costing_method'       => 'nullable|in:fifo,lifo,average',
@@ -183,11 +186,11 @@ class ProductController extends Controller
             }
         }
 
-        // PRODUCT TYPE (WooCommerce-like: simple, digital)
+        // PRODUCT TYPE (WooCommerce-like: simple, variable, digital)
         $rawType = $request->product_type;
         $isDigital = $rawType === 'digital' || $request->is_digital == 1;
         $input['is_digital'] = $isDigital ? 1 : 0;
-        $input['product_type'] = $isDigital ? 'digital' : 'simple';
+        $input['product_type'] = $isDigital ? 'digital' : ($rawType === 'variable' ? 'variable' : 'simple');
 
         if ($isDigital) {
             $input['advance_amount'] = 0; // ডিজিটাল হলে advance লাগবে না
@@ -214,8 +217,14 @@ class ProductController extends Controller
         $input['allow_negative_stock'] = $request->allow_negative_stock ? 1 : 0;
         $input['weight']               = $request->weight;
 
+        // 🏷️ Publish status — new string status, mirrored to legacy boolean
+        $publishStatus = in_array($request->publish_status, ['active', 'draft', 'private'])
+            ? $request->publish_status
+            : Product::STATUS_ACTIVE;
+
         // Status flags
-        $input['status']          = $request->status ? 1 : 0;
+        $input['publish_status']  = $publishStatus;
+        $input['status']          = $publishStatus === Product::STATUS_ACTIVE ? 1 : 0;
         $input['free_delivery']   = $request->free_delivery ? 1 : 0;
         $input['approval_status'] = 'approved'; // Admin created products are auto-approved
         $input['topsale']         = $request->topsale ? 1 : 0;
@@ -263,6 +272,14 @@ class ProductController extends Controller
 
         // CREATE PRODUCT
         $product = Product::create($input);
+
+        log_activity('product', 'create', 'Created product: ' . $product->name, $product, [
+            'new_price'      => $product->new_price,
+            'purchase_price' => $product->purchase_price,
+            'stock'          => $product->stock,
+            'product_type'   => $product->product_type,
+            'publish_status' => $product->publish_status,
+        ]);
 
         // সাইজ ও কালার অপশনাল – দিলে attach, না দিলে কিছু করব না
         if ($request->proSize && is_array($request->proSize) && count($request->proSize) > 0) {
@@ -403,7 +420,13 @@ class ProductController extends Controller
     // ================================
     public function edit($id)
     {
-        $edit = Product::with(['images.color','images.size','variantPrices'])->findOrFail($id);
+        $edit = Product::with([
+            'images.color',
+            'images.size',
+            'variantPrices',
+            'stockBatches.supplier',
+            'stockBatches.purchase',
+        ])->findOrFail($id);
 
         return view('backEnd.product.edit', [
             'edit_data'     => $edit,
@@ -462,7 +485,10 @@ class ProductController extends Controller
             'warranty_tiers.*.additional_cost' => 'nullable|numeric',
             'warranty_tiers.*.is_active'     => 'nullable',
 
-            // 🆕 Barcode & Stock Management
+            // �️ Publish status
+            'publish_status'       => 'nullable|in:active,draft,private',
+
+            // �🆕 Barcode & Stock Management
             'barcode'              => 'nullable|string|max:255|unique:products,barcode,' . $request->id,
             'barcode_type'         => 'nullable|string|max:10',
             'costing_method'       => 'nullable|in:fifo,lifo,average',
@@ -516,7 +542,9 @@ class ProductController extends Controller
         // Price & stock optional – আপডেটে না দিলে ০ ধরা হবে
         $input['new_price']      = $request->filled('new_price') ? $request->new_price : 0;
         $input['purchase_price'] = $request->filled('purchase_price') ? $request->purchase_price : 0;
-        $input['stock']          = $request->filled('stock') ? (int) $request->stock : 0;
+        // Stock counter is maintained via purchase batches — preserve existing when the
+        // "Total Stock" input is absent (it was removed from the edit form).
+        $input['stock']          = $request->filled('stock') ? (int) $request->stock : (int) $product->stock;
 
         // 🆕 Barcode & Stock Management
         $input['barcode']              = $request->barcode ?: $this->generateUniqueBarcode();
@@ -528,7 +556,14 @@ class ProductController extends Controller
 
         // Slug & flags
         $input['slug']            = strtolower(preg_replace('/[\/\s]+/', '-', $request->name.'-'.$product->id));
-        $input['status']          = $request->status ? 1 : 0;
+
+        // 🏷️ Publish status — new string status, mirrored to legacy boolean
+        $publishStatus = in_array($request->publish_status, ['active', 'draft', 'private'])
+            ? $request->publish_status
+            : $product->resolved_publish_status;
+
+        $input['publish_status']  = $publishStatus;
+        $input['status']          = $publishStatus === Product::STATUS_ACTIVE ? 1 : 0;
         $input['topsale']         = $request->topsale ? 1 : 0;
         $input['free_delivery']   = $request->free_delivery ? 1 : 0;
         $input['feature_product'] = $request->feature_product ? 1 : 0;
@@ -585,8 +620,23 @@ class ProductController extends Controller
         }
 
         // PRODUCT UPDATE
+        $oldData = [
+            'new_price'      => $product->new_price,
+            'purchase_price' => $product->purchase_price,
+            'stock'          => $product->stock,
+            'status'         => $product->status,
+            'publish_status' => $product->publish_status,
+        ];
         $product->update($input);
         Cache::forget('product_details_' . $product->slug);
+
+        $changes = [];
+        foreach ($oldData as $k => $old) {
+            if ((string) $product->$k !== (string) $old) {
+                $changes[$k] = ['old' => $old, 'new' => $product->$k];
+            }
+        }
+        log_activity('product', 'update', 'Updated product: ' . $product->name, $product, $changes);
 
         // SIZE & COLOR
         $product->sizes()->sync($request->proSize ?? []);
@@ -801,9 +851,49 @@ class ProductController extends Controller
             'status' => 'required|in:0,1',
         ]);
 
-        Product::whereIn('id', $request->product_ids)->update(['status' => $request->status]);
+        // Keep publish_status in sync so the boolean toggle also updates visibility:
+        // on → active (visible everywhere), off → draft (hidden everywhere, incl. POS)
+        Product::whereIn('id', $request->product_ids)->update([
+            'status'         => $request->status,
+            'publish_status' => $request->status == 1 ? Product::STATUS_ACTIVE : Product::STATUS_DRAFT,
+        ]);
 
         return response()->json(['status' => 'success', 'message' => 'Products status updated']);
+    }
+
+    // ================================
+    // SINGLE PRODUCT ACTIVATE / DEACTIVATE
+    // ================================
+    public function inactive(Request $request)
+    {
+        $product = Product::find($request->hidden_id);
+        if ($product) {
+            // Deactivate → hidden everywhere (incl. POS)
+            $product->update([
+                'status'         => 0,
+                'publish_status' => Product::STATUS_DRAFT,
+            ]);
+            Cache::forget('product_details_' . $product->slug);
+            Cache::forget('frontend_homepage_v1');
+            Toastr::success('Product deactivated successfully', 'Success');
+        }
+        return redirect()->back();
+    }
+
+    public function active(Request $request)
+    {
+        $product = Product::find($request->hidden_id);
+        if ($product) {
+            // Activate → visible everywhere
+            $product->update([
+                'status'         => 1,
+                'publish_status' => Product::STATUS_ACTIVE,
+            ]);
+            Cache::forget('product_details_' . $product->slug);
+            Cache::forget('frontend_homepage_v1');
+            Toastr::success('Product activated successfully', 'Success');
+        }
+        return redirect()->back();
     }
 
     // ================================
@@ -937,14 +1027,23 @@ class ProductController extends Controller
     }
 
     /**
-     * Auto-generate a unique barcode when none is provided.
-     * Format: BC + YYYYMMDDHHII + 3 random digits = 17 chars.
+     * Auto-generate a unique 6-digit barcode when none is provided.
+     * Range: 100000 – 999999 (always exactly 6 digits, no leading zeros).
      */
     private function generateUniqueBarcode(): string
     {
-        do {
-            $barcode = 'BC' . now()->format('YmdHis') . str_pad(random_int(0, 999), 3, '0', STR_PAD_LEFT);
-        } while (Product::where('barcode', $barcode)->exists());
+        $barcode = (string) random_int(100000, 999999);
+        $attempts = 0;
+
+        // Re-roll on collision (up to 50 attempts, then bump to the next free number)
+        while (Product::where('barcode', $barcode)->exists()) {
+            if (++$attempts >= 50) {
+                $max = (int) Product::where('barcode', 'regexp', '^[0-9]{6}$')->max('barcode');
+                $barcode = (string) max($max + 1, 100000);
+                break;
+            }
+            $barcode = (string) random_int(100000, 999999);
+        }
 
         return $barcode;
     }

@@ -184,6 +184,15 @@ class StockController extends Controller
             $count++;
         }
 
+        log_activity('stock', 'adjust', 'Manual stock adjustment: ' . $count . ' product(s)', null, [
+            'count' => $count,
+            'items' => collect($request->items)->map(fn($i) => [
+                'product_id' => $i['product_id'],
+                'type'       => $i['type'],
+                'quantity'   => $i['quantity'],
+            ])->toArray(),
+        ]);
+
         return redirect()->route('admin.stock.adjustments')
             ->with('success', $count . ' stock adjustment(s) saved.');
     }

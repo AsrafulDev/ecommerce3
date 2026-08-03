@@ -38,6 +38,25 @@ class SizeController extends Controller
         Toastr::success('Success','Data insert successfully');
         return redirect()->route('sizes.index');
     }
+
+    /**
+     * Import a default set of sizes (only when the list is empty).
+     */
+    public function importDefault()
+    {
+        if (Size::count() > 0) {
+            Toastr::warning('Sizes already exist. Nothing imported.', 'Info');
+            return redirect()->back();
+        }
+
+        $defaults = ['XS', 'S', 'M', 'L', 'XL', 'XXL', 'XXXL', 'Free Size'];
+        foreach ($defaults as $name) {
+            Size::create(['sizeName' => $name, 'status' => 1]);
+        }
+
+        Toastr::success('Default sizes imported successfully', 'Success');
+        return redirect()->route('sizes.index');
+    }
     
     public function edit($id)
     {

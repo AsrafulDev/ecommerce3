@@ -57,9 +57,14 @@
                             <td>৳{{ $dp->damage_cost }}</td>
                             <td><small>{{ $dp->received_at?->format('d M, Y') ?? '—' }}</small></td>
                             <td>
-                                <button type="button" class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#damageStatusModal{{ $dp->id }}">
-                                    Update Status
-                                </button>
+                                <div class="d-flex gap-1">
+                                    <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#damageLogModal{{ $dp->id }}" title="View update log">
+                                        <i class="fa fa-list me-1"></i>Log
+                                    </button>
+                                    <button type="button" class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#damageStatusModal{{ $dp->id }}">
+                                        Update Status
+                                    </button>
+                                </div>
                             </td>
                         </tr>
                         @empty
@@ -108,6 +113,38 @@
                     <button type="submit" class="btn btn-primary">Update Status</button>
                 </div>
             </form>
+        </div>
+    </div>
+
+    {{-- 📋 Damage Update Log Modal --}}
+    <div class="modal fade" id="damageLogModal{{ $dp->id }}" tabindex="-1">
+        <div class="modal-dialog modal-lg modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header bg-dark text-white">
+                    <h5 class="modal-title">📋 Damage #{{ $dp->id }} — Update Log</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p class="text-muted mb-2">{{ $dp->product->name ?? 'N/A' }} — SN: {{ $dp->original_serial_number ?? 'N/A' }}</p>
+                    @forelse($dp->logs as $log)
+                    <div class="border-bottom py-2">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <strong><i class="fa fa-user me-1"></i>{{ $log->user_name ?? 'System' }}</strong>
+                            <small class="text-muted">{{ $log->created_at?->format('d M, Y h:i A') }}</small>
+                        </div>
+                        <div class="small mt-1">{{ $log->description }}</div>
+                        @if($log->data)
+                            <pre class="small bg-light p-2 rounded mb-0 mt-1 d-none" style="max-height:140px;overflow:auto;">{{ json_encode($log->data, JSON_PRETTY_PRINT) }}</pre>
+                        @endif
+                    </div>
+                    @empty
+                    <p class="text-muted text-center py-3 mb-0">No update log yet.</p>
+                    @endforelse
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
         </div>
     </div>
     @endforeach

@@ -6,8 +6,25 @@
 
     <div class="card mb-3">
         <div class="card-body">
-            <form method="GET" class="row g-2">
+            <form method="GET" class="row g-2 align-items-end">
+                <div class="col-md-5 col-12">
+                    <label class="form-label small text-muted mb-1">🔍 Search</label>
+                    <input type="text" name="search" value="{{ request('search') }}" class="form-control"
+                           placeholder="Phone / Invoice ID / Order ID / Product ID / Barcode / SN...">
+                </div>
                 <div class="col-auto">
+                    <label class="form-label small text-muted mb-1">Type</label>
+                    <select name="type" class="form-select">
+                        <option value="">All Types</option>
+                        @foreach(\App\Enums\WarrantyType::cases() as $wt)
+                            <option value="{{ $wt->value }}" {{ request('type') === $wt->value ? 'selected' : '' }}>
+                                {{ $wt->label() }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="col-auto">
+                    <label class="form-label small text-muted mb-1">Status</label>
                     <select name="status" class="form-select">
                         <option value="">All Status</option>
                         <option value="active" {{ request('status') === 'active' ? 'selected' : '' }}>Active</option>
@@ -16,7 +33,12 @@
                         <option value="void" {{ request('status') === 'void' ? 'selected' : '' }}>Void</option>
                     </select>
                 </div>
-                <div class="col-auto"><button class="btn btn-primary">Filter</button></div>
+                <div class="col-auto">
+                    <button class="btn btn-primary">Filter</button>
+                    @if(request('search') || request('status') || request('type'))
+                        <a href="{{ route('admin.warranty.sales.index') }}" class="btn btn-sm btn-outline-secondary ms-1">Reset</a>
+                    @endif
+                </div>
             </form>
         </div>
     </div>
@@ -30,6 +52,7 @@
                             <th>ID</th>
                             <th>Customer</th>
                             <th>Product</th>
+                            <th>Supplier</th>
                             <th>Order ID</th>
                             <th>Claim Count</th>
                             <th>Type</th>
@@ -45,8 +68,26 @@
                         <tr>
                             <td>{{ $sale->id }}</td>
                             <td>{{ $sale->customer->name ?? 'N/A' }}</td>
-                            <td>{{ $sale->product->name ?? 'N/A' }}</td>
-                            <td>{{ $sale->order_id ?? 'N/A' }}</td>
+                            <td>
+                                {{ $sale->product->name ?? 'N/A' }}
+                                @if($sale->product?->barcode)
+                                    <div><small class="text-muted" style="font-family:monospace">{{ $sale->product->barcode }}</small></div>
+                                @endif
+                            </td>
+                            <td>
+                                @php
+                                    $supplier = $sale->purchase?->supplier
+                                        ?? $sale->stockBatch?->supplier
+                                        ?? $sale->supplierWarranty?->supplier;
+                                @endphp
+                                {{ $supplier->name ?? 'N/A' }}
+                            </td>
+                            <td>
+                                {{ $sale->order_id ?? 'N/A' }}
+                                @if($sale->order?->invoice_id)
+                                    <div><small class="text-muted">Inv: {{ $sale->order->invoice_id }}</small></div>
+                                @endif
+                            </td>
                             <td>
                                 @if($sale->claims_count > 0)
                                     <a href="{{ route('admin.warranty.claims.index', ['warranty_sale_id' => $sale->id]) }}" class="btn btn-sm btn-outline-info">
@@ -76,7 +117,7 @@
                             </td>
                         </tr>
                         @empty
-                        <tr><td colspan="10" class="text-center">No warranty sales found.</td></tr>
+                        <tr><td colspan="12" class="text-center">No warranty sales found.</td></tr>
                         @endforelse
                     </tbody>
                 </table>

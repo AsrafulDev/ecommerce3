@@ -184,7 +184,21 @@
             "cat": "original-organic-honey",
             "brand": "Lunch Box",
             "price": 2200,
-            "old": 1200
+            "old": 1200,
+            "stock_batches": [
+                {
+                    "supplier": "Lunch Box",
+                    "batch_no": "DEMO-1-A",
+                    "quantity": 6000,
+                    "unit_cost": 1540
+                },
+                {
+                    "supplier": "Khabar Ghar",
+                    "batch_no": "DEMO-1-B",
+                    "quantity": 4000,
+                    "unit_cost": 1540
+                }
+            ]
         },
         {
             "name": "মিশ্র ফুলের মধু | Mix Flower Honey",
@@ -206,7 +220,21 @@
             "cat": "original-organic-honey",
             "brand": "Lunch Box",
             "price": 10250,
-            "old": 2009
+            "old": 2009,
+            "stock_batches": [
+                {
+                    "supplier": "Khabar Ghar",
+                    "batch_no": "DEMO-2-A",
+                    "quantity": 6000,
+                    "unit_cost": 7175
+                },
+                {
+                    "supplier": "Kacci Biriyani",
+                    "batch_no": "DEMO-2-B",
+                    "quantity": 4000,
+                    "unit_cost": 7175
+                }
+            ]
         },
         {
             "name": "কালোজিরা ফুলের মধু | Black Seed Flower Honey",
@@ -228,7 +256,21 @@
             "cat": "original-organic-honey",
             "brand": "Lunch Box",
             "price": 600,
-            "old": 1200
+            "old": 1200,
+            "stock_batches": [
+                {
+                    "supplier": "Kacci Biriyani",
+                    "batch_no": "DEMO-3-A",
+                    "quantity": 6000,
+                    "unit_cost": 420
+                },
+                {
+                    "supplier": "Banglaliana",
+                    "batch_no": "DEMO-3-B",
+                    "quantity": 4000,
+                    "unit_cost": 420
+                }
+            ]
         },
         {
             "name": "Gawa Ghee/গাওয়া ঘি (500 গ্রাম)",
@@ -250,7 +292,21 @@
             "cat": "ghee-&-oil",
             "brand": "Lunch Box",
             "price": 2200,
-            "old": 2500
+            "old": 2500,
+            "stock_batches": [
+                {
+                    "supplier": "Banglaliana",
+                    "batch_no": "DEMO-4-A",
+                    "quantity": 5998,
+                    "unit_cost": 1540
+                },
+                {
+                    "supplier": "Pran",
+                    "batch_no": "DEMO-4-B",
+                    "quantity": 4000,
+                    "unit_cost": 1540
+                }
+            ]
         },
         {
             "name": "Gawa Ghee/গাওয়া ঘি (400 গ্রাম)",
@@ -272,7 +328,21 @@
             "cat": "ghee-&-oil",
             "brand": "Lunch Box",
             "price": 600,
-            "old": 1200
+            "old": 1200,
+            "stock_batches": [
+                {
+                    "supplier": "Pran",
+                    "batch_no": "DEMO-5-A",
+                    "quantity": 5998,
+                    "unit_cost": 420
+                },
+                {
+                    "supplier": "Mach Vath",
+                    "batch_no": "DEMO-5-B",
+                    "quantity": 4000,
+                    "unit_cost": 420
+                }
+            ]
         },
         {
             "name": "Roasted Cashew Nuts (নোনা কাজু বাদাম)",
@@ -294,7 +364,21 @@
             "cat": "nuts-&-dates",
             "brand": "Lunch Box",
             "price": 700,
-            "old": 600
+            "old": 600,
+            "stock_batches": [
+                {
+                    "supplier": "Mach Vath",
+                    "batch_no": "DEMO-6-A",
+                    "quantity": 6000,
+                    "unit_cost": 490
+                },
+                {
+                    "supplier": "Deli",
+                    "batch_no": "DEMO-6-B",
+                    "quantity": 4000,
+                    "unit_cost": 490
+                }
+            ]
         },
         {
             "name": "Ajwa Dates (আজওয়া খেজুর)",
@@ -316,7 +400,21 @@
             "cat": "nuts-&-dates",
             "brand": "Lunch Box",
             "price": 990,
-            "old": 1200
+            "old": 1200,
+            "stock_batches": [
+                {
+                    "supplier": "Deli",
+                    "batch_no": "DEMO-7-A",
+                    "quantity": 720,
+                    "unit_cost": 693
+                },
+                {
+                    "supplier": "Takoa",
+                    "batch_no": "DEMO-7-B",
+                    "quantity": 480,
+                    "unit_cost": 693
+                }
+            ]
         },
         {
             "name": "Ajwa Dates (আজওয়া খেজুর)",
@@ -338,7 +436,21 @@
             "cat": "nuts-&-dates",
             "brand": "Lunch Box",
             "price": 1000,
-            "old": 700
+            "old": 700,
+            "stock_batches": [
+                {
+                    "supplier": "Takoa",
+                    "batch_no": "DEMO-8-A",
+                    "quantity": 5999,
+                    "unit_cost": 700
+                },
+                {
+                    "supplier": "Tripti",
+                    "batch_no": "DEMO-8-B",
+                    "quantity": 4000,
+                    "unit_cost": 700
+                }
+            ]
         },
         {
             "name": "Maryam Dates (Saudi) (মরিয়ম খেজুর)",
@@ -360,7 +472,21 @@
             "cat": "nuts-&-dates",
             "brand": "Lunch Box",
             "price": 2200,
-            "old": 1200
+            "old": 1200,
+            "stock_batches": [
+                {
+                    "supplier": "Tripti",
+                    "batch_no": "DEMO-9-A",
+                    "quantity": 5998,
+                    "unit_cost": 1540
+                },
+                {
+                    "supplier": "Teer",
+                    "batch_no": "DEMO-9-B",
+                    "quantity": 3999,
+                    "unit_cost": 1540
+                }
+            ]
         },
         {
             "name": "Almond (কাঠ বাদাম)",
@@ -382,7 +508,21 @@
             "cat": "nuts-&-dates",
             "brand": "Lunch Box",
             "price": 2200,
-            "old": 1200
+            "old": 1200,
+            "stock_batches": [
+                {
+                    "supplier": "Teer",
+                    "batch_no": "DEMO-10-A",
+                    "quantity": 5998,
+                    "unit_cost": 1540
+                },
+                {
+                    "supplier": "Jiver Sadh",
+                    "batch_no": "DEMO-10-B",
+                    "quantity": 4000,
+                    "unit_cost": 1540
+                }
+            ]
         },
         {
             "name": "Khaas Signature Ghee",
@@ -404,7 +544,21 @@
             "cat": "ghee-&-oil",
             "brand": "Lunch Box",
             "price": 10250,
-            "old": 1200
+            "old": 1200,
+            "stock_batches": [
+                {
+                    "supplier": "Jiver Sadh",
+                    "batch_no": "DEMO-11-A",
+                    "quantity": 6000,
+                    "unit_cost": 7175
+                },
+                {
+                    "supplier": "7 UP",
+                    "batch_no": "DEMO-11-B",
+                    "quantity": 4000,
+                    "unit_cost": 7175
+                }
+            ]
         },
         {
             "name": "Peanut Butter (Diabetics)",
@@ -426,7 +580,21 @@
             "cat": "nuts-&-dates",
             "brand": "Lunch Box",
             "price": 10250,
-            "old": 12000
+            "old": 12000,
+            "stock_batches": [
+                {
+                    "supplier": "7 UP",
+                    "batch_no": "DEMO-12-A",
+                    "quantity": 718,
+                    "unit_cost": 7175
+                },
+                {
+                    "supplier": "General Supplier",
+                    "batch_no": "DEMO-12-B",
+                    "quantity": 480,
+                    "unit_cost": 7175
+                }
+            ]
         },
         {
             "name": "Pure Ghee (ঘি)",
@@ -448,7 +616,21 @@
             "cat": "ghee-&-oil",
             "brand": "Lunch Box",
             "price": 600,
-            "old": 1200
+            "old": 1200,
+            "stock_batches": [
+                {
+                    "supplier": "General Supplier",
+                    "batch_no": "DEMO-13-A",
+                    "quantity": 5998,
+                    "unit_cost": 420
+                },
+                {
+                    "supplier": "Demo Distributor",
+                    "batch_no": "DEMO-13-B",
+                    "quantity": 4000,
+                    "unit_cost": 420
+                }
+            ]
         },
         {
             "name": "Gawa Ghee – গাওয়া ঘি",
@@ -470,7 +652,21 @@
             "cat": "ghee-&-oil",
             "brand": "Lunch Box",
             "price": 2200,
-            "old": 2500
+            "old": 2500,
+            "stock_batches": [
+                {
+                    "supplier": "Demo Distributor",
+                    "batch_no": "DEMO-14-A",
+                    "quantity": 5999,
+                    "unit_cost": 1540
+                },
+                {
+                    "supplier": "Wholesale Hub BD",
+                    "batch_no": "DEMO-14-B",
+                    "quantity": 4000,
+                    "unit_cost": 1540
+                }
+            ]
         },
         {
             "name": "Black Seed Honey",
@@ -492,7 +688,21 @@
             "cat": "original-organic-honey",
             "brand": "Lunch Box",
             "price": 850,
-            "old": 650
+            "old": 650,
+            "stock_batches": [
+                {
+                    "supplier": "Wholesale Hub BD",
+                    "batch_no": "DEMO-15-A",
+                    "quantity": 5998,
+                    "unit_cost": 595
+                },
+                {
+                    "supplier": "Lunch Box",
+                    "batch_no": "DEMO-15-B",
+                    "quantity": 3999,
+                    "unit_cost": 595
+                }
+            ]
         },
         {
             "name": "Blended Floral Honey (ব্লেন্ডেড ফ্লোরাল হানি)",
@@ -514,7 +724,21 @@
             "cat": "original-organic-honey",
             "brand": "Lunch Box",
             "price": 450,
-            "old": 1200
+            "old": 1200,
+            "stock_batches": [
+                {
+                    "supplier": "Lunch Box",
+                    "batch_no": "DEMO-16-A",
+                    "quantity": 5997,
+                    "unit_cost": 315
+                },
+                {
+                    "supplier": "Khabar Ghar",
+                    "batch_no": "DEMO-16-B",
+                    "quantity": 3998,
+                    "unit_cost": 315
+                }
+            ]
         },
         {
             "name": "Peanut Butter (Diabetics)",
@@ -536,7 +760,21 @@
             "cat": "ghee-&-oil",
             "brand": "Lunch Box",
             "price": 600,
-            "old": 1200
+            "old": 1200,
+            "stock_batches": [
+                {
+                    "supplier": "Khabar Ghar",
+                    "batch_no": "DEMO-17-A",
+                    "quantity": 5995,
+                    "unit_cost": 420
+                },
+                {
+                    "supplier": "Kacci Biriyani",
+                    "batch_no": "DEMO-17-B",
+                    "quantity": 3997,
+                    "unit_cost": 420
+                }
+            ]
         },
         {
             "name": "সুন্দরবনের চাকের মধু | Sundarbans Natural Honey",
@@ -558,7 +796,21 @@
             "cat": "original-organic-honey",
             "brand": "Lunch Box",
             "price": 600,
-            "old": 1200
+            "old": 1200,
+            "stock_batches": [
+                {
+                    "supplier": "Kacci Biriyani",
+                    "batch_no": "DEMO-18-A",
+                    "quantity": 5996,
+                    "unit_cost": 420
+                },
+                {
+                    "supplier": "Banglaliana",
+                    "batch_no": "DEMO-18-B",
+                    "quantity": 3998,
+                    "unit_cost": 420
+                }
+            ]
         }
     ],
     "blogs": [
@@ -615,6 +867,113 @@
             "category_id": 8,
             "image": "public/uploads/images/1773945827-1771039849-1767450568-1765348686-1764838691-1762931516-1736429543-het1dosp6u0vqdwz2hpzw9qe2mnc.webp",
             "link": "#"
+        }
+    ],
+    "suppliers": [
+        {
+            "name": "Lunch Box",
+            "phone": "01700000000",
+            "email": "lunchbox@demo.com",
+            "address": "Demo Address, Dhaka, Bangladesh",
+            "status": 1
+        },
+        {
+            "name": "Khabar Ghar",
+            "phone": "01700000001",
+            "email": "khabarghar@demo.com",
+            "address": "Demo Address, Dhaka, Bangladesh",
+            "status": 1
+        },
+        {
+            "name": "Kacci Biriyani",
+            "phone": "01700000002",
+            "email": "kaccibiriyani@demo.com",
+            "address": "Demo Address, Dhaka, Bangladesh",
+            "status": 1
+        },
+        {
+            "name": "Banglaliana",
+            "phone": "01700000003",
+            "email": "banglaliana@demo.com",
+            "address": "Demo Address, Dhaka, Bangladesh",
+            "status": 1
+        },
+        {
+            "name": "Pran",
+            "phone": "01700000004",
+            "email": "pran@demo.com",
+            "address": "Demo Address, Dhaka, Bangladesh",
+            "status": 1
+        },
+        {
+            "name": "Mach Vath",
+            "phone": "01700000005",
+            "email": "machvath@demo.com",
+            "address": "Demo Address, Dhaka, Bangladesh",
+            "status": 1
+        },
+        {
+            "name": "Deli",
+            "phone": "01700000006",
+            "email": "deli@demo.com",
+            "address": "Demo Address, Dhaka, Bangladesh",
+            "status": 1
+        },
+        {
+            "name": "Takoa",
+            "phone": "01700000007",
+            "email": "takoa@demo.com",
+            "address": "Demo Address, Dhaka, Bangladesh",
+            "status": 1
+        },
+        {
+            "name": "Tripti",
+            "phone": "01700000008",
+            "email": "tripti@demo.com",
+            "address": "Demo Address, Dhaka, Bangladesh",
+            "status": 1
+        },
+        {
+            "name": "Teer",
+            "phone": "01700000009",
+            "email": "teer@demo.com",
+            "address": "Demo Address, Dhaka, Bangladesh",
+            "status": 1
+        },
+        {
+            "name": "Jiver Sadh",
+            "phone": "01700000010",
+            "email": "jiversadh@demo.com",
+            "address": "Demo Address, Dhaka, Bangladesh",
+            "status": 1
+        },
+        {
+            "name": "7 UP",
+            "phone": "01700000011",
+            "email": "7up@demo.com",
+            "address": "Demo Address, Dhaka, Bangladesh",
+            "status": 1
+        },
+        {
+            "name": "General Supplier",
+            "phone": "01700000012",
+            "email": "generalsupplier@demo.com",
+            "address": "Demo Address, Dhaka, Bangladesh",
+            "status": 1
+        },
+        {
+            "name": "Demo Distributor",
+            "phone": "01700000013",
+            "email": "demodistributor@demo.com",
+            "address": "Demo Address, Dhaka, Bangladesh",
+            "status": 1
+        },
+        {
+            "name": "Wholesale Hub BD",
+            "phone": "01700000014",
+            "email": "wholesalehubbd@demo.com",
+            "address": "Demo Address, Dhaka, Bangladesh",
+            "status": 1
         }
     ]
 }

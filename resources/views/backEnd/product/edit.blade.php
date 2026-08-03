@@ -563,20 +563,82 @@
                             @enderror
                         </div>
 
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label for="stock" class="form-label"> {{ __('Total Stock') }} <small class="text-muted">(Optional)</small></label>
-                                <input type="text" class="form-control @error('stock') is-invalid @enderror"
-                                       name="stock" value="{{ $edit_data->stock }}" id="stock" placeholder="0" />
-                                @error('stock')
-                                <span class="invalid-feedback" role="alert"><strong>{{ $message }}</strong></span>
-                                @enderror
+                        <div class="form-group mb-3">
+                            <label for="pro_unit" class="form-label">{{ __('Unit') }}</label>
+                            <input type="text" class="form-control @error('pro_unit') is-invalid @enderror"
+                                   name="pro_unit" value="{{ $edit_data->pro_unit }}" id="pro_unit" />
+                            @error('pro_unit')
+                            <span class="invalid-feedback" role="alert"><strong>{{ $message }}</strong></span>
+                            @enderror
+                        </div>
+
+                        {{-- 📦 Batch-wise stock — read only, click row for details --}}
+                        <div class="form-group mb-3">
+                            <label class="form-label d-flex justify-content-between align-items-center">
+                                <span>{{ __('Total Quantity (Batch-wise)') }}</span>
+                                <span class="badge bg-primary">{{ $edit_data->stockBatches->sum('remaining_qty') }} {{ __('in stock') }}</span>
+                            </label>
+                            <div class="table-responsive border rounded">
+                                <table class="table table-sm table-hover mb-0 batch-stock-table">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th>{{ __('Batch') }}</th>
+                                            <th class="text-end">{{ __('Qty') }}</th>
+                                            <th class="text-end">{{ __('Unit Cost') }}</th>
+                                            <th>{{ __('Supplier') }}</th>
+                                            <th class="text-end">{{ __('Expiry') }}</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @forelse($edit_data->stockBatches as $batch)
+                                        @php
+                                            $batchData = [
+                                                'batch_no'   => $batch->batch_no ?: 'Batch #' . $batch->id,
+                                                'type'       => $batch->type,
+                                                'quantity'   => $batch->quantity,
+                                                'remaining'  => $batch->remaining_qty,
+                                                'unit_cost'  => $batch->unit_cost,
+                                                'sell_price' => $batch->selling_price,
+                                                'supplier'   => $batch->supplier->name ?? '—',
+                                                'purchase'   => $batch->purchase?->invoice_no ?: ('#' . $batch->purchase_id),
+                                                'mfg'        => $batch->mfg_date?->format('d M, Y') ?? '—',
+                                                'exp'        => $batch->exp_date?->format('d M, Y') ?? '—',
+                                                'sn_in'      => is_array($batch->sn_stock) ? count($batch->sn_stock) : 0,
+                                                'sn_sold'    => is_array($batch->sn_sold) ? count($batch->sn_sold) : 0,
+                                                'created'    => $batch->created_at?->format('d M, Y h:i A'),
+                                            ];
+                                        @endphp
+                                        <tr class="batch-row" style="cursor:pointer"
+                                            title="{{ __('Click to view batch details') }}"
+                                            data-batch="{{ e(json_encode($batchData, JSON_UNESCAPED_SLASHES)) }}">
+                                            <td><strong>{{ $batch->batch_no ?: 'Batch #'.$batch->id }}</strong></td>
+                                            <td class="text-end">{{ $batch->remaining_qty }}</td>
+                                            <td class="text-end">৳{{ number_format($batch->unit_cost, 2) }}</td>
+                                            <td><small>{{ $batch->supplier->name ?? '—' }}</small></td>
+                                            <td class="text-end"><small>{{ $batch->exp_date?->format('d M, Y') ?? '—' }}</small></td>
+                                        </tr>
+                                        @empty
+                                        <tr>
+                                            <td colspan="5" class="text-center text-muted py-3">
+                                                {{ __('No batches yet — stock comes from purchases.') }}
+                                            </td>
+                                        </tr>
+                                        @endforelse
+                                    </tbody>
+                                    @if($edit_data->stockBatches->isNotEmpty())
+                                    <tfoot class="table-light">
+                                        <tr>
+                                            <th>{{ __('Total') }}</th>
+                                            <th class="text-end">{{ $edit_data->stockBatches->sum('remaining_qty') }}</th>
+                                            <th colspan="3"></th>
+                                        </tr>
+                                    </tfoot>
+                                    @endif
+                                </table>
                             </div>
-                            <div class="col-md-6 mb-3">
-                                <label for="pro_unit" class="form-label">{{ __('Unit') }}</label>
-                                <input type="text" class="form-control @error('pro_unit') is-invalid @enderror"
-                                       name="pro_unit" value="{{ $edit_data->pro_unit }}" id="pro_unit" />
-                            </div>
+                            <small class="text-muted d-block mt-1">
+                                <i class="fe-info me-1"></i>{{ __('Click a batch row to view batch details. Stock is managed through purchases.') }}
+                            </small>
                         </div>
 
                         <div class="form-group mb-3">
@@ -900,17 +962,27 @@
                             </small>
                         </div>
 
+                        {{-- 🏷️ Product Status: Active / Draft / Private --}}
+                        <div class="form-group mb-3">
+                            <label class="form-label">{{ __('Product Status') }}</label>
+                            <select class="form-control form-select" name="publish_status">
+                                @php
+                                    $currentPublish = old('publish_status', $edit_data->resolved_publish_status);
+                                @endphp
+                                <option value="active" {{ $currentPublish === 'active' ? 'selected' : '' }}>🟢 {{ __('Active (Present)') }}</option>
+                                <option value="draft" {{ $currentPublish === 'draft' ? 'selected' : '' }}>📝 {{ __('Draft') }}</option>
+                                <option value="private" {{ $currentPublish === 'private' ? 'selected' : '' }}>🔒 {{ __('Private') }}</option>
+                            </select>
+                            <small class="text-muted d-block mt-1">
+                                <strong>Active:</strong> {{ __('Visible in storefront') }} |
+                                <strong>Draft:</strong> {{ __('Hidden (work in progress)') }} |
+                                <strong>Private:</strong> {{ __('Hidden from customers') }}
+                            </small>
+                        </div>
+
                         {{-- FLAGS & SWITCHES --}}
                         <div class="row text-center mb-3">
-                            <div class="col-3 mb-2">
-                                <label for="status" class="d-block form-label">{{ __('Status') }}</label>
-                                <label class="switch">
-                                    <input type="checkbox" value="1" name="status" @if($edit_data->status==1) checked @endif>
-                                    <span class="slider round"></span>
-                                </label>
-                            </div>
-
-                            <div class="col-3 mb-2">
+                            <div class="col-4 mb-2">
                                 <label for="topsale" class="d-block form-label">{{ __('Hot Deals') }}</label>
                                 <label class="switch">
                                     <input type="checkbox" value="1" name="topsale" @if($edit_data->topsale==1) checked @endif>
@@ -918,7 +990,7 @@
                                 </label>
                             </div>
 
-                            <div class="col-3 mb-2">
+                            <div class="col-4 mb-2">
                                 <label for="flashsale" class="d-block form-label">{{ __('Flash Sale') }}</label>
                                 <label class="switch">
                                     <input type="checkbox" value="1" name="flashsale" @if($edit_data->flashsale==1) checked @endif>
@@ -926,9 +998,8 @@
                                 </label>
                             </div>
 
-                          
-                            <div class="col-12 mb-2 text-start">
-                                <label for="sold" class="form-label"> {{ __('Sold Count') }} </label>
+                            <div class="col-4 mb-2">
+                                <label for="sold" class="form-label">{{ __('Sold Count') }}</label>
                                 <input type="text" class="form-control @error('sold') is-invalid @enderror"
                                        name="sold" value="{{ $edit_data->sold }}" id="sold" />
                             </div>
@@ -941,6 +1012,41 @@
             </div>
             </div>
     </form>
+
+    {{-- 📦 Batch Details Modal --}}
+    <div class="modal fade" id="batchDetailModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="fe-layers me-1"></i> {{ __('Batch Details') }}</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <table class="table table-sm table-bordered mb-0">
+                        <tr><th style="width:45%">{{ __('Batch No') }}</th><td id="bd_batch">—</td></tr>
+                        <tr><th>{{ __('Type') }}</th><td id="bd_type">—</td></tr>
+                        <tr><th>{{ __('Quantity') }}</th><td id="bd_qty">—</td></tr>
+                        <tr><th>{{ __('Remaining') }}</th><td id="bd_remaining">—</td></tr>
+                        <tr><th>{{ __('Unit Cost') }}</th><td id="bd_cost">—</td></tr>
+                        <tr><th>{{ __('Selling Price') }}</th><td id="bd_price">—</td></tr>
+                        <tr><th>{{ __('Supplier') }}</th><td id="bd_supplier">—</td></tr>
+                        <tr><th>{{ __('Purchase Invoice') }}</th><td id="bd_purchase">—</td></tr>
+                        <tr><th>{{ __('Mfg Date') }}</th><td id="bd_mfg">—</td></tr>
+                        <tr><th>{{ __('Expiry Date') }}</th><td id="bd_exp">—</td></tr>
+                        <tr><th>{{ __('SN In Stock') }}</th><td id="bd_snin">—</td></tr>
+                        <tr><th>{{ __('SN Sold') }}</th><td id="bd_snsold">—</td></tr>
+                        <tr><th>{{ __('Created') }}</th><td id="bd_created">—</td></tr>
+                    </table>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ __('Close') }}</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {{-- Hidden trigger (Bootstrap 5 data-API) so the modal works without JS bootstrap global --}}
+    <button type="button" id="batchModalTrigger" class="d-none" data-bs-toggle="modal" data-bs-target="#batchDetailModal"></button>
 </div>
 @endsection
 
@@ -1531,5 +1637,33 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
 })();
+
+// 📦 Batch row click → populate & open batch details modal
+$(document).ready(function () {
+    $('body').on('click', '.batch-row', function () {
+        var raw = this.getAttribute('data-batch');
+        if (!raw) return;
+        var b;
+        try { b = JSON.parse(raw); } catch (err) { return; }
+
+        $('#bd_batch').text(b.batch_no || '—');
+        $('#bd_type').text(b.type ? String(b.type).toUpperCase() : '—');
+        $('#bd_qty').text(b.quantity != null ? b.quantity : '—');
+        $('#bd_remaining').text(b.remaining != null ? b.remaining : '—');
+        $('#bd_cost').text(b.unit_cost != null ? '৳' + parseFloat(b.unit_cost).toFixed(2) : '—');
+        $('#bd_price').text(b.sell_price != null ? '৳' + parseFloat(b.sell_price).toFixed(2) : '—');
+        $('#bd_supplier').text(b.supplier || '—');
+        $('#bd_purchase').text(b.purchase && b.purchase !== '#' ? b.purchase : '—');
+        $('#bd_mfg').text(b.mfg || '—');
+        $('#bd_exp').text(b.exp || '—');
+        $('#bd_snin').text(b.sn_in != null ? b.sn_in : 0);
+        $('#bd_snsold').text(b.sn_sold != null ? b.sn_sold : 0);
+        $('#bd_created').text(b.created || '—');
+
+        // Bootstrap 5 data-API trigger
+        var trigger = document.getElementById('batchModalTrigger');
+        if (trigger) trigger.click();
+    });
+});
 </script>
 @endsection

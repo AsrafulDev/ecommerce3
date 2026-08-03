@@ -70,6 +70,11 @@ class DamageProduct extends Model
         return $this->belongsTo(Expense::class, 'expense_id');
     }
 
+    public function logs()
+    {
+        return $this->morphMany(\App\Models\ActivityLog::class, 'model')->latest();
+    }
+
     public function earningFund()
     {
         return $this->belongsTo(FundTransaction::class, 'earning_fund_id');

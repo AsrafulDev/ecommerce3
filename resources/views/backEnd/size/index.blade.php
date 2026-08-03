@@ -80,9 +80,20 @@
     <div class="row mb-3 mt-3">
         <div class="col-12 d-flex justify-content-between align-items-center">
             <h4 class="page-title mb-0" style="font-weight: 700; color: #2d3436;"> {{ __('Product Sizes') }} </h4>
-            <a href="{{route('sizes.create')}}" class="btn btn-primary rounded-pill shadow-sm px-4">
-                <i class="fe-plus me-1"></i> Add Size
-            </a>
+            <div class="d-flex gap-2">
+                @if($show_data->isEmpty())
+                <form method="post" action="{{ route('sizes.import_default') }}" class="d-inline"
+                      onsubmit="return confirm('Import default sizes? This will add XS, S, M, L, XL, XXL, XXXL, Free Size.')">
+                    @csrf
+                    <button type="submit" class="btn btn-warning rounded-pill shadow-sm px-4">
+                        <i class="fe-download me-1"></i> {{ __('Import Default Items') }}
+                    </button>
+                </form>
+                @endif
+                <a href="{{route('sizes.create')}}" class="btn btn-primary rounded-pill shadow-sm px-4">
+                    <i class="fe-plus me-1"></i> Add Size
+                </a>
+            </div>
         </div>
     </div>
 

@@ -70,8 +70,8 @@ class FundController extends Controller
         ]);
 
         // Use DB transaction for safety (in case more ops are added later)
-        DB::transaction(function () use ($validated) {
-            FundTransaction::create([
+        $tx = DB::transaction(function () use ($validated) {
+            return FundTransaction::create([
                 'direction'  => 'in',
                 'source'     => 'manual_add',
                 'source_id'  => null,
@@ -81,6 +81,8 @@ class FundController extends Controller
                 'created_by' => Auth::id(),
             ]);
         });
+
+        log_activity('fund', 'create', 'Fund added (in) ৳' . number_format($validated['amount'], 2), $tx);
 
         return back()->with('success', 'Fund added successfully!');
     }
@@ -109,7 +111,7 @@ class FundController extends Controller
                 return redirect()->back()->with('error', 'Not enough balance!');
             }
 
-            FundTransaction::create([
+            $tx = FundTransaction::create([
                 'direction'  => 'out',
                 'source'     => 'withdraw',
                 'source_id'  => null,
@@ -117,6 +119,8 @@ class FundController extends Controller
                 'note'       => $validated['note'] ?? null,
                 'created_by' => Auth::id(),
             ]);
+
+            log_activity('fund', 'create', 'Fund withdrawn (out) ৳' . number_format($amount, 2), $tx);
 
             return redirect()->back()->with('success', 'Withdraw successful!');
         });
@@ -227,6 +231,12 @@ class FundController extends Controller
         }
 
         $transaction = FundTransaction::findOrFail($id);
+
+        if (!$transaction->isEditable()) {
+            return redirect()->route('admin.fund.index')
+                ->with('error', 'This transaction is linked to a system record (' . $transaction->source . ') and cannot be edited.');
+        }
+
         return view('backEnd.fund.edit', compact('transaction'));
     }
 
@@ -257,6 +267,11 @@ class FundController extends Controller
 
         return DB::transaction(function () use ($validated, $id) {
             $transaction = FundTransaction::findOrFail($id);
+
+            if (!$transaction->isEditable()) {
+                return redirect()->route('admin.fund.index')
+                    ->with('error', 'This transaction is linked to a system record (' . $transaction->source . ') and cannot be edited.');
+            }
 
             // Save old values for logging
             $old_amount = $transaction->amount;
@@ -303,6 +318,11 @@ class FundController extends Controller
                 'performed_by' => Auth::id(),
             ]);
 
+            log_activity('fund', 'update', 'Fund transaction #' . $transaction->id . ' updated (' . $old_direction . ' ' . $old_amount . ' → ' . $new_direction . ' ' . $new_amount . ')', $transaction, [
+                'old' => ['direction' => $old_direction, 'amount' => $old_amount, 'note' => $old_note],
+                'new' => ['direction' => $new_direction, 'amount' => $new_amount, 'note' => $new_note],
+            ]);
+
             return redirect()->route('admin.fund.index')
                             ->with('success', 'Fund transaction updated successfully! Balance adjusted automatically.');
         });
@@ -344,6 +364,11 @@ class FundController extends Controller
         return DB::transaction(function () use ($id) {
             $transaction = FundTransaction::findOrFail($id);
 
+            if (!$transaction->isEditable()) {
+                return redirect()->route('admin.fund.index')
+                    ->with('error', 'This transaction is linked to a system record (' . $transaction->source . ') and cannot be deleted.');
+            }
+
             // Save transaction data for logging
             $old_amount = $transaction->amount;
             $old_direction = $transaction->direction;
@@ -380,6 +405,8 @@ class FundController extends Controller
                 'description' => $description,
                 'performed_by' => Auth::id(),
             ]);
+
+            log_activity('fund', 'delete', 'Fund transaction #' . $id . ' deleted (' . $old_direction . ' ' . $old_amount . ')', $transaction);
 
             // Now delete the transaction (log entry already created, so FK constraint won't fail)
             $transaction->delete();

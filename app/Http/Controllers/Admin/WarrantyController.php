@@ -10,6 +10,8 @@ use App\Models\Expense;
 use App\Models\FundTransaction;
 use App\Models\Product;
 use App\Models\ProductWarrantyTier;
+use App\Models\PurchaseItem;
+use App\Models\Supplier;
 use App\Models\SupplierWarranty;
 use App\Models\WarrantyClaim;
 use App\Models\WarrantyClaimReminder;
@@ -111,17 +113,26 @@ class WarrantyController extends Controller
 
     public function supplierIndex(): View
     {
-        $warranties = SupplierWarranty::with(['supplier:id,name', 'product:id,name'])
+        $warranties = SupplierWarranty::with([
+                'supplier',
+                'product',
+                'purchaseItem.purchase',
+                'warrantySales' => fn($q) => $q->select('id', 'supplier_warranty_id')->withCount('claims'),
+            ])
             ->latest()
             ->paginate(30);
 
-        return view('backEnd.warranty.supplier_index', compact('warranties'));
+        $suppliers     = Supplier::orderBy('name')->get(['id', 'name']);
+        $products      = Product::orderBy('name')->get(['id', 'name']);
+        $purchaseItems = PurchaseItem::with('product:id,name')->latest()->get();
+
+        return view('backEnd.warranty.supplier_index', compact('warranties', 'suppliers', 'products', 'purchaseItems'));
     }
 
     public function supplierStore(Request $request): RedirectResponse
     {
         $data = $request->validate([
-            'purchase_item_id'    => 'required|exists:purchase_items,id',
+            'purchase_item_id'    => 'nullable|exists:purchase_items,id',
             'product_id'          => 'required|exists:products,id',
             'supplier_id'         => 'required|exists:suppliers,id',
             'warranty_days'       => 'required|integer|min:0',
@@ -134,9 +145,46 @@ class WarrantyController extends Controller
             ? now()->parse($data['warranty_start_date'])->addDays($data['warranty_days'])
             : now()->addDays($data['warranty_days']);
 
-        SupplierWarranty::create($data);
+        $supplierWarranty = SupplierWarranty::create($data);
+
+        log_activity('warranty', 'create', 'Added supplier warranty: ' . ($supplierWarranty->product->name ?? 'Product #' . $data['product_id']) . ' (' . $data['warranty_days'] . ' days)', $supplierWarranty, $data);
 
         return back()->with('success', 'Supplier warranty added.');
+    }
+
+    public function supplierUpdate(Request $request): RedirectResponse
+    {
+        $data = $request->validate([
+            'supplier_warranty_id' => 'required|exists:supplier_warranties,id',
+            'purchase_item_id'     => 'nullable|exists:purchase_items,id',
+            'product_id'           => 'required|exists:products,id',
+            'supplier_id'          => 'required|exists:suppliers,id',
+            'warranty_days'        => 'required|integer|min:0',
+            'warranty_start_date'  => 'nullable|date',
+            'warranty_terms'       => 'nullable|string',
+            'is_transferable'      => 'boolean',
+        ]);
+
+        $supplierWarranty = SupplierWarranty::findOrFail($request->supplier_warranty_id);
+
+        $data['warranty_end_date'] = isset($data['warranty_start_date'])
+            ? now()->parse($data['warranty_start_date'])->addDays($data['warranty_days'])
+            : now()->addDays($data['warranty_days']);
+
+        $supplierWarranty->update($data);
+
+        log_activity('warranty', 'update', 'Updated supplier warranty #' . $supplierWarranty->id . ' (' . $data['warranty_days'] . ' days)', $supplierWarranty, $data);
+
+        return back()->with('success', 'Supplier warranty updated.');
+    }
+
+    public function supplierDestroy(SupplierWarranty $supplierWarranty): RedirectResponse
+    {
+        log_activity('warranty', 'delete', 'Deleted supplier warranty #' . $supplierWarranty->id . ' for ' . ($supplierWarranty->product->name ?? 'product'), $supplierWarranty);
+
+        $supplierWarranty->delete();
+
+        return back()->with('success', 'Supplier warranty deleted.');
     }
 
     // ── Product Warranty Tiers ─────────────────
@@ -186,24 +234,69 @@ class WarrantyController extends Controller
 
     public function salesIndex(Request $request): View
     {
-        $sales = WarrantySale::with(['product:id,name', 'customer:id,name,phone'])
+        $search = trim((string) $request->search);
+        $status = $request->status;
+        $type   = $request->type;
+
+        $sales = WarrantySale::with([
+                'product:id,name,barcode',
+                'customer:id,name,phone',
+                'order:id,invoice_id',
+                'purchase.supplier:id,name,phone',
+                'stockBatch.supplier:id,name,phone',
+                'supplierWarranty.supplier:id,name,phone',
+            ])
             ->withCount('claims')
-            ->when($request->status, fn($q, $s) => $q->where('status', $s))
+            ->when($status, fn($q, $s) => $q->where('status', $s))
+            ->when($type, fn($q, $t) => $q->where('warranty_type', $t))
+            ->when($search !== '', function ($q) use ($search) {
+                $q->where(function ($q) use ($search) {
+                    // Phone number
+                    $q->whereHas('customer', fn($qq) => $qq->where('phone', 'like', "%{$search}%"))
+                      // Order id / sales invoice id
+                      ->orWhere('order_id', 'like', "%{$search}%")
+                      ->orWhereHas('order', fn($qq) => $qq->where('id', 'like', "%{$search}%")
+                                                    ->orWhere('invoice_id', 'like', "%{$search}%"))
+                      // Product id / barcode / sku
+                      ->orWhere('product_id', 'like', "%{$search}%")
+                      ->orWhereHas('product', fn($qq) => $qq->where('id', 'like', "%{$search}%")
+                                                    ->orWhere('barcode', 'like', "%{$search}%")
+                                                    ->orWhereHas('variantPrices', fn($qv) => $qv
+                                                        ->where('barcode', 'like', "%{$search}%")
+                                                        ->orWhere('sku', 'like', "%{$search}%")))
+                      // Purchase invoice no
+                      ->orWhereHas('purchase', fn($qq) => $qq->where('invoice_no', 'like', "%{$search}%"))
+                      // Serial number(s)
+                      ->orWhere('serial_numbers', 'like', "%{$search}%");
+                });
+            })
             ->latest()
-            ->paginate(30);
+            ->paginate(30)
+            ->withQueryString();
 
         return view('backEnd.warranty.sales_index', compact('sales'));
     }
 
     public function salesShow(WarrantySale $warrantySale): View
     {
-        $warrantySale->load(['product', 'customer', 'order', 'soldBy', 'stockBatch', 'purchase', 'claims.stages', 'claims.notes']);
+        $warrantySale->load([
+            'product',
+            'customer',
+            'order.orderdetails',
+            'soldBy',
+            'stockBatch.supplier',
+            'purchase.supplier',
+            'supplierWarranty.supplier',
+            'claims.stages',
+            'claims.notes',
+        ]);
         return view('backEnd.warranty.sales_show', compact('warrantySale'));
     }
 
     public function salesVoid(WarrantySale $warrantySale): RedirectResponse
     {
         $this->warrantyService->voidWarranty($warrantySale);
+        log_activity('warranty', 'void', 'Voided warranty sale #' . $warrantySale->id, $warrantySale);
         return back()->with('success', 'Warranty voided.');
     }
 
@@ -240,6 +333,8 @@ class WarrantyController extends Controller
 
         $warrantyClaim->transitionTo($actions[$action], $request->note);
         $this->warrantyService->advanceClaimStage($warrantyClaim, $request->note);
+
+        log_activity('warranty', 'claim_' . $action, 'Claim ' . $warrantyClaim->claim_number . ' → ' . $actions[$action]->value, $warrantyClaim);
 
         return back()->with('success', "Claim {$action}ed.");
     }
@@ -682,8 +777,11 @@ class WarrantyController extends Controller
             'resell_price' => 'nullable|numeric|min:0',
         ]);
 
-        $oldStatus = $damageProduct->status;
-        $newStatus = $request->status;
+        $oldStatus      = $damageProduct->status;
+        $newStatus      = $request->status;
+        $oldServiceCost = $damageProduct->service_cost;
+        $oldDamageCost  = $damageProduct->damage_cost;
+        $oldResellPrice = $damageProduct->resell_price;
 
         // 🆕 Always update price fields when provided (not gated on status transition)
         if ($request->filled('service_cost')) {
@@ -719,28 +817,6 @@ class WarrantyController extends Controller
                     ]);
                     $damageProduct->earning_fund_id = $fund->id;
                 }
-
-                // Also record the repair cost as an expense
-                if ((float) $damageProduct->service_cost > 0) {
-                    $repairExpense = Expense::create([
-                        'title'        => "Warranty repair cost — Damage #{$damageProduct->id}",
-                        'amount'       => (float) $damageProduct->service_cost,
-                        'expense_date' => now()->toDateString(),
-                        'category'     => 'warranty_repair',
-                        'note'         => 'Repair cost for damage product (Claim #' . ($damageProduct->warranty_claim_id ?? 'N/A') . ')',
-                        'created_by'   => auth()->id(),
-                    ]);
-                    $repairFund = FundTransaction::create([
-                        'direction' => 'out',
-                        'source'    => 'expense',
-                        'source_id' => $repairExpense->id,
-                        'amount'    => (float) $damageProduct->service_cost,
-                        'note'      => 'Warranty repair — Damage #' . $damageProduct->id,
-                        'created_by'=> auth()->id(),
-                    ]);
-                    $repairExpense->update(['fund_transaction_id' => $repairFund->id]);
-                    $damageProduct->expense_id = $repairExpense->id;
-                }
             } else {
                 // Already resellable → update the earning fund if resell_price changed
                 if ($damageProduct->earning_fund_id) {
@@ -748,16 +824,6 @@ class WarrantyController extends Controller
                         'amount' => (float) $damageProduct->resell_price,
                         'note'   => "Warranty repair resale (updated) — Damage #{$damageProduct->id}",
                     ]);
-                }
-                // Update repair expense if service_cost changed
-                if ($damageProduct->expense_id) {
-                    $e = Expense::find($damageProduct->expense_id);
-                    if ($e) {
-                        $e->update(['amount' => (float) $damageProduct->service_cost]);
-                        FundTransaction::where('id', $e->fund_transaction_id)->update([
-                            'amount' => (float) $damageProduct->service_cost,
-                        ]);
-                    }
                 }
             }
         }
@@ -808,9 +874,62 @@ class WarrantyController extends Controller
             $damageProduct->disposed_at = now();
         }
 
+        // 💰 Service cost → warranty repair expense (on ANY status change, not just resellable)
+        if ((float) $damageProduct->service_cost > 0) {
+            $existingExpense = $damageProduct->expense_id ? Expense::find($damageProduct->expense_id) : null;
+            if ($existingExpense && $existingExpense->category === 'warranty_repair') {
+                $existingExpense->update(['amount' => (float) $damageProduct->service_cost]);
+                if ($existingExpense->fund_transaction_id) {
+                    FundTransaction::where('id', $existingExpense->fund_transaction_id)
+                        ->update(['amount' => (float) $damageProduct->service_cost]);
+                }
+            } else {
+                $repairExpense = Expense::create([
+                    'title'        => "Warranty repair cost — Damage #{$damageProduct->id}",
+                    'amount'       => (float) $damageProduct->service_cost,
+                    'expense_date' => now()->toDateString(),
+                    'category'     => 'warranty_repair',
+                    'note'         => 'Repair cost for damage product (Claim #' . ($damageProduct->warranty_claim_id ?? 'N/A') . ')',
+                    'created_by'   => auth()->id(),
+                ]);
+                $repairFund = FundTransaction::create([
+                    'direction' => 'out',
+                    'source'    => 'expense',
+                    'source_id' => $repairExpense->id,
+                    'amount'    => (float) $damageProduct->service_cost,
+                    'note'      => 'Warranty repair — Damage #' . $damageProduct->id,
+                    'created_by'=> auth()->id(),
+                ]);
+                $repairExpense->update(['fund_transaction_id' => $repairFund->id]);
+                $damageProduct->expense_id = $repairExpense->id;
+            }
+        }
+
         // ── Save ──
         $damageProduct->status = $newStatus;
         $damageProduct->save();
+
+        // 📋 Activity log — who updated, what changed, when (any change)
+        $changes = [];
+        if ($oldStatus !== $newStatus) {
+            $changes['status'] = ['old' => $oldStatus, 'new' => $newStatus];
+        }
+        if ((string) $oldServiceCost !== (string) $damageProduct->service_cost) {
+            $changes['service_cost'] = ['old' => $oldServiceCost, 'new' => $damageProduct->service_cost];
+        }
+        if ((string) $oldDamageCost !== (string) $damageProduct->damage_cost) {
+            $changes['damage_cost'] = ['old' => $oldDamageCost, 'new' => $damageProduct->damage_cost];
+        }
+        if ((string) $oldResellPrice !== (string) $damageProduct->resell_price) {
+            $changes['resell_price'] = ['old' => $oldResellPrice, 'new' => $damageProduct->resell_price];
+        }
+        if (!empty($changes)) {
+            $parts = [];
+            foreach ($changes as $field => $c) {
+                $parts[] = str_replace('_', ' ', $field) . ': ' . $c['old'] . ' → ' . $c['new'];
+            }
+            log_activity('damage', 'update', 'Damage #' . $damageProduct->id . ' — ' . implode(', ', $parts), $damageProduct, $changes);
+        }
 
         if ($damageProduct->warrantyClaim) {
             $damageProduct->warrantyClaim->notes()->create([
@@ -826,7 +945,7 @@ class WarrantyController extends Controller
 
     public function damageIndex(Request $request): View
     {
-        $damageProducts = DamageProduct::with(['product:id,name,stock', 'warrantyClaim:id,claim_number'])
+        $damageProducts = DamageProduct::with(['product:id,name,stock', 'warrantyClaim:id,claim_number', 'logs'])
             ->byStatus($request->status)
             ->latest()
             ->paginate(30);

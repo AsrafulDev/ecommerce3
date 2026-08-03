@@ -173,6 +173,46 @@ class DashboardController extends Controller
             $categorySeries = [0];
         }
 
+        // =========================
+        // 📦 STOCK DASHBOARD DATA
+        // =========================
+        $stock_total_qty    = Product::sum('stock');
+        $stock_total_value  = Product::sum(DB::raw('stock * purchase_price'));
+        $stock_low_count    = Product::where('low_stock_threshold', '>', 0)
+            ->whereColumn('stock', '<=', 'low_stock_threshold')
+            ->count();
+        $stock_low_products = Product::where('low_stock_threshold', '>', 0)
+            ->whereColumn('stock', '<=', 'low_stock_threshold')
+            ->orderBy('stock')
+            ->limit(5)
+            ->get(['id', 'name', 'stock', 'low_stock_threshold']);
+        $recent_batches = \App\Models\StockBatch::with('product:id,name')
+            ->latest()
+            ->take(6)
+            ->get();
+
+        // =========================
+        // 🛡️ WARRANTY DASHBOARD DATA
+        // =========================
+        $warranty_total          = \App\Models\WarrantySale::count();
+        $warranty_active         = \App\Models\WarrantySale::where('status', 'active')->count();
+        $warranty_expiring_count = \App\Models\WarrantySale::where('status', 'active')
+            ->where('warranty_end_date', '>', now())
+            ->where('warranty_end_date', '<=', now()->addDays(7))
+            ->count();
+        $warranty_expiring = \App\Models\WarrantySale::where('status', 'active')
+            ->where('warranty_end_date', '>', now())
+            ->where('warranty_end_date', '<=', now()->addDays(7))
+            ->with(['product:id,name', 'customer:id,name,phone'])
+            ->orderBy('warranty_end_date')
+            ->limit(5)
+            ->get();
+        $warranty_active_claims = \App\Models\WarrantyClaim::active()->count();
+        $recent_claims = \App\Models\WarrantyClaim::with(['product:id,name', 'customer:id,name'])
+            ->latest()
+            ->limit(5)
+            ->get();
+
         return view('backEnd.admin.dashboard', compact(
             'total_order',
             'today_order',
@@ -195,7 +235,18 @@ class DashboardController extends Controller
             'monthly_expenses',
             'categoryLabels',
             'categorySeries',
-            'categorySales'
+            'categorySales',
+            'stock_total_qty',
+            'stock_total_value',
+            'stock_low_count',
+            'stock_low_products',
+            'recent_batches',
+            'warranty_total',
+            'warranty_active',
+            'warranty_expiring_count',
+            'warranty_expiring',
+            'warranty_active_claims',
+            'recent_claims'
         ));
     }
 

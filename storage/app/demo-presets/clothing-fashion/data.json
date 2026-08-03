@@ -230,7 +230,21 @@
             "cat": "men",
             "brand": "RFL",
             "price": 2400,
-            "old": 1300
+            "old": 1300,
+            "stock_batches": [
+                {
+                    "supplier": "RFL",
+                    "batch_no": "DEMO-1-A",
+                    "quantity": 599,
+                    "unit_cost": 1680
+                },
+                {
+                    "supplier": "Samsung",
+                    "batch_no": "DEMO-1-B",
+                    "quantity": 400,
+                    "unit_cost": 1680
+                }
+            ]
         },
         {
             "name": "Classical Edition Single Jersey Knitted Polo- Saltshake",
@@ -257,7 +271,21 @@
             "cat": "men",
             "brand": "RFL",
             "price": 2200,
-            "old": 1200
+            "old": 1200,
+            "stock_batches": [
+                {
+                    "supplier": "Samsung",
+                    "batch_no": "DEMO-2-A",
+                    "quantity": 60,
+                    "unit_cost": 1540
+                },
+                {
+                    "supplier": "LG",
+                    "batch_no": "DEMO-2-B",
+                    "quantity": 40,
+                    "unit_cost": 1540
+                }
+            ]
         },
         {
             "name": "Designer Edition Single Jersey Knitted Cotton Polo - Ingenious",
@@ -285,7 +313,21 @@
             "cat": "men",
             "brand": "RFL",
             "price": 2200,
-            "old": 2500
+            "old": 2500,
+            "stock_batches": [
+                {
+                    "supplier": "LG",
+                    "batch_no": "DEMO-3-A",
+                    "quantity": 60,
+                    "unit_cost": 1540
+                },
+                {
+                    "supplier": "Apple",
+                    "batch_no": "DEMO-3-B",
+                    "quantity": 40,
+                    "unit_cost": 1540
+                }
+            ]
         },
         {
             "name": "Premium Designer Edition Double PK Cotton Polo - Altair",
@@ -309,7 +351,21 @@
             "cat": "men",
             "brand": "RFL",
             "price": 600,
-            "old": 2500
+            "old": 2500,
+            "stock_batches": [
+                {
+                    "supplier": "Apple",
+                    "batch_no": "DEMO-4-A",
+                    "quantity": 60,
+                    "unit_cost": 420
+                },
+                {
+                    "supplier": "Symphony",
+                    "batch_no": "DEMO-4-B",
+                    "quantity": 40,
+                    "unit_cost": 420
+                }
+            ]
         },
         {
             "name": "Mens Elegant Polo - Viniyard",
@@ -333,7 +389,21 @@
             "cat": "men",
             "brand": "RFL",
             "price": 2200,
-            "old": 2500
+            "old": 2500,
+            "stock_batches": [
+                {
+                    "supplier": "Symphony",
+                    "batch_no": "DEMO-5-A",
+                    "quantity": 60,
+                    "unit_cost": 1540
+                },
+                {
+                    "supplier": "Pran",
+                    "batch_no": "DEMO-5-B",
+                    "quantity": 40,
+                    "unit_cost": 1540
+                }
+            ]
         },
         {
             "name": "Mens Premium Limited Edition Polo - Bluebind",
@@ -357,7 +427,21 @@
             "cat": "men",
             "brand": "RFL",
             "price": 2200,
-            "old": 2500
+            "old": 2500,
+            "stock_batches": [
+                {
+                    "supplier": "Pran",
+                    "batch_no": "DEMO-6-A",
+                    "quantity": 60,
+                    "unit_cost": 1540
+                },
+                {
+                    "supplier": "Meril",
+                    "batch_no": "DEMO-6-B",
+                    "quantity": 40,
+                    "unit_cost": 1540
+                }
+            ]
         },
         {
             "name": "Premium Designer Edition Double PK Cotton Polo - Sapphirish",
@@ -381,7 +465,21 @@
             "cat": "men",
             "brand": "RFL",
             "price": 2200,
-            "old": 2500
+            "old": 2500,
+            "stock_batches": [
+                {
+                    "supplier": "Meril",
+                    "batch_no": "DEMO-7-A",
+                    "quantity": 60,
+                    "unit_cost": 1540
+                },
+                {
+                    "supplier": "Gigabyte",
+                    "batch_no": "DEMO-7-B",
+                    "quantity": 40,
+                    "unit_cost": 1540
+                }
+            ]
         },
         {
             "name": "Premium Designer Edition Double PK Cotton Polo - Altair",
@@ -405,7 +503,21 @@
             "cat": "men",
             "brand": "RFL",
             "price": 2200,
-            "old": 2500
+            "old": 2500,
+            "stock_batches": [
+                {
+                    "supplier": "Gigabyte",
+                    "batch_no": "DEMO-8-A",
+                    "quantity": 59,
+                    "unit_cost": 1540
+                },
+                {
+                    "supplier": "Walton",
+                    "batch_no": "DEMO-8-B",
+                    "quantity": 40,
+                    "unit_cost": 1540
+                }
+            ]
         },
         {
             "name": "Mens Premium Hoodie - Air Black",
@@ -429,7 +541,21 @@
             "cat": "teens",
             "brand": "RFL",
             "price": 2200,
-            "old": 2500
+            "old": 2500,
+            "stock_batches": [
+                {
+                    "supplier": "Walton",
+                    "batch_no": "DEMO-9-A",
+                    "quantity": 60,
+                    "unit_cost": 1540
+                },
+                {
+                    "supplier": "Teer",
+                    "batch_no": "DEMO-9-B",
+                    "quantity": 40,
+                    "unit_cost": 1540
+                }
+            ]
         },
         {
             "name": "Mens Premium Hoodie - Drak Shadow",
@@ -453,7 +579,21 @@
             "cat": "teens",
             "brand": "RFL",
             "price": 2200,
-            "old": 2500
+            "old": 2500,
+            "stock_batches": [
+                {
+                    "supplier": "Teer",
+                    "batch_no": "DEMO-10-A",
+                    "quantity": 60,
+                    "unit_cost": 1540
+                },
+                {
+                    "supplier": "Jiver Sadh",
+                    "batch_no": "DEMO-10-B",
+                    "quantity": 40,
+                    "unit_cost": 1540
+                }
+            ]
         },
         {
             "name": "Mens Premium Hoodie - Drak Shadow",
@@ -477,7 +617,21 @@
             "cat": "teens",
             "brand": "RFL",
             "price": 10250,
-            "old": 1200
+            "old": 1200,
+            "stock_batches": [
+                {
+                    "supplier": "Jiver Sadh",
+                    "batch_no": "DEMO-11-A",
+                    "quantity": 6000,
+                    "unit_cost": 7175
+                },
+                {
+                    "supplier": "7 UP",
+                    "batch_no": "DEMO-11-B",
+                    "quantity": 4000,
+                    "unit_cost": 7175
+                }
+            ]
         },
         {
             "name": "Mens Premium Hoodie- Disguise",
@@ -501,7 +655,21 @@
             "cat": "teens",
             "brand": "RFL",
             "price": 2200,
-            "old": 2500
+            "old": 2500,
+            "stock_batches": [
+                {
+                    "supplier": "7 UP",
+                    "batch_no": "DEMO-12-A",
+                    "quantity": 60,
+                    "unit_cost": 1540
+                },
+                {
+                    "supplier": "Konka",
+                    "batch_no": "DEMO-12-B",
+                    "quantity": 40,
+                    "unit_cost": 1540
+                }
+            ]
         },
         {
             "name": "Men Premium Hoodie - Dunkan",
@@ -525,7 +693,21 @@
             "cat": "teens",
             "brand": "RFL",
             "price": 10250,
-            "old": 1200
+            "old": 1200,
+            "stock_batches": [
+                {
+                    "supplier": "Konka",
+                    "batch_no": "DEMO-13-A",
+                    "quantity": 5998,
+                    "unit_cost": 7175
+                },
+                {
+                    "supplier": "General Supplier",
+                    "batch_no": "DEMO-13-B",
+                    "quantity": 4000,
+                    "unit_cost": 7175
+                }
+            ]
         },
         {
             "name": "Mens Premium Hoodie - Nanodime",
@@ -551,7 +733,21 @@
             "cat": "teens",
             "brand": "RFL",
             "price": 2200,
-            "old": 2500
+            "old": 2500,
+            "stock_batches": [
+                {
+                    "supplier": "General Supplier",
+                    "batch_no": "DEMO-14-A",
+                    "quantity": 59,
+                    "unit_cost": 1540
+                },
+                {
+                    "supplier": "Demo Distributor",
+                    "batch_no": "DEMO-14-B",
+                    "quantity": 40,
+                    "unit_cost": 1540
+                }
+            ]
         },
         {
             "name": "Mens Multi-Shades Hoodie - Navy",
@@ -575,7 +771,21 @@
             "cat": "teens",
             "brand": "RFL",
             "price": 2200,
-            "old": 1200
+            "old": 1200,
+            "stock_batches": [
+                {
+                    "supplier": "Demo Distributor",
+                    "batch_no": "DEMO-15-A",
+                    "quantity": 6000,
+                    "unit_cost": 1540
+                },
+                {
+                    "supplier": "Wholesale Hub BD",
+                    "batch_no": "DEMO-15-B",
+                    "quantity": 4000,
+                    "unit_cost": 1540
+                }
+            ]
         },
         {
             "name": "Mens Premium Hoodie Designer Edition- EndZone",
@@ -599,7 +809,21 @@
             "cat": "teens",
             "brand": "RFL",
             "price": 2200,
-            "old": 1200
+            "old": 1200,
+            "stock_batches": [
+                {
+                    "supplier": "Wholesale Hub BD",
+                    "batch_no": "DEMO-16-A",
+                    "quantity": 60,
+                    "unit_cost": 1540
+                },
+                {
+                    "supplier": "RFL",
+                    "batch_no": "DEMO-16-B",
+                    "quantity": 40,
+                    "unit_cost": 1540
+                }
+            ]
         }
     ],
     "blogs": [
@@ -666,6 +890,120 @@
             "category_id": 10,
             "image": "public/uploads/images/banner-17647810521457239_Regal Topslider Web (3).webp",
             "link": "#"
+        }
+    ],
+    "suppliers": [
+        {
+            "name": "RFL",
+            "phone": "01700000000",
+            "email": "rfl@demo.com",
+            "address": "Demo Address, Dhaka, Bangladesh",
+            "status": 1
+        },
+        {
+            "name": "Samsung",
+            "phone": "01700000001",
+            "email": "samsung@demo.com",
+            "address": "Demo Address, Dhaka, Bangladesh",
+            "status": 1
+        },
+        {
+            "name": "LG",
+            "phone": "01700000002",
+            "email": "lg@demo.com",
+            "address": "Demo Address, Dhaka, Bangladesh",
+            "status": 1
+        },
+        {
+            "name": "Apple",
+            "phone": "01700000003",
+            "email": "apple@demo.com",
+            "address": "Demo Address, Dhaka, Bangladesh",
+            "status": 1
+        },
+        {
+            "name": "Symphony",
+            "phone": "01700000004",
+            "email": "symphony@demo.com",
+            "address": "Demo Address, Dhaka, Bangladesh",
+            "status": 1
+        },
+        {
+            "name": "Pran",
+            "phone": "01700000005",
+            "email": "pran@demo.com",
+            "address": "Demo Address, Dhaka, Bangladesh",
+            "status": 1
+        },
+        {
+            "name": "Meril",
+            "phone": "01700000006",
+            "email": "meril@demo.com",
+            "address": "Demo Address, Dhaka, Bangladesh",
+            "status": 1
+        },
+        {
+            "name": "Gigabyte",
+            "phone": "01700000007",
+            "email": "gigabyte@demo.com",
+            "address": "Demo Address, Dhaka, Bangladesh",
+            "status": 1
+        },
+        {
+            "name": "Walton",
+            "phone": "01700000008",
+            "email": "walton@demo.com",
+            "address": "Demo Address, Dhaka, Bangladesh",
+            "status": 1
+        },
+        {
+            "name": "Teer",
+            "phone": "01700000009",
+            "email": "teer@demo.com",
+            "address": "Demo Address, Dhaka, Bangladesh",
+            "status": 1
+        },
+        {
+            "name": "Jiver Sadh",
+            "phone": "01700000010",
+            "email": "jiversadh@demo.com",
+            "address": "Demo Address, Dhaka, Bangladesh",
+            "status": 1
+        },
+        {
+            "name": "7 UP",
+            "phone": "01700000011",
+            "email": "7up@demo.com",
+            "address": "Demo Address, Dhaka, Bangladesh",
+            "status": 1
+        },
+        {
+            "name": "Konka",
+            "phone": "01700000012",
+            "email": "konka@demo.com",
+            "address": "Demo Address, Dhaka, Bangladesh",
+            "status": 1
+        },
+        {
+            "name": "General Supplier",
+            "phone": "01700000013",
+            "email": "generalsupplier@demo.com",
+            "address": "Demo Address, Dhaka, Bangladesh",
+            "status": 1
+        },
+        {
+            "name": "Demo Distributor",
+            "phone": "01700000014",
+            "email": "demodistributor@demo.com",
+            "address": "Demo Address, Dhaka, Bangladesh",
+            "status": 1
+        },
+        {
+            "name": "Wholesale Hub BD",
+            "phone": "01700000015",
+            "email": "wholesalehubbd@demo.com",
+            "address": "Demo Address, Dhaka, Bangladesh",
+            "status": 1
         }
     ]
 }

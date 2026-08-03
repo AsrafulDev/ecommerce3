@@ -710,6 +710,12 @@
     <span>{{ __('Dashboard') }}</span>
   </a>
 </li>
+<li>
+  <a href="{{ route('admin.activity_logs.index') }}">
+    <i data-feather="shield"></i>
+    <span>{{ __('Activity Logs') }}</span>
+  </a>
+</li>
 
 @can('order-create')
 <li>

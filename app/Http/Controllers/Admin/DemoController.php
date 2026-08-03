@@ -553,7 +553,7 @@ class DemoController extends Controller
             'courierapis', 'incomplete_orders',
             'expenses', 'purchases', 'purchase_items', 'purchase_logs', 'expense_logs',
             'vendors', 'vendor_wallets', 'vendor_wallet_transactions', 'vendor_withdrawals',
-            'suppliers', 'supplier_payments', 'complaints', 'contact_messages',
+            'suppliers', 'supplier_payments', 'stock_batches', 'complaints', 'contact_messages',
             'fund_transactions', 'fund_transaction_logs',
             'employees', 'employee_attendances', 'employee_leaves',
             'employee_salaries', 'employee_bonuses', 'employee_salary_payments',
@@ -595,7 +595,8 @@ class DemoController extends Controller
                     'banners','banner_categories','blogs','shipping_charges',
                     'reviews','campaigns','campaign_reviews','coupons',
                     'orders','order_details','payments','shippings','carts',
-                    'carts','incomplete_orders'];
+                    'carts','incomplete_orders',
+                    'suppliers','stock_batches'];
         foreach ($tables as $table) {
             if (\Illuminate\Support\Facades\Schema::hasTable($table)) {
                 DB::table($table)->truncate();
@@ -685,6 +686,23 @@ class DemoController extends Controller
             $brandMap[$brandName] = $id;
         }
 
+        // 4.5. Suppliers (for batch-based stock)
+        $supplierMap = [];
+        foreach ($data['suppliers'] ?? [] as $s) {
+            $supplierName = is_string($s) ? $s : ($s['name'] ?? 'Supplier');
+            if ($supplierName === '' || isset($supplierMap[$supplierName])) continue;
+            $id = DB::table('suppliers')->insertGetId([
+                'name'       => $supplierName,
+                'phone'      => is_array($s) ? ($s['phone'] ?? null) : null,
+                'email'      => is_array($s) ? ($s['email'] ?? null) : null,
+                'address'    => is_array($s) ? ($s['address'] ?? null) : null,
+                'status'     => 1,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+            $supplierMap[$supplierName] = $id;
+        }
+
         // 5. Products
         foreach ($data['products'] ?? [] as $i => $p) {
             $catId = $catMap[$p['cat']] ?? 1;
@@ -724,6 +742,35 @@ class DemoController extends Controller
                     'image'      => $img,
                     'created_at' => now(),
                     'updated_at' => now(),
+                ]);
+            }
+
+            // Supplier-based stock batches (quantity by batch)
+            $batchRows = $p['stock_batches'] ?? [];
+            if (empty($batchRows)) {
+                $batchRows = [[
+                    'supplier'  => null,
+                    'batch_no'  => 'B-' . $pid,
+                    'quantity'  => (int) ($p['stock'] ?? 0),
+                    'unit_cost' => 0,
+                ]];
+            }
+            foreach ($batchRows as $b) {
+                $qty = (int) ($b['quantity'] ?? 0);
+                if ($qty <= 0) continue;
+                $supplierName = is_array($b) ? ($b['supplier'] ?? null) : null;
+                DB::table('stock_batches')->insert([
+                    'product_id'     => $pid,
+                    'supplier_id'    => $supplierMap[$supplierName] ?? null,
+                    'batch_no'       => $b['batch_no'] ?? ('B-' . $pid),
+                    'quantity'       => $qty,
+                    'remaining_qty'  => $qty,
+                    'unit_cost'      => $b['unit_cost'] ?? 0,
+                    'selling_price'  => $p['price'] ?? null,
+                    'type'           => 'in',
+                    'reference_type' => 'purchase',
+                    'created_at'     => now(),
+                    'updated_at'     => now(),
                 ]);
             }
         }

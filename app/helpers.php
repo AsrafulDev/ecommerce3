@@ -64,3 +64,36 @@ if (!function_exists('is_color_dark')) {
         return color_luminance($hex) < 128;
     }
 }
+
+if (!function_exists('log_activity')) {
+    /**
+     * Record a security/audit log entry for a user action.
+     * Never throws — logging must not break the main request flow.
+     *
+     * @param string      $module      e.g. product, order, stock, warranty, purchase
+     * @param string      $action      e.g. create, update, delete, price_change, status, stock_in, stock_out
+     * @param string      $description human-readable summary
+     * @param object|null $model       optional related model
+     * @param array       $data        optional structured detail (old/new values, etc.)
+     */
+    function log_activity(string $module, string $action, string $description, $model = null, array $data = []): void
+    {
+        try {
+            $user = auth('admin')->user() ?? auth()->user();
+
+            \App\Models\ActivityLog::create([
+                'user_id'     => $user?->id,
+                'user_name'   => $user?->name ?? 'System',
+                'module'      => $module,
+                'action'      => $action,
+                'description' => \Illuminate\Support\Str::limit($description, 500),
+                'model_type'  => $model ? get_class($model) : null,
+                'model_id'    => $model ? $model->getKey() : null,
+                'data'        => $data ?: null,
+                'ip'          => request()->ip(),
+            ]);
+        } catch (\Throwable $e) {
+            // silently ignore
+        }
+    }
+}

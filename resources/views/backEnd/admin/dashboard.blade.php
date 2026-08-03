@@ -273,6 +273,170 @@
     </div>
   </div>
 
+  {{-- ══════════ 📦 STOCK OVERVIEW ══════════ --}}
+  <div class="stat-grid small mt-4">
+    <div class="stat-card compact">
+      <div class="icon-box icon-blue"><i class="fas fa-boxes"></i></div>
+      <div class="stat-content">
+        <div class="stat-label">{{ __('Total Stock Qty') }}</div>
+        <div class="stat-value">{{ number_format($stock_total_qty ?? 0) }}</div>
+      </div>
+    </div>
+    <div class="stat-card compact">
+      <div class="icon-box icon-green"><i class="fas fa-dollar-sign"></i></div>
+      <div class="stat-content">
+        <div class="stat-label">{{ __('Stock Value') }}</div>
+        <div class="stat-value">৳{{ number_format($stock_total_value ?? 0, 0) }}</div>
+      </div>
+    </div>
+    <div class="stat-card compact">
+      <div class="icon-box icon-rose"><i class="fas fa-exclamation-triangle"></i></div>
+      <div class="stat-content">
+        <div class="stat-label">{{ __('Low Stock') }}</div>
+        <div class="stat-value">{{ $stock_low_count ?? 0 }}</div>
+      </div>
+    </div>
+    <div class="stat-card compact">
+      <div class="icon-box icon-cyan"><i class="fas fa-layer-group"></i></div>
+      <div class="stat-content">
+        <div class="stat-label">{{ __('Recent Batches') }}</div>
+        <div class="stat-value">{{ count($recent_batches ?? []) }}</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row g-3 mb-3">
+    <div class="col-lg-6">
+      <div class="data-card">
+        <div class="data-header">
+          <h5><span class="dot" style="background:#f43f5e;"></span> {{ __('Low Stock Alerts') }}</h5>
+          <a href="{{ route('admin.stock.dashboard') }}" class="text-decoration-none small fw-bold" style="color:#f43f5e;">{{ __('Manage Stock') }} →</a>
+        </div>
+        <div class="table-responsive">
+          <table class="table-modern">
+            <thead><tr><th>{{ __('Product') }}</th><th>{{ __('Stock') }}</th><th>{{ __('Threshold') }}</th></tr></thead>
+            <tbody>
+              @forelse($stock_low_products ?? [] as $sp)
+              <tr>
+                <td>{{ \Illuminate\Support\Str::limit($sp->name, 24) }}</td>
+                <td><span class="badge-dot" style="background:#fee2e2;color:#dc2626;">{{ $sp->stock }}</span></td>
+                <td class="text-muted">{{ $sp->low_stock_threshold }}</td>
+              </tr>
+              @empty
+              <tr><td colspan="3" class="text-center text-muted py-4">{{ __('No low stock products') }}</td></tr>
+              @endforelse
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+    <div class="col-lg-6">
+      <div class="data-card">
+        <div class="data-header">
+          <h5><span class="dot" style="background:#06b6d4;"></span> {{ __('Recent Stock Batches') }}</h5>
+          <a href="{{ route('admin.stock.batches') }}" class="text-decoration-none small fw-bold" style="color:#06b6d4;">{{ __('View All') }} →</a>
+        </div>
+        <div class="table-responsive">
+          <table class="table-modern">
+            <thead><tr><th>{{ __('Batch') }}</th><th>{{ __('Product') }}</th><th>{{ __('Qty') }}</th><th>{{ __('Unit Cost') }}</th></tr></thead>
+            <tbody>
+              @forelse($recent_batches ?? [] as $batch)
+              <tr>
+                <td class="fw-bold" style="color:#06b6d4;">{{ $batch->batch_no ?: ('B#' . $batch->id) }}</td>
+                <td>{{ \Illuminate\Support\Str::limit($batch->product->name ?? '—', 20) }}</td>
+                <td>{{ $batch->remaining_qty }}</td>
+                <td>৳{{ number_format($batch->unit_cost, 2) }}</td>
+              </tr>
+              @empty
+              <tr><td colspan="4" class="text-center text-muted py-4">{{ __('No batches yet') }}</td></tr>
+              @endforelse
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  {{-- ══════════ 🛡️ WARRANTY OVERVIEW ══════════ --}}
+  <div class="stat-grid small mt-4">
+    <div class="stat-card compact">
+      <div class="icon-box icon-purple"><i class="fas fa-shield-alt"></i></div>
+      <div class="stat-content">
+        <div class="stat-label">{{ __('Total Warranties') }}</div>
+        <div class="stat-value">{{ number_format($warranty_total ?? 0) }}</div>
+      </div>
+    </div>
+    <div class="stat-card compact">
+      <div class="icon-box icon-teal"><i class="fas fa-check-double"></i></div>
+      <div class="stat-content">
+        <div class="stat-label">{{ __('Active Warranties') }}</div>
+        <div class="stat-value">{{ number_format($warranty_active ?? 0) }}</div>
+      </div>
+    </div>
+    <div class="stat-card compact">
+      <div class="icon-box icon-amber"><i class="fas fa-hourglass-half"></i></div>
+      <div class="stat-content">
+        <div class="stat-label">{{ __('Expiring Soon') }}</div>
+        <div class="stat-value">{{ $warranty_expiring_count ?? 0 }}</div>
+      </div>
+    </div>
+    <div class="stat-card compact">
+      <div class="icon-box icon-rose"><i class="fas fa-tools"></i></div>
+      <div class="stat-content">
+        <div class="stat-label">{{ __('Active Claims') }}</div>
+        <div class="stat-value">{{ $warranty_active_claims ?? 0 }}</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row g-3 mb-3">
+    <div class="col-lg-6">
+      <div class="data-card">
+        <div class="data-header">
+          <h5><span class="dot" style="background:#f59e0b;"></span> {{ __('Expiring Warranties') }}</h5>
+          <a href="{{ route('admin.warranty.sales.index', ['status' => 'active']) }}" class="text-decoration-none small fw-bold" style="color:#f59e0b;">{{ __('View All') }} →</a>
+        </div>
+        <ul class="customer-mini">
+          @forelse($warranty_expiring ?? [] as $ws)
+          <li>
+            <div class="cust-avatar" style="background:#fffbeb;color:#f59e0b;"><i class="fas fa-shield-alt"></i></div>
+            <div>
+              <div class="cust-name">{{ \Illuminate\Support\Str::limit($ws->product->name ?? '—', 26) }}</div>
+              <div class="cust-phone">{{ $ws->customer->name ?? 'N/A' }} · {{ __('expires') }} {{ optional($ws->warranty_end_date)->format('d M, Y') }}</div>
+            </div>
+          </li>
+          @empty
+          <li class="text-muted text-center py-3">{{ __('No warranties expiring soon') }}</li>
+          @endforelse
+        </ul>
+      </div>
+    </div>
+    <div class="col-lg-6">
+      <div class="data-card">
+        <div class="data-header">
+          <h5><span class="dot" style="background:#a855f7;"></span> {{ __('Recent Claims') }}</h5>
+          <a href="{{ route('admin.warranty.claims.index') }}" class="text-decoration-none small fw-bold" style="color:#a855f7;">{{ __('View All') }} →</a>
+        </div>
+        <div class="table-responsive">
+          <table class="table-modern">
+            <thead><tr><th>{{ __('Claim') }}</th><th>{{ __('Product') }}</th><th>{{ __('Status') }}</th></tr></thead>
+            <tbody>
+              @forelse($recent_claims ?? [] as $claim)
+              <tr>
+                <td class="fw-bold" style="color:#6366f1;">{{ $claim->claim_number }}</td>
+                <td>{{ \Illuminate\Support\Str::limit($claim->product->name ?? '—', 18) }}</td>
+                <td><span class="badge-dot" style="background:#eef2ff;color:#6366f1;">{{ $claim->status_enum->label() }}</span></td>
+              </tr>
+              @empty
+              <tr><td colspan="3" class="text-center text-muted py-4">{{ __('No claims yet') }}</td></tr>
+              @endforelse
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
 </div>
 @endsection
 

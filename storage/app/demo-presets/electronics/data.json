@@ -237,7 +237,21 @@
             "cat": "fridege-&-ac",
             "brand": "RFL",
             "price": 350,
-            "old": 400
+            "old": 400,
+            "stock_batches": [
+                {
+                    "supplier": "RFL",
+                    "batch_no": "DEMO-1-A",
+                    "quantity": 57,
+                    "unit_cost": 245
+                },
+                {
+                    "supplier": "Samsung",
+                    "batch_no": "DEMO-1-B",
+                    "quantity": 38,
+                    "unit_cost": 245
+                }
+            ]
         },
         {
             "name": "3 in 1 Travel Pillow Set",
@@ -261,7 +275,21 @@
             "cat": "air-coller",
             "brand": "RFL",
             "price": 900,
-            "old": 800
+            "old": 800,
+            "stock_batches": [
+                {
+                    "supplier": "Samsung",
+                    "batch_no": "DEMO-2-A",
+                    "quantity": 57,
+                    "unit_cost": 630
+                },
+                {
+                    "supplier": "LG",
+                    "batch_no": "DEMO-2-B",
+                    "quantity": 39,
+                    "unit_cost": 630
+                }
+            ]
         },
         {
             "name": "HTC AT-538 Hair And Beard Trimmer For Men",
@@ -285,7 +313,21 @@
             "cat": "air-coller",
             "brand": "RFL",
             "price": 600,
-            "old": 500
+            "old": 500,
+            "stock_batches": [
+                {
+                    "supplier": "LG",
+                    "batch_no": "DEMO-3-A",
+                    "quantity": 5995,
+                    "unit_cost": 420
+                },
+                {
+                    "supplier": "Apple",
+                    "batch_no": "DEMO-3-B",
+                    "quantity": 3998,
+                    "unit_cost": 420
+                }
+            ]
         },
         {
             "name": "New collection Hit western dress two piece Tops For Women",
@@ -309,7 +351,21 @@
             "cat": "fridege-&-ac",
             "brand": "RFL",
             "price": 2200,
-            "old": 2500
+            "old": 2500,
+            "stock_batches": [
+                {
+                    "supplier": "Apple",
+                    "batch_no": "DEMO-4-A",
+                    "quantity": 5995,
+                    "unit_cost": 1540
+                },
+                {
+                    "supplier": "Symphony",
+                    "batch_no": "DEMO-4-B",
+                    "quantity": 3998,
+                    "unit_cost": 1540
+                }
+            ]
         },
         {
             "name": "Intel Dual Core Desktop Computer Full Setup | Customizable 4-8GB RAM, 120GB SSD, 500GB-1TB HDD & Monitor | Affordable Budget Office & Gaming PC Windows 10 Pro 2025",
@@ -333,7 +389,21 @@
             "cat": "airbuds-items",
             "brand": "RFL",
             "price": 10250,
-            "old": 12000
+            "old": 12000,
+            "stock_batches": [
+                {
+                    "supplier": "Symphony",
+                    "batch_no": "DEMO-5-A",
+                    "quantity": 55,
+                    "unit_cost": 7175
+                },
+                {
+                    "supplier": "Pran",
+                    "batch_no": "DEMO-5-B",
+                    "quantity": 37,
+                    "unit_cost": 7175
+                }
+            ]
         },
         {
             "name": "Achillea Two Tone Vintage Jacquard Paisley Pashmina Shawl Wrap Scarf for woman muticolor",
@@ -357,7 +427,21 @@
             "cat": "fridege-&-ac",
             "brand": "RFL",
             "price": 1300,
-            "old": 12000
+            "old": 12000,
+            "stock_batches": [
+                {
+                    "supplier": "Pran",
+                    "batch_no": "DEMO-6-A",
+                    "quantity": 5989,
+                    "unit_cost": 910
+                },
+                {
+                    "supplier": "Meril",
+                    "batch_no": "DEMO-6-B",
+                    "quantity": 3993,
+                    "unit_cost": 910
+                }
+            ]
         },
         {
             "name": "Paragon Brown Egg 1 Dozen (Bundle of 3)",
@@ -381,7 +465,21 @@
             "cat": "android-mobile",
             "brand": "RFL",
             "price": 2200,
-            "old": 2500
+            "old": 2500,
+            "stock_batches": [
+                {
+                    "supplier": "Meril",
+                    "batch_no": "DEMO-7-A",
+                    "quantity": 5995,
+                    "unit_cost": 1540
+                },
+                {
+                    "supplier": "Gigabyte",
+                    "batch_no": "DEMO-7-B",
+                    "quantity": 3997,
+                    "unit_cost": 1540
+                }
+            ]
         },
         {
             "name": "zenx 2",
@@ -405,7 +503,21 @@
             "cat": "android-mobile",
             "brand": "RFL",
             "price": 4500,
-            "old": 3500
+            "old": 3500,
+            "stock_batches": [
+                {
+                    "supplier": "Gigabyte",
+                    "batch_no": "DEMO-8-A",
+                    "quantity": 6000,
+                    "unit_cost": 3150
+                },
+                {
+                    "supplier": "Walton",
+                    "batch_no": "DEMO-8-B",
+                    "quantity": 4000,
+                    "unit_cost": 3150
+                }
+            ]
         },
         {
             "name": "NEXG N76",
@@ -429,7 +541,21 @@
             "cat": "android-mobile",
             "brand": "RFL",
             "price": 22000,
-            "old": 25500
+            "old": 25500,
+            "stock_batches": [
+                {
+                    "supplier": "Walton",
+                    "batch_no": "DEMO-9-A",
+                    "quantity": 6000,
+                    "unit_cost": 15400
+                },
+                {
+                    "supplier": "Teer",
+                    "batch_no": "DEMO-9-B",
+                    "quantity": 4000,
+                    "unit_cost": 15400
+                }
+            ]
         },
         {
             "name": "ORBIT Y72",
@@ -453,7 +579,21 @@
             "cat": "android-mobile",
             "brand": "RFL",
             "price": 18500,
-            "old": 16500
+            "old": 16500,
+            "stock_batches": [
+                {
+                    "supplier": "Teer",
+                    "batch_no": "DEMO-10-A",
+                    "quantity": 6000,
+                    "unit_cost": 12950
+                },
+                {
+                    "supplier": "Jiver Sadh",
+                    "batch_no": "DEMO-10-B",
+                    "quantity": 4000,
+                    "unit_cost": 12950
+                }
+            ]
         },
         {
             "name": "XANON X1 ULTRA",
@@ -477,7 +617,21 @@
             "cat": "android-mobile",
             "brand": "RFL",
             "price": 600,
-            "old": 1200
+            "old": 1200,
+            "stock_batches": [
+                {
+                    "supplier": "Jiver Sadh",
+                    "batch_no": "DEMO-11-A",
+                    "quantity": 6000,
+                    "unit_cost": 420
+                },
+                {
+                    "supplier": "7 UP",
+                    "batch_no": "DEMO-11-B",
+                    "quantity": 4000,
+                    "unit_cost": 420
+                }
+            ]
         },
         {
             "name": "VISION 65\" QLED TV Google Android 4K PQ1 Galaxy Pro",
@@ -501,7 +655,21 @@
             "cat": "tv-&-monitor",
             "brand": "RFL",
             "price": 12500,
-            "old": 24500
+            "old": 24500,
+            "stock_batches": [
+                {
+                    "supplier": "7 UP",
+                    "batch_no": "DEMO-12-A",
+                    "quantity": 5999,
+                    "unit_cost": 8750
+                },
+                {
+                    "supplier": "Konka",
+                    "batch_no": "DEMO-12-B",
+                    "quantity": 4000,
+                    "unit_cost": 8750
+                }
+            ]
         },
         {
             "name": "VISION 65\" QLED TV Google Android 4K PQ1 Galaxy Pro",
@@ -525,7 +693,21 @@
             "cat": "tv-&-monitor",
             "brand": "RFL",
             "price": 10250,
-            "old": 12000
+            "old": 12000,
+            "stock_batches": [
+                {
+                    "supplier": "Konka",
+                    "batch_no": "DEMO-13-A",
+                    "quantity": 6000,
+                    "unit_cost": 7175
+                },
+                {
+                    "supplier": "General Supplier",
+                    "batch_no": "DEMO-13-B",
+                    "quantity": 4000,
+                    "unit_cost": 7175
+                }
+            ]
         },
         {
             "name": "VISION 65\" QLED TV Google Android 4K PQ1 Galaxy Pro",
@@ -549,7 +731,21 @@
             "cat": "tv-&-monitor",
             "brand": "RFL",
             "price": 600,
-            "old": 1200
+            "old": 1200,
+            "stock_batches": [
+                {
+                    "supplier": "General Supplier",
+                    "batch_no": "DEMO-14-A",
+                    "quantity": 5999,
+                    "unit_cost": 420
+                },
+                {
+                    "supplier": "Demo Distributor",
+                    "batch_no": "DEMO-14-B",
+                    "quantity": 4000,
+                    "unit_cost": 420
+                }
+            ]
         },
         {
             "name": "Vision 32\" Z30 Smart LED Optima Google TV",
@@ -573,7 +769,21 @@
             "cat": "tv-&-monitor",
             "brand": "RFL",
             "price": 10250,
-            "old": 12000
+            "old": 12000,
+            "stock_batches": [
+                {
+                    "supplier": "Demo Distributor",
+                    "batch_no": "DEMO-15-A",
+                    "quantity": 5999,
+                    "unit_cost": 7175
+                },
+                {
+                    "supplier": "Wholesale Hub BD",
+                    "batch_no": "DEMO-15-B",
+                    "quantity": 4000,
+                    "unit_cost": 7175
+                }
+            ]
         },
         {
             "name": "Vision 32\" LED TV Q10S Google TV",
@@ -597,7 +807,21 @@
             "cat": "tv-&-monitor",
             "brand": "RFL",
             "price": 2200,
-            "old": 2500
+            "old": 2500,
+            "stock_batches": [
+                {
+                    "supplier": "Wholesale Hub BD",
+                    "batch_no": "DEMO-16-A",
+                    "quantity": 5998,
+                    "unit_cost": 1540
+                },
+                {
+                    "supplier": "RFL",
+                    "batch_no": "DEMO-16-B",
+                    "quantity": 4000,
+                    "unit_cost": 1540
+                }
+            ]
         },
         {
             "name": "Wireless Earbuds A9 Pro Touch Screen ANC Wireless Earphones - TWS Noise-Cancelling Earbuds, Bluetooth 5.3, Long Battery Life, HiFi Sound Quality",
@@ -621,7 +845,21 @@
             "cat": "airbuds-items",
             "brand": "RFL",
             "price": 10250,
-            "old": 1200
+            "old": 1200,
+            "stock_batches": [
+                {
+                    "supplier": "RFL",
+                    "batch_no": "DEMO-17-A",
+                    "quantity": 6000,
+                    "unit_cost": 7175
+                },
+                {
+                    "supplier": "Samsung",
+                    "batch_no": "DEMO-17-B",
+                    "quantity": 4000,
+                    "unit_cost": 7175
+                }
+            ]
         },
         {
             "name": "895B TWS Headphones Earphone Bluetooth-compatible 5.3 Earbuds Touch Control Stereo Bass Headphone LED Digital Display 5.4 Wireless Earphone multycolour",
@@ -645,7 +883,21 @@
             "cat": "airbuds-items",
             "brand": "RFL",
             "price": 2200,
-            "old": 1200
+            "old": 1200,
+            "stock_batches": [
+                {
+                    "supplier": "Samsung",
+                    "batch_no": "DEMO-18-A",
+                    "quantity": 5999,
+                    "unit_cost": 1540
+                },
+                {
+                    "supplier": "LG",
+                    "batch_no": "DEMO-18-B",
+                    "quantity": 4000,
+                    "unit_cost": 1540
+                }
+            ]
         },
         {
             "name": "M10 tws Wireless Earphone Touch Bluetooth Earplug In Ear Stereo Sport Headsets cvc8.0 Digital Display Black Good If With No Reduction Headphones",
@@ -669,7 +921,21 @@
             "cat": "airbuds-items",
             "brand": "RFL",
             "price": 2200,
-            "old": 1200
+            "old": 1200,
+            "stock_batches": [
+                {
+                    "supplier": "LG",
+                    "batch_no": "DEMO-19-A",
+                    "quantity": 5998,
+                    "unit_cost": 1540
+                },
+                {
+                    "supplier": "Apple",
+                    "batch_no": "DEMO-19-B",
+                    "quantity": 3999,
+                    "unit_cost": 1540
+                }
+            ]
         },
         {
             "name": "M10 Tws Wireless Earphone Touch Bluetooth Earplugs In-Ear Stereo Sport Headsets Cvc8.0 Noise Reduction Headphones With Digital Display - Bulotooth Headphone - Bluetooth Headphone",
@@ -693,7 +959,21 @@
             "cat": "airbuds-items",
             "brand": "RFL",
             "price": 2200,
-            "old": 12000
+            "old": 12000,
+            "stock_batches": [
+                {
+                    "supplier": "Apple",
+                    "batch_no": "DEMO-20-A",
+                    "quantity": 5998,
+                    "unit_cost": 1540
+                },
+                {
+                    "supplier": "Symphony",
+                    "batch_no": "DEMO-20-B",
+                    "quantity": 4000,
+                    "unit_cost": 1540
+                }
+            ]
         },
         {
             "name": "M10 Tws Wireless Earphone Touch Bluetooth Earplugs In-Ear Stereo Sport Headsets Cvc8.0 Noise Reduction Headphones With Digital Display - Bulotooth Headphone - Bluetooth Headphone",
@@ -717,7 +997,21 @@
             "cat": "airbuds-items",
             "brand": "RFL",
             "price": 2200,
-            "old": 2500
+            "old": 2500,
+            "stock_batches": [
+                {
+                    "supplier": "Symphony",
+                    "batch_no": "DEMO-21-A",
+                    "quantity": 5997,
+                    "unit_cost": 1540
+                },
+                {
+                    "supplier": "Pran",
+                    "batch_no": "DEMO-21-B",
+                    "quantity": 3999,
+                    "unit_cost": 1540
+                }
+            ]
         }
     ],
     "blogs": [
@@ -784,6 +1078,120 @@
             "category_id": 1,
             "image": "public/uploads/images/banner-17647810521457239_Regal Topslider Web (3).webp",
             "link": "#"
+        }
+    ],
+    "suppliers": [
+        {
+            "name": "RFL",
+            "phone": "01700000000",
+            "email": "rfl@demo.com",
+            "address": "Demo Address, Dhaka, Bangladesh",
+            "status": 1
+        },
+        {
+            "name": "Samsung",
+            "phone": "01700000001",
+            "email": "samsung@demo.com",
+            "address": "Demo Address, Dhaka, Bangladesh",
+            "status": 1
+        },
+        {
+            "name": "LG",
+            "phone": "01700000002",
+            "email": "lg@demo.com",
+            "address": "Demo Address, Dhaka, Bangladesh",
+            "status": 1
+        },
+        {
+            "name": "Apple",
+            "phone": "01700000003",
+            "email": "apple@demo.com",
+            "address": "Demo Address, Dhaka, Bangladesh",
+            "status": 1
+        },
+        {
+            "name": "Symphony",
+            "phone": "01700000004",
+            "email": "symphony@demo.com",
+            "address": "Demo Address, Dhaka, Bangladesh",
+            "status": 1
+        },
+        {
+            "name": "Pran",
+            "phone": "01700000005",
+            "email": "pran@demo.com",
+            "address": "Demo Address, Dhaka, Bangladesh",
+            "status": 1
+        },
+        {
+            "name": "Meril",
+            "phone": "01700000006",
+            "email": "meril@demo.com",
+            "address": "Demo Address, Dhaka, Bangladesh",
+            "status": 1
+        },
+        {
+            "name": "Gigabyte",
+            "phone": "01700000007",
+            "email": "gigabyte@demo.com",
+            "address": "Demo Address, Dhaka, Bangladesh",
+            "status": 1
+        },
+        {
+            "name": "Walton",
+            "phone": "01700000008",
+            "email": "walton@demo.com",
+            "address": "Demo Address, Dhaka, Bangladesh",
+            "status": 1
+        },
+        {
+            "name": "Teer",
+            "phone": "01700000009",
+            "email": "teer@demo.com",
+            "address": "Demo Address, Dhaka, Bangladesh",
+            "status": 1
+        },
+        {
+            "name": "Jiver Sadh",
+            "phone": "01700000010",
+            "email": "jiversadh@demo.com",
+            "address": "Demo Address, Dhaka, Bangladesh",
+            "status": 1
+        },
+        {
+            "name": "7 UP",
+            "phone": "01700000011",
+            "email": "7up@demo.com",
+            "address": "Demo Address, Dhaka, Bangladesh",
+            "status": 1
+        },
+        {
+            "name": "Konka",
+            "phone": "01700000012",
+            "email": "konka@demo.com",
+            "address": "Demo Address, Dhaka, Bangladesh",
+            "status": 1
+        },
+        {
+            "name": "General Supplier",
+            "phone": "01700000013",
+            "email": "generalsupplier@demo.com",
+            "address": "Demo Address, Dhaka, Bangladesh",
+            "status": 1
+        },
+        {
+            "name": "Demo Distributor",
+            "phone": "01700000014",
+            "email": "demodistributor@demo.com",
+            "address": "Demo Address, Dhaka, Bangladesh",
+            "status": 1
+        },
+        {
+            "name": "Wholesale Hub BD",
+            "phone": "01700000015",
+            "email": "wholesalehubbd@demo.com",
+            "address": "Demo Address, Dhaka, Bangladesh",
+            "status": 1
         }
     ]
 }

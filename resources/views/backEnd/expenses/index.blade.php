@@ -233,6 +233,7 @@
                         <td>{{ $exp->note }}</td>
                         @if($isAdmin)
                         <td>
+                            @if($exp->isEditable())
                             <div class="d-flex gap-2">
                                 <a href="{{ route('admin.expenses.edit', $exp->id) }}" class="btn btn-sm btn-outline-primary" title="{{ __('Edit') }}">
                                     <i class="fe-edit"></i>
@@ -245,6 +246,11 @@
                                     </button>
                                 </form>
                             </div>
+                            @else
+                            <span class="badge bg-secondary" title="System-generated expense — linked to warranty, not editable">
+                                🔒 {{ __('System') }}
+                            </span>
+                            @endif
                         </td>
                         @endif
                     </tr>

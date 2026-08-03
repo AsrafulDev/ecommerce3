@@ -1893,8 +1893,12 @@ class OrderController extends Controller
     public function order_create()
     {
         // ✅ Limit products for POS dropdown to avoid memory issues
+        // Active → visible everywhere; Private → POS only (draft hidden everywhere)
         $products = Product::select('id', 'name', 'new_price','stock', 'product_code')
-            ->where(['status' => 1])
+            ->where(function ($q) {
+                $q->where('status', 1)
+                  ->orWhere('publish_status', Product::STATUS_PRIVATE);
+            })
             ->limit(100)
             ->get();
 
@@ -1983,6 +1987,15 @@ class OrderController extends Controller
         $order->payment_status = $paid >= $total ? 'paid' : ($paid > 0 ? 'partial' : 'pending');
         $order->note           = $request->note;
         $order->save();
+
+        log_activity('order', 'create', 'Created order #' . $order->invoice_id . ' — ৳' . number_format($order->amount, 2) . ' (' . $order->payment_status . ')', $order, [
+            'customer_id'    => $order->customer_id,
+            'amount'         => $order->amount,
+            'paid'           => $order->paid_amount,
+            'due'            => $order->due_amount,
+            'payment_status' => $order->payment_status,
+            'order_status'   => $order->order_status,
+        ]);
 
         // Record order note with payment info
         $order->addNote(
@@ -2776,6 +2789,13 @@ class OrderController extends Controller
             ? ($order->paid_amount > 0 ? 'paid' : 'pending')
             : ($order->paid_amount > 0 ? 'partial' : 'pending');
         $order->save();
+
+        log_activity('order', 'update', 'Updated order #' . $order->invoice_id . ' — status ' . $oldOrderStatus . ' → ' . $order->order_status, $order, [
+            'old_status'     => $oldOrderStatus,
+            'new_status'     => $order->order_status,
+            'amount'         => $order->amount,
+            'payment_status' => $order->payment_status,
+        ]);
 
         $shipping           = Shipping::where('order_id', $order->id)->firstOrFail();
         $shipping->name     = $request->name;

@@ -139,6 +139,11 @@ class ExpenseController extends Controller
     {
         $expense = Expense::findOrFail($id);
 
+        if ($expense->isSystemGenerated()) {
+            return redirect()->route('admin.expenses.index')
+                ->with('error', 'This expense is system-generated (' . $expense->category . ') and cannot be edited.');
+        }
+
         // উপরে summary একই থাকবে
         $total_in  = FundTransaction::where('direction', 'in')->sum('amount');
         $total_out = FundTransaction::where('direction', 'out')->sum('amount');
@@ -188,6 +193,11 @@ class ExpenseController extends Controller
         return DB::transaction(function () use ($validated, $id) {
             $expense = Expense::findOrFail($id);
 
+            if ($expense->isSystemGenerated()) {
+                return redirect()->route('admin.expenses.index')
+                    ->with('error', 'This expense is system-generated (' . $expense->category . ') and cannot be edited.');
+            }
+
             // Save old values for logging
             $old_title = $expense->title;
             $old_amount = $expense->amount;
@@ -235,23 +245,32 @@ class ExpenseController extends Controller
                 $fund_balance_before, $fund_balance_after
             );
 
-            ExpenseLog::create([
-                'expense_id' => $expense->id,
-                'action' => 'edit',
-                'old_title' => $old_title,
-                'new_title' => $validated['title'],
-                'old_amount' => $old_amount,
-                'new_amount' => $validated['amount'],
-                'old_expense_date' => $old_expense_date,
-                'new_expense_date' => $validated['expense_date'],
-                'old_category' => $old_category,
-                'new_category' => $validated['category'] ?? null,
-                'old_note' => $old_note,
-                'new_note' => $validated['note'] ?? null,
-                'fund_balance_before' => $fund_balance_before,
-                'fund_balance_after' => $fund_balance_after,
-                'description' => $description,
-                'performed_by' => Auth::id(),
+            try {
+                ExpenseLog::create([
+                    'expense_id' => $expense->id,
+                    'action' => 'edit',
+                    'old_title' => $old_title,
+                    'new_title' => $validated['title'],
+                    'old_amount' => $old_amount,
+                    'new_amount' => $validated['amount'],
+                    'old_expense_date' => $old_expense_date,
+                    'new_expense_date' => $validated['expense_date'],
+                    'old_category' => $old_category,
+                    'new_category' => $validated['category'] ?? null,
+                    'old_note' => $old_note,
+                    'new_note' => $validated['note'] ?? null,
+                    'fund_balance_before' => $fund_balance_before,
+                    'fund_balance_after' => $fund_balance_after,
+                    'description' => $description,
+                    'performed_by' => Auth::id(),
+                ]);
+            } catch (\Throwable $e) {
+                // skip — logging must never break the expense update
+            }
+
+            log_activity('expense', 'update', 'Expense #' . $expense->id . ' updated', $expense, [
+                'old' => ['title' => $old_title, 'amount' => $old_amount, 'category' => $old_category],
+                'new' => ['title' => $validated['title'], 'amount' => $validated['amount'], 'category' => $validated['category'] ?? null],
             ]);
 
             return redirect()->route('admin.expenses.index')
@@ -301,6 +320,11 @@ class ExpenseController extends Controller
         return DB::transaction(function () use ($id) {
             $expense = Expense::findOrFail($id);
 
+            if ($expense->isSystemGenerated()) {
+                return redirect()->route('admin.expenses.index')
+                    ->with('error', 'This expense is system-generated (' . $expense->category . ') and cannot be deleted.');
+            }
+
             // Save expense data for logging
             $old_title = $expense->title;
             $old_amount = $expense->amount;
@@ -322,23 +346,31 @@ class ExpenseController extends Controller
             $balance_sign = ($balance_diff > 0) ? '+' : '';
             $description = "Expense deleted: '{$old_title}' ({$old_amount}). Fund balance changed from {$fund_balance_before} to {$expected_balance_after} ({$balance_sign}{$balance_diff})";
 
-            ExpenseLog::create([
-                'expense_id' => $id,
-                'action' => 'delete',
-                'old_title' => $old_title,
-                'new_title' => null,
-                'old_amount' => $old_amount,
-                'new_amount' => null,
-                'old_expense_date' => $old_expense_date,
-                'new_expense_date' => null,
-                'old_category' => $old_category,
-                'new_category' => null,
-                'old_note' => $old_note,
-                'new_note' => null,
-                'fund_balance_before' => $fund_balance_before,
-                'fund_balance_after' => $expected_balance_after,
-                'description' => $description,
-                'performed_by' => Auth::id(),
+            try {
+                ExpenseLog::create([
+                    'expense_id' => $id,
+                    'action' => 'delete',
+                    'old_title' => $old_title,
+                    'new_title' => null,
+                    'old_amount' => $old_amount,
+                    'new_amount' => null,
+                    'old_expense_date' => $old_expense_date,
+                    'new_expense_date' => null,
+                    'old_category' => $old_category,
+                    'new_category' => null,
+                    'old_note' => $old_note,
+                    'new_note' => null,
+                    'fund_balance_before' => $fund_balance_before,
+                    'fund_balance_after' => $expected_balance_after,
+                    'description' => $description,
+                    'performed_by' => Auth::id(),
+                ]);
+            } catch (\Throwable $e) {
+                // skip — logging must never break the expense delete
+            }
+
+            log_activity('expense', 'delete', 'Expense #' . $id . ' deleted (' . $old_title . ')', $expense, [
+                'old' => ['title' => $old_title, 'amount' => $old_amount, 'category' => $old_category],
             ]);
 
             // Delete linked fund transaction first (if exists)

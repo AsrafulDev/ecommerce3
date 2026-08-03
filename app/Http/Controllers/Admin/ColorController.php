@@ -38,6 +38,38 @@ class ColorController extends Controller
         Toastr::success('Success','Data insert successfully');
         return redirect()->route('colors.index');
     }
+
+    /**
+     * Import a default set of colors (only when the list is empty).
+     */
+    public function importDefault()
+    {
+        if (Color::count() > 0) {
+            Toastr::warning('Colors already exist. Nothing imported.', 'Info');
+            return redirect()->back();
+        }
+
+        $defaults = [
+            ['colorName' => 'Red',    'color' => '#FF0000'],
+            ['colorName' => 'Blue',   'color' => '#0000FF'],
+            ['colorName' => 'Green',  'color' => '#008000'],
+            ['colorName' => 'Yellow', 'color' => '#FFFF00'],
+            ['colorName' => 'Black',  'color' => '#000000'],
+            ['colorName' => 'White',  'color' => '#FFFFFF'],
+            ['colorName' => 'Orange', 'color' => '#FFA500'],
+            ['colorName' => 'Purple', 'color' => '#800080'],
+            ['colorName' => 'Pink',   'color' => '#FFC0CB'],
+            ['colorName' => 'Brown',  'color' => '#A52A2A'],
+            ['colorName' => 'Gray',   'color' => '#808080'],
+            ['colorName' => 'Navy',   'color' => '#000080'],
+        ];
+        foreach ($defaults as $item) {
+            Color::create($item + ['status' => 1]);
+        }
+
+        Toastr::success('Default colors imported successfully', 'Success');
+        return redirect()->route('colors.index');
+    }
     
     public function edit($id)
     {

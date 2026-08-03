@@ -247,15 +247,15 @@
                             <small class="text-muted"> {{ __('Special price for resellers. Leave empty if not applicable.') }} </small>
                         </div>
 
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label"> {{ __('Total Stock') }} <small class="text-muted">(Optional)</small></label>
-                                <input type="number" name="stock" class="form-control" placeholder="0">
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label"> {{ __('Unit (kg/pc)') }} </label>
-                                <input type="text" name="pro_unit" class="form-control" placeholder="e.g. pcs">
-                            </div>
+                        <div class="form-group mb-3">
+                            <label class="form-label"> {{ __('Unit (kg/pc)') }} </label>
+                            <input type="text" name="pro_unit" class="form-control" placeholder="e.g. pcs">
+                        </div>
+
+                        {{-- Stock is managed via purchase batches — no manual total stock input --}}
+                        <div class="alert alert-info py-2 px-3 mb-0" role="alert">
+                            <i class="fe-info me-1"></i>
+                            <strong>{{ __('Total Quantity') }}</strong> — {{ __('Stock is managed through purchase batches (batch-wise quantity & purchase price). You can add stock after creating the product.') }}
                         </div>
 
                         {{-- 🆕 Barcode & Stock Management Fields --}}
@@ -393,8 +393,12 @@
                             <label class="form-label"> {{ __('Product Type') }} </label>
                             <select class="form-control bg-light" id="product_type" name="product_type">
                                 <option value="simple" selected>📦 Simple Product</option>
+                                <option value="variable">🎨 Variable Product</option>
                                 <option value="digital">💾 Digital Product</option>
                             </select>
+                            <small class="text-muted d-block mt-1">
+                                <strong>Simple:</strong> Single price & stock | <strong>Variable:</strong> Multiple variants with different prices (Color, Size, etc.)
+                            </small>
                         </div>
 
                         <div class="form-group mb-3" id="advance_area">
@@ -443,21 +447,31 @@
                             </small>
                         </div>
 
+                        {{-- 🏷️ Product Status: Active / Draft / Private --}}
+                        <div class="form-group mb-3">
+                            <label class="form-label">{{ __('Product Status') }}</label>
+                            <select class="form-control form-select" name="publish_status">
+                                <option value="active" {{ old('publish_status', 'active') === 'active' ? 'selected' : '' }}>🟢 {{ __('Active (Present)') }}</option>
+                                <option value="draft" {{ old('publish_status', 'active') === 'draft' ? 'selected' : '' }}>📝 {{ __('Draft') }}</option>
+                                <option value="private" {{ old('publish_status', 'active') === 'private' ? 'selected' : '' }}>🔒 {{ __('Private') }}</option>
+                            </select>
+                            <small class="text-muted d-block mt-1">
+                                <strong>Active:</strong> {{ __('Visible in storefront') }} |
+                                <strong>Draft:</strong> {{ __('Hidden (work in progress)') }} |
+                                <strong>Private:</strong> {{ __('Hidden from customers') }}
+                            </small>
+                        </div>
+
                         <div class="row text-center mb-3">
                             <div class="col-4 mb-2">
-                                <label class="d-block form-label">{{ __('Status') }}</label>
-                                <label class="switch"><input type="checkbox" value="1" name="status" checked><span class="slider round"></span></label>
-                            </div>
-                            <div class="col-4 mb-2">
-                                <label class="d-block form-label"> {{ __('Hot Deal') }} </label>
+                                <label class="d-block form-label"> {{ __('Hot Deals') }} </label>
                                 <label class="switch"><input type="checkbox" value="1" name="topsale"><span class="slider round"></span></label>
                             </div>
-                           
-                            <div class="col-6">
+                            <div class="col-4 mb-2">
                                 <label class="d-block form-label">{{ __('Flash Sale') }}</label>
                                 <label class="switch"><input type="checkbox" value="1" name="flashsale"><span class="slider round"></span></label>
                             </div>
-                             <div class="col-6">
+                            <div class="col-4 mb-2">
                                 <label class="form-label">{{ __('Brand') }}</label>
                                 <select class="form-control select2" name="brand_id">
                                     <option value="">{{ __('None') }}</option>

@@ -238,7 +238,21 @@
             "cat": "electronics",
             "brand": "RFL",
             "price": 1300,
-            "old": 1200
+            "old": 1200,
+            "stock_batches": [
+                {
+                    "supplier": "RFL",
+                    "batch_no": "DEMO-1-A",
+                    "quantity": 575,
+                    "unit_cost": 910
+                },
+                {
+                    "supplier": "Samsung",
+                    "batch_no": "DEMO-1-B",
+                    "quantity": 384,
+                    "unit_cost": 910
+                }
+            ]
         },
         {
             "name": "JR-CL06 154W Car cigarette lighter adapter with three sockets + 6 ports",
@@ -265,7 +279,21 @@
             "cat": "electronics",
             "brand": "RFL",
             "price": 2600,
-            "old": 1900
+            "old": 1900,
+            "stock_batches": [
+                {
+                    "supplier": "Samsung",
+                    "batch_no": "DEMO-2-A",
+                    "quantity": 565,
+                    "unit_cost": 1820
+                },
+                {
+                    "supplier": "LG",
+                    "batch_no": "DEMO-2-B",
+                    "quantity": 377,
+                    "unit_cost": 1820
+                }
+            ]
         },
         {
             "name": "Premium Chiffon Hijab",
@@ -293,7 +321,21 @@
             "cat": "fashion",
             "brand": "RFL",
             "price": 1200,
-            "old": 1900
+            "old": 1900,
+            "stock_batches": [
+                {
+                    "supplier": "LG",
+                    "batch_no": "DEMO-3-A",
+                    "quantity": 587,
+                    "unit_cost": 840
+                },
+                {
+                    "supplier": "Apple",
+                    "batch_no": "DEMO-3-B",
+                    "quantity": 392,
+                    "unit_cost": 840
+                }
+            ]
         },
         {
             "name": "Jersey Stretch Hijab",
@@ -320,7 +362,21 @@
             "cat": "fashion",
             "brand": "RFL",
             "price": 600,
-            "old": 1200
+            "old": 1200,
+            "stock_batches": [
+                {
+                    "supplier": "Apple",
+                    "batch_no": "DEMO-4-A",
+                    "quantity": 581,
+                    "unit_cost": 420
+                },
+                {
+                    "supplier": "Symphony",
+                    "batch_no": "DEMO-4-B",
+                    "quantity": 388,
+                    "unit_cost": 420
+                }
+            ]
         },
         {
             "name": "Fresh Green Vegetables Basket",
@@ -344,7 +400,21 @@
             "cat": "groceries",
             "brand": "RFL",
             "price": 800,
-            "old": 1200
+            "old": 1200,
+            "stock_batches": [
+                {
+                    "supplier": "Symphony",
+                    "batch_no": "DEMO-5-A",
+                    "quantity": 711,
+                    "unit_cost": 560
+                },
+                {
+                    "supplier": "Pran",
+                    "batch_no": "DEMO-5-B",
+                    "quantity": 475,
+                    "unit_cost": 560
+                }
+            ]
         },
         {
             "name": "Pure Mustard Oil (1L)",
@@ -371,7 +441,21 @@
             "cat": "groceries",
             "brand": "RFL",
             "price": 1200,
-            "old": 1900
+            "old": 1900,
+            "stock_batches": [
+                {
+                    "supplier": "Pran",
+                    "batch_no": "DEMO-6-A",
+                    "quantity": 588,
+                    "unit_cost": 840
+                },
+                {
+                    "supplier": "Meril",
+                    "batch_no": "DEMO-6-B",
+                    "quantity": 392,
+                    "unit_cost": 840
+                }
+            ]
         },
         {
             "name": "Radiance Glow Face Serum",
@@ -397,7 +481,21 @@
             "cat": "beauty",
             "brand": "RFL",
             "price": 1300,
-            "old": 1200
+            "old": 1200,
+            "stock_batches": [
+                {
+                    "supplier": "Meril",
+                    "batch_no": "DEMO-7-A",
+                    "quantity": 589,
+                    "unit_cost": 910
+                },
+                {
+                    "supplier": "Gigabyte",
+                    "batch_no": "DEMO-7-B",
+                    "quantity": 394,
+                    "unit_cost": 910
+                }
+            ]
         },
         {
             "name": "Herbal Green Tea Face Wash",
@@ -424,7 +522,21 @@
             "cat": "beauty",
             "brand": "RFL",
             "price": 1200,
-            "old": 2100
+            "old": 2100,
+            "stock_batches": [
+                {
+                    "supplier": "Gigabyte",
+                    "batch_no": "DEMO-8-A",
+                    "quantity": 589,
+                    "unit_cost": 840
+                },
+                {
+                    "supplier": "Walton",
+                    "batch_no": "DEMO-8-B",
+                    "quantity": 394,
+                    "unit_cost": 840
+                }
+            ]
         },
         {
             "name": "Premium Cotton Full Sleeve Casual Shirt For Men",
@@ -450,7 +562,21 @@
             "cat": "fashion",
             "brand": "RFL",
             "price": 1300,
-            "old": 1900
+            "old": 1900,
+            "stock_batches": [
+                {
+                    "supplier": "Walton",
+                    "batch_no": "DEMO-9-A",
+                    "quantity": 590,
+                    "unit_cost": 910
+                },
+                {
+                    "supplier": "Teer",
+                    "batch_no": "DEMO-9-B",
+                    "quantity": 394,
+                    "unit_cost": 910
+                }
+            ]
         },
         {
             "name": "New Stylish & Smart Looking Trendy Cotton Oxford Long Sleeve Casual Shirt For Men By SALMA XPORT (LX)",
@@ -477,7 +603,21 @@
             "cat": "fashion",
             "brand": "RFL",
             "price": 2600,
-            "old": 1200
+            "old": 1200,
+            "stock_batches": [
+                {
+                    "supplier": "Teer",
+                    "batch_no": "DEMO-10-A",
+                    "quantity": 39,
+                    "unit_cost": 1820
+                },
+                {
+                    "supplier": "Jiver Sadh",
+                    "batch_no": "DEMO-10-B",
+                    "quantity": 26,
+                    "unit_cost": 1820
+                }
+            ]
         },
         {
             "name": "Linenn Clothing Customized Man Casual Lightweight Linen Trousers Elastic Waist Straight Leg Men Pants",
@@ -503,7 +643,21 @@
             "cat": "fashion",
             "brand": "RFL",
             "price": 1300,
-            "old": 1200
+            "old": 1200,
+            "stock_batches": [
+                {
+                    "supplier": "Jiver Sadh",
+                    "batch_no": "DEMO-11-A",
+                    "quantity": 579,
+                    "unit_cost": 910
+                },
+                {
+                    "supplier": "7 UP",
+                    "batch_no": "DEMO-11-B",
+                    "quantity": 387,
+                    "unit_cost": 910
+                }
+            ]
         },
         {
             "name": "Cotton Narrow Fit Pajama for Men White Color",
@@ -530,7 +684,21 @@
             "cat": "fashion",
             "brand": "RFL",
             "price": 1300,
-            "old": 1900
+            "old": 1900,
+            "stock_batches": [
+                {
+                    "supplier": "7 UP",
+                    "batch_no": "DEMO-12-A",
+                    "quantity": 556,
+                    "unit_cost": 910
+                },
+                {
+                    "supplier": "Konka",
+                    "batch_no": "DEMO-12-B",
+                    "quantity": 372,
+                    "unit_cost": 910
+                }
+            ]
         },
         {
             "name": "CanvaProOwner (500 Member Add)",
@@ -554,7 +722,21 @@
             "cat": "digital-items",
             "brand": "RFL",
             "price": 1300,
-            "old": 1200
+            "old": 1200,
+            "stock_batches": [
+                {
+                    "supplier": "Konka",
+                    "batch_no": "DEMO-13-A",
+                    "quantity": 586,
+                    "unit_cost": 910
+                },
+                {
+                    "supplier": "General Supplier",
+                    "batch_no": "DEMO-13-B",
+                    "quantity": 392,
+                    "unit_cost": 910
+                }
+            ]
         },
         {
             "name": "Premium Membership (Digital Product & Agency Business)",
@@ -578,7 +760,21 @@
             "cat": "digital-items",
             "brand": "RFL",
             "price": 3,
-            "old": 1200
+            "old": 1200,
+            "stock_batches": [
+                {
+                    "supplier": "General Supplier",
+                    "batch_no": "DEMO-14-A",
+                    "quantity": 564,
+                    "unit_cost": 2
+                },
+                {
+                    "supplier": "Demo Distributor",
+                    "batch_no": "DEMO-14-B",
+                    "quantity": 376,
+                    "unit_cost": 2
+                }
+            ]
         },
         {
             "name": "Samsung A0724",
@@ -604,7 +800,21 @@
             "cat": "electronics",
             "brand": "RFL",
             "price": 1,
-            "old": 12000
+            "old": 12000,
+            "stock_batches": [
+                {
+                    "supplier": "Demo Distributor",
+                    "batch_no": "DEMO-15-A",
+                    "quantity": 553,
+                    "unit_cost": 1
+                },
+                {
+                    "supplier": "Wholesale Hub BD",
+                    "batch_no": "DEMO-15-B",
+                    "quantity": 370,
+                    "unit_cost": 1
+                }
+            ]
         },
         {
             "name": "TV Box",
@@ -628,7 +838,21 @@
             "cat": "electronics",
             "brand": "RFL",
             "price": 2200,
-            "old": 2500
+            "old": 2500,
+            "stock_batches": [
+                {
+                    "supplier": "Wholesale Hub BD",
+                    "batch_no": "DEMO-16-A",
+                    "quantity": 141,
+                    "unit_cost": 1540
+                },
+                {
+                    "supplier": "RFL",
+                    "batch_no": "DEMO-16-B",
+                    "quantity": 94,
+                    "unit_cost": 1540
+                }
+            ]
         },
         {
             "name": "The only reason",
@@ -652,7 +876,21 @@
             "cat": "electronics",
             "brand": "RFL",
             "price": 3000,
-            "old": 2009
+            "old": 2009,
+            "stock_batches": [
+                {
+                    "supplier": "RFL",
+                    "batch_no": "DEMO-17-A",
+                    "quantity": 51,
+                    "unit_cost": 2100
+                },
+                {
+                    "supplier": "Samsung",
+                    "batch_no": "DEMO-17-B",
+                    "quantity": 35,
+                    "unit_cost": 2100
+                }
+            ]
         },
         {
             "name": "Jononi Madical Hall",
@@ -678,7 +916,21 @@
             "cat": "fashion",
             "brand": "RFL",
             "price": 350,
-            "old": 400
+            "old": 400,
+            "stock_batches": [
+                {
+                    "supplier": "Samsung",
+                    "batch_no": "DEMO-18-A",
+                    "quantity": 56,
+                    "unit_cost": 245
+                },
+                {
+                    "supplier": "LG",
+                    "batch_no": "DEMO-18-B",
+                    "quantity": 38,
+                    "unit_cost": 245
+                }
+            ]
         },
         {
             "name": "3 in 1 Travel Pillow Set",
@@ -702,7 +954,21 @@
             "cat": "trendy",
             "brand": "RFL",
             "price": 900,
-            "old": 800
+            "old": 800,
+            "stock_batches": [
+                {
+                    "supplier": "LG",
+                    "batch_no": "DEMO-19-A",
+                    "quantity": 57,
+                    "unit_cost": 630
+                },
+                {
+                    "supplier": "Apple",
+                    "batch_no": "DEMO-19-B",
+                    "quantity": 39,
+                    "unit_cost": 630
+                }
+            ]
         },
         {
             "name": "HTC AT-538 Hair And Beard Trimmer For Men",
@@ -726,7 +992,21 @@
             "cat": "trendy",
             "brand": "RFL",
             "price": 600,
-            "old": 500
+            "old": 500,
+            "stock_batches": [
+                {
+                    "supplier": "Apple",
+                    "batch_no": "DEMO-20-A",
+                    "quantity": 5995,
+                    "unit_cost": 420
+                },
+                {
+                    "supplier": "Symphony",
+                    "batch_no": "DEMO-20-B",
+                    "quantity": 3998,
+                    "unit_cost": 420
+                }
+            ]
         },
         {
             "name": "New collection Hit western dress two piece Tops For Women",
@@ -750,7 +1030,21 @@
             "cat": "fashion",
             "brand": "RFL",
             "price": 2200,
-            "old": 2500
+            "old": 2500,
+            "stock_batches": [
+                {
+                    "supplier": "Symphony",
+                    "batch_no": "DEMO-21-A",
+                    "quantity": 5995,
+                    "unit_cost": 1540
+                },
+                {
+                    "supplier": "Pran",
+                    "batch_no": "DEMO-21-B",
+                    "quantity": 3997,
+                    "unit_cost": 1540
+                }
+            ]
         },
         {
             "name": "Intel Dual Core Desktop Computer Full Setup | Customizable 4-8GB RAM, 120GB SSD, 500GB-1TB HDD & Monitor | Affordable Budget Office & Gaming PC Windows 10 Pro 2025",
@@ -774,7 +1068,21 @@
             "cat": "appliances",
             "brand": "RFL",
             "price": 10250,
-            "old": 12000
+            "old": 12000,
+            "stock_batches": [
+                {
+                    "supplier": "Pran",
+                    "batch_no": "DEMO-22-A",
+                    "quantity": 54,
+                    "unit_cost": 7175
+                },
+                {
+                    "supplier": "Meril",
+                    "batch_no": "DEMO-22-B",
+                    "quantity": 37,
+                    "unit_cost": 7175
+                }
+            ]
         },
         {
             "name": "Achillea Two Tone Vintage Jacquard Paisley Pashmina Shawl Wrap Scarf for woman muticolor",
@@ -798,7 +1106,21 @@
             "cat": "fashion",
             "brand": "RFL",
             "price": 1300,
-            "old": 12000
+            "old": 12000,
+            "stock_batches": [
+                {
+                    "supplier": "Meril",
+                    "batch_no": "DEMO-23-A",
+                    "quantity": 5988,
+                    "unit_cost": 910
+                },
+                {
+                    "supplier": "Gigabyte",
+                    "batch_no": "DEMO-23-B",
+                    "quantity": 3992,
+                    "unit_cost": 910
+                }
+            ]
         },
         {
             "name": "Paragon Brown Egg 1 Dozen (Bundle of 3)",
@@ -822,7 +1144,21 @@
             "cat": "groceries",
             "brand": "RFL",
             "price": 2200,
-            "old": 2500
+            "old": 2500,
+            "stock_batches": [
+                {
+                    "supplier": "Gigabyte",
+                    "batch_no": "DEMO-24-A",
+                    "quantity": 5995,
+                    "unit_cost": 1540
+                },
+                {
+                    "supplier": "Walton",
+                    "batch_no": "DEMO-24-B",
+                    "quantity": 3997,
+                    "unit_cost": 1540
+                }
+            ]
         }
     ],
     "blogs": [
@@ -889,6 +1225,120 @@
             "category_id": 10,
             "image": "public/uploads/images/banner-17647810521457239_Regal Topslider Web (3).webp",
             "link": "#"
+        }
+    ],
+    "suppliers": [
+        {
+            "name": "RFL",
+            "phone": "01700000000",
+            "email": "rfl@demo.com",
+            "address": "Demo Address, Dhaka, Bangladesh",
+            "status": 1
+        },
+        {
+            "name": "Samsung",
+            "phone": "01700000001",
+            "email": "samsung@demo.com",
+            "address": "Demo Address, Dhaka, Bangladesh",
+            "status": 1
+        },
+        {
+            "name": "LG",
+            "phone": "01700000002",
+            "email": "lg@demo.com",
+            "address": "Demo Address, Dhaka, Bangladesh",
+            "status": 1
+        },
+        {
+            "name": "Apple",
+            "phone": "01700000003",
+            "email": "apple@demo.com",
+            "address": "Demo Address, Dhaka, Bangladesh",
+            "status": 1
+        },
+        {
+            "name": "Symphony",
+            "phone": "01700000004",
+            "email": "symphony@demo.com",
+            "address": "Demo Address, Dhaka, Bangladesh",
+            "status": 1
+        },
+        {
+            "name": "Pran",
+            "phone": "01700000005",
+            "email": "pran@demo.com",
+            "address": "Demo Address, Dhaka, Bangladesh",
+            "status": 1
+        },
+        {
+            "name": "Meril",
+            "phone": "01700000006",
+            "email": "meril@demo.com",
+            "address": "Demo Address, Dhaka, Bangladesh",
+            "status": 1
+        },
+        {
+            "name": "Gigabyte",
+            "phone": "01700000007",
+            "email": "gigabyte@demo.com",
+            "address": "Demo Address, Dhaka, Bangladesh",
+            "status": 1
+        },
+        {
+            "name": "Walton",
+            "phone": "01700000008",
+            "email": "walton@demo.com",
+            "address": "Demo Address, Dhaka, Bangladesh",
+            "status": 1
+        },
+        {
+            "name": "Teer",
+            "phone": "01700000009",
+            "email": "teer@demo.com",
+            "address": "Demo Address, Dhaka, Bangladesh",
+            "status": 1
+        },
+        {
+            "name": "Jiver Sadh",
+            "phone": "01700000010",
+            "email": "jiversadh@demo.com",
+            "address": "Demo Address, Dhaka, Bangladesh",
+            "status": 1
+        },
+        {
+            "name": "7 UP",
+            "phone": "01700000011",
+            "email": "7up@demo.com",
+            "address": "Demo Address, Dhaka, Bangladesh",
+            "status": 1
+        },
+        {
+            "name": "Konka",
+            "phone": "01700000012",
+            "email": "konka@demo.com",
+            "address": "Demo Address, Dhaka, Bangladesh",
+            "status": 1
+        },
+        {
+            "name": "General Supplier",
+            "phone": "01700000013",
+            "email": "generalsupplier@demo.com",
+            "address": "Demo Address, Dhaka, Bangladesh",
+            "status": 1
+        },
+        {
+            "name": "Demo Distributor",
+            "phone": "01700000014",
+            "email": "demodistributor@demo.com",
+            "address": "Demo Address, Dhaka, Bangladesh",
+            "status": 1
+        },
+        {
+            "name": "Wholesale Hub BD",
+            "phone": "01700000015",
+            "email": "wholesalehubbd@demo.com",
+            "address": "Demo Address, Dhaka, Bangladesh",
+            "status": 1
         }
     ]
 }

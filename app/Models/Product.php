@@ -12,6 +12,17 @@ class Product extends Model
     // সব ফিল্ড mass assign করতে পারো (যেমন আগে ছিল)
     protected $guarded = [];
 
+    // 🏷️ Publish statuses (mirrored to legacy boolean `status` for storefront)
+    const STATUS_ACTIVE  = 'active';
+    const STATUS_DRAFT   = 'draft';
+    const STATUS_PRIVATE = 'private';
+
+    public const PUBLISH_STATUSES = [
+        self::STATUS_ACTIVE  => 'Active (Present)',
+        self::STATUS_DRAFT   => 'Draft',
+        self::STATUS_PRIVATE => 'Private',
+    ];
+
     // Laravel 12: Use casts() method instead of $casts property
     protected function casts(): array
     {
@@ -24,6 +35,17 @@ class Product extends Model
             'min_wholesale_quantity' => 'integer',
             'free_delivery'        => 'boolean',
         ];
+    }
+
+    /**
+     * Resolve publish_status with fallback to the legacy boolean `status`.
+     */
+    public function getResolvedPublishStatusAttribute(): string
+    {
+        if (!empty($this->publish_status)) {
+            return $this->publish_status;
+        }
+        return $this->status == 1 ? self::STATUS_ACTIVE : self::STATUS_DRAFT;
     }
 
     // route model binding এ slug ব্যবহার

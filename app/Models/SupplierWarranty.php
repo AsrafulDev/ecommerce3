@@ -49,6 +49,11 @@ class SupplierWarranty extends Model
         return $this->belongsTo(Supplier::class);
     }
 
+    public function warrantySales()
+    {
+        return $this->hasMany(\App\Models\WarrantySale::class, 'supplier_warranty_id');
+    }
+
     // ── Accessors ─────────────────────────────
 
     public function getRemainingDaysAttribute(): int

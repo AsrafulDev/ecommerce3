@@ -22,12 +22,27 @@
                         <tr><th>Batch</th><td>{{ $warrantySale->stockBatch->batch_no ?: 'Batch #'.$warrantySale->stockBatch->id }} (Unit Cost: ৳{{ number_format($warrantySale->stockBatch->unit_cost, 2) }})</td></tr>
                         @endif
                         @if($warrantySale->purchase)
+                        <tr><th>Purchase Date</th><td>{{ $warrantySale->purchase->purchase_date?->format('d M, Y') ?? 'N/A' }}</td></tr>
+                        <tr><th>Supplier</th><td>
+                            @php
+                                $supplier = $warrantySale->purchase?->supplier
+                                    ?? $warrantySale->stockBatch?->supplier
+                                    ?? $warrantySale->supplierWarranty?->supplier;
+                            @endphp
+                            @if($supplier)
+                                <strong>{{ $supplier->name }}</strong>
+                                @if($supplier->phone)<div><small class="text-muted">{{ $supplier->phone }}</small></div>@endif
+                            @else
+                                N/A
+                            @endif
+                        </td></tr>
                         <tr><th>Purchase Invoice</th><td>#{{ $warrantySale->purchase->invoice_no ?? $warrantySale->purchase->id }}</td></tr>
                         @endif
                         @if($warrantySale->soldBy)
                         <tr><th>Sold By</th><td>{{ $warrantySale->soldBy->name ?? 'N/A' }}</td></tr>
                         @endif
                         <tr><th>Order</th><td>#{{ $warrantySale->order_id }} ({{ $warrantySale->order->invoice_id ?? 'N/A' }})</td></tr>
+                        <tr><th>Sales Date</th><td>{{ $warrantySale->created_at?->format('d M, Y h:i A') ?? 'N/A' }}</td></tr>
                         <tr><th>Warranty Type</th><td>{{ ucfirst($warrantySale->warranty_type) }}</td></tr>
                         <tr><th>Warranty Days</th><td>{{ $warrantySale->warranty_days }} days</td></tr>
                         @if($warrantySale->supplier_warranty_id)
@@ -135,6 +150,119 @@
                 </div>
             </div>
             @endif
+        </div>
+
+        {{-- ═══════════ RIGHT PANEL: LOGS ═══════════ --}}
+        <div class="col-md-4">
+
+            {{-- 📦 Order Log --}}
+            <div class="card mb-3">
+                <div class="card-header"><strong>📦 Order Log</strong></div>
+                <div class="card-body p-0">
+                    @if($warrantySale->order)
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <span class="text-muted">Invoice</span>
+                            <strong>#{{ $warrantySale->order->invoice_id ?? $warrantySale->order_id }}</strong>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <span class="text-muted">Placed At</span>
+                            <span>{{ $warrantySale->order->created_at?->format('d M, Y h:i A') ?? 'N/A' }}</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <span class="text-muted">Order Status</span>
+                            <span class="badge bg-{{ $warrantySale->order->status_enum->badgeClass() }}">{{ $warrantySale->order->status_enum->label() }}</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <span class="text-muted">Payment</span>
+                            <span class="badge bg-{{ $warrantySale->order->payment_status_enum->badgeClass() }}">{{ $warrantySale->order->payment_status_enum->label() }}</span>
+                        </li>
+                        @if($warrantySale->order->orderdetails->isNotEmpty())
+                        <li class="list-group-item">
+                            <span class="text-muted">Items</span>
+                            <div class="mt-1">
+                                @foreach($warrantySale->order->orderdetails as $item)
+                                    <div class="small">
+                                        {{ $item->product_name ?? $item->product->name ?? 'Item #'.$item->product_id }}
+                                        × {{ $item->qty }}
+                                        @if($item->product_id == $warrantySale->product_id)
+                                            <span class="badge bg-primary ms-1">This item</span>
+                                        @endif
+                                    </div>
+                                @endforeach
+                            </div>
+                        </li>
+                        @endif
+                    </ul>
+                    @else
+                    <p class="text-muted p-3 mb-0">No order linked to this warranty.</p>
+                    @endif
+                </div>
+            </div>
+
+            {{-- 🛡️ Warranty Log --}}
+            <div class="card mb-3">
+                <div class="card-header"><strong>🛡️ Warranty Log</strong></div>
+                <div class="card-body">
+                    <div class="timeline">
+                        <div class="d-flex mb-3">
+                            <div class="me-2">✅</div>
+                            <div>
+                                <strong>Sale Registered</strong>
+                                <div class="small text-muted">{{ $warrantySale->created_at?->format('d M, Y h:i A') ?? 'N/A' }}</div>
+                            </div>
+                        </div>
+                        @if($warrantySale->warranty_start_date)
+                        <div class="d-flex mb-3">
+                            <div class="me-2">▶️</div>
+                            <div>
+                                <strong>Warranty Activated</strong>
+                                <div class="small text-muted">
+                                    {{ $warrantySale->warranty_start_date->format('d M, Y') }}
+                                    @if($warrantySale->warranty_end_date) → {{ $warrantySale->warranty_end_date->format('d M, Y') }} @endif
+                                </div>
+                            </div>
+                        </div>
+                        @endif
+                        @forelse($warrantySale->claims as $claim)
+                        <div class="d-flex mb-3">
+                            <div class="me-2">🔧</div>
+                            <div>
+                                <a href="{{ route('admin.warranty.claims.show', $claim) }}"><strong>{{ $claim->claim_number }}</strong></a>
+                                <span class="badge bg-{{ $claim->status_enum->badgeClass() }}">{{ $claim->status_enum->label() }}</span>
+                                <div class="small text-muted">{{ $claim->claimed_at?->format('d M, Y h:i A') }}</div>
+                                @if($claim->stages->isNotEmpty())
+                                <ul class="small text-muted mt-1 ps-3 mb-0">
+                                    @foreach($claim->stages as $stage)
+                                        <li>
+                                            {{ ucwords(str_replace('_', ' ', $stage->stage)) }}
+                                            @if($stage->completed_at)
+                                                <span class="text-success">✓ {{ $stage->completed_at->format('d M, Y') }}</span>
+                                            @else
+                                                <span class="text-warning">(in progress)</span>
+                                            @endif
+                                        </li>
+                                    @endforeach
+                                </ul>
+                                @endif
+                            </div>
+                        </div>
+                        @empty
+                        <div class="d-flex">
+                            <div class="me-2">🔒</div>
+                            <div><span class="text-muted">No claims filed yet.</span></div>
+                        </div>
+                        @endforelse
+                        @if($warrantySale->status === 'void')
+                        <div class="d-flex">
+                            <div class="me-2">🚫</div>
+                            <div><strong class="text-danger">Warranty Voided</strong></div>
+                        </div>
+                        @endif
+                    </div>
+                </div>
+            </div>
+
         </div>
     </div>
 </div>
