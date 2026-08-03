@@ -21,3 +21,6 @@ yarn-error.log
 /.fleet
 /.idea
 /.vscode
+
+# Runtime error logs
+config/error_log

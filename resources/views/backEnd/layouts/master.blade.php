@@ -710,12 +710,6 @@
     <span>{{ __('Dashboard') }}</span>
   </a>
 </li>
-<li>
-  <a href="{{ route('admin.activity_logs.index') }}">
-    <i data-feather="shield"></i>
-    <span>{{ __('Activity Logs') }}</span>
-  </a>
-</li>
 
 @can('order-create')
 <li>
@@ -762,43 +756,6 @@
 </li>
 @endcanany
 
-{{-- Refunds --}}
-@canany(['order-list', 'order-edit'])
-<li class="{{ request()->routeIs('admin.refunds.*') ? 'active' : '' }}">
-  <a href="#sidebar-refunds" data-bs-toggle="collapse">
-    <i data-feather="rotate-ccw"></i>
-    <span> {{ __('Refunds') }} </span>
-    <span class="menu-arrow"></span>
-  </a>
-  <div class="collapse {{ request()->routeIs('admin.refunds.*') ? 'show' : '' }}" id="sidebar-refunds">
-    <ul class="nav-second-level">
-      <li><a href="{{ route('admin.refunds.index') }}"><i data-feather="list"></i> {{ __('All Refunds') }} </a></li>
-      <li><a href="{{ route('admin.refunds.index', ['status' => 'pending']) }}"><i data-feather="clock"></i> {{ __('Pending Refunds') }} </a></li>
-      <li><a href="{{ route('admin.refunds.index', ['status' => 'approved']) }}"><i data-feather="check-circle"></i> {{ __('Approved Refunds') }} </a></li>
-      <li><a href="{{ route('admin.refunds.index', ['status' => 'processed']) }}"><i data-feather="check"></i> {{ __('Processed Refunds') }} </a></li>
-    </ul>
-  </div>
-</li>
-@endcanany
-
-{{-- 🛡️ Warranty Management --}}
-<li class="{{ request()->routeIs('admin.warranty.*') ? 'active menuitem-active' : '' }}">
-  <a href="#sidebar-warranty" data-bs-toggle="collapse">
-    <i data-feather="shield"></i>
-    <span> {{ __('Warranty') }} </span>
-    <span class="menu-arrow"></span>
-  </a>
-  <div class="collapse {{ request()->routeIs('admin.warranty.*') ? 'show' : '' }}" id="sidebar-warranty">
-    <ul class="nav-second-level">
-      <li><a href="{{ route('admin.warranty.dashboard') }}"><i data-feather="grid"></i> {{ __('Dashboard') }} </a></li>
-      <li><a href="{{ route('admin.warranty.supplier.index') }}"><i data-feather="truck"></i> {{ __('Supplier Warranties') }} </a></li>
-      <li><a href="{{ route('admin.warranty.sales.index') }}"><i data-feather="shopping-bag"></i> {{ __('Warranty Sales') }} </a></li>
-      <li><a href="{{ route('admin.warranty.claims.index') }}"><i data-feather="tool"></i> {{ __('Claims') }} </a></li>
-      <li><a href="{{ route('admin.warranty.damage.index') }}"><i data-feather="alert-triangle"></i> {{ __('Damage Products') }} </a></li>
-    </ul>
-  </div>
-</li>
-
 {{-- ============================================= --}}
 {{--  SECTION 2: PRODUCT CATALOG                   --}}
 {{-- ============================================= --}}
@@ -838,6 +795,85 @@
       @canany(['size-list', 'size-create', 'size-edit'])
       <li><a href="{{ route('sizes.index') }}"><i data-feather="file-plus"></i> {{ __('Sizes') }} </a></li>
       @endcanany
+    </ul>
+  </div>
+</li>
+@endcanany
+
+{{-- 🛡️ Warranty Management --}}
+<li class="{{ request()->routeIs('admin.warranty.*') ? 'active menuitem-active' : '' }}">
+  <a href="#sidebar-warranty" data-bs-toggle="collapse">
+    <i data-feather="shield"></i>
+    <span> {{ __('Warranty') }} </span>
+    <span class="menu-arrow"></span>
+  </a>
+  <div class="collapse {{ request()->routeIs('admin.warranty.*') ? 'show' : '' }}" id="sidebar-warranty">
+    <ul class="nav-second-level">
+      <li><a href="{{ route('admin.warranty.dashboard') }}"><i data-feather="grid"></i> {{ __('Dashboard') }} </a></li>
+      <li><a href="{{ route('admin.warranty.supplier.index') }}"><i data-feather="truck"></i> {{ __('Supplier Warranties') }} </a></li>
+      <li><a href="{{ route('admin.warranty.sales.index') }}"><i data-feather="shopping-bag"></i> {{ __('Warranty Sales') }} </a></li>
+      <li><a href="{{ route('admin.warranty.claims.index') }}"><i data-feather="tool"></i> {{ __('Claims') }} </a></li>
+      <li><a href="{{ route('admin.warranty.damage.index') }}"><i data-feather="alert-triangle"></i> {{ __('Damage Products') }} </a></li>
+    </ul>
+  </div>
+</li>
+
+{{-- ============================================= --}}
+{{--  🆕 SECTION 6: STOCK & PROCUREMENT            --}}
+{{-- ============================================= --}}
+<li>
+  <a href="#sidebar-stock" data-bs-toggle="collapse">
+    <i data-feather="box"></i>
+    <span>{{ __('Stock Management') }}</span>
+    <span class="menu-arrow"></span>
+  </a>
+  <div class="collapse" id="sidebar-stock">
+    <ul class="nav-second-level">
+      <li><a href="{{ route('admin.stock.dashboard') }}"><i data-feather="airplay"></i> {{ __('Dashboard') }}</a></li>
+      <li><a href="{{ route('purchases.index') }}"><i data-feather="file-text"></i> {{ __('Purchases') }}</a></li>
+      <li><a href="{{ route('admin.suppliers.index') }}"><i data-feather="truck"></i> {{ __('Suppliers') }}</a></li>
+      <li><a href="{{ route('admin.stock.batches') }}"><i data-feather="layers"></i> {{ __('Batches') }}</a></li>
+      <li><a href="{{ route('admin.stock.adjustments') }}"><i data-feather="edit"></i> {{ __('Adjustments') }}</a></li>
+      <li><a href="{{ route('admin.stock.valuation') }}"><i data-feather="dollar-sign"></i> {{ __('Valuation') }}</a></li>
+      <li><a href="{{ route('admin.stock.cogs') }}"><i data-feather="trending-down"></i> {{ __('COGS Report') }} </a></li>
+      <li><a href="{{ route('admin.stock.barcode.print') }}"><i data-feather="tag"></i> {{ __('Barcode Labels') }} </a></li>
+      <li><a href="{{ route('admin.stock.supplier-returns') }}"><i data-feather="rotate-ccw"></i> {{ __('Supplier Returns') }} </a></li>
+    </ul>
+  </div>
+</li>
+
+@canany(['fund-list', 'fund-create', 'fund-edit'])
+<li>
+  <a href="{{ route('admin.fund.index') }}">
+    <i data-feather="briefcase"></i>
+    <span> {{ __('Fund / Account') }} </span>
+  </a>
+</li>
+@endcanany
+
+@canany(['expense-list', 'expense-create', 'expense-edit'])
+<li class="{{ request()->routeIs('admin.expenses.*') ? 'active' : '' }}">
+  <a href="{{ route('admin.expenses.index') }}">
+    <i data-feather="credit-card"></i>
+    <span> {{ __('Expenses') }} </span>
+  </a>
+</li>
+@endcanany
+
+{{-- Refunds --}}
+@canany(['order-list', 'order-edit'])
+<li class="{{ request()->routeIs('admin.refunds.*') ? 'active' : '' }}">
+  <a href="#sidebar-refunds" data-bs-toggle="collapse">
+    <i data-feather="rotate-ccw"></i>
+    <span> {{ __('Refunds') }} </span>
+    <span class="menu-arrow"></span>
+  </a>
+  <div class="collapse {{ request()->routeIs('admin.refunds.*') ? 'show' : '' }}" id="sidebar-refunds">
+    <ul class="nav-second-level">
+      <li><a href="{{ route('admin.refunds.index') }}"><i data-feather="list"></i> {{ __('All Refunds') }} </a></li>
+      <li><a href="{{ route('admin.refunds.index', ['status' => 'pending']) }}"><i data-feather="clock"></i> {{ __('Pending Refunds') }} </a></li>
+      <li><a href="{{ route('admin.refunds.index', ['status' => 'approved']) }}"><i data-feather="check-circle"></i> {{ __('Approved Refunds') }} </a></li>
+      <li><a href="{{ route('admin.refunds.index', ['status' => 'processed']) }}"><i data-feather="check"></i> {{ __('Processed Refunds') }} </a></li>
     </ul>
   </div>
 </li>
@@ -1028,51 +1064,6 @@
   </a>
 </li>
 @endcan
-
-{{-- ============================================= --}}
-{{--  🆕 SECTION 6: STOCK & PROCUREMENT            --}}
-{{-- ============================================= --}}
-<li>
-  <a href="#sidebar-stock" data-bs-toggle="collapse">
-    <i data-feather="box"></i>
-    <span>{{ __('Stock Management') }}</span>
-    <span class="menu-arrow"></span>
-  </a>
-  <div class="collapse" id="sidebar-stock">
-    <ul class="nav-second-level">
-      <li><a href="{{ route('admin.stock.dashboard') }}"><i data-feather="airplay"></i> {{ __('Dashboard') }}</a></li>
-      <li><a href="{{ route('purchases.index') }}"><i data-feather="file-text"></i> {{ __('Purchases') }}</a></li>
-      <li><a href="{{ route('admin.suppliers.index') }}"><i data-feather="truck"></i> {{ __('Suppliers') }}</a></li>
-      <li><a href="{{ route('admin.stock.batches') }}"><i data-feather="layers"></i> {{ __('Batches') }}</a></li>
-      <li><a href="{{ route('admin.stock.adjustments') }}"><i data-feather="edit"></i> {{ __('Adjustments') }}</a></li>
-      <li><a href="{{ route('admin.stock.valuation') }}"><i data-feather="dollar-sign"></i> {{ __('Valuation') }}</a></li>
-      <li><a href="{{ route('admin.stock.cogs') }}"><i data-feather="trending-down"></i> {{ __('COGS Report') }} </a></li>
-      <li><a href="{{ route('admin.stock.barcode.print') }}"><i data-feather="tag"></i> {{ __('Barcode Labels') }} </a></li>
-      <li><a href="{{ route('admin.stock.supplier-returns') }}"><i data-feather="rotate-ccw"></i> {{ __('Supplier Returns') }} </a></li>
-    </ul>
-  </div>
-</li>
-
-{{-- ============================================= --}}
-{{--  SECTION 7: FINANCE                           --}}
-{{-- ============================================= --}}
-@canany(['fund-list', 'fund-create', 'fund-edit'])
-<li>
-  <a href="{{ route('admin.fund.index') }}">
-    <i data-feather="briefcase"></i>
-    <span> {{ __('Fund / Account') }} </span>
-  </a>
-</li>
-@endcanany
-
-@canany(['expense-list', 'expense-create', 'expense-edit'])
-<li class="{{ request()->routeIs('admin.expenses.*') ? 'active' : '' }}">
-  <a href="{{ route('admin.expenses.index') }}">
-    <i data-feather="credit-card"></i>
-    <span> {{ __('Expenses') }} </span>
-  </a>
-</li>
-@endcanany
 
 {{-- ============================================= --}}
 {{--  SECTION 8: ANALYTICS & TRACKING              --}}
@@ -1318,6 +1309,13 @@
   <a href="{{ route('error-log.index') }}">
     <i data-feather="file-text"></i>
     <span> {{ __('Error Log') }} </span>
+  </a>
+</li>
+
+<li>
+  <a href="{{ route('admin.activity_logs.index') }}">
+    <i data-feather="shield"></i>
+    <span>{{ __('Activity Logs') }}</span>
   </a>
 </li>
             </ul>

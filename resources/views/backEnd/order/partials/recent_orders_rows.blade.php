@@ -33,7 +33,7 @@
             </button>
             @if($order->due_amount > 0)
             <button type="button" class="btn btn-sm btn-outline-info recent-collect" data-id="{{ $order->id }}" data-invoice="{{ $order->invoice_id }}" data-due="{{ $order->due_amount }}" title="Collect Due">
-                <i class="fa fa-money"></i>
+                <i class="fa fa-money-bill-wave"></i>
             </button>
             @endif
         </div>

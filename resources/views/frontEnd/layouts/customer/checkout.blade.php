@@ -517,7 +517,7 @@ if (typeof ttq !== 'undefined') {
                                 <div class="col-md-6">
                                     <div class="form-group">
                                         <label class="form-label-custom">{{ __('Mobile Number') }} *</label>
-                                        <input type="tel" name="phone" class="form-control-custom" minlength="11" maxlength="11" pattern="0[0-9]+" 
+                                        <input type="tel" name="phone" class="form-control-custom" minlength="11" maxlength="11" pattern="0(13|14|15|16|17|18|19)[0-9]{8}" 
                                             value="{{ Auth::guard('customer')->user()->phone ?? old('phone') }}" placeholder="017xxxxxxxx" required>
                                     </div>
                                 </div>

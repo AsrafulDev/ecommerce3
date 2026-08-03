@@ -247,8 +247,7 @@
                         <input type="text"
                                id="barcode_input"
                                class="form-control form-control-sm border-start-0"
-                               placeholder="Scan barcode..."
-                               autofocus>
+                               placeholder="Scan barcode...">
                     </div>
                     <span id="barcode_msg" class="small text-muted" style="min-width:100px;"></span>
                     <form method="get" action="{{route('admin.order.cart_clear')}}" class="d-inline">
@@ -633,6 +632,11 @@
         });
     }
 
+    // -------- SUMMARY DETAILS REFRESH (coupon discount etc.) ----------
+    function cart_details() {
+        $("#cart_details").load("{{ route('admin.order.cart_details') }}");
+    }
+
     // -------- PRODUCT CLICK -> ADD TO CART ----------
     $(document).on("click", ".pos-add-product", function (e) {
         e.preventDefault();
@@ -931,27 +935,6 @@
                     $("#barcode_input").val("").focus();
                 }
             });
-        }
-    });
-
-    // Auto-focus barcode input unless user is typing elsewhere
-    $(document).on("focusin", function (e) {
-        var tag = e.target.tagName;
-        if (tag === "INPUT" || tag === "SELECT" || tag === "TEXTAREA") {
-            if (e.target.id !== "barcode_input") {
-                window._barcodeAutoFocus = false;
-            }
-        }
-    });
-    $(document).on("focusout", function (e) {
-        var tag = e.target.tagName;
-        if (tag === "INPUT" || tag === "SELECT" || tag === "TEXTAREA") {
-            window._barcodeAutoFocus = true;
-            setTimeout(function () {
-                if (window._barcodeAutoFocus !== false) {
-                    $("#barcode_input").focus();
-                }
-            }, 100);
         }
     });
 

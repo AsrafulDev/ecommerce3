@@ -169,10 +169,13 @@ class ShoppingController extends Controller
             return redirect()->back();
         }
 
-        $today = Carbon::now()->format('Y-m-d');
+        // Compare dates as Carbon (valid_from/valid_to are cast to date), not as
+        // string vs Carbon — otherwise a coupon valid_from = today is wrongly
+        // rejected ('2026-08-03' < '2026-08-03 00:00:00' is true in PHP).
+        $now = Carbon::now()->startOfDay();
 
-        if (($coupon->valid_from && $today < $coupon->valid_from) ||
-            ($coupon->valid_to && $today > $coupon->valid_to)) {
+        if (($coupon->valid_from && $coupon->valid_from->startOfDay()->gt($now)) ||
+            ($coupon->valid_to && $coupon->valid_to->startOfDay()->lt($now))) {
             Toastr::error('Coupon expired or not valid yet', 'Error');
             return redirect()->back();
         }
