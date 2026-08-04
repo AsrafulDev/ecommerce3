@@ -65,7 +65,7 @@
                 @foreach($warrantyTiers as $wt)
                     @php $adj = (float)($wt->additional_cost ?? 0); @endphp
                     <option value="{{ $wt->id }}" {{ $currentWarrantyId == $wt->id ? 'selected' : '' }}>
-                        {{ $wt->warranty_days > 0 ? $wt->tier_name.' ('.$wt->warranty_days.'d)' : $wt->tier_name }}
+                        {{ $wt->warranty_days > 0 ? $wt->tier_name : $wt->tier_name }}
                         {{ $adj != 0 ? ($adj > 0 ? '+'.$adj : $adj).' TK' : '' }}
                     </option>
                 @endforeach

@@ -152,7 +152,8 @@ class StockManagementService
             $totalCogs += $avgCost * $remaining;
 
             // Deduct proportionally from all batches (simplified: FIFO order but with avg cost)
-            $batches = $this->getAvailableBatches($product, 'fifo');
+            // Auto-selection: batch qty > 0, warranty lowest value (> 0) first priority
+            $batches = $this->getAutoSelectionBatches($product, 'fifo');
             foreach ($batches as $batch) {
                 if ($remaining <= 0) {
                     break;
@@ -171,7 +172,8 @@ class StockManagementService
             // FIFO or LIFO
             $order = ($method === 'fifo') ? 'asc' : 'desc';
 
-            $batches = $this->getAvailableBatches($product, $method);
+            // Auto-selection: batch qty > 0, warranty lowest value (> 0) first priority
+            $batches = $this->getAutoSelectionBatches($product, $method);
             foreach ($batches as $batch) {
                 if ($remaining <= 0) {
                     break;
@@ -277,6 +279,37 @@ class StockManagementService
             ->where('type', 'in')
             ->orderBy('created_at', $order)
             ->get();
+    }
+
+    /**
+     * Get batches for AUTO-selection, ordered by the business priority:
+     *   1) only available batches (remaining_qty > 0)
+     *   2) batches with a valid warranty (remaining days > 0) come first
+     *   3) among those, LOWEST warranty days first (sell soonest-expiring warranty first)
+     *   4) otherwise fall back to the selling method order (FIFO asc / LIFO desc)
+     */
+    public function getAutoSelectionBatches(Product $product, ?string $method = null): Collection
+    {
+        $method = $method ?? $this->resolveMethod($product);
+        $order  = ($method === 'fifo') ? 'asc' : 'desc';
+
+        return StockBatch::where('product_id', $product->id)
+            ->where('remaining_qty', '>', 0)
+            ->where('type', 'in')
+            ->orderBy('created_at', $order)
+            ->get()
+            ->each(function (StockBatch $batch) {
+                $days = $batch->supplier_warranty_days ?? 0;
+                $batch->setAttribute('auto_warranty_days', $days);
+            })
+            ->sortBy([
+                // Has warranty (> 0) first, no-warranty batches last
+                fn (StockBatch $b) => (int) $b->auto_warranty_days > 0 ? 0 : 1,
+                // Lowest positive warranty days first
+                fn (StockBatch $b) => (int) $b->auto_warranty_days,
+            ])
+            // Stable sort → equal keys keep the query order (FIFO asc / LIFO desc)
+            ->values();
     }
 
     /**
@@ -387,5 +420,71 @@ class StockManagementService
         }
 
         $product->update(['purchase_price' => round($newAvg, 2)]);
+    }
+
+    /**
+     * Recalculate products.stock (and product_variant_prices.stock) from stock_batches.
+     * This is the source-of-truth reconciliation for the denormalized stock column.
+     *
+     * @param int|null $productId  If provided, only sync this product (and its variants).
+     * @return int Number of product/variant stock rows updated.
+     */
+    public function syncStockFromBatches(?int $productId = null): int
+    {
+        $count = 0;
+
+        DB::transaction(function () use ($productId, &$count) {
+            // --- Products: stock = SUM(remaining_qty) across all in-batches ---
+            $productTotals = StockBatch::query()
+                ->selectRaw('product_id')
+                ->selectRaw('SUM(remaining_qty) as total_remaining')
+                ->where('remaining_qty', '>', 0)
+                ->when($productId, fn ($q) => $q->where('product_id', $productId))
+                ->groupBy('product_id')
+                ->get()
+                ->keyBy('product_id');
+
+            Product::query()
+                ->when($productId, fn ($q) => $q->where('id', $productId))
+                ->get(['id', 'stock'])
+                ->each(function (Product $product) use ($productTotals, &$count) {
+                    // Products with no batch rows keep their existing stock untouched
+                    if (!$productTotals->has($product->id)) {
+                        return;
+                    }
+                    $computed = (int) $productTotals[$product->id]->total_remaining;
+                    if ((int) $product->stock !== $computed) {
+                        $product->update(['stock' => $computed]);
+                        $count++;
+                    }
+                });
+
+            // --- Variants: product_variant_prices.stock = SUM(remaining_qty) per variant ---
+            $variantTotals = StockBatch::query()
+                ->selectRaw('variant_price_id')
+                ->selectRaw('SUM(remaining_qty) as total_remaining')
+                ->whereNotNull('variant_price_id')
+                ->where('remaining_qty', '>', 0)
+                ->when($productId, fn ($q) => $q->where('product_id', $productId))
+                ->groupBy('variant_price_id')
+                ->get()
+                ->keyBy('variant_price_id');
+
+            ProductVariantPrice::query()
+                ->when($productId, fn ($q) => $q->where('product_id', $productId))
+                ->get(['id', 'product_id', 'stock'])
+                ->each(function (ProductVariantPrice $variant) use ($variantTotals, &$count) {
+                    if (!$variantTotals->has($variant->id)) {
+                        return;
+                    }
+                    $computed = (int) $variantTotals[$variant->id]->total_remaining;
+                    if ((int) $variant->stock !== $computed) {
+                        $variant->update(['stock' => $computed]);
+                        $count++;
+                    }
+                });
+        });
+
+        return $count;
     }
 }

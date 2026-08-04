@@ -15,6 +15,13 @@ class Purchase extends Model
 
     protected $dates = ['purchase_date'];
 
+    protected function casts(): array
+    {
+        return [
+            'purchase_date' => 'date',
+        ];
+    }
+
     public function supplier()
     {
         return $this->belongsTo(Supplier::class);

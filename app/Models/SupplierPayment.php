@@ -14,6 +14,13 @@ class SupplierPayment extends Model
 
     protected $dates = ['payment_date'];
 
+    protected function casts(): array
+    {
+        return [
+            'payment_date' => 'date',
+        ];
+    }
+
     public function supplier()
     {
         return $this->belongsTo(Supplier::class);

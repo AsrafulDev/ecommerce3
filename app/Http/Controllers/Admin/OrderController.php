@@ -3534,19 +3534,27 @@ class OrderController extends Controller
     */
     public function scanBarcode($barcode)
     {
-        // Try to find by product barcode
-        $product = Product::where('barcode', $barcode)->first();
+        $barcode = trim($barcode);
 
-        // If not found, try variant barcode
+        // Try to find by product barcode OR product code (SKU)
+        $product = Product::where(function ($q) use ($barcode) {
+            $q->where('barcode', $barcode)
+              ->orWhere('product_code', $barcode);
+        })->first();
+
+        // If not found, try variant barcode OR variant SKU
         if (!$product) {
-            $variant = ProductVariantPrice::where('barcode', $barcode)->with('product')->first();
+            $variant = ProductVariantPrice::where(function ($q) use ($barcode) {
+                $q->where('barcode', $barcode)
+                  ->orWhere('sku', $barcode);
+            })->with('product')->first();
             if ($variant && $variant->product) {
                 $product = $variant->product;
             }
         }
 
         if (!$product) {
-            return response()->json(['error' => 'Product not found for barcode: ' . $barcode], 404);
+            return response()->json(['error' => 'Product not found for barcode/code: ' . $barcode], 404);
         }
 
         // Add to cart (same logic as clicking a product card)

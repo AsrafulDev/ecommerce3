@@ -25,7 +25,7 @@ class WarrantyDisplayService
         foreach ($tiers as $tier) {
             $adj = (float) ($tier->additional_cost ?? 0);
             $finalPrice = $basePrice + $adj;
-            $label = $tier->warranty_days > 0 ? $tier->warranty_days.'d - '.$tier->tier_name : $tier->tier_name;
+            $label = $tier->warranty_days > 0 ? $tier->tier_name : $tier->tier_name;
             $badge = $adj < 0 ? 'Save '.abs($adj).' TK!' : ($adj > 0 ? '+'.$adj.' TK' : ($tier->badge ?? null));
             $type = match ($tier->warranty_type) {
                 'none' => 'no_warranty', 'supplier_warranty' => 'with_warranty',
@@ -36,7 +36,7 @@ class WarrantyDisplayService
                     ->where('warranty_end_date','>',now())->first();
                 if (!$sw) continue;
                 $days = $sw->remaining_days;
-                $label = $days.'d - '.$tier->tier_name;
+                $label = $tier->tier_name;
             } else { $days = $tier->warranty_days; }
 
             $displayable[] = [

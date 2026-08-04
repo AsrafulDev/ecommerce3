@@ -160,7 +160,7 @@
                             @if($w->purchaseItem)
                                 @if($w->purchaseItem->purchase)
                                     <strong>Invoice #{{ $w->purchaseItem->purchase->invoice_no ?? $w->purchaseItem->purchase->id }}</strong>
-                                    @if($w->purchaseItem->purchase->purchase_date)<div class="small text-muted">Date: {{ $w->purchaseItem->purchase->purchase_date->format('d M, Y') }}</div>@endif
+                                    @if($w->purchaseItem->purchase->purchase_date)<div class="small text-muted">Date: {{ $w->purchaseItem->purchase->purchase_date?->format('d M, Y') }}</div>@endif
                                 @else
                                     Purchase Item #{{ $w->purchaseItem->id }}
                                 @endif

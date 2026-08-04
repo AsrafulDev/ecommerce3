@@ -247,7 +247,7 @@
                         <input type="text"
                                id="barcode_input"
                                class="form-control form-control-sm border-start-0"
-                               placeholder="Scan barcode...">
+                               placeholder="Scan barcode / enter product code...">
                     </div>
                     <span id="barcode_msg" class="small text-muted" style="min-width:100px;"></span>
                     <form method="get" action="{{route('admin.order.cart_clear')}}" class="d-inline">
@@ -531,13 +531,19 @@
                         @foreach($products as $p)
                             @php
                                 $img = optional($p->image)->image ?? 'public/assets/images/no-image.png';
-                                $sw = $p->supplierWarranties()->where('is_transferable',true)->where('warranty_end_date','>',now())->first();
+                                // Show the LOWEST remaining warranty days among valid (transferable, unexpired) warranties; hide when <= 0
+                                $swDays = $p->supplierWarranties()
+                                    ->where('is_transferable', true)
+                                    ->where('warranty_end_date', '>', now())
+                                    ->get()
+                                    ->min('remaining_days');
+                                $swDays = ($swDays !== null) ? (int) $swDays : null;
                             @endphp
                             <div class="col-6 mb-2 pos-product-wrapper" data-name="{{ strtolower($p->name) }}">
                                 <div class="pos-product-card pos-add-product" data-id="{{ $p->id }}">
                                     <span class="pos-stock-badge">Stock: {{ $p->stock}}</span>
-                                    @if($sw)
-                                    <span class="badge bg-success position-absolute" style="top:4px;right:4px;font-size:10px;">🛡️ {{ $sw->remaining_days }}d warranty</span>
+                                    @if($swDays !== null && $swDays > 0)
+                                    <span class="badge bg-success position-absolute" style="top:4px;right:4px;font-size:10px;">🛡️ {{ $swDays }}d warranty</span>
                                     @endif
                                     <img src="{{ asset($img) }}" onerror="this.src='{{ asset('public/assets/images/no-image.png') }}'" class="pos-product-img" alt="">
                                     <div class="pos-product-name">{{ $p->name }}</div>

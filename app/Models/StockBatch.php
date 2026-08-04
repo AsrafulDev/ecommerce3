@@ -44,6 +44,8 @@ class StockBatch extends Model
 
     /**
      * Get remaining supplier warranty days for this batch (if any).
+     * If multiple warranties exist for the same purchase+product, pick the
+     * newest one (highest id) — not an arbitrary row.
      */
     public function getSupplierWarrantyDaysAttribute(): ?int
     {
@@ -51,7 +53,9 @@ class StockBatch extends Model
         $sw = \App\Models\SupplierWarranty::whereHas('purchaseItem', function ($q) {
             $q->where('purchase_id', $this->purchase_id)
               ->where('product_id', $this->product_id);
-        })->where('warranty_end_date', '>', now())->first();
+        })->where('warranty_end_date', '>', now())
+          ->latest('id')
+          ->first();
         return $sw ? $sw->remaining_days : null;
     }
 
