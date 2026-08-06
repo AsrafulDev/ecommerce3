@@ -109,7 +109,13 @@
                                 </td>
                                 <td>৳{{ number_format($batch->unit_cost, 2) }}</td>
                                 <td><small>{{ $batch->supplier->name ?? '—' }}</small></td>
-                                <td><small class="text-muted">{{ Str::limit($batch->reference_type ? class_basename($batch->reference_type) : '—', 15) }}</small></td>
+                                <td>
+                                    @php
+                                        $refLabel = $batch->reference_no
+                                            ?: ($batch->reference_type ? class_basename($batch->reference_type) : '—');
+                                    @endphp
+                                    <small class="text-muted">{{ Str::limit($refLabel, 22) }}</small>
+                                </td>
                                 <td><small>{{ $batch->created_at->format('d/m/Y') }}</small></td>
                             </tr>
                         @empty
@@ -121,7 +127,7 @@
         </div>
         <div class="card-footer bg-white">
             <div class="d-flex justify-content-center">
-                {{ $batches->withQueryString()->links() }}
+                {{ $batches->links('pagination::bootstrap-4') }}
             </div>
         </div>
     </div>

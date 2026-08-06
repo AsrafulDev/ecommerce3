@@ -2688,13 +2688,12 @@ class OrderController extends Controller
             // ✅ sale_price is the actual price paid. Use as-is for display.
             $actualPrice = $ordetails->sale_price;
 
-            // 📦 Resolve batch from saved batch_ids (JSON array → first batch ID)
+            // 📦 Resolve batch from saved batch_ids (may be scalar IDs OR batch_details arrays from stockOut)
             $batchId = null;
             if (!empty($ordetails->batch_ids)) {
                 $batchIds = is_array($ordetails->batch_ids) ? $ordetails->batch_ids : json_decode($ordetails->batch_ids, true);
-                if (is_array($batchIds) && count($batchIds) > 0) {
-                    $batchId = $batchIds[0];
-                }
+                $first = is_array($batchIds) ? reset($batchIds) : $batchIds;
+                $batchId = is_array($first) ? ($first['batch_id'] ?? null) : $first;
             }
 
             // 🎨 Resolve size_id / color_id from saved values
@@ -2845,10 +2844,27 @@ class OrderController extends Controller
 
         $existingDetails = OrderDetails::where('order_id', $order->id)->pluck('id')->toArray();
         $updatedIds      = [];
+        $batchAdjustments = [];
+
+        // 📦 Snapshot old batch + qty per detail — used to re-adjust stock when batch changes
+        $oldDetailData = [];
+        foreach ($existingDetails as $did) {
+            $d = OrderDetails::find($did);
+            if ($d) {
+                $oldDetailData[$did] = [
+                    'qty'       => (int) $d->qty,
+                    'batch_ids' => $d->batch_ids ?: [],
+                ];
+            }
+        }
 
         foreach (Cart::instance('pos_shopping')->content() as $cart) {
-            if (!empty($cart->options->details_id) && in_array($cart->options->details_id, $existingDetails)) {
-                $detail = OrderDetails::find($cart->options->details_id);
+            $detailsId = $cart->options->details_id ?? null;
+            // Old batch/qty for this cart line (if it existed before this update)
+            $oldDetailRow = $oldDetailData[$detailsId] ?? null;
+
+            if (!empty($detailsId) && in_array($detailsId, $existingDetails)) {
+                $detail = OrderDetails::find($detailsId);
             } else {
                 $detail              = new OrderDetails();
                 $detail->order_id    = $order->id;
@@ -2874,7 +2890,9 @@ class OrderController extends Controller
             }
 
             // 📦 Save batch_ids for re-opening in edit
-            $detail->batch_ids = $cart->options->batch_id ? json_encode([$cart->options->batch_id]) : null;
+            // NOTE: batch_ids has an `array` cast — assign the array directly,
+            // never json_encode() (that double-encodes and breaks the cast).
+            $detail->batch_ids = $cart->options->batch_id ? [$cart->options->batch_id] : null;
 
             $detail->save();
 
@@ -2942,10 +2960,40 @@ class OrderController extends Controller
             );
 
             $updatedIds[] = $detail->id;
+
+            // 🆕 Track batch change for stock re-allocation (only when status is unchanged,
+            // i.e. stock was already consumed and needs to move to the newly selected batch).
+            if ($oldDetailRow && $oldOrderStatus === $order->order_status) {
+                $batchAdjustments[] = [
+                    'detail'        => $detail,
+                    'old_batch_ids' => $oldDetailRow['batch_ids'] ?? null,
+                    'old_qty'       => (int) ($oldDetailRow['qty'] ?? $detail->qty),
+                    'new_batch_id'  => $cart->options->batch_id ?? null,
+                ];
+            }
         }
 
         if ($oldOrderStatus !== $order->order_status) {
             $this->handleStockChange($order, $oldOrderStatus, $order->order_status);
+        }
+
+        // 🆕 Status unchanged → but user may have changed batch/qty. Move the stock
+        // allocation to the newly selected batch (restore old batch, deduct new batch).
+        if ($oldOrderStatus === $order->order_status) {
+            $this->reAdjustStockForBatchChange($order, $batchAdjustments);
+
+            // Items removed from the order → restore their old batch stock
+            foreach (array_diff($existingDetails, $updatedIds) as $removedId) {
+                $oldRow = $oldDetailData[$removedId] ?? null;
+                if (!$oldRow) {
+                    continue;
+                }
+                $oldQty = max(1, (int) ($oldRow['qty'] ?? 1));
+                foreach ($this->normalizeBatchEntries($oldRow['batch_ids'] ?? [], $oldQty) as $e) {
+                    \App\Models\StockBatch::where('id', $e['batch_id'])
+                        ->increment('remaining_qty', max(1, $e['qty']));
+                }
+            }
         }
 
         OrderDetails::where('order_id', $order->id)
@@ -3000,6 +3048,111 @@ class OrderController extends Controller
             return $pid;
         }
         return null;
+    }
+
+    /**
+     * Normalize order-detail batch_ids (stored as batch_details arrays,
+     * scalar ID arrays, or a JSON string) into a list of
+     * ['batch_id' => int, 'qty' => int] entries.
+     */
+    protected function normalizeBatchEntries($raw, int $fallbackQty = 0): array
+    {
+        if (is_string($raw)) {
+            $decoded = json_decode($raw, true);
+            $raw = is_array($decoded) ? $decoded : [];
+        }
+
+        $entries = [];
+        foreach ((array) $raw as $entry) {
+            if (is_array($entry)) {
+                $entries[] = [
+                    'batch_id' => (int) ($entry['batch_id'] ?? 0),
+                    'qty'      => (int) ($entry['qty'] ?? $fallbackQty),
+                ];
+            } elseif (is_numeric($entry)) {
+                $entries[] = [
+                    'batch_id' => (int) $entry,
+                    'qty'      => $fallbackQty,
+                ];
+            }
+        }
+
+        return array_values(array_filter($entries, fn($e) => $e['batch_id'] > 0));
+    }
+
+    /**
+     * When an order is updated WITHOUT a status change (stock already consumed),
+     * re-allocate the deducted stock to the newly selected batch.
+     *
+     * Each adjustment carries the freshly-saved detail plus the OLD batch data,
+     * so this works even when the update creates a brand-new OrderDetails row.
+     *
+     * - Restores stock to the old batch(es) the line previously drew from.
+     * - Deducts from the newly selected batch (or auto-selection when "Auto").
+     *
+     * @param Order $order
+     * @param array $adjustments  [[detail, old_batch_ids, old_qty, new_batch_id], ...]
+     */
+    protected function reAdjustStockForBatchChange(Order $order, array $adjustments): void
+    {
+        $newEnum = OrderStatusEnum::tryFrom($order->order_status);
+        if (!$newEnum || !$newEnum->consumesStock()) {
+            return;
+        }
+
+        /** @var StockManagementService $stockService */
+        $stockService = app(StockManagementService::class);
+
+        foreach ($adjustments as $adj) {
+            $detail = $adj['detail'] ?? null;
+            if (!$detail || !$detail->product) {
+                continue;
+            }
+
+            $oldQty = max(1, (int) ($adj['old_qty'] ?? $detail->qty));
+            $oldEntries = $this->normalizeBatchEntries($adj['old_batch_ids'] ?? [], $oldQty);
+            $newBatchId = $adj['new_batch_id'] ? (int) $adj['new_batch_id'] : null;
+            $qty = max(1, (int) $detail->qty);
+
+            $oldBatchIds = array_column($oldEntries, 'batch_id');
+
+            // Skip when the batch did not change
+            if ($oldBatchIds === ($newBatchId ? [$newBatchId] : [])) {
+                continue;
+            }
+
+            // 1) Restore stock to the old batch(es)
+            foreach ($oldEntries as $e) {
+                \App\Models\StockBatch::where('id', $e['batch_id'])
+                    ->increment('remaining_qty', max(1, $e['qty']));
+            }
+
+            // 2) Deduct from the new batch (or auto-select when null)
+            try {
+                $result = $stockService->stockOut($detail->product, $qty, [
+                    'type' => 'sale',
+                    'id'   => $order->id,
+                ], $newBatchId);
+
+                $detail->update([
+                    'cogs'      => $result['cogs'],
+                    'batch_ids' => $result['batch_details'],
+                ]);
+            } catch (\RuntimeException $e) {
+                Log::warning('Batch re-adjust failed, used fallback', [
+                    'product' => $detail->product_id,
+                    'order'   => $order->id,
+                    'error'   => $e->getMessage(),
+                ]);
+                $detail->product->decrement('stock', $qty);
+            }
+
+            // 3) Sync warranty sale batch + purchase
+            \App\Models\WarrantySale::where('order_detail_id', $detail->id)->update([
+                'stock_batch_id' => $newBatchId,
+                'purchase_id'    => $this->resolvePurchaseId($detail->product_id, $newBatchId),
+            ]);
+        }
     }
 
     /*

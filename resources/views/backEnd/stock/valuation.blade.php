@@ -78,7 +78,7 @@
             </div>
         </div>
         <div class="card-footer bg-white">
-            <div class="d-flex justify-content-center">{{ $products->withQueryString()->links() }}</div>
+            <div class="d-flex justify-content-center">{{ $products->withQueryString()->links('pagination::bootstrap-4') }}</div>
         </div>
     </div>
 </div>

@@ -80,7 +80,7 @@
             </div>
         </div>
         <div class="card-footer bg-white">
-            <div class="d-flex justify-content-center">{{ $adjustments->withQueryString()->links() }}</div>
+            <div class="d-flex justify-content-center">{{ $adjustments->withQueryString()->links('pagination::bootstrap-4') }}</div>
         </div>
     </div>
 </div>

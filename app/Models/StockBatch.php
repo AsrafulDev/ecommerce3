@@ -9,8 +9,8 @@ class StockBatch extends Model
     protected $fillable = [
         'product_id', 'variant_price_id', 'purchase_id', 'supplier_id',
         'batch_no', 'quantity', 'remaining_qty', 'sn_stock', 'sn_sold',
-        'unit_cost', 'selling_price',
-        'mfg_date', 'exp_date', 'type', 'reference_type', 'reference_id'
+        'unit_cost', 'selling_price', 'custom_field',
+        'mfg_date', 'exp_date', 'type', 'reference_type', 'reference_id', 'reference_no'
     ];
 
     protected function casts(): array

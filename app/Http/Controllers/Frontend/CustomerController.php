@@ -537,7 +537,8 @@ public function order_save(Request $request)
             foreach ($details as $row) {
                 if ($row->product && $row->qty > 0) {
                     $stockService->stockOut($row->product, $row->qty, [
-                        'type' => 'sale', 'reference_id' => $order->id, 'reference_type' => 'order',
+                        'type' => 'sale',
+                        'id'   => $order->id,
                     ]);
                 }
             }

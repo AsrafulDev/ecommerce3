@@ -107,7 +107,7 @@ class StockController extends Controller
             $query->where('batch_no', 'like', '%' . $request->batch_no . '%');
         }
 
-        $batches  = $query->latest()->paginate(25);
+        $batches  = $query->latest()->paginate(25)->withQueryString();
         $products = Product::orderBy('name')->get(['id', 'name']);
         $suppliers = Supplier::orderBy('name')->get(['id', 'name', 'company']);
 
@@ -273,7 +273,7 @@ class StockController extends Controller
 
         // Summary
         $totalCogs    = $details->sum('cogs');
-        $totalRevenue = $details->sum('price');
+        $totalRevenue = $details->sum('sale_price');
         $totalProfit  = $totalRevenue - $totalCogs;
 
         return view('backEnd.stock.cogs', compact('details', 'totalCogs', 'totalRevenue', 'totalProfit'));

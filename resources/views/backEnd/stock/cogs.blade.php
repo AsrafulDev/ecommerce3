@@ -88,13 +88,13 @@
                     </thead>
                     <tbody>
                         @forelse($details as $d)
-                            @php $profit = $d->price - $d->cogs; @endphp
+                            @php $profit = $d->sale_price - $d->cogs; @endphp
                             <tr>
                                 <td>{{ $details->firstItem() + $loop->index }}</td>
-                                <td><small>{{ $d->order->invoice_no ?? '—' }}</small></td>
+                                <td><small>{{ $d->order->invoice_id ?? '—' }}</small></td>
                                 <td>{{ Str::limit($d->product->name ?? '—', 25) }}</td>
                                 <td>{{ $d->qty }}</td>
-                                <td>৳{{ number_format($d->price, 2) }}</td>
+                                <td>৳{{ number_format($d->sale_price, 2) }}</td>
                                 <td>৳{{ number_format($d->cogs, 2) }}</td>
                                 <td class="fw-bold {{ $profit >= 0 ? 'text-success' : 'text-danger' }}">
                                     ৳{{ number_format($profit, 2) }}
@@ -109,7 +109,7 @@
             </div>
         </div>
         <div class="card-footer bg-white">
-            <div class="d-flex justify-content-center">{{ $details->withQueryString()->links() }}</div>
+            <div class="d-flex justify-content-center">{{ $details->withQueryString()->links('pagination::bootstrap-4') }}</div>
         </div>
     </div>
 </div>

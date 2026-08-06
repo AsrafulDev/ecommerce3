@@ -68,6 +68,10 @@ class StockManagementService
             'type'            => 'in',
             'reference_type'  => $data['reference_type'] ?? 'purchase',
             'reference_id'    => $data['reference_id'] ?? null,
+            'reference_no'    => $this->resolveReferenceNo([
+                'type' => $data['reference_type'] ?? null,
+                'id'   => $data['reference_id'] ?? null,
+            ]),
         ]);
 
         // Update product stock count
@@ -212,15 +216,31 @@ class StockManagementService
             ];
         }
 
-        // Create outflow batch record for traceability
+        // Create outflow batch record for traceability.
+        // Capture the source (primary) batch details + human-readable reference
+        // so the Stock Batches page shows batch no / supplier / cost / order info.
+        $sourceBatchId = null;
+        foreach ($batchDetails as $bd) {
+            if (!empty($bd['batch_id'])) {
+                $sourceBatchId = $bd['batch_id'];
+                break;
+            }
+        }
+        $sourceBatch = $sourceBatchId ? StockBatch::find($sourceBatchId) : null;
+
         StockBatch::create([
             'product_id'       => $product->id,
+            'variant_price_id' => $sourceBatch?->variant_price_id,
+            'purchase_id'      => $sourceBatch?->purchase_id,
+            'supplier_id'      => $sourceBatch?->supplier_id,
+            'batch_no'         => $sourceBatch?->batch_no,
             'quantity'         => -$qty,
             'remaining_qty'    => 0,
-            'unit_cost'        => 0,
+            'unit_cost'        => $qty > 0 ? round($totalCogs / $qty, 2) : 0,
             'type'             => 'out',
             'reference_type'   => $reference['type'] ?? 'sale',
             'reference_id'     => $reference['id'] ?? null,
+            'reference_no'     => $this->resolveReferenceNo($reference),
         ]);
 
         // Update product stock
@@ -231,6 +251,31 @@ class StockManagementService
             'batch_details' => $batchDetails,
             'remaining'     => $remaining,
         ];
+    }
+
+    /**
+     * Resolve a human-readable reference (e.g. "Sale #26887", "Purchase #PUR-...")
+     * from the reference array so batch records show the source document.
+     */
+    protected function resolveReferenceNo(array $reference): ?string
+    {
+        $type = $reference['type'] ?? null;
+        $id   = $reference['id'] ?? null;
+        if (!$type || !$id) {
+            return null;
+        }
+
+        if ($type === 'sale') {
+            $order = \App\Models\Order::find($id);
+            return $order ? 'Sale #' . $order->invoice_id : null;
+        }
+
+        if ($type === 'purchase') {
+            $purchase = \App\Models\Purchase::find($id);
+            return $purchase ? 'Purchase #' . $purchase->invoice_no : null;
+        }
+
+        return null;
     }
 
     /**
