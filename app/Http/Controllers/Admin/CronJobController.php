@@ -11,6 +11,19 @@ class CronJobController extends Controller
 {
     public function index()
     {
+        // Ensure the courier sync job row always exists (e.g. after a server/machine
+        // update the cron_job_settings table may be empty — auto-create the default).
+        CronJobSetting::firstOrCreate(
+            ['job_key' => 'courier_status_sync'],
+            [
+                'job_title'         => 'Courier Status Sync',
+                'job_description'   => 'Pathao / Steadfast / RedX courier tracking status auto-sync.',
+                'is_enabled'        => true,
+                'frequency_minutes' => 10,
+                'order_limit'       => 50,
+            ]
+        );
+
         $jobs = CronJobSetting::orderBy('id')->get();
         return view('backEnd.cronjob.index', compact('jobs'));
     }
