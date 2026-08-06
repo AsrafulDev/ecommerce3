@@ -111,7 +111,7 @@ class WarrantyController extends Controller
 
     // ── Supplier Warranties ────────────────────
 
-    public function supplierIndex(): View
+    public function supplierIndex(Request $request): View
     {
         $warranties = SupplierWarranty::with([
                 'supplier',
@@ -119,8 +119,46 @@ class WarrantyController extends Controller
                 'purchaseItem.purchase',
                 'warrantySales' => fn($q) => $q->select('id', 'supplier_warranty_id')->withCount('claims'),
             ])
+            // 🔍 Keyword: supplier name / product name / barcode / terms / notes
+            ->when($request->filled('search'), function ($q) use ($request) {
+                $s = $request->input('search');
+                $q->where(function ($qq) use ($s) {
+                    $qq->whereHas('supplier', fn($x) => $x->where('name', 'like', "%{$s}%"))
+                       ->orWhereHas('product', fn($x) => $x->where('name', 'like', "%{$s}%")
+                                                        ->orWhere('barcode', 'like', "%{$s}%"))
+                       ->orWhere('warranty_terms', 'like', "%{$s}%")
+                       ->orWhere('notes', 'like', "%{$s}%");
+                });
+            })
+            // 🔍 Batch no: matches stock_batches.batch_no for the same purchase+product
+            ->when($request->filled('batch'), function ($q) use ($request) {
+                $b = $request->input('batch');
+                $q->whereHas('purchaseItem', function ($qq) use ($b) {
+                    $qq->whereExists(function ($sub) use ($b) {
+                        $sub->selectRaw(1)
+                            ->from('stock_batches')
+                            ->whereColumn('stock_batches.purchase_id', 'purchase_items.purchase_id')
+                            ->whereColumn('stock_batches.product_id', 'purchase_items.product_id')
+                            ->where('stock_batches.batch_no', 'like', "%{$b}%");
+                    });
+                });
+            })
+            ->when($request->filled('supplier'), fn($q) => $q->where('supplier_id', $request->input('supplier')))
+            ->when($request->filled('type'), fn($q) => $q->where('warranty_type', $request->input('type')))
+            ->when($request->filled('transferable'), fn($q) => $q->where('is_transferable', $request->boolean('transferable')))
+            ->when($request->filled('status'), function ($q) use ($request) {
+                if ($request->input('status') === 'active') {
+                    $q->where(function ($qq) {
+                        $qq->where('warranty_end_date', '>=', now()->startOfDay())
+                           ->orWhereNull('warranty_end_date');
+                    });
+                } elseif ($request->input('status') === 'expired') {
+                    $q->where('warranty_end_date', '<', now()->startOfDay());
+                }
+            })
             ->latest()
-            ->paginate(30);
+            ->paginate(30)
+            ->withQueryString();
 
         $suppliers     = Supplier::orderBy('name')->get(['id', 'name']);
         $products      = Product::orderBy('name')->get(['id', 'name']);
@@ -304,10 +342,23 @@ class WarrantyController extends Controller
 
     public function claimsIndex(Request $request): View
     {
-        $claims = WarrantyClaim::with(['product:id,name', 'customer:id,name,phone'])
-            ->when($request->status, fn($q, $s) => $q->where('status', $s))
+        $claims = WarrantyClaim::with(['product:id,name,barcode', 'customer:id,name,phone'])
+            // 🔍 Keyword: claim # / issue description / customer name+phone / product name+barcode
+            ->when($request->filled('search'), function ($q) use ($request) {
+                $s = $request->input('search');
+                $q->where(function ($qq) use ($s) {
+                    $qq->where('claim_number', 'like', "%{$s}%")
+                       ->orWhere('issue_description', 'like', "%{$s}%")
+                       ->orWhereHas('customer', fn($x) => $x->where('name', 'like', "%{$s}%")
+                                                           ->orWhere('phone', 'like', "%{$s}%"))
+                       ->orWhereHas('product', fn($x) => $x->where('name', 'like', "%{$s}%")
+                                                         ->orWhere('barcode', 'like', "%{$s}%"));
+                });
+            })
+            ->when($request->filled('status'), fn($q) => $q->where('status', $request->input('status')))
             ->latest()
-            ->paginate(30);
+            ->paginate(30)
+            ->withQueryString();
 
         return view('backEnd.warranty.claims_index', compact('claims'));
     }
@@ -946,9 +997,23 @@ class WarrantyController extends Controller
     public function damageIndex(Request $request): View
     {
         $damageProducts = DamageProduct::with(['product:id,name,stock', 'warrantyClaim:id,claim_number', 'logs'])
+            // 🔍 Keyword: serial number(s) / condition note / product name+barcode / claim #
+            ->when($request->filled('search'), function ($q) use ($request) {
+                $s = $request->input('search');
+                $q->where(function ($qq) use ($s) {
+                    $qq->where('original_serial_number', 'like', "%{$s}%")
+                       ->orWhere('replacement_serial_number', 'like', "%{$s}%")
+                       ->orWhere('condition_note', 'like', "%{$s}%")
+                       ->orWhereHas('product', fn($x) => $x->where('name', 'like', "%{$s}%")
+                                                         ->orWhere('barcode', 'like', "%{$s}%"))
+                       ->orWhereHas('warrantyClaim', fn($x) => $x->where('claim_number', 'like', "%{$s}%"));
+                });
+            })
+            ->when($request->filled('type'), fn($q) => $q->where('damage_type', $request->input('type')))
             ->byStatus($request->status)
             ->latest()
-            ->paginate(30);
+            ->paginate(30)
+            ->withQueryString();
 
         return view('backEnd.warranty.damage_index', compact('damageProducts'));
     }

@@ -213,6 +213,18 @@ class DashboardController extends Controller
             ->limit(5)
             ->get();
 
+        // =========================
+        // 💥 DAMAGE STOCK DATA
+        // =========================
+        $damage_total  = \App\Models\DamageProduct::count();
+        $damage_active = \App\Models\DamageProduct::whereIn('status', ['on_warranty', 'supplier_hold', 'in_service'])->count();
+        $damage_value  = \App\Models\DamageProduct::sum('damage_cost');
+        $damage_resell = \App\Models\DamageProduct::where('status', 'resellable')->count();
+        $recent_damage = \App\Models\DamageProduct::with('product:id,name')
+            ->latest()
+            ->limit(5)
+            ->get();
+
         return view('backEnd.admin.dashboard', compact(
             'total_order',
             'today_order',
@@ -246,7 +258,12 @@ class DashboardController extends Controller
             'warranty_expiring_count',
             'warranty_expiring',
             'warranty_active_claims',
-            'recent_claims'
+            'recent_claims',
+            'damage_total',
+            'damage_active',
+            'damage_value',
+            'damage_resell',
+            'recent_damage'
         ));
     }
 

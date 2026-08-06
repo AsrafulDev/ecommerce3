@@ -71,7 +71,7 @@
     <div class="row mb-4">
         <div class="col-12">
             <div class="card border-danger bg-danger bg-opacity-10">
-                <div class="card-header bg-danger text-white d-flex justify-content-between align-items-center py-2">
+                <div class="card-header bg-danger d-flex justify-content-between align-items-center py-2">
                     <strong>⚠️ New Claims Awaiting Review ({{ $newClaims->count() }})</strong>
                     <a href="{{ route('admin.warranty.claims.index') }}" class="btn btn-sm btn-light">View All Claims</a>
                 </div>

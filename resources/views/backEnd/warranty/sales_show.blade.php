@@ -95,6 +95,35 @@
                 </div>
             </div>
 
+            {{-- 🏢 Supplier Information --}}
+            <div class="card mb-3">
+                <div class="card-header"><strong>🏢 Supplier Information</strong></div>
+                <div class="card-body">
+                    @php
+                        $supplierInfo = $warrantySale->purchase?->supplier
+                            ?? $warrantySale->stockBatch?->supplier
+                            ?? $warrantySale->supplierWarranty?->supplier;
+                    @endphp
+                    @if($supplierInfo)
+                    <table class="table table-bordered mb-0">
+                        <tr><th style="width:180px">Supplier</th><td><strong>{{ $supplierInfo->name }}</strong></td></tr>
+                        @if($supplierInfo->company)<tr><th>Company</th><td>{{ $supplierInfo->company }}</td></tr>@endif
+                        @if($supplierInfo->contact_person)<tr><th>Contact Person</th><td>{{ $supplierInfo->contact_person }}</td></tr>@endif
+                        @if($supplierInfo->phone)<tr><th>Phone</th><td>{{ $supplierInfo->phone }}</td></tr>@endif
+                        @if($supplierInfo->email)<tr><th>Email</th><td>{{ $supplierInfo->email }}</td></tr>@endif
+                        @if($supplierInfo->address)<tr><th>Address</th><td>{{ $supplierInfo->address }}</td></tr>@endif
+                        @if($supplierInfo->tax_id)<tr><th>Tax ID</th><td>{{ $supplierInfo->tax_id }}</td></tr>@endif
+                        @if($supplierInfo->payment_terms)<tr><th>Payment Terms</th><td>{{ $supplierInfo->payment_terms }}</td></tr>@endif
+                        @if($supplierInfo->lead_time)<tr><th>Lead Time</th><td>{{ $supplierInfo->lead_time }}</td></tr>@endif
+                        @if($supplierInfo->notes)<tr><th>Notes</th><td>{{ $supplierInfo->notes }}</td></tr>@endif
+                        <tr><th>Current Due</th><td>৳{{ number_format($supplierInfo->current_due ?? 0, 2) }}</td></tr>
+                    </table>
+                    @else
+                    <p class="text-muted mb-0">No supplier information linked to this sale.</p>
+                    @endif
+                </div>
+            </div>
+
             @if($warrantySale->claims->isNotEmpty())
             <div class="card mb-3">
                 <div class="card-header"><strong>🔧 Claims</strong></div>

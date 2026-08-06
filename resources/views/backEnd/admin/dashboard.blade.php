@@ -437,6 +437,67 @@
     </div>
   </div>
 
+  {{-- ══════════ 💥 DAMAGE STOCK ══════════ --}}
+  <div class="stat-grid small mt-4">
+    <div class="stat-card compact">
+      <div class="icon-box icon-rose"><i class="fas fa-exclamation-triangle"></i></div>
+      <div class="stat-content">
+        <div class="stat-label">{{ __('Damage Products') }}</div>
+        <div class="stat-value">{{ number_format($damage_total ?? 0) }}</div>
+      </div>
+    </div>
+    <div class="stat-card compact">
+      <div class="icon-box icon-amber"><i class="fas fa-clock"></i></div>
+      <div class="stat-content">
+        <div class="stat-label">{{ __('In Process') }}</div>
+        <div class="stat-value">{{ number_format($damage_active ?? 0) }}</div>
+      </div>
+    </div>
+    <div class="stat-card compact">
+      <div class="icon-box icon-rose"><i class="fas fa-times-circle"></i></div>
+      <div class="stat-content">
+        <div class="stat-label">{{ __('Damage Value') }}</div>
+        <div class="stat-value">৳{{ number_format($damage_value ?? 0, 0) }}</div>
+      </div>
+    </div>
+    <div class="stat-card compact">
+      <div class="icon-box icon-green"><i class="fas fa-undo-alt"></i></div>
+      <div class="stat-content">
+        <div class="stat-label">{{ __('Resellable') }}</div>
+        <div class="stat-value">{{ number_format($damage_resell ?? 0) }}</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row g-3 mb-3">
+    <div class="col-12">
+      <div class="data-card">
+        <div class="data-header">
+          <h5><span class="dot" style="background:#f43f5e;"></span> {{ __('Recent Damage Products') }}</h5>
+          <a href="{{ route('admin.warranty.damage.index') }}" class="text-decoration-none small fw-bold" style="color:#f43f5e;">{{ __('View All') }} →</a>
+        </div>
+        <div class="table-responsive">
+          <table class="table-modern">
+            <thead><tr><th>{{ __('Product') }}</th><th>{{ __('Type') }}</th><th>{{ __('Status') }}</th><th>{{ __('Service') }}</th><th>{{ __('Damage') }}</th></tr></thead>
+            <tbody>
+              @forelse($recent_damage ?? [] as $dp)
+              <tr>
+                <td>{{ \Illuminate\Support\Str::limit($dp->product->name ?? '—', 26) }}</td>
+                <td><span class="badge-dot" style="background:#fef9c3;color:#a16207;">{{ $dp->damage_type_enum->label() }}</span></td>
+                <td><span class="badge-dot" style="background:#fee2e2;color:#dc2626;">{{ $dp->status_enum->label() }}</span></td>
+                <td>৳{{ number_format($dp->service_cost, 2) }}</td>
+                <td>৳{{ number_format($dp->damage_cost, 2) }}</td>
+              </tr>
+              @empty
+              <tr><td colspan="5" class="text-center text-muted py-4">{{ __('No damage products') }}</td></tr>
+              @endforelse
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
 </div>
 @endsection
 

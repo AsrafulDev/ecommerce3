@@ -19,6 +19,7 @@
     .bg-light-info { background: #e0f2fe; color: #0369a1; }
     .bg-light-success { background: #dcfce7; color: #166534; }
     .bg-light-warning { background: #fef9c3; color: #a16207; }
+    .bg-light-danger { background: #fee2e2; color: #b91c1c; }
     .stat-title { font-size: 0.8rem; color: #64748b; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
     .stat-value { font-size: 1.6rem; font-weight: 700; color: #1e293b; margin: 0; line-height: 1.2; }
     .table-modern th { background: #f8fafc; color: #475569; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; padding: 0.75rem; border-bottom: 1px solid #e2e8f0; }
@@ -84,6 +85,46 @@
                     <h3 class="stat-value text-warning">{{ $lowStockProducts }}</h3>
                 </div>
                 <div class="stat-icon-box bg-light-warning"><i data-feather="alert-triangle"></i></div>
+            </div>
+        </div>
+    </div>
+
+    {{-- 💥 DAMAGE STOCK STATS --}}
+    <div class="row g-3 mb-4">
+        <div class="col-md-3">
+            <div class="stat-card">
+                <div>
+                    <div class="stat-title">{{ __('Damage Products') }}</div>
+                    <h3 class="stat-value text-danger">{{ $damageTotal }}</h3>
+                </div>
+                <div class="stat-icon-box bg-light-danger"><i data-feather="alert-octagon"></i></div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card">
+                <div>
+                    <div class="stat-title">{{ __('In Process') }}</div>
+                    <h3 class="stat-value">{{ $damageActive }}</h3>
+                </div>
+                <div class="stat-icon-box bg-light-warning"><i data-feather="clock"></i></div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card">
+                <div>
+                    <div class="stat-title">{{ __('Damage Value') }}</div>
+                    <h3 class="stat-value">৳{{ number_format($damageValue, 2) }}</h3>
+                </div>
+                <div class="stat-icon-box bg-light-danger"><i data-feather="x-circle"></i></div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card">
+                <div>
+                    <div class="stat-title">{{ __('Resellable') }}</div>
+                    <h3 class="stat-value text-success">{{ $damageResell }}</h3>
+                </div>
+                <div class="stat-icon-box bg-light-success"><i data-feather="rotate-ccw"></i></div>
             </div>
         </div>
     </div>
@@ -178,6 +219,49 @@
                                 </tr>
                             @empty
                                 <tr><td colspan="4" class="text-center text-muted py-3">No adjustments.</td></tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {{-- RECENT DAMAGE PRODUCTS --}}
+    <div class="row g-4 mt-1">
+        <div class="col-md-12">
+            <div class="card card-modern">
+                <div class="card-header bg-white fw-bold py-3 d-flex justify-content-between align-items-center">
+                    <span>
+                        <i data-feather="alert-octagon" class="me-1 text-danger" style="width:16px;"></i>
+                        {{ __('Recent Damage Products') }}
+                    </span>
+                    <a href="{{ route('admin.warranty.damage.index') }}" class="btn btn-sm btn-outline-danger rounded-pill">
+                        <i data-feather="external-link" style="width:14px;"></i> {{ __('View All') }}
+                    </a>
+                </div>
+                <div class="card-body p-0">
+                    <table class="table table-modern mb-0">
+                        <thead>
+                            <tr><th>Product</th><th>Claim</th><th>Type</th><th>Status</th><th>Service Cost</th><th>Damage Cost</th><th>Received</th></tr>
+                        </thead>
+                        <tbody>
+                            @forelse($recentDamage as $dp)
+                                <tr>
+                                    <td><small>{{ Str::limit($dp->product->name ?? '—', 28) }}</small></td>
+                                    <td><code>{{ $dp->warrantyClaim->claim_number ?? '—' }}</code></td>
+                                    <td>
+                                        <span class="badge bg-{{ $dp->damage_type_enum->badgeClass() }}">{{ $dp->damage_type_enum->label() }}</span>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-{{ $dp->status_enum->badgeClass() }}">{{ $dp->status_enum->label() }}</span>
+                                    </td>
+                                    <td>৳{{ number_format($dp->service_cost, 2) }}</td>
+                                    <td>৳{{ number_format($dp->damage_cost, 2) }}</td>
+                                    <td><small>{{ $dp->received_at?->format('d M, Y') ?? '—' }}</small></td>
+                                </tr>
+                            @empty
+                                <tr><td colspan="7" class="text-center text-muted py-3">No damage products.</td></tr>
                             @endforelse
                         </tbody>
                     </table>

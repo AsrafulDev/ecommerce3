@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Product;
 use App\Models\StockBatch;
 use App\Models\StockAdjustment;
+use App\Models\DamageProduct;
 use App\Models\SupplierReturn;
 use App\Models\SupplierReturnItem;
 use App\Models\Supplier;
@@ -53,6 +54,16 @@ class StockController extends Controller
             ->groupBy('costing_method')
             ->pluck('total', 'costing_method');
 
+        // 💥 Damage stock overview
+        $damageTotal    = DamageProduct::count();
+        $damageActive   = DamageProduct::whereIn('status', ['on_warranty', 'supplier_hold', 'in_service'])->count();
+        $damageValue    = DamageProduct::sum('damage_cost');
+        $damageResell   = DamageProduct::where('status', 'resellable')->count();
+        $recentDamage   = DamageProduct::with('product:id,name')
+            ->latest()
+            ->take(8)
+            ->get();
+
         return view('backEnd.stock.dashboard', compact(
             'totalProducts',
             'totalStockQty',
@@ -60,7 +71,12 @@ class StockController extends Controller
             'lowStockProducts',
             'recentBatches',
             'recentAdjustments',
-            'costingMethods'
+            'costingMethods',
+            'damageTotal',
+            'damageActive',
+            'damageValue',
+            'damageResell',
+            'recentDamage'
         ));
     }
 

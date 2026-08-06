@@ -2,22 +2,27 @@
 @section('title', 'Damage Products')
 @section('content')
 <div class="container-fluid">
-    <div class="d-flex justify-content-between align-items-center mb-3">
+    <div class="d-flex justify-content-between align-items-center mt-3 mb-3">
         <h4 class="mb-0">💥 Damage Products</h4>
-        <div class="d-flex align-items-center gap-2">
-            <form method="get" action="{{ route('admin.warranty.damage.index') }}" class="d-flex align-items-center gap-2">
-                <select name="status" class="form-select form-select-sm" style="width:auto;">
-                    <option value="">All Statuses</option>
-                    @foreach(\App\Enums\DamageStatus::cases() as $st)
-                        <option value="{{ $st->value }}" {{ request('status') === $st->value ? 'selected' : '' }}>{{ $st->label() }}</option>
-                    @endforeach
-                </select>
-                <button class="btn btn-sm btn-primary">Filter</button>
-                @if(request('status'))
-                    <a href="{{ route('admin.warranty.damage.index') }}" class="btn btn-sm btn-outline-secondary">Clear</a>
-                @endif
-            </form>
-        </div>
+        <form method="get" action="{{ route('admin.warranty.damage.index') }}" class="d-flex align-items-center gap-2">
+            <input type="text" name="search" value="{{ request('search') }}" class="form-control form-control-sm" style="width:200px;" placeholder="Product, SN, claim #...">
+            <select name="type" class="form-select form-select-sm" style="width:auto;">
+                <option value="">All Types</option>
+                @foreach(\App\Enums\DamageType::cases() as $dt)
+                    <option value="{{ $dt->value }}" {{ request('type') === $dt->value ? 'selected' : '' }}>{{ $dt->label() }}</option>
+                @endforeach
+            </select>
+            <select name="status" class="form-select form-select-sm" style="width:auto;">
+                <option value="">All Statuses</option>
+                @foreach(\App\Enums\DamageStatus::cases() as $st)
+                    <option value="{{ $st->value }}" {{ request('status') === $st->value ? 'selected' : '' }}>{{ $st->label() }}</option>
+                @endforeach
+            </select>
+            <button class="btn btn-sm btn-primary"><i class="fa fa-search me-1"></i>Filter</button>
+            @if(request('search') || request('type') || request('status'))
+                <a href="{{ route('admin.warranty.damage.index') }}" class="btn btn-sm btn-outline-secondary"><i class="fa fa-refresh me-1"></i>Clear</a>
+            @endif
+        </form>
     </div>
 
     <div class="card">

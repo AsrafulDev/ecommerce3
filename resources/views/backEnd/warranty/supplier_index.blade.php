@@ -9,6 +9,61 @@
         </button>
     </div>
 
+    {{-- 🔍 Filter / Search --}}
+    <div class="card mb-3">
+        <div class="card-header"><strong>🔍 Filter / Search</strong></div>
+        <div class="card-body">
+            <form method="GET" action="{{ route('admin.warranty.supplier.index') }}" class="row g-2">
+                <div class="col-md-3">
+                    <label class="form-label">Search</label>
+                    <input type="text" name="search" value="{{ request('search') }}" class="form-control" placeholder="Supplier, product, barcode, terms...">
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Batch No.</label>
+                    <input type="text" name="batch" value="{{ request('batch') }}" class="form-control" placeholder="e.g. DEMO-1-A">
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Supplier</label>
+                    <select name="supplier" class="form-select">
+                        <option value="">All Suppliers</option>
+                        @foreach($suppliers as $s)
+                            <option value="{{ $s->id }}" @selected((string) request('supplier') === (string) $s->id)>{{ $s->name }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Status</label>
+                    <select name="status" class="form-select">
+                        <option value="">All</option>
+                        <option value="active" @selected(request('status') == 'active')>Active</option>
+                        <option value="expired" @selected(request('status') == 'expired')>Expired</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Warranty Type</label>
+                    <select name="type" class="form-select">
+                        <option value="">All</option>
+                        @foreach(\App\Enums\WarrantyType::cases() as $t)
+                            <option value="{{ $t->value }}" @selected(request('type') == $t->value)>{{ $t->label() }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Transferable</label>
+                    <select name="transferable" class="form-select">
+                        <option value="">All</option>
+                        <option value="1" @selected(request('transferable') == '1')>Yes</option>
+                        <option value="0" @selected(request('transferable') == '0')>No</option>
+                    </select>
+                </div>
+                <div class="col-md-3 d-flex align-items-end">
+                    <button type="submit" class="btn btn-primary me-2"><i class="fa fa-search me-1"></i> Search</button>
+                    <a href="{{ route('admin.warranty.supplier.index') }}" class="btn btn-secondary"><i class="fa fa-refresh me-1"></i> Reset</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <div class="card">
         <div class="card-body">
             <div class="table-responsive">
