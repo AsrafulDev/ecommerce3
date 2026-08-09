@@ -1,367 +1,394 @@
 @extends('backEnd.layouts.master')
 @section('title','Landing Page Create')
+
 @section('css')
 <link href="{{asset('public/backEnd')}}/assets/libs/summernote/summernote-lite.min.css" rel="stylesheet" type="text/css" />
-
 <link href="{{asset('public/backEnd')}}/assets/libs/select2/css/select2.min.css" rel="stylesheet" type="text/css" />
 <link href="{{asset('public/backEnd')}}/assets/libs/flatpickr/flatpickr.min.css" rel="stylesheet" type="text/css" />
+<style>
+    .lp-section-card { border: none; border-radius: 14px; box-shadow: 0 2px 12px rgba(15,23,42,.06); margin-bottom: 1.25rem; overflow: hidden; }
+    .lp-section-card .card-header { background: #fff; border-bottom: 1px solid #f1f5f9; font-weight: 700; font-size: .92rem; padding: .9rem 1.25rem; display: flex; align-items: center; gap: .5rem; }
+    .lp-section-card .card-header i { color: #4f46e5; }
+    .lp-section-card .card-body { padding: 1.25rem; }
+    .lp-section-card .form-label { font-weight: 600; font-size: .82rem; color: #475569; }
+    .lp-section-card .form-control, .lp-section-card .form-select { border-radius: 8px; border-color: #e2e8f0; }
+    .lp-section-card .form-control:focus { border-color: #6366f1; box-shadow: 0 0 0 .2rem rgba(99,102,241,.12); }
+    .img-preview-thumb { width: 100%; height: 90px; object-fit: cover; border-radius: 8px; border: 1px solid #e2e8f0; margin-top: .4rem; background: #f8fafc; }
+    .field-hint { font-size: .72rem; color: #94a3b8; margin-top: .25rem; }
+    /* Section toggle switch */
+    .switch { position: relative; display: inline-block; width: 48px; height: 26px; flex: none; }
+    .switch input { opacity: 0; width: 0; height: 0; }
+    .switch .slider { position: absolute; cursor: pointer; inset: 0; background: #cbd5e1; transition: .3s; border-radius: 26px; }
+    .switch .slider:before { content: ""; position: absolute; height: 20px; width: 20px; left: 3px; bottom: 3px; background: #fff; border-radius: 50%; transition: .3s; box-shadow: 0 1px 4px rgba(0,0,0,.2); }
+    .switch input:checked + .slider { background: #22c55e; }
+    .switch input:checked + .slider:before { transform: translateX(22px); }
+    .sec-toggle-row { display: flex; justify-content: space-between; align-items: center; border: 1px solid #e2e8f0; border-radius: 10px; padding: .65rem .9rem; margin-bottom: .6rem; background: #f8fafc; }
+    .sec-toggle-row .sec-label { font-weight: 600; font-size: .84rem; color: #334155; }
+    .sec-config-card { border: 1px solid #e2e8f0; border-radius: 12px; padding: .85rem 1rem; margin-bottom: .85rem; background: #fafafa; transition: border-color .2s; }
+    .sec-config-card:focus-within { border-color: #6366f1; background: #fff; }
+    .sec-config-head { display: flex; align-items: center; justify-content: space-between; gap: .5rem; margin-bottom: .6rem; }
+    .sec-config-head .badge-key { font-size: .7rem; text-transform: uppercase; letter-spacing: .05em; background: #e2e8f0; color: #475569; padding: .2rem .5rem; border-radius: 6px; font-weight: 700; }
+    .sec-config-card .form-control-sm { border-radius: 6px; font-size: .8rem; }
+</style>
 @endsection
+
 @section('content')
 <div class="container-fluid">
-    
-    <!-- start page title -->
-    <div class="row">
+    <div class="row mb-3">
         <div class="col-12">
-            <div class="page-title-box">
-                <div class="page-title-right">
-                    <a href="{{route('campaign.index')}}" class="btn btn-primary rounded-pill"> {{ __('Manage') }} </a>
+            <div class="page-title-box d-flex justify-content-between align-items-center">
+                <h4 class="page-title mb-0"><i class="fa fa-file-text-o mr-1"></i> Landing Page Create</h4>
+                <div>
+                    <a href="{{ route('campaign.create') }}" class="btn btn-outline-primary rounded-pill btn-sm mr-1"><i class="fa fa-plus mr-1"></i> Create</a>
+                    <a href="{{ route('campaign.index') }}" class="btn btn-primary rounded-pill btn-sm"><i class="fa fa-list mr-1"></i> Manage</a>
                 </div>
-                <h4 class="page-title"> {{ __('Landing Page Create') }} </h4>
             </div>
         </div>
-    </div>       
-    <!-- end page title --> 
-   <div class="row justify-content-center">
-    <div class="col-lg-10">
-        <div class="card">
-            <div class="card-body">
-                <form action="{{ route('campaign.store') }}" method="POST" class="row" data-parsley-validate="" enctype="multipart/form-data" name="createForm">
-                    @csrf
-                    <div class="col-sm-12">
-                        <div class="form-group mb-3">
-                            <label for="name" class="form-label"> {{ __('Landing Page Title *') }} </label>
-                            <input type="text" class="form-control @error('name') is-invalid @enderror" name="name" value="{{ old('name') }}" id="name" required="">
-                            @error('name')
-                                <span class="invalid-feedback" role="alert">
-                                    <strong>{{ $message }}</strong>
-                                </span>
-                            @enderror
-                        </div>
-                    </div>
-                    <!-- col-end -->
-                
-                    <div class="col-sm-12 mb-3">
-                        <div class="form-group">
-                            <label for="banner" class="form-label"> {{ __('Banner Image *') }} </label>
-                            <input type="file" class="form-control @error('banner') is-invalid @enderror" name="banner" id="banner" required>
-                            @error('banner')
-                                <span class="invalid-feedback" role="alert">
-                                    <strong>{{ $message }}</strong>
-                                </span>
-                            @enderror
-                        </div>
-                    </div>
-                    <!-- col end -->
-                
-                    <div class="col-sm-12">
-                        <div class="form-group mb-3">
-                            <label for="banner_title" class="form-label"> {{ __('Banner Title *') }} </label>
-                            <input type="text" class="form-control @error('banner_title') is-invalid @enderror" name="banner_title" value="{{ old('banner_title') }}" id="banner_title" required="">
-                            @error('banner_title')
-                                <span class="invalid-feedback" role="alert">
-                                    <strong>{{ $message }}</strong>
-                                </span>
-                            @enderror
-                        </div>
-                    </div>
-                    <!-- col-end -->
-                    <div class="col-sm-12">
-                        <div class="form-group mb-3">
-                            <label for="deadline" class="form-label"> {{ __('Deadline') }} </label>
-                            <input type="datetime-local" class="form-control @error('deadline') is-invalid @enderror" name="deadline" value="{{ old('deadline') }}" id="deadline">
-                            @error('deadline')
-                                <span class="invalid-feedback" role="alert">
-                                    <strong>{{ $message }}</strong>
-                                </span>
-                            @enderror
-                        </div>
-                    </div>
+    </div>
 
-                    <div class="col-sm-12">
-                        <div class="form-group mb-3">
-                            <label for="top_title_1" class="form-label"> {{ __('Top Title 1') }} </label>
-                            <input type="text" class="form-control @error('top_title_1') is-invalid @enderror" name="top_title_1" value="{{ old('top_title_1') }}" id="top_title_1">
-                            @error('top_title_1')
-                                <span class="invalid-feedback" role="alert">
-                                    <strong>{{ $message }}</strong>
-                                </span>
-                            @enderror
-                        </div>
-                    </div>
+    <div class="row">
+        {{-- ════════ FORM ════════ --}}
+        <div class="col-lg-7 col-xl-7">
+            <form action="{{ route('campaign.store') }}" method="POST" class="campaign-form" data-parsley-validate="" enctype="multipart/form-data">
+                @csrf
 
-                    <div class="col-sm-12">
+                {{-- 🔤 Basic Info --}}
+                <div class="card lp-section-card">
+                    <div class="card-header"><i class="fa fa-info-circle"></i> Basic Info</div>
+                    <div class="card-body">
                         <div class="form-group mb-3">
-                            <label for="top_title_2" class="form-label"> {{ __('Top Title 2') }} </label>
-                            <input type="text" class="form-control @error('top_title_2') is-invalid @enderror" name="top_title_2" value="{{ old('top_title_2') }}" id="top_title_2">
-                            @error('top_title_2')
-                                <span class="invalid-feedback" role="alert">
-                                    <strong>{{ $message }}</strong>
-                                </span>
-                            @enderror
+                            <label for="name" class="form-label">Landing Page Title <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control @error('name') is-invalid @enderror" name="name" value="{{ old('name') }}" id="name" required placeholder="e.g. Ramadan Mega Offer">
+                            @error('name')<span class="invalid-feedback"><strong>{{ $message }}</strong></span>@enderror
                         </div>
-                    </div>
-
-                    <div class="col-sm-12">
-                        <div class="form-group mb-3">
-                            <label for="heading_1" class="form-label"> {{ __('Heading 1') }} </label>
-                            <input type="text" class="form-control @error('heading_1') is-invalid @enderror" name="heading_1" value="{{ old('heading_1') }}" id="heading_1">
-                            @error('heading_1')
-                                <span class="invalid-feedback" role="alert">
-                                    <strong>{{ $message }}</strong>
-                                </span>
-                            @enderror
-                        </div>
-                    </div>
-
-                    <div class="col-sm-12">
-                        <div class="form-group mb-3">
-                            <label for="feature_1" class="form-label"> {{ __('Feature 1') }} </label>
-                            <input type="text" class="form-control @error('feature_1') is-invalid @enderror" name="feature_1" value="{{ old('feature_1') }}" id="feature_1">
-                            @error('feature_1')
-                                <span class="invalid-feedback" role="alert">
-                                    <strong>{{ $message }}</strong>
-                                </span>
-                            @enderror
-                        </div>
-                    </div>
-
-                    <div class="col-sm-12">
-                        <div class="form-group mb-3">
-                            <label for="feature_2" class="form-label"> {{ __('Feature 2') }} </label>
-                            <input type="text" class="form-control @error('feature_2') is-invalid @enderror" name="feature_2" value="{{ old('feature_2') }}" id="feature_2">
-                            @error('feature_2')
-                                <span class="invalid-feedback" role="alert">
-                                    <strong>{{ $message }}</strong>
-                                </span>
-                            @enderror
-                        </div>
-                    </div>
-
-                    <div class="col-sm-12">
-                        <div class="form-group mb-3">
-                            <label for="heading_2" class="form-label"> {{ __('Heading 2') }} </label>
-                            <input type="text" class="form-control @error('heading_2') is-invalid @enderror" name="heading_2" value="{{ old('heading_2') }}" id="heading_2">
-                            @error('heading_2')
-                                <span class="invalid-feedback" role="alert">
-                                    <strong>{{ $message }}</strong>
-                                </span>
-                            @enderror
-                        </div>
-                    </div>
-
-                    <div class="col-sm-12">
-                        <div class="form-group mb-3">
-                            <label for="heading_3" class="form-label"> {{ __('Heading 3') }} </label>
-                            <input type="text" class="form-control @error('heading_3') is-invalid @enderror" name="heading_3" value="{{ old('heading_3') }}" id="heading_3">
-                            @error('heading_3')
-                                <span class="invalid-feedback" role="alert">
-                                    <strong>{{ $message }}</strong>
-                                </span>
-                            @enderror
-                        </div>
-                    </div>
-
-                    <div class="col-sm-12">
-                        <div class="form-group mb-3">
-                            <label for="heading_4" class="form-label"> {{ __('Heading 4') }} </label>
-                            <input type="text" class="form-control @error('heading_4') is-invalid @enderror" name="heading_4" value="{{ old('heading_4') }}" id="heading_4">
-                            @error('heading_4')
-                                <span class="invalid-feedback" role="alert">
-                                    <strong>{{ $message }}</strong>
-                                </span>
-                            @enderror
-                        </div>
-                    </div>
-
-                    <div class="col-sm-12">
-                        <div class="form-group mb-3">
-                            <label for="note" class="form-label">{{ __('Note') }}</label>
-                            <input type="text" class="form-control @error('note') is-invalid @enderror" name="note" value="{{ old('note') }}" id="note">
-                            @error('note')
-                                <span class="invalid-feedback" role="alert">
-                                    <strong>{{ $message }}</strong>
-                                </span>
-                            @enderror
-                        </div>
-                    </div>
-
-                    <div class="col-sm-12">
-                        <div class="form-group mb-3">
-                            <label for="billing_details" class="form-label">{{ __('Billing Details') }}</label>
-                            <input type="text" class="form-control @error('billing_details') is-invalid @enderror" name="billing_details" value="{{ old('billing_details') }}" id="billing_details">
-                            @error('billing_details')
-                                <span class="invalid-feedback" role="alert">
-                                    <strong>{{ $message }}</strong>
-                                </span>
-                            @enderror
-                        </div>
-                    </div>
-
-                    <div class="col-sm-12">
-                        <div class="form-group mb-3">
-                            <label for="video" class="form-label"> {{ __('Youtube Video ID') }} </label>
-                            <input type="text" class="form-control @error('video') is-invalid @enderror" name="video" value="{{ old('video') }}" id="video">
-                            @error('video')
-                                <span class="invalid-feedback" role="alert">
-                                    <strong>{{ $message }}</strong>
-                                </span>
-                            @enderror
-                        </div>
-                    </div>
-                    <div class="col-sm-12">
-                        <div class="form-group mb-3">
-                            <label for="product_id" class="form-label"> {{ __('Products *') }} </label>
-                            <select class="select2 form-control @error('product_id') is-invalid @enderror" 
-                                    name="product_id[]" 
-                                    multiple="multiple" 
-                                    data-placeholder="Choose ..." 
-                                    required>
-                                @foreach($products as $value)
-                                    <option value="{{ $value->id }}">{{ $value->name }}</option>
-                                @endforeach
-                            </select>
-                            @error('product_id')
-                                <span class="invalid-feedback" role="alert">
-                                    <strong>{{ $message }}</strong>
-                                </span>
-                            @enderror
-                        </div>
-                    </div>
-
-                    <!-- col end -->
-                
-                    <div class="col-sm-6 mb-3">
-                        <div class="form-group">
-                            <label for="image_one" class="form-label"> {{ __('Image One *') }} </label>
-                            <input type="file" class="form-control @error('image_one') is-invalid @enderror" name="image_one" id="image_one" required="">
-                            @error('image_one')
-                                <span class="invalid-feedback" role="alert">
-                                    <strong>{{ $message }}</strong>
-                                </span>
-                            @enderror
-                        </div>
-                    </div>
-                
-                    <div class="col-sm-6 mb-3">
-                        <div class="form-group">
-                            <label for="image_two" class="form-label"> {{ __('Image Two') }} </label>
-                            <input type="file" class="form-control @error('image_two') is-invalid @enderror" name="image_two" id="image_two">
-                            @error('image_two')
-                                <span class="invalid-feedback" role="alert">
-                                    <strong>{{ $message }}</strong>
-                                </span>
-                            @enderror
-                        </div>
-                    </div>
-                
-                    <div class="col-sm-6 mb-3">
-                        <div class="form-group">
-                            <label for="image_three" class="form-label"> {{ __('Image Three') }} </label>
-                            <input type="file" class="form-control @error('image_three') is-invalid @enderror" name="image_three" id="image_three">
-                            @error('image_three')
-                                <span class="invalid-feedback" role="alert">
-                                    <strong>{{ $message }}</strong>
-                                </span>
-                            @enderror
-                        </div>
-                    </div>
-                    <!-- col end -->
-                
-                    <div class="col-sm-6 mb-3">
-                        <label for="image"> {{ __('Review Image *') }} </label>
-                        <div class="input-group control-group increment">
-                            <input type="file" name="image[]" class="form-control @error('image') is-invalid @enderror" required />
-                            <div class="input-group-btn">
-                                <button class="btn btn-success btn-increment" type="button"><i class="fa fa-plus"></i></button>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group mb-0">
+                                    <label for="deadline" class="form-label">Offer Deadline</label>
+                                    <input type="datetime-local" class="form-control @error('deadline') is-invalid @enderror" name="deadline" value="{{ old('deadline') }}" id="deadline">
+                                    @error('deadline')<span class="invalid-feedback"><strong>{{ $message }}</strong></span>@enderror
+                                    <div class="field-hint">Countdown timer on the landing page.</div>
+                                </div>
                             </div>
-                            @error('image')
-                            <span class="invalid-feedback" role="alert">
-                                <strong>{{ $message }}</strong>
-                            </span>
-                            @enderror
-                        </div>
-                        <div class="clone hide" style="display: none;">
-                            <div class="control-group input-group">
-                                <input type="file" name="image[]" class="form-control" />
-                                <div class="input-group-btn">
-                                    <button class="btn btn-danger" type="button"><i class="fa fa-trash"></i></button>
+                            <div class="col-md-6">
+                                <div class="form-group mb-0">
+                                    <label for="banner_title" class="form-label">Banner Title</label>
+                                    <input type="text" class="form-control @error('banner_title') is-invalid @enderror" name="banner_title" value="{{ old('banner_title') }}" id="banner_title">
+                                    @error('banner_title')<span class="invalid-feedback"><strong>{{ $message }}</strong></span>@enderror
                                 </div>
                             </div>
                         </div>
                     </div>
-                    <!-- col end -->
-                
-                    <div class="col-sm-6 mb-3">
-                        <div class="form-group mb-3">
-                            <label for="review" class="form-label"> {{ __('Review *') }} </label>
-                            <input type="text" class="form-control @error('review') is-invalid @enderror" name="review" value="{{ old('review') }}" id="review" required="">
-                            @error('review')
-                                <span class="invalid-feedback" role="alert">
-                                    <strong>{{ $message }}</strong>
-                                </span>
-                            @enderror
-                        </div>
-                    </div>
-                    <!-- col-end -->
-                
-                    <div class="col-sm-12 mb-3">
-                        <div class="form-group">
-                            <label for="short_description" class="form-label"> {{ __('Short Description *') }} </label>
-                            <textarea name="short_description" rows="6" class="summernote form-control @error('short_description') is-invalid @enderror" required="">{{ old('short_description') }}</textarea>
-                            @error('short_description')
-                                <span class="invalid-feedback" role="alert">
-                                    <strong>{{ $message }}</strong>
-                                </span>
-                            @enderror
-                        </div>
-                    </div>
-                    <!-- col end -->
-                
-                    <div class="col-sm-12 mb-3">
-                        <div class="form-group">
-                            <label for="description" class="form-label"> {{ __('Description *') }} </label>
-                            <textarea name="description" rows="6" class="summernote form-control @error('description') is-invalid @enderror" required="">{{ old('description') }}</textarea>
-                            @error('description')
-                                <span class="invalid-feedback" role="alert">
-                                    <strong>{{ $message }}</strong>
-                                </span>
-                            @enderror
-                        </div>
-                    </div>
-                    <!-- col end -->
-                
-                  
-                    <!-- col end -->
-                
-                    <div>
-                        <input type="submit" class="btn btn-success" value="Create Campaign">
-                    </div>
-                </form>
+                </div>
 
-            </div> <!-- end card-body-->
-        </div> <!-- end card-->
-    </div> <!-- end col-->
-   </div>
+                {{-- 🎯 Top Bar / Headings --}}
+                <div class="card lp-section-card">
+                    <div class="card-header"><i class="fa fa-heading"></i> Top Bar &amp; Headings</div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label for="top_title_1" class="form-label">Top Title (Left)</label>
+                                    <input type="text" class="form-control" name="top_title_1" value="{{ old('top_title_1') }}" id="top_title_1">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label for="top_title_2" class="form-label">Top Title (Highlight)</label>
+                                    <input type="text" class="form-control" name="top_title_2" value="{{ old('top_title_2') }}" id="top_title_2">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label for="heading_1" class="form-label">Heading 1</label>
+                                    <input type="text" class="form-control" name="heading_1" value="{{ old('heading_1') }}" id="heading_1">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label for="heading_2" class="form-label">Heading 2</label>
+                                    <input type="text" class="form-control" name="heading_2" value="{{ old('heading_2') }}" id="heading_2">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label for="heading_3" class="form-label">Heading 3</label>
+                                    <input type="text" class="form-control" name="heading_3" value="{{ old('heading_3') }}" id="heading_3">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group mb-0">
+                                    <label for="heading_4" class="form-label">Heading 4 (Contact)</label>
+                                    <input type="text" class="form-control" name="heading_4" value="{{ old('heading_4') }}" id="heading_4">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {{-- ⭐ Features & Video --}}
+                <div class="card lp-section-card">
+                    <div class="card-header"><i class="fa fa-star"></i> Features &amp; Video <span class="badge bg-light text-muted ms-auto">add / remove</span></div>
+                    <div class="card-body">
+                        <div id="feature-rows">
+                            @forelse($features as $fi => $feature)
+                            <div class="feature-row sec-config-card">
+                                <div class="sec-config-head">
+                                    <span class="badge-key">Feature #{{ $loop->iteration }}</span>
+                                    <button type="button" class="btn btn-danger btn-sm btn-remove-feature"><i class="fa fa-trash"></i></button>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-4 mb-2">
+                                        <label class="form-label small">Icon <span class="text-muted">(emoji / FA class)</span></label>
+                                        <input type="text" class="form-control form-control-sm" name="features[{{ $fi }}][icon]" value="{{ $feature['icon'] ?? '' }}" placeholder="✨ or fa-truck">
+                                    </div>
+                                    <div class="col-md-8 mb-2">
+                                        <label class="form-label small">Image <span class="text-muted">(optional)</span></label>
+                                        <input type="file" class="form-control form-control-sm" name="features[{{ $fi }}][image]" data-feature-img="{{ $fi }}">
+                                        <input type="hidden" name="features[{{ $fi }}][image_old]" value="{{ $feature['image'] ?? '' }}">
+                                        @if(!empty($feature['image']))
+                                        <img class="img-preview-thumb mt-1" data-feature-preview="{{ $fi }}" src="{{ asset($feature['image']) }}" alt="">
+                                        @else
+                                        <img class="img-preview-thumb mt-1" data-feature-preview="{{ $fi }}" style="display:none;" alt="">
+                                        @endif
+                                    </div>
+                                    <div class="col-md-6 mb-2">
+                                        <label class="form-label small">Title</label>
+                                        <input type="text" class="form-control form-control-sm" name="features[{{ $fi }}][title]" value="{{ $feature['title'] ?? '' }}" placeholder="e.g. Fast Delivery">
+                                    </div>
+                                    <div class="col-md-6 mb-2">
+                                        <label class="form-label small">Text</label>
+                                        <input type="text" class="form-control form-control-sm" name="features[{{ $fi }}][text]" value="{{ $feature['text'] ?? '' }}" placeholder="Short description">
+                                    </div>
+                                </div>
+                            </div>
+                            @empty
+                            <div class="text-muted field-hint mb-2" id="feature-empty-hint">No features yet — click "Add Feature" below.</div>
+                            @endforelse
+                        </div>
+                        <div class="d-flex gap-2">
+                            <button type="button" class="btn btn-success btn-sm rounded-pill" id="btn-add-feature"><i class="fa fa-plus mr-1"></i> Add Feature</button>
+                        </div>
+
+                        <hr class="my-3">
+
+                        <div class="row">
+                            <div class="col-12">
+                                <div class="form-group mb-0">
+                                    <label for="video" class="form-label">YouTube Video URL / ID</label>
+                                    <input type="text" class="form-control" name="video" value="{{ old('video') }}" id="video" placeholder="https://www.youtube.com/watch?v=...">
+                                    <div class="field-hint">Paste the link or just the 11-character video ID.</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {{-- 🖼️ Images --}}
+                <div class="card lp-section-card">
+                    <div class="card-header"><i class="fa fa-image"></i> Images</div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <div class="form-group">
+                                    <label for="banner" class="form-label">Banner Image</label>
+                                    <input type="file" class="form-control @error('banner') is-invalid @enderror" name="banner" id="banner" data-current="">
+                                    <img class="img-preview-thumb" data-thumb-for="banner" style="display:none;" alt="">
+                                    @error('banner')<span class="invalid-feedback"><strong>{{ $message }}</strong></span>@enderror
+                                </div>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <div class="form-group">
+                                    <label for="image_one" class="form-label">Image One</label>
+                                    <input type="file" class="form-control @error('image_one') is-invalid @enderror" name="image_one" id="image_one" data-current="">
+                                    <img class="img-preview-thumb" data-thumb-for="image_one" style="display:none;" alt="">
+                                    @error('image_one')<span class="invalid-feedback"><strong>{{ $message }}</strong></span>@enderror
+                                </div>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <div class="form-group">
+                                    <label for="image_two" class="form-label">Image Two</label>
+                                    <input type="file" class="form-control" name="image_two" id="image_two" data-current="">
+                                    <img class="img-preview-thumb" data-thumb-for="image_two" style="display:none;" alt="">
+                                </div>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <div class="form-group">
+                                    <label for="image_three" class="form-label">Image Three</label>
+                                    <input type="file" class="form-control" name="image_three" id="image_three" data-current="">
+                                    <img class="img-preview-thumb" data-thumb-for="image_three" style="display:none;" alt="">
+                                </div>
+                            </div>
+                            <div class="col-md-8 mb-3">
+                                <label class="form-label">Review Images (Gallery)</label>
+                                <div class="input-group control-group increment mb-2">
+                                    <input type="file" name="image[]" class="form-control" data-current="">
+                                    <div class="input-group-btn">
+                                        <button class="btn btn-success btn-increment" type="button"><i class="fa fa-plus"></i></button>
+                                    </div>
+                                </div>
+                                <div class="clone" style="display: none;">
+                                    <div class="control-group input-group mb-2">
+                                        <input type="file" name="image[]" class="form-control" data-current="">
+                                        <div class="input-group-btn">
+                                            <button class="btn btn-danger" type="button"><i class="fa fa-trash"></i></button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {{-- 🛒 Products --}}
+                <div class="card lp-section-card">
+                    <div class="card-header"><i class="fa fa-cubes"></i> Products <span class="text-danger">*</span></div>
+                    <div class="card-body">
+                        <select class="select2 form-control @error('product_id') is-invalid @enderror" name="product_id[]" multiple="multiple" data-placeholder="Choose products for this campaign..." required>
+                            @foreach($products as $value)
+                                <option value="{{ $value->id }}">{{ $value->name }}</option>
+                            @endforeach
+                        </select>
+                        @error('product_id')<span class="invalid-feedback"><strong>{{ $message }}</strong></span>@enderror
+                        <div class="field-hint mt-1">First selected product is the campaign's primary product; the rest appear on the landing page.</div>
+                    </div>
+                </div>
+
+                {{-- �️ Section Visibility --}}
+                <div class="card lp-section-card">
+                    <div class="card-header"><i class="fa fa-eye-slash"></i> Section Visibility <span class="badge bg-light text-muted ms-auto">show / hide</span></div>
+                    <div class="card-body">
+                        <div class="row">
+                            @foreach(\App\Models\Campaign::SECTIONS as $key => $label)
+                            <div class="col-md-6">
+                                <div class="sec-toggle-row">
+                                    <span class="sec-label">{{ $label }}</span>
+                                    <label class="switch mb-0" title="Show / hide this section">
+                                        <input type="checkbox" class="section-toggle" name="sections[]" value="{{ $key }}" {{ ($default_sections[$key] ?? true) ? 'checked' : '' }}>
+                                        <span class="slider"></span>
+                                    </label>
+                                </div>
+                            </div>
+                            @endforeach
+                        </div>
+                        <div class="field-hint">Toggle each landing page section on/off. The live preview updates instantly.</div>
+                    </div>
+                </div>
+
+                {{-- 🏷️ Headings & Labels --}}
+                <div class="card lp-section-card">
+                    <div class="card-header"><i class="fa fa-font"></i> Headings &amp; Labels <span class="badge bg-light text-muted ms-auto">leave empty to hide</span></div>
+                    <div class="card-body">
+                        <p class="field-hint mb-3">Each field is pre-filled with a default. Clear a field to hide that heading on the landing page.</p>
+                        @php
+                            $labelGroups = [
+                                'Navigation'    => ['nav_features','nav_reviews','nav_order','nav_cta'],
+                                'Hero'          => ['hero_eyebrow','hero_cta_order','hero_cta_details','hero_trust_ends','hero_trust_cod'],
+                                'Details'       => ['details_eyebrow'],
+                                'Problem'       => ['problem_eyebrow','problem_heading'],
+                                'Solution'      => ['solution_eyebrow'],
+                                'Features'      => ['features_eyebrow','features_card'],
+                                'Benefits'      => ['benefits_eyebrow','benefits_heading'],
+                                'Media'         => ['media_eyebrow','media_heading'],
+                                'Video'         => ['video_eyebrow','video_heading'],
+                                'Products'      => ['products_eyebrow'],
+                                'Reviews'       => ['reviews_eyebrow','reviews_heading'],
+                                'Offer / Order' => ['offer_eyebrow','offer_heading'],
+                                'Trust'         => ['trust_eyebrow'],
+                                'FAQ'           => ['faq_eyebrow','faq_heading'],
+                                'Order Form'    => ['form_select','form_info','form_submit','form_summary','form_delivery','form_total','form_warranty'],
+                                'CTA'           => ['cta_eyebrow','cta_heading'],
+                                'Sticky / Footer' => ['sticky_order','sticky_cod','footer_rights'],
+                            ];
+                        @endphp
+                        @foreach($labelGroups as $groupTitle => $keys)
+                        <div class="mb-3">
+                            <h6 class="text-uppercase fw-bold" style="font-size:.75rem;color:#6366f1;margin-bottom:.5rem;">{{ $groupTitle }}</h6>
+                            <div class="row">
+                                @foreach($keys as $lk)
+                                <div class="col-md-6">
+                                    <div class="form-group mb-2">
+                                        <label class="form-label" style="font-size:.72rem;" for="label_{{ $lk }}">{{ \App\Models\Campaign::LABELS[$lk] ?? $lk }}</label>
+                                        <input type="text" class="form-control form-control-sm" name="labels[{{ $lk }}]" id="label_{{ $lk }}" value="{{ $default_labels[$lk] ?? '' }}" placeholder="{{ \App\Models\Campaign::LABELS[$lk] ?? '' }}">
+                                    </div>
+                                </div>
+                                @endforeach
+                            </div>
+                        </div>
+                        @endforeach
+                    </div>
+                </div>
+
+                {{-- �📝 Review & Description --}}
+                <div class="card lp-section-card">
+                    <div class="card-header"><i class="fa fa-pencil-square-o"></i> Review &amp; Description</div>
+                    <div class="card-body">
+                        <div class="form-group mb-3">
+                            <label for="review" class="form-label">Review / Offer Text <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control @error('review') is-invalid @enderror" name="review" value="{{ old('review') }}" id="review" required>
+                            @error('review')<span class="invalid-feedback"><strong>{{ $message }}</strong></span>@enderror
+                        </div>
+                        <div class="form-group mb-3">
+                            <label for="short_description" class="form-label">Short Description</label>
+                            <textarea name="short_description" rows="6" class="summernote form-control">{{ old('short_description') }}</textarea>
+                        </div>
+                        <div class="form-group mb-0">
+                            <label for="description" class="form-label">Full Description</label>
+                            <textarea name="description" rows="6" class="summernote form-control">{{ old('description') }}</textarea>
+                        </div>
+                    </div>
+                </div>
+
+                {{-- 📋 Order Form / Note --}}
+                <div class="card lp-section-card">
+                    <div class="card-header"><i class="fa fa-file-text-o"></i> Order Form &amp; Extra</div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label for="note" class="form-label">Note</label>
+                                    <input type="text" class="form-control" name="note" value="{{ old('note') }}" id="note">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label for="billing_details" class="form-label">Billing Details</label>
+                                    <input type="text" class="form-control" name="billing_details" value="{{ old('billing_details') }}" id="billing_details">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-success px-4 rounded-pill"><i class="fa fa-check mr-1"></i> Create Campaign</button>
+                            <a href="{{ route('campaign.index') }}" class="btn btn-light px-4 rounded-pill">Cancel</a>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        {{-- ════════ LIVE PREVIEW ════════ --}}
+        <div class="col-lg-5 col-xl-5">
+            @include('backEnd.campaign._preview', ['preview_products' => $preview_products, 'preview_url' => null, 'preview_slug' => ''])
+        </div>
+    </div>
 </div>
 @endsection
 
-
 @section('script')
-<script src="{{asset('public/backEnd/')}}/assets/libs/parsleyjs/parsley.min.js"></script>
-<script src="{{asset('public/backEnd/')}}/assets/js/pages/form-validation.init.js"></script>
-<script src="{{asset('public/backEnd/')}}/assets/libs/select2/js/select2.min.js"></script>
-<script src="{{asset('public/backEnd/')}}/assets/js/pages/form-advanced.init.js"></script>
-<script src="{{asset('public/backEnd/')}}/assets/libs/flatpickr/flatpickr.min.js"></script>
-<script src="{{asset('public/backEnd/')}}/assets/js/pages/form-pickers.init.js"></script>
+<script src="{{ asset('public/backEnd/') }}/assets/libs/parsleyjs/parsley.min.js"></script>
+<script src="{{ asset('public/backEnd/') }}/assets/js/pages/form-validation.init.js"></script>
+<script src="{{ asset('public/backEnd/') }}/assets/libs/select2/js/select2.min.js"></script>
+<script src="{{ asset('public/backEnd/') }}/assets/js/pages/form-advanced.init.js"></script>
+<script src="{{ asset('public/backEnd/') }}/assets/libs/flatpickr/flatpickr.min.js"></script>
+<script src="{{ asset('public/backEnd/') }}/assets/js/pages/form-pickers.init.js"></script>
+<script src="{{ asset('public/backEnd/') }}/assets/libs/summernote/summernote-lite.min.js"></script>
 
-<script src="{{asset('public/backEnd/')}}/assets/libs//summernote/summernote-lite.min.js"></script>
 <script>
-    $(".summernote").summernote({
-        placeholder: "Enter Your Text Here",    
-    });
-</script>
-<script type="text/javascript">
-    $(document).ready(function () {
+    $(function () {
+        // select2
+        $('.select2').select2();
+
+        // dynamic review-image rows
         $(".btn-increment").click(function () {
             var html = $(".clone").html();
             $(".increment").after(html);
@@ -369,7 +396,81 @@
         $("body").on("click", ".btn-danger", function () {
             $(this).parents(".control-group").remove();
         });
-        $('.select2').select2();
+
+        // small local image thumbnails (file inputs)
+        $('input[type="file"]').on('change', function () {
+            var file = this.files && this.files[0];
+            if (!file) return;
+            var reader = new FileReader();
+            var thumb = document.querySelector('[data-thumb-for="' + this.name + '"]');
+            reader.onload = function (e) {
+                if (thumb) { thumb.src = e.target.result; thumb.style.display = 'block'; }
+            };
+            reader.readAsDataURL(file);
+        });
+
+        // ---- Features loop grid (add / remove rows) ----
+        function reindexFeatures() {
+            $('#feature-rows .feature-row').each(function (idx) {
+                var i = idx;
+                $(this).find('.badge-key').text('Feature #' + (idx + 1));
+                $(this).find('[name^="features["]').each(function () {
+                    var name = $(this).attr('name').replace(/features\[\d+\]/, 'features[' + i + ']');
+                    $(this).attr('name', name);
+                });
+                $(this).find('[data-feature-img]').attr('data-feature-img', i);
+                $(this).find('[data-feature-preview]').attr('data-feature-preview', i);
+            });
+        }
+
+        $('#btn-add-feature').click(function () {
+            var idx = $('#feature-rows .feature-row').length;
+            var html = '' +
+                '<div class="feature-row sec-config-card">' +
+                    '<div class="sec-config-head">' +
+                        '<span class="badge-key">Feature #' + (idx + 1) + '</span>' +
+                        '<button type="button" class="btn btn-danger btn-sm btn-remove-feature"><i class="fa fa-trash"></i></button>' +
+                    '</div>' +
+                    '<div class="row">' +
+                        '<div class="col-md-4 mb-2">' +
+                            '<label class="form-label small">Icon <span class="text-muted">(emoji / FA class)</span></label>' +
+                            '<input type="text" class="form-control form-control-sm" name="features[' + idx + '][icon]" placeholder="✨ or fa-truck">' +
+                        '</div>' +
+                        '<div class="col-md-8 mb-2">' +
+                            '<label class="form-label small">Image <span class="text-muted">(optional)</span></label>' +
+                            '<input type="file" class="form-control form-control-sm" name="features[' + idx + '][image]" data-feature-img="' + idx + '">' +
+                            '<input type="hidden" name="features[' + idx + '][image_old]" value="">' +
+                            '<img class="img-preview-thumb mt-1" data-feature-preview="' + idx + '" style="display:none;" alt="">' +
+                        '</div>' +
+                        '<div class="col-md-6 mb-2">' +
+                            '<label class="form-label small">Title</label>' +
+                            '<input type="text" class="form-control form-control-sm" name="features[' + idx + '][title]" placeholder="e.g. Fast Delivery">' +
+                        '</div>' +
+                        '<div class="col-md-6 mb-2">' +
+                            '<label class="form-label small">Text</label>' +
+                            '<input type="text" class="form-control form-control-sm" name="features[' + idx + '][text]" placeholder="Short description">' +
+                        '</div>' +
+                    '</div>' +
+                '</div>';
+            $('#feature-empty-hint').remove();
+            $('#feature-rows').append(html);
+        });
+
+        $('body').on('click', '.btn-remove-feature', function () {
+            $(this).closest('.feature-row').remove();
+            reindexFeatures();
+        });
+
+        // Feature image preview
+        $('body').on('change', '[data-feature-img]', function () {
+            var file = this.files && this.files[0];
+            if (!file) return;
+            var idx = $(this).attr('data-feature-img');
+            var preview = document.querySelector('[data-feature-preview="' + idx + '"]');
+            var reader = new FileReader();
+            reader.onload = function (e) { if (preview) { preview.src = e.target.result; preview.style.display = 'block'; } };
+            reader.readAsDataURL(file);
+        });
     });
 </script>
 @endsection

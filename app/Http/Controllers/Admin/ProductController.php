@@ -783,7 +783,7 @@ class ProductController extends Controller
                         'warranty_type'   => $type,
                         'warranty_days'   => $days,
                         'additional_cost' => $tier['additional_cost'] ?? 0,
-                        'is_active'       => isset($tier['is_active']),
+                        'is_active'       => ($tier['is_active'] ?? '1') == '1',
                         'sort_order'      => $i,
                     ]);
                 }

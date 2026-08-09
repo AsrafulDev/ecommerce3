@@ -403,6 +403,58 @@ public function order_save(Request $request)
             'area'=>'required',
         ]);
 
+        // ⭐ ক্যাম্পেইন পেজ থেকে নির্দিষ্ট প্রোডাক্ট সিলেক্ট করা হলে কার্টে সেই প্রোডাক্ট সেট করি
+        if ($request->filled('product')) {
+            $campaignProduct = Product::with('image')->find($request->product);
+            if ($campaignProduct) {
+                // 🛡️ Warranty tier from campaign order form
+                $warrantyAdjustment = 0;
+                $warrantyTierId = null;
+                if ($request->filled('warranty_tier_id')) {
+                    $warrantyTier = \App\Models\ProductWarrantyTier::find($request->warranty_tier_id);
+                    if ($warrantyTier && $warrantyTier->is_active) {
+                        $warrantyAdjustment = (float) ($warrantyTier->additional_cost ?? 0);
+                        $warrantyTierId = $warrantyTier->id;
+                    }
+                }
+
+                $campaignPrice = (float) ($campaignProduct->new_price ?? $campaignProduct->old_price ?? 1) + $warrantyAdjustment;
+
+                Cart::instance('shopping')->destroy();
+                Cart::instance('shopping')->add([
+                    'id'   => $campaignProduct->id,
+                    'name' => $campaignProduct->name,
+                    'qty'  => 1,
+                    'price'=> $campaignPrice,
+                    'options' => [
+                        'slug'           => $campaignProduct->slug,
+                        'image'          => $campaignProduct->image->image ?? 'public/uploads/default.webp',
+                        'old_price'      => (float) ($campaignProduct->old_price ?? 0),
+                        'purchase_price' => (float) ($campaignProduct->purchase_price ?? 0),
+
+                        // 🔥 Advance
+                        'advance_amount' => (float) ($campaignProduct->advance_amount ?? 0),
+
+                        // 🔥 Digital flag
+                        'is_digital'     => (int) ($campaignProduct->is_digital ?? 0),
+
+                        // 🔥 Free Delivery flag
+                        'free_delivery'  => (int) ($campaignProduct->free_delivery ?? 0),
+
+                        // 🏷️ Original prices
+                        'regular_price'       => (float) ($campaignProduct->old_price ?? 0),
+                        'sale_price'          => (float) ($campaignProduct->new_price ?? 0),
+                        'base_price'          => (float) ($campaignProduct->new_price ?? $campaignProduct->old_price ?? 1),
+
+                        // 🛡️ Warranty
+                        'warranty_tier_id'    => $warrantyTierId,
+                        'warranty_adjustment' => $warrantyAdjustment,
+                        'wholesale_discount'  => 0,
+                    ],
+                ]);
+            }
+        }
+
         if(Cart::instance('shopping')->count() <= 0) {
             Toastr::error('Your shopping empty', 'Failed!');
             return redirect()->back();

@@ -22,8 +22,55 @@ class CampaignController extends Controller
     }
     public function create()
     {
-        $products = Product::where(['status'=>1])->select('id','name','status')->get();
-        return view('backEnd.campaign.create',compact('products'));
+        $products = Product::where(['status'=>1])
+            ->with('image')
+            ->select('id','name','new_price','old_price','status')
+            ->get();
+
+        // Lightweight product payload used by the live preview pane
+        $preview_products = $products->map(function($p) {
+            return [
+                'id'        => $p->id,
+                'name'      => $p->name,
+                'new_price' => $p->new_price,
+                'old_price' => $p->old_price,
+                'image'     => $p->image ? asset($p->image->image) : null,
+            ];
+        })->values();
+
+        $default_sections = array_fill_keys(array_keys(\App\Models\Campaign::SECTIONS), true);
+        $section_config   = $this->defaultSectionConfig();
+        $default_labels   = \App\Models\Campaign::LABELS;
+        $features         = [];
+        $problem          = [];
+        $solution         = [];
+        $benefits         = [];
+        $trust            = [];
+        $faq              = [];
+        $cta              = [];
+        $reviews          = [];
+
+        return view('backEnd.campaign.create', compact('products', 'preview_products', 'default_sections', 'section_config', 'default_labels', 'features', 'problem', 'solution', 'benefits', 'trust', 'faq', 'cta', 'reviews'));
+    }
+
+    /**
+     * A pristine section config (all visible, default labels/positions, empty fields).
+     */
+    protected function defaultSectionConfig(): array
+    {
+        $out = [];
+        foreach (\App\Models\Campaign::SECTIONS as $key => $label) {
+            $d = \App\Models\Campaign::SECTION_DEFAULTS[$key] ?? ['label' => $label, 'position' => count($out) + 1];
+            $out[$key] = [
+                'label'    => $d['label'],
+                'position' => $d['position'],
+                'visible'  => true,
+                'title'    => '',
+                'text'     => '',
+                'feature'  => '',
+            ];
+        }
+        return $out;
     }
     public function store(Request $request)
     {
@@ -55,6 +102,16 @@ class CampaignController extends Controller
         // Prepare the input data
         $input = $request->except('image', 'product_id');
         $input['status'] = true; // Set status to true if not checked
+        $input['sections'] = $this->buildSections($request);
+        $input['labels']   = $this->buildLabels($request);
+        $input['features'] = $this->buildFeatures($request);
+        $input['problem']  = $this->buildProblem($request);
+        $input['solution'] = $this->buildSolution($request);
+        $input['benefits'] = $this->buildBenefits($request);
+        $input['trust']    = $this->buildTrust($request);
+        $input['faq']      = $this->buildFaq($request);
+        $input['cta']      = $this->buildCta($request);
+        $input['reviews']  = $this->buildReviews($request);
     
         // Handle the first selected product ID
         $firstProductId = $request->product_id[0];
@@ -149,20 +206,88 @@ class CampaignController extends Controller
     {
         // Fetch the campaign with its related images and products
         $edit_data = Campaign::with('images')->findOrFail($id);
-    
-     
-        $select_products = DB::select('
-            SELECT products.id, products.name, products.status 
-            FROM products
-            INNER JOIN campaign_product ON products.id = campaign_product.product_id
-            WHERE campaign_product.campaign_id = ?
-        ', [$id]);
 
-    
+        // Additional products attached via the pivot table
+        $select_products = $edit_data->products()->with('image')->get();
+
+        // Products shown on the landing page = pivot products + the primary product
+        // (mirrors FrontendController::campaign). Build the preview payload from them.
+        $preview_products = collect();
+        if ($edit_data->product_id) {
+            $primary = Product::with('image')->find($edit_data->product_id);
+            if ($primary) {
+                $preview_products->push([
+                    'id'        => $primary->id,
+                    'name'      => $primary->name,
+                    'new_price' => $primary->new_price,
+                    'old_price' => $primary->old_price,
+                    'image'     => $primary->image ? asset($primary->image->image) : null,
+                ]);
+            }
+        }
+        foreach ($select_products as $p) {
+            if ($p->id == $edit_data->product_id) {
+                continue; // already added as primary
+            }
+            $preview_products->push([
+                'id'        => $p->id,
+                'name'      => $p->name,
+                'new_price' => $p->new_price,
+                'old_price' => $p->old_price,
+                'image'     => $p->image ? asset($p->image->image) : null,
+            ]);
+        }
+        $preview_products = $preview_products->values();
+
+        $default_sections = array_fill_keys(array_keys(\App\Models\Campaign::SECTIONS), true);
+        $sections         = $edit_data->sections ?: $default_sections;
+        $section_config   = $edit_data->sectionConfig();
+        $default_labels   = \App\Models\Campaign::LABELS;
+        $labels           = array_merge($default_labels, is_array($edit_data->labels) ? $edit_data->labels : []);
+
+        // Features: stored JSON, or fall back to legacy feature_1/feature_2/heading_3/heading_4/image_three
+        $features = is_array($edit_data->features) && !empty($edit_data->features)
+            ? $edit_data->features
+            : $this->legacyFeatures($edit_data);
+
+        $problem  = is_array($edit_data->problem)  ? $edit_data->problem  : [];
+        $solution = is_array($edit_data->solution) ? $edit_data->solution : [];
+        $benefits = is_array($edit_data->benefits) ? $edit_data->benefits : [];
+        $trust    = is_array($edit_data->trust)    ? $edit_data->trust    : [];
+        $faq      = is_array($edit_data->faq)      ? $edit_data->faq      : [];
+        $cta      = is_array($edit_data->cta)      ? $edit_data->cta      : [];
+        $reviews  = is_array($edit_data->reviews)  ? $edit_data->reviews  : [];
+
         // Fetch all available products
         $products = Product::where('status', 1)->select('id', 'name', 'status')->get();
-    
-        return view('backEnd.campaign.edit', compact('edit_data', 'products','select_products'));
+
+        return view('backEnd.campaign.edit', compact('edit_data', 'products', 'select_products', 'preview_products', 'sections', 'default_sections', 'section_config', 'default_labels', 'labels', 'features', 'problem', 'solution', 'benefits', 'trust', 'faq', 'cta', 'reviews'));
+    }
+
+    /**
+     * Build the Features grid from the legacy top-level columns
+     * (feature_1, feature_2, heading_3, heading_4, image_three) when no JSON features exist yet.
+     */
+    protected function legacyFeatures($campaign): array
+    {
+        $out = [];
+        $card = trim((string) ($campaign->labels['features_card'] ?? 'Feature'));
+        if ($campaign->feature_1) {
+            $out[] = ['icon' => '✨', 'image' => '', 'title' => $card, 'text' => $campaign->feature_1];
+        }
+        if ($campaign->feature_2) {
+            $out[] = ['icon' => '✓', 'image' => '', 'title' => $card, 'text' => $campaign->feature_2];
+        }
+        if ($campaign->heading_3) {
+            $out[] = ['icon' => '', 'image' => '', 'title' => $campaign->heading_3, 'text' => ''];
+        }
+        if ($campaign->heading_4) {
+            $out[] = ['icon' => '', 'image' => '', 'title' => $campaign->heading_4, 'text' => ''];
+        }
+        if ($campaign->image_three) {
+            $out[] = ['icon' => '', 'image' => $campaign->image_three, 'title' => '', 'text' => ''];
+        }
+        return $out;
     }
 
     
@@ -197,6 +322,16 @@ class CampaignController extends Controller
         $input['status'] = $request->has('status') ? 1 : 0;
         $input['video'] = $this->getYouTubeVideoId($request->video);
         $input['product_id'] = $request->product_id[0];
+        $input['sections'] = $this->buildSections($request);
+        $input['labels']   = $this->buildLabels($request);
+        $input['features'] = $this->buildFeatures($request);
+        $input['problem']  = $this->buildProblem($request);
+        $input['solution'] = $this->buildSolution($request);
+        $input['benefits'] = $this->buildBenefits($request);
+        $input['trust']    = $this->buildTrust($request);
+        $input['faq']      = $this->buildFaq($request);
+        $input['cta']      = $this->buildCta($request);
+        $input['reviews']  = $this->buildReviews($request);
         
           // Handle Banner Image
         if ($request->hasFile('banner')) {
@@ -283,7 +418,10 @@ class CampaignController extends Controller
             $input['image_three'] = $update_data->image_three;
         }
         // image four
-        $input['slug'] = strtolower(Str::slug($request->name));
+        // Keep a stable slug: only regenerate when the name actually changed.
+        $input['slug'] = (trim((string) $update_data->name) === trim((string) $request->name))
+            ? ($update_data->slug ?: strtolower(Str::slug($request->name)))
+            : strtolower(Str::slug($request->name));
         $input['video'] = $this->getYouTubeVideoId($request->video);
         $update_data = Campaign::find($request->hidden_id);
         $update_data->update($input);
@@ -351,6 +489,175 @@ class CampaignController extends Controller
         Toastr::success('Success','Data delete successfully');
         return redirect()->back();
     } 
+    /**
+     * Build the per-section config from the submitted form.
+     * Each section: label, position, visible, title, text, feature.
+     */
+    protected function buildSections(Request $request): array
+    {
+        $in = $request->input('sections', []);
+        $out = [];
+        foreach (array_keys(\App\Models\Campaign::SECTIONS) as $key) {
+            $s = is_array($in[$key] ?? null) ? $in[$key] : [];
+            $out[$key] = [
+                'label'    => trim((string) ($s['label'] ?? \App\Models\Campaign::SECTION_DEFAULTS[$key]['label'] ?? $key)),
+                'position' => (int) ($s['position'] ?? \App\Models\Campaign::SECTION_DEFAULTS[$key]['position'] ?? 1),
+                'visible'  => isset($s['visible']) ? (bool) $s['visible'] : false,
+                'title'    => (string) ($s['title'] ?? ''),
+                'text'     => (string) ($s['text'] ?? ''),
+                'feature'  => (string) ($s['feature'] ?? ''),
+            ];
+        }
+        return $out;
+    }
+
+    /**
+     * Build the dynamic heading/label map from the submitted form.
+     * Only keys present in the form are stored; missing keys => '' (hidden).
+     */
+    protected function buildLabels(Request $request): array
+    {
+        $in = $request->input('labels', []);
+        $out = [];
+        foreach (array_keys(\App\Models\Campaign::LABELS) as $key) {
+            $out[$key] = trim((string) ($in[$key] ?? ''));
+        }
+        return $out;
+    }
+
+    /**
+     * Build the Features grid from the submitted loop rows.
+     * Each row: icon, image (optional upload), title, text.
+     */
+    protected function buildFeatures(Request $request): array
+    {
+        $rows = $request->input('features', []);
+        $files = $request->file('features', []);
+        $out = [];
+
+        if (!is_array($rows)) {
+            return $out;
+        }
+
+        foreach ($rows as $i => $row) {
+            if (!is_array($row)) {
+                continue;
+            }
+
+            // Handle optional image upload for this feature row
+            $imagePath = trim((string) ($row['image_old'] ?? ''));
+            $upload = $files[$i]['image'] ?? null;
+            if ($upload && $upload->isValid()) {
+                $name = time() . '-' . strtolower(preg_replace('/\s+/', '-', $upload->getClientOriginalName()));
+                $uploadPath = 'public/uploads/campaign/';
+                $upload->move($uploadPath, $name);
+                $imagePath = $uploadPath . $name;
+            }
+
+            $icon  = trim((string) ($row['icon'] ?? ''));
+            $title = trim((string) ($row['title'] ?? ''));
+            $text  = trim((string) ($row['text'] ?? ''));
+
+            if ($icon === '' && $imagePath === '' && $title === '' && $text === '') {
+                continue; // skip empty rows
+            }
+
+            $out[] = [
+                'icon'  => $icon,
+                'image' => $imagePath,
+                'title' => $title,
+                'text'  => $text,
+            ];
+        }
+
+        return $out;
+    }
+
+    /**
+     * Build a generic loop of text rows (problem/solution/benefits/trust/faq/cta).
+     * Each row is `key[i][field]`; rows with all-empty fields are dropped.
+     */
+    protected function buildLoop(Request $request, string $key, array $fields): array
+    {
+        $rows = $request->input($key, []);
+        $out = [];
+        if (!is_array($rows)) {
+            return $out;
+        }
+        foreach ($rows as $row) {
+            if (!is_array($row)) {
+                continue;
+            }
+            $normalized = [];
+            $hasValue = false;
+            foreach ($fields as $f) {
+                $v = trim((string) ($row[$f] ?? ''));
+                $normalized[$f] = $v;
+                if ($v !== '') { $hasValue = true; }
+            }
+            if ($hasValue) {
+                $out[] = $normalized;
+            }
+        }
+        return $out;
+    }
+
+    /**
+     * Build the Problem (pain cards) loop. Fields: num, title, text.
+     */
+    protected function buildProblem(Request $request): array
+    {
+        return $this->buildLoop($request, 'problem', ['num', 'title', 'text']);
+    }
+
+    /**
+     * Build the Solution benefits loop. Fields: icon, title, text.
+     */
+    protected function buildSolution(Request $request): array
+    {
+        return $this->buildLoop($request, 'solution', ['icon', 'title', 'text']);
+    }
+
+    /**
+     * Build the Benefits loop. Fields: icon, title, text.
+     */
+    protected function buildBenefits(Request $request): array
+    {
+        return $this->buildLoop($request, 'benefits', ['icon', 'title', 'text']);
+    }
+
+    /**
+     * Build the Trust badges loop. Fields: icon, text.
+     */
+    protected function buildTrust(Request $request): array
+    {
+        return $this->buildLoop($request, 'trust', ['icon', 'text']);
+    }
+
+    /**
+     * Build the FAQ loop. Fields: q, a.
+     */
+    protected function buildFaq(Request $request): array
+    {
+        return $this->buildLoop($request, 'faq', ['q', 'a']);
+    }
+
+    /**
+     * Build the CTA loop. Fields: icon, title, text.
+     */
+    protected function buildCta(Request $request): array
+    {
+        return $this->buildLoop($request, 'cta', ['icon', 'title', 'text']);
+    }
+
+    /**
+     * Build the Customer Reviews loop. Fields: name, text, rating.
+     */
+    protected function buildReviews(Request $request): array
+    {
+        return $this->buildLoop($request, 'reviews', ['name', 'text', 'rating']);
+    }
+
     public function getYouTubeVideoId($input)
     {
         // Check if the input is a valid YouTube video ID (11 characters long)

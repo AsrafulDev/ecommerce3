@@ -1,1220 +1,1051 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <meta charset="UTF-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>{{ $generalsetting->name }}</title>
-        <link rel="shortcut icon" href="{{asset($generalsetting->favicon)}}" type="image/x-icon" />
-        <!-- fot awesome -->
-        <link rel="stylesheet" href="{{ asset('public/frontEnd/campaign/css') }}/all.css" />
-        <!-- core css -->
-        <link rel="stylesheet" href="{{ asset('public/frontEnd/campaign/css') }}/bootstrap.min.css" />
-        <link rel="stylesheet" href="{{ asset('public/frontEnd/campaign/css') }}/animate.css" />
-        <!-- owl carousel -->
-        <link rel="stylesheet" href="{{ asset('public/frontEnd/campaign/css') }}/owl.theme.default.css" />
-        <link rel="stylesheet" href="{{ asset('public/frontEnd/campaign/css') }}/owl.carousel.min.css" />
-        <!-- owl carousel -->
-        <link rel="stylesheet" href="{{ asset('public/frontEnd/campaign/css') }}/select2.min.css" />
-        <!-- common css -->
-        <link rel="stylesheet" href="{{ asset('public/frontEnd/campaign/css') }}/style.css" />
-        <link rel="stylesheet" href="{{ asset('public/frontEnd/campaign/css') }}/responsive.css" />
-        <!-- ========== DataLayer Initialization ========== -->
-        @php
-            $camp_name      = strip_tags($campaign_data->name ?? '');
-            $camp_slug      = $campaign_data->slug ?? '';
-            $camp_id        = (string) $campaign_data->id;
-            $_firstProd     = $products->first();
-            $camp_value     = $_firstProd ? (float) $_firstProd->new_price : 0.0;
-            $camp_products  = $products->map(function($p) {
-                return [
-                    'id'        => (string) $p->id,
-                    'name'      => strip_tags($p->name ?? ''),
-                    'price'     => (float)  $p->new_price,
-                    'old_price' => (float)  $p->old_price,
-                ];
-            })->values();
-            $_camp_idx      = 0;
-            $camp_items_gtm = $products->map(function($p) use (&$_camp_idx) {
-                return [
-                    'item_id'   => (string) $p->id,
-                    'item_name' => strip_tags($p->name ?? ''),
-                    'price'     => (float)  $p->new_price,
-                    'index'     => $_camp_idx++,
-                    'quantity'  => 1,
-                ];
-            })->values();
-        @endphp
-        <script>
-            window.dataLayer = window.dataLayer || [];
-            window._campaignData = {
-                id:          {{ json_encode($camp_id) }},
-                name:        {{ json_encode($camp_name) }},
-                slug:        {{ json_encode($camp_slug) }},
-                currency:    'BDT',
-                fb_event_id: {{ json_encode($fb_view_content_event_id) }}
-            };
-            window._campaignProducts = {!! json_encode($camp_products) !!};
-            dataLayer.push({
-                event:         'campaign_page_loaded',
-                page_type:     'campaign_landing',
-                campaign_id:   {{ json_encode($camp_id) }},
-                campaign_name: {{ json_encode($camp_name) }},
-                currency:      'BDT',
-                value:         {{ $camp_value }},
-                ecommerce: {
-                    currency: 'BDT',
-                    items:    {!! json_encode($camp_items_gtm) !!}
-                }
-            });
-        </script>
-        <!-- ========== Google Tag Manager ========== -->
-        @foreach($gtm_code as $gtm)
-        @php
-            $gtm_container_id = preg_match('/^GTM-/i', trim($gtm->code))
-                ? trim($gtm->code)
-                : 'GTM-' . trim($gtm->code);
-        @endphp
-        <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
-        new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
-        j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
-        'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-        })(window,document,'script','dataLayer','{{ $gtm_container_id }}');</script>
-        @endforeach
-        <!-- ========== End Google Tag Manager ========== -->
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>{{ $campaign_data->name }} | {{ $generalsetting->name }}</title>
+<meta name="csrf-token" content="{{ csrf_token() }}">
+<link rel="shortcut icon" href="{{ asset($generalsetting->favicon) }}" type="image/x-icon" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400;1,9..144,500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+@php
+    $theme   = $generalsetting->activeTheme ?? null;
+    $primary = $theme->primary_color        ?? '#C9A66B';
+    $btnBg   = $theme->button_bg_color      ?? $primary;
+    $btnText = $theme->button_text_color    ?? '#14151C';
+    $heading = $theme->heading_color        ?? '#14151C';
+    $textCol = $theme->text_color           ?? '#1A1A1A';
+    $bodyBg  = $theme->body_bg_color        ?? '#FAF9F5';
+    $headerBg= $theme->header_bg_color      ?? '#14151C';
+    $headerTxt=$theme->header_text_color    ?? '#F4F1E8';
 
-        <meta name="app-url" content="{{route('campaign',$campaign_data->slug)}}" />
-        <meta name="robots" content="index, follow" />
-        <meta name="description" content="{{$campaign_data->description}}" />
-        <meta name="keywords" content="{{ $campaign_data->slug }}" />
+    $camp_name      = strip_tags($campaign_data->name ?? '');
+    $camp_slug      = $campaign_data->slug ?? '';
+    $camp_id        = (string) $campaign_data->id;
+    $_firstProd     = $products->first();
+    $camp_value     = $_firstProd ? (float) $_firstProd->new_price : 0.0;
+    $warranty_label = $campaign_data->label('form_warranty') ?: 'Warranty';
+    $camp_products  = $products->map(function($p) use ($warranty_label) {
+        $tiers = app(\App\Services\WarrantyDisplayService::class)->getDisplayableTiers($p);
+        return [
+            'id'=>(string)$p->id,
+            'name'=>strip_tags($p->name??''),
+            'price'=>(float)$p->new_price,
+            'old_price'=>(float)$p->old_price,
+            'image'=> $p->image && $p->image->image ? asset($p->image->image) : '',
+            'free_delivery'=>(int)($p->free_delivery ?? 0),
+            'warranty_label'=>$warranty_label,
+            'tiers'=>$tiers,
+        ];
+    })->values();
+    // ⭐ Initial shipping charge (first area; 0 if selected product has free delivery)
+    $first_charge = $shippingcharge->first();
+    $initial_shipping = ($_firstProd && !(int)($_firstProd->free_delivery ?? 0) && $first_charge) ? (float)$first_charge->amount : 0;
+    $camp_items_gtm = $products->map(function($p,$i){
+        return ['item_id'=>(string)$p->id,'item_name'=>strip_tags($p->name??''),'price'=>(float)$p->new_price,'index'=>$i,'quantity'=>1];
+    })->values();
+@endphp
+<script>
+    window.dataLayer = window.dataLayer || [];
+    window._campaignData = { id: {!! json_encode($camp_id) !!}, name: {!! json_encode($camp_name) !!}, slug: {!! json_encode($camp_slug) !!}, currency: 'BDT', fb_event_id: {!! json_encode($fb_view_content_event_id) !!} };
+    window._campaignProducts = {!! json_encode($camp_products) !!};
+    dataLayer.push({ event:'campaign_page_loaded', page_type:'campaign_landing', campaign_id:{!! json_encode($camp_id) !!}, campaign_name:{!! json_encode($camp_name) !!}, currency:'BDT', value:{{ $camp_value }}, ecommerce:{ currency:'BDT', items:{!! json_encode($camp_items_gtm) !!} } });
+</script>
+@foreach($gtm_code as $gtm)
+@php $gtm_container_id = preg_match('/^GTM-/i', trim($gtm->code)) ? trim($gtm->code) : 'GTM-'.trim($gtm->code); @endphp
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);})(window,document,'script','dataLayer','{{ $gtm_container_id }}');</script>
+@endforeach
+<meta name="description" content="{{ $campaign_data->description }}" />
+<meta property="og:title" content="{{ $campaign_data->name }}" />
+<meta property="og:image" content="{{ asset($campaign_data->image_one) }}" />
+<meta property="og:description" content="{{ $campaign_data->description }}" />
+@if(isset($pixels) && $pixels->count() > 0)
+<script>
+!function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');
+@foreach($pixels as $pixel) fbq('init','{{ $pixel->code }}'); @endforeach
+fbq('track','PageView',{}, {eventID: {!! json_encode('pv_camp'.$campaign_data->id.'_'.time()) !!}});
+fbq('track','ViewContent',{ content_name:{!! json_encode($camp_name) !!}, content_ids:{!! json_encode($products->pluck('id')->map(fn($id)=>(string)$id)->values()->toArray()) !!}, content_type:'product', value:{{ $camp_value }}, currency:'BDT', num_items:{{ $products->count() }} }, {eventID: {!! json_encode($fb_view_content_event_id) !!}});
+</script>
+@endif
+<style>
+    :root{
+        --brand: {{ $primary }};
+        --brand-bright: {{ $btnBg }};
+        --btn-text: {{ $btnText }};
+        --heading: {{ $heading }};
+        --text: {{ $textCol }};
+        --body-bg: {{ $bodyBg }};
+        --header-bg: {{ $headerBg }};
+        --header-text: {{ $headerTxt }};
+        --ink:#14151C; --ink-2:#1D1E28; --ivory:#F4F1E8; --dusk:#9B96A8; --dusk-dim:#6D6980;
+        --paper:{{ $bodyBg }}; --paper-2:#F1EEE6; --gray:#6B6558;
+        --line:rgba(244,241,232,0.12); --line-dark:rgba(26,26,26,0.10);
+        --radius-lg:28px; --radius-md:18px; --radius-sm:12px; --ease:cubic-bezier(.22,.61,.36,1);
+    }
+    *{box-sizing:border-box;}
+    html{scroll-behavior:smooth;}
+    body{margin:0;font-family:'Inter',sans-serif;background:var(--paper);color:var(--text);-webkit-font-smoothing:antialiased;overflow-x:hidden;}
+    h1,h2,h3,.serif{font-family:'Fraunces',serif;font-weight:500;letter-spacing:-0.01em;}
+    p{line-height:1.65;}
+    a{color:inherit;}
+    img,svg{display:block;max-width:100%;}
+    .container{max-width:1180px;margin:0 auto;padding:0 24px;}
+    section{position:relative;padding:90px 0;}
+    @media(max-width:768px){section{padding:60px 0;}}
+    .eyebrow{font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--brand);font-weight:600;margin-bottom:18px;display:flex;align-items:center;gap:10px;}
+    .eyebrow::before{content:'';width:22px;height:1px;background:var(--brand);display:inline-block;}
+    .h1{font-size:clamp(38px,6vw,74px);line-height:1.04;margin:0 0 22px;}
+    .h2{font-size:clamp(30px,4.2vw,48px);line-height:1.08;margin:0 0 18px;}
+    .lead{font-size:19px;color:var(--dusk);max-width:520px;margin:0 0 36px;}
+    .lead.dark{color:var(--gray);}
+    .btn{display:inline-flex;align-items:center;justify-content:center;gap:10px;padding:16px 32px;border-radius:100px;font-size:15px;font-weight:600;text-decoration:none;cursor:pointer;border:1px solid transparent;transition:transform .35s var(--ease),box-shadow .35s var(--ease),background .3s;white-space:nowrap;}
+    .btn-primary{background:var(--brand-bright);color:var(--btn-text);box-shadow:0 8px 30px -8px rgba(201,166,107,.55);}
+    .btn-primary:hover{transform:translateY(-2px);filter:brightness(1.08);}
+    .btn-ghost-dark{background:transparent;border-color:var(--line);color:var(--ivory);}
+    .btn-ghost-dark:hover{background:rgba(244,241,232,.06);transform:translateY(-2px);}
+    .btn-block{width:100%;}
+    .highlight{color:var(--brand-bright);}
 
-        <!-- Twitter Card data -->
-        <meta name="twitter:card" content="product" />
-        <meta name="twitter:site" content="{{$campaign_data->name}}" />
-        <meta name="twitter:title" content="{{$campaign_data->name}}" />
-        <meta name="twitter:description" content="{{ $campaign_data->description}}" />
-        <meta name="twitter:creator" content="{{ $generalsetting->name }}" />
-        <meta property="og:url" content="{{route('campaign',$campaign_data->slug)}}" />
-        <meta name="twitter:image" content="{{asset($campaign_data->image_one)}}" />
+    /* NAV */
+    nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:18px 32px;backdrop-filter:blur(14px);background:rgba(20,21,28,.55);border-bottom:1px solid var(--line);transition:background .4s;}
+    nav .logo{font-family:'Fraunces',serif;font-size:20px;color:var(--ivory);letter-spacing:.02em;font-style:italic;}
+    nav .links{display:flex;gap:34px;font-size:14px;color:var(--dusk);}
+    nav .links a{text-decoration:none;transition:color .2s;}
+    nav .links a:hover{color:var(--ivory);}
+    nav .nav-cta{padding:11px 22px;font-size:13px;}
+    @media(max-width:860px){nav .links{display:none;}}
 
-        <!-- Open Graph data -->
-        <meta property="og:title" content="{{$campaign_data->name}}" />
-        <meta property="og:type" content="product" />
-        <meta property="og:url" content="{{route('campaign',$campaign_data->slug)}}" />
-        <meta property="og:image" content="{{asset($campaign_data->image_one)}}" />
-        <meta property="og:description" content="{{ $campaign_data->description}}" />
-        <meta property="og:site_name" content="{{$campaign_data->name}}" />
+    /* HERO */
+    .hero{background:radial-gradient(120% 100% at 50% -10%,{{ $headerBg }} 0%,var(--ink) 55%,#0F1016 100%);color:var(--ivory);padding-top:170px;padding-bottom:100px;overflow:hidden;}
+    .hero-grid{display:grid;grid-template-columns:1.05fr .95fr;gap:60px;align-items:center;}
+    @media(max-width:900px){.hero-grid{grid-template-columns:1fr;gap:56px;}}
+    .hero-trust{display:flex;flex-wrap:wrap;gap:26px;margin-top:44px;padding-top:32px;border-top:1px solid var(--line);}
+    .trust-item{display:flex;align-items:center;gap:9px;font-size:13px;color:var(--dusk);}
+    .stars{color:var(--brand);font-size:14px;letter-spacing:2px;}
+    .hero-visual{position:relative;display:flex;align-items:center;justify-content:center;min-height:420px;}
+    .glow-ring{position:absolute;width:380px;height:380px;border-radius:50%;background:radial-gradient(circle,rgba(201,166,107,.22),rgba(201,166,107,0) 70%);animation:breathe 6s ease-in-out infinite;}
+    @keyframes breathe{0%,100%{transform:scale(1);opacity:.75;}50%{transform:scale(1.12);opacity:1;}}
+    .hero-img{position:relative;z-index:2;width:320px;height:320px;object-fit:cover;border-radius:24px;box-shadow:0 30px 80px -20px rgba(0,0,0,.6);}
+    .badge-float{position:absolute;background:rgba(244,241,232,.08);border:1px solid var(--line);backdrop-filter:blur(10px);border-radius:16px;padding:12px 16px;font-size:12.5px;color:var(--ivory);display:flex;align-items:center;gap:8px;animation:float 5s ease-in-out infinite;z-index:3;}
+    .badge-1{top:6%;left:-4%;animation-delay:0s;}
+    .badge-2{bottom:10%;right:-6%;animation-delay:1.4s;}
+    @media(max-width:900px){.badge-1,.badge-2{display:none;}}
+    @keyframes float{0%,100%{transform:translateY(0);}50%{transform:translateY(-10px);}}
 
-        <!-- ========== Facebook Pixel (single init) ========== -->
-        @if($pixels->count() > 0)
-        <script>
-            !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?
-            n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;
-            n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;
-            t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}
-            (window,document,'script','https://connect.facebook.net/en_US/fbevents.js');
-            @foreach($pixels as $pixel)
-            fbq('init', '{{{ $pixel->code }}}');
+    /* DETAILS */
+    .details{background:var(--paper);}
+    .details-grid{display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:center;}
+    @media(max-width:900px){.details-grid{grid-template-columns:1fr;}}
+    .details-img{width:100%;border-radius:var(--radius-lg);box-shadow:0 24px 60px -24px rgba(0,0,0,.25);}
+    .check-list{list-style:none;margin:24px 0 0;padding:0;display:grid;gap:14px;}
+    .check-list li{display:flex;gap:12px;font-size:15.5px;align-items:flex-start;}
+    .check{flex:none;width:20px;height:20px;margin-top:2px;}
+
+    /* FEATURES */
+    .features{background:var(--paper);}
+    .feat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;margin-top:56px;}
+    @media(max-width:900px){.feat-grid{grid-template-columns:repeat(2,1fr);}}
+    @media(max-width:600px){.feat-grid{grid-template-columns:1fr;}}
+    .feat-card{background:var(--paper-2);border-radius:var(--radius-md);padding:32px 26px;transition:transform .35s var(--ease),box-shadow .35s var(--ease),background .35s;border:1px solid transparent;}
+    .feat-card:hover{transform:translateY(-6px);background:#fff;box-shadow:0 24px 50px -22px rgba(26,26,26,.18);border-color:var(--line-dark);}
+    .feat-icon{width:40px;height:40px;margin-bottom:20px;color:var(--brand);}
+    .feat-card h3{font-size:17px;margin:0 0 8px;font-family:'Inter';font-weight:600;}
+    .feat-card p{font-size:14px;color:var(--gray);margin:0;}
+
+    /* VIDEO */
+    .video-sec{background:var(--ink-2);color:var(--ivory);}
+    .video-box{border-radius:var(--radius-lg);overflow:hidden;border:1px solid var(--line);margin-top:40px;}
+    .video-box iframe{width:100%;height:480px;border:0;display:block;}
+    @media(max-width:768px){.video-box iframe{height:260px;}}
+
+    /* PRODUCTS */
+    .products-sec{background:var(--paper);}
+    .prod-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;margin-top:56px;}
+    @media(max-width:900px){.prod-grid{grid-template-columns:repeat(2,1fr);}}
+    @media(max-width:600px){.prod-grid{grid-template-columns:1fr;}}
+    .prod-card{background:#fff;border:1px solid var(--line-dark);border-radius:var(--radius-md);overflow:hidden;transition:transform .35s var(--ease),box-shadow .35s var(--ease);}
+    .prod-card:hover{transform:translateY(-6px);box-shadow:0 24px 50px -22px rgba(26,26,26,.2);}
+    .prod-card img{width:100%;height:200px;object-fit:cover;}
+    .prod-body{padding:20px;}
+    .prod-price{font-family:'Fraunces',serif;font-size:24px;color:var(--brand);}
+    .prod-old{font-size:15px;color:var(--gray);text-decoration:line-through;}
+
+    /* REVIEW */
+    .reviews{background:var(--paper);}
+    .rev-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;margin-top:56px;}
+    @media(max-width:900px){.rev-grid{grid-template-columns:1fr;}}
+    .rev-card{background:#fff;border:1px solid var(--line-dark);border-radius:var(--radius-md);padding:28px;text-align:center;}
+    .rev-card img{width:100%;border-radius:10px;margin-bottom:16px;max-height:220px;object-fit:cover;}
+    .rev-stars{color:var(--brand);font-size:14px;margin-bottom:14px;}
+
+    /* OFFER / ORDER */
+    .offer{background:linear-gradient(120deg,#171821,#0F1016);color:var(--ivory);}
+    .offer .container{max-width:860px;}
+    .discount-badge{display:inline-block;background:rgba(201,166,107,.14);color:var(--brand-bright);font-size:12px;font-weight:600;letter-spacing:.06em;padding:6px 14px;border-radius:100px;margin-bottom:14px;}
+    .price-row{display:flex;align-items:baseline;justify-content:center;gap:16px;margin:14px 0 6px;}
+    .price-old{font-size:22px;color:var(--dusk-dim);text-decoration:line-through;}
+    .price-new{font-family:'Fraunces',serif;font-size:54px;color:var(--brand-bright);line-height:1.1;}
+    .countdown{display:flex;justify-content:center;gap:14px;margin:36px 0 40px;flex-wrap:wrap;}
+    .cd-box{background:rgba(244,241,232,.05);border:1px solid var(--line);border-radius:14px;padding:16px 18px;min-width:74px;text-align:center;}
+    .cd-num{font-family:'Fraunces',serif;font-size:28px;}
+    .cd-label{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--dusk);margin-top:6px;}
+    .order-grid{display:grid;grid-template-columns:1fr 1fr;gap:40px;align-items:start;margin-top:20px;}
+    @media(max-width:900px){.order-grid{grid-template-columns:1fr;}}
+    .order-form{background:rgba(244,241,232,.03);border:1px solid var(--line);border-radius:var(--radius-lg);padding:34px;}
+    .form-title{font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--dusk);margin:0 0 18px;}
+    .order-form input,.order-form select{width:100%;background:rgba(244,241,232,.04);border:1px solid var(--line);border-radius:10px;padding:14px 16px;color:var(--ivory);font-size:14px;font-family:'Inter';outline:none;margin-bottom:14px;transition:border-color .2s;}
+    .order-form input::placeholder{color:var(--dusk-dim);}
+    .order-form input:focus,.order-form select:focus{border-color:var(--brand);}
+    .order-form select option{color:var(--ink);}
+    .order-submit{background:var(--brand-bright);color:var(--btn-text);border:none;border-radius:100px;padding:16px 30px;font-size:16px;font-weight:700;cursor:pointer;width:100%;transition:transform .3s,filter .3s;}
+    .order-submit:hover{transform:translateY(-2px);filter:brightness(1.08);}
+    .product-picker{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:18px;}
+    .product-picker label{border:1px solid var(--line);border-radius:12px;padding:12px;cursor:pointer;display:flex;align-items:center;gap:10px;font-size:13px;transition:border-color .2s,background .2s;}
+    .product-picker input{display:none;}
+    .product-picker label.selected{border-color:var(--brand);background:rgba(201,166,107,.1);}
+    .product-picker img{width:44px;height:44px;border-radius:8px;object-fit:cover;}
+
+    /* Warranty chips (dark theme) */
+    .camp-warranty-label{font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--dusk);margin:0 0 10px;}
+    .camp-warranty-wrap{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px;}
+    .camp-warranty-chip{display:inline-flex;align-items:center;gap:5px;padding:7px 13px;border:1px solid var(--line);border-radius:20px;font-size:12.5px;color:var(--ivory);cursor:pointer;background:rgba(244,241,232,.04);transition:border-color .2s,background .2s;user-select:none;}
+    .camp-warranty-chip:hover{border-color:var(--brand);}
+    .camp-warranty-chip.active{border-color:var(--brand);background:rgba(201,166,107,.12);}
+    .camp-warranty-chip small{font-size:10.5px;color:var(--dusk);}
+    .camp-warranty-chip.active small{color:var(--brand);}
+
+    /* FOOTER */
+    footer{background:#0E0F14;color:var(--dusk-dim);padding:48px 0 26px;font-size:13px;}
+    .footer-grid{display:flex;justify-content:space-between;flex-wrap:wrap;gap:30px;padding-bottom:30px;border-bottom:1px solid var(--line);}
+    .footer-brand{font-family:'Fraunces',serif;font-style:italic;font-size:19px;color:var(--ivory);}
+    .footer-bottom{padding-top:20px;text-align:center;}
+
+    /* MOBILE STICKY */
+    .mobile-sticky{position:fixed;bottom:0;left:0;right:0;z-index:90;display:none;background:rgba(20,21,28,.92);backdrop-filter:blur(14px);border-top:1px solid var(--line);padding:14px 18px;align-items:center;justify-content:space-between;gap:14px;}
+    .mobile-sticky .msp{color:var(--ivory);}
+    .mobile-sticky .msp b{font-family:'Fraunces',serif;font-size:18px;display:block;}
+    .mobile-sticky .msp span{font-size:11.5px;color:var(--dusk);}
+    @media(max-width:760px){.mobile-sticky{display:flex;}body{padding-bottom:78px;}}
+
+    /* PROBLEM */
+    .problem{background:var(--paper);}
+    .pain-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--line-dark);border:1px solid var(--line-dark);border-radius:var(--radius-lg);overflow:hidden;}
+    @media(max-width:900px){.pain-grid{grid-template-columns:repeat(2,1fr);}}
+    @media(max-width:520px){.pain-grid{grid-template-columns:1fr;}}
+    .pain-card{background:var(--paper);padding:36px 26px;}
+    .pain-num{font-family:'Fraunces',serif;font-style:italic;font-size:15px;color:var(--brand);margin-bottom:18px;}
+    .pain-card h3{font-size:17px;margin:0 0 9px;font-weight:600;font-family:'Inter';color:var(--heading);letter-spacing:-.01em;}
+    .pain-card p{font-size:14px;color:var(--gray);margin:0;}
+
+    /* SOLUTION */
+    .solution{background:var(--ink-2);color:var(--ivory);}
+    .sol-grid{display:grid;grid-template-columns:.9fr 1.1fr;gap:64px;align-items:center;}
+    @media(max-width:900px){.sol-grid{grid-template-columns:1fr;gap:44px;}}
+    .before-after{display:flex;border-radius:var(--radius-lg);overflow:hidden;border:1px solid var(--line);}
+    .ba-panel{flex:1;padding:42px 22px;text-align:center;}
+    .ba-panel.before{background:#101116;}
+    .ba-panel.after{background:linear-gradient(160deg,#20222E,#171821);}
+    .ba-label{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--dusk);margin-bottom:16px;}
+    .ba-face{width:76px;height:76px;margin:0 auto 16px;}
+    .ba-panel p{font-size:13px;color:var(--dusk);margin:0;}
+    .sol-benefits{list-style:none;margin:28px 0 0;padding:0;display:grid;gap:15px;}
+    .sol-benefits li{display:flex;gap:13px;font-size:15px;color:#DDD9E8;align-items:flex-start;}
+    .check{flex:none;width:20px;height:20px;margin-top:2px;}
+
+    /* BENEFITS */
+    .benefits{background:radial-gradient(120% 90% at 50% 110%,#1B1C26 0%,var(--ink) 60%);color:var(--ivory);}
+    .stat-row{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;margin:50px 0 70px;}
+    @media(max-width:760px){.stat-row{grid-template-columns:1fr;}}
+    .stat{border-left:1px solid var(--line);padding-left:22px;}
+    .stat-num{font-family:'Fraunces',serif;font-size:42px;color:var(--brand-bright);line-height:1;margin-bottom:10px;}
+    .stat p{font-size:13.5px;color:var(--dusk);margin:0;}
+    .arc-wrap{background:rgba(244,241,232,.03);border:1px solid var(--line);border-radius:var(--radius-lg);padding:44px 38px;}
+    .arc-title{font-size:13px;color:var(--dusk);letter-spacing:.06em;margin-bottom:26px;}
+    .arc-stages{display:flex;justify-content:space-between;gap:16px;margin-top:10px;}
+    @media(max-width:700px){.arc-stages{flex-direction:column;gap:22px;}}
+    .stage{flex:1;text-align:left;}
+    .stage-dot{width:10px;height:10px;border-radius:50%;background:var(--dusk-dim);margin-bottom:14px;}
+    .stage.active .stage-dot{background:var(--brand);box-shadow:0 0 0 4px rgba(201,166,107,.18);}
+    .stage-label{font-size:11px;text-transform:uppercase;letter-spacing:.1em;color:var(--dusk);margin-bottom:6px;}
+    .stage-desc{font-size:13px;color:#C9C5D6;}
+    .stage.active .stage-desc{color:var(--ivory);}
+
+    /* MEDIA / SHOWCASE */
+    .media-sec{background:var(--paper);}
+    .show-grid{display:grid;grid-template-columns:1.3fr 1fr;gap:18px;margin-top:52px;}
+    @media(max-width:820px){.show-grid{grid-template-columns:1fr;}}
+    .show-main{border-radius:var(--radius-lg);background:#fff;min-height:380px;position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center;padding:26px;border:1px solid var(--line-dark);}
+    .show-main img{max-width:100%;max-height:340px;object-fit:contain;}
+    .show-side{display:grid;grid-template-rows:1fr 1fr;gap:18px;}
+    .show-tile{border-radius:var(--radius-md);background:#fff;min-height:180px;display:flex;align-items:center;justify-content:center;padding:14px;border:1px solid var(--line-dark);overflow:hidden;}
+    .show-tile img{max-width:100%;max-height:150px;object-fit:contain;}
+    .swatches{display:flex;gap:14px;margin-top:24px;flex-wrap:wrap;}
+    .swatch{display:flex;align-items:center;gap:9px;font-size:13px;color:var(--gray);}
+    .swatch-dot{width:16px;height:16px;border-radius:50%;border:1px solid var(--line-dark);}
+
+    /* REVIEW TEXT CARDS */
+    .rev-card{text-align:left;}
+    .rev-card p{font-size:14px;color:var(--near-black);margin:0 0 20px;}
+    .rev-person{display:flex;align-items:center;gap:12px;}
+    .avatar{width:38px;height:38px;border-radius:50%;background:var(--ink-2);color:var(--ivory);display:flex;align-items:center;justify-content:center;font-size:13px;font-family:'Fraunces',serif;flex:none;}
+    .rev-name{font-size:13px;font-weight:600;}
+    .rev-verified{font-size:11px;color:var(--gray);display:flex;align-items:center;gap:5px;}
+
+    /* TRUST STRIP */
+    .trust-strip{background:var(--paper-2);padding:64px 0;}
+    .ts-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:30px;text-align:center;}
+    @media(max-width:760px){.ts-grid{grid-template-columns:repeat(2,1fr);}}
+    .ts-item{display:flex;flex-direction:column;align-items:center;gap:12px;}
+    .ts-icon{width:32px;height:32px;color:var(--heading);}
+    .ts-item span{font-size:13px;color:var(--gray);}
+
+    /* FAQ */
+    .faq-list{max-width:760px;margin:52px auto 0;}
+    .faq-item{border-bottom:1px solid var(--line-dark);}
+    .faq-q{width:100%;text-align:left;background:none;border:none;cursor:pointer;padding:24px 4px;display:flex;justify-content:space-between;align-items:center;font-size:16px;font-family:'Fraunces',serif;color:var(--heading);}
+    .faq-plus{width:20px;height:20px;flex:none;transition:transform .35s var(--ease);color:var(--brand);}
+    .faq-item.open .faq-plus{transform:rotate(45deg);}
+    .faq-a{max-height:0;overflow:hidden;transition:max-height .4s var(--ease);}
+    .faq-a p{padding:0 4px 24px;font-size:14px;color:var(--gray);margin:0;max-width:600px;}
+
+    /* FINAL CTA */
+    .final-cta{background:radial-gradient(120% 140% at 50% 0%,#23252F 0%,#0E0F14 70%);color:var(--ivory);text-align:center;padding:140px 0;}
+    .final-cta .container{max-width:640px;}
+    .final-cta .h2{font-size:clamp(32px,5vw,54px);}
+    .final-trust{display:flex;justify-content:center;gap:30px;margin-top:38px;flex-wrap:wrap;}
+</style>
+</head>
+<body>
+@foreach($gtm_code as $gtm)
+@php $gtm_noscript_id = preg_match('/^GTM-/i', trim($gtm->code)) ? trim($gtm->code) : 'GTM-'.trim($gtm->code); @endphp
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id={{ $gtm_noscript_id }}" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+@endforeach
+
+<nav>
+    <div class="logo">
+        @if ($generalsetting->white_logo)
+            <img src="{{ asset($generalsetting->white_logo) }}" alt="{{ $generalsetting->name }}" style="height:48px;">
+        @else
+            {{ $generalsetting->name }}
+        @endif
+    </div>
+    <div class="links">
+        @if($campaign_data->sectionVisible('features') && $campaign_data->label('nav_features'))<a href="#features">{{ $campaign_data->label('nav_features') }}</a>@endif
+        @if($campaign_data->sectionVisible('review') && $campaign_data->label('nav_reviews'))<a href="#review">{{ $campaign_data->label('nav_reviews') }}</a>@endif
+        @if($campaign_data->sectionVisible('faq') && $campaign_data->label('nav_faq'))<a href="#faq">{{ $campaign_data->label('nav_faq') }}</a>@endif
+        @if($campaign_data->label('nav_order'))<a href="#offer">{{ $campaign_data->label('nav_order') }}</a>@endif
+    </div>
+    @if($campaign_data->sectionVisible('offer') && $campaign_data->label('nav_cta'))
+    <a href="#offer" class="btn btn-primary nav-cta">{{ $campaign_data->label('nav_cta') }}</a>
+    @endif
+</nav>
+
+{{-- ══════════ HERO ══════════ --}}
+@if($campaign_data->sectionVisible('hero'))
+<section class="hero" id="hero">
+    <div class="container hero-grid">
+        <div>
+            @if($campaign_data->label('hero_eyebrow'))<div class="eyebrow">{{ $campaign_data->label('hero_eyebrow') }}</div>@endif
+            <h1 class="h1">{!! $campaign_data->top_title_1 !!} <span class="highlight">{!! $campaign_data->top_title_2 !!}</span></h1>
+            @if($campaign_data->short_description)
+            <p class="lead">{!! $campaign_data->short_description !!}</p>
+            @endif
+            <div style="display:flex;gap:16px;flex-wrap:wrap;">
+                @if($campaign_data->sectionVisible('offer') && $campaign_data->label('hero_cta_order'))<a href="#offer" class="btn btn-primary">{{ $campaign_data->label('hero_cta_order') }}</a>@endif
+                @if($campaign_data->sectionVisible('solution') && $campaign_data->label('hero_cta_details'))<a href="#solution" class="btn btn-ghost-dark">{{ $campaign_data->label('hero_cta_details') }}</a>@endif
+            </div>
+            @if($campaign_data->review || $campaign_data->deadline)
+            <div class="hero-trust">
+                @if($campaign_data->review)
+                <div class="trust-item"><span class="stars">★★★★★</span>&nbsp;{{ $campaign_data->review }}</div>
+                @endif
+                @if($campaign_data->deadline && $campaign_data->label('hero_trust_ends'))
+                <div class="trust-item">⏰ {{ $campaign_data->label('hero_trust_ends') }}</div>
+                @endif
+                @if($campaign_data->label('hero_trust_cod'))<div class="trust-item">✓ {{ $campaign_data->label('hero_trust_cod') }}</div>@endif
+            </div>
+            @endif
+        </div>
+        <div class="hero-visual">
+            <div class="glow-ring"></div>
+            @if($campaign_data->image_one)
+            <img class="hero-img" src="{{ asset($campaign_data->image_one) }}" alt="{{ $campaign_data->name }}">
+            @endif
+            @php
+                $heroFeatures = array_values(array_filter(array_map(function($f){
+                    return trim(strip_tags($f['text'] ?? ''));
+                }, $campaign_data->features()), fn($t) => $t !== ''));
+            @endphp
+            @if(isset($heroFeatures[0]))
+            <div class="badge-float badge-1">✨ {{ Str::limit($heroFeatures[0], 40) }}</div>
+            @endif
+            @if(isset($heroFeatures[1]))
+            <div class="badge-float badge-2">✓ {{ Str::limit($heroFeatures[1], 40) }}</div>
+            @endif
+        </div>
+    </div>
+</section>
+@endif
+
+{{-- ══════════ PROBLEM ══════════ --}}
+@if($campaign_data->sectionVisible('problem') && count($campaign_data->problem()))
+<section class="problem" id="problem">
+    <div class="container">
+        <div style="max-width:640px;margin-bottom:52px;">
+            @if($campaign_data->label('problem_eyebrow'))<div class="eyebrow" style="color:var(--gray);">{{ $campaign_data->label('problem_eyebrow') }}</div>@endif
+            @if($campaign_data->label('problem_heading'))<h2 class="h2" style="color:var(--heading);">{{ $campaign_data->label('problem_heading') }}</h2>@endif
+        </div>
+        <div class="pain-grid">
+            @foreach($campaign_data->problem() as $p)
+            <div class="pain-card">
+                <div class="pain-num">{{ $p['num'] }}</div>
+                <h3>{{ $p['title'] }}</h3>
+                <p>{{ $p['text'] }}</p>
+            </div>
             @endforeach
-            fbq('track', 'PageView', {}, {eventID: {{ json_encode('pv_camp'.$campaign_data->id.'_'.time()) }}});
-            fbq('track', 'ViewContent', {
-                content_name: {{ json_encode($camp_name) }},
-                content_ids:  {!! json_encode($products->pluck('id')->map(fn($id) => (string)$id)->values()->toArray()) !!},
-                content_type: 'product',
-                value:        {{ $camp_value }},
-                currency:     'BDT',
-                num_items:    {{ $products->count() }}
-            }, {eventID: {{ json_encode($fb_view_content_event_id) }}});
-        </script>
-        @foreach($pixels as $pixel)
-        <noscript>
-            <img height="1" width="1" style="display:none"
-                src="https://www.facebook.com/tr?id={{{ $pixel->code }}}&ev=PageView&noscript=1" />
-        </noscript>
-        @endforeach
-        @endif
-        <!-- ========== End Facebook Pixel ========== -->
+        </div>
+    </div>
+</section>
+@endif
 
-        <!-- ========== TikTok Pixel ========== -->
-        @php $tiktok_pixels = $tiktok_pixels ?? collect(); @endphp
-        @if($tiktok_pixels->count() > 0)
-        <script>
-            !function (w, d, t) {
-                w.TiktokAnalyticsObject=t;var ttq=w[t]=w[t]||[];
-                ttq.methods=["page","track","identify","instances","debug","on","off","once","ready","alias","group","enableCookie","disableCookie"];
-                ttq.setAndDefer=function(t,e){t[e]=function(){t.push([e].concat(Array.prototype.slice.call(arguments,0)))}};
-                for(var i=0;i<ttq.methods.length;i++)ttq.setAndDefer(ttq,ttq.methods[i]);
-                ttq.instance=function(t){for(var e=ttq._i[t]||[],n=0;n<ttq.methods.length;n++)ttq.setAndDefer(e,ttq.methods[n]);return e};
-                ttq.load=function(e,n){var i="https://analytics.tiktok.com/i18n/pixel/events.js";
-                    ttq._i=ttq._i||{},ttq._i[e]=[],ttq._i[e]._u=i,ttq._t=ttq._t||{},ttq._t[e]=+new Date,ttq._o=ttq._o||{},ttq._o[e]=n||{};
-                    var o=document.createElement("script");o.type="text/javascript",o.async=!0,o.src=i+"?sdkid="+e+"&lib="+t;
-                    var a=document.getElementsByTagName("script")[0];a.parentNode.insertBefore(o,a)};
-            }(window, document, 'ttq');
-            @foreach($tiktok_pixels as $tiktok)
-            ttq.load('{{ $tiktok->code }}');
-            @endforeach
-            ttq.page();
-            ttq.track('ViewContent', {
-                content_name: {{ json_encode($camp_name) }},
-                content_id:   {{ json_encode($camp_id) }},
-                content_type: 'product',
-                value:        {{ $camp_value }},
-                currency:     'BDT',
-                quantity:     1
-            });
-        </script>
-        @endif
-        <!-- ========== End TikTok Pixel ========== -->
-        <style>
-            /* Style for selected product card */
-            .selected {
-                border: 2px solid green; /* Change border color to green */
-            }
-            .countdown-container {
-                text-align: center;
-            }
-            .counter-card {
-                border: 2px dotted white; /* Dotted border */
-                border-radius: 15px; /* Rounded corners */
-                padding: 5px; /* Padding for the card */
-                background-color: transparent; /* Slightly transparent white background */
-                box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
-                text-align: center; /* Center the text within each card */
-               
-            }
-            .counter-card div{
-                font-size: 1.2em;
-                font-weight:bolder;
-                color:white;
-            }
-            
-            
-            .counter-card span {
-                display: block; /* Make the span block-level for better spacing */
-                font-size: 0.8em; /* Font size for labels */
-                color:orange;
-            }
-            @keyframes colorAnimation {
-                0% {
-                    color: pink; /* Start with pink */
-                }
-                33% {
-                    color: green; /* Transition to green */
-                }
-                66% {
-                    color: red; /* Transition to red */
-                }
-                100% {
-                    color: pink; /* Return to pink */
-                }
-            }
-            
-            .animated-heading {
-                font-size: 2em; /* Adjust font size as needed */
-                font-weight: bold; /* Make the heading bold */
-                animation: colorAnimation 3s linear infinite; /* Apply the animation */
-                
-               
-            }
-            .form_inn{
-                padding:10px;
-            }
-            @media (max-width: 992px) {
-                .campro_inn,.cont_inner,.cont_num ,.discount_inn{
-                    padding: 10px!important; /* Add 10px padding for tablet and smaller devices */
-                    width: 100%;
-                }
-                .discount_inn{
-                    margin:10px 0 0 0;
-                }
-                .campro_inn h2{
-                    font-size:20px;
-                }
-            }
-
-        </style>
-        <style>
-            .button-3d {
-                position: relative;
-                overflow: hidden;
-                transition: transform 0.3s ease, box-shadow 0.3s ease;
-            }
-        
-           
-            
-        
-            .button-3d:hover {
-                transform: scale(1.05);
-                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-            }
-        
-           
-        
-        </style>
-        <style>
-            .button-animated-border {
-                position: relative;
-                overflow: hidden;
-                border: 3px solid white; /* Initial border */
-                border-radius: 10px; /* Optional: for rounded corners */
-                transition: color 0.3s ease; /* Transition for text color */
-                animation: border-animation 3s linear infinite; /* Animation */
-            }
-        
-            
-        
-            @keyframes border-animation {
-                0% {
-                    border-color: white; /* Transparent at start */
-                    transform: scale(0.95); /* Initial scale */
-                }
-                25% {
-                    border-color: yellow; /* Fill with white */
-                    transform: scale(1); /* Slightly grow */
-                }
-                50% {
-                    border-color: white; /* Transparent in middle */
-                    transform: scale(0.95); /* Back to original scale */
-                }
-                75% {
-                    border-color: yellow; /* Fill with white again */
-                    transform: scale(1); /* Slightly grow again */
-                }
-                100% {
-                    border-color: white; /* Transparent at end */
-                    transform: scale(0.95); /* Back to original scale */
-                }
-            }
-        
-            .button-animated-border:hover {
-                color: #fff; /* Change text color on hover */
-            }
-        </style>
-
-{!! $generalsetting->header_code !!}
-    </head>
-
-    <body>
-        <!-- ========== GTM noscript ========== -->
-        @foreach($gtm_code as $gtm)
-        @php $gtm_noscript_id = preg_match('/^GTM-/i', trim($gtm->code)) ? trim($gtm->code) : 'GTM-'.trim($gtm->code); @endphp
-        <noscript><iframe src="https://www.googletagmanager.com/ns.html?id={{ $gtm_noscript_id }}"
-            height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
-        @endforeach
-        <!-- ========== TikTok Pixel noscript ========== -->
-        @if($tiktok_pixels->count() > 0)
-        @foreach($tiktok_pixels as $tiktok)
-        <noscript><img height="1" width="1" style="display:none" alt=""
-            src="https://analytics.tiktok.com/i18n/pixel/events.js?sdkid={{ $tiktok->code }}&noscript=1" /></noscript>
-        @endforeach
-        @endif
-
-         @php
-            $subtotal = Cart::instance('shopping')->subtotal();
-            $subtotal=str_replace(',','',$subtotal);
-            $subtotal=str_replace('.00', '',$subtotal);
-            $shipping = Session::get('shipping')?Session::get('shipping'):0;
-        @endphp
-        <section style="background-image: radial-gradient(at center center, #139525 28%, #0E320F 79%)">
-            <div class="container py-2 py-md-4">
-                <div class="row gy-2">
-                    <div class="col-md-7">
-                        <h4 class="text-light text-center py-2 py-md-4 fw-bolder">{!! $campaign_data->top_title_1  !!} <span class="text-warning"> {!! $campaign_data->top_title_2  !!}</span> </h4>
-                    </div>
-                     <div class="col-md-5">
-                        <div class="countdown-container">
-                            <div class="countdown" id="countdown">
-                                <div class="row g-1">
-                                    <div class="col-3">
-                                       <div class="counter-card">
-                                            <div id="days"></div>
-                                            <span>Days</span>
-                                        </div> 
-                                    </div>
-                                    <div class="col-3">
-                                        <div class="counter-card">
-                                            <div id="hours"></div>
-                                            <span>Hours</span>
-                                        </div>                                        
-                                    </div>
-                                    <div class="col-3">
-                                        <div class="counter-card">
-                                            <div id="minutes"></div>
-                                            <span>Minutes</span>
-                                        </div>                                    
-                                    </div>
-                                    <div class="col-3">
-                                        <div class="counter-card">
-                                            <div id="seconds"></div>
-                                            <span>Seconds</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+{{-- ══════════ SOLUTION ══════════ --}}
+@if($campaign_data->sectionVisible('solution') && (count($campaign_data->solution()) || $campaign_data->heading_1 || $campaign_data->description))
+<section class="solution" id="solution">
+    <div class="container sol-grid">
+        <div class="before-after">
+            <div class="ba-panel before">
+                <div class="ba-label">Before</div>
+                @if($campaign_data->image_three)
+                <img src="{{ asset($campaign_data->image_three) }}" alt="Before" style="width:100%;height:auto;border-radius:12px;max-height:220px;object-fit:cover;">
+                @else
+                <svg class="ba-face" viewBox="0 0 80 80" fill="none"><circle cx="40" cy="40" r="34" stroke="#4A4C5C" stroke-width="2"/><path d="M26 34l8 8M34 34l-8 8M46 34l8 8M54 34l-8 8" stroke="#6D6980" stroke-width="2" stroke-linecap="round"/><path d="M28 56c6-6 18-6 24 0" stroke="#6D6980" stroke-width="2" stroke-linecap="round"/></svg>
+                @endif
+                <p>Dropped signals, endless buffering and a router that can't keep up.</p>
             </div>
-        </section>
-        <section>
-            <div class="container py-2 py-md-4">
-                <div class="py-2 py-md-4  rounded" style="border:2px dashed green">
-                    <h2 class="animated-heading text-center">{!! $campaign_data->heading_1 !!}</h2>
-                </div>
-            </div>
-        </section>
-        <section>
-            <div class="container py-2 py-md-4">
-                <div class="row gy-2">
-                    @if($campaign_data->image_one)
-                    <div class="col-sm-6">
-                        <img class="img-fluid shadow" src="{{asset($campaign_data->image_one)}}" >
-                    </div>
-                    @endif
-                    @if($campaign_data->image_two)
-                    <div class="col-sm-6">
-                        <img class="img-fluid shadow" src="{{asset($campaign_data->image_two)}}" >
-                    </div>
-                    @endif
-                </div>
-            </div>
-        </section>
-        <section>
-            <div class="container py-2 py-md-4">
-                <div class="row gy-2">
-                    @if($campaign_data->feature_1)
-                    <div class="col-sm-6">
-                       <div class="py-2 py-md-4  rounded" style="border:1px dashed green">
-                            <h2 class="text-center">{!! $campaign_data->feature_1 !!}</h2>
-                        </div>
-                    </div>
-                    @endif
-                    @if($campaign_data->feature_2)
-                    <div class="col-sm-6">
-                       <div class="py-2 py-md-4  rounded" style="border:1px dashed green">
-                            <h2 class="text-center">{!! $campaign_data->feature_2 !!}</h2>
-                        </div>
-                    </div>
-                    @endif
-                </div>
-            </div>
-        </section>
-        <section>
-            <div class="container py-2">
-                <div class="py-2 py-md-4  rounded" style="border:2px dashed green">
-                    <h2 class="animated-heading text-center">{!! $campaign_data->heading_2 !!}</h2>
-                </div>
-            </div>
-        </section>
-        <section>
-            <div class="container py-2 ">
-                <div class="py-2 py-md-4  rounded" style="border:2px dashed green">
-                    <h2 class="animated-heading text-center">{!! $campaign_data->heading_3 !!}</h2>
-                </div>
-            </div>
-        </section>
-        {{--
-        <section style="background: url('{{asset($campaign_data->banner)}}'); background-repeat: no-repeat; background-size:cover; background-position: center;" >
-            <div class="container">
-                <div class="row">
-                    <div class="col-sm-12">
-                        <div class="campaign_image">
-                            <div class="campaign_item">
-                                <div class="banner_t">
-                                    <h2>{{$campaign_data->banner_title}}</h2>
-                                    
-                                    <a href="#order_form" class="cam_order_now" id="cam_order_now"><i class="fa-solid fa-cart-shopping"></i>{{ __('Order Now') }}</a>
-                                    <p class="megaoffer_btn">মেগা অফার {{$subtotal}} Tk টাকা</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-        --}}
-        @if($campaign_data->video!=null)
-        <section class="camp_video_sec">
-            <div class="container">
-            
-                <div class="row justify-content-center gy-2 gy-md-4">
-                    <div class="col-md-8">
-                        <h2 class="p-2 py-md-3 rounded text-center" style="background-color:black;border:green 2px solid;color:white;font-weight:bolder">প্রডাক্টের "ভিডিও দেখুন"</h2>
-                    </div>
-                    <div class="col-md-8 col-sm-12">
-                        <div class="camp_vid rounded" style="border:5px solid red">
-                            <iframe width="100%" height="480" 
-                            src="https://www.youtube.com/embed/{{$campaign_data->video}}" 
-                            title="{{$campaign_data->banner_title}}" frameborder="0" 
-                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen=""></iframe>
-                        </div>
-                    </div>
-                    <div class="col-sm-12">
-                        <div class="ord_btn">
-                            <a href="#order_form" class="cam_order_now" id="cam_order_now"> অর্ডার করতে ক্লিক করুন <i class="fa-solid fa-hand-point-right"></i> </a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-        @endif
-        
-        <section class="py-2 py-md-4" style="background: linear-gradient(to bottom, #FAF4B3, #ECC7CF);">
-            <div class="container my-2 my-md-4">
-                <div class="row justify-content-center">
-                    <div class="col-md-8">
-                        <h2 class="text-center p-2 p-md-4 rounded" style="background-color:#FBEFF7;border:2px dashed #F1ACE7">আমাদের থেকে বিস্তারিত জানতে এই নাম্বারে কল করুন {{$contact->phone ?? chr(39).chr(39)}}</h2>
-                        <div class="row justify-content-center my-2 my-md-4 gy-2">
-                            <div class="col-md-6 custom_btn">
-                                <div class="shadow-lg">
-                                    <a href="tel:{{$contact->phone ?? chr(39).chr(39)}}" 
-                                    class="btn btn-danger btn-lg d-block py-md-3 fs-2 fw-bolder button-3d button-animated-border" >
-                                        <i class="fa-solid fa-phone"></i> আমাদের কল করুন </a>
-                                </div>
-                                
-                            </div>
-                            <div class="col-md-6">
-                            <div class="shadow-lg">
-                                <a href="https://wa.me/{{ $contact->whatsapp ?? '8801519607646' }}" 
-                                class="btn btn-success btn-lg d-block py-md-3 fs-2 text-light fw-bolder button-3d button-animated-border">
-                                    <i class="fa-brands fa-whatsapp"></i> হোয়াটসঅ্যাপ  
-                                    </a>
-                             </div>
-                                
-                            </div>
-                        </div>
-                        
-                        <h2 class="text-center p-2 p-md-4 rounded" style="background-color:#FBEFF7;border:2px dashed #F1ACE7">{!! $campaign_data->heading_4 !!}</h2>
-                    
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        @if(optional($campaign_data)->short_description && strlen($campaign_data->short_description) > 15 || 
-    optional($campaign_data)->description && strlen($campaign_data->description) > 15)
-        <section class="rules_sec">
-            <div class="container">
-                <div class="row">
-                    <div class="col-sm-12">
-                        <div class="card">
-                            <div class="card-body">
-                                <h2>{{ __('Details') }}</h2>
-                                {!! $campaign_data->short_description !!}
-                                <br>
-                                <br>
-                                {!!$campaign_data->description !!} 
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-        @endif
-        <section>
-            <div class="container">
-                <div class="row">
-                    <div class="col-sm-12">
-                        <div class="campro_inn">
-                            <div class="campro_head">
-                                <h2>{{$campaign_data->name}}</h2>
-                            </div>
-
-                            <div class="campro_img_slider owl-carousel">
-                                @if($campaign_data->image_one)
-                               <div class="campro_img_item">
-                                   <img src="{{asset($campaign_data->image_one)}}" alt="">
-                               </div> 
-                               @endif
-                                @if($campaign_data->image_two)
-                               <div class="campro_img_item">
-                                   <img src="{{asset($campaign_data->image_two)}}" alt="">
-                               </div> 
-                               @endif
-                                @if($campaign_data->image_three)
-                               <div class="campro_img_item">
-                                   <img src="{{asset($campaign_data->image_three)}}" alt="">
-                               </div>
-                               @endif
-                            </div>
-                            <div class="col-sm-12">
-                                <div class="ord_btn">
-                                    <a href="#order_form" class="cam_order_now" id="cam_order_now"> অর্ডার করতে ক্লিক করুন <i class="fa-solid fa-hand-point-right"></i> </a>
-                                </div>
-                            </div>
-                        </div>
-
-                    </div>
-                </div>
-            </div>
-        </section>
-
-
-        <section>
-            <div class="container">
-                <div class="row">
-                    <div class="col-sm-12">
-                        <div class="rev_inn">
-                            
-                            <h2 class="campaign_offer">{{$campaign_data->review}}</h2>
-                            
-                            <div class="review_slider owl-carousel">
-                            @foreach($campaign_data->images as $key=>$value)
-                            <div class="review_item">
-                                <img src="{{asset($value->image)}}" alt="">
-                            </div>
-                            @endforeach
-                           </div>
-                            <div class="col-sm-12">
-                                <div class="ord_btn">
-                                    <a href="#order_form" class="cam_order_now" id="cam_order_now"> অর্ডার করতে ক্লিক করুন <i class="fa-solid fa-hand-point-right"></i> </a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-    <section class="form_sec">
-        <div class="container">
-           <div class="row">
-             <div class="col-sm-12">
-                <div class="form_inn">
-                    <div class="col-sm-12">
-                        <div class="row">
-                <div class="col-sm-12">
-                    <h2 class="campaign_offer">অফারটি সীমিত সময়ের জন্য, তাই অফার শেষ হওয়ার আগেই অর্ডার করুন</h2>
-                    @if($campaign_data->note)
-                    <p class="my-1 text-center">
-                        {!! $campaign_data->note !!}
-                    </p>
-                    @endif
-                </div>
-                
-            </div>
-            <div class="row order_by">
-                <div class="col-lg-7 cust-order-1">
-                    <div class="cart_details">
-                        @if($products->count()>1)
-                        <div class="card mb-2 ">
-                          <div class="card-header">
-                                <h5 class="potro_font">একটি পণ্য সিলেক্ট করুনণ </h5>
-                            </div>  
-                             <div class="card-body">
-                                <div class="row g-2">
-                                    @foreach($products as $product)
-                                        <div class="col-md-3 col-6"> <!-- Adjusted column width for smaller cards -->
-                                            <div class="border shadow"> <!-- Wrap the card with form-check for better usability -->
-                                                <input type="radio" class="form-check-input" name="product" id="product_{{ $product->id }}" value="{{ $product->id }}" {{ $loop->first ? 'checked' : '' }} style="display: none;" onchange="updateCart('{{ $product->id }}')">
-                                                <label for="product_{{ $product->id }}" class="card shadow-sm product-card {{ $loop->first ? 'selected' : '' }}" style="cursor: pointer;"> <!-- Add class for styling -->
-                                                    <img src="{{ asset($product->image->image) }}" class="card-img-top" alt="{{ $product->name }}" style="height: 100px; object-fit: cover;"> <!-- Fixed height and object-fit -->
-                                                    <div class="card-body p-1 text-center"> <!-- Centered text for a better layout -->
-                                                        <div class="card-title">{{ Str::limit($product->name, 20) }}</div>
-                                                        <div class="card-text mb-1">৳{{ $product->new_price }} <del>৳{{ $product->old_price }}</del></div>
-                                                    </div>
-                                                </label>
-                                            </div>
-                                        </div>
-                                    @endforeach
-                                </div>
-                             </div>
-                        </div>
-                        @endif
-                        <div class="card">
-                            <div class="card-header">
-                                <h5 class="potro_font">পণ্যের বিবরণ </h5>
-                            </div>
-                            <div class="card-body cartlist  table-responsive">
-                                <table class="cart_table table table-bordered table-striped text-center mb-0">
-                                    <thead>
-                                       <tr>
-                                          
-                                          <th style="width: 40%;">প্রোডাক্ট</th>
-                                          <th style="width: 20%;">পরিমাণ</th>
-                                          <th style="width: 20%;">মূল্য</th>
-                                         </tr>
-                                    </thead>
-    
-                                    <tbody>
-                                        @foreach(Cart::instance('shopping')->content() as $value)
-                                        <tr>
-                                          
-                                            <td class="text-left">
-                                                 <a style="font-size: 14px;" href="{{route('product',$value->options->slug)}}"><img src="{{asset($value->options->image)}}" height="30" width="30"> {{Str::limit($value->name,20)}}</a>
-                                                @php
-                                                    $product = App\Models\Product::find($value->id);
-                                                @endphp
-                                             
-                                               @if($product && ($product->sizes->isNotEmpty() || $product->colors->isNotEmpty()))
-                                                <div class="row g-1 mt-2">
-                                                    <!-- Size Selector -->
-                                                    @if($product->sizes->isNotEmpty())
-                                                    <div class="col-6">
-                                                        
-                                                        <select id="size-selector-{{ $value->rowId }}" class="form-select form-select-sm cart-size-selector" data-id="{{ $value->rowId }}">
-                                                            <option>Select an option</option>
-                                                            @foreach($product->sizes as $size)
-                                                            <option value="{{ $size->sizeName }}" {{ $size->sizeName == $value->options->product_size ? 'selected' : '' }}>
-                                                                {{ $size->sizeName }}
-                                                            </option>
-                                                            @endforeach
-                                                        </select>
-                                                        <label for="size-selector-{{ $value->rowId }}" class="form-label text-muted text-start" style="font-size: 0.875rem;">Size:
-                                                        @if($value->options->product_size)
-                                                          {{$value->options->product_size}}
-                                                        @endif
-                                                        </label>
-                                                    </div>
-                                                    @endif
-                                                
-                                                    <!-- Color Selector -->
-                                                    @if($product->colors->isNotEmpty())
-                                                    <div class="col-6">
-                                                        <select id="color-selector-{{ $value->rowId }}" class="form-select form-select-sm cart-color-selector" data-id="{{ $value->rowId }}">
-                                                            <option>Select an option</option>
-                                                            @foreach($product->colors as $color)
-                                                            <option value="{{ $color->colorName }}" {{ $color->colorName == $value->options->product_color ? 'selected' : '' }}>
-                                                                {{ $color->colorName }}
-                                                            </option>
-                                                            @endforeach
-                                                        </select>
-                                                        <label for="color-selector-{{ $value->rowId }}" class="form-label text-muted text-start" style="font-size: 0.875rem;">Color:
-                                                        @if($value->options->product_color)
-                                                           {{ $value->options->product_color }}
-                                                        @endif
-                                                        </label>
-                                                    </div>
-                                                    @endif
-                                                </div>
-                                                @endif
-                                            </td>
-                                            <td width="15%" class="cart_qty">
-                                                <div class="qty-cart vcart-qty">
-                                                    <div class="quantity">
-                                                        <button class="minus cart_decrement"  data-id="{{$value->rowId}}">-</button>
-                                                        <input type="text" value="{{$value->qty}}" readonly />
-                                                        <button class="plus  cart_increment" data-id="{{$value->rowId}}">+</button>
-                                                    </div>
-                                                </div>
-                                            </td>
-                                            <td>৳{{$value->price*$value->qty}}</td>
-                                        </tr>
-                                        @endforeach
-                                    </tbody>
-                                    <tfoot>
-                                         <tr>
-                                          <th colspan="2" class="text-end px-4">মোট</th>
-                                          <td>
-                                           <span id="net_total"><span class="alinur">৳ </span><strong>{{$subtotal}}</strong></span>
-                                          </td>
-                                         </tr>
-                                         <tr>
-                                          <th colspan="2" class="text-end px-4">ডেলিভারি চার্জ</th>
-                                          <td>
-                                           <span id="cart_shipping_cost"><span class="alinur">৳ </span><strong>{{$shipping}}</strong></span>
-                                          </td>
-                                         </tr>
-                                         <tr>
-                                          <th colspan="2" class="text-end px-4">{{ __('Total') }}</th>
-                                          <td>
-                                           <span id="grand_total"><span class="alinur">৳ </span><strong>{{$subtotal+$shipping}}</strong></span>
-                                          </td>
-                                         </tr>
-                                        </tfoot>
-                                </table>
-    
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-lg-5 cus-order-2">
-                    <div class="checkout-shipping" id="order_form">
-                        <form action="{{route('customer.ordersave')}}" method="POST" data-parsley-validate="">
-                        @csrf
-                        <div class="card">
-                            <div class="card-header">
-                                <h5 class="potro_font">আপনার ইনফরমেশন দিন  </h5>
-                            </div>
-                            <div class="card-body">
-                                <div class="row">
-                                    <div class="col-sm-12">
-                                        <div class="form-group mb-3">
-                                            <label for="name">আপনার নাম লিখুন * </label>
-                                            <input type="text" id="name" class="form-control @error('name') is-invalid @enderror" name="name" value="{{old('name')}}" placeholder="নাম" required>
-                                            @error('name')
-                                                <span class="invalid-feedback" role="alert">
-                                                    <strong>{{ $message }}</strong>
-                                                </span>
-                                            @enderror
-                                        </div>
-                                    </div>
-                                    <!-- col-end -->
-                                    <div class="col-sm-12">
-                                        <div class="form-group mb-3">
-                                            <label for="phone">আপনার মোবাইল লিখুন *</label>
-                                            <input type="tel" minlength="11" id="number" maxlength="11" pattern="0[0-9]+" title="please enter number only and 0 must first character" title="Please enter an 11-digit number." id="phone" class="form-control @error('phone') is-invalid @enderror" name="phone" value="{{old('phone')}}" placeholder="+৮৮ বাদে ১১ সংখ্যা "  required>
-                                            @error('phone')
-                                                <span class="invalid-feedback" role="alert">
-                                                    <strong>{{ $message }}</strong>
-                                                </span>
-                                            @enderror
-                                        </div>
-                                    </div>
-                                    <!-- col-end -->
-                                    <div class="col-sm-12">
-                                        <div class="form-group mb-3">
-                                            <label for="address">আপনার ঠিকানা লিখুন   *</label>
-                                            <input type="address" id="address" class="form-control @error('address') is-invalid @enderror" placeholder="জেলা, থানা, গ্রাম " name="address" value="{{old('address')}}"  required>
-                                            @error('address')
-                                                <span class="invalid-feedback" role="alert">
-                                                    <strong>{{ $message }}</strong>
-                                                </span>
-                                            @enderror
-                                        </div>
-                                    </div>
-                                    <div class="col-sm-12">
-                                        <div class="form-group mb-3">
-                                            <label for="area">আপনার এরিয়া সিলেক্ট করুন  *</label>
-                                            <select type="area" id="area" class="form-control @error('area') is-invalid @enderror" name="area"   required>
-                                                @foreach($shippingcharge as $key=>$value)
-                                                <option value="{{$value->id}}">{{$value->name}}</option>
-                                                @endforeach
-                                            </select>
-                                            @error('area')
-                                                <span class="invalid-feedback" role="alert">
-                                                    <strong>{{ $message }}</strong>
-                                                </span>
-                                            @enderror
-                                        </div>
-                                    </div>
-                                    <!-- col-end -->
-                                    <div class="col-sm-12">
-                                        <div class="form-group">
-                                            <button class="order_place" type="submit">অর্ডার কন্ফার্ম করুন </button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <!-- card end -->
-                    </form>
-                    </div>
-                    @if($campaign_data->billing_details)
-                    <p class="my-1 text-center">
-                        {!! $campaign_data->billing_details !!}
-                    </p>
-                    @endif
-                </div>
-                <!-- col end -->
-                
-            <!-- col end -->
-            </div>
-                    </div>
-                </div>
-
-             </div>
+            <div class="ba-panel after">
+                <div class="ba-label">After</div>
+                @if($campaign_data->image_two)
+                <img src="{{ asset($campaign_data->image_two) }}" alt="After" style="width:100%;height:auto;border-radius:12px;max-height:220px;object-fit:cover;">
+                @else
+                <svg class="ba-face" viewBox="0 0 80 80" fill="none"><circle cx="40" cy="40" r="34" stroke="#C9A66B" stroke-width="2"/><path d="M25 36c4-3 10-3 14 0M41 36c4-3 10-3 14 0" stroke="#C9A66B" stroke-width="2" stroke-linecap="round"/><path d="M30 54c5 4 15 4 20 0" stroke="#C9A66B" stroke-width="2" stroke-linecap="round"/></svg>
+                @endif
+                <p>Smooth 4K streaming, lag-free gaming and reliable Wi-Fi in every room.</p>
             </div>
         </div>
-    </section>
+        <div>
+            @if($campaign_data->label('solution_eyebrow'))<div class="eyebrow">{{ $campaign_data->label('solution_eyebrow') }}</div>@endif
+            @if($campaign_data->heading_1)<h2 class="h2">{!! $campaign_data->heading_1 !!}</h2>@endif
+            @if($campaign_data->description)<p class="lead" style="color:#C9C5D6;">{!! $campaign_data->description !!}</p>@endif
+            <ul class="sol-benefits">
+                @foreach($campaign_data->solution() as $s)
+                <li><svg class="check" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="9" stroke="#C9A66B"/><path d="M6 10l3 3 6-6" stroke="#C9A66B" stroke-width="1.6" fill="none" stroke-linecap="round"/></svg>{{ $s['text'] }}</li>
+                @endforeach
+            </ul>
+        </div>
+    </div>
+</section>
+@endif
 
-        <script src="{{ asset('public/frontEnd/campaign/js') }}/jquery-2.1.4.min.js"></script>
-        <script src="{{ asset('public/frontEnd/campaign/js') }}/all.js"></script>
-        <script src="{{ asset('public/frontEnd/campaign/js') }}/bootstrap.min.js"></script>
-        <script src="{{ asset('public/frontEnd/campaign/js') }}/owl.carousel.min.js"></script>
-        <script src="{{ asset('public/frontEnd/campaign/js') }}/select2.min.js"></script>
-        <script src="{{ asset('public/frontEnd/campaign/js') }}/script.js"></script>
-        <!-- bootstrap js -->
-        <script>
-            $(document).ready(function () {
-                $(".owl-carousel").owlCarousel({
-                    margin: 15,
-                    loop: true,
-                    dots: false,
-                    autoplay: true,
-                    autoplayTimeout: 6000,
-                    autoplayHoverPause: true,
-                    items: 1,
-                    });
-                $('.owl-nav').remove();
-            });
-        </script>
-        <script>
-            $(document).ready(function() {
-                $('.select2').select2();
-            });
-        </script>
-        <script>
-             $("#area").on("change", function () {
-                var id = $(this).val();
-                $.ajax({
-                    type: "GET",
-                    data: { id: id },
-                    url: "{{route('shipping.charge')}}",
-                    dataType: "html",
-                    success: function(response){
-                        $('.cartlist').html(response);
-                    }
-                });
-            });
-        </script>
-           <script>
-            $(".cart_remove").on("click", function () {
-                var id = $(this).data("id");
-                $("#loading").show();
-                if (id) {
-                    $.ajax({
-                        type: "GET",
-                        data: { id: id },
-                        url: "{{route('cart.remove')}}",
-                        success: function (data) {
-                            if (data) {
-                                $(".cartlist").html(data);
-                                $("#loading").hide();
-                                return cart_count() + mobile_cart() + cart_summary();
-                            }
-                        },
-                    });
-                }
-            });
-            $(".cart_increment").on("click", function () {
-                var id = $(this).data("id");
-                $("#loading").show();
-                if (id) {
-                    $.ajax({
-                        type: "GET",
-                        data: { id: id },
-                        url: "{{route('cart.increment')}}",
-                        success: function (data) {
-                            if (data) {
-                                $(".cartlist").html(data);
-                                $("#loading").hide();
-                                return cart_count() + mobile_cart();
-                            }
-                        },
-                    });
-                }
-            });
+{{-- ══════════ FEATURES ══════════ --}}
+@if($campaign_data->sectionVisible('features'))
+<section class="features" id="features">
+    <div class="container">
+        @if($campaign_data->heading_2)
+        <div style="text-align:center;max-width:640px;margin:0 auto;">
+            @if($campaign_data->label('features_eyebrow'))<div class="eyebrow" style="justify-content:center;">{{ $campaign_data->label('features_eyebrow') }}</div>@endif
+            <h2 class="h2">{!! $campaign_data->heading_2 !!}</h2>
+        </div>
+        @endif
+        @php $featureItems = $campaign_data->features(); @endphp
+        @if(count($featureItems) > 0)
+        <div class="feat-grid">
+            @foreach($featureItems as $fi => $feature)
+            <div class="feat-card">
+                @if(!empty($feature['image']))
+                    <img src="{{ asset($feature['image']) }}" alt="{{ $feature['title'] }}" style="width:100%;height:100%;min-height:180px;object-fit:cover;">
+                @else
+                    @if(!empty($feature['icon']))
+                        <div class="feat-icon" style="font-size:36px;line-height:1;width:auto;height:auto;">{{ $feature['icon'] }}</div>
+                    @else
+                        <svg class="feat-icon" viewBox="0 0 40 40" fill="none"><path d="M20 6c8 8 12 14 12 20a12 12 0 01-24 0c0-6 4-12 12-20z" stroke="currentColor" stroke-width="1.5"/></svg>
+                    @endif
+                    @if(!empty($feature['title']))<h3>{{ $feature['title'] }}</h3>@endif
+                    @if(!empty($feature['text']))<p>{{ $feature['text'] }}</p>@endif
+                @endif
+            </div>
+            @endforeach
+        </div>
+        @endif
+    </div>
+</section>
+@endif
 
-            $(".cart_decrement").on("click", function () {
-                var id = $(this).data("id");
-                $("#loading").show();
-                if (id) {
-                    $.ajax({
-                        type: "GET",
-                        data: { id: id },
-                        url: "{{route('cart.decrement')}}",
-                        success: function (data) {
-                            if (data) {
-                                $(".cartlist").html(data);
-                                $("#loading").hide();
-                                return cart_count() + mobile_cart();
-                            }
-                        },
-                    });
-                }
-            });
+{{-- ══════════ BENEFITS ══════════ --}}
+@if($campaign_data->sectionVisible('benefits') && count($campaign_data->benefits()))
+<section class="benefits" id="benefits">
+    <div class="container">
+        @if($campaign_data->label('benefits_eyebrow'))<div class="eyebrow">{{ $campaign_data->label('benefits_eyebrow') }}</div>@endif
+        @if($campaign_data->label('benefits_heading'))<h2 class="h2">{{ $campaign_data->label('benefits_heading') }}</h2>@endif
+        <div class="stat-row">
+            @foreach($campaign_data->benefits() as $b)
+            <div class="stat">
+                @if(!empty($b['icon']))<div style="font-size:20px;margin-bottom:6px;">{{ $b['icon'] }}</div>@endif
+                @if(!empty($b['title']))<div class="stat-num">{{ $b['title'] }}</div>@endif
+                @if(!empty($b['text']))<p>{{ $b['text'] }}</p>@endif
+            </div>
+            @endforeach
+        </div>
+        <div class="arc-wrap">
+            <div class="arc-title">From a weak signal to a fast, reliable home network</div>
+            <div class="arc-stages">
+                <div class="stage active"><div class="stage-dot"></div><div class="stage-label">Setup</div><div class="stage-desc">Plug in, open the app and configure in minutes.</div></div>
+                <div class="stage active"><div class="stage-dot"></div><div class="stage-label">Connect</div><div class="stage-desc">Dual-band Wi-Fi covers every room and device.</div></div>
+                <div class="stage active"><div class="stage-dot"></div><div class="stage-label">Stream</div><div class="stage-desc">4K video and online games run without buffering.</div></div>
+                <div class="stage active"><div class="stage-dot"></div><div class="stage-label">Manage</div><div class="stage-desc">Parental controls &amp; QoS keep the network your own.</div></div>
+            </div>
+        </div>
+    </div>
+</section>
+@endif
 
-        </script>
-        <script>
-            $('.review_slider').owlCarousel({   
-                dots: false,
-                arrow: false,
-                autoplay: true,
-                loop: true,
-                margin: 10,
-                smartSpeed: 1000,
-                mouseDrag: true,
-                touchDrag: true,
-                items: 6,
-                responsiveClass: true,
-                responsive: {
-                    300: {
-                        items: 1,
-                    },
-                    480: {
-                        items: 2,
-                    },
-                    768: {
-                        items: 5,
-                    },
-                    1170: {
-                        items: 5,
-                    },
-                }
-            });
-        </script>
+{{-- ══════════ VIDEO ══════════ --}}
+@if($campaign_data->sectionVisible('video') && $campaign_data->video)
+<section class="video-sec">
+    <div class="container" style="text-align:center;">
+        @if($campaign_data->label('video_eyebrow'))<div class="eyebrow" style="justify-content:center;">{{ $campaign_data->label('video_eyebrow') }}</div>@endif
+        @if($campaign_data->label('video_heading'))<h2 class="h2">{{ $campaign_data->label('video_heading') }}</h2>@endif
+        <div class="video-box">
+            <iframe src="https://www.youtube.com/embed/{{ $campaign_data->video }}" frameborder="0" allowfullscreen allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"></iframe>
+        </div>
+    </div>
+</section>
+@endif
 
-        <script>
-            $('.campro_img_slider').owlCarousel({   
-                dots: false,
-                arrow: false,
-                autoplay: true,
-                loop: true,
-                margin: 10,
-                smartSpeed: 1000,
-                mouseDrag: true,
-                touchDrag: true,
-                items: 3,
-                responsiveClass: true,
-                responsive: {
-                    300: {
-                        items: 1,
-                    },
-                    480: {
-                        items: 2,
-                    },
-                    768: {
-                        items: 3,
-                    },
-                    1170: {
-                        items: 3,
-                    },
-                }
-            });
-        </script>
-        <script>
-            // Update the cart and highlight the selected card
-            function updateCart(productId) {
-                const productCards = document.querySelectorAll('.product-card');
-                productCards.forEach(card => card.classList.remove('selected'));
+{{-- ══════════ PRODUCTS ══════════ --}}
+@if($campaign_data->sectionVisible('products') && $products->count())
+<section class="products-sec" id="products">
+    <div class="container">
+        <div style="text-align:center;max-width:640px;margin:0 auto;">
+            @if($campaign_data->label('products_eyebrow'))<div class="eyebrow" style="justify-content:center;">{{ $campaign_data->label('products_eyebrow') }}</div>@endif
+            <h2 class="h2">{{ $campaign_data->name }}</h2>
+        </div>
+        <div class="prod-grid">
+            @foreach($products as $product)
+            <div class="prod-card">
+                @if($product->image)<img src="{{ asset($product->image->image) }}" alt="{{ $product->name }}">@endif
+                <div class="prod-body">
+                    <h3 style="font-family:'Inter';font-weight:600;font-size:16px;margin:0 0 8px;">{{ Str::limit($product->name, 30) }}</h3>
+                    <span class="prod-price">৳{{ $product->new_price }}</span>
+                    @if($product->old_price > 0)<span class="prod-old">৳{{ $product->old_price }}</span>@endif
+                </div>
+            </div>
+            @endforeach
+        </div>
+    </div>
+</section>
+@endif
 
-                const selectedCard = document.getElementById(`product_${productId}`).nextElementSibling;
-                selectedCard.classList.add('selected');
+{{-- ══════════ MEDIA / SHOWCASE ══════════ --}}
+@if($campaign_data->sectionVisible('media') && ($campaign_data->image_one || $campaign_data->image_two || $campaign_data->image_three))
+<section class="media-sec" id="media">
+    <div class="container">
+        <div style="text-align:center;max-width:640px;margin:0 auto;">
+            @if($campaign_data->label('media_eyebrow'))<div class="eyebrow" style="justify-content:center;">{{ $campaign_data->label('media_eyebrow') }}</div>@endif
+            @if($campaign_data->label('media_heading'))<h2 class="h2">{{ $campaign_data->label('media_heading') }}</h2>@endif
+        </div>
+        <div class="show-grid">
+            <div class="show-main"><img src="{{ asset($campaign_data->image_two ?: $campaign_data->image_one) }}" alt="{{ $campaign_data->name }}"></div>
+            <div class="show-side">
+                @if($campaign_data->image_one)
+                <div class="show-tile"><img src="{{ asset($campaign_data->image_one) }}" alt=""></div>
+                @endif
+                @if($campaign_data->image_three)
+                <div class="show-tile"><img src="{{ asset($campaign_data->image_three) }}" alt=""></div>
+                @endif
+            </div>
+        </div>
+    </div>
+</section>
+@endif
 
-                // ===== AddToCart Tracking =====
-                var selProd = window._campaignProducts
-                    ? window._campaignProducts.find(function(p){ return p.id === String(productId); })
-                    : null;
-                var prodPrice = selProd ? selProd.price : 0;
-                var prodName  = selProd ? selProd.name  : '';
+{{-- ══════════ REVIEWS ══════════ --}}
+@if($campaign_data->sectionVisible('review'))
+<section class="reviews" id="review">
+    <div class="container">
+        <div style="text-align:center;max-width:640px;margin:0 auto;">
+            @if($campaign_data->label('reviews_eyebrow'))<div class="eyebrow" style="justify-content:center;">{{ $campaign_data->label('reviews_eyebrow') }}</div>@endif
+            @if($campaign_data->label('reviews_heading'))<h2 class="h2">{{ $campaign_data->label('reviews_heading') }}</h2>@elseif($campaign_data->review)<h2 class="h2">{!! $campaign_data->review !!}</h2>@endif
+        </div>
+        @php $revItems = $campaign_data->reviews(); @endphp
+        @if(count($revItems))
+        <div class="rev-grid">
+            @foreach($revItems as $rv)
+            <div class="rev-card">
+                <div class="rev-stars">{{ str_repeat('★', max(1, (int)($rv['rating'] ?? 5))) }}</div>
+                <p>{{ $rv['text'] }}</p>
+                <div class="rev-person">
+                    <div class="avatar">{{ !empty($rv['name']) ? mb_substr($rv['name'], 0, 1) : '★' }}</div>
+                    <div>
+                        <div class="rev-name">{{ $rv['name'] }}</div>
+                        <div class="rev-verified">✓ Verified buyer</div>
+                    </div>
+                </div>
+            </div>
+            @endforeach
+        </div>
+        @elseif($campaign_data->images->count())
+        <div class="rev-grid">
+            @foreach($campaign_data->images as $image)
+            <div class="rev-card">
+                <img src="{{ asset($image->image) }}" alt="">
+                <div class="rev-stars">★★★★★</div>
+            </div>
+            @endforeach
+        </div>
+        @endif
+    </div>
+</section>
+@endif
 
-                // GTM DataLayer — add_to_cart
-                dataLayer.push({'ecommerce': null});
-                dataLayer.push({
-                    'event': 'add_to_cart',
-                    'ecommerce': {
-                        'currency': 'BDT',
-                        'value': prodPrice,
-                        'items': [{
-                            'item_id':   String(productId),
-                            'item_name': prodName,
-                            'price':     prodPrice,
-                            'quantity':  1
-                        }]
-                    }
-                });
+{{-- ══════════ TRUST STRIP ══════════ --}}
+@if($campaign_data->sectionVisible('trust') && count($campaign_data->trust()))
+<section class="trust-strip" id="trust">
+    <div class="container ts-grid">
+        @foreach($campaign_data->trust() as $t)
+        <div class="ts-item">
+            @if(!empty($t['icon']))<div class="ts-icon" style="font-size:26px;line-height:1;width:auto;height:auto;">{{ $t['icon'] }}</div>@endif
+            <span>{{ $t['text'] }}</span>
+        </div>
+        @endforeach
+    </div>
+</section>
+@endif
 
-                // Facebook Pixel — AddToCart
-                if (typeof fbq !== 'undefined') {
-                    fbq('track', 'AddToCart', {
-                        content_ids:  [String(productId)],
-                        content_name: prodName,
-                        content_type: 'product',
-                        value:        prodPrice,
-                        currency:     'BDT'
-                    }, {eventID: 'atc_' + productId + '_' + Math.floor(Date.now()/1000)});
-                }
+{{-- ══════════ FAQ ══════════ --}}
+@if($campaign_data->sectionVisible('faq') && count($campaign_data->faq()))
+<section class="faq" id="faq">
+    <div class="container">
+        <div style="text-align:center;max-width:640px;margin:0 auto;">
+            @if($campaign_data->label('faq_eyebrow'))<div class="eyebrow" style="justify-content:center;">{{ $campaign_data->label('faq_eyebrow') }}</div>@endif
+            @if($campaign_data->label('faq_heading'))<h2 class="h2">{{ $campaign_data->label('faq_heading') }}</h2>@endif
+        </div>
+        <div class="faq-list" id="faq-list">
+            @foreach($campaign_data->faq() as $fi => $fq)
+            <div class="faq-item {{ $loop->first ? 'open' : '' }}">
+                <button class="faq-q" type="button">{{ $fq['q'] }}<span class="faq-plus">+</span></button>
+                <div class="faq-a" @if($loop->first) style="max-height:160px;" @endif><p>{{ $fq['a'] }}</p></div>
+            </div>
+            @endforeach
+        </div>
+    </div>
+</section>
+@endif
 
-                // TikTok Pixel — AddToCart
-                if (typeof ttq !== 'undefined') {
-                    ttq.track('AddToCart', {
-                        content_id:   String(productId),
-                        content_name: prodName,
-                        content_type: 'product',
-                        value:        prodPrice,
-                        currency:     'BDT',
-                        quantity:     1
-                    });
-                }
-                // ==============================
-
-                $("#loading").show();
-                if (productId) {
-                    $.ajax({
-                        type: "GET",
-                        data: { id: productId },
-                        url: "{{route('cart.changeProduct')}}",
-                        success: function (data) {
-                            if (data) {
-                                $(".cartlist").html(data);
-                                $("#loading").hide();
-                            }
-                        },
-                    });
-                }
-            }
-
-            // Automatically highlight the first card on page load
-            document.addEventListener('DOMContentLoaded', function() {
-                const firstCard = document.querySelector('.product-card');
-                if (firstCard) {
-                    firstCard.classList.add('selected');
-                }
-            });
-        </script>
-        <script>
-            @if($campaign_data->deadline)
-            // Set the deadline from the campaign data
-            const deadline = new Date("{{ $campaign_data->deadline }}").getTime();
-        
-            // Update the countdown every 1 second
-            const x = setInterval(function() {
-                // Get current date and time
-                const now = new Date().getTime();
-        
-                // Calculate the distance between now and the deadline
-                const distance = deadline - now;
-        
-                // Time calculations for days, hours, minutes and seconds
-                const days = Math.floor(distance / (1000 * 60 * 60 * 24));
-                const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-                const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-                const seconds = Math.floor((distance % (1000 * 60)) / 1000);
-        
-                // Display the result in the respective elements
-                document.getElementById("days").innerHTML = days;
-                document.getElementById("hours").innerHTML = hours;
-                document.getElementById("minutes").innerHTML = minutes;
-                document.getElementById("seconds").innerHTML = seconds;
-        
-                // If the countdown is over, write some text
-                if (distance < 0) {
-                    clearInterval(x);
-                    document.getElementById("countdown").innerHTML = "EXPIRED";
-                }
-            }, 1000);
-            @else
-            document.getElementById("countdown").style.display = "none";
+{{-- ══════════ OFFER / ORDER ══════════ --}}
+@if($campaign_data->sectionVisible('offer'))
+<section class="offer" id="offer">
+    <div class="container" style="text-align:center;">
+        @if($campaign_data->label('offer_eyebrow'))<div class="eyebrow" style="justify-content:center;">{{ $campaign_data->label('offer_eyebrow') }}</div>@endif
+        @if($campaign_data->label('offer_heading'))<h2 class="h2">{{ $campaign_data->label('offer_heading') }}</h2>@endif
+        @if($campaign_data->note)
+        <p style="color:var(--dusk);max-width:600px;margin:0 auto 10px;">{!! $campaign_data->note !!}</p>
+        @endif
+        @php $offerFirst = $products->first(); @endphp
+        @if($offerFirst && (int)$offerFirst->old_price > (int)$offerFirst->new_price)
+        <div class="discount-badge">SAVE ৳{{ (int)$offerFirst->old_price - (int)$offerFirst->new_price }} TODAY</div>
+        <div class="price-row"><span class="price-old">৳{{ (int)$offerFirst->old_price }}</span><span class="price-new">৳{{ (int)$offerFirst->new_price }}</span></div>
+        @endif
+        @if($campaign_data->deadline)
+        <div class="countdown" id="countdown">
+            <div class="cd-box"><div class="cd-num" id="days">--</div><div class="cd-label">Days</div></div>
+            <div class="cd-box"><div class="cd-num" id="hours">--</div><div class="cd-label">Hours</div></div>
+            <div class="cd-box"><div class="cd-num" id="minutes">--</div><div class="cd-label">Minutes</div></div>
+            <div class="cd-box"><div class="cd-num" id="seconds">--</div><div class="cd-label">Seconds</div></div>
+        </div>
+        @endif
+    </div>
+    <div class="container order-grid">
+        <div class="order-form">
+            @if($campaign_data->label('form_select'))<div class="form-title">{{ $campaign_data->label('form_select') }}</div>@endif
+            <div class="product-picker" id="product-picker">
+                @foreach($products as $i => $product)
+                <label class="{{ $loop->first ? 'selected' : '' }}">
+                    <input type="radio" name="product" value="{{ $product->id }}" {{ $loop->first ? 'checked' : '' }} onchange="selectProduct(this)">
+                    @if($product->image)<img src="{{ asset($product->image->image) }}" alt="">@endif
+                    <div>
+                        <div>{{ Str::limit($product->name, 22) }}</div>
+                        <div style="color:var(--brand);font-weight:700;">৳{{ $product->new_price }}</div>
+                    </div>
+                </label>
+                @endforeach
+            </div>
+            @if($campaign_data->label('form_info'))<div class="form-title" style="margin-top:18px;">{{ $campaign_data->label('form_info') }}</div>@endif
+            <form action="{{ route('customer.ordersave') }}" method="POST" data-parsley-validate="">
+                @csrf
+                <input type="hidden" name="product" id="selected_product" value="{{ $products->first()?->id ?? '' }}">
+                <input type="hidden" name="warranty_tier_id" id="selected_warranty_tier" value="">
+                <input type="text" name="name" placeholder="আপনার নাম *" required>
+                <input type="tel" name="phone" placeholder="আপনার মোবাইল নম্বর *" minlength="11" maxlength="11" pattern="0(13|14|15|16|17|18|19)[0-9]{8}" required>
+                <input type="text" name="address" placeholder="আপনার ঠিকানা *" required>
+                <select name="area" id="campaign_area" required>
+                    @foreach($shippingcharge as $charge)
+                    <option value="{{ $charge->id }}" data-charge="{{ $charge->amount }}">{{ $charge->name }}</option>
+                    @endforeach
+                </select>
+                <div id="campaign-warranty-selector"></div>
+                <button type="submit" class="order-submit">{{ $campaign_data->label('form_submit') ?: 'অর্ডার কনফার্ম করুন' }}</button>
+            </form>
+            @if($campaign_data->billing_details)
+            <p style="color:var(--dusk);font-size:13px;margin:18px 0 0;text-align:center;">{!! $campaign_data->billing_details !!}</p>
             @endif
-               // Event listener for size selector change
-            $('.cart-size-selector').on('change', function() {
-                var rowId = $(this).data('id'); // Get the row ID
-                var selectedSize = $(this).val(); // Get the selected size
-            
-                if (rowId) {
-                    $.ajax({
-                        type: "GET", // Change to GET if your route accepts GET requests
-                        data: {
-                            'id': rowId,
-                            'product_size': selectedSize // New size to update
-                        },
-                        url: "{{ route('cart.update') }}", // Use the same route for updating size
-                        success: function(data) {
-                            if (data) {
-                                $(".cartlist").html(data); // Update the cart list UI with new data
-                                return cart_count(); // Update the cart count
-                            }
-                        },
-                        error: function() {
-                            alert('An error occurred while updating the size. Please try again.');
-                        }
-                    });
-                }
+        </div>
+        <div>
+            @if($campaign_data->label('form_summary'))<div class="form-title">{{ $campaign_data->label('form_summary') }}</div>@endif
+            @php $first = $products->first(); @endphp
+            <div style="background:rgba(244,241,232,.05);border:1px solid var(--line);border-radius:var(--radius-lg);padding:26px;">
+                <div style="display:flex;gap:14px;align-items:center;padding-bottom:14px;margin-bottom:14px;border-bottom:1px solid var(--line);">
+                    <img id="summaryProductImg" src="{{ $first && $first->image ? asset($first->image->image) : asset('public/uploads/default.webp') }}" alt="" style="width:52px;height:52px;border-radius:10px;object-fit:cover;">
+                    <div style="flex:1;">
+                        <div id="summaryProductName" style="font-size:14px;font-weight:600;">{{ $first ? Str::limit($first->name, 26) : '' }}</div>
+                        <div id="summaryProductPrice" style="font-size:12.5px;color:var(--dusk);">৳{{ $first ? $first->new_price : 0 }}</div>
+                    </div>
+                </div>
+                <div id="campaignWarrantyRow" style="display:none;justify-content:space-between;font-size:13px;padding-bottom:10px;color:var(--dusk);">
+                    <span>🛡️ {{ $campaign_data->label('form_warranty') ?: 'Warranty' }}</span><span id="summaryWarranty">৳0</span>
+                </div>
+                <div style="display:flex;justify-content:space-between;font-size:13px;padding-bottom:10px;color:var(--dusk);">
+                    <span>{{ $campaign_data->label('form_delivery') ?: 'Delivery Charge' }}</span><span id="summaryShipping">৳{{ $initial_shipping }}</span>
+                </div>
+                <div style="display:flex;justify-content:space-between;font-size:16px;padding-top:12px;border-top:1px solid var(--line);font-family:'Fraunces',serif;">
+                    <span>{{ $campaign_data->label('form_total') ?: 'Total' }}</span><span id="summaryTotal">৳{{ $first ? ($first->new_price + $initial_shipping) : 0 }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+@endif
+
+{{-- ══════════ FINAL CTA ══════════ --}}
+@if($campaign_data->sectionVisible('cta'))
+<section class="final-cta" id="cta">
+    <div class="container">
+        @if($campaign_data->label('cta_eyebrow'))<div class="eyebrow" style="justify-content:center;"><span></span>{{ $campaign_data->label('cta_eyebrow') }}</div>@endif
+        @if($campaign_data->label('cta_heading'))<h2 class="h2">{{ $campaign_data->label('cta_heading') }}</h2>@endif
+        @foreach($campaign_data->cta() as $c)
+            @if(!empty($c['text']))<p class="lead" style="margin:0 auto 30px;text-align:center;color:var(--dusk);max-width:520px;">{{ $c['text'] }}</p>@endif
+        @endforeach
+        @if($campaign_data->sectionVisible('offer'))
+        <a href="#offer" class="btn btn-primary">{{ $campaign_data->label('nav_cta') ?: 'Order Now' }}</a>
+        @endif
+        <div class="final-trust">
+            <div class="trust-item"><span class="stars">★★★★★</span>&nbsp;4.9/5</div>
+            <div class="trust-item">Free delivery</div>
+            <div class="trust-item">1-year warranty</div>
+        </div>
+    </div>
+</section>
+@endif
+
+<footer>
+    <div class="footer-bottom">© {{ date('Y') }} {{ $generalsetting->name }} — {{ $campaign_data->label('footer_rights') ?: 'All rights reserved.' }}</div>
+</footer>
+
+@if($campaign_data->sectionVisible('offer'))
+<div class="mobile-sticky">
+    <div class="msp"><b>{{ $campaign_data->label('sticky_order') ?: 'অর্ডার করুন' }}</b><span>{{ $campaign_data->label('sticky_cod') ?: 'Cash on Delivery' }}</span></div>
+    <a href="#offer" class="btn btn-primary" style="padding:12px 24px;font-size:14px;">{{ $campaign_data->label('nav_cta') ?: 'Order Now' }}</a>
+</div>
+@endif
+
+<script src="{{ asset('public/frontEnd/campaign/js/jquery-2.1.4.min.js') }}"></script>
+<script>
+    // Countdown
+    @if($campaign_data->deadline)
+    var deadline = new Date("{{ $campaign_data->deadline }}").getTime();
+    var x = setInterval(function () {
+        var now = new Date().getTime();
+        var dist = deadline - now;
+        document.getElementById("days").innerHTML = Math.floor(dist / (1000*60*60*24));
+        document.getElementById("hours").innerHTML = Math.floor((dist % (1000*60*60*24)) / (1000*60*60));
+        document.getElementById("minutes").innerHTML = Math.floor((dist % (1000*60*60)) / (1000*60));
+        document.getElementById("seconds").innerHTML = Math.floor((dist % (1000*60)) / 1000);
+        if (dist < 0) { clearInterval(x); document.getElementById("countdown").innerHTML = "EXPIRED"; }
+    }, 1000);
+    @endif
+
+    // ---- Shipping + warranty state ----
+    var currentShippingCharge = {{ $initial_shipping }};
+    var selectedWarrantyAdjustment = 0;
+    var selectedWarrantyTierId = '';
+
+    // নির্বাচিত প্রোডাক্ট খুঁজে বের করি (window._campaignProducts ব্যবহার)
+    function getSelectedCampaignProduct() {
+        var input = document.querySelector('input[name="product"]:checked');
+        if (!input) return null;
+        var pid = String(input.value);
+        var list = window._campaignProducts || [];
+        for (var i = 0; i < list.length; i++) {
+            if (String(list[i].id) === pid) return list[i];
+        }
+        return null;
+    }
+
+    // ওয়ারেন্টি সিলেক্টর রিবিল্ড (নির্বাচিত প্রোডাক্ট অনুযায়ী)
+    function rebuildWarrantySelector() {
+        var container = document.getElementById('campaign-warranty-selector');
+        var hidden    = document.getElementById('selected_warranty_tier');
+        if (!container) return;
+
+        var product = getSelectedCampaignProduct();
+        var tiers   = product && product.tiers ? product.tiers : [];
+        selectedWarrantyAdjustment = 0;
+        selectedWarrantyTierId = '';
+        if (hidden) hidden.value = '';
+
+        if (!tiers.length) {
+            container.innerHTML = '';
+            updateOrderSummary();
+            return;
+        }
+
+        var html = '<div class="camp-warranty-label">🛡️ ' + (product.warranty_label || 'Warranty') + '</div>';
+        html += '<div class="camp-warranty-wrap">';
+        for (var i = 0; i < tiers.length; i++) {
+            var t = tiers[i];
+            var adj = Number(t.additional_cost) || 0;
+            var active = t.is_default ? ' active' : '';
+            html += '<span class="camp-warranty-chip' + active + '" data-tier-id="' + t.id + '" data-adj="' + adj + '">' +
+                        (t.label || '') +
+                        (adj != 0 ? ' <small>' + (adj > 0 ? '+' + adj : adj) + ' TK</small>' : '') +
+                    '</span>';
+        }
+        html += '</div>';
+        container.innerHTML = html;
+
+        // Click bind
+        var chips = container.querySelectorAll('.camp-warranty-chip');
+        for (var j = 0; j < chips.length; j++) {
+            chips[j].addEventListener('click', function () {
+                var all = container.querySelectorAll('.camp-warranty-chip');
+                for (var k = 0; k < all.length; k++) all[k].classList.remove('active');
+                this.classList.add('active');
+                selectedWarrantyAdjustment = parseFloat(this.getAttribute('data-adj')) || 0;
+                selectedWarrantyTierId = this.getAttribute('data-tier-id');
+                if (hidden) hidden.value = selectedWarrantyTierId;
+                updateOrderSummary();
             });
-            
-            
-            // Event listener for color selector change
-            $('.cart-color-selector').on('change', function() {
-                var rowId = $(this).data('id'); // Get the row ID
-                var selectedColor = $(this).val(); // Get the selected color
-            
-                if (rowId) {
-                    $.ajax({
-                        type: "GET", // Change to GET if your route accepts GET requests
-                        data: {
-                            'id': rowId,
-                            'product_color': selectedColor // New size to update
-                        },
-                        url: "{{ route('cart.update') }}", // Use the same route for updating size
-                        success: function(data) {
-                            if (data) {
-                                $(".cartlist").html(data); // Update the cart list UI with new data
-                                return cart_count(); // Update the cart count
-                            }
-                        },
-                        error: function() {
-                            alert('An error occurred while updating the size. Please try again.');
-                        }
-                    });
-                }
-            });
-        </script>
-        <script>
-            // ========== GTM — view_item_list (সব প্রোডাক্ট) ==========
+        }
+
+        // Default tier select
+        var defaultChip = container.querySelector('.camp-warranty-chip.active');
+        if (defaultChip) {
+            selectedWarrantyAdjustment = parseFloat(defaultChip.getAttribute('data-adj')) || 0;
+            selectedWarrantyTierId = defaultChip.getAttribute('data-tier-id');
+            if (hidden) hidden.value = selectedWarrantyTierId;
+        }
+        updateOrderSummary();
+    }
+
+    // Order summary আপডেট (প্রোডাক্ট + শিপিং + ওয়ারেন্টি)
+    function updateOrderSummary() {
+        var product = getSelectedCampaignProduct();
+        if (!product) return;
+        var price    = Number(product.price) || 0;
+        var shipping = (product.free_delivery == 1) ? 0 : currentShippingCharge;
+        var warranty = selectedWarrantyAdjustment || 0;
+        var total    = price + shipping + warranty;
+
+        var imgEl   = document.getElementById('summaryProductImg');
+        var nameEl  = document.getElementById('summaryProductName');
+        var priceEl = document.getElementById('summaryProductPrice');
+        var shipEl  = document.getElementById('summaryShipping');
+        var warrEl  = document.getElementById('summaryWarranty');
+        var warrRow = document.getElementById('campaignWarrantyRow');
+        var totalEl = document.getElementById('summaryTotal');
+        if (imgEl && product.image) imgEl.src = product.image;
+        if (nameEl)  nameEl.textContent  = product.name;
+        if (priceEl) priceEl.textContent = '৳' + price;
+        if (shipEl)  shipEl.textContent  = '৳' + shipping;
+        if (warrEl)  warrEl.textContent  = '৳' + warranty;
+        if (warrRow) warrRow.style.display = (warranty > 0) ? 'flex' : 'none';
+        if (totalEl) totalEl.textContent  = '৳' + total;
+    }
+
+    // এরিয়া পরিবর্তন হলে শিপিং চার্জ আপডেট
+    var campaignArea = document.getElementById('campaign_area');
+    if (campaignArea) {
+        campaignArea.addEventListener('change', function () {
+            var opt = this.options[this.selectedIndex];
+            currentShippingCharge = parseFloat(opt.getAttribute('data-charge')) || 0;
+            updateOrderSummary();
+
+            var product = getSelectedCampaignProduct();
+            if (product && product.free_delivery == 1) {
+                $.get('{{ route("shipping.charge") }}', { id: 'free_delivery' });
+            } else {
+                $.get('{{ route("shipping.charge") }}', { id: this.value });
+            }
+        });
+    }
+
+    // পেজ লোডে প্রাথমিক ওয়ারেন্টি সিলেক্টর + সামারি
+    rebuildWarrantySelector();
+
+    function selectProduct(input) {
+        var cards = document.querySelectorAll('#product-picker label');
+        cards.forEach(function (c) { c.classList.remove('selected'); });
+        input.closest('label').classList.add('selected');
+        var pid = input.value;
+        var sel = window._campaignProducts ? window._campaignProducts.find(function(p){ return p.id === String(pid); }) : null;
+        if (sel) {
+            // হিডেন ফিল্ড আপডেট (কোন প্রোডাক্ট অর্ডার হবে)
+            var hidden = document.getElementById('selected_product');
+            if (hidden) hidden.value = String(pid);
+
+            // ওয়ারেন্টি + সামারি আপডেট
+            rebuildWarrantySelector();
+            updateOrderSummary();
+
             dataLayer.push({'ecommerce': null});
-            dataLayer.push({
-                'event': 'view_item_list',
-                'ecommerce': {
-                    'currency': 'BDT',
-                    'items': window._campaignProducts
-                        ? window._campaignProducts.map(function(p, i) {
-                            return {item_id: p.id, item_name: p.name, price: p.price, index: i, quantity: 1};
-                          })
-                        : []
-                }
+            dataLayer.push({ 'event':'add_to_cart', 'ecommerce':{ 'currency':'BDT','value':sel.price,'items':[{'item_id':String(pid),'item_name':sel.name,'price':sel.price,'quantity':1}] } });
+        }
+    }
+
+    // GTM view_item_list
+    dataLayer.push({'ecommerce': null});
+    dataLayer.push({ 'event':'view_item_list', 'ecommerce':{ 'currency':'BDT','items': window._campaignProducts || [] } });
+
+    // Track order form submit
+    $('form[action="{{ route("customer.ordersave") }}"]').on('submit', function () {
+        var hidden = document.getElementById('selected_product');
+        var pid = hidden ? hidden.value : null;
+        var sel = pid ? (window._campaignProducts || []).find(function(p){ return p.id === String(pid); }) : null;
+        var price = sel ? (Number(sel.price) || 0) : {{ $products->sum('new_price') }};
+        var shipping = (sel && sel.free_delivery == 1) ? 0 : currentShippingCharge;
+        var total = price + shipping + (selectedWarrantyAdjustment || 0);
+        var submitItems = sel ? [{ 'item_id': String(sel.id), 'item_name': sel.name, 'price': Number(sel.price) || 0, 'quantity': 1 }] : (window._campaignProducts || []);
+        dataLayer.push({'ecommerce': null});
+        dataLayer.push({ 'event':'begin_checkout', 'ecommerce':{ 'currency':'BDT','value':total,'items': submitItems } });
+    });
+
+    // Smooth anchor scroll offset (fixed nav)
+    $(function () {
+        $('a[href^="#"]').on('click', function (e) {
+            var t = $(this.getAttribute('href'));
+            if (t.length) { e.preventDefault(); $('html,body').animate({ scrollTop: t.offset().top - 70 }, 400); }
+        });
+    });
+
+    // FAQ accordion
+    document.querySelectorAll('.faq-item').forEach(function (item) {
+        var q = item.querySelector('.faq-q');
+        var a = item.querySelector('.faq-a');
+        if (!q || !a) return;
+        q.addEventListener('click', function () {
+            var isOpen = item.classList.contains('open');
+            document.querySelectorAll('.faq-item').forEach(function (i) {
+                i.classList.remove('open');
+                var aa = i.querySelector('.faq-a');
+                if (aa) aa.style.maxHeight = 0;
             });
+            if (!isOpen) {
+                item.classList.add('open');
+                a.style.maxHeight = a.scrollHeight + 'px';
+            }
+        });
+    });
+</script>
 
-            $(document).ready(function() {
-                // ========== InitiateCheckout + Lead — Order Form Submit ==========
-                $('form[action="{{ route("customer.ordersave") }}"]').on('submit', function() {
-                    var subtotalVal   = parseFloat($('#net_total strong').text().replace(/[^0-9.]/g, '')) || 0;
-                    var contentIds    = window._campaignProducts ? window._campaignProducts.map(function(p){ return p.id; }) : [];
-                    var icEventId     = 'ic_camp{{ $campaign_data->id }}_' + Math.floor(Date.now()/1000);
-                    var leadEventId   = 'lead_camp{{ $campaign_data->id }}_' + Math.floor(Date.now()/1000);
-                    var campItems     = window._campaignProducts
-                        ? window._campaignProducts.map(function(p, i){
-                            return {item_id: p.id, item_name: p.name, price: p.price, index: i, quantity: 1};
-                          })
-                        : [];
+{{-- ══════════ INCOMPLETE ORDER SAVE (same as checkout page) ══════════ --}}
+<script>
+    // গ্লোবাল ভেরিয়েবল
+    let incompleteOrderTimer;
+    let isSubmitting = false;
+    const campaignTotal = {{ $products->sum('new_price') }};
 
-                    // GTM — begin_checkout
-                    dataLayer.push({'ecommerce': null});
-                    dataLayer.push({
-                        'event': 'begin_checkout',
-                        'ecommerce': {
-                            'currency': 'BDT',
-                            'value':    subtotalVal,
-                            'items':    campItems
-                        }
-                    });
+    // ইনকমপ্লিট অর্ডার সেভ (ডিবাউন্স ২ সেকেন্ড)
+    function saveIncompleteOrder() {
+        if (isSubmitting) return;
+        if (incompleteOrderTimer) clearTimeout(incompleteOrderTimer);
 
-                    // Facebook Pixel — InitiateCheckout + Lead
-                    if (typeof fbq !== 'undefined') {
-                        fbq('track', 'InitiateCheckout', {
-                            content_ids:  contentIds,
-                            content_type: 'product',
-                            value:        subtotalVal,
-                            currency:     'BDT',
-                            num_items:    contentIds.length
-                        }, {eventID: icEventId});
-                        fbq('track', 'Lead', {
-                            value:        subtotalVal,
-                            currency:     'BDT',
-                            content_name: {{ json_encode($camp_name) }}
-                        }, {eventID: leadEventId});
-                    }
+        incompleteOrderTimer = setTimeout(function () {
+            var name = document.querySelector('input[name="name"]').value;
+            var phone = document.querySelector('input[name="phone"]').value;
+            var address = document.querySelector('input[name="address"]').value;
 
-                    // TikTok Pixel — InitiateCheckout
-                    if (typeof ttq !== 'undefined') {
-                        ttq.track('InitiateCheckout', {
-                            content_ids:  contentIds,
-                            content_type: 'product',
-                            value:        subtotalVal,
-                            currency:     'BDT',
-                            quantity:     contentIds.length
-                        });
-                    }
-                });
+            // নাম, ফোন, ঠিকানা — তিনটিই থাকতে হবে
+            if (!name || !phone || !address) return;
 
-                // ========== Order Now Button Click ==========
-                $('.cam_order_now').on('click', function() {
-                    dataLayer.push({
-                        event:         'click_order_now_button',
-                        campaign_id:   {{ json_encode($camp_id) }},
-                        campaign_name: {{ json_encode($camp_name) }}
-                    });
-                });
+            var product = getSelectedCampaignProduct();
+            var items = product ? [{
+                id: String(product.id),
+                name: product.name,
+                qty: 1,
+                price: Number(product.price) || 0,
+                image: '',
+                link: ''
+            }] : [];
+            var shipping = (product && product.free_delivery == 1) ? 0 : (currentShippingCharge || 0);
+            var total = product ? ((Number(product.price) || 0) + shipping + (selectedWarrantyAdjustment || 0)) : campaignTotal;
+
+            $.ajax({
+                url: '{{ route("incomplete.order.store") }}',
+                type: 'POST',
+                contentType: 'application/json',
+                headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') },
+                data: JSON.stringify({
+                    name: name,
+                    phone: phone,
+                    address: address,
+                    items: items,
+                    total_amount: total
+                })
             });
-        </script>
-    </body>
+        }, 2000);
+    }
+
+    // ফর্মের ইনপুট / প্রোডাক্ট সিলেক্ট চেঞ্জ হলে সেভ
+    var campaignForm = document.querySelector('.order-form form');
+    if (campaignForm) {
+        campaignForm.addEventListener('input', saveIncompleteOrder);
+        campaignForm.addEventListener('change', function (e) {
+            if (e.target.name === 'product') saveIncompleteOrder();
+        });
+
+        // অর্ডার সাবমিট হলে আর সেভ হবে না
+        campaignForm.addEventListener('submit', function () {
+            isSubmitting = true;
+            if (incompleteOrderTimer) clearTimeout(incompleteOrderTimer);
+        });
+    }
+
+    // পেজ ছেড়ে যাওয়ার সময় সেভ (sendBeacon)
+    function saveIncompleteOrderSync() {
+        if (isSubmitting) return;
+        var name = document.querySelector('input[name="name"]').value;
+        var phone = document.querySelector('input[name="phone"]').value;
+        var address = document.querySelector('input[name="address"]').value;
+        if (!name || !phone || !address) return;
+
+        var product = getSelectedCampaignProduct();
+        var items = product ? [{
+            id: String(product.id),
+            name: product.name,
+            qty: 1,
+            price: Number(product.price) || 0
+        }] : [];
+        var shipping = (product && product.free_delivery == 1) ? 0 : (currentShippingCharge || 0);
+        var total = product ? ((Number(product.price) || 0) + shipping + (selectedWarrantyAdjustment || 0)) : campaignTotal;
+
+        var payload = JSON.stringify({
+            name: name, phone: phone, address: address,
+            items: items, total_amount: total,
+            _token: $('meta[name="csrf-token"]').attr('content')
+        });
+        navigator.sendBeacon('{{ route("incomplete.order.store") }}', new Blob([payload], {type: 'application/json'}));
+    }
+    window.addEventListener('beforeunload', saveIncompleteOrderSync);
+    window.addEventListener('pagehide', saveIncompleteOrderSync);
+</script>
+</body>
 </html>

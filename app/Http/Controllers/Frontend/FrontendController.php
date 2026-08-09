@@ -1144,6 +1144,11 @@ $brands = Brand::where('status', 1)
     {
         $campaign_data = Campaign::where('slug', $slug)->with('images')->first();
 
+        // Campaign not found -> 404 instead of crashing on ->id
+        if (!$campaign_data) {
+            abort(404);
+        }
+
         $products = Product::whereIn('id', function($query) use ($campaign_data) {
             $query->select('product_id')
                   ->from('campaign_product')
