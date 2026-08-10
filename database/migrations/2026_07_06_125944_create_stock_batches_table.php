@@ -6,12 +6,9 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
-        if (!Schema::hasTable('stock_batches')) {
+if (!Schema::hasTable('stock_batches')) {
             Schema::create('stock_batches', function (Blueprint $table) {
                 $table->id();
                 $table->unsignedBigInteger('product_id');
@@ -35,11 +32,20 @@ return new class extends Migration
                 $table->index('supplier_id');
             });
         }
+
+Schema::table('stock_batches', function (Blueprint $table) {
+            if (!Schema::hasColumn('stock_batches', 'custom_field')) {
+                $table->string('custom_field', 255)->nullable()->after('exp_date');
+            }
+        });
+
+Schema::table('stock_batches', function (Blueprint $table) {
+            if (!Schema::hasColumn('stock_batches', 'reference_no')) {
+                $table->string('reference_no', 100)->nullable()->after('reference_id');
+            }
+        });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('stock_batches');

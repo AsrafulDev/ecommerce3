@@ -8,7 +8,7 @@ return new class extends Migration
 {
     public function up(): void
     {
-        if (!Schema::hasTable('expenses')) {
+if (!Schema::hasTable('expenses')) {
             Schema::create('expenses', function (Blueprint $table) {
             $table->id();
             $table->decimal('amount', 15,2);
@@ -21,6 +21,18 @@ return new class extends Migration
             $table->date('expense_date')->nullable();
             });
         }
+
+Schema::table('expenses', function (Blueprint $table) {
+            if (!Schema::hasColumn('expenses', 'title')) {
+                $table->string('title', 255)->nullable()->after('id');
+            }
+            if (!Schema::hasColumn('expenses', 'category')) {
+                $table->string('category', 100)->nullable()->after('title');
+            }
+            if (!Schema::hasColumn('expenses', 'fund_transaction_id')) {
+                $table->bigInteger('fund_transaction_id')->unsigned()->nullable()->after('note');
+            }
+        });
     }
 
     public function down(): void

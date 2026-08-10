@@ -8,7 +8,7 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::create('product_warranty_tiers', function (Blueprint $table) {
+Schema::create('product_warranty_tiers', function (Blueprint $table) {
             $table->id();
             $table->foreignId('product_id')->constrained('products')->cascadeOnDelete();
 
@@ -27,6 +27,12 @@ return new class extends Migration
             $table->timestamps();
 
             $table->unique(['product_id', 'warranty_type']);
+        });
+
+Schema::table('product_warranty_tiers', function (Blueprint $table) {
+            if (!Schema::hasColumn('product_warranty_tiers', 'variant_id')) {
+                $table->bigInteger('variant_id')->unsigned()->nullable()->after('product_id');
+            }
         });
     }
 

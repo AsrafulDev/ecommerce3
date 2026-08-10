@@ -8,7 +8,7 @@ return new class extends Migration
 {
     public function up(): void
     {
-        if (!Schema::hasTable('campaigns')) {
+if (!Schema::hasTable('campaigns')) {
             Schema::create('campaigns', function (Blueprint $table) {
             $table->increments('id');
             $table->string('name', 255);
@@ -28,6 +28,40 @@ return new class extends Migration
             $table->longText('page_css')->nullable();
             });
         }
+
+Schema::table('campaigns', function (Blueprint $table) {
+            if (!Schema::hasColumn('campaigns', 'product_id')) {
+                $table->unsignedBigInteger('product_id')->nullable()->after('id');
+                $table->index('product_id');
+            }
+        });
+
+Schema::table('campaigns', function (Blueprint $table) {
+            if (!Schema::hasColumn('campaigns', 'sections')) {
+                $table->json('sections')->nullable()->after('page_css');
+            }
+        });
+
+Schema::table('campaigns', function (Blueprint $table) {
+            if (!Schema::hasColumn('campaigns', 'labels')) {
+                $table->json('labels')->nullable()->after('sections');
+            }
+        });
+
+Schema::table('campaigns', function (Blueprint $table) {
+            if (!Schema::hasColumn('campaigns', 'features')) {
+                $table->json('features')->nullable()->after('labels');
+            }
+        });
+
+Schema::table('campaigns', function (Blueprint $table) {
+            $cols = ['problem', 'solution', 'benefits', 'trust', 'faq', 'cta'];
+            foreach ($cols as $col) {
+                if (!Schema::hasColumn('campaigns', $col)) {
+                    $table->json($col)->nullable()->after('features');
+                }
+            }
+        });
     }
 
     public function down(): void

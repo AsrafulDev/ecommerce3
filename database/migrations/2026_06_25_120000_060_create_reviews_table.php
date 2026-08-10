@@ -8,7 +8,7 @@ return new class extends Migration
 {
     public function up(): void
     {
-        if (!Schema::hasTable('reviews')) {
+if (!Schema::hasTable('reviews')) {
             Schema::create('reviews', function (Blueprint $table) {
             $table->increments('id');
             $table->string('name', 255);
@@ -21,6 +21,13 @@ return new class extends Migration
             $table->timestamp('updated_at')->nullable();
             });
         }
+
+Schema::table('reviews', function (Blueprint $table) {
+            if (!Schema::hasColumn('reviews', 'customer_id')) {
+                $table->unsignedBigInteger('customer_id')->nullable()->after('product_id');
+                $table->index('customer_id');
+            }
+        });
     }
 
     public function down(): void

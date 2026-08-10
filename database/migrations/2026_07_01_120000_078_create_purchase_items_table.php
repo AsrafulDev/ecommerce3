@@ -8,7 +8,7 @@ return new class extends Migration
 {
     public function up(): void
     {
-        if (!Schema::hasTable('purchase_items')) {
+if (!Schema::hasTable('purchase_items')) {
             Schema::create('purchase_items', function (Blueprint $table) {
                 $table->id();
                 $table->bigInteger('purchase_id')->unsigned();
@@ -25,6 +25,12 @@ return new class extends Migration
                 $table->index('product_id');
             });
         }
+
+Schema::table('purchase_items', function (Blueprint $table) {
+            if (!Schema::hasColumn('purchase_items', 'custom_field')) {
+                $table->string('custom_field', 255)->nullable()->after('returned_qty');
+            }
+        });
     }
 
     public function down(): void

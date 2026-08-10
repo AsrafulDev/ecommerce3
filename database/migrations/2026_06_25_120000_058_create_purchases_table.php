@@ -8,7 +8,7 @@ return new class extends Migration
 {
     public function up(): void
     {
-        if (!Schema::hasTable('purchases')) {
+if (!Schema::hasTable('purchases')) {
             Schema::create('purchases', function (Blueprint $table) {
             $table->id();
             $table->decimal('amount', 15,2);
@@ -22,6 +22,29 @@ return new class extends Migration
             $table->date('purchase_date')->nullable();
             $table->bigInteger('supplier_id')->unsigned()->nullable();
             $table->decimal('due_amount', 15,2)->default(0);
+            });
+        }
+
+if (Schema::hasTable('purchases')) {
+            Schema::table('purchases', function (Blueprint $table) {
+                if (!Schema::hasColumn('purchases', 'invoice_no')) {
+                    $table->string('invoice_no', 50)->nullable()->after('supplier_id');
+                }
+                if (!Schema::hasColumn('purchases', 'total_qty')) {
+                    $table->integer('total_qty')->default(0)->after('purchase_date');
+                }
+                if (!Schema::hasColumn('purchases', 'subtotal')) {
+                    $table->decimal('subtotal', 15, 2)->default(0)->after('total_qty');
+                }
+                if (!Schema::hasColumn('purchases', 'discount')) {
+                    $table->decimal('discount', 15, 2)->default(0)->after('subtotal');
+                }
+                if (!Schema::hasColumn('purchases', 'shipping_cost')) {
+                    $table->decimal('shipping_cost', 15, 2)->default(0)->after('discount');
+                }
+                if (!Schema::hasColumn('purchases', 'paid_amount')) {
+                    $table->decimal('paid_amount', 15, 2)->default(0)->after('grand_total');
+                }
             });
         }
     }

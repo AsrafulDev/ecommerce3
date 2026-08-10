@@ -2,13 +2,14 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
     public function up(): void
     {
-        if (!Schema::hasTable('customers')) {
+if (!Schema::hasTable('customers')) {
             Schema::create('customers', function (Blueprint $table) {
             $table->increments('id');
             $table->string('name', 155);
@@ -27,6 +28,13 @@ return new class extends Migration
             $table->timestamp('created_at')->nullable();
             $table->timestamp('updated_at')->nullable();
             });
+        }
+
+if (!Schema::hasColumn('customers', 'forgot')) {
+            DB::statement('ALTER TABLE customers ADD forgot VARCHAR(10) NULL AFTER password');
+        }
+        if (!Schema::hasColumn('customers', 'verify_token')) {
+            DB::statement('ALTER TABLE customers ADD verify_token VARCHAR(100) NULL AFTER forgot');
         }
     }
 

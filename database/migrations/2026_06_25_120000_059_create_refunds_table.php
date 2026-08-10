@@ -8,7 +8,7 @@ return new class extends Migration
 {
     public function up(): void
     {
-        if (!Schema::hasTable('refunds')) {
+if (!Schema::hasTable('refunds')) {
             Schema::create('refunds', function (Blueprint $table) {
             $table->id();
             $table->integer('order_id')->unsigned();
@@ -26,6 +26,12 @@ return new class extends Migration
             $table->unique('refund_id');
             });
         }
+
+Schema::table('refunds', function (Blueprint $table) {
+            if (!Schema::hasColumn('refunds', 'customer_note')) {
+                $table->text('customer_note')->nullable()->after('admin_note');
+            }
+        });
     }
 
     public function down(): void

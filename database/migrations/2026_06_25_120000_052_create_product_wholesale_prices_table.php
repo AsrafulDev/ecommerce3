@@ -8,7 +8,7 @@ return new class extends Migration
 {
     public function up(): void
     {
-        if (!Schema::hasTable('product_wholesale_prices')) {
+if (!Schema::hasTable('product_wholesale_prices')) {
             Schema::create('product_wholesale_prices', function (Blueprint $table) {
             $table->id();
             $table->bigInteger('product_id')->unsigned();
@@ -20,6 +20,12 @@ return new class extends Migration
             $table->integer('stock')->default(0);
             });
         }
+
+Schema::table('product_wholesale_prices', function (Blueprint $table) {
+            if (!Schema::hasColumn('product_wholesale_prices', 'variant_id')) {
+                $table->bigInteger('variant_id')->unsigned()->nullable()->after('product_id');
+            }
+        });
     }
 
     public function down(): void
