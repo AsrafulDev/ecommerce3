@@ -9,8 +9,8 @@
             </a>
             <div class="d-flex align-items-center flex-grow-1 overflow-hidden">
                 <div class="headline-scroll-wrapper">
-                    <span class="headline-scroll-text text-light fs-6">{{ $generalsetting->top_headline }}</span>
-                    <span class="headline-scroll-text headline-scroll-duplicate text-light fs-6" aria-hidden="true">{{ $generalsetting->top_headline }}</span>
+                    <span class="headline-scroll-text text-light fs-6">{{ $generalsetting->top_headline ?? '' }}</span>
+                    <span class="headline-scroll-text headline-scroll-duplicate text-light fs-6" aria-hidden="true">{{ $generalsetting->top_headline ?? '' }}</span>
                 </div>
             </div>
         </div>

@@ -78,7 +78,7 @@
                 <div class="col-sm-12">
                     <div class="copyright">
                         <p style="margin: 0; display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 5px;">
-                            Copyright © {{ date('Y') }} {{ $generalsetting->name }}. All rights reserved
+                            Copyright © {{ date('Y') }} {{ $generalsetting->name ?? '' }}. All rights reserved
                             <span style="margin: 0 5px;">|</span>
                             <span>Website Designed by:</span>
                             <a href="https://www.curlware.com" target="_blank" style="display: inline-flex; align-items: center; text-decoration: none; color: var(--copyright-text); margin-left: 5px;">

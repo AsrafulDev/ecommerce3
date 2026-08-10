@@ -1,5 +1,5 @@
 {{-- Category-wise Products Section --}}
-@if($generalsetting->show_category_wise_products)
+@if($generalsetting && $generalsetting->show_category_wise_products)
     @foreach ($homeproducts as $homecat)
         <section class="homeproduct">
             <div class="container">

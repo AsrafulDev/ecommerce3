@@ -1,5 +1,5 @@
 {{-- All Products Grid Section --}}
-@if($generalsetting->show_all_products)
+@if($generalsetting && $generalsetting->show_all_products)
 <section class="homeproduct">
     <div class="container">
         <div class="row">

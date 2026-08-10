@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>{{ $campaign_data->name }} | {{ $generalsetting->name }}</title>
+<title>{{ $campaign_data->name }} | {{ $generalsetting->name ?? 'Store' }}</title>
 <meta name="csrf-token" content="{{ csrf_token() }}">
 <link rel="shortcut icon" href="{{ asset($generalsetting->favicon) }}" type="image/x-icon" />
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -323,10 +323,10 @@ fbq('track','ViewContent',{ content_name:{!! json_encode($camp_name) !!}, conten
 
 <nav>
     <div class="logo">
-        @if ($generalsetting->white_logo)
-            <img src="{{ asset($generalsetting->white_logo) }}" alt="{{ $generalsetting->name }}" style="height:48px;">
+        @if ($generalsetting && $generalsetting->white_logo)
+            <img src="{{ asset($generalsetting->white_logo) }}" alt="{{ $generalsetting->name ?? 'Store' }}" style="height:48px;">
         @else
-            {{ $generalsetting->name }}
+            {{ $generalsetting->name ?? 'Store' }}
         @endif
     </div>
     <div class="links">
@@ -747,7 +747,7 @@ fbq('track','ViewContent',{ content_name:{!! json_encode($camp_name) !!}, conten
 @endif
 
 <footer>
-    <div class="footer-bottom">© {{ date('Y') }} {{ $generalsetting->name }} — {{ $campaign_data->label('footer_rights') ?: 'All rights reserved.' }}</div>
+    <div class="footer-bottom">© {{ date('Y') }} {{ $generalsetting->name ?? '' }} — {{ $campaign_data->label('footer_rights') ?: 'All rights reserved.' }}</div>
 </footer>
 
 @if($campaign_data->sectionVisible('offer'))
