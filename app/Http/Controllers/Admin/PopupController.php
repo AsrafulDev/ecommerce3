@@ -72,13 +72,23 @@ class PopupController extends Controller
             $image = $request->file('image');
             $new_name = time() . '.' . $image->getClientOriginalExtension();
             
-            // পুরাতন ছবি ডিলিট
-            if (File::exists(public_path($popup->image))) {
+            // পুরাতন ছবি ডিলিট (কিন্তু শেয়ার্ড Media Gallery এর ফাইল না)
+            if (strpos($popup->image ?? '', 'uploads/media/') === false && File::exists(public_path($popup->image))) {
                 File::delete(public_path($popup->image));
             }
 
             $image->move(public_path('uploads/popup'), $new_name);
             $popup->image = 'uploads/popup/' . $new_name;
+        } elseif ($request->filled('image_url')) {
+            // Selected from Media Gallery — popup stores WITHOUT 'public/' prefix
+            $mediaPath = $request->input('image_url');
+            if (str_starts_with($mediaPath, 'public/')) {
+                $mediaPath = substr($mediaPath, 7);
+            }
+            if (strpos($popup->image ?? '', 'uploads/media/') === false && File::exists(public_path($popup->image ?? ''))) {
+                File::delete(public_path($popup->image));
+            }
+            $popup->image = $mediaPath;
         }
 
         $popup->title = $request->title ?: ($popup->title ?: 'Popup');

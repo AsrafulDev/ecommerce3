@@ -94,20 +94,96 @@
             <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 mb-4">
                 <h5 class="font-semibold text-gray-800 mb-4"><i class="fas fa-comment-dots mr-2 text-indigo-500"></i> {{ __('Updates') }}</h5>
                 @forelse($claim->notes as $note)
+                @php
+                    // If a note references a product image (uploaded / media gallery),
+                    // extract the path so we can show an image preview.
+                    $noteImgUrl = null;
+                    $noteText = $note->note ?? '';
+                    if (str_starts_with($noteText, 'Product image uploaded: ')) {
+                        $noteImgUrl = trim(substr($noteText, strlen('Product image uploaded: ')));
+                    } elseif (str_starts_with($noteText, 'Product image (Media Gallery): ')) {
+                        $noteImgUrl = trim(substr($noteText, strlen('Product image (Media Gallery): ')));
+                    }
+                    if ($noteImgUrl) {
+                        $noteImgUrl = str_starts_with($noteImgUrl, 'http') ? $noteImgUrl : asset($noteImgUrl);
+                    }
+                @endphp
                 <div class="{{ $loop->last ? '' : 'pb-3 mb-3 border-b border-gray-50' }}">
                     <div class="flex items-center gap-2 mb-1">
                         <span class="font-semibold text-gray-700 text-sm">{{ $note->user->name ?? 'System' }}</span>
                         <span class="text-xs text-gray-400">{{ $note->created_at->format('d M, h:i A') }}</span>
                     </div>
-                    <p class="text-sm text-gray-600">{{ $note->note }}</p>
+                    @if($noteImgUrl)
+                        <div class="flex items-start gap-3">
+                            <a href="{{ $noteImgUrl }}" target="_blank" class="shrink-0">
+                                <img src="{{ $noteImgUrl }}" alt="Product image" class="w-24 h-24 object-cover rounded-lg border border-gray-200">
+                            </a>
+                            <div>
+                                <p class="text-sm text-gray-600">{{ __('Product image attached.') }}</p>
+                                <a href="{{ $noteImgUrl }}" target="_blank" class="text-xs text-indigo-600 hover:underline">
+                                    <i class="fas fa-external-link-alt mr-1"></i>{{ __('View full image') }}
+                                </a>
+                            </div>
+                        </div>
+                    @else
+                        <p class="text-sm text-gray-600">{{ $noteText }}</p>
+                    @endif
                 </div>
                 @empty
                 <p class="text-gray-400 text-sm">{{ __('No updates yet.') }}</p>
                 @endforelse
             </div>
 
-            {{-- 🆕 Challans / Documents --}}
-            @php $claimChallans = $claim->challans()->latest()->get(); @endphp
+            {{-- 📎 Attachments (customer-submitted documents only) --}}
+            @php
+                // Normalize claim-level attachments (customer-submitted)
+                $claimAttachments = [];
+                foreach (($claim->attachments ?? []) as $att) {
+                    if (is_array($att)) {
+                        $att = $att['url'] ?? $att['path'] ?? $att['file'] ?? $att['name'] ?? $att['src']
+                            ?? (isset($att[0]) && is_string($att[0]) ? $att[0] : null);
+                    } elseif (is_object($att)) {
+                        $att = $att->url ?? $att->path ?? $att->file ?? $att->name ?? $att->src ?? null;
+                    }
+                    if (is_string($att) && $att !== '') $claimAttachments[] = $att;
+                }
+                // NOTE: admin/service-center per-step attachments are intentionally NOT shown to the customer.
+            @endphp
+            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 mb-4">
+                <h5 class="font-semibold text-gray-800 mb-4"><i class="fas fa-paperclip mr-2 text-indigo-500"></i> {{ __('Your Submitted Documents') }}</h5>
+                @if(!empty($claimAttachments))
+                    <p class="text-xs text-gray-400 mb-3">{{ __('Files you attached when filing this claim.') }}</p>
+                    <div class="flex flex-wrap gap-3">
+                        @foreach($claimAttachments as $att)
+                            @php
+                                $attUrl = str_starts_with($att, 'http') ? $att : asset($att);
+                                $attExt = strtolower(pathinfo($att, PATHINFO_EXTENSION));
+                                $isImg = in_array($attExt, ['jpg','jpeg','png','gif','webp','bmp','svg','avif']);
+                            @endphp
+                            <a href="{{ $attUrl }}" target="_blank" title="{{ basename($att) }}" class="block">
+                                @if($isImg)
+                                    <img src="{{ $attUrl }}" alt="attachment" class="w-20 h-20 object-cover rounded-lg border border-gray-200">
+                                @else
+                                    <span class="w-20 h-20 flex flex-col items-center justify-center text-red-500 rounded-lg border border-dashed border-red-300 bg-red-50">
+                                        <i class="fas fa-file-pdf text-2xl"></i>
+                                        <span class="text-[9px] font-bold">PDF</span>
+                                    </span>
+                                @endif
+                            </a>
+                        @endforeach
+                    </div>
+                @else
+                    <p class="text-sm text-gray-400"><i class="fas fa-info-circle mr-1"></i> {{ __('No documents were attached to this claim.') }}</p>
+                @endif
+            </div>
+
+            {{-- 🆕 Challans / Documents (customer-visible only: Product Receive + Customer Delivery) --}}
+            @php
+                $claimChallans = $claim->challans()
+                    ->whereIn('challan_type', ['receive', 'delivery'])
+                    ->latest()
+                    ->get();
+            @endphp
             @if($claimChallans->isNotEmpty())
             <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 mb-4">
                 <h5 class="font-semibold text-gray-800 mb-4"><i class="fas fa-file-alt mr-2 text-indigo-500"></i> {{ __('Challans / Documents') }}</h5>

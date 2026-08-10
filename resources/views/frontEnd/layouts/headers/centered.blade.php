@@ -17,7 +17,8 @@
     </div>
     <nav class="border-top border-bottom">
         <div class="container">
-            <ul class="d-flex justify-content-center list-unstyled mb-0 flex-wrap">
+            <ul class="d-flex justify-content-center list-unstyled mb-0 flex-wrap align-items-center">
+                <li class="d-flex align-items-center">@includeIf('frontEnd.layouts.headers.parts.all_categories', ['acbVariant' => 'light'])</li>
                 <li><a href="{{ route('home') }}" class="d-block px-3 py-2 text-dark fw-semibold">{{ __('Home') }}</a></li>
                 <li><a href="{{ route('shop') }}" class="d-block px-3 py-2 text-muted">Shop</a></li>
                 <li><a href="{{ route('hotdeals') }}" class="d-block px-3 py-2 text-danger fw-semibold">{{ __('Hot Deals') }}</a></li>

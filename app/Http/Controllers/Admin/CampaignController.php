@@ -100,7 +100,7 @@ class CampaignController extends Controller
         ]);
     
         // Prepare the input data
-        $input = $request->except('image', 'product_id');
+        $input = $request->except(['image', 'product_id', 'banner_url', 'image_one_url', 'image_two_url', 'image_three_url']);
         $input['status'] = true; // Set status to true if not checked
         $input['sections'] = $this->buildSections($request);
         $input['labels']   = $this->buildLabels($request);
@@ -125,6 +125,9 @@ class CampaignController extends Controller
             $bannerUrl = $uploadPath . $bannerName;
             $banner->move($uploadPath, $bannerName);
             $input['banner'] = $bannerUrl;
+        } elseif ($request->filled('banner_url')) {
+            // Selected from Media Gallery (no upload)
+            $input['banner'] = $request->input('banner_url');
         }
     
         // Handle Image One
@@ -139,6 +142,9 @@ class CampaignController extends Controller
             $img1->encode('webp', 90);
             $img1->save($imageUrl1);
             $input['image_one'] = $imageUrl1;
+        } elseif ($request->filled('image_one_url')) {
+            // Selected from Media Gallery (no upload)
+            $input['image_one'] = $request->input('image_one_url');
         }
     
         // Handle Image Two
@@ -153,6 +159,9 @@ class CampaignController extends Controller
             $img2->encode('webp', 90);
             $img2->save($imageUrl2);
             $input['image_two'] = $imageUrl2;
+        } elseif ($request->filled('image_two_url')) {
+            // Selected from Media Gallery (no upload)
+            $input['image_two'] = $request->input('image_two_url');
         }
     
         // Handle Image Three
@@ -167,6 +176,9 @@ class CampaignController extends Controller
             $img3->encode('webp', 90);
             $img3->save($imageUrl3);
             $input['image_three'] = $imageUrl3;
+        } elseif ($request->filled('image_three_url')) {
+            // Selected from Media Gallery (no upload)
+            $input['image_three'] = $request->input('image_three_url');
         }
     
         // Create slug
@@ -318,7 +330,7 @@ class CampaignController extends Controller
         ]);
         // image one
         $update_data = Campaign::find($request->hidden_id);
-        $input = $request->except('hidden_id','product_ids','files','image');
+        $input = $request->except(['hidden_id','product_ids','files','image','banner_url','image_one_url','image_two_url','image_three_url']);
         $input['status'] = $request->has('status') ? 1 : 0;
         $input['video'] = $this->getYouTubeVideoId($request->video);
         $input['product_id'] = $request->product_id[0];
@@ -342,7 +354,12 @@ class CampaignController extends Controller
             $bannerUrl = $uploadPath . $bannerName;
             $banner->move($uploadPath, $bannerName);
             $input['banner'] = $bannerUrl;
-            File::delete($update_data->banner);
+            if (strpos($update_data->banner, 'uploads/media/') === false) {
+                File::delete($update_data->banner);
+            }
+        } elseif ($request->filled('banner_url')) {
+            // Selected from Media Gallery (no upload)
+            $input['banner'] = $request->input('banner_url');
         } else {
             $input['banner'] = $update_data->banner;
         }
@@ -365,7 +382,12 @@ class CampaignController extends Controller
             });
             $img1->save($imageUrl1);
             $input['image_one'] = $imageUrl1;
-            File::delete($update_data->image_one);
+            if (strpos($update_data->image_one, 'uploads/media/') === false) {
+                File::delete($update_data->image_one);
+            }
+        }elseif ($request->filled('image_one_url')) {
+            // Selected from Media Gallery (no upload)
+            $input['image_one'] = $request->input('image_one_url');
         }else{
             $input['image_one'] = $update_data->image_one;
         }
@@ -389,7 +411,12 @@ class CampaignController extends Controller
             });
             $img2->save($imageUrl2);
             $input['image_two'] = $imageUrl2;
-            File::delete($update_data->image_two);
+            if (strpos($update_data->image_two, 'uploads/media/') === false) {
+                File::delete($update_data->image_two);
+            }
+        }elseif ($request->filled('image_two_url')) {
+            // Selected from Media Gallery (no upload)
+            $input['image_two'] = $request->input('image_two_url');
         }else{
             $input['image_two'] = $update_data->image_two;
         }
@@ -413,7 +440,12 @@ class CampaignController extends Controller
             });
             $img3->save($imageUrl3);
             $input['image_three'] = $imageUrl3;
-            File::delete($update_data->image_three);
+            if (strpos($update_data->image_three, 'uploads/media/') === false) {
+                File::delete($update_data->image_three);
+            }
+        }elseif ($request->filled('image_three_url')) {
+            // Selected from Media Gallery (no upload)
+            $input['image_three'] = $request->input('image_three_url');
         }else{
             $input['image_three'] = $update_data->image_three;
         }

@@ -172,6 +172,13 @@
                             
                             <input type="file" name="image" id="editImageInput" class="d-none" accept="image/*" onchange="previewEditImage(this)">
                         </div>
+                        <div class="text-start mt-2">
+                            @include('backEnd.media._picker_button', [
+                                'field'   => 'image',
+                                'label'   => 'Choose from Media Library',
+                                'current' => (strpos($edit->image, 'uploads/media/') !== false) ? 'public/'.$edit->image : '',
+                            ])
+                        </div>
                         <small class="text-muted d-block mt-3" style="font-size: 11px;">
                             Click the box to upload a new image. Recommended size: 600x400px.
                         </small>
@@ -183,10 +190,15 @@
     </form>
 </div>
 
+{{-- Reusable Media Gallery picker — "choose image from media library" --}}
+@include('backEnd.media._picker')
+
 {{-- JavaScript for Image Preview --}}
 <script>
     function previewEditImage(input) {
+        // A real file upload takes precedence over the media picker
         if (input.files && input.files[0]) {
+            document.getElementById('image_url').value = '';
             var reader = new FileReader();
             reader.onload = function(e) {
                 document.getElementById('editImgPreview').src = e.target.result;
@@ -194,6 +206,20 @@
             reader.readAsDataURL(input.files[0]);
         }
     }
+
+    // When an image is chosen from the Media Library, clear the file input
+    // and refresh the preview with the media URL.
+    document.getElementById('image_url').addEventListener('change', function () {
+        if (this.value) {
+            document.getElementById('editImageInput').value = '';
+            var src = this.value;
+            // stored as 'public/uploads/media/...' -> build absolute URL
+            if (src.indexOf('public/') === 0) {
+                src = window.location.origin + '/' + src;
+            }
+            document.getElementById('editImgPreview').src = src;
+        }
+    });
 </script>
 
 @endsection

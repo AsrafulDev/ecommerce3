@@ -32,7 +32,8 @@
     </div>
     <nav style="border-top:1px solid #eee;border-bottom:2px solid var(--primary-color);">
         <div class="container">
-            <ul class="d-flex list-unstyled mb-0 gap-1">
+            <ul class="d-flex list-unstyled mb-0 gap-1 align-items-center">
+                <li class="d-flex align-items-center">@includeIf('frontEnd.layouts.headers.parts.all_categories', ['acbVariant' => 'light'])</li>
                 <li><a href="{{ route('home') }}" class="d-block px-3 py-2 text-dark fw-semibold">{{ __('Home') }}</a></li>
                 <li><a href="{{ route('shop') }}" class="d-block px-3 py-2 text-dark">Shop</a></li>
                 <li><a href="{{ route('category','smartphones') }}" class="d-block px-3 py-2 text-dark">{{ __('Categories') }}</a></li>

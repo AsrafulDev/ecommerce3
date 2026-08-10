@@ -8,7 +8,8 @@
         <a href="{{ route('home') }}">
             <img src="{{ asset($generalsetting->dark_logo ?: 'public/assets/images/CurlBazar.png' ?? 'public/assets/images/CurlBazar.png') }}" alt="Logo" style="max-height:35px;">
         </a>
-        <nav class="minimal-nav d-none d-md-flex gap-4">
+        <nav class="minimal-nav d-none d-md-flex gap-4 align-items-center">
+            @includeIf('frontEnd.layouts.headers.parts.all_categories', ['acbVariant' => 'light'])
             <a href="{{ route('home') }}" class="text-decoration-none fw-bold">{{ __('Home') }}</a>
             <a href="{{ route('shop') }}" class="text-decoration-none">Shop</a>
             <a href="{{ route('hotdeals') }}" class="text-decoration-none">Deals</a>

@@ -39,6 +39,8 @@ class HeaderFooterController extends Controller
         if (!$setting->footer_style) $setting->footer_style = 'custom';
         if (empty($setting->header_components)) $setting->header_components = array_keys(self::headerComponents());
         if (empty($setting->footer_components)) $setting->footer_components = array_keys(self::footerComponents());
+        if (!in_array((int)$setting->header_all_category_button, [0,1], true)) $setting->header_all_category_button = 1;
+        if (!in_array($setting->header_all_category_type, ['dropdown','mega','icon','shop'], true)) $setting->header_all_category_type = 'mega';
         $setting->save();
         
         $hComps = self::headerComponents();
@@ -73,6 +75,13 @@ class HeaderFooterController extends Controller
         $setting->footer_style = $request->footer_style ?? $setting->footer_style;
         $setting->header_top_bar = $request->boolean('header_top_bar');
         $setting->header_sticky = $request->boolean('header_sticky');
+
+        // All Category Button — on/off + presentation type (dropdown nav / mega menu / icon menu / shop link)
+        $setting->header_all_category_button = $request->boolean('header_all_category_button') ? 1 : 0;
+        $allowedTypes = ['dropdown','mega','icon','shop'];
+        $setting->header_all_category_type = in_array($request->header_all_category_type, $allowedTypes, true)
+            ? $request->header_all_category_type
+            : 'mega';
 
         // If switching to custom, set default components if not already set
         if ($setting->header_style === 'custom' && empty($setting->header_components)) {

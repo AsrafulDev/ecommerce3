@@ -69,7 +69,8 @@
         {{-- Navigation --}}
         <nav class="header-nav" style="background:var(--primary-color);">
             <div class="container">
-                <ul class="nav-list d-flex list-unstyled mb-0">
+                <ul class="nav-list d-flex list-unstyled mb-0 align-items-center">
+                    <li class="d-flex align-items-center me-2">@includeIf('frontEnd.layouts.headers.parts.all_categories', ['acbVariant' => 'dark'])</li>
                     <li><a href="{{ route('home') }}" class="text-white px-3 py-2 d-block">{{ __('Home') }}</a></li>
                     <li><a href="{{ route('shop') }}" class="text-white px-3 py-2 d-block">Shop</a></li>
                     <li><a href="{{ route('hotdeals') }}" class="text-white px-3 py-2 d-block">{{ __('Hot Deals') }}</a></li>

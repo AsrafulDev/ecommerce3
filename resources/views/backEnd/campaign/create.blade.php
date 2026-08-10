@@ -48,7 +48,7 @@
 
     <div class="row">
         {{-- ════════ FORM ════════ --}}
-        <div class="col-lg-7 col-xl-7">
+        <div class="col-xl-7">
             <form action="{{ route('campaign.store') }}" method="POST" class="campaign-form" data-parsley-validate="" enctype="multipart/form-data">
                 @csrf
 
@@ -128,51 +128,21 @@
 
                 {{-- ⭐ Features & Video --}}
                 <div class="card lp-section-card">
-                    <div class="card-header"><i class="fa fa-star"></i> Features &amp; Video <span class="badge bg-light text-muted ms-auto">add / remove</span></div>
+                    <div class="card-header"><i class="fa fa-star"></i> Features &amp; Video</div>
                     <div class="card-body">
-                        <div id="feature-rows">
-                            @forelse($features as $fi => $feature)
-                            <div class="feature-row sec-config-card">
-                                <div class="sec-config-head">
-                                    <span class="badge-key">Feature #{{ $loop->iteration }}</span>
-                                    <button type="button" class="btn btn-danger btn-sm btn-remove-feature"><i class="fa fa-trash"></i></button>
-                                </div>
-                                <div class="row">
-                                    <div class="col-md-4 mb-2">
-                                        <label class="form-label small">Icon <span class="text-muted">(emoji / FA class)</span></label>
-                                        <input type="text" class="form-control form-control-sm" name="features[{{ $fi }}][icon]" value="{{ $feature['icon'] ?? '' }}" placeholder="✨ or fa-truck">
-                                    </div>
-                                    <div class="col-md-8 mb-2">
-                                        <label class="form-label small">Image <span class="text-muted">(optional)</span></label>
-                                        <input type="file" class="form-control form-control-sm" name="features[{{ $fi }}][image]" data-feature-img="{{ $fi }}">
-                                        <input type="hidden" name="features[{{ $fi }}][image_old]" value="{{ $feature['image'] ?? '' }}">
-                                        @if(!empty($feature['image']))
-                                        <img class="img-preview-thumb mt-1" data-feature-preview="{{ $fi }}" src="{{ asset($feature['image']) }}" alt="">
-                                        @else
-                                        <img class="img-preview-thumb mt-1" data-feature-preview="{{ $fi }}" style="display:none;" alt="">
-                                        @endif
-                                    </div>
-                                    <div class="col-md-6 mb-2">
-                                        <label class="form-label small">Title</label>
-                                        <input type="text" class="form-control form-control-sm" name="features[{{ $fi }}][title]" value="{{ $feature['title'] ?? '' }}" placeholder="e.g. Fast Delivery">
-                                    </div>
-                                    <div class="col-md-6 mb-2">
-                                        <label class="form-label small">Text</label>
-                                        <input type="text" class="form-control form-control-sm" name="features[{{ $fi }}][text]" value="{{ $feature['text'] ?? '' }}" placeholder="Short description">
-                                    </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label for="feature_1" class="form-label">Feature 1</label>
+                                    <input type="text" class="form-control" name="feature_1" value="{{ old('feature_1') }}" id="feature_1">
                                 </div>
                             </div>
-                            @empty
-                            <div class="text-muted field-hint mb-2" id="feature-empty-hint">No features yet — click "Add Feature" below.</div>
-                            @endforelse
-                        </div>
-                        <div class="d-flex gap-2">
-                            <button type="button" class="btn btn-success btn-sm rounded-pill" id="btn-add-feature"><i class="fa fa-plus mr-1"></i> Add Feature</button>
-                        </div>
-
-                        <hr class="my-3">
-
-                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label for="feature_2" class="form-label">Feature 2</label>
+                                    <input type="text" class="form-control" name="feature_2" value="{{ old('feature_2') }}" id="feature_2">
+                                </div>
+                            </div>
                             <div class="col-12">
                                 <div class="form-group mb-0">
                                     <label for="video" class="form-label">YouTube Video URL / ID</label>
@@ -193,6 +163,7 @@
                                 <div class="form-group">
                                     <label for="banner" class="form-label">Banner Image</label>
                                     <input type="file" class="form-control @error('banner') is-invalid @enderror" name="banner" id="banner" data-current="">
+                                    @include('backEnd.media._picker_button', ['field' => 'banner', 'label' => 'Choose from Media Library'])
                                     <img class="img-preview-thumb" data-thumb-for="banner" style="display:none;" alt="">
                                     @error('banner')<span class="invalid-feedback"><strong>{{ $message }}</strong></span>@enderror
                                 </div>
@@ -201,6 +172,7 @@
                                 <div class="form-group">
                                     <label for="image_one" class="form-label">Image One</label>
                                     <input type="file" class="form-control @error('image_one') is-invalid @enderror" name="image_one" id="image_one" data-current="">
+                                    @include('backEnd.media._picker_button', ['field' => 'image_one', 'label' => 'Choose from Media Library'])
                                     <img class="img-preview-thumb" data-thumb-for="image_one" style="display:none;" alt="">
                                     @error('image_one')<span class="invalid-feedback"><strong>{{ $message }}</strong></span>@enderror
                                 </div>
@@ -209,6 +181,7 @@
                                 <div class="form-group">
                                     <label for="image_two" class="form-label">Image Two</label>
                                     <input type="file" class="form-control" name="image_two" id="image_two" data-current="">
+                                    @include('backEnd.media._picker_button', ['field' => 'image_two', 'label' => 'Choose from Media Library'])
                                     <img class="img-preview-thumb" data-thumb-for="image_two" style="display:none;" alt="">
                                 </div>
                             </div>
@@ -216,6 +189,7 @@
                                 <div class="form-group">
                                     <label for="image_three" class="form-label">Image Three</label>
                                     <input type="file" class="form-control" name="image_three" id="image_three" data-current="">
+                                    @include('backEnd.media._picker_button', ['field' => 'image_three', 'label' => 'Choose from Media Library'])
                                     <img class="img-preview-thumb" data-thumb-for="image_three" style="display:none;" alt="">
                                 </div>
                             </div>
@@ -275,50 +249,6 @@
                     </div>
                 </div>
 
-                {{-- 🏷️ Headings & Labels --}}
-                <div class="card lp-section-card">
-                    <div class="card-header"><i class="fa fa-font"></i> Headings &amp; Labels <span class="badge bg-light text-muted ms-auto">leave empty to hide</span></div>
-                    <div class="card-body">
-                        <p class="field-hint mb-3">Each field is pre-filled with a default. Clear a field to hide that heading on the landing page.</p>
-                        @php
-                            $labelGroups = [
-                                'Navigation'    => ['nav_features','nav_reviews','nav_order','nav_cta'],
-                                'Hero'          => ['hero_eyebrow','hero_cta_order','hero_cta_details','hero_trust_ends','hero_trust_cod'],
-                                'Details'       => ['details_eyebrow'],
-                                'Problem'       => ['problem_eyebrow','problem_heading'],
-                                'Solution'      => ['solution_eyebrow'],
-                                'Features'      => ['features_eyebrow','features_card'],
-                                'Benefits'      => ['benefits_eyebrow','benefits_heading'],
-                                'Media'         => ['media_eyebrow','media_heading'],
-                                'Video'         => ['video_eyebrow','video_heading'],
-                                'Products'      => ['products_eyebrow'],
-                                'Reviews'       => ['reviews_eyebrow','reviews_heading'],
-                                'Offer / Order' => ['offer_eyebrow','offer_heading'],
-                                'Trust'         => ['trust_eyebrow'],
-                                'FAQ'           => ['faq_eyebrow','faq_heading'],
-                                'Order Form'    => ['form_select','form_info','form_submit','form_summary','form_delivery','form_total','form_warranty'],
-                                'CTA'           => ['cta_eyebrow','cta_heading'],
-                                'Sticky / Footer' => ['sticky_order','sticky_cod','footer_rights'],
-                            ];
-                        @endphp
-                        @foreach($labelGroups as $groupTitle => $keys)
-                        <div class="mb-3">
-                            <h6 class="text-uppercase fw-bold" style="font-size:.75rem;color:#6366f1;margin-bottom:.5rem;">{{ $groupTitle }}</h6>
-                            <div class="row">
-                                @foreach($keys as $lk)
-                                <div class="col-md-6">
-                                    <div class="form-group mb-2">
-                                        <label class="form-label" style="font-size:.72rem;" for="label_{{ $lk }}">{{ \App\Models\Campaign::LABELS[$lk] ?? $lk }}</label>
-                                        <input type="text" class="form-control form-control-sm" name="labels[{{ $lk }}]" id="label_{{ $lk }}" value="{{ $default_labels[$lk] ?? '' }}" placeholder="{{ \App\Models\Campaign::LABELS[$lk] ?? '' }}">
-                                    </div>
-                                </div>
-                                @endforeach
-                            </div>
-                        </div>
-                        @endforeach
-                    </div>
-                </div>
-
                 {{-- �📝 Review & Description --}}
                 <div class="card lp-section-card">
                     <div class="card-header"><i class="fa fa-pencil-square-o"></i> Review &amp; Description</div>
@@ -367,11 +297,14 @@
         </div>
 
         {{-- ════════ LIVE PREVIEW ════════ --}}
-        <div class="col-lg-5 col-xl-5">
-            @include('backEnd.campaign._preview', ['preview_products' => $preview_products, 'preview_url' => null, 'preview_slug' => ''])
+        <div class="col-xl-5">
+            @include('backEnd.campaign._preview', ['preview_products' => $preview_products])
         </div>
     </div>
 </div>
+
+{{-- Reusable Media Gallery picker — "choose image from media library" --}}
+@include('backEnd.media._picker')
 @endsection
 
 @section('script')
@@ -406,69 +339,6 @@
             reader.onload = function (e) {
                 if (thumb) { thumb.src = e.target.result; thumb.style.display = 'block'; }
             };
-            reader.readAsDataURL(file);
-        });
-
-        // ---- Features loop grid (add / remove rows) ----
-        function reindexFeatures() {
-            $('#feature-rows .feature-row').each(function (idx) {
-                var i = idx;
-                $(this).find('.badge-key').text('Feature #' + (idx + 1));
-                $(this).find('[name^="features["]').each(function () {
-                    var name = $(this).attr('name').replace(/features\[\d+\]/, 'features[' + i + ']');
-                    $(this).attr('name', name);
-                });
-                $(this).find('[data-feature-img]').attr('data-feature-img', i);
-                $(this).find('[data-feature-preview]').attr('data-feature-preview', i);
-            });
-        }
-
-        $('#btn-add-feature').click(function () {
-            var idx = $('#feature-rows .feature-row').length;
-            var html = '' +
-                '<div class="feature-row sec-config-card">' +
-                    '<div class="sec-config-head">' +
-                        '<span class="badge-key">Feature #' + (idx + 1) + '</span>' +
-                        '<button type="button" class="btn btn-danger btn-sm btn-remove-feature"><i class="fa fa-trash"></i></button>' +
-                    '</div>' +
-                    '<div class="row">' +
-                        '<div class="col-md-4 mb-2">' +
-                            '<label class="form-label small">Icon <span class="text-muted">(emoji / FA class)</span></label>' +
-                            '<input type="text" class="form-control form-control-sm" name="features[' + idx + '][icon]" placeholder="✨ or fa-truck">' +
-                        '</div>' +
-                        '<div class="col-md-8 mb-2">' +
-                            '<label class="form-label small">Image <span class="text-muted">(optional)</span></label>' +
-                            '<input type="file" class="form-control form-control-sm" name="features[' + idx + '][image]" data-feature-img="' + idx + '">' +
-                            '<input type="hidden" name="features[' + idx + '][image_old]" value="">' +
-                            '<img class="img-preview-thumb mt-1" data-feature-preview="' + idx + '" style="display:none;" alt="">' +
-                        '</div>' +
-                        '<div class="col-md-6 mb-2">' +
-                            '<label class="form-label small">Title</label>' +
-                            '<input type="text" class="form-control form-control-sm" name="features[' + idx + '][title]" placeholder="e.g. Fast Delivery">' +
-                        '</div>' +
-                        '<div class="col-md-6 mb-2">' +
-                            '<label class="form-label small">Text</label>' +
-                            '<input type="text" class="form-control form-control-sm" name="features[' + idx + '][text]" placeholder="Short description">' +
-                        '</div>' +
-                    '</div>' +
-                '</div>';
-            $('#feature-empty-hint').remove();
-            $('#feature-rows').append(html);
-        });
-
-        $('body').on('click', '.btn-remove-feature', function () {
-            $(this).closest('.feature-row').remove();
-            reindexFeatures();
-        });
-
-        // Feature image preview
-        $('body').on('change', '[data-feature-img]', function () {
-            var file = this.files && this.files[0];
-            if (!file) return;
-            var idx = $(this).attr('data-feature-img');
-            var preview = document.querySelector('[data-feature-preview="' + idx + '"]');
-            var reader = new FileReader();
-            reader.onload = function (e) { if (preview) { preview.src = e.target.result; preview.style.display = 'block'; } };
             reader.readAsDataURL(file);
         });
     });

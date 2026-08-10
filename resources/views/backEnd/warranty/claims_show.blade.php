@@ -146,22 +146,70 @@
                     <h6>📋 Progress Timeline</h6>
                     <div class="timeline">
                         @foreach($warrantyClaim->stages as $stage)
-                        <div class="d-flex align-items-start mb-3">
-                            <span class="me-2">
-                                @if($stage->is_complete) ✅
-                                @elseif($stage->status === 'pending') 🔄
-                                @else ⬜
+                        <div class="mb-3">
+                            <div class="d-flex align-items-start">
+                                <span class="me-2">
+                                    @if($stage->is_complete) ✅
+                                    @elseif($stage->status === 'pending') 🔄
+                                    @else ⬜
+                                    @endif
+                                </span>
+                                <div>
+                                    <strong>{{ \App\Enums\WarrantyStageType::from($stage->stage)->label() }}</strong>
+                                    <br><small class="text-muted">{{ $stage->started_at?->format('d M, h:i A') }}</small>
+                                    @if($stage->completed_at)
+                                        <br><small class="text-success">Completed: {{ $stage->completed_at->format('d M, h:i A') }}</small>
+                                    @endif
+                                    @if($stage->notes)
+                                        <br><small>{{ $stage->notes }}</small>
+                                    @endif
+                                </div>
+                            </div>
+
+                            {{-- Per-step attachments --}}
+                            <div class="ms-4 mt-2">
+                                @if($stage->attachmentsSafe()->isNotEmpty())
+                                <div class="d-flex flex-wrap gap-2 mb-2">
+                                    @foreach($stage->attachmentsSafe() as $att)
+                                        @php
+                                            $attPath = $att->file_path;
+                                            $attUrl = str_starts_with($attPath, 'http') ? $attPath : asset($attPath);
+                                            $isImg = in_array(strtolower($att->file_type ?: pathinfo($attPath, PATHINFO_EXTENSION)), ['jpg','jpeg','png','gif','webp','bmp','svg','avif']);
+                                        @endphp
+                                        <div class="position-relative">
+                                            <a href="{{ $attUrl }}" target="_blank" title="{{ $att->file_name ?? basename($attPath) }}">
+                                                @if($isImg)
+                                                    <img src="{{ $attUrl }}" alt="attachment" style="width:54px;height:54px;object-fit:cover;border-radius:6px;border:1px solid #e2e8f0;">
+                                                @else
+                                                    <span class="d-flex flex-column align-items-center justify-content-center text-danger" style="width:54px;height:54px;border:1px dashed #f0ad4e;border-radius:6px;background:#fffdf5;">
+                                                        <i class="mdi mdi-file-pdf-box" style="font-size:20px;"></i>
+                                                        <small style="font-size:8px;">PDF</small>
+                                                    </span>
+                                                @endif
+                                            </a>
+                                            <form method="POST" action="{{ route('admin.warranty.claims.stage.attachment.delete', $att) }}" class="d-inline">
+                                                @csrf
+                                                <button type="submit" class="btn btn-xs btn-danger position-absolute top-0 end-0 rounded-circle"
+                                                        style="padding:0 4px;top:-5px;right:-5px;font-size:10px;line-height:1;" title="Remove"
+                                                        onclick="return confirm('Remove this attachment?')">&times;</button>
+                                            </form>
+                                        </div>
+                                    @endforeach
+                                </div>
                                 @endif
-                            </span>
-                            <div>
-                                <strong>{{ \App\Enums\WarrantyStageType::from($stage->stage)->label() }}</strong>
-                                <br><small class="text-muted">{{ $stage->started_at?->format('d M, h:i A') }}</small>
-                                @if($stage->completed_at)
-                                    <br><small class="text-success">Completed: {{ $stage->completed_at->format('d M, h:i A') }}</small>
-                                @endif
-                                @if($stage->notes)
-                                    <br><small>{{ $stage->notes }}</small>
-                                @endif
+
+                                <form method="POST" action="{{ route('admin.warranty.claims.stage.attachment', $stage) }}" enctype="multipart/form-data" class="d-flex align-items-center flex-wrap gap-2">
+                                    @csrf
+                                    <input type="hidden" name="attachment_path" id="stage_att_path_{{ $stage->id }}">
+                                    <button type="button" class="btn btn-xs btn-outline-primary"
+                                            onclick="openMediaPicker('#stage_att_path_{{ $stage->id }}', null, 'path')">
+                                        <i class="fe-image"></i> {{ __('Media') }}
+                                    </button>
+                                    <input type="file" name="attachment_files[]" multiple
+                                           accept=".jpg,.jpeg,.png,.gif,.webp,.bmp,.svg,.avif,.pdf,image/*,application/pdf"
+                                           class="form-control form-control-sm" style="max-width:180px;">
+                                    <button type="submit" class="btn btn-xs btn-primary">{{ __('Attach') }}</button>
+                                </form>
                             </div>
                         </div>
                         @endforeach
@@ -223,6 +271,64 @@
                     @endif
                 </div>
             </div>
+
+            {{-- 📎 Attachments (customer + admin) — right side --}}
+            @php
+                $customerAttachments = [];
+                foreach (($warrantyClaim->attachments ?? []) as $att) {
+                    if (is_array($att)) {
+                        $att = $att['url'] ?? $att['path'] ?? $att['file'] ?? $att['name'] ?? $att['src']
+                            ?? (isset($att[0]) && is_string($att[0]) ? $att[0] : null);
+                    } elseif (is_object($att)) {
+                        $att = $att->url ?? $att->path ?? $att->file ?? $att->name ?? $att->src ?? null;
+                    }
+                    if (is_string($att) && $att !== '') $customerAttachments[] = $att;
+                }
+                // Admin attachments are stored as notes when the product is received
+                $adminAttachments = [];
+                foreach ($warrantyClaim->notes as $note) {
+                    $n = $note->note ?? '';
+                    if (str_starts_with($n, 'Product image uploaded: ')) {
+                        $adminAttachments[] = trim(substr($n, strlen('Product image uploaded: ')));
+                    } elseif (str_starts_with($n, 'Product image (Media Gallery): ')) {
+                        $adminAttachments[] = trim(substr($n, strlen('Product image (Media Gallery): ')));
+                    }
+                }
+                $allAttachments = [];
+                foreach ($customerAttachments as $a) { $allAttachments[] = ['src' => $a, 'who' => 'Customer']; }
+                foreach ($adminAttachments as $a)  { $allAttachments[] = ['src' => $a, 'who' => 'Admin']; }
+            @endphp
+            @if(!empty($allAttachments))
+            <div class="card mb-3">
+                <div class="card-header"><strong>📎 Attachments ({{ count($allAttachments) }})</strong></div>
+                <div class="card-body p-0">
+                    @foreach($allAttachments as $att)
+                        @php
+                            $src = $att['src'];
+                            $attUrl = str_starts_with($src, 'http') ? $src : asset($src);
+                            $attExt = strtolower(pathinfo($src, PATHINFO_EXTENSION));
+                            $isImg = in_array($attExt, ['jpg','jpeg','png','gif','webp','bmp','svg','avif']);
+                        @endphp
+                        <div class="d-flex align-items-center px-3 py-2 border-bottom">
+                            <a href="{{ $attUrl }}" target="_blank" class="text-decoration-none me-2" title="{{ basename($src) }}">
+                                @if($isImg)
+                                    <img src="{{ $attUrl }}" alt="attachment" style="width:60px;height:60px;object-fit:cover;border-radius:6px;border:1px solid #e2e8f0;">
+                                @else
+                                    <span class="d-flex flex-column align-items-center justify-content-center text-danger" style="width:60px;height:60px;border:1px dashed #f0ad4e;border-radius:6px;background:#fffdf5;">
+                                        <i class="mdi mdi-file-pdf-box" style="font-size:22px;"></i>
+                                        <small style="font-size:8px;">PDF</small>
+                                    </span>
+                                @endif
+                            </a>
+                            <div class="small">
+                                <span class="badge bg-{{ $att['who'] === 'Admin' ? 'warning text-dark' : 'info' }} mb-1">{{ $att['who'] }}</span>
+                                <div class="text-truncate text-muted" style="max-width:150px;" title="{{ basename($src) }}">{{ basename($src) }}</div>
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
+            </div>
+            @endif
 
             {{-- 🆕 Damage Products card --}}
             @php $damageProducts = $warrantyClaim->damageProducts; @endphp
@@ -356,6 +462,11 @@
                     <input type="text" name="accessories" class="form-control mb-2" placeholder="Charger, box, manual...">
                     <label class="form-label">Product Image (Optional)</label>
                     <input type="file" name="product_image" class="form-control mb-2" accept="image/*">
+                    @include('backEnd.media._picker_button', [
+                        'field' => 'product_image',
+                        'label' => 'Choose from Media Library',
+                        'current' => '',
+                    ])
                     <label class="form-label">Notes</label>
                     <textarea name="notes" class="form-control" rows="2" placeholder="Any observations..."></textarea>
                 </div>
@@ -548,4 +659,7 @@
         </div>
     </div>
 </div>
+
+{{-- Reusable Media Gallery picker — "choose image from media library" --}}
+@include('backEnd.media._picker')
 @endsection

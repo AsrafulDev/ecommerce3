@@ -36,15 +36,22 @@ class BannerController extends Controller
             'status' => 'required',
         ]);
         
-        // image with intervention 
-        $file = $request->file('image');
-        $name = time().$file->getClientOriginalName();
-        $uploadPath = 'public/uploads/banner/';
-        $file->move($uploadPath,$name);
-        $fileUrl =$uploadPath.$name;
-
         $input = $request->all();
+        unset($input['image_url']);
         $input['status'] = $request->status?1:0;
+
+        // image with intervention (or selected from Media Gallery)
+        $fileUrl = null;
+        if ($request->hasFile('image') && $request->file('image')->isValid()) {
+            $file = $request->file('image');
+            $name = time().$file->getClientOriginalName();
+            $uploadPath = 'public/uploads/banner/';
+            $file->move($uploadPath,$name);
+            $fileUrl = $uploadPath.$name;
+        } elseif ($request->filled('image_url')) {
+            // Picked from the Media Gallery (no upload) — relative path e.g. public/uploads/media/...
+            $fileUrl = $request->input('image_url');
+        }
         $input['image'] = $fileUrl;
         Banner::create($input);
         Toastr::success('Success','Data insert successfully');
@@ -65,19 +72,25 @@ class BannerController extends Controller
         ]);
         $update_data = Banner::find($request->id);
         $input = $request->all();
+        unset($input['image_url']);
         $image = $request->file('image');
-        if($image){
+        $fileUrl = $update_data->image; // keep existing by default
+        if ($image && $image->isValid()) {
            // image with intervention 
             $file = $request->file('image');
             $name = time().$file->getClientOriginalName();
             $uploadPath = 'public/uploads/banner/';
             $file->move($uploadPath,$name);
-            $fileUrl =$uploadPath.$name;
-            $input['image'] = $fileUrl;
-            File::delete($update_data->image);
-        }else{
-            $input['image'] = $update_data->image;
+            $fileUrl = $uploadPath.$name;
+            // Don't delete if it belongs to the shared Media Gallery
+            if (strpos($update_data->image, 'uploads/media/') === false) {
+                File::delete($update_data->image);
+            }
+        } elseif ($request->filled('image_url')) {
+            // Picked from the Media Gallery
+            $fileUrl = $request->input('image_url');
         }
+        $input['image'] = $fileUrl;
 
         $input['status'] = $request->status?1:0;
         $update_data->update($input);

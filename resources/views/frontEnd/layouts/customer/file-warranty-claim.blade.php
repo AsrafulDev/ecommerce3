@@ -100,9 +100,9 @@
                     <label class="block text-sm font-semibold text-gray-700 mb-2">
                         <i class="fas fa-paperclip mr-1 text-indigo-500"></i> {{ __('Attachments') }} <span class="text-gray-400 font-normal">({{ __('Optional') }})</span>
                     </label>
-                    <input type="file" name="attachments[]" multiple accept="image/*,video/*"
+                    <input type="file" name="attachments[]" multiple accept="image/*,application/pdf,.jpg,.jpeg,.png,.gif,.webp,.bmp,.svg,.avif,.pdf"
                         class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 text-gray-700 bg-gray-50 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:bg-indigo-50 file:text-indigo-700 file:text-sm">
-                    <p class="text-xs text-gray-400 mt-2"><i class="fas fa-info-circle mr-1"></i> {{ __('Max 5 files, 10MB each. Images & videos only.') }}</p>
+                    <p class="text-xs text-gray-400 mt-2"><i class="fas fa-info-circle mr-1"></i> {{ __('Max 5 files, 10MB each. Images & PDF only.') }}</p>
                 </div>
 
                 {{-- Terms --}}

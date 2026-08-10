@@ -115,6 +115,11 @@
                             <div class="form-group mb-3">
                                 <label class="form-label">Hero Image</label>
                                 <input type="file" class="form-control form-control-sm" name="image_one" id="image_one" data-current="{{ $edit_data->image_one }}">
+                                @include('backEnd.media._picker_button', [
+                                    'field'   => 'image_one',
+                                    'label'   => 'Choose from Media Library',
+                                    'current' => (strpos($edit_data->image_one ?? '', 'uploads/media/') !== false) ? $edit_data->image_one : '',
+                                ])
                                 <img class="img-preview-thumb mt-1" data-thumb-for="image_one" src="{{ asset($edit_data->image_one) }}" alt="">
                             </div>
                         </div>
@@ -240,6 +245,11 @@
                             <div class="form-group">
                                 <label class="form-label">Banner Image</label>
                                 <input type="file" class="form-control" name="banner" data-current="{{ $edit_data->banner }}">
+                                @include('backEnd.media._picker_button', [
+                                    'field'   => 'banner',
+                                    'label'   => 'Choose from Media Library',
+                                    'current' => (strpos($edit_data->banner ?? '', 'uploads/media/') !== false) ? $edit_data->banner : '',
+                                ])
                                 <img class="img-preview-thumb" data-thumb-for="banner" src="{{ asset($edit_data->banner) }}" alt="">
                             </div>
                         </div>
@@ -247,6 +257,11 @@
                             <div class="form-group">
                                 <label class="form-label">Image Two</label>
                                 <input type="file" class="form-control" name="image_two" data-current="{{ $edit_data->image_two }}">
+                                @include('backEnd.media._picker_button', [
+                                    'field'   => 'image_two',
+                                    'label'   => 'Choose from Media Library',
+                                    'current' => (strpos($edit_data->image_two ?? '', 'uploads/media/') !== false) ? $edit_data->image_two : '',
+                                ])
                                 <img class="img-preview-thumb" data-thumb-for="image_two" src="{{ asset($edit_data->image_two) }}" alt="">
                             </div>
                         </div>
@@ -254,6 +269,11 @@
                             <div class="form-group">
                                 <label class="form-label">Image Three</label>
                                 <input type="file" class="form-control" name="image_three" data-current="{{ $edit_data->image_three }}">
+                                @include('backEnd.media._picker_button', [
+                                    'field'   => 'image_three',
+                                    'label'   => 'Choose from Media Library',
+                                    'current' => (strpos($edit_data->image_three ?? '', 'uploads/media/') !== false) ? $edit_data->image_three : '',
+                                ])
                                 <img class="img-preview-thumb" data-thumb-for="image_three" src="{{ asset($edit_data->image_three) }}" alt="">
                             </div>
                         </div>
@@ -521,6 +541,9 @@
         </div>
     </div>
 </div>
+
+{{-- Reusable Media Gallery picker — "choose image from media library" --}}
+@include('backEnd.media._picker')
 @endsection
 
 @section('script')

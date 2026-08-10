@@ -185,7 +185,12 @@
                         <label class="upload-overlay-btn" for="imageUpload">
                             <i class="fe-upload-cloud"></i> <span>{{ __('Upload Image') }}</span>
                         </label>
-                        <input type="file" name="image" id="imageUpload" class="d-none" accept="image/*" onchange="updateCanvas(this)" required>
+                        <input type="file" name="image" id="imageUpload" class="d-none" accept="image/*" onchange="updateCanvas(this)">
+                        <input type="hidden" name="image_url" id="image_url" value="{{ old('image_url') }}">
+
+                        <button type="button" class="upload-overlay-btn" style="bottom:80px; right:20px;" onclick="openMediaPicker('#image_url','#realPreview','path')">
+                            <i class="fe-image"></i> <span>{{ __('Media Library') }}</span>
+                        </button>
                     </div>
                     @error('image') 
                         <div class="text-center bg-soft-danger text-danger p-2 small fw-bold">
@@ -246,13 +251,18 @@
         </div>
     </form>
 </div>
+
+{{-- Reusable Media Gallery picker — "choose image from media library" --}}
+@include('backEnd.media._picker')
 @endsection
 
 @section('script')
 <script>
     // Real-time Canvas Update for Create Page
     function updateCanvas(input) {
+        // If the user uploads a file, it takes precedence over media picker
         if (input.files && input.files[0]) {
+            document.getElementById('image_url').value = '';
             var reader = new FileReader();
             
             reader.onload = function(e) {
@@ -273,5 +283,14 @@
             reader.readAsDataURL(input.files[0]);
         }
     }
+
+    // When an image is chosen from the Media Library (picker sets #image_url),
+    // hide the empty state and clear the file input (the media path is submitted).
+    document.getElementById('image_url').addEventListener('change', function () {
+        if (this.value) {
+            document.getElementById('emptyState').style.display = 'none';
+            document.getElementById('imageUpload').value = '';
+        }
+    });
 </script>
 @endsection

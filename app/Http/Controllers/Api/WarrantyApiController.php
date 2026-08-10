@@ -122,12 +122,42 @@ class WarrantyApiController extends Controller
             'warranty_sale_id'  => 'required|exists:warranty_sales,id',
             'issue_description' => 'required|string|min:10',
             'issue_type'        => 'nullable|string',
+            'attachments'       => 'nullable|array|max:5',
+            'attachments.*'     => 'nullable|file|mimes:jpeg,jpg,png,gif,webp,bmp,svg,avif,pdf|max:10240',
         ]);
 
         $warrantySale = WarrantySale::findOrFail($request->warranty_sale_id);
 
+        $data = $request->all();
+
+        // Save customer attachments into the SAME media folder tree
+        // (public/uploads/media/warranty/) — admins see them in the Media Gallery,
+        // but customers have no access to the gallery itself.
+        if ($request->hasFile('attachments')) {
+            $dir = public_path('uploads/media/warranty');
+            if (!is_dir($dir)) {
+                @mkdir($dir, 0775, true);
+            }
+            $allowed = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp', 'svg', 'avif', 'pdf'];
+            $paths = [];
+            foreach ($request->file('attachments') as $file) {
+                if (!$file || !$file->isValid()) {
+                    continue;
+                }
+                $ext = strtolower($file->getClientOriginalExtension());
+                if (!in_array($ext, $allowed, true)) {
+                    continue;
+                }
+                $base = \Illuminate\Support\Str::slug(pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME)) ?: 'attachment';
+                $name = time() . '-' . uniqid() . '-' . $base . '.' . $ext;
+                $file->move($dir, $name);
+                $paths[] = 'public/uploads/media/warranty/' . $name;
+            }
+            $data['attachments'] = $paths;
+        }
+
         try {
-            $claim = $this->warrantyService->fileClaim($warrantySale, $request->all());
+            $claim = $this->warrantyService->fileClaim($warrantySale, $data);
             return redirect()->route('customer.warranty.track', $claim->id)
                 ->with('success', 'Warranty claim filed successfully! Claim #: ' . $claim->claim_number);
         } catch (\RuntimeException $e) {

@@ -931,6 +931,13 @@
 </li>
 @endcanany
 
+<li class="{{ request()->routeIs('admin.media.*') ? 'active' : '' }}">
+    <a href="{{ route('admin.media.index') }}">
+      <i data-feather="folder"></i>
+        <span> {{ __('Media Gallery') }} </span>
+    </a>
+</li>
+
 @canany(['popup-list','popup-manage'])
 <li class="{{ request()->routeIs('admin.popup.*') ? 'active' : '' }}">
     <a href="{{ route('admin.popup.index') }}">

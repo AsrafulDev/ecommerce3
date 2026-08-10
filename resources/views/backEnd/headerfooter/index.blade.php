@@ -193,6 +193,28 @@
                 <div class="row mt-3">
                     <div class="col-md-6"><label class="d-flex align-items-center gap-2"><label class="toggle-switch"><input type="checkbox" name="header_top_bar" value="1" {{ ($setting->header_top_bar ?? 1) ? 'checked' : '' }}><span class="toggle-slider"></span></label><span>{{ __('Show Top Bar') }}</span></label></div>
                     <div class="col-md-6"><label class="d-flex align-items-center gap-2"><label class="toggle-switch"><input type="checkbox" name="header_sticky" value="1" {{ ($setting->header_sticky ?? 1) ? 'checked' : '' }}><span class="toggle-slider"></span></label><span>{{ __('Sticky Header') }}</span></label></div>
+                </div>
+                <div class="row mt-3 align-items-center border-top pt-3">
+                    <div class="col-md-6">
+                        <label class="d-flex align-items-center gap-2">
+                            <label class="toggle-switch">
+                                <input type="checkbox" name="header_all_category_button" value="1" id="allCatBtnToggle" {{ ($setting->header_all_category_button ?? 1) ? 'checked' : '' }}>
+                                <span class="toggle-slider"></span>
+                            </label>
+                            <span><i class="mdi mdi-view-grid-plus me-1 text-primary"></i>{{ __('All Category Button') }}</span>
+                        </label>
+                        <small class="text-muted d-block ms-5 mt-1">Show an "All Categories" button in the header nav — dropdown nav / mega menu / icon menu / shop link.</small>
+                    </div>
+                    <div class="col-md-6" id="allCatTypeWrap">
+                        <label class="mb-1 fw-semibold d-block small">{{ __('Button Type') }}</label>
+                        <select name="header_all_category_type" class="form-select form-select-sm">
+                            <option value="dropdown" {{ ($setting->header_all_category_type ?? 'mega') === 'dropdown' ? 'selected' : '' }}>{{ __('Dropdown Nav') }}</option>
+                            <option value="mega" {{ ($setting->header_all_category_type ?? 'mega') === 'mega' ? 'selected' : '' }}>{{ __('Mega Menu') }}</option>
+                            <option value="icon" {{ ($setting->header_all_category_type ?? 'mega') === 'icon' ? 'selected' : '' }}>{{ __('Icon Menu') }}</option>
+                            <option value="shop" {{ ($setting->header_all_category_type ?? 'mega') === 'shop' ? 'selected' : '' }}>{{ __('Shop Link') }}</option>
+                        </select>
+                        <small class="text-muted">How the "All Categories" button looks &amp; opens on the site header.</small>
+                    </div>
                 </div></div></div>
                 <div class="card mb-4"><div class="card-header bg-light d-flex justify-content-between"><h5 class="mb-0"><i class="mdi mdi-eye me-2"></i>{{ __('Header Preview') }}</h5><span class="badge bg-primary" id="header-preview-label">{{ $headerStyles[$setting->header_style ?? 'custom'] ?? 'Custom' }}</span></div><div class="card-body p-0"><div class="preview-frame" id="header-preview"><div class="d-flex justify-content-center align-items-center h-100 text-muted">Select a style to preview</div></div></div></div>
 
@@ -383,6 +405,22 @@
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.all.min.js"></script>
 <script>
 const CSRF = '{{ csrf_token() }}';
+
+// ═══════════════════════════════════════
+//  ALL CATEGORY BUTTON — toggle type selector
+// ═══════════════════════════════════════
+(function() {
+    const btn = document.getElementById('allCatBtnToggle');
+    const wrap = document.getElementById('allCatTypeWrap');
+    if (!btn || !wrap) return;
+    function sync() {
+        wrap.style.opacity = btn.checked ? '1' : '.45';
+        wrap.style.pointerEvents = btn.checked ? 'auto' : 'none';
+        wrap.style.transition = 'opacity .2s';
+    }
+    btn.addEventListener('change', sync);
+    sync();
+})();
 
 // ═══════════════════════════════════════
 //  SORTABLE INIT (header + footer)

@@ -31,6 +31,7 @@ use App\Http\Controllers\Admin\SocialMediaController;
 use App\Http\Controllers\Admin\ContactController;
 use App\Http\Controllers\Admin\BannerCategoryController;
 use App\Http\Controllers\Admin\BannerController;
+use App\Http\Controllers\Admin\MediaController;
 use App\Http\Controllers\Admin\CreatePageController;
 use App\Http\Controllers\Admin\CampaignController;
 use App\Http\Controllers\Admin\ThemeController;
@@ -450,6 +451,10 @@ Route::group(['prefix'=>'customer','namespace'=>'Frontend','middleware' => ['cus
         ->name('customer.warranty.submit-claim');
     Route::get('/warranty-track/{claim_id}', function ($claim_id) {
         $claim = \App\Models\WarrantyClaim::with(['product', 'warrantySale', 'stages', 'notes.user', 'challans'])->findOrFail($claim_id);
+        // Eager-load per-step attachments if the migration has been run (safe otherwise)
+        if (\Illuminate\Support\Facades\Schema::hasTable('warranty_claim_stage_attachments')) {
+            $claim->load('stages.attachments');
+        }
         return view('frontEnd.layouts.customer.track-warranty-claim', compact('claim'));
     })->name('customer.warranty.track');
     Route::post('/warranty-cancel', [App\Http\Controllers\Api\WarrantyApiController::class, 'cancelClaimWeb'])
@@ -458,6 +463,11 @@ Route::group(['prefix'=>'customer','namespace'=>'Frontend','middleware' => ['cus
         $customer = auth('customer')->user();
         if (!$customer || $challan->warrantyClaim->customer_id !== $customer->id) {
             abort(403, 'Unauthorized access to this challan.');
+        }
+        // Customers may only view/download customer-facing challans
+        // (Product Receive + Customer Delivery), not internal supplier ones.
+        if (!in_array($challan->challan_type, ['receive', 'delivery'])) {
+            abort(403, 'This challan is not available to customers.');
         }
         $challan->load('warrantyClaim.product', 'warrantyClaim.warrantySale');
         return view('frontEnd.layouts.customer.challan_print', compact('challan'));
@@ -1032,6 +1042,21 @@ Route::get('stock/products/{id}/batches',     [StockController::class, 'getProdu
     Route::post('banner/inactive', [BannerController::class,'inactive'])->name('banners.inactive');
     Route::post('banner/active', [BannerController::class,'active'])->name('banners.active');
     Route::post('banner/destroy', [BannerController::class,'destroy'])->name('banners.destroy');
+
+    // ─────────────────────────────────────────────────────────────
+    // Media Gallery (folder-wise image & PDF manager, reusable picker)
+    // ─────────────────────────────────────────────────────────────
+    Route::get('media', [MediaController::class, 'index'])->name('admin.media.index');
+    Route::post('media/folder/create', [MediaController::class, 'createFolder'])->name('admin.media.folder.create');
+    Route::post('media/folder/rename', [MediaController::class, 'renameFolder'])->name('admin.media.folder.rename');
+    Route::post('media/folder/delete', [MediaController::class, 'deleteFolder'])->name('admin.media.folder.delete');
+    Route::post('media/upload', [MediaController::class, 'upload'])->name('admin.media.upload');
+    Route::post('media/file/rename', [MediaController::class, 'renameFile'])->name('admin.media.file.rename');
+    Route::post('media/file/delete', [MediaController::class, 'deleteFile'])->name('admin.media.file.delete');
+    Route::post('media/move', [MediaController::class, 'move'])->name('admin.media.move');
+    Route::post('media/copy', [MediaController::class, 'copy'])->name('admin.media.copy');
+    Route::get('media/picker', [MediaController::class, 'pickerContent'])->name('admin.media.picker');
+    Route::post('media/picker/upload', [MediaController::class, 'pickerUpload'])->name('admin.media.picker.upload');
     
     // contact route 
     Route::get('page/manage', [CreatePageController::class,'index'])->name('pages.index');
@@ -1197,6 +1222,10 @@ Route::get('stock/products/{id}/batches',     [StockController::class, 'getProdu
         Route::post('claims/{warrantyClaim}/reminder', [App\Http\Controllers\Admin\WarrantyController::class, 'storeReminder'])->name('claims.reminder');
         Route::post('reminders/{reminder}/complete', [App\Http\Controllers\Admin\WarrantyController::class, 'completeReminder'])->name('reminders.complete');
         Route::post('claims/{warrantyClaim}/replacement', [App\Http\Controllers\Admin\WarrantyController::class, 'giveReplacement'])->name('claims.replacement');
+
+        // 🆕 Per-step attachments (images/PDF on each claim step)
+        Route::post('claims/stage/{stage}/attachment', [App\Http\Controllers\Admin\WarrantyController::class, 'storeStageAttachment'])->name('claims.stage.attachment');
+        Route::post('claim-attachments/{attachment}/delete', [App\Http\Controllers\Admin\WarrantyController::class, 'deleteStageAttachment'])->name('claims.stage.attachment.delete');
 
         // 🆕 Damage products
         Route::get('damage', [App\Http\Controllers\Admin\WarrantyController::class, 'damageIndex'])->name('damage.index');

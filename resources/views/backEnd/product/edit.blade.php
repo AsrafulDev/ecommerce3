@@ -482,15 +482,34 @@
 
                             <div class="col-md-12 mb-3">
                                 <label for="meta_image" class="form-label"> {{ __('Meta Image (og:image)') }} </label>
-                                <input type="file" name="meta_image" id="meta_image" class="form-control">
 
-                                @if(!empty($edit_data->meta_image))
-                                    <div class="mt-2">
-                                        <img src="{{ asset($edit_data->meta_image) }}" alt="Meta Image"
-                                             class="border rounded" width="120">
+                                {{-- 🎨 Media Library — primary option (single image) --}}
+                                <div class="border rounded p-2 mb-2" style="background:#f4f7ff;border-color:#d3e0ff!important;">
+                                    <div class="d-flex align-items-center flex-wrap gap-2">
+                                        <button type="button" class="btn btn-primary btn-sm"
+                                                onclick="openMediaPicker('#meta_image_url', '#metaImagePreview', 'path')">
+                                            <i class="fe-image me-1"></i> {{ __('Choose Meta Image from Media Library') }}
+                                        </button>
+                                        <small class="text-muted">Pick one image, then press “Insert”.</small>
                                     </div>
-                                @endif
-                                <small class="text-muted d-block mt-1">Recommended size: 1200x630px</small>
+                                    <input type="hidden" name="meta_image_url" id="meta_image_url"
+                                           value="{{ (strpos($edit_data->meta_image ?? '', 'uploads/media/') !== false) ? $edit_data->meta_image : '' }}">
+                                    <img id="metaImagePreview" src="{{ asset($edit_data->meta_image) }}" alt="Meta Image"
+                                         class="border rounded mt-2" width="120"
+                                         style="{{ !empty($edit_data->meta_image) ? '' : 'display:none;' }}">
+                                </div>
+
+                                {{-- 📤 Direct upload — hidden by default (not removed) --}}
+                                <div class="mt-1">
+                                    <button class="btn btn-sm btn-outline-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#metaDirectUploadCollapse">
+                                        <i class="fe-upload me-1"></i> {{ __('Direct Upload (optional)') }}
+                                    </button>
+                                    <div class="collapse mt-2" id="metaDirectUploadCollapse">
+                                        <input type="file" name="meta_image" id="meta_image" class="form-control" accept="image/*">
+                                    </div>
+                                </div>
+
+                                <small class="text-muted d-block mt-2">Recommended size: 1200x630px</small>
                             </div>
                         </div>
                     </div>
@@ -664,10 +683,9 @@
                             <div class="col-md-6 mb-3">
                                 <label class="form-label"> {{ __('Costing Method') }} </label>
                                 <select name="costing_method" class="form-control form-select">
-                                    <option value="">{{ __('Default (Global Setting)') }}</option>
-                                    <option value="fifo" {{ (old('costing_method') ?: $edit_data->costing_method) === 'fifo' ? 'selected' : '' }}>FIFO (First In, First Out)</option>
-                                    <option value="lifo" {{ (old('costing_method') ?: $edit_data->costing_method) === 'lifo' ? 'selected' : '' }}>LIFO (Last In, First Out)</option>
-                                    <option value="average" {{ (old('costing_method') ?: $edit_data->costing_method) === 'average' ? 'selected' : '' }}>Weighted Average</option>
+                                    <option value="fifo" {{ (old('costing_method') ?: ($edit_data->costing_method ?: 'fifo')) === 'fifo' ? 'selected' : '' }}>FIFO (First In, First Out)</option>
+                                    <option value="lifo" {{ (old('costing_method') ?: ($edit_data->costing_method ?: 'fifo')) === 'lifo' ? 'selected' : '' }}>LIFO (Last In, First Out)</option>
+                                    <option value="average" {{ (old('costing_method') ?: ($edit_data->costing_method ?: 'fifo')) === 'average' ? 'selected' : '' }}>Weighted Average</option>
                                 </select>
                             </div>
                             <div class="col-md-6 mb-3">
@@ -695,39 +713,22 @@
 
                         <div class="form-group mb-3">
                             <label class="form-label"> {{ __('Product Gallery Images') }} </label>
-                            <div class="increment-wrapper">
-                                <div class="control-group increment mb-2 image-row">
-                                    <div class="row align-items-end g-2">
-                                        <div class="col-md-10">
-                                            <label class="form-label small">{{ __('Image') }}</label>
-                                            <input type="file" name="image[]" class="form-control form-control-sm @error('image') is-invalid @enderror" accept="image/*" />
-                                        </div>
-                                        <div class="col-md-2">
-                                            <button class="btn btn-success btn-increment btn-sm w-100" type="button"><i class="fa fa-plus"></i></button>
-                                        </div>
-                                    </div>
-                                    @error('image')
-                                    <span class="invalid-feedback" role="alert"><strong>{{ $message }}</strong></span>
-                                    @enderror
+
+                            {{-- 🎨 MEDIA LIBRARY — primary option --}}
+                            <div class="border rounded p-3 mb-2" style="background:#f4f7ff;border-color:#d3e0ff!important;">
+                                <div class="d-flex align-items-center flex-wrap gap-2">
+                                    <button type="button" class="btn btn-primary btn-sm"
+                                            onclick="openMediaPicker('#media_image_urls_json', null, 'path', true)">
+                                        <i class="fe-image me-1"></i> {{ __('Add Images from Media Library') }}
+                                    </button>
+                                    <small class="text-muted">Select one or more images, then press “Add Selected”.</small>
+                                    <small class="text-muted text-truncate ms-auto" id="media_image_urls_json_file" style="max-width:220px;"></small>
                                 </div>
+                                <input type="hidden" id="media_image_urls_json">
+                                <div id="mediaPickedPreviews" class="d-flex flex-wrap gap-2 mt-2"></div>
                             </div>
 
-                            {{-- Hidden Clone for JS --}}
-                            <div class="clone hide" style="display: none;">
-                                <div class="control-group mt-2 image-row">
-                                    <div class="row align-items-end g-2">
-                                        <div class="col-md-10">
-                                            <label class="form-label small">{{ __('Image') }}</label>
-                                            <input type="file" name="image[]" class="form-control form-control-sm" accept="image/*" />
-                                        </div>
-                                        <div class="col-md-2">
-                                            <button class="btn btn-danger btn-remove-image btn-sm w-100" type="button"><i class="fa fa-trash"></i></button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="product_img mt-3 d-flex flex-wrap">
+                            <div class="product_img d-flex flex-wrap">
                                 @foreach($edit_data->images->filter(fn($img) => !$img->color_id && !$img->size_id) as $image)
                                     <div class="position-relative me-2 mb-2">
                                         <img src="{{asset($image->image)}}" class="edit-image border" alt="">
@@ -757,6 +758,46 @@
                                 </div>
                             </div>
                             @endif
+
+                            {{-- 📤 DIRECT UPLOAD — hidden by default (not removed) --}}
+                            <div class="mt-3">
+                                <button class="btn btn-sm btn-outline-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#directUploadCollapse">
+                                    <i class="fe-upload me-1"></i> {{ __('Direct Upload (optional)') }}
+                                </button>
+                                <div class="collapse mt-2" id="directUploadCollapse">
+                                    <div class="increment-wrapper">
+                                        <div class="control-group increment mb-2 image-row">
+                                            <div class="row align-items-end g-2">
+                                                <div class="col-md-10">
+                                                    <label class="form-label small">{{ __('Image') }}</label>
+                                                    <input type="file" name="image[]" class="form-control form-control-sm @error('image') is-invalid @enderror" accept="image/*" />
+                                                </div>
+                                                <div class="col-md-2">
+                                                    <button class="btn btn-success btn-increment btn-sm w-100" type="button"><i class="fa fa-plus"></i></button>
+                                                </div>
+                                            </div>
+                                            @error('image')
+                                            <span class="invalid-feedback" role="alert"><strong>{{ $message }}</strong></span>
+                                            @enderror
+                                        </div>
+                                    </div>
+
+                                    {{-- Hidden Clone for JS --}}
+                                    <div class="clone hide" style="display: none;">
+                                        <div class="control-group mt-2 image-row">
+                                            <div class="row align-items-end g-2">
+                                                <div class="col-md-10">
+                                                    <label class="form-label small">{{ __('Image') }}</label>
+                                                    <input type="file" name="image[]" class="form-control form-control-sm" accept="image/*" />
+                                                </div>
+                                                <div class="col-md-2">
+                                                    <button class="btn btn-danger btn-remove-image btn-sm w-100" type="button"><i class="fa fa-trash"></i></button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
 
                         {{-- ===== VIDEO SECTION (EDIT) ===== --}}
@@ -999,6 +1040,9 @@
             </div>
     </form>
 
+    {{-- Reusable Media Gallery picker — "choose image from media library" --}}
+    @include('backEnd.media._picker')
+
     {{-- 📦 Batch Details Modal --}}
     <div class="modal fade" id="batchDetailModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
@@ -1046,7 +1090,81 @@
 <script>
     $(".summernote").summernote({
         placeholder: "Enter Your Text Here",
+        toolbar: [
+            ['style', ['style']],
+            ['font', ['bold', 'italic', 'underline', 'clear']],
+            ['fontname', ['fontname']],
+            ['color', ['color']],
+            ['para', ['ul', 'ol', 'paragraph']],
+            ['height', ['height']],
+            ['table', ['table']],
+            ['insert', ['link', 'video', 'mediaLibrary']],
+            ['view', ['fullscreen', 'codeview', 'help']]
+        ],
+        buttons: {
+            // Insert an image from the Media Gallery by URL (image link)
+            mediaLibrary: function (context) {
+                var ui = $.summernote.ui;
+                var button = ui.button({
+                    contents: '<i class="fa fa-image"></i> Media',
+                    tooltip: 'Insert image from Media Library',
+                    container: '.note-editor',
+                    click: function () {
+                        openMediaPickerFor(function (item) {
+                            context.invoke('editor.insertImage', item.url);
+                        }, 'url');
+                    }
+                });
+                return button.render();
+            }
+        }
     });
+</script>
+
+<script>
+    // ── Multiple images from Media Library ──
+    // The picker (multi mode) writes a JSON array of paths into #media_image_urls_json;
+    // we turn it into hidden inputs (media_image_urls[]) so the controller can save them all.
+    (function () {
+        var jsonInput = document.getElementById('media_image_urls_json');
+        if (!jsonInput) return; // element not present → do nothing
+        jsonInput.addEventListener('change', function () {
+            var paths = [];
+            try { paths = JSON.parse(this.value || '[]'); } catch (e) { return; }
+            var wrap = document.getElementById('mediaPickedPreviews');
+            if (!wrap) return;
+            // Already-added media paths (so we can accumulate instead of replace)
+            var existing = [];
+            wrap.querySelectorAll('input[name="media_image_urls[]"]').forEach(function (i) { existing.push(i.value); });
+            paths.forEach(function (p) {
+                if (existing.indexOf(p) >= 0) return; // already added
+
+                var inp = document.createElement('input');
+                inp.type = 'hidden';
+                inp.name = 'media_image_urls[]';
+                inp.value = p;
+                wrap.appendChild(inp);
+
+                var div = document.createElement('div');
+                div.className = 'position-relative me-2 mb-2';
+                var img = document.createElement('img');
+                img.src = (p.indexOf('public/') === 0) ? window.location.origin + '/' + p : p;
+                img.style.cssText = 'width:70px;height:70px;object-fit:cover;border-radius:6px;border:1px solid #e2e8f0;';
+                div.appendChild(img);
+
+                var btn = document.createElement('button');
+                btn.type = 'button';
+                btn.className = 'btn btn-xs btn-danger position-absolute top-0 end-0 rounded-circle';
+                btn.style.cssText = 'padding:0 4px;top:-5px;right:-5px;font-size:11px;line-height:1;';
+                btn.innerHTML = '&times;';
+                btn.title = 'Remove';
+                btn.onclick = function () { inp.remove(); div.remove(); };
+                div.appendChild(btn);
+
+                wrap.appendChild(div);
+            });
+        });
+    })();
 </script>
 
 <script>

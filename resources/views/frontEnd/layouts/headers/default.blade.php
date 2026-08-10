@@ -104,7 +104,9 @@
             <div class="container">
                 <div class="row">
                     <div class="col-sm-12">
-                        <div class="catagory_menu text-center">
+                        <div class="d-flex align-items-center" style="gap:16px;">
+                            @includeIf('frontEnd.layouts.headers.parts.all_categories', ['acbVariant' => 'light'])
+                            <div class="catagory_menu text-center flex-grow-1">
                             <ul>
                                 @foreach($menucategories as $scategory)
                                 <li class="cat_bar">
@@ -134,6 +136,7 @@
                                 </li>
                                 @endforeach
                             </ul>
+                            </div>
                         </div>
                     </div>
                 </div>

@@ -15,6 +15,8 @@ use App\Models\Supplier;
 use App\Models\SupplierWarranty;
 use App\Models\WarrantyClaim;
 use App\Models\WarrantyClaimReminder;
+use App\Models\WarrantyClaimStage;
+use App\Models\WarrantyClaimStageAttachment;
 use App\Models\WarrantyChallan;
 use App\Models\WarrantySale;
 use App\Services\StockManagementService;
@@ -365,7 +367,12 @@ class WarrantyController extends Controller
 
     public function claimsShow(WarrantyClaim $warrantyClaim): View
     {
-        $warrantyClaim->load(['product', 'customer', 'order', 'warrantySale', 'stages', 'notes.user', 'reminders', 'damageProducts']);
+        $load = ['product', 'customer', 'order', 'warrantySale', 'stages', 'notes.user', 'reminders', 'damageProducts'];
+        // Only eager-load per-step attachments if the migration has been run
+        if (\Illuminate\Support\Facades\Schema::hasTable('warranty_claim_stage_attachments')) {
+            $load[] = 'stages.attachments';
+        }
+        $warrantyClaim->load($load);
         return view('backEnd.warranty.claims_show', compact('warrantyClaim'));
     }
 
@@ -410,19 +417,106 @@ class WarrantyController extends Controller
         return back()->with('success', 'Note added.');
     }
 
+    // ── Per-step Attachments ──────────────────
+
+    /**
+     * Attach an image/PDF to a specific claim step (a warranty_claim_stage).
+     * Accepts either a Media Gallery selection (attachment_path) or direct
+     * uploads (attachment_files[]). Files are stored in the shared media
+     * folder public/uploads/media/warranty/ — images + PDF only (security).
+     */
+    public function storeStageAttachment(Request $request, WarrantyClaimStage $stage): RedirectResponse
+    {
+        $request->validate([
+            'attachment_path'    => 'nullable|string',
+            'attachment_files'   => 'nullable|array|max:5',
+            'attachment_files.*' => 'nullable|file|mimes:jpeg,jpg,png,gif,webp,bmp,svg,avif,pdf|max:10240',
+        ]);
+
+        $created = 0;
+
+        // Direct uploads → save into the shared media/warranty folder
+        if ($request->hasFile('attachment_files')) {
+            $dir = public_path('uploads/media/warranty');
+            if (!is_dir($dir)) {
+                @mkdir($dir, 0775, true);
+            }
+            $allowed = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp', 'svg', 'avif', 'pdf'];
+            foreach ((array) $request->file('attachment_files', []) as $file) {
+                if (!$file || !$file->isValid()) {
+                    continue;
+                }
+                $ext = strtolower($file->getClientOriginalExtension());
+                if (!in_array($ext, $allowed, true)) {
+                    continue;
+                }
+                $base = \Illuminate\Support\Str::slug(pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME)) ?: 'attachment';
+                $name = time() . '-' . uniqid() . '-' . $base . '.' . $ext;
+                try {
+                    $file->move($dir, $name);
+                } catch (\Throwable $e) {
+                    continue;
+                }
+                WarrantyClaimStageAttachment::create([
+                    'warranty_claim_stage_id' => $stage->id,
+                    'file_path'               => 'public/uploads/media/warranty/' . $name,
+                    'file_name'               => $file->getClientOriginalName(),
+                    'file_type'               => $ext,
+                    'uploaded_by'             => auth()->id(),
+                ]);
+                $created++;
+            }
+        }
+
+        // Media Gallery selection (single relative path e.g. public/uploads/media/...)
+        if ($request->filled('attachment_path')) {
+            $path = trim($request->input('attachment_path'));
+            WarrantyClaimStageAttachment::create([
+                'warranty_claim_stage_id' => $stage->id,
+                'file_path'               => $path,
+                'file_name'               => basename($path),
+                'file_type'               => strtolower(pathinfo($path, PATHINFO_EXTENSION)),
+                'uploaded_by'             => auth()->id(),
+            ]);
+            $created++;
+        }
+
+        if ($created > 0) {
+            Toastr::success($created . ' attachment(s) added.', 'Success');
+        } else {
+            Toastr::error('No valid attachment selected (images & PDF only).', 'Error');
+        }
+
+        return back();
+    }
+
+    /** Remove a per-step attachment record (does NOT delete the shared media file). */
+    public function deleteStageAttachment(WarrantyClaimStageAttachment $attachment): RedirectResponse
+    {
+        $attachment->delete();
+        Toastr::success('Attachment removed.', 'Success');
+        return back();
+    }
+
     // ── Pipeline Actions ──────────────────────
 
     public function receiveProduct(Request $request, WarrantyClaim $warrantyClaim)
     {
         $request->validate([
-            'condition'     => 'required|string',
-            'accessories'   => 'nullable|string',
-            'notes'         => 'nullable|string',
-            'product_image' => 'nullable|image|max:5120',
+            'condition'          => 'required|string',
+            'accessories'        => 'nullable|string',
+            'notes'              => 'nullable|string',
+            'product_image'      => 'nullable|image|max:5120',
+            'product_image_url'  => 'nullable|string',
         ]);
 
-        // Handle image upload
-        if ($request->hasFile('product_image')) {
+        // Handle image — uploaded file OR Media Gallery selection
+        if ($request->filled('product_image_url')) {
+            $warrantyClaim->notes()->create([
+                'note'    => 'Product image (Media Gallery): ' . $request->input('product_image_url'),
+                'user_id' => auth()->id(),
+            ]);
+        } elseif ($request->hasFile('product_image')) {
             $path = $request->file('product_image')->store('warranty-claims', 'public');
             $warrantyClaim->notes()->create([
                 'note'    => 'Product image uploaded: ' . asset('storage/' . $path),

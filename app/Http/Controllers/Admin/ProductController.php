@@ -22,6 +22,7 @@ use Illuminate\Support\Str;
 use DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Schema;
 
 class ProductController extends Controller
 {
@@ -31,6 +32,22 @@ class ProductController extends Controller
         $this->middleware('permission:product-create', ['only' => ['create','store']]);
         $this->middleware('permission:product-edit', ['only' => ['edit','update']]);
         $this->middleware('permission:product-delete', ['only' => ['destroy']]);
+    }
+
+    /**
+     * Whether the products table actually has the `meta_image` column.
+     * Cached per request. On live DBs that missed the migration this returns
+     * false and the controller simply skips saving meta_image instead of
+     * crashing with "Unknown column 'meta_image'".
+     */
+    protected ?bool $_hasMetaImage = null;
+
+    protected function hasMetaImageColumn(): bool
+    {
+        if ($this->_hasMetaImage === null) {
+            $this->_hasMetaImage = Schema::hasColumn('products', 'meta_image');
+        }
+        return $this->_hasMetaImage;
     }
 
     // ================================
@@ -161,6 +178,9 @@ class ProductController extends Controller
         // proSize, proColor, image, meta_image, variant_price, variant_image, digital_file বাদ
         $input = $request->except([
             'image',
+            'image_url',
+            'meta_image_url',
+            'media_image_urls',
             'image_color',
             'image_size',
             'meta_image',
@@ -213,7 +233,7 @@ class ProductController extends Controller
         // 🆕 Barcode & Stock Management
         $input['barcode']              = $request->barcode ?: $this->generateUniqueBarcode();
         $input['barcode_type']         = $request->barcode_type ?? 'C128';
-        $input['costing_method']       = $request->costing_method;
+        $input['costing_method']       = $request->costing_method ?: 'fifo';
         $input['low_stock_threshold']  = $request->filled('low_stock_threshold') ? (int) $request->low_stock_threshold : 0;
         $input['allow_negative_stock'] = $request->allow_negative_stock ? 1 : 0;
         $input['weight']               = $request->weight;
@@ -250,6 +270,9 @@ class ProductController extends Controller
             $metaPath = 'public/uploads/product/meta/';
             $metaImg->move($metaPath, $metaName);
             $input['meta_image'] = $metaPath.$metaName;
+        } elseif ($request->filled('meta_image_url')) {
+            // Selected from Media Gallery (no upload) — relative path
+            $input['meta_image'] = $request->input('meta_image_url');
         }
 
         // DIGITAL FILE UPLOAD
@@ -272,6 +295,12 @@ class ProductController extends Controller
         }
 
         // CREATE PRODUCT
+        // Defensive: if the live DB lacks products.meta_image, drop it from the
+        // insert so the query doesn't reference a missing column.
+        if (!$this->hasMetaImageColumn()) {
+            unset($input['meta_image']);
+        }
+
         $product = Product::create($input);
 
         log_activity('product', 'create', 'Created product: ' . $product->name, $product, [
@@ -312,8 +341,44 @@ class ProductController extends Controller
             }
 
             // যদি meta_image সেট করা না থাকে, প্রথম ইমেজকে meta_image করো
-            if (empty($product->meta_image) && $product->images()->first()) {
+            if ($this->hasMetaImageColumn() && empty($product->meta_image) && $product->images()->first()) {
                 $product->update(['meta_image' => $product->images()->first()->image]);
+            }
+        }
+
+        // Image selected from the Media Gallery (no file upload)
+        if ($request->filled('image_url')) {
+            Productimage::create([
+                'product_id' => $product->id,
+                'image'      => $request->input('image_url'),
+                'color_id'   => null,
+                'size_id'    => null,
+            ]);
+            // Use as meta_image if none set yet
+            if ($this->hasMetaImageColumn() && empty($product->meta_image)) {
+                $product->update(['meta_image' => $request->input('image_url')]);
+            }
+        }
+
+        // Multiple images selected from the Media Gallery
+        if ($request->filled('media_image_urls')) {
+            foreach ((array) $request->input('media_image_urls') as $mediaPath) {
+                if (!is_string($mediaPath) || trim($mediaPath) === '') {
+                    continue;
+                }
+                Productimage::create([
+                    'product_id' => $product->id,
+                    'image'      => trim($mediaPath),
+                    'color_id'   => null,
+                    'size_id'    => null,
+                ]);
+            }
+            // Use first as meta_image if none set yet
+            if ($this->hasMetaImageColumn() && empty($product->meta_image)) {
+                $first = $product->images()->first();
+                if ($first) {
+                    $product->update(['meta_image' => $first->image]);
+                }
             }
         }
 
@@ -503,6 +568,9 @@ class ProductController extends Controller
 
         $input = $request->except([
             'image',
+            'image_url',
+            'meta_image_url',
+            'media_image_urls',
             'image_color',
             'image_size',
             'meta_image',
@@ -550,7 +618,7 @@ class ProductController extends Controller
         // 🆕 Barcode & Stock Management
         $input['barcode']              = $request->barcode ?: $this->generateUniqueBarcode();
         $input['barcode_type']         = $request->barcode_type ?? 'C128';
-        $input['costing_method']       = $request->costing_method;
+        $input['costing_method']       = $request->costing_method ?: 'fifo';
         $input['low_stock_threshold']  = $request->filled('low_stock_threshold') ? (int) $request->low_stock_threshold : 0;
         $input['allow_negative_stock'] = $request->allow_negative_stock ? 1 : 0;
         $input['weight']               = $request->weight;
@@ -593,6 +661,9 @@ class ProductController extends Controller
             $metaPath = 'public/uploads/product/meta/';
             $metaImg->move($metaPath, $metaName);
             $input['meta_image'] = $metaPath.$metaName;
+        } elseif ($request->filled('meta_image_url')) {
+            // Selected from Media Gallery (no upload)
+            $input['meta_image'] = $request->input('meta_image_url');
         }
 
         // DIGITAL FILE UPDATE
@@ -628,6 +699,13 @@ class ProductController extends Controller
             'status'         => $product->status,
             'publish_status' => $product->publish_status,
         ];
+
+        // Defensive: if the live DB lacks products.meta_image, drop it from the
+        // update so the query doesn't reference a missing column.
+        if (!$this->hasMetaImageColumn()) {
+            unset($input['meta_image']);
+        }
+
         $product->update($input);
         Cache::forget('product_details_' . $product->slug);
 
@@ -661,6 +739,31 @@ class ProductController extends Controller
                     'image'      => $path.$name,
                     'color_id'   => $colorId ?: null,
                     'size_id'    => $sizeId ?: null,
+                ]);
+            }
+        }
+
+        // Image selected from the Media Gallery (no file upload)
+        if ($request->filled('image_url')) {
+            Productimage::create([
+                'product_id' => $product->id,
+                'image'      => $request->input('image_url'),
+                'color_id'   => null,
+                'size_id'    => null,
+            ]);
+        }
+
+        // Multiple images selected from the Media Gallery
+        if ($request->filled('media_image_urls')) {
+            foreach ((array) $request->input('media_image_urls') as $mediaPath) {
+                if (!is_string($mediaPath) || trim($mediaPath) === '') {
+                    continue;
+                }
+                Productimage::create([
+                    'product_id' => $product->id,
+                    'image'      => trim($mediaPath),
+                    'color_id'   => null,
+                    'size_id'    => null,
                 ]);
             }
         }
