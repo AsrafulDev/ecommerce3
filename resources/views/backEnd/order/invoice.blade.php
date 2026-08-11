@@ -239,6 +239,19 @@
                                     <p style="font-size: 15px; color: #222;font-weight:bold; transform: skew(-36deg); text-align: right; padding-right: 18px">Invoice ID : <strong>#{{$order->invoice_id}}</strong></p>
                                     <p style="font-size: 15px; color: #222;font-weight:bold; transform: skew(-36deg); text-align: right; padding-right: 32px">Invoice Date: <strong>{{$order->created_at->format('d-m-y')}}</strong></p>
                                 </div>
+
+                                {{-- 📦 Invoice number barcode (top of A4 print) --}}
+                                @php
+                                    $bcGen = new \Picqer\Barcode\BarcodeGeneratorHTML();
+                                    $barcodeHtml = $bcGen->getBarcode((string) $order->invoice_id, $bcGen::TYPE_CODE_128, 2, 42);
+                                @endphp
+                                <div class="invoice-barcode" style="text-align:right; margin-top:10px; padding-right:18px;">
+                                    <div style="display:inline-block; text-align:center; background:#fff; padding:4px 8px; border:1px solid #dcdcdc; border-radius:4px;">
+                                        <div style="line-height:0;">{!! $barcodeHtml !!}</div>
+                                        <div style="font-size:14px; color:#222; font-weight:bold; letter-spacing:3px; margin-top:3px;">#{{ $order->invoice_id }}</div>
+                                    </div>
+                                </div>
+
                                 <div class="invoice_to" style="padding-top: 20px;">
                                     <p style="font-size:16px;line-height:1.8;color:#222;text-align: right;"><strong>Invoice To:</strong></p>
                                     <p style="font-size:16px;line-height:1.8;color:#222;text-align: right;">{{$order->shipping?$order->shipping->name:''}}</p>

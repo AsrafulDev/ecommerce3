@@ -1178,6 +1178,7 @@
       @canany(['shipping-list', 'shipping-create', 'shipping-edit'])
       <li><a href="{{ route('shippingcharges.index') }}"><i data-feather="file-plus"></i> {{ __('Shipping Charge') }} </a></li>
       @endcanany
+      <li><a href="{{ route('admin.district.index') }}"><i data-feather="map-pin"></i> {{ __('Districts') }} </a></li>
     </ul>
   </div>
 </li>
@@ -1511,6 +1512,40 @@
 
     <!-- App js -->
     <script src="{{asset('public/backEnd/')}}/assets/js/app.min.js"></script>
+
+    {{-- Fix: stop the Hyper sidebar from auto-scrolling to the active menu item
+         on every page load (app.min.js smooth-scrolls the sidebar so the active
+         item is visible; this is jarring for deep submenu links). We instead
+         restore the sidebar's previous scroll position (or top on first visit). --}}
+    <script>
+        (function () {
+            var KEY = 'admin_sidebar_scroll';
+            function sidebar() {
+                return document.querySelector('.left-side-menu .simplebar-content-wrapper');
+            }
+            // Remember where the sidebar was before navigating away
+            window.addEventListener('beforeunload', function () {
+                var w = sidebar();
+                if (w) { try { sessionStorage.setItem(KEY, String(w.scrollTop)); } catch (e) {} }
+            });
+            // After app.min.js's auto-scroll fires (~200ms + 600ms animation), put it back
+            function restore() {
+                var w = sidebar();
+                if (!w) return;
+                var saved = parseInt(sessionStorage.getItem(KEY) || '0', 10) || 0;
+                w.scrollTop = saved;
+            }
+            if (document.readyState === 'complete') {
+                setTimeout(restore, 250); setTimeout(restore, 900);
+            } else {
+                window.addEventListener('load', function () {
+                    setTimeout(restore, 250); // interrupt app.min.js's scroll early
+                    setTimeout(restore, 900); // final restore after the animation
+                });
+            }
+        })();
+    </script>
+
     <!-- Feather Icons - Ensure library is loaded and initialized -->
     <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
     <script>

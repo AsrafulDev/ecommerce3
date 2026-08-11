@@ -45,6 +45,7 @@ use App\Http\Controllers\Admin\CustomerManageController;
 use App\Http\Controllers\Admin\ShippingChargeController;
 use App\Http\Controllers\Admin\ColorController;
 use App\Http\Controllers\Admin\SizeController;
+use App\Http\Controllers\Admin\DistrictController;
 use App\Http\Controllers\Admin\TagManagerController;
 use App\Http\Controllers\Admin\IncompleteOrderController;
 use App\Http\Controllers\Frontend\UddoktaPayController;
@@ -412,6 +413,7 @@ Route::group(['prefix'=>'customer','namespace'=>'Frontend', 'middleware' => ['ip
     Route::get('/checkout', [CustomerController::class, 'checkout'])->name('customer.checkout');
     Route::post('/order-save', [CustomerController::class, 'order_save'])->name('customer.ordersave');
     Route::get('/order-success/{id}', [CustomerController::class, 'order_success'])->name('customer.order_success');
+    Route::get('/order-success/{id}/download-invoice', [CustomerController::class, 'downloadInvoicePdf'])->name('customer.order_invoice_pdf');
 
    Route::get('/order-track', [CustomerController::class, 'order_track'])->name('customer.order_track');
     Route::get('/order-track/result', [CustomerController::class, 'order_track_result'])->name('customer.order_track_result');
@@ -863,6 +865,15 @@ Route::get('stock/products/{id}/batches',     [StockController::class, 'getProdu
     Route::post('size/active', [SizeController::class,'active'])->name('sizes.active');
     Route::post('size/destroy', [SizeController::class,'destroy'])->name('sizes.destroy');
     Route::post('size/import-default', [SizeController::class,'importDefault'])->name('sizes.import_default');
+
+    // District (shipping areas) CRUD
+    Route::get('district/manage', [DistrictController::class,'index'])->name('admin.district.index');
+    Route::post('district/save', [DistrictController::class,'store'])->name('admin.district.store');
+    Route::get('district/{id}/edit', [DistrictController::class,'edit'])->name('admin.district.edit');
+    Route::post('district/update', [DistrictController::class,'update'])->name('admin.district.update');
+    Route::post('district/destroy', [DistrictController::class,'destroy'])->name('admin.district.destroy');
+    Route::post('district/sync', [DistrictController::class,'syncDefault'])->name('admin.district.sync');
+    Route::post('district/toggle-charge', [DistrictController::class,'toggleChargeUpdate'])->name('admin.district.toggle-charge');
    
    
     // Inhouse Products

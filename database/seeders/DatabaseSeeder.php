@@ -32,6 +32,7 @@ class DatabaseSeeder extends Seeder
             // Default attribute data
             ColorSeeder::class,
             SizeSeeder::class,
+            DistrictSeeder::class,
             CouponSeeder::class,
 
             DemoDataSeeder::class,

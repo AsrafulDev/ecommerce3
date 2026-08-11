@@ -1080,7 +1080,23 @@ $brands = Brand::where('status', 1)
         if ($hasAllFreeDelivery || $request->id == 'free_delivery') {
             Session::put('shipping', 0);
             Session::put('shipping_id', null);
+            Session::put('shipping_district', null);
+            Session::put('shipping_area_id', null);
+        } elseif ($request->type == 'area') {
+            // ✅ id = district/area row id → resolve fee via shipping_charge_district pivot
+            $area = District::find($request->id);
+            $charge = $area ? $area->shippingCharges()->where('status', 1)->first() : null;
+            Session::put('shipping', $charge ? (float) $charge->amount : 0);
+            Session::put('shipping_id', $charge ? $charge->id : null);
+            Session::put('shipping_district', $area ? $area->district : null);
+            Session::put('shipping_area_id', $area ? $area->id : null);
+        } elseif ($request->id == 'area_clear') {
+            Session::put('shipping', 0);
+            Session::put('shipping_id', null);
+            Session::put('shipping_district', null);
+            Session::put('shipping_area_id', null);
         } else {
+            // Legacy: id = shipping charge id (campaign page etc.)
             $shipping = ShippingCharge::where(['id' => $request->id])->first();
             if ($shipping) {
                 Session::put('shipping', $shipping->amount);
@@ -1136,7 +1152,9 @@ $brands = Brand::where('status', 1)
 
     public function districts(Request $request)
     {
-        $areas = District::where(['district' => $request->id])->pluck('area_name', 'id');
+        $areas = District::where(['district' => $request->id])
+            ->orderBy('area_name')
+            ->get(['id', 'area_name']);
         return response()->json($areas);
     }
 

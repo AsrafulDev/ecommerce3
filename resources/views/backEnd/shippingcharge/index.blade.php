@@ -115,8 +115,9 @@
                         <thead>
                             <tr>
                                 <th width="10%">{{ __('SL') }}</th>
-                                <th width="50%"> {{ __('Area Name') }} </th>
-                                <th width="20%">{{ __('Status') }}</th>
+                                <th width="40%"> {{ __('Area Name') }} </th>
+                                <th width="15%">{{ __('Amount') }}</th>
+                                <th width="15%">{{ __('Status') }}</th>
                                 <th width="20%" class="text-end"> {{ __('Actions') }} </th>
                             </tr>
                         </thead>
@@ -128,6 +129,17 @@
                                 </td>
                                 <td>
                                     <span class="fw-bold text-dark" style="font-size: 15px;">{{ $value->name }}</span>
+                                    @if($value->districts && $value->districts->count() > 0)
+                                        <div class="small text-muted mt-1">
+                                            <i class="fe-map-pin me-1"></i>{{ $value->districts->count() }} area(s)
+                                            <span class="text-secondary ms-1">— {{ $value->districts->take(3)->pluck('area_name')->implode(', ') }}{{ $value->districts->count() > 3 ? '…' : '' }}</span>
+                                        </div>
+                                    @else
+                                        <div class="small text-muted mt-1">{{ __('Applies to all areas (no restriction)') }}</div>
+                                    @endif
+                                </td>
+                                <td>
+                                    <span class="fw-bold text-success">৳ {{ $value->amount }}</span>
                                 </td>
                                 <td>
                                     @if($value->status==1)

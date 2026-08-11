@@ -134,8 +134,8 @@
         <div class="d-flex justify-content-center gap-2">
             <a href="{{route('customer.orders')}}" class="btn btn-dark btn-sm rounded-pill px-4">
                <i class="fa fa-arrow-left me-1"></i>{{ __('Back') }}</a>
-            <button onclick="downloadPDF()" class="btn btn-primary btn-sm rounded-pill px-4 shadow-sm">
-                <i class="fa fa-download me-1"></i>{{ __('Download Invoice') }}</button>
+            <a href="{{ route('customer.order_invoice_pdf', $order->id) }}" class="btn btn-primary btn-sm rounded-pill px-4 shadow-sm">
+                <i class="fa fa-download me-1"></i>{{ __('Download Invoice') }}</a>
         </div>
     </div>
 
@@ -423,20 +423,5 @@
         });
     }
 })();
-</script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-<script>
-function downloadPDF() {
-    const element = document.getElementById('invoice-pdf-area');
-    const invoice_id = "{{ $order->invoice_id }}";
-    const opt = {
-        margin: [10, 10, 10, 10],
-        filename: 'Invoice-' + invoice_id + '.pdf',
-        image: { type: 'jpeg', quality: 0.98 },
-        html2canvas: { scale: 2, useCORS: true },
-        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-    };
-    html2pdf().set(opt).from(element).save();
-}
 </script>
 @endpush

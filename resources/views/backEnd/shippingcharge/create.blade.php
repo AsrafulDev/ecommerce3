@@ -2,6 +2,7 @@
 @section('title','Create Shipping Charge')
 
 @section('css')
+<link href="{{ asset('/public/backEnd/') }}/assets/libs/select2/css/select2.min.css" rel="stylesheet" type="text/css" />
 <style>
     /* 1. PROFESSIONAL CARD CONTAINER */
     .studio-card {
@@ -118,6 +119,20 @@
                         </div>
 
                         <div class="col-12">
+                            <label class="form-label-custom"> {{ __('Apply To (Districts / Areas)') }} <small class="text-muted fw-normal">{{ __('(Optional — select multiple)') }}</small></label>
+                            <select name="district_ids[]" id="district_ids" class="form-select input-clean" multiple data-placeholder="Select districts or areas...">
+                                @foreach($districts as $districtName => $areas)
+                                    <optgroup label="{{ $districtName }}">
+                                        @foreach($areas as $area)
+                                            <option value="{{ $area->id }}">{{ $area->area_name }} @if($area->area_name != $districtName)({{ $districtName }})@endif</option>
+                                        @endforeach
+                                    </optgroup>
+                                @endforeach
+                            </select>
+                            <small class="text-muted"> {{ __('This shipping fee will apply to the selected districts/areas at checkout.') }} </small>
+                        </div>
+
+                        <div class="col-12">
                             <label class="form-label-custom"> {{ __('Initial Status') }} </label>
                             <div class="status-toggle-box">
                                 <div class="status-text">
@@ -147,4 +162,16 @@
 <script src="{{asset('public/backEnd/')}}/assets/js/pages/form-validation.init.js"></script>
 <script src="{{asset('public/backEnd/')}}/assets/libs/select2/js/select2.min.js"></script>
 <script src="{{asset('public/backEnd/')}}/assets/js/pages/form-advanced.init.js"></script>
+<script>
+    $(function () {
+        if ($.fn.select2) {
+            $('#district_ids').select2({
+                placeholder: 'Select districts or areas...',
+                allowClear: true,
+                closeOnSelect: false,
+                width: '100%'
+            });
+        }
+    });
+</script>
 @endsection

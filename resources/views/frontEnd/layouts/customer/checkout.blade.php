@@ -532,18 +532,26 @@ if (typeof ttq !== 'undefined') {
                                     <div class="form-group">
                                         <label class="form-label-custom">{{ __('Delivery Area') }} *</label>
                                         @if($requires_shipping)
-                                            <select id="area" class="form-control-custom select2" name="area" required>
-                                                <option value="">{{ __('Select Area') }}...</option>
-                                                @foreach ($shippingcharge as $value)
-                                                    <option value="{{ $value->id }}" data-charge="{{ $value->amount }}"
-                                                        {{ Session::get('shipping_id') == $value->id ? 'selected' : '' }}>
-                                                        {{ $value->name }}
-                                                    </option>
-                                                @endforeach
-                                            </select>
+                                            <div class="row g-2">
+                                                <div class="col-md-6">
+                                                    <select id="district" class="form-control-custom select2" name="district" required>
+                                                        <option value="">{{ __('Select District') }}...</option>
+                                                        @foreach ($districts as $d)
+                                                            <option value="{{ $d }}" @if(old('district', Session::get('shipping_district')) == $d) selected @endif>{{ $d }}</option>
+                                                        @endforeach
+                                                    </select>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <select id="area" class="form-control-custom select2 area" name="area" required>
+                                                        <option value="">{{ __('Select Area') }}...</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <small class="text-muted">{{ __('Shipping fee is calculated from your selected area automatically.') }}</small>
                                         @else
                                             <input type="text" class="form-control-custom" value="Digital Product (No Shipping Charge)" readonly disabled style="background:#f3f4f6">
-                                            <input type="hidden" name="area" value="free_shipping"> 
+                                            <input type="hidden" name="area" value="free_shipping">
+                                            <input type="hidden" name="district" value="">
                                         @endif
                                     </div>
                                 </div>
@@ -910,6 +918,33 @@ if (typeof ttq !== 'undefined') {
         const requiresShipping = @json($requires_shipping ?? false);
         const cartItems = @json($cartItemsForJs ?? []);
         const hasAllFreeDelivery = @json($hasAllFreeDelivery ?? false);
+        const areaChargeMap = @json($areaChargeMap ?? []);
+        const prevDistrict = @json(Session::get('shipping_district'));
+        const prevArea = @json(Session::get('shipping_area_id'));
+
+        // ⭐ District → Area cascade loader
+        function loadAreasForDistrict(districtName) {
+            var $area = $('#area');
+            $area.empty().append('<option value="">Select Area...</option>');
+            if (!districtName) {
+                updateShippingAmounts(0);
+                return;
+            }
+            $.get('{{ route("districts") }}', { id: districtName }, function (res) {
+                if (res && res.length) {
+                    $.each(res, function (i, item) {
+                        var charge = (areaChargeMap[item.id] !== undefined) ? areaChargeMap[item.id] : 0;
+                        $area.append('<option value="' + item.id + '" data-charge="' + charge + '">' + item.area_name + '</option>');
+                    });
+                    if (prevArea) {
+                        $area.val(prevArea);
+                    }
+                    $area.trigger('change');
+                } else {
+                    updateShippingAmounts(0);
+                }
+            });
+        }
 
         // ⭐ Free Delivery Check Function
         function checkFreeDelivery() {
@@ -930,6 +965,28 @@ if (typeof ttq !== 'undefined') {
             return allFreeDelivery;
         }
 
+        // Shipping/total display update (shared by area change + page load)
+        function updateShippingAmounts(shippingCharge) {
+            var grandTotal = baseSubtotal + shippingCharge - baseDiscount + baseWarrantyCharge;
+            var dueAmount = hasAdvance ? (grandTotal - advanceAmount) : 0;
+
+            $('#shippingAmount').text('৳ ' + shippingCharge.toFixed(2));
+            $('#grandTotalAmount').text('৳ ' + grandTotal.toFixed(2));
+
+            if (hasAdvance) {
+                $('#dueAmountCell').text('৳ ' + dueAmount.toFixed(2));
+                $('#dueAmountText').text(dueAmount.toFixed(2));
+            }
+        }
+
+        // District পরিবর্তন হলে Area লোড
+        $('#district').on('change', function () {
+            var district = $(this).val();
+            loadAreasForDistrict(district);
+            $.get('{{ route("shipping.charge") }}', { id: 'area_clear' });
+            saveIncompleteOrder();
+        });
+
         // এরিয়া পরিবর্তন হলে শিপিং চার্জ আপডেট
         $('#area').on('change', function () {
             var selectedCharge = parseFloat($('option:selected', this).attr('data-charge')) || 0;
@@ -937,24 +994,14 @@ if (typeof ttq !== 'undefined') {
             // ⭐ Free Delivery Check - যদি সব প্রোডাক্ট free delivery eligible হয়, shipping charge 0
             var isFreeDelivery = checkFreeDelivery();
             var shippingCharge = isFreeDelivery ? 0 : selectedCharge;
-            
-            var grandTotal = baseSubtotal + shippingCharge - baseDiscount + baseWarrantyCharge;
-            var dueAmount = hasAdvance ? (grandTotal - advanceAmount) : 0;
 
-            // টেক্সট আপডেট
-            $('#shippingAmount').text('৳ ' + shippingCharge.toFixed(2));
-            $('#grandTotalAmount').text('৳ ' + grandTotal.toFixed(2));
-            
-            if (hasAdvance) {
-                $('#dueAmountCell').text('৳ ' + dueAmount.toFixed(2));
-                $('#dueAmountText').text(dueAmount.toFixed(2));
-            }
+            updateShippingAmounts(shippingCharge);
 
             // ব্যাকএন্ডে শিপিং চার্জ সেট করা (free delivery হলে 0 পাঠাবে)
             if (isFreeDelivery) {
                 $.get('{{ route("shipping.charge") }}', { id: 'free_delivery' });
             } else {
-                $.get('{{ route("shipping.charge") }}', { id: $(this).val() });
+                $.get('{{ route("shipping.charge") }}', { id: $(this).val(), type: 'area' });
             }
             
             // এরিয়া চেঞ্জ করলেও ইনকমপ্লিট অর্ডার আপডেট হবে (যদি নাম/ফোন/ঠিকানা থাকে)
@@ -967,34 +1014,18 @@ if (typeof ttq !== 'undefined') {
             var isFreeDeliveryOnLoad = hasAllFreeDelivery || checkFreeDelivery();
             
             if (isFreeDeliveryOnLoad) {
-                var shippingCharge = 0;
-                var grandTotal = baseSubtotal + shippingCharge - baseDiscount + baseWarrantyCharge;
-                var dueAmount = hasAdvance ? (grandTotal - advanceAmount) : 0;
-
-                // টেক্সট আপডেট
-                $('#shippingAmount').text('৳ ' + shippingCharge.toFixed(2));
-                $('#grandTotalAmount').text('৳ ' + grandTotal.toFixed(2));
-                
-                if (hasAdvance) {
-                    $('#dueAmountCell').text('৳ ' + dueAmount.toFixed(2));
-                    $('#dueAmountText').text(dueAmount.toFixed(2));
-                }
-
-                // ব্যাকএন্ডে শিপিং চার্জ 0 সেট করা
+                updateShippingAmounts(0);
                 $.get('{{ route("shipping.charge") }}', { id: 'free_delivery' });
             } else {
                 // Free delivery না হলে current shipping charge use করবে
                 var currentShipping = parseFloat($('#shippingAmount').text().replace(/[৳,\s]/g, '').trim()) || 0;
-                var grandTotal = baseSubtotal + currentShipping - baseDiscount + baseWarrantyCharge;
-                var dueAmount = hasAdvance ? (grandTotal - advanceAmount) : 0;
-                
-                // Grand total update
-                $('#grandTotalAmount').text('৳ ' + grandTotal.toFixed(2));
-                
-                if (hasAdvance) {
-                    $('#dueAmountCell').text('৳ ' + dueAmount.toFixed(2));
-                    $('#dueAmountText').text(dueAmount.toFixed(2));
-                }
+                updateShippingAmounts(currentShipping);
+            }
+
+            // আগের নির্বাচিত district থাকলে সেটা restore করে area লোড
+            if (prevDistrict) {
+                $('#district').val(prevDistrict);
+                loadAreasForDistrict(prevDistrict);
             }
         });
 

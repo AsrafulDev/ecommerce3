@@ -361,10 +361,13 @@
                                 </div>
                             </div>
                             
-                            {{-- Download Invoice button — opens detailed invoice in new tab --}}
+                            {{-- Download Invoice PDF (Dompdf) — same as order-success download --}}
                             <div class="text-end mt-4">
-                                <a href="{{ route('customer.order_invoice_download', $value->id) }}" target="_blank" class="btn-print">
-                                    <i class="fas fa-download me-1"></i> Download Invoice
+                                <a href="{{ route('customer.order_invoice_pdf', $value->id) }}" class="btn-print">
+                                    <i class="fas fa-download me-1"></i> Download Invoice (PDF)
+                                </a>
+                                <a href="{{ route('customer.order_invoice_download', $value->id) }}" target="_blank" class="btn-print ms-2">
+                                    <i class="fas fa-eye me-1"></i> View
                                 </a>
                                 <button onclick="window.print()" class="btn-print ms-2">
                                     <i class="fas fa-print me-1"></i> Print

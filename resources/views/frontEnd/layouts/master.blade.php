@@ -1996,14 +1996,12 @@ document.getElementById("chatToggle").addEventListener("click", function() {
                     data: { id: id },
                     url: "{{route('districts')}}",
                     success: function (res) {
-                        if (res) {
-                            $(".area").empty();
-                            $(".area").append('<option value="">Select..</option>');
-                            $.each(res, function (key, value) {
-                                $(".area").append('<option value="' + key + '" >' + value + "</option>");
+                        $(".area").empty();
+                        $(".area").append('<option value="">Select..</option>');
+                        if (res && res.length) {
+                            $.each(res, function (i, item) {
+                                $(".area").append('<option value="' + item.id + '" >' + item.area_name + "</option>");
                             });
-                        } else {
-                            $(".area").empty();
                         }
                     },
                 });

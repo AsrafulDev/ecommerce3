@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\ShippingCharge;
+use App\Models\District;
 use Toastr;
 
 class ShippingChargeController extends Controller
@@ -19,48 +20,78 @@ class ShippingChargeController extends Controller
 
     public function index(Request $request)
     {
-        $show_data = ShippingCharge::orderBy('id', 'ASC')->get();
+        $show_data = ShippingCharge::with('districts')->orderBy('id', 'ASC')->get();
         return view('backEnd.shippingcharge.index', compact('show_data'));
     }
+
     public function create()
     {
-        return view('backEnd.shippingcharge.create');
+        $districts = District::orderBy('district')->orderBy('area_name')->get()
+            ->groupBy('district')->sortKeys();
+        return view('backEnd.shippingcharge.create', compact('districts'));
     }
+
     public function store(Request $request)
     {
         $this->validate($request, [
             'name' => 'required',
-            'status' => 'required',
+            'amount' => 'required|numeric|min:0',
+            'status' => 'nullable',
         ]);        
 
-        $input = $request->all();
-        $input['status'] = $request->status?1:0;
-        // dd($input);
-        ShippingCharge::create($input);
+        $input = [
+            'name'   => $request->name,
+            'amount' => $request->amount,
+            'status' => $request->status ? 1 : 0,
+        ];
+        $charge = ShippingCharge::create($input);
+
+        // Optional: attach multiple districts/areas
+        $this->syncDistricts($charge, $request->district_ids);
+
         Toastr::success('Success', 'Data insert successfully');
         return redirect()->route('shippingcharges.index');
     }
 
     public function edit($id)
     {
-        $edit_data = ShippingCharge::find($id);
-        return view('backEnd.shippingcharge.edit', compact('edit_data'));
+        $edit_data = ShippingCharge::with('districts')->find($id);
+        $districts = District::orderBy('district')->orderBy('area_name')->get()
+            ->groupBy('district')->sortKeys();
+        $selectedDistrictIds = $edit_data ? $edit_data->districts->pluck('id')->all() : [];
+        return view('backEnd.shippingcharge.edit', compact('edit_data', 'districts', 'selectedDistrictIds'));
     }
 
     public function update(Request $request)
     {
         $this->validate($request, [
             'name' => 'required',
-            'status' => 'required',
+            'amount' => 'required|numeric|min:0',
+            'status' => 'nullable',
         ]);
         $update_data = ShippingCharge::find($request->id);
 
-        $input = $request->all();       
-        $input['status'] = $request->status?1:0;
+        $input = [
+            'name'   => $request->name,
+            'amount' => $request->amount,
+            'status' => $request->status ? 1 : 0,
+        ];
         $update_data->update($input);
+
+        // Optional: attach multiple districts/areas
+        $this->syncDistricts($update_data, $request->district_ids);
 
         Toastr::success('Success', 'Data update successfully');
         return redirect()->route('shippingcharges.index');
+    }
+
+    /**
+     * Sync the selected district/area ids onto the charge (empty => detach all).
+     */
+    protected function syncDistricts(ShippingCharge $charge, $districtIds)
+    {
+        $ids = is_array($districtIds) ? array_map('intval', $districtIds) : [];
+        $charge->districts()->sync($ids);
     }
 
     public function inactive(Request $request)

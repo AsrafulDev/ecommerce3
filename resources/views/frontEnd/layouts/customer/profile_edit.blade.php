@@ -173,12 +173,14 @@ $(document).ready(function() {
     $('#district').on('change', function() {
         var district = $(this).val();
         if (district) {
-            $.ajax({ url: '/get-area/' + district, type: 'GET', dataType: 'json',
+            $.ajax({ url: "{{ route('districts') }}", type: 'GET', data: { id: district }, dataType: 'json',
                 success: function(data) {
                     $('#area').empty().append('<option value="">Select...</option>');
-                    $.each(data, function(key, value) {
-                        $('#area').append('<option value="'+ value.id +'">'+ value.area_name +'</option>');
-                    });
+                    if (data && data.length) {
+                        $.each(data, function(i, item) {
+                            $('#area').append('<option value="'+ item.id +'">'+ item.area_name +'</option>');
+                        });
+                    }
                 }
             });
         }

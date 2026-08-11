@@ -4,7 +4,7 @@
         <div class="row g-4">
             {{-- About --}}
             <div class="col-lg-3 col-md-6">
-                <img src="{{ asset($generalsetting->dark_logo ?? 'public/assets/images/CurlBazar.png') }}" alt="Logo" style="max-height:40px;filter:brightness(10);" class="mb-3">
+                <img src="{{ asset($generalsetting->dark_logo ?? 'public/assets/images/CurlBazar.png') }}" alt="Logo" style="max-height:40px;" class="mb-3">
                 <p class="small text-white-50">{{ $generalsetting->footer_about_text ?? 'Your trusted online store.' }}</p>
                 <a href="tel:{{ $contact->hotline ?? '' }}" class="text-white-50 small">{{ $contact->hotline ?? '' }}</a>
                 <div class="mt-2 d-flex gap-2">
@@ -18,7 +18,7 @@
             {{-- Quick Links --}}
             <div class="col-lg-2 col-md-6">
                 <h6 class="text-uppercase mb-3">{{ __('Quick Links') }}</h6>
-                <ul class="list-unstyled small">
+                <ul class="row list-unstyled small">
                     <li class="mb-1"><a href="{{ route('home') }}" class="text-white-50 text-decoration-none">{{ __('Home') }}</a></li>
                     <li class="mb-1"><a href="{{ route('shop') }}" class="text-white-50 text-decoration-none">Shop</a></li>
                     <li class="mb-1"><a href="{{ route('hotdeals') }}" class="text-white-50 text-decoration-none">{{ __('Hot Deals') }}</a></li>
@@ -29,15 +29,39 @@
             {{-- Customer Service --}}
             <div class="col-lg-2 col-md-6">
                 <h6 class="text-uppercase mb-3">{{ __('Support') }}</h6>
-                <ul class="list-unstyled small">
+                <ul class="row list-unstyled small">
                     <li class="mb-1"><a href="{{ route('contact') }}" class="text-white-50 text-decoration-none">{{ __('Contact Us') }}</a></li>
-                    <li class="mb-1"><a href="#" class="text-white-50 text-decoration-none">{{ __('FAQ') }}</a></li>
-                    <li class="mb-1"><a href="#" class="text-white-50 text-decoration-none">{{ __('Shipping') }}</a></li>
-                    <li class="mb-1"><a href="#" class="text-white-50 text-decoration-none">Returns</a></li>
+                    <li class="mb-1"><a href="{{ route('customer.orders') }}" class="text-white-50 text-decoration-none">{{ __('My Orders') }}</a></li>
+                    <li class="mb-1"><a href="{{ route('customer.order_track') }}" class="text-white-50 text-decoration-none">{{ __('Track Order') }}</a></li>
                 </ul>
             </div>
+            {{-- Pages --}}
+            @if($pages->count() > 0)
+            <div class="col-lg-2 col-md-6">
+                <h6 class="text-uppercase mb-3">{{ __('Pages') }}</h6>
+                <ul class="row list-unstyled small">
+                    @foreach($pages as $page)
+                        <li class="mb-1"><a href="{{ route('page', $page->slug) }}" class="text-white-50 text-decoration-none">{{ $page->title }}</a></li>
+                    @endforeach
+                </ul>
+            </div>
+            @endif
             {{-- Newsletter --}}
             <div class="col-lg-5 col-md-6">
+                @if(($contact->hotline ?? false) || ($contact->email ?? false) || ($contact->address ?? false))
+                <div class="mb-3">
+                    <h6 class="text-uppercase mb-3">{{ __('Contact') }}</h6>
+                    @if($contact->hotline ?? false)
+                        <p class="small text-white-50 mb-1"><i class="fa-solid fa-phone me-2"></i> {{ $contact->hotline ?? '' }}</p>
+                    @endif
+                    @if($contact->email ?? false)
+                        <p class="small text-white-50 mb-1"><i class="fa-solid fa-envelope me-2"></i> {{ $contact->email ?? '' }}</p>
+                    @endif
+                    @if($contact->address ?? false)
+                        <p class="small text-white-50 mb-1"><i class="fa-solid fa-location-dot me-2"></i> {{ $contact->address ?? '' }}</p>
+                    @endif
+                </div>
+                @endif
                 <h6 class="text-uppercase mb-3">{{ __('Newsletter') }}</h6>
                 <p class="small text-white-50">Subscribe for exclusive offers & updates.</p>
                 <form class="d-flex gap-2">

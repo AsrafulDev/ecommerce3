@@ -23,6 +23,7 @@ use App\Models\GeneralSetting;
 use App\Models\IncompleteOrder;
 use App\Models\Product;          // স্টক কমানোর জন্য
 use App\Models\DigitalDownload;  // ⭐ ডিজিটাল ডাউনলোড মডেল
+use Barryvdh\DomPDF\Facade\Pdf;  // 📄 ইনভয়েস PDF ডাউনলোড
 
 use Session;
 use Hash;
@@ -48,7 +49,8 @@ class CustomerController extends Controller
             'register','store','verify','resendotp','account_verify',
             'login','signin','logout','checkout','forgot_password',
             'forgot_verify','forgot_reset','forgot_store','forgot_resend',
-            'order_save','order_success','order_track','order_track_result'
+            'order_save','order_success','order_track','order_track_result',
+            'downloadInvoicePdf'
         ]]);
     }
 
@@ -331,15 +333,28 @@ class CustomerController extends Controller
     public function checkout()
     {
         $shippingcharge = ShippingCharge::where('status',1)->get();
-        $select_charge = ShippingCharge::where('status',1)->first();
         $bkash_gateway = PaymentGateway::where(['status'=> 1, 'type'=>'bkash'])->first();
         $shurjopay_gateway = PaymentGateway::where(['status'=> 1, 'type'=>'shurjopay'])->first();
         $uddoktapay_gateway = PaymentGateway::where(['status'=> 1, 'type'=>'uddoktapay'])->first();
         $aamarpay_gateway = PaymentGateway::where(['status'=> 1, 'type'=>'aamarpay'])->first();
 
+        // ⭐ Districts for the district → area shipping selector
+        $districts = District::distinct()->orderBy('district')->pluck('district');
+
+        // ⭐ area_id → shipping fee map (resolved through the shipping_charge_district pivot)
+        $areaChargeMap = District::with('shippingCharges')->get()
+            ->mapWithKeys(function ($area) {
+                $charge = $area->shippingCharges->where('status', 1)->first();
+                return [$area->id => (float) ($charge->amount ?? 0)];
+            });
+
         // ⭐ Free Delivery Check - যদি সব প্রোডাক্ট free delivery eligible হয়, shipping charge 0
+        // ⭐ Advance Check - যদি কার্টে advance amount > 0 থাকে, তাহলে advance payment option দেখানো হবে
+        // ⭐ Digital Product Check - যদি কার্টে ডিজিটাল প্রোডাক্ট থাকে, তাহলে COD অপশন hide করা হবে
+        // ⭐ Display-only initial shipping (from session). SECURITY: the final charged fee is
+        //   ALWAYS recomputed from the DB in order_save() — never from this session value.
         $hasAllFreeDelivery = \App\Http\Controllers\Frontend\ShoppingController::hasAllFreeDeliveryProducts();
-        $shippingAmount = $hasAllFreeDelivery ? 0 : ($select_charge->amount ?? 0);
+        $shippingAmount = $hasAllFreeDelivery ? 0 : (float) Session::get('shipping', 0);
         Session::put('shipping', $shippingAmount);
 
         $advanceTotal = \App\Http\Controllers\Frontend\ShoppingController::getCartAdvanceAmount();
@@ -383,6 +398,8 @@ class CustomerController extends Controller
 
         return view('frontEnd.layouts.customer.checkout',compact(
             'shippingcharge',
+            'districts',
+            'areaChargeMap',
             'bkash_gateway',
             'shurjopay_gateway',
             'uddoktapay_gateway',
@@ -475,13 +492,32 @@ public function order_save(Request $request)
         // ⭐ Free Delivery Check - যদি সব প্রোডাক্ট free delivery eligible হয়, shipping charge 0
         $hasAllFreeDelivery = \App\Http\Controllers\Frontend\ShoppingController::hasAllFreeDeliveryProducts();
         $shipping_area = null;
+        $shippingAreaRow = null;
         
         if ($hasAllFreeDelivery) {
             $shippingfee = 0;
             Session::put('shipping', 0);
         } else {
-            $shipping_area = ShippingCharge::where('id', $request->area)->first();
-            $shippingfee = $shipping_area ? $shipping_area->amount : Session::get('shipping', 0);
+            // ✅ SECURITY: final shipping fee ALWAYS resolved server-side from DB.
+            // NEVER trust Session::get('shipping') for the charged amount — a user
+            // could manipulate their session / AJAX to set it to anything.
+            $shippingAreaRow = null;
+            $shipping_area   = null;
+
+            if (is_numeric($request->area)) {
+                // (a) Checkout: area = district/area row id → fee via shipping_charge_district pivot
+                $shippingAreaRow = District::find((int) $request->area);
+                if ($shippingAreaRow) {
+                    $shipping_area = $shippingAreaRow->shippingCharges()->where('status', 1)->first();
+                }
+                // (b) Legacy (campaign page): area = ShippingCharge id
+                if (!$shipping_area) {
+                    $shipping_area = ShippingCharge::where('id', (int) $request->area)->where('status', 1)->first();
+                }
+            }
+
+            // (c) No charge linked to the area → 0 (NOT the session value)
+            $shippingfee = $shipping_area ? (float) $shipping_area->amount : 0;
             Session::put('shipping', $shippingfee);
         }
 
@@ -551,7 +587,9 @@ public function order_save(Request $request)
         $shipping->phone       = $request->phone;
         $shipping->address     = $request->address;
         
-        if ($shipping_area) {
+        if ($shippingAreaRow) {
+            $shipping->area = $shippingAreaRow->area_name . ', ' . $shippingAreaRow->district;
+        } elseif ($shipping_area) {
             $shipping->area = $shipping_area->name;
         } else {
             $shipping->area = 'Digital / Free Shipping';
@@ -797,6 +835,25 @@ public function order_save(Request $request)
             ->firstOrFail();
 
         return view('frontEnd.layouts.customer.invoice',compact('order'));
+    }
+
+    /**
+     * 📄 Direct PDF download of the customer invoice (Dompdf).
+     */
+    public function downloadInvoicePdf($id)
+    {
+        $order = Order::where('id', $id)
+            ->with(['orderdetails.size', 'orderdetails.color', 'payment', 'shipping', 'customer'])
+            ->firstOrFail();
+
+        // No authorization — direct download (public invoice link, same as order tracking)
+        $generalsetting = \App\Models\GeneralSetting::where('status', 1)->first();
+        $contact = \App\Models\Contact::where('status', 1)->first();
+
+        $pdf = Pdf::loadView('frontEnd.layouts.customer.invoice_pdf', compact('order', 'generalsetting', 'contact'))
+                  ->setPaper('a4', 'portrait');
+
+        return $pdf->download('Invoice-' . $order->invoice_id . '.pdf');
     }
 
     public function order_note(Request $request)
