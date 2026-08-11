@@ -132,7 +132,7 @@
                         <div class="mt-4 pt-3 border-top">
                             <p class="text-muted small mb-2">ডেমো একাউন্ট</p>
                             <div class="d-flex gap-2 align-items-center flex-wrap">
-                                <input type="text" class="form-control form-control-sm" id="demo-email" value="info@creativedesign.com.bd" readonly style="flex:1;min-width:0;">
+                                <input type="text" class="form-control form-control-sm" id="demo-email" value="info@softmit.xyz" readonly style="flex:1;min-width:0;">
                                 <input type="text" class="form-control form-control-sm" id="demo-password" value="12345678" readonly style="width:100px;">
                                 <button type="button" class="btn btn-outline-primary btn-sm" onclick="fillDemoCreds()">Use</button>
                             </div>

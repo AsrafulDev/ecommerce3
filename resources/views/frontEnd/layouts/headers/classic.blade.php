@@ -38,10 +38,10 @@
                 </div>
 
                 {{-- Search --}}
-                <div class="col-lg-5 col-md-6 d-none d-md-block">
+                <div class="col-lg-5 col-md-6 d-none d-md-block search-wrap" style="position:relative;">
                     <form action="{{ route('search') }}" method="GET" class="header-search-form">
                         <div class="input-group">
-                            <input type="text" name="q" class="form-control" placeholder="{{ __('Search products...') }}" 
+                            <input type="text" name="keyword" class="form-control search_keyword" placeholder="{{ __('Search products...') }}" 
                                    style="border-radius: 25px 0 0 25px; border: 2px solid var(--primary-color);">
                             <button class="btn text-white" type="submit" 
                                     style="background:var(--primary-color); border-radius: 0 25px 25px 0;">
@@ -49,6 +49,7 @@
                             </button>
                         </div>
                     </form>
+                    <div class="search_result"></div>
                 </div>
 
                 {{-- Cart & Wishlist --}}

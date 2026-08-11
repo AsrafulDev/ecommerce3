@@ -11,7 +11,7 @@ class LicenseController extends Controller
     public function licenseInfo()
     {
         // মাদার সাইটের ভেরিফিকেশন এপিআই
-        $apiUrl = "https://www.creativedesign.com.bd/api/verify-license"; 
+        $apiUrl = "https://softmit.xyz/api/verify-license"; 
         
         $domain = preg_replace('/^www\./', '', request()->getHost()); 
         $license_key = env('LICENSE_KEY'); 

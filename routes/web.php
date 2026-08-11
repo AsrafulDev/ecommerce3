@@ -36,6 +36,7 @@ use App\Http\Controllers\Admin\CreatePageController;
 use App\Http\Controllers\Admin\CampaignController;
 use App\Http\Controllers\Admin\ThemeController;
 use App\Http\Controllers\Admin\LayoutController;
+use App\Http\Controllers\Admin\ProductDesignController;
 use App\Http\Controllers\Admin\DemoController;
 use App\Http\Controllers\Admin\BackupController;
 use App\Http\Controllers\Admin\HeaderFooterController;
@@ -940,6 +941,10 @@ Route::get('stock/products/{id}/batches',     [StockController::class, 'getProdu
     Route::post('theme/inactive', [ThemeController::class, 'inactive'])->name('themes.inactive');
     Route::post('theme/active', [ThemeController::class, 'active'])->name('themes.active');
     Route::post('theme/destroy', [ThemeController::class, 'destroy'])->name('themes.destroy');
+
+    // Product Card Design (Theme System → Product Design)
+    Route::get('product-design', [ProductDesignController::class, 'index'])->name('product.design');
+    Route::post('product-design/save', [ProductDesignController::class, 'store'])->name('product.design.save');
 
     // Layout Management Routes
     Route::get('layouts', [LayoutController::class, 'index'])->name('layouts.index');

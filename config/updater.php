@@ -12,7 +12,7 @@ return [
     |
     */
 
-    'api_url' => env('UPDATE_API_URL', 'https://www.creativedesign.com.bd'),
+    'api_url' => env('UPDATE_API_URL', 'https://softmit.xyz'),
 
     /*
     |--------------------------------------------------------------------------

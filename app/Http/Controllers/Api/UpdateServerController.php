@@ -221,7 +221,7 @@ class UpdateServerController extends Controller
             
             // Try to get checksum from remote server first
             try {
-                $remoteChecksumUrl = 'https://www.creativedesign.com.bd/api/updates/checksum/' . $version;
+                $remoteChecksumUrl = 'https://softmit.xyz/api/updates/checksum/' . $version;
                 $checksumResponse = Http::withoutVerifying()
                     ->timeout(10)
                     ->get($remoteChecksumUrl);
@@ -269,7 +269,7 @@ class UpdateServerController extends Controller
                 ->asJson()
                 ->acceptJson()
                 ->timeout(10)
-                ->post('https://www.creativedesign.com.bd/api/verify-license', [
+                ->post('https://softmit.xyz/api/verify-license', [
                     'domain' => $domain,
                     'license_key' => $licenseKey,
                 ]);
@@ -347,7 +347,7 @@ class UpdateServerController extends Controller
         
         // Try to get file size from remote server
         try {
-            $remoteSizeUrl = 'https://www.creativedesign.com.bd/api/updates/size/' . $version;
+            $remoteSizeUrl = 'https://softmit.xyz/api/updates/size/' . $version;
             $sizeResponse = Http::withoutVerifying()
                 ->timeout(10)
                 ->get($remoteSizeUrl);
@@ -374,12 +374,12 @@ class UpdateServerController extends Controller
     }
 
     /**
-     * Get download URL for update file from creativedesign.com.bd
+     * Get download URL for update file from softmit.xyz
      */
     private function getDownloadUrl(string $version): ?string
     {
-        // Primary: Download from creativedesign.com.bd update server
-        $remoteUrl = 'https://www.creativedesign.com.bd/api/updates/file/' . $version;
+        // Primary: Download from softmit.xyz update server
+        $remoteUrl = 'https://softmit.xyz/api/updates/file/' . $version;
         
         // Optionally check if file exists on remote server
         // For now, we'll return the remote URL directly

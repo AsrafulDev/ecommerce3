@@ -19,7 +19,7 @@
                         <div>
                             <div class="text-center ">
                                 <a href="{{ route('category', $value->slug) }}">
-                                    <img class="" src="{{ asset($value->image) }}" alt="" style="border: 2px solid #3c7d17; border-radius: 50%; width: 100%; height: auto;" />
+                                    <img class="" src="{{ asset($value->image) }}" alt="" style="border: 2px solid var(--primary-color, #f04e23); border-radius: 50%; width: 100%; height: auto;" />
                                 </a>
                             </div>
                             <div class="text-center cat_name_style">

@@ -12,7 +12,7 @@
 
         <link rel="shortcut icon" href="{{asset($generalsetting->favicon)}}" alt="{{$generalsetting->name}} Favicon" />
         <meta name="author" content="Creative Design" />
-        <link rel="canonical" href="https://creativedesign.com.bd" />
+        <link rel="canonical" href="{{ url()->current() }}" />
         @stack('seo') 
         @stack('css')
         <link rel="stylesheet" href="{{asset('public/frontEnd/css/bootstrap.min.css')}}" />
@@ -26,10 +26,10 @@
         <link rel="stylesheet" href="{{asset('public/backEnd/')}}/assets/css/toastr.min.css" />
 
         <link rel="stylesheet" href="{{asset('public/frontEnd/css/wsit-menu.css')}}" />
-<link rel="stylesheet" href="{{ url('/style.css') }}?v={{ time() }}">
-<link rel="stylesheet" href="{{ url('/dynamic-theme.css') }}?v={{ $activeTheme->updated_at->timestamp ?? time() }}">        
-<link rel="stylesheet" href="{{ url('/responsive.css') }}?v={{ time() }}">
-        <link rel="stylesheet" href="{{asset('public/frontEnd/css/main.css')}}" />
+        <link rel="stylesheet" href="{{ url('/style.css') }}?v={{ time() }}">
+        <link rel="stylesheet" href="{{ url('/dynamic-theme.css') }}?v={{ $activeTheme->updated_at->timestamp ?? time() }}">        
+        <link rel="stylesheet" href="{{ url('/responsive.css') }}?v={{ time() }}">
+                <link rel="stylesheet" href="{{asset('public/frontEnd/css/main.css')}}" />
 
         <meta name="facebook-domain-verification" content="{{$generalsetting->facebook_verification}}" />
         <meta name="google-site-verification" content="{{$generalsetting->google_verification}}" />
@@ -90,6 +90,11 @@
                 --layout-style: {{ $activeTheme->layout_style ?? 'contained' }};
             }
 		</style> 
+
+		{{-- 🎨 Product Card Design Styles (Theme System → Product Design) --}}
+		@include('frontEnd.layouts.sections.product-card-styles')
+		{{-- 📐 Product Card Responsive Layout (rows per device + title lines) --}}
+		@include('frontEnd.layouts.sections.product-card-layout')
 		
 
         @php
@@ -466,7 +471,8 @@
         </style>
         {!! $generalsetting->header_code !!}
     </head>
-    <body class="gotop">
+    @php $pcPageContext = request()->route() && request()->route()->getName() === 'home' ? 'pc-home' : 'pc-other'; @endphp
+    <body class="gotop product-card-{{ $generalsetting->product_card_style ?? 'default' }} {{ $pcPageContext }}">
        
         @php $subtotal = Cart::instance('shopping')->subtotal(); @endphp
         <div class="mobile-menu">
@@ -1953,36 +1959,39 @@ document.getElementById("chatToggle").addEventListener("click", function() {
         </script>
         <!-- cart js end -->
         <script>
-            $(".search_click").on("keyup change", function () {
-                var keyword = $(".search_keyword").val();
+            // ⚡ Live Search — works on EVERY header search box (.search_keyword).
+            // Per-input scoped: the dropdown is filled only inside the nearest
+            // .search-wrap / .main-search / .mobile-search container.
+            $(document).on("input keyup", ".search_keyword", function () {
+                var $input = $(this);
+                var keyword = $.trim($input.val());
+                var $wrap = $input.closest(".search-wrap, .main-search, .mobile-search, .header-search-area");
+                var $result = $wrap.length ? $wrap.find(".search_result").first() : $();
+
+                // clear other dropdowns so only the active one shows results
+                $(".search_result").not($result).empty();
+
+                if (!keyword.length) { $result.empty(); return; }
+
                 $.ajax({
                     type: "GET",
                     data: { keyword: keyword },
                     url: "{{route('livesearch')}}",
-                    success: function (products) {
-                        if (products) {
-                            $(".search_result").html(products);
+                    success: function (html) {
+                        if ($.trim($input.val()) !== keyword) return; // stale response guard
+                        if (html && html.trim().length) {
+                            $result.html(html);
                         } else {
-                            $(".search_result").empty();
+                            $result.empty();
                         }
                     },
                 });
             });
-            $(".msearch_click").on("keyup change", function () {
-                var keyword = $(".msearch_keyword").val();
-                $.ajax({
-                    type: "GET",
-                    data: { keyword: keyword },
-                    url: "{{route('livesearch')}}",
-                    success: function (products) {
-                        if (products) {
-                            $("#loading").hide();
-                            $(".search_result").html(products);
-                        } else {
-                            $(".search_result").empty();
-                        }
-                    },
-                });
+            // Hide live-search dropdowns when clicking outside any search box
+            $(document).on("click", function (e) {
+                if (!$(e.target).closest(".search-wrap, .main-search, .mobile-search, .header-search-area").length) {
+                    $(".search_result").empty();
+                }
             });
         </script>
         <!-- search js start -->

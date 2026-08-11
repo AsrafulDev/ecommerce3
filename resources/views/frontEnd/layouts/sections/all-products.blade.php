@@ -15,7 +15,7 @@
                 </div>
             </div>
             <div class="col-sm-12">
-                <div class="category-product main_product_inner">
+                <div class="category-product main_product_inner pt-2">
                     @foreach($all_products as $key => $value)
                         @include('frontEnd.layouts.sections.product-card', ['product' => $value])
                     @endforeach

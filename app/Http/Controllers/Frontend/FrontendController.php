@@ -992,32 +992,36 @@ $brands = Brand::where('status', 1)
 
     public function livesearch(Request $request)
     {
+        $keyword = $request->keyword ?? $request->q ?? '';
+
         $products = Product::select('id', 'name', 'slug', 'new_price', 'old_price','stock')
             ->where('status', 1)
             ->where('approval_status', 'approved')
             ->with('image');
-        if ($request->keyword) {
-            $products = $products->where('name', 'LIKE', '%' . $request->keyword . "%");
+        if ($keyword) {
+            $products = $products->where('name', 'LIKE', '%' . $keyword . "%");
         }
         if ($request->category) {
             $products = $products->where('category_id', $request->category);
         }
         $products = $products->get();
 
-        if (empty($request->category) && empty($request->keyword)) {
-            $products = [];
+        if (empty($request->category) && empty($keyword)) {
+            $products = collect();
         }
         return view('frontEnd.layouts.ajax.search', compact('products'));
     }
 
     public function search(Request $request)
     {
+        $keyword = $request->keyword ?? $request->q ?? '';
+
         $products = Product::select('id', 'name', 'slug', 'new_price', 'old_price','stock')
             ->where('status', 1)
             ->where('approval_status', 'approved')
             ->with('image');
-        if ($request->keyword) {
-            $products = $products->where('name', 'LIKE', '%' . $request->keyword . "%");
+        if ($keyword) {
+            $products = $products->where('name', 'LIKE', '%' . $keyword . "%");
         }
         if ($request->category) {
             $products = $products->where('category_id', $request->category);
@@ -1047,7 +1051,7 @@ $brands = Brand::where('status', 1)
         }
 
         $products = $products->paginate(36);
-        $keyword = $request->keyword ?? '';
+        $keyword = $request->keyword ?? $request->q ?? '';
 
         // Facebook CAPI Search (server-side)
         if (!empty($keyword)) {

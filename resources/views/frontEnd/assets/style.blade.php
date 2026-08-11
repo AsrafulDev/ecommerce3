@@ -660,6 +660,36 @@ li.Newsletter i {
     font-weight: 600;
 }
 
+/* live-search footer + empty state */
+.search_view_all {
+    display: block;
+    text-align: center;
+    padding: 10px;
+    background: var(--primary-color);
+    color: #fff;
+    font-size: 13px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: 0.3s all;
+}
+.search_view_all:hover {
+    opacity: 0.85;
+    color: #fff;
+}
+.search_empty {
+    padding: 18px 15px;
+    text-align: center;
+    color: #666;
+    font-size: 14px;
+}
+.search_empty i {
+    margin-right: 6px;
+    color: var(--primary-color);
+}
+.search_empty strong {
+    color: #333;
+}
+
 .mobile-show {
     display: none !important;
 }
@@ -3219,7 +3249,7 @@ section.product-inner {
 }
 
 .product_item_inner .sale-badge-box {
-    background-color: #FF0034;
+    background-color: var(--sale-badge-bg, #FF0034);
     border-radius: 50%;
     height: 100%;
     width: 100%;
@@ -3229,7 +3259,7 @@ section.product-inner {
 }
 
 .product_item_inner span.sale-badge-text {
-    color: #fff;
+    color: var(--sale-badge-text, #fff);
     font-size: 10px;
     font-weight: 600;
     font-family: "Lato", sans-serif;
@@ -3429,7 +3459,7 @@ section.product-inner {
 }
 
 .pro_price del {
-    color: blue;
+    color: var(--secondary-color, blue);
     margin-right: 5px;
     font-size: 14px;
     font-weight: 400;

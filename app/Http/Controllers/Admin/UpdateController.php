@@ -20,12 +20,12 @@ class UpdateController extends Controller
     /**
      * API endpoint for license verification
      */
-    private const LICENSE_API_URL = 'https://www.creativedesign.com.bd/api/verify-license';
+    private const LICENSE_API_URL = 'https://softmit.xyz/api/verify-license';
 
     /**
      * Script Update API - Single endpoint (documentation format)
      */
-    private const CHECK_UPDATE_URL = 'https://www.creativedesign.com.bd/api/check-update';
+    private const CHECK_UPDATE_URL = 'https://softmit.xyz/api/check-update';
 
     /**
      * Cache key for license validation
@@ -35,7 +35,7 @@ class UpdateController extends Controller
     /**
      * Master domain that doesn't require license validation
      */
-    private const MASTER_DOMAIN = 'creativedesign.com.bd';
+    private const MASTER_DOMAIN = 'softmit.xyz';
 
     /**
      * Local environments that don't require license validation
@@ -58,7 +58,7 @@ class UpdateController extends Controller
     private function getUpdateSettings(): array
     {
         $setting = GeneralSetting::where('status', 1)->first();
-        $apiUrl = ($setting && isset($setting->update_api_url) && trim($setting->update_api_url) !== '') ? trim($setting->update_api_url) : (env('UPDATE_API_URL') ? env('UPDATE_API_URL') : config('updater.api_url', 'https://www.creativedesign.com.bd'));
+        $apiUrl = ($setting && isset($setting->update_api_url) && trim($setting->update_api_url) !== '') ? trim($setting->update_api_url) : (env('UPDATE_API_URL') ? env('UPDATE_API_URL') : config('updater.api_url', 'https://softmit.xyz'));
         $scriptName = ($setting && isset($setting->update_script_name) && trim($setting->update_script_name) !== '') ? trim($setting->update_script_name) : (env('UPDATE_SCRIPT_NAME') ? env('UPDATE_SCRIPT_NAME') : config('updater.script_name', 'Ecommerce Pro'));
         $version = ($setting && isset($setting->app_version) && trim($setting->app_version) !== '') ? trim($setting->app_version) : (config('updater.current_version') ? config('updater.current_version') : config('app.version', '1.0.0'));
         return [
@@ -86,7 +86,7 @@ class UpdateController extends Controller
     {
         $replacements = [
             '/storage/script-updates/' => '/project/storage/app/public/script-updates/',
-            'creativedesign.com.bd/storage/script-updates/' => 'creativedesign.com.bd/project/storage/app/public/script-updates/',
+            'softmit.xyz/storage/script-updates/' => 'softmit.xyz/project/storage/app/public/script-updates/',
         ];
         foreach ($replacements as $from => $to) {
             if (str_contains($url, $from)) {

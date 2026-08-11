@@ -8,14 +8,15 @@
                          alt="Logo" style="max-height:40px;">
                 </a>
             </div>
-            <div class="col-lg-6 d-none d-lg-block">
+            <div class="col-lg-6 d-none d-lg-block search-wrap" style="position:relative;">
                 <form action="{{ route('search') }}" method="GET">
                     <div class="input-group input-group-lg">
-                        <input type="text" name="q" class="form-control border-0 bg-light" placeholder="What are you looking for?" style="border-radius:30px 0 0 30px;">
+                        <input type="text" name="keyword" class="form-control border-0 bg-light search_keyword" placeholder="What are you looking for?" style="border-radius:30px 0 0 30px;">
                         <button class="btn px-4 text-white" type="submit" style="background:var(--primary-color);border-radius:0 30px 30px 0;">
                             <i class="fa-solid fa-magnifying-glass"></i>{{ __('Search') }}</button>
                     </div>
                 </form>
+                <div class="search_result"></div>
             </div>
             <div class="col-lg-4 col-6 text-end">
                 <div class="d-flex justify-content-end align-items-center gap-3">

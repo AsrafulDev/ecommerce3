@@ -5,13 +5,14 @@
             <img src="{{ asset($generalsetting->dark_logo ?: 'public/assets/images/CurlBazar.png' ?? 'public/assets/images/CurlBazar.png') }}" alt="Logo" style="max-height:50px;">
         </a>
         <div class="mt-2 d-none d-md-flex justify-content-center">
-            <form action="{{ route('search') }}" method="GET" style="width:500px;">
+            <form action="{{ route('search') }}" method="GET" class="search-wrap" style="width:500px;position:relative;">
                 <div class="input-group">
-                    <input type="text" name="q" class="form-control rounded-pill" placeholder="Search..." style="background:#f5f5f5;border:none;">
+                    <input type="text" name="keyword" class="form-control rounded-pill search_keyword" placeholder="Search..." style="background:#f5f5f5;border:none;">
                     <button class="btn rounded-circle ms-2" type="submit" style="width:40px;height:40px;background:var(--primary-color);color:#fff;">
                         <i class="fa-solid fa-magnifying-glass"></i>
                     </button>
                 </div>
+                <div class="search_result"></div>
             </form>
         </div>
     </div>

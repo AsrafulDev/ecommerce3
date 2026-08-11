@@ -149,57 +149,9 @@ $totalOrderAmount = \App\Models\Order::where('customer_id', $customerId)->sum('a
                 <div class="flex justify-between items-center mb-5 px-2 sm:px-0">
                     <h3 class="text-lg font-bold text-gray-800">🔥 {{ __('Best For You') }}</h3>
                 </div>
-                <div class="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 lg:gap-5">
+                <div class="category-product main_product_inner pt-2">
                     @foreach($recommendedProducts as $product)
-                        @php
-                            $discount = 0;
-                            if($product->old_price && $product->new_price && $product->old_price > $product->new_price) {
-                                $discount = round((($product->old_price - $product->new_price) / $product->old_price) * 100);
-                            }
-                        @endphp
-                        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden group hover:shadow-lg transition-all duration-300 product-card-hover">
-                            <div class="product-image-container relative">
-                                <a href="{{ route('product', $product->slug ?? $product->id) }}" class="block w-full h-full">
-                                    <img src="{{ asset($product->image->image ?? 'public/assets/images/no-image.png') }}" onerror="this.src='{{ asset('public/assets/images/no-image.png') }}'" class="group-hover:scale-105 transition duration-500" alt="{{ $product->name }}">
-                                </a>
-                                @if($discount > 0)
-                                    <span class="absolute top-1.5 left-1.5 sm:top-2 sm:left-2 bg-indigo-600 text-white text-[9px] sm:text-xs px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full shadow-md font-bold z-10">{{ $discount }}% OFF</span>
-                                @elseif($product->feature_product)
-                                    <span class="absolute top-1.5 left-1.5 sm:top-2 sm:left-2 bg-green-500 text-white text-[9px] sm:text-xs px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full shadow-md font-bold z-10">New</span>
-                                @endif
-                                @if($product->stock <= 0)
-                                    <span class="absolute top-1.5 right-1.5 sm:top-2 sm:right-2 bg-red-500 text-white text-[9px] sm:text-xs px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full shadow-md font-bold z-10">{{ __('Out of Stock') }}</span>
-                                @endif
-                            </div>
-                            <div class="p-3 sm:p-4">
-                                <h4 class="font-bold text-gray-800 text-xs sm:text-sm mb-2 line-clamp-2 min-h-[2rem] sm:min-h-[2.5rem]">
-                                    <a href="{{ route('product', $product->slug ?? $product->id) }}" class="hover:text-indigo-600 transition">{{ $product->name }}</a>
-                                </h4>
-                                
-                                <div class="flex items-center gap-1 sm:gap-2 mb-2 sm:mb-3 flex-wrap">
-                                    @if($product->old_price && $product->old_price > $product->new_price)
-                                        <span class="text-gray-400 line-through text-[10px] sm:text-xs">৳{{ number_format($product->old_price, 0) }}</span>
-                                    @endif
-                                    <span class="text-indigo-600 font-bold text-base sm:text-lg">৳{{ number_format($product->new_price ?? 0, 0) }}</span>
-                                </div>
-                                
-                                @if($product->stock > 0)
-                                <div class="flex flex-col sm:flex-row gap-2">
-                                    <a href="{{ route('product', $product->slug ?? $product->id) }}" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white text-xs sm:text-sm font-semibold py-2 sm:py-2.5 px-3 sm:px-4 rounded-lg text-center transition duration-200 flex items-center justify-center gap-1 sm:gap-2 shadow-sm hover:shadow-md">
-                                        <i class="fas fa-shopping-cart text-[10px] sm:text-xs"></i>
-                                        <span class="whitespace-nowrap">{{ __('Order Now') }}</span>
-                                    </a>
-                                    <button onclick="addToCart({{ $product->id }})" class="w-full sm:w-auto bg-gray-100 hover:bg-indigo-600 hover:text-white text-gray-600 sm:w-11 h-9 sm:h-11 rounded-lg flex items-center justify-center transition duration-200 border border-gray-200 hover:border-indigo-600" title="{{ __('Add to Cart') }}">
-                                        <i class="fas fa-cart-plus text-xs sm:text-sm"></i>
-                                    </button>
-                                </div>
-                                @else
-                                <div class="w-full bg-gray-100 text-gray-500 text-xs sm:text-sm font-semibold py-2 sm:py-2.5 px-3 sm:px-4 rounded-lg text-center">
-                                    <i class="fas fa-ban mr-1 sm:mr-2"></i>{{ __('Out of Stock') }}
-                                </div>
-                                @endif
-                            </div>
-                        </div>
+                        @include('frontEnd.layouts.sections.product-card', ['product' => $product])
                     @endforeach
                 </div>
             </div>

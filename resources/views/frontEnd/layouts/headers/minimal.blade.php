@@ -20,8 +20,9 @@
             <button class="btn btn-link text-dark p-0 d-md-none" onclick="document.querySelector('.minimal-nav').classList.toggle('d-none')">
                 <i class="fa-solid fa-bars fs-5"></i>
             </button>
-            <form action="{{ route('search') }}" method="GET" class="d-none d-sm-block">
-                <div class="input-group input-group-sm"><input type="text" name="q" class="form-control border-0 bg-light rounded-pill" placeholder="Search..." style="width:180px;"></div>
+            <form action="{{ route('search') }}" method="GET" class="d-none d-sm-block search-wrap" style="position:relative;">
+                <div class="input-group input-group-sm"><input type="text" name="keyword" class="form-control border-0 bg-light rounded-pill search_keyword" placeholder="Search..." style="width:180px;"></div>
+                <div class="search_result"></div>
             </form>
             <a href="{{ route('customer.checkout') }}" class="position-relative text-dark">
                 <i class="fa-solid fa-bag-shopping fs-5"></i>

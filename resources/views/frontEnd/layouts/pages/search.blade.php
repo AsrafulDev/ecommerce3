@@ -43,7 +43,7 @@ if (typeof ttq !== 'undefined') ttq.track('Search', { query: '{{ addslashes($key
                                         <option value="5" @if(request()->get('sort')==5)selected @endif>Name: A-Z</option>
                                         <option value="6" @if(request()->get('sort')==6)selected @endif>Name: Z-A</option>
                                     </select>
-                                    <input type="hidden" name="keyword" value="{{ request()->get('keyword') }}" />
+                                    <input type="hidden" name="keyword" value="{{ request()->get('keyword') ?: request()->get('q') }}" />
                                     <input type="hidden" name="min_price" value="{{ request()->get('min_price') }}" />
                                     <input type="hidden" name="max_price" value="{{ request()->get('max_price') }}" />
                                 </form>
@@ -56,104 +56,9 @@ if (typeof ttq !== 'undefined') ttq.track('Search', { query: '{{ addslashes($key
         
         <div class="row">
             <div class="col-sm-12">
-                <div class="category-product main_product_inner">
+                <div class="category-product main_product_inner pt-2">
                     @foreach($products as $key=>$value)
-                    <div class="product_item wist_item wow zoomIn" data-wow-duration="1.5s"
-                            data-wow-delay="0.{{ $key }}s">
-                            <div class="product_item_inner">
-                                @if($value->old_price)
-                                <div class="sale-badge">
-                                    <div class="sale-badge-inner">
-                                        <div class="sale-badge-box">
-                                            <span class="sale-badge-text">
-                                                <p>
-                                                    @php 
-                                                        $discount=(((($value->old_price)-($value->new_price))*100) / ($value->old_price)) 
-                                                    @endphp 
-                                                    {{ number_format($discount, 0) }}%
-                                                </p>{{ __('Sale') }}</span>
-                                        </div>
-                                    </div>
-                                </div>
-                                @endif
-
-                                <div class="pro_img">
-                                    <a href="{{ route('product', $value->slug) }}">
-                                        <img src="{{ asset($value->image ? $value->image->image : '') }}"
-                                            alt="{{ $value->name }}" />
-                                    </a>
-                                </div>
-
-                                <div class="pro_des">
-                                    <div class="pro_name">
-                                        <a href="{{ route('product', $value->slug) }}">
-                                            {{ Str::limit($value->name, 35) }}
-                                        </a>
-                                    </div>
-                                </div>
-                            </div>
-
-                            @php
-                                $averageRating = $value->reviews->avg('ratting'); 
-                                $filledStars = floor($averageRating);
-                                $hasHalfStar = $averageRating - $filledStars >= 0.5;
-                                $emptyStars = 5 - $filledStars - ($hasHalfStar ? 1 : 0);
-                            @endphp
-
-                            @if ($averageRating >= 0 && $averageRating <= 5)
-                                @for ($i = 0; $i < $filledStars; $i++)
-                                    <i class="fas fa-star"></i>
-                                @endfor
-                                @if ($hasHalfStar)
-                                    <i class="fas fa-star-half-alt"></i>
-                                @endif
-                                @for ($i = 0; $i < $emptyStars; $i++)
-                                    <i class="far fa-star"></i>
-                                @endfor
-                            @else
-                                <span>Invalid rating range</span>
-                            @endif
-
-                            <div class="pro_price">
-                                <p>
-                                    <del>৳ {{ $value->old_price }}</del>
-                                    ৳ {{ $value->new_price }}
-                                </p>
-                            </div>
-
-                            {{-- 🔥 UPDATED BUTTON SECTION (NOTHING REMOVED) --}}
-                            @if (!$value->prosizes->isEmpty() || !$value->procolors->isEmpty())
-                                <div class="pro_btn">
-                                    <a href="{{ route('product', $value->slug) }}" class="addcartbutton">
-                                        <span>{{ __('Order Now') }}</span>
-                                    </a>
-                                    <a href="{{ route('product', $value->slug) }}" class="cart-icon-btn">
-                                        <i class="fa-solid fa-cart-shopping"></i>
-                                    </a>
-                                </div>
-                            @else
-                                <div class="pro_btn">
-                                    {{-- Order Now --}}
-                                    <form action="{{ route('cart.store') }}" method="POST" class="ajax-cart-form">
-                                        @csrf
-                                        <input type="hidden" name="id" value="{{ $value->id }}">
-                                        <input type="hidden" name="qty" value="1">
-                                        <input type="hidden" name="order_now" value="1">
-                                        <button type="submit" class="order-btn">{{ __('Order Now') }}</button>
-                                    </form>
-
-                                    {{-- Add to Cart --}}
-                                    <form action="{{ route('cart.store') }}" method="POST" class="ajax-cart-form">
-                                        @csrf
-                                        <input type="hidden" name="id" value="{{ $value->id }}">
-                                        <input type="hidden" name="qty" value="1">
-                                        <button type="submit" class="cart-icon-btn cart_store" data-id="{{ $value->id }}" data-name="{{ addslashes($value->name) }}" data-price="{{ $value->new_price ?? 0 }}" data-category="{{ addslashes(optional($value->category)->name ?? '') }}">
-                                            <i class="fa-solid fa-cart-shopping"></i>
-                                        </button>
-                                    </form>
-                                </div>
-                            @endif
-                        </div>
+                    @include('frontEnd.layouts.sections.product-card', ['product' => $value, 'classes' => 'wow zoomIn', 'attrs' => 'data-wow-duration="1.5s" data-wow-delay="0.'.$key.'s"'])
                     @endforeach
                 </div>
             </div>

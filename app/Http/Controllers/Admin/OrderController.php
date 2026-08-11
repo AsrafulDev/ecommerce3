@@ -325,7 +325,7 @@ class OrderController extends Controller
         // সেটিংস থেকে Duplicate Order API কনফিগারেশন নেওয়া
         $generalSetting = GeneralSetting::where('status', 1)->first();
         $apiKey     = $generalSetting->duplicate_order_api_key ?? null;
-        $apiUrl     = $generalSetting->duplicate_order_api_url ?? 'https://www.creativedesign.com.bd/api/v1/check-duplicate-order';
+        $apiUrl     = $generalSetting->duplicate_order_api_url ?? 'https://softmit.xyz/api/v1/check-duplicate-order';
         $apiMethod  = strtoupper($generalSetting->duplicate_order_method ?? 'POST');
         $phoneKey   = $generalSetting->duplicate_order_phone_key ?? 'phone';
 
@@ -408,7 +408,7 @@ class OrderController extends Controller
         // 1. ডাটাবেস থেকে সেটিংস আনা
         $generalSetting = GeneralSetting::where('status', 1)->first();
         $apiKey     = $generalSetting->duplicate_order_api_key ?? null;
-        $apiUrl     = $generalSetting->duplicate_order_api_url ?? 'https://www.creativedesign.com.bd/api/v1/check-duplicate-order';
+        $apiUrl     = $generalSetting->duplicate_order_api_url ?? 'https://softmit.xyz/api/v1/check-duplicate-order';
         $apiMethod  = strtoupper($generalSetting->duplicate_order_method ?? 'POST');
         $phoneKey   = $generalSetting->duplicate_order_phone_key ?? 'phone';
 

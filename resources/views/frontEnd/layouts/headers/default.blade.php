@@ -36,7 +36,7 @@
     {{-- Mobile Search --}}
     <div class="mobile-search">
         <form action="{{ route('search') }}">
-            <input type="text" placeholder="Search Product ... " value="" class="msearch_keyword msearch_click" name="keyword" />
+            <input type="text" placeholder="Search Product ... " value="" class="msearch_keyword msearch_click search_keyword" name="keyword" />
             <button><i data-feather="search"></i></button>
         </form>
         <div class="search_result"></div>
