@@ -129,17 +129,6 @@
                 <div class="val mono">{{ $domain }}</div>
             </div>
             <div class="lic-item">
-                <label>{{ __('License Key') }}</label>
-                <div class="val mono">
-                    <span id="lic-key-display" data-masked="{{ $maskedKey }}">{{ $maskedKey }}</span>
-                    <button type="button" class="lic-reveal" id="lic-reveal-btn" data-full="{{ $licenseKey }}" data-masked="{{ $maskedKey }}">👁</button>
-                </div>
-            </div>
-            <div class="lic-item">
-                <label>{{ __('License Server (API URL)') }}</label>
-                <div class="val mono">{{ $apiUrl }}</div>
-            </div>
-            <div class="lic-item">
                 <label>{{ __('Script Name') }}</label>
                 <div class="val">{{ $scriptName }}</div>
             </div>
