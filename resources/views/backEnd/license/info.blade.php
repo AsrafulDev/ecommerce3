@@ -87,6 +87,10 @@
         </div>
     @endif
 
+    @if(session('license_saved'))
+        <div class="lic-note">✓ {{ session('license_saved') }}</div>
+    @endif
+
     @if(isset($refreshed) && $refreshed)
         <div class="lic-note">✓ {{ __('License re-checked just now.') }}</div>
     @endif
@@ -152,6 +156,26 @@
                 <i data-feather="download"></i> {{ __('Go to Updates') }}
             </a>
         </div>
+    </div>
+
+    <div class="lic-card">
+        <h3>🔑 {{ __('Update License Key') }}</h3>
+        <form method="POST" action="{{ route('admin.license.save') }}">
+            @csrf
+            <div class="lic-grid">
+                <div class="lic-item" style="grid-column: span 2;">
+                    <label for="license_key">{{ __('License Key') }}</label>
+                    <input type="text" id="license_key" name="license_key" class="form-control mono"
+                        value="{{ $licenseKey }}" placeholder="XXXX-XXXX-XXXX-XXXX-XXXX" autocomplete="off">
+                </div>
+            </div>
+            <div style="margin-top:14px; display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+                <button type="submit" class="btn btn-primary">
+                    <i data-feather="save"></i> {{ __('Save License Key') }}
+                </button>
+                <span class="text-muted">{{ __('Saved to the database. Leave empty to use the hardcoded default key.') }}</span>
+            </div>
+        </form>
     </div>
 
     @if($licenseData && is_array($licenseData))

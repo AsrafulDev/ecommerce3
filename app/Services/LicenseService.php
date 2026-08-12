@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Models\GeneralSetting;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
@@ -24,10 +25,13 @@ class LicenseService
     public const LOCAL_ENVIRONMENTS = ['127.0.0.1', 'localhost'];
 
     /**
-     * Resolve license config from HARDCODED values in config/updater.php.
+     * Resolve license config.
      *
-     * These values are intentionally NOT read from .env or the database so they
-     * cannot be changed or disabled at runtime. Removing them breaks the app.
+     * The mother server URL, script name and version are HARDCODED in
+     * config/updater.php (baked in, cannot be changed/removed at runtime).
+     * The license key is admin-managed: stored in general_settings.license_key
+     * (editable from the admin License page), falling back to the hardcoded
+     * default when empty.
      *
      * @return array{api_url:string, script_name:string, current_version:string, license_key:string}
      */
@@ -37,27 +41,55 @@ class LicenseService
             'api_url'         => (string) config('updater.api_url', ''),
             'script_name'     => (string) config('updater.script_name', ''),
             'current_version' => (string) config('updater.current_version', ''),
-            'license_key'     => (string) config('updater.license_key', ''),
+            'license_key'     => self::licenseKey(),
         ];
     }
 
     /**
-     * 🔒 Integrity check — throws if the hardcoded license config was removed
-     * or edited. Called on every boot and before every verification, so the
-     * application is broken if anyone tampers with the license values.
+     * 🔒 Integrity check — throws if the hardcoded license server config was
+     * removed or edited. DB-free on purpose (called during boot).
      *
      * @throws \RuntimeException
      */
     public static function assertConfigIntegrity(): void
     {
-        $cfg = self::config();
+        $api = (string) config('updater.api_url', '');
+        $key = (string) config('updater.license_key', '');
 
-        if ('' === $cfg['license_key']) {
-            throw new \RuntimeException('License key is missing. Application integrity check failed. Reinstall required.');
+        if ('' === $api || false === stripos($api, 'softmit.xyz')) {
+            throw new \RuntimeException('License server configuration is invalid. Application integrity check failed. Reinstall required.');
         }
 
-        if ('' === $cfg['api_url'] || false === stripos($cfg['api_url'], 'softmit.xyz')) {
-            throw new \RuntimeException('License server configuration is invalid. Application integrity check failed. Reinstall required.');
+        if ('' === $key) {
+            throw new \RuntimeException('License key is missing. Application integrity check failed. Reinstall required.');
+        }
+    }
+
+    /**
+     * Effective license key: DB override (admin-managed) → hardcoded default.
+     *
+     * @throws \RuntimeException
+     */
+    public static function licenseKey(): string
+    {
+        self::assertConfigIntegrity();
+
+        return self::licenseKeyFromDb() ?: (string) config('updater.license_key', '');
+    }
+
+    /**
+     * Read the admin-saved license key from general_settings (defensive:
+     * returns '' if the column is missing or the query fails).
+     */
+    private static function licenseKeyFromDb(): string
+    {
+        try {
+            $setting = GeneralSetting::where('status', 1)->first();
+            return ($setting && isset($setting->license_key) && trim((string) $setting->license_key) !== '')
+                ? trim((string) $setting->license_key)
+                : '';
+        } catch (\Exception $e) {
+            return '';
         }
     }
 
@@ -67,18 +99,6 @@ class LicenseService
     public static function domain(): string
     {
         return str_replace('www.', '', (string) request()->getHost());
-    }
-
-    /**
-     * Configured license key (hardcoded). Throws if it was removed.
-     *
-     * @throws \RuntimeException
-     */
-    public static function licenseKey(): string
-    {
-        self::assertConfigIntegrity();
-
-        return self::config()['license_key'];
     }
 
     /**
@@ -109,7 +129,7 @@ class LicenseService
         self::assertConfigIntegrity();
 
         $domain = self::domain();
-        $key    = self::config()['license_key'];
+        $key    = self::licenseKey();
 
         // Mother domain never needs validation.
         if (self::isMaster()) {

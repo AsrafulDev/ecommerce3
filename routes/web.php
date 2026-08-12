@@ -536,6 +536,9 @@ Route::delete('coupon/destroy/{id}', [CouponController::class, 'destroy'])
 // লাইসেন্স ইনফরমেশন দেখার রাউট
 Route::get('license-info', [App\Http\Controllers\Admin\LicenseController::class, 'licenseInfo'])->name('admin.license.info');
 
+// লাইসেন্স কী আপডেট করার রাউট (অ্যাডমিন থেকে, DB-তে সংরক্ষণ)
+Route::post('license-info/save-key', [App\Http\Controllers\Admin\LicenseController::class, 'saveLicenseKey'])->name('admin.license.save');
+
 // Update Management Routes (License Protected)
 Route::get('updates', [App\Http\Controllers\Admin\UpdateController::class, 'index'])->name('admin.updates.index');
 Route::get('updates/check', [App\Http\Controllers\Admin\UpdateController::class, 'checkUpdates'])->name('admin.updates.check');
