@@ -4,36 +4,29 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Update API URL (Main Site)
+    | 🔒 LICENSE SERVER (HARDCODED — DO NOT EDIT OR REMOVE)
     |--------------------------------------------------------------------------
     |
-    | Fallback যখন DB (general_settings.update_api_url) থেকে মান নেই।
-    | প্রায়শই General Settings এ থেকে সেট করা হয়।
+    | These values are intentionally hardcoded and encoded for license
+    | protection. Removing or editing them breaks the application
+    | (see the integrity check in AppServiceProvider::boot()).
     |
     */
 
-    'api_url' => env('UPDATE_API_URL', 'https://softmit.xyz'),
+    // Mother license server URL (base64 of https://softmit.xyz)
+    'api_url' => base64_decode('aHR0cHM6Ly9zb2Z0bWl0Lnh5eg=='),
 
-    /*
-    |--------------------------------------------------------------------------
-    | Script Name
-    |--------------------------------------------------------------------------
-    |
-    | Fallback যখন DB (general_settings.update_script_name) থেকে মান নেই।
-    |
-    */
+    // 🔑 License key (base64 of LIC-BUXI-IJFK-IKYR)
+    'license_key' => base64_decode('TElDLUJVWEktSUpGSy1JS1lS'),
 
-    'script_name' => env('UPDATE_SCRIPT_NAME', 'Ecommerce Pro'),
+    // Script name sent to the license server (base64 of "Ecommerce Pro")
+    'script_name' => base64_decode('RWNvbW1lcmNlIFBybw=='),
 
-    /*
-    |--------------------------------------------------------------------------
-    | Current Version
-    |--------------------------------------------------------------------------
-    |
-    | Fallback যখন DB (general_settings.app_version) থেকে মান নেই।
-    |
-    */
+    // Current installed version (base64 of 1.0.0)
+    'current_version' => base64_decode('MS4wLjA='),
 
-    'current_version' => env('APP_VERSION', '1.0.0'),
+    // 🔒 Hard enforcement — CANNOT be disabled via .env.
+    // The admin area requires a valid license (localhost/master are skipped).
+    'enforce' => true,
 
 ];

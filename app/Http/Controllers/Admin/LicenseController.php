@@ -3,39 +3,49 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Facades\Log;
+use App\Services\LicenseService;
+use Illuminate\Http\Request;
 
 class LicenseController extends Controller
 {
-    public function licenseInfo()
+    /**
+     * Show license status/info page.
+     *
+     * @param Request $request
+     * @return \Illuminate\View\View
+     */
+    public function licenseInfo(Request $request)
     {
-        // মাদার সাইটের ভেরিফিকেশন এপিআই
-        $apiUrl = "https://softmit.xyz/api/verify-license"; 
-        
-        $domain = preg_replace('/^www\./', '', request()->getHost()); 
-        $license_key = env('LICENSE_KEY'); 
+        $result = LicenseService::verify($request->has('refresh'));
 
-        try {
-            $response = Http::withoutVerifying()
-                ->asJson()
-                ->acceptJson()
-                ->timeout(10)
-                ->post($apiUrl, [
-                    'domain'      => $domain,
-                    'license_key' => $license_key,
-                ]);
+        $cfg = LicenseService::config();
+        $key = LicenseService::licenseKey();
 
-            if ($response->successful()) {
-                $licenseData = $response->json(); 
-            } else {
-                $licenseData = ['status' => 'invalid', 'message' => 'মাদার সার্ভার থেকে রেসপন্স পাওয়া যায়নি।'];
-            }
-        } catch (\Exception $e) {
-            $licenseData = ['status' => 'error', 'message' => 'সার্ভারের সাথে সংযোগ স্থাপন করা সম্ভব হয়নি।'];
-        }
+        return view('backEnd.license.info', [
+            'isValid'        => $result['valid'],
+            'licenseData'    => $result['data'],
+            'message'        => $result['message'],
+            'domain'         => LicenseService::domain(),
+            'licenseKey'     => $key,
+            'maskedKey'      => LicenseService::maskKey($key),
+            'apiUrl'         => $cfg['api_url'],
+            'scriptName'     => $cfg['script_name'],
+            'currentVersion' => $cfg['current_version'],
+            'isLocal'        => LicenseService::isLocal(),
+            'isMaster'       => LicenseService::isMaster(),
+            'refreshed'      => $request->has('refresh'),
+        ]);
+    }
 
-        // আপনার ফোল্ডার স্ট্রাকচার অনুযায়ী ভিউ পাথ
-        return view('backEnd.license.info', compact('licenseData'));
+    /**
+     * Force a fresh license check and redirect back to the license page.
+     *
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function recheck()
+    {
+        LicenseService::verify(true);
+
+        return redirect()->route('admin.license.info');
     }
 }

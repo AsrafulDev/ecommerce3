@@ -53,18 +53,15 @@ class UpdateController extends Controller
     private const BACKUP_SUBDIR = 'backups';
 
     /**
-     * Get update settings from database (fallback to env/config)
+     * Get update settings from the HARDCODED config (baked in for license
+     * protection — not overridable via .env or the database).
      */
     private function getUpdateSettings(): array
     {
-        $setting = GeneralSetting::where('status', 1)->first();
-        $apiUrl = ($setting && isset($setting->update_api_url) && trim($setting->update_api_url) !== '') ? trim($setting->update_api_url) : (env('UPDATE_API_URL') ? env('UPDATE_API_URL') : config('updater.api_url', 'https://softmit.xyz'));
-        $scriptName = ($setting && isset($setting->update_script_name) && trim($setting->update_script_name) !== '') ? trim($setting->update_script_name) : (env('UPDATE_SCRIPT_NAME') ? env('UPDATE_SCRIPT_NAME') : config('updater.script_name', 'Ecommerce Pro'));
-        $version = ($setting && isset($setting->app_version) && trim($setting->app_version) !== '') ? trim($setting->app_version) : (config('updater.current_version') ? config('updater.current_version') : config('app.version', '1.0.0'));
         return [
-            'api_url' => $apiUrl,
-            'script_name' => $scriptName,
-            'current_version' => $version,
+            'api_url'         => (string) config('updater.api_url'),
+            'script_name'     => (string) config('updater.script_name'),
+            'current_version' => (string) config('updater.current_version'),
         ];
     }
 
@@ -103,11 +100,7 @@ class UpdateController extends Controller
     {
         $host = request()->getHost();
         $domain = str_replace('www.', '', $host);
-        $licenseKey = env('LICENSE_KEY');
-        $settings = $this->getUpdateSettings();
-
-        // Check if running on localhost/127.0.0.1
-        $isLocal = in_array($domain, self::LOCAL_ENVIRONMENTS) || $domain === 'localhost';
+		$licenseKey = config('updater.license_key');
         
         if ($isLocal) {
             // For localhost, return empty credentials to indicate local environment
@@ -208,7 +201,7 @@ class UpdateController extends Controller
             ];
         }
 
-        $licenseKey = env('LICENSE_KEY');
+        $licenseKey = config('updater.license_key');
 
         if (empty($licenseKey)) {
             return [

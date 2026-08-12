@@ -1329,6 +1329,14 @@
     <span>{{ __('Activity Logs') }}</span>
   </a>
 </li>
+
+{{-- 🔄 Update Manager (license-protected) --}}
+<li class="{{ request()->routeIs('admin.updates.*') ? 'active menuitem-active' : '' }}">
+  <a href="{{ route('admin.updates.index') }}">
+    <i data-feather="download-cloud"></i>
+    <span>{{ __('Update') }}</span>
+  </a>
+</li>
             </ul>
           </div>
 		  
