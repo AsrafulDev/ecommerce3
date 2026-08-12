@@ -53,15 +53,26 @@ class UpdateController extends Controller
     private const BACKUP_SUBDIR = 'backups';
 
     /**
-     * Get update settings from the HARDCODED config (baked in for license
-     * protection — not overridable via .env or the database).
+     * Get update settings. The license server URL + script name are HARDCODED
+     * (baked in config/updater.php for protection); the current version is
+     * DB-managed (general_settings.app_version, updated by update:release).
      */
     private function getUpdateSettings(): array
     {
+        $dbVersion = null;
+        try {
+            $setting = GeneralSetting::where('status', 1)->first();
+            $dbVersion = ($setting && isset($setting->app_version) && trim((string) $setting->app_version) !== '')
+                ? trim((string) $setting->app_version)
+                : null;
+        } catch (\Exception $e) {
+            $dbVersion = null;
+        }
+
         return [
             'api_url'         => (string) config('updater.api_url'),
             'script_name'     => (string) config('updater.script_name'),
-            'current_version' => (string) config('updater.current_version'),
+            'current_version' => $dbVersion ?: (string) config('updater.current_version'),
         ];
     }
 

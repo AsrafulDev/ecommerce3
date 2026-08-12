@@ -39,9 +39,25 @@ class LicenseService
         return [
             'api_url'         => (string) config('updater.api_url', ''),
             'script_name'     => (string) config('updater.script_name', ''),
-            'current_version' => (string) config('updater.current_version', ''),
+            'current_version' => self::currentVersion(),
             'license_key'     => self::licenseKey(),
         ];
+    }
+
+    /**
+     * Current installed version: DB (general_settings.app_version) → config.
+     */
+    private static function currentVersion(): string
+    {
+        try {
+            $setting = GeneralSetting::where('status', 1)->first();
+            if ($setting && isset($setting->app_version) && trim((string) $setting->app_version) !== '') {
+                return trim((string) $setting->app_version);
+            }
+        } catch (\Exception $e) {
+            // fall through to config
+        }
+        return (string) config('updater.current_version', '1.0.0');
     }
 
     /**
