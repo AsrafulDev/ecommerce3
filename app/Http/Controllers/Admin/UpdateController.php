@@ -1187,7 +1187,7 @@ class UpdateController extends Controller
 
             if (File::exists($sourcePath)) {
                 // Copy directory recursively
-                File::copyDirectory($sourcePath, $destPath);
+                $this->copyDirectoryRobust($sourcePath, $destPath);
                 Log::info("Copied {$sourceDir} to {$destDir}");
             }
         }
@@ -1203,11 +1203,80 @@ class UpdateController extends Controller
                     $destFile = $destination . '/' . $file;
                     
                     if (File::exists($sourceFile)) {
-                        File::ensureDirectoryExists(dirname($destFile));
-                        File::copy($sourceFile, $destFile);
+                        $this->copyFileRobust($sourceFile, $destFile);
                     }
                 }
             }
         }
+    }
+
+    /**
+     * Recursively copy a directory, making destinations writable where possible.
+     */
+    private function copyDirectoryRobust(string $sourceDir, string $destDir): void
+    {
+        if (! is_dir($destDir)) {
+            File::ensureDirectoryExists($destDir);
+        }
+        $this->makeWritable($destDir);
+
+        $items = @scandir($sourceDir);
+        if (false === $items) {
+            return;
+        }
+        foreach ($items as $item) {
+            if ('.' === $item || '..' === $item) {
+                continue;
+            }
+            $src = $sourceDir . '/' . $item;
+            $dst = $destDir . '/' . $item;
+            if (is_dir($src)) {
+                $this->copyDirectoryRobust($src, $dst);
+            } else {
+                $this->copyFileRobust($src, $dst);
+            }
+        }
+    }
+
+    /**
+     * Copy a file, attempting to make the destination writable on failure.
+     * Throws a clear, actionable error if it still cannot write.
+     */
+    private function copyFileRobust(string $src, string $dst): void
+    {
+        $dir = dirname($dst);
+        if (! is_dir($dir)) {
+            File::ensureDirectoryExists($dir);
+        }
+        $this->makeWritable($dir);
+
+        if (@copy($src, $dst)) {
+            @chmod($dst, 0644);
+            return;
+        }
+
+        // Retry once after forcing write permission on the target.
+        @chmod($dir, 0755);
+        if (file_exists($dst)) {
+            @chmod($dst, 0644);
+        }
+        if (! @copy($src, $dst)) {
+            Log::error('Update copy failed (permission): ' . $dst);
+            throw new \Exception(
+                "Failed to copy {$dst} — permission denied. Fix server permissions so the web server can write to the app/routes/resources/config/database folders, e.g. run:\n" .
+                '  chown -R USER:GROUP app routes resources config database' . "\n" .
+                '  chmod -R 775 app routes resources config database' . "\n" .
+                'Then try the update again.'
+            );
+        }
+        @chmod($dst, 0644);
+    }
+
+    /**
+     * Best-effort: make a directory writable by the web server user.
+     */
+    private function makeWritable(string $path): void
+    {
+        @chmod($path, 0755);
     }
 }
