@@ -100,7 +100,7 @@ class UpdateController extends Controller
     {
         $host = request()->getHost();
         $domain = str_replace('www.', '', $host);
-		$licenseKey = config('updater.license_key');
+		$licenseKey = \App\Services\LicenseService::licenseKey();
         
         if ($isLocal) {
             // For localhost, return empty credentials to indicate local environment
@@ -201,7 +201,7 @@ class UpdateController extends Controller
             ];
         }
 
-        $licenseKey = config('updater.license_key');
+        $licenseKey = \App\Services\LicenseService::licenseKey();
 
         if (empty($licenseKey)) {
             return [

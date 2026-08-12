@@ -16,9 +16,6 @@ return [
     // Mother license server URL (base64 of https://softmit.xyz)
     'api_url' => base64_decode('aHR0cHM6Ly9zb2Z0bWl0Lnh5eg=='),
 
-    // 🔑 License key (base64 of LIC-BUXI-IJFK-IKYR)
-    'license_key' => base64_decode('TElDLUJVWEktSUpGSy1JS1lS'),
-
     // Script name sent to the license server (base64 of "Ecommerce Pro")
     'script_name' => base64_decode('RWNvbW1lcmNlIFBybw=='),
 

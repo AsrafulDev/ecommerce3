@@ -29,9 +29,8 @@ class LicenseService
      *
      * The mother server URL, script name and version are HARDCODED in
      * config/updater.php (baked in, cannot be changed/removed at runtime).
-     * The license key is admin-managed: stored in general_settings.license_key
-     * (editable from the admin License page), falling back to the hardcoded
-     * default when empty.
+     * The license key is admin-managed: stored ONLY in general_settings.license_key
+     * (editable from the admin License page) — no hardcoded key in code.
      *
      * @return array{api_url:string, script_name:string, current_version:string, license_key:string}
      */
@@ -54,27 +53,21 @@ class LicenseService
     public static function assertConfigIntegrity(): void
     {
         $api = (string) config('updater.api_url', '');
-        $key = (string) config('updater.license_key', '');
 
         if ('' === $api || false === stripos($api, 'softmit.xyz')) {
             throw new \RuntimeException('License server configuration is invalid. Application integrity check failed. Reinstall required.');
         }
-
-        if ('' === $key) {
-            throw new \RuntimeException('License key is missing. Application integrity check failed. Reinstall required.');
-        }
     }
 
     /**
-     * Effective license key: DB override (admin-managed) → hardcoded default.
-     *
-     * @throws \RuntimeException
+     * Effective license key: admin-managed, stored in the database
+     * (general_settings.license_key). Empty string = not configured yet.
      */
     public static function licenseKey(): string
     {
         self::assertConfigIntegrity();
 
-        return self::licenseKeyFromDb() ?: (string) config('updater.license_key', '');
+        return self::licenseKeyFromDb();
     }
 
     /**
@@ -134,6 +127,11 @@ class LicenseService
         // Mother domain never needs validation.
         if (self::isMaster()) {
             return ['valid' => true, 'data' => null, 'message' => 'Master domain — no verification needed.'];
+        }
+
+        // No license key configured yet — admin must set it from the License page.
+        if ('' === $key) {
+            return ['valid' => false, 'data' => null, 'message' => 'License key is not configured. Set it from the admin License page.'];
         }
 
         $cacheKey = 'license_verify_' . md5($domain . '|' . $key);
