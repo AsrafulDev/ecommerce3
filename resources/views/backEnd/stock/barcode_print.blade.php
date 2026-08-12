@@ -70,7 +70,7 @@
     @media print {
         @page { size: 100mm 70mm; margin: 0; }
 
-        html, body { width: 100mm; margin: 0; padding: 0; background: #fff \!important; }
+        html, body { width: 100mm; margin: 0; padding: 0; background: #fff !important; }
 
         body * { visibility: hidden; }
 
@@ -78,10 +78,10 @@
         .preview-wrapper, .barcode-page, .barcode-page * { visibility: visible; }
 
         /* Hide the on-screen "LABEL PREVIEW" title — only labels should print */
-        .preview-title { display: none \!important; }
+        .preview-title { display: none !important; }
 
         /* Remove clipping / fixed sizing on the wrapper so all labels print */
-        .preview-wrapper { overflow: visible \!important; min-height: 0 \!important; height: auto \!important; padding: 0 \!important; margin: 0 \!important; }
+        .preview-wrapper { overflow: visible !important; min-height: 0 !important; height: auto !important; padding: 0 !important; margin: 0 !important; }
 
         .barcode-page { display: block; width: 100%; margin: 0; padding: 0; }
 
@@ -89,7 +89,7 @@
 
         .barcode-label:last-child { page-break-after: auto; break-after: auto; }
 
-        .no-print { display: none \!important; }
+        .no-print { display: none !important; }
     }
 </style>
 @endsection
@@ -296,7 +296,7 @@
                         @endif
 
                         <div class="label-barcode">
-                            {\!\! $generator->getBarcode($barcodeValue, $generator::TYPE_CODE_128, 2, (int)request('barcode_height', 40)) \!\!}
+                          @php echo $generator->getBarcode($barcodeValue, $generator::TYPE_CODE_128, 2, (int)request('barcode_height', 40)); @endphp
                         </div>
 
                         @if(request('show_custom', '1') == '1' && $customText)
@@ -342,7 +342,7 @@
     const customInput = document.querySelector('input[name="custom_text"]');
 
     function toggleCustomText() {
-        if (\!customToggle || \!customInput) return;
+        if (!customToggle || !customInput) return;
         /* Keep the input visible because it is useful as a Code / Custom Text control.
            The checkbox controls whether it appears on the printed label. */
         customInput.closest('.control-section')?.classList.add('has-custom-text');
