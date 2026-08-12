@@ -193,7 +193,15 @@ body.product-card-ribbon .pc-ribbon:hover { transform: translateY(-6px); box-sha
 .pc-ribbon__btn .order-btn,
 .pc-ribbon__btn .order-btn-link { flex: 1 1 auto; }
 .pc-ribbon__btn .cart-icon-btn,
-.pc-ribbon__btn .cart-icon-link { flex: 0 0 44px; }
+.pc-ribbon__btn .cart-icon-link { flex: 1 1 auto; }
+.pc-ribbon__btn .cart-icon-btn {
+    background: var(--button-bg, var(--primary-color, #0d6efd));
+    color: var(--button-text, #fff);
+    border: none; border-radius: 4px; cursor: pointer;
+    padding: 8px 12px; font-size: 14px; font-weight: 600;
+    width: 100%; height: 38px; display: inline-flex; align-items: center; justify-content: center;
+}
+.pc-ribbon__btn .cart-icon-btn::before { content: "{{_('Add to cart')}}"; padding-right: 6px; }
 
 /* ---------- GLASSMORPHISM — frosted info bar + floating FAB ---------- */
 body.product-card-glass .pc-glass {

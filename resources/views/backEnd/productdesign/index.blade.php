@@ -2,21 +2,28 @@
 @section('title','Product Design')
 
 @section('css')
+<!-- Font Awesome 6 Free — this page uses fa-solid icons (admin icons.min.css only ships FA5) -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
 <style>
     :root {
         --pd-radius: 16px;
         --pd-shadow: 0 4px 20px rgba(0,0,0,0.06);
         --pd-hover-shadow: 0 8px 32px rgba(0,0,0,0.12);
     }
-
+    /* Apply the FA6 font only to Font Awesome elements so feather/other icons stay untouched */
+    i.fa, i.fa-solid, i.fa-regular, i.fa-brands, i.fas, i.far, i.fab {
+        font-family: "Font Awesome 6 Free" !important;
+    }
+    i.fa-brands, i.fab {
+        font-family: "Font Awesome 6 Brands" !important;
+    }
     .page-header {
-        background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
         border-radius: 20px;
         padding: 30px 35px;
         margin-bottom: 30px;
     }
-    .page-header h4 { color: #fff; font-weight: 700; font-size: 22px; }
-    .page-header p { color: #94a3b8; margin: 0; font-size: 14px; }
+    .page-header h4 { font-weight: 700; font-size: 22px; }
+    .page-header p { margin: 0; font-size: 14px; }
 
     .pd-grid {
         display: grid;
@@ -66,10 +73,10 @@
 
     /* ---------- Row limit settings panel ---------- */
     .pc-settings-card { background:#fff; border-radius:20px; box-shadow:var(--pd-shadow); border:1px solid #e2e8f0; margin-bottom:26px; overflow:hidden; }
-    .pc-settings-head { background:linear-gradient(135deg,#0f172a,#1e293b); padding:20px 26px; display:flex; align-items:center; gap:14px; }
-    .pc-settings-head .pc-head-icon { width:44px; height:44px; border-radius:12px; background:rgba(255,255,255,.1); display:flex; align-items:center; justify-content:center; font-size:20px; color:#38bdf8; }
-    .pc-settings-head h5 { color:#fff; font-weight:700; margin:0; font-size:16px; }
-    .pc-settings-head small { color:#94a3b8; }
+    .pc-settings-head { padding:20px 26px; display:flex; align-items:center; gap:14px; }
+    .pc-settings-head .pc-head-icon { width:44px; height:44px; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:20px; color:#38bdf8; }
+    .pc-settings-head h5 { font-weight:700; margin:0; font-size:16px; }
+    .pc-settings-head small { color:var(--subheading-color, #94a3b8); }
     .pc-settings-body { padding:22px 26px; }
     .pc-col-group { background:#f8fafc; border:1px solid #e2e8f0; border-radius:14px; padding:16px 18px; height:100%; }
     .pc-col-group h6 { font-weight:700; color:#0f172a; margin-bottom:4px; font-size:14px; }
@@ -134,8 +141,10 @@
         display:flex; gap:5px; margin-top:8px; 
         display:none; /* hide by default, on hover show buttons */
         }
+    .pd-preview-ribbon .pd-mini .pd-mini-bar { display:flex; gap:5px; margin-top:8px; }
+    .pd-preview-ribbon .pd-mini .pd-mini-cart { display:flex; align-items:center; justify-content:center; color:#fff; background:var(--admin-primary, #d32f2f); border-radius:6px; font-size:11px; padding:4px 6px; }
     .pd-mini-bar span { flex:1; font-size:10px; text-align:center; padding:5px 0; color:#fff; background:var(--admin-primary, #d32f2f); border-radius:6px; }
-    .pd-mini-bar i { flex:0 0 30px; font-size:11px; display:flex; align-items:center; justify-content:center; background:#eee; border-radius:6px; color:#333; }
+    .pd-mini-bar i { flex:0 0 30px; font-size:11px; display:flex; align-items:center; justify-content:center; border-radius:6px; color:#333; }
 
     /* ---------- Design-specific mini previews (mirror the frontend) ---------- */
     /* Premium (new default) — layered card, floating circular quick-actions, split action bar */
@@ -276,7 +285,7 @@
 
 @section('content')
 <div class="container-fluid">
-    <div class="page-header d-flex justify-content-between align-items-center">
+    <div class="page-header bg-light d-flex justify-content-between align-items-center">
         <div>
             <h4><i data-feather="grid"></i> Product Design</h4>
             <p>Choose how product cards look across the entire storefront. Changes apply instantly to all pages.</p>
@@ -298,7 +307,7 @@
             $deviceDefaultsOther = \App\Http\Controllers\Admin\ProductDesignController::ROW_LIMIT_FIELDS_OTHER;
         @endphp
         <div class="pc-settings-card">
-            <div class="pc-settings-head">
+            <div class="pc-settings-head bg-light">
                 <div class="pc-head-icon"><i class="fa-solid fa-table-columns"></i></div>
                 <div>
                     <h5>Products Per Row (Responsive)</h5>
@@ -390,7 +399,7 @@
                                         <div class="pd-mini-name">Premium Wireless Headphones</div>
                                         <div class="pd-mini-price"><del>৳ 2500</del> <b>৳ 2250</b></div>
                                     </div>
-                                    <div class="pd-mini-bar"><span>Order Now</span><i class="fa-solid fa-cart-plus"></i></div>
+                                    <div class="pd-mini-bar"><span>Order Now</span><i class="fa-solid fa-cart-plus"> Add to cart</i></div>
                                 </div>
                             @elseif($key === 'overlay')
                                 {{-- Overlay: full-bleed image + panel --}}
@@ -416,7 +425,7 @@
                                         <div class="pd-mini-name">Premium Wireless Headphones</div>
                                         <div class="pd-mini-price"><del>৳ 2500</del> <b>৳ 2250</b></div>
                                     </div>
-                                    <div class="pd-mini-bar"><span>Order Now</span><i class="fa-solid fa-cart-plus"></i></div>
+                                    <div class="pd-mini-bar"><span>Order Now</span><span class="pd-mini-cart"><i class="fa-solid fa-cart-plus"></i></span></div>
                                 </div>
                             @else
                                 {{-- Glass: frosted bar + floating FAB --}}

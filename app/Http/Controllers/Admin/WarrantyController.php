@@ -23,6 +23,7 @@ use App\Services\StockManagementService;
 use App\Services\WarrantyDisplayService;
 use App\Services\WarrantyService;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Brian2694\Toastr\Facades\Toastr;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;

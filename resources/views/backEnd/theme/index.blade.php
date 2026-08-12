@@ -11,18 +11,15 @@
     }
 
     .page-header {
-        background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
         border-radius: 20px;
         padding: 30px 35px;
         margin-bottom: 30px;
     }
     .page-header h4 {
-        color: #fff;
         font-weight: 700;
         font-size: 22px;
     }
     .page-header p {
-        color: #94a3b8;
         margin: 0;
         font-size: 14px;
     }
@@ -198,7 +195,7 @@
 @section('content')
 <div class="container-fluid py-4">
     {{-- Page Header --}}
-    <div class="page-header d-flex justify-content-between align-items-center">
+    <div class="page-header bg-light d-flex justify-content-between align-items-center">
         <div>
             <h4><i class="mdi mdi-palette-advanced me-2"></i> {{ __('Theme Manager') }} </h4>
             <p>Manage 20+ color themes — Apply, Edit, Duplicate, or Create new themes</p>
