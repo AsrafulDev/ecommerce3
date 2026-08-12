@@ -101,6 +101,10 @@ class UpdateController extends Controller
         $host = request()->getHost();
         $domain = str_replace('www.', '', $host);
 		$licenseKey = \App\Services\LicenseService::licenseKey();
+        $settings = $this->getUpdateSettings();
+
+        // Check if running on localhost/127.0.0.1
+        $isLocal = in_array($domain, self::LOCAL_ENVIRONMENTS) || $domain === 'localhost';
         
         if ($isLocal) {
             // For localhost, return empty credentials to indicate local environment
