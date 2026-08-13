@@ -70,7 +70,7 @@ body {
 }
 
 .account-card .submit-btn:hover{
-    background:#084298;
+    background: var(--button-hover-bg, #084298);
 }
 
  /* নতুন ড্যাশবোর্ড স্টাইল শুরু */
@@ -302,7 +302,7 @@ body {
         width:100%;
         height:40px;
         padding:8px 12px;
-        background:#d32f2f;
+        background: var(--accent-color, #ff6a00);
         color:#fff !important;
         border-radius:4px;
         font-size:14px;
@@ -314,11 +314,9 @@ body {
     }
     .product_item .order-btn:hover,
     .product_item .order-btn-link:hover{
-        background:#b71c1c;
-        border-color:#b71c1c;
-        color:#fff !important;
+    background: var(--button-hover-bg, #b71c1c);
+    border-color: var(--button-hover-bg, #b71c1c);
     }
-
     /* কার্ট আইকন বাটন */
     .product_item .cart-icon-btn,
     .product_item .cart-icon-link{
@@ -335,16 +333,16 @@ body {
     .product_item .cart-icon-btn i,
     .product_item .cart-icon-link i{
         font-size:18px;
-        color:#fff;
+        color: var(--button-text, #fff);
     }
     .product_item .cart-icon-btn:hover,
     .product_item .cart-icon-link:hover{
-        background:#d32f2f;
-        border-color:#d32f2f;
+        background: var(--accent-color, #ff6a00);
+        border-color: var(--accent-color, #ff6a00);
     }
     .product_item .cart-icon-btn:hover i,
     .product_item .cart-icon-link:hover i{
-        color:#fff;
+        color: var(--button-text, #fff);
     }
 
     /* আগের গ্লোবাল প্রো_btn বাটন স্টাইল সামান্য ওভাররাইড */
@@ -574,8 +572,8 @@ header {
 }
 
 .header-right a:hover {
-    background: blue;
-    border: 1px solid blue;
+    background: var(--button-hover-bg, blue);
+    border: 1px solid var(--button-hover-bg, blue);
 }
 
 .Newsletter a {
@@ -1801,8 +1799,8 @@ section.slider-section {
 .order_now_btn:hover,
 .order_now_btn:active {
     color: white !important;
-    background-color: #c82333 !important;
-    border-color: #c82333 !important;
+    background-color: var(--button-hover-bg, #c82333) !important;
+    border-color: var(--button-hover-bg, #c82333) !important;
     outline: 0;
     color: #fff !important;
     box-shadow: 0 4px 8px rgba(220, 53, 69, 0.4);
@@ -1834,8 +1832,8 @@ section.slider-section {
 .add_cart_btn:hover,
 .add_cart_btn:active {
     color: #fff !important;
-    background-color: #130179 !important;
-    border-color: #130179 !important;
+    background-color: var(--button-hover-bg, #130179) !important;
+    border-color: var(--button-hover-bg, #130179) !important;
 }
 
 .features {
@@ -3302,9 +3300,9 @@ section.product-inner {
 }
 
 .quick_view_hard a:hover {
-    background: #a92c2c;
+    background: var(--button-hover-bg, #a92c2c);
     color: #fff;
-    border: 2px solid #a92c2c;
+    border: 2px solid var(--button-hover-bg, #a92c2c);
 }
 
 .product_item:hover .product_item_inner {
@@ -3451,11 +3449,11 @@ section.product-inner {
 }
 
 .cart_btn a:hover {
-    background: #1b6ab0;
+    background: var(--button-hover-bg, #1b6ab0);
 }
 
 .pro_btn button:hover {
-    background: #1b6ab0;
+    background: var(--button-hover-bg, #1b6ab0);
 }
 
 .pro_price del {
@@ -4282,7 +4280,7 @@ ul.social_link {
 
 .desc-nav-ul li.active a,
 .desc-nav-ul li:hover a {
-    background-color: #0a3a66;
+    background-color: var(--button-hover-bg, #0a3a66);
     color: #fff;
 }
 
@@ -4332,7 +4330,7 @@ a.forget-link {
 }
 
 .cart_btn.order_button a:hover {
-    background: #1b6ab0;
+    background: var(--button-hover-bg, #1b6ab0);
 }
 
 span.sale-badge-text p {

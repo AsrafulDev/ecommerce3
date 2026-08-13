@@ -1102,7 +1102,7 @@ if (typeof ttq !== 'undefined') {
     $(document).ready(function() {
         $(".related_slider").owlCarousel({
             margin: 10,
-            items: 6,
+            items: (window.PCPerRow ? window.PCPerRow.other.desktop : 5),
             loop: true,
             dots: true,
             nav: true,
@@ -1112,15 +1112,20 @@ if (typeof ttq !== 'undefined') {
             responsiveClass: true,
             responsive: {
                 0: {
-                    items: 2,
+                    items: (window.PCPerRow ? window.PCPerRow.other.phone : 2),
                     nav: true,
                 },
-                600: {
-                    items: 3,
+                576: {
+                    items: (window.PCPerRow ? window.PCPerRow.other.tablet : 3),
                     nav: false,
                 },
-                1000: {
-                    items: 5,
+                992: {
+                    items: (window.PCPerRow ? window.PCPerRow.other.laptop : 3),
+                    nav: true,
+                    loop: true,
+                },
+                1280: {
+                    items: (window.PCPerRow ? window.PCPerRow.other.desktop : 5),
                     nav: true,
                     loop: true,
                 },

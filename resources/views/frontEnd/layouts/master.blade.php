@@ -471,8 +471,15 @@
         </style>
         {!! $generalsetting->header_code !!}
     </head>
-    @php $pcPageContext = request()->route() && request()->route()->getName() === 'home' ? 'pc-home' : 'pc-other'; @endphp
-    <body class="gotop product-card-{{ $generalsetting->product_card_style ?? 'default' }} {{ $pcPageContext }}">
+    @php
+        $pcPageContext = request()->route() && request()->route()->getName() === 'home' ? 'pc-home' : 'pc-other';
+        // Page-specific classes so theme "Page Custom CSS" can target one page/route.
+        $routeName = request()->route() ? (string) request()->route()->getName() : '';
+        $pageClass = $routeName === 'home' ? 'page-home' : 'page-' . str_replace(['.', '/', '\\'], '-', strtolower(trim($routeName, '.')));
+        $urlPath   = trim((string) parse_url(request()->getRequestUri() ?? '/', PHP_URL_PATH), '/');
+        $urlClass  = $urlPath === '' ? 'pageurl-home' : 'pageurl-' . str_replace(['/', '?', '=', '&', '.'], '-', strtolower($urlPath));
+    @endphp
+    <body class="gotop product-card-{{ $generalsetting->product_card_style ?? 'default' }} {{ $pcPageContext }} {{ $pageClass }} {{ $urlClass }}">
        
         @php $subtotal = Cart::instance('shopping')->subtotal(); @endphp
         <div class="mobile-menu">

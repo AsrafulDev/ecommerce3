@@ -99,8 +99,10 @@ $headerSubtitle = $headerSubtitle ?? '';
     </style>
     @endif
     @stack('styles')
+    {{-- 🎨 Product-card CSS (account "Best For You" product grid etc.) --}}
+    @include('frontEnd.layouts.sections.product-card-panel')
 </head>
-<body class="flex min-h-screen relative">
+<body class="flex min-h-screen relative product-card-{{ $generalsetting->product_card_style ?? 'default' }} pc-other">
 
     <div id="overlay" onclick="toggleSidebar()" class="fixed inset-0 bg-black bg-opacity-50 z-30 hidden lg:hidden"></div>
 

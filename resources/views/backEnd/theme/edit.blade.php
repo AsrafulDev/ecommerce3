@@ -319,10 +319,11 @@
                     <div class="p-4">
                         <div class="row g-3">
                             @php
+                                $adminPrimaryDefault = $edit_data->primary_color ?? '#1e293b';
                                 $adminColors = [
-                                    'sidebar_bg_color' => ['label' => 'Sidebar Background', 'default' => '#1e293b'],
+                                    'sidebar_bg_color' => ['label' => 'Sidebar Background', 'default' => $adminPrimaryDefault],
                                     'sidebar_text_color' => ['label' => 'Sidebar Text', 'default' => '#ffffff'],
-                                    'topbar_bg_color' => ['label' => 'Topbar Background', 'default' => '#0f172a'],
+                                    'topbar_bg_color' => ['label' => 'Topbar Background', 'default' => $adminPrimaryDefault],
                                     'admin_card_bg' => ['label' => 'Card Background', 'default' => '#ffffff'],
                                 ];
                             @endphp
@@ -411,6 +412,19 @@
                             <div class="col-12">
                                 <label class="form-label-pro"> {{ __('Custom CSS') }} </label>
                                 <textarea name="custom_css" class="custom-input" rows="4" placeholder="/* Write custom CSS overrides here */">{{ old('custom_css', $edit_data->custom_css ?? '') }}</textarea>
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label-pro"> {{ __('Page Custom CSS') }} </label>
+                                <textarea name="page_custom_css" class="custom-input" rows="5" placeholder="/* Target specific pages using body page classes */&#10;body.page-home { }&#10;body.page-category { }&#10;body.page-product-details { }">{{ old('page_custom_css', $edit_data->page_custom_css ?? '') }}</textarea>
+                                <small class="form-text text-muted d-block mt-1">
+                                    {{ __('Apply custom styles to specific pages. The frontend adds a page class to <body> automatically.') }}
+                                </small>
+                                <small class="form-text text-muted d-block mt-1">
+                                    <strong>{{ __('Available selectors:') }}</strong>
+                                    <code>body.page-home</code> · <code>body.page-shop</code> · <code>body.page-category</code> ·
+                                    <code>body.page-product-details</code> · <code>body.page-cart</code> · <code>body.page-checkout</code> ·
+                                    <code>body.page-blog</code> · <code>body.page-contact</code> · <code>body.pageurl-&lt;url-path&gt;</code>
+                                </small>
                             </div>
                         </div>
                     </div>

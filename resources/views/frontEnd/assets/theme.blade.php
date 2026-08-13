@@ -81,3 +81,11 @@
 @if(!empty($theme->custom_css))
 {{ $theme->custom_css }}
 @endif
+
+/* ================================================================
+   Page Custom CSS — target specific pages via body page classes
+   (e.g. body.page-home, body.page-category, body.pageurl-shop, ...)
+   ================================================================ */
+@if(!empty($theme->page_custom_css))
+{{ $theme->page_custom_css }}
+@endif

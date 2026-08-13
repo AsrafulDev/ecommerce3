@@ -33,16 +33,18 @@
     :root { --pc-title-lines: {{ $pcTitleLines }}; --pc-image-height: {{ $pcImageHeight }}px; }
 
     /* ---------- Front page (no sidebar) ---------- */
-    body.pc-home .main_product_inner { grid-template-columns: repeat({{ $pcHome['desktop'] }}, 1fr); }
-    @media (max-width: 1279px) { body.pc-home .main_product_inner { grid-template-columns: repeat({{ $pcHome['laptop'] }}, 1fr); } }
-    @media (max-width: 991px)  { body.pc-home .main_product_inner { grid-template-columns: repeat({{ $pcHome['tablet'] }}, 1fr); } }
-    @media (max-width: 575px)  { body.pc-home .main_product_inner { grid-template-columns: repeat({{ $pcHome['phone'] }}, 1fr); } }
+    body.pc-home .main_product_inner,
+    body.pc-home .product_sliders { grid-template-columns: repeat({{ $pcHome['desktop'] }}, 1fr); }
+    @media (max-width: 1279px) { body.pc-home .main_product_inner, body.pc-home .product_sliders { grid-template-columns: repeat({{ $pcHome['laptop'] }}, 1fr); } }
+    @media (max-width: 991px)  { body.pc-home .main_product_inner, body.pc-home .product_sliders { grid-template-columns: repeat({{ $pcHome['tablet'] }}, 1fr); } }
+    @media (max-width: 575px)  { body.pc-home .main_product_inner, body.pc-home .product_sliders { grid-template-columns: repeat({{ $pcHome['phone'] }}, 1fr); } }
 
     /* ---------- Other pages (sidebar / narrower) ---------- */
-    body.pc-other .main_product_inner { grid-template-columns: repeat({{ $pcOther['desktop'] }}, 1fr); }
-    @media (max-width: 1279px) { body.pc-other .main_product_inner { grid-template-columns: repeat({{ $pcOther['laptop'] }}, 1fr); } }
-    @media (max-width: 991px)  { body.pc-other .main_product_inner { grid-template-columns: repeat({{ $pcOther['tablet'] }}, 1fr); } }
-    @media (max-width: 575px)  { body.pc-other .main_product_inner { grid-template-columns: repeat({{ $pcOther['phone'] }}, 1fr); } }
+    body.pc-other .main_product_inner,
+    body.pc-other .product_sliders { grid-template-columns: repeat({{ $pcOther['desktop'] }}, 1fr); }
+    @media (max-width: 1279px) { body.pc-other .main_product_inner, body.pc-other .product_sliders { grid-template-columns: repeat({{ $pcOther['laptop'] }}, 1fr); } }
+    @media (max-width: 991px)  { body.pc-other .main_product_inner, body.pc-other .product_sliders { grid-template-columns: repeat({{ $pcOther['tablet'] }}, 1fr); } }
+    @media (max-width: 575px)  { body.pc-other .main_product_inner, body.pc-other .product_sliders { grid-template-columns: repeat({{ $pcOther['phone'] }}, 1fr); } }
 
     /* ---------- Card title line limit (all layouts) ---------- */
     .pc-premium__name,
@@ -75,3 +77,12 @@
         height: var(--pc-image-height);
     }
 </style>
+
+{{-- Per-row settings exposed to JS so owl-carousel product sliders
+     (hot deals, flash sale, related, etc.) honour the same values. --}}
+<script>
+    window.PCPerRow = {
+        home:  { desktop: {{ $pcHome['desktop'] }}, laptop: {{ $pcHome['laptop'] }}, tablet: {{ $pcHome['tablet'] }}, phone: {{ $pcHome['phone'] }} },
+        other: { desktop: {{ $pcOther['desktop'] }}, laptop: {{ $pcOther['laptop'] }}, tablet: {{ $pcOther['tablet'] }}, phone: {{ $pcOther['phone'] }} }
+    };
+</script>

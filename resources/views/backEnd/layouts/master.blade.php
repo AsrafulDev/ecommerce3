@@ -28,8 +28,10 @@
     @if(isset($activeTheme) && $activeTheme)
     @php
         // ── Compute safe, contrast-aware colors from theme ──
-        $sidebarBg  = $activeTheme->sidebar_bg_color ?? $activeTheme->header_bg_color ?? '#1e293b';
-        $topbarBg   = $activeTheme->topbar_bg_color ?? $activeTheme->header_bg_color ?? '#0f172a';
+        // Admin Panel Colors (sidebar_bg_color / topbar_bg_color) win;
+        // fall back to the primary brand color when not set.
+        $sidebarBg  = $activeTheme->sidebar_bg_color ?? $activeTheme->primary_color ?? '#1e293b';
+        $topbarBg   = $activeTheme->topbar_bg_color ?? $activeTheme->primary_color ?? '#0f172a';
         $bodyBg     = $activeTheme->body_bg_color ?? '#f8f9fa';
         $cardBg     = $activeTheme->admin_card_bg ?? '#ffffff';
         $footerBg   = $activeTheme->footer_bg_color ?? '#f8fafc';
@@ -95,11 +97,11 @@
             --ct-form-check-input-indeterminate-border-color: var(--admin-primary);
         }
         /* ── Modern Sidebar UI ── */
-        #sidebar-menu .menuitem-active > a { color: var(--admin-secondary) !important; }
-        #sidebar-menu > ul > li > a:hover { color: var(--admin-secondary) !important; }
+        #sidebar-menu .menuitem-active > a { color: var(--admin-sidebar-bg) !important; }
+        #sidebar-menu > ul > li > a:hover { color: var(--admin-sidebar-text) !important; }
         .left-side-menu { background-color: var(--admin-sidebar-bg) !important; }
         #sidebar-menu > ul > li > a { color: var(--admin-sidebar-text) !important; }
-        .navbar-custom { background-color: var(--admin-topbar-bg) !important; }
+        /* .navbar-custom { background-color: var(--admin-topbar-bg) !important; } */
         .footer { background-color: var(--admin-footer-bg) !important; }
         .btn-primary { background-color: var(--admin-primary) !important; border-color: var(--admin-primary) !important; }
         .btn-primary:hover, .btn-primary:focus, .btn-primary:active { background-color: var(--admin-button-hover) !important; border-color: var(--admin-button-hover) !important; }
@@ -144,7 +146,8 @@
             background: rgba(255,255,255,0.07) !important; padding-left: 20px !important;
         }
         body[data-leftbar-color="dark"] #side-menu > li.menuitem-active > a {
-            background: rgba(255,255,255,0.1) !important; font-weight: 600; position: relative;
+            background: var(--admin-sidebar-text) !important; color: var(--admin-sidebar-bg) !important;
+            font-weight: 600; position: relative;
         }
         body[data-leftbar-color="dark"] .nav-second-level li a:hover {
             background: rgba(255,255,255,0.06) !important; padding-left: 16px !important;
@@ -164,7 +167,8 @@
             background: rgba(0,0,0,0.04) !important; padding-left: 20px !important;
         }
         body[data-leftbar-color="light"] #side-menu > li.menuitem-active > a {
-            background: rgba(0,0,0,0.06) !important; font-weight: 600; position: relative;
+            background: var(--admin-sidebar-text) !important; color: var(--admin-sidebar-bg) !important;
+            font-weight: 600; position: relative;
         }
         body[data-leftbar-color="light"] .nav-second-level li a:hover {
             background: rgba(0,0,0,0.04) !important; padding-left: 16px !important;
@@ -186,18 +190,22 @@
         }
         body[data-leftbar-color="brand"] #side-menu > li.menuitem-active > a,
         body[data-leftbar-color="gradient"] #side-menu > li.menuitem-active > a {
-            background: rgba(255,255,255,0.12) !important; font-weight: 600; position: relative;
+            background: var(--admin-sidebar-text) !important; color: var(--admin-sidebar-bg) !important;
+            font-weight: 600; position: relative;
         }
         body[data-leftbar-color="brand"] .nav-second-level li a:hover,
         body[data-leftbar-color="gradient"] .nav-second-level li a:hover {
             background: rgba(255,255,255,0.06) !important; padding-left: 16px !important;
         }
 
+        /* Active menu item icons follow the pill text color */
+        #side-menu > li.menuitem-active > a i,
+        #side-menu > li.menuitem-active > a svg { color: var(--admin-sidebar-bg) !important; opacity: 1; }
         /* Active indicator (all modes) */
         #side-menu > li.menuitem-active > a::before {
             content: ''; position: absolute; left: 0; top: 50%; transform: translateY(-50%);
             width: 3px; height: 24px; border-radius: 3px;
-            background: var(--admin-secondary, #04a31e);
+            background: var(--admin-sidebar-text, #04a31e);
         }
 
         /* ── Submenu ── */
@@ -313,40 +321,26 @@
         }
 
         /* ═══════════════════════════════════════════════
-           ── Topbar: Text, Icons, Dropdowns ──
+           ── Topbar: Fully Theme-Driven ──
+           All colors come from the active theme. The system
+           ships only a light layout, so there are no hard-coded
+           dark/light mode overrides here.
            ═══════════════════════════════════════════════ */
         .navbar-custom { 
             background-color: var(--admin-topbar-bg) !important; 
             background-image: none !important;
         }
-        /* Topbar DARK mode */
-        body[data-topbar-color="dark"] .navbar-custom .topnav-menu .nav-link { 
-            color: color-mix(in srgb, var(--admin-topbar-text) 85%, transparent) !important;
-        }
-        body[data-topbar-color="dark"] .navbar-custom .topnav-menu .nav-link:hover { 
-            color: #fff !important; 
-            background-color: rgba(255,255,255,0.1) !important;
-        }
-        body[data-topbar-color="dark"] .navbar-custom .noti-icon { color: var(--admin-topbar-text) !important; opacity: 0.75; }
-        body[data-topbar-color="dark"] .navbar-custom .logo-box {
-            background-color: color-mix(in srgb, var(--admin-topbar-bg) 90%, #000) !important;
-        }
-        /* Topbar LIGHT mode */
-        body[data-topbar-color="light"] .navbar-custom .topnav-menu .nav-link { 
-            color: color-mix(in srgb, var(--admin-topbar-text) 85%, transparent) !important;
-        }
-        body[data-topbar-color="light"] .navbar-custom .topnav-menu .nav-link:hover { 
+        .navbar-custom .topnav-menu .nav-link,
+        .navbar-custom .noti-icon { 
             color: var(--admin-topbar-text) !important; 
-            background-color: rgba(0,0,0,0.05) !important;
         }
-        body[data-topbar-color="light"] .navbar-custom .noti-icon { color: var(--admin-topbar-text) !important; opacity: 0.8; }
-        body[data-topbar-color="light"] .navbar-custom .logo-box {
-            background-color: color-mix(in srgb, var(--admin-topbar-bg) 95%, #fff) !important;
-        }
-        /* Topbar common */
+        .navbar-custom .noti-icon { opacity: 0.85; }
+        .navbar-custom .topnav-menu .nav-link:hover,
         .navbar-custom .dropdown .nav-link.show {
-            background-color: rgba(128,128,128,0.12) !important;
+            background-color: rgba(128,128,128,0.15) !important;
+            color: var(--admin-topbar-text) !important;
         }
+        .navbar-custom .logo-box { background-color: var(--admin-topbar-bg) !important; }
         .navbar-custom .noti-icon-badge { border-color: var(--admin-topbar-bg) !important; }
 
         /* ═══════════════════════════════════════════════
@@ -363,13 +357,21 @@
         #sidebar-menu > ul > li > a svg { color: var(--admin-sidebar-text) !important; opacity: 0.65; }
         #sidebar-menu > ul > li > a:hover i,
         #sidebar-menu > ul > li > a:hover svg { opacity: 1; }
-        #sidebar-menu .menuitem-active > a { color: var(--admin-secondary) !important; }
-        #sidebar-menu .menuitem-active .active { color: var(--admin-secondary) !important; }
-        #sidebar-menu > ul > li > a.mm-active { color: var(--admin-secondary) !important; }
+        #sidebar-menu .menuitem-active > a { color: var(--admin-sidebar-bg) !important; }
+        #sidebar-menu .menuitem-active .active { color: var(--admin-sidebar-bg) !important; }
+        #sidebar-menu > ul > li > a.mm-active { color: var(--admin-sidebar-bg) !important; }
         #sidebar-menu .menu-title { color: color-mix(in srgb, var(--admin-sidebar-text) 50%, transparent) !important; }
         .nav-second-level li a { color: var(--admin-sidebar-text) !important; opacity: 0.8; }
-        .nav-second-level li a:hover, .nav-second-level li a:focus { color: var(--admin-secondary) !important; opacity: 1; }
-        .nav-second-level li.active > a { color: var(--admin-secondary) !important; }
+        .nav-second-level li a:hover, .nav-second-level li a:focus { color: var(--admin-sidebar-text) !important; opacity: 1; }
+        /* Active submenu item: inverted contrast pill (matches main menu active) */
+        .nav-second-level li.active > a,
+        .nav-second-level li.menuitem-active > a,
+        .nav-thrid-level li.active > a,
+        .nav-thrid-level li.menuitem-active > a {
+            background: var(--admin-sidebar-text) !important;
+            color: var(--admin-sidebar-bg) !important;
+            opacity: 1;
+        }
 
         /* ═══════════════════════════════════════════════
            ── User Dropdown in Sidebar ──
@@ -386,14 +388,19 @@
            ─────────────────────────────────────────── */
         body[data-leftbar-color="dark"] .left-side-menu #sidebar-menu > ul > li > a { color: var(--admin-sidebar-text) !important; }
         body[data-leftbar-color="dark"] .left-side-menu #sidebar-menu .menu-title { color: color-mix(in srgb, var(--admin-sidebar-text) 50%, transparent) !important; }
-        body[data-leftbar-color="dark"] .left-side-menu #sidebar-menu .menuitem-active > a { color: var(--admin-secondary) !important; }
-        body[data-leftbar-color="dark"] .left-side-menu #sidebar-menu .menuitem-active .active { color: var(--admin-secondary) !important; }
+        body[data-leftbar-color="dark"] .left-side-menu #sidebar-menu .menuitem-active > a { color: var(--admin-sidebar-bg) !important; }
+        body[data-leftbar-color="dark"] .left-side-menu #sidebar-menu .menuitem-active .active { color: var(--admin-sidebar-bg) !important; }
         body[data-leftbar-color="dark"] .left-side-menu .nav-second-level li a,
         body[data-leftbar-color="dark"] .left-side-menu .nav-thrid-level li a { color: var(--admin-sidebar-text) !important; opacity: 0.75; }
         body[data-leftbar-color="dark"] .left-side-menu .nav-second-level li a:hover,
+        body[data-leftbar-color="dark"] .left-side-menu .nav-thrid-level li a:hover { color: var(--admin-sidebar-text) !important; }
         body[data-leftbar-color="dark"] .left-side-menu .nav-second-level li.active > a,
-        body[data-leftbar-color="dark"] .left-side-menu .nav-thrid-level li a:hover,
-        body[data-leftbar-color="dark"] .left-side-menu .nav-thrid-level li.active > a { color: var(--admin-secondary) !important; }
+        body[data-leftbar-color="dark"] .left-side-menu .nav-second-level li.menuitem-active > a,
+        body[data-leftbar-color="dark"] .left-side-menu .nav-thrid-level li.active > a,
+        body[data-leftbar-color="dark"] .left-side-menu .nav-thrid-level li.menuitem-active > a {
+            background: var(--admin-sidebar-text) !important;
+            color: var(--admin-sidebar-bg) !important;
+        }
         body[data-leftbar-color="dark"] .left-side-menu .user-box .dropdown > a { color: var(--admin-sidebar-text) !important; }
 
         /* ═══════════════════════════════════════════════
@@ -406,11 +413,15 @@
         }
         body[data-leftbar-color="light"] .left-side-menu #sidebar-menu > ul > li > a { color: var(--admin-sidebar-text) !important; }
         body[data-leftbar-color="light"] .left-side-menu #sidebar-menu .menu-title { color: color-mix(in srgb, var(--admin-sidebar-text) 60%, transparent) !important; }
-        body[data-leftbar-color="light"] .left-side-menu #sidebar-menu .menuitem-active > a { color: var(--admin-secondary) !important; }
-        body[data-leftbar-color="light"] .left-side-menu #sidebar-menu .menuitem-active .active { color: var(--admin-secondary) !important; }
+        body[data-leftbar-color="light"] .left-side-menu #sidebar-menu .menuitem-active > a { color: var(--admin-sidebar-bg) !important; }
+        body[data-leftbar-color="light"] .left-side-menu #sidebar-menu .menuitem-active .active { color: var(--admin-sidebar-bg) !important; }
         body[data-leftbar-color="light"] .left-side-menu .nav-second-level li a { color: var(--admin-sidebar-text) !important; }
-        body[data-leftbar-color="light"] .left-side-menu .nav-second-level li a:hover,
-        body[data-leftbar-color="light"] .left-side-menu .nav-second-level li.active > a { color: var(--admin-secondary) !important; }
+        body[data-leftbar-color="light"] .left-side-menu .nav-second-level li a:hover { color: var(--admin-sidebar-text) !important; }
+        body[data-leftbar-color="light"] .left-side-menu .nav-second-level li.active > a,
+        body[data-leftbar-color="light"] .left-side-menu .nav-second-level li.menuitem-active > a {
+            background: var(--admin-sidebar-text) !important;
+            color: var(--admin-sidebar-bg) !important;
+        }
 
         /* ═══════════════════════════════════════════════
            ── Brand/Gradient Sidebar Mode Overrides ──
@@ -423,11 +434,11 @@
         body[data-leftbar-color="brand"] .left-side-menu #sidebar-menu > ul > li > a,
         body[data-leftbar-color="gradient"] .left-side-menu #sidebar-menu > ul > li > a { color: var(--admin-sidebar-text) !important; }
         body[data-leftbar-color="brand"] .left-side-menu #sidebar-menu .menuitem-active > a,
-        body[data-leftbar-color="gradient"] .left-side-menu #sidebar-menu .menuitem-active > a { color: var(--admin-secondary) !important; }
+        body[data-leftbar-color="gradient"] .left-side-menu #sidebar-menu .menuitem-active > a { color: var(--admin-sidebar-bg) !important; }
         body[data-leftbar-color="brand"] .left-side-menu .nav-second-level li a,
         body[data-leftbar-color="gradient"] .left-side-menu .nav-second-level li a { color: var(--admin-sidebar-text) !important; opacity: 0.8; }
         body[data-leftbar-color="brand"] .left-side-menu .nav-second-level li a:hover,
-        body[data-leftbar-color="gradient"] .left-side-menu .nav-second-level li a:hover { color: var(--admin-secondary) !important; }
+        body[data-leftbar-color="gradient"] .left-side-menu .nav-second-level li a:hover { color: var(--admin-sidebar-text) !important; }
 
         /* ═══════════════════════════════════════════════
            ── Topbar Mode (dark/light) ──
@@ -462,12 +473,12 @@
 
   <!-- body start -->
   @php
-      $sidebarBg  = optional($activeTheme)->sidebar_bg_color ?? optional($activeTheme)->header_bg_color ?? null;
-      $topbarBg   = optional($activeTheme)->topbar_bg_color ?? optional($activeTheme)->header_bg_color ?? null;
+      $sidebarBg  = optional($activeTheme)->sidebar_bg_color ?? optional($activeTheme)->primary_color ?? null;
+      $topbarBg   = optional($activeTheme)->topbar_bg_color ?? optional($activeTheme)->primary_color ?? null;
       $sidebarIsDark = is_color_dark($sidebarBg);
       $topbarIsDark  = is_color_dark($topbarBg);
   @endphp
-  <body data-layout-mode="default" data-theme="light" data-layout-width="fluid" data-topbar-color="{{ $topbarIsDark ? 'dark' : 'light' }}" data-menu-position="fixed" data-leftbar-color="{{ $sidebarIsDark ? 'dark' : 'light' }}" data-leftbar-size="default" data-sidebar-user="false">
+  <body data-layout-mode="default" data-theme="light" data-layout-width="fluid" data-topbar-color="light" data-menu-position="fixed" data-leftbar-color="{{ $sidebarIsDark ? 'dark' : 'light' }}" data-leftbar-size="default" data-sidebar-user="false">
     <!-- Begin page -->
     <div id="wrapper">
       <!-- Topbar Start -->

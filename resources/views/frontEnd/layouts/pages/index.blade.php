@@ -139,15 +139,20 @@
             responsiveClass: true,
             responsive: {
                 0: {
-                    items: 3,
+                    items: (window.PCPerRow ? window.PCPerRow.home.phone : 3),
                     nav: true,
                 },
-                600: {
-                    items: 3,
+                576: {
+                    items: (window.PCPerRow ? window.PCPerRow.home.tablet : 3),
                     nav: false,
                 },
-                1000: {
-                    items: 6,
+                992: {
+                    items: (window.PCPerRow ? window.PCPerRow.home.laptop : 3),
+                    nav: true,
+                    loop: false,
+                },
+                1280: {
+                    items: (window.PCPerRow ? window.PCPerRow.home.desktop : 6),
                     nav: true,
                     loop: false,
                 },
@@ -184,7 +189,7 @@
 
         $(".product_slider").owlCarousel({
             margin: 15,
-            items: 6,
+            items: (window.PCPerRow ? window.PCPerRow.home.desktop : 6),
             loop: true,
             dots: false,
             autoplay: true,
@@ -193,15 +198,19 @@
             responsiveClass: true,
             responsive: {
                 0: {
-                    items: 2,
+                    items: (window.PCPerRow ? window.PCPerRow.home.phone : 2),
                     nav: false,
                 },
-                600: {
-                    items: 5,
+                576: {
+                    items: (window.PCPerRow ? window.PCPerRow.home.tablet : 5),
                     nav: false,
                 },
-                1000: {
-                    items: 6,
+                992: {
+                    items: (window.PCPerRow ? window.PCPerRow.home.laptop : 5),
+                    nav: false,
+                },
+                1280: {
+                    items: (window.PCPerRow ? window.PCPerRow.home.desktop : 6),
                     nav: false,
                 },
             },
@@ -209,7 +218,7 @@
         
         $(".flash_sale_slider").owlCarousel({
             margin: 8,
-            items: 6,
+            items: (window.PCPerRow ? window.PCPerRow.home.desktop : 6),
             loop: true,
             dots: false,
             autoplay: true,
@@ -218,15 +227,19 @@
             responsiveClass: true,
             responsive: {
                 0: {
-                    items: 2,
+                    items: (window.PCPerRow ? window.PCPerRow.home.phone : 2),
                     nav: false,
                 },
-                600: {
-                    items: 6,
+                576: {
+                    items: (window.PCPerRow ? window.PCPerRow.home.tablet : 6),
                     nav: false,
                 },
-                1000: {
-                    items: 7,
+                992: {
+                    items: (window.PCPerRow ? window.PCPerRow.home.laptop : 6),
+                    nav: false,
+                },
+                1280: {
+                    items: (window.PCPerRow ? window.PCPerRow.home.desktop : 7),
                     nav: false,
                 },
             },
