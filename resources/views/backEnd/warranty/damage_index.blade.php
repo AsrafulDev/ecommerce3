@@ -37,6 +37,7 @@
                             <th>Serial Number</th>
                             <th>Damage Type</th>
                             <th>Status</th>
+                            <th>Supplier</th>
                             <th>Service Cost</th>
                             <th>Damage Cost</th>
                             <th>Received</th>
@@ -58,6 +59,7 @@
                             <td><small>{{ $dp->original_serial_number ?? '—' }}</small></td>
                             <td><span class="badge bg-{{ $dp->damage_type_enum->badgeClass() }}">{{ $dp->damage_type_enum->label() }}</span></td>
                             <td><span class="badge bg-{{ $dp->status_enum->badgeClass() }}">{{ $dp->status_enum->label() }}</span></td>
+                            <td><small>{{ $dp->supplier->name ?? '—' }}</small></td>
                             <td>৳{{ $dp->service_cost }}</td>
                             <td>৳{{ $dp->damage_cost }}</td>
                             <td><small>{{ $dp->received_at?->format('d M, Y') ?? '—' }}</small></td>

@@ -63,9 +63,6 @@ class AamarPayController extends Controller
         // Get amount from session (advance payment) or order
         if (Session::has('payable_amount') && Session::get('payable_amount') > 0) {
             $amount = (float) Session::get('payable_amount');
-        } elseif ($order->customer_payable_amount) {
-            // Reseller order: use customer_payable_amount (includes shipping charge)
-            $amount = (float) $order->customer_payable_amount;
         } else {
             $amount = (float) $order->amount;
         }

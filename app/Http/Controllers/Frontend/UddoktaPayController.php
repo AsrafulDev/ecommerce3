@@ -126,9 +126,6 @@ class UddoktaPayController extends Controller
                     // সেশন থেকে এমাউন্ট নিয়ে আপডেট
                     if (Session::has('payable_amount')) {
                         $payment->amount = Session::get('payable_amount');
-                    } elseif ($order->customer_payable_amount) {
-                        // Reseller order: use customer_payable_amount (includes shipping charge)
-                        $payment->amount = $order->customer_payable_amount;
                     } else {
                         // Fallback: use order amount
                         $payment->amount = $order->amount; 

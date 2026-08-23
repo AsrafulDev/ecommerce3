@@ -330,7 +330,7 @@ class FacebookCapiService
     }
 
     /**
-     * Send event with custom pixel ID and access token (e.g. for reseller landing pages)
+     * Send event with custom pixel ID and access token
      */
     public function sendEventWithCredentials(string $pixelId, string $accessToken, string $eventName, array $data = [], array $userData = [], array $options = [])
     {

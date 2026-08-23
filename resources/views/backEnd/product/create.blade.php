@@ -257,12 +257,6 @@
                         </div>
 
                         <div class="form-group mb-3">
-                            <label class="form-label"> {{ __('Reseller Price') }} </label>
-                            <input type="number" step="0.01" name="reseller_price" class="form-control" placeholder="Reseller price (optional)">
-                            <small class="text-muted"> {{ __('Special price for resellers. Leave empty if not applicable.') }} </small>
-                        </div>
-
-                        <div class="form-group mb-3">
                             <label class="form-label"> {{ __('Unit (kg/pc)') }} </label>
                             <input type="text" name="pro_unit" class="form-control" placeholder="e.g. pcs">
                         </div>

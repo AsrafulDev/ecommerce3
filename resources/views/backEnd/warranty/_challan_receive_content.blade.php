@@ -17,6 +17,7 @@
 </table>
 
 <div class="section-title">Issue Description</div>
+<p><strong>Issue Type:</strong> {{ $d['issue_type'] ?? 'N/A' }}</p>
 <p>{{ $d['issue_description'] }}</p>
 
 @if(!empty($d['notes']))

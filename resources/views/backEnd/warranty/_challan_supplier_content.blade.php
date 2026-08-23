@@ -29,8 +29,15 @@
     <tr><td class="label">Claim Number</td><td>: {{ $d['claim_number'] }}</td></tr>
     <tr><td class="label">Warranty Type</td><td>: {{ $d['warranty_type'] }}</td></tr>
     <tr><td class="label">Warranty Days</td><td>: {{ $d['warranty_days'] }} days</td></tr>
+    <tr><td class="label">Warehouse</td><td>: {{ $d['warehouse'] ?? 'N/A' }}</td></tr>
     <tr><td class="label">Courier</td><td>: {{ $d['courier'] }}</td></tr>
     <tr><td class="label">Tracking ID</td><td>: {{ $d['tracking_id'] }}</td></tr>
+</table>
+
+<div class="section-title">Claim Cause / Issue Details</div>
+<table class="info-table">
+    <tr><td class="label">Issue Type</td><td>: {{ $d['issue_type'] ?? 'N/A' }}</td></tr>
+    <tr><td class="label">Issue Description</td><td>: {{ $d['issue_description'] ?? 'N/A' }}</td></tr>
 </table>
 
 @if(!empty($d['notes']))

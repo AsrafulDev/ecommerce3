@@ -501,7 +501,7 @@ class DemoController extends Controller
         $cleanDirs = [
             'category', 'brand', 'product', 'banner', 'campaign',
             'blogs', 'subcategory', 'settings', 'popup', 'customer',
-            'user', 'users', 'vendor', 'demo', 'reseller', 'videos',
+            'user', 'users', 'demo', 'videos',
             'images',
         ];
 
@@ -565,9 +565,6 @@ class DemoController extends Controller
             'popups', 'cron_job_settings',
             'contact', 'contacts', 'colors', 'sizes',
             'digital_downloads', 'password_resets',
-            'reseller_deposits', 'reseller_wallet_transactions', 'reseller_withdrawals',
-            'reseller_landing_pages', 'reseller_landing_products',
-            'reseller_landing_contact_messages', 'reseller_landing_newsletter_subscribers',
             'stolen_reports', 'facebook_capi_settings', 'facebook_page_settings',
             'wholesale_products', 'wholesale_product_images',
         ];

@@ -11,6 +11,7 @@ class SupplierWarranty extends Model
 
     protected $fillable = [
         'purchase_item_id',
+        'batch_id',
         'product_id',
         'supplier_id',
         'warranty_days',
@@ -37,6 +38,11 @@ class SupplierWarranty extends Model
     public function purchaseItem()
     {
         return $this->belongsTo(PurchaseItem::class);
+    }
+
+    public function batch()
+    {
+        return $this->belongsTo(StockBatch::class, 'batch_id');
     }
 
     public function product()

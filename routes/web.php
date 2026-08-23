@@ -1263,6 +1263,7 @@ Route::get('stock/products/{id}/batches',     [StockController::class, 'getProdu
         Route::get('claims/{warrantyClaim}/challans', [App\Http\Controllers\Admin\WarrantyController::class, 'challans'])->name('claims.challans');
         Route::get('challans/{challan}/print', [App\Http\Controllers\Admin\WarrantyController::class, 'printChallan'])->name('challans.print');
         Route::get('challans/{challan}/pdf', [App\Http\Controllers\Admin\WarrantyController::class, 'downloadChallanPdf'])->name('challans.pdf');
+        Route::delete('challans/{challan}', [App\Http\Controllers\Admin\WarrantyController::class, 'destroyChallan'])->name('challans.destroy');
     });
 
 });

@@ -265,19 +265,11 @@
                 @if(isset($demoMode) && $demoMode)
                 <div class="mt-4 pt-3 border-top">
                     <div class="mb-2">
-                        <small class="d-block mb-1 text-muted">{{ __('Reseller User') }}</small>
-                        <div class="d-flex gap-2 align-items-center flex-wrap mb-2">
+                        <small class="d-block mb-1 text-muted">{{ __('Demo Customer') }}</small>
+                        <div class="d-flex gap-2 align-items-center flex-wrap">
                             <input type="text" class="form-control form-control-sm bg-light" value="01631843149" readonly style="flex:1;min-width:0;border:1px solid #ddd;">
                             <input type="text" class="form-control form-control-sm bg-light" value="12345678" readonly style="width:100px;border:1px solid #ddd;">
                             <button type="button" class="btn btn-sm demo-use-btn" onclick="fillDemoCreds('01631843149','12345678')">Use</button>
-                        </div>
-                    </div>
-                    <div>
-                        <small class="d-block mb-1 text-muted">{{ __('Vendor User') }}</small>
-                        <div class="d-flex gap-2 align-items-center flex-wrap">
-                            <input type="text" class="form-control form-control-sm bg-light" value="01870829343" readonly style="flex:1;min-width:0;border:1px solid #ddd;">
-                            <input type="text" class="form-control form-control-sm bg-light" value="123456789" readonly style="width:100px;border:1px solid #ddd;">
-                            <button type="button" class="btn btn-sm demo-use-btn" onclick="fillDemoCreds('01870829343','123456789')">Use</button>
                         </div>
                     </div>
                 </div>

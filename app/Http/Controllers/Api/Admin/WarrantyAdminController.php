@@ -55,6 +55,7 @@ class WarrantyAdminController extends Controller
     {
         $data = $request->validate([
             'purchase_item_id'  => 'required|exists:purchase_items,id',
+            'batch_id'          => 'nullable|exists:stock_batches,id',
             'product_id'        => 'required|exists:products,id',
             'supplier_id'       => 'required|exists:suppliers,id',
             'warranty_days'     => 'required|integer|min:0',
@@ -62,6 +63,8 @@ class WarrantyAdminController extends Controller
             'warranty_terms'    => 'nullable|string',
             'is_transferable'   => 'boolean',
         ]);
+
+        $data['warranty_days'] = (int) ($data['warranty_days'] ?? 0);
 
         $data['warranty_end_date'] = isset($data['warranty_start_date'])
             ? now()->parse($data['warranty_start_date'])->addDays($data['warranty_days'])

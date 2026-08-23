@@ -119,9 +119,6 @@ class PresetData
             'popups', 'cron_job_settings',
             'contact', 'contacts', 'colors', 'sizes',
             'digital_downloads', 'password_resets',
-            'reseller_deposits', 'reseller_wallet_transactions', 'reseller_withdrawals',
-            'reseller_landing_pages', 'reseller_landing_products',
-            'reseller_landing_contact_messages', 'reseller_landing_newsletter_subscribers',
             'stolen_reports', 'facebook_capi_settings', 'facebook_page_settings',
             'wholesale_products', 'wholesale_product_images',
         ];
@@ -172,8 +169,6 @@ class PresetData
                 'copyright'  => '© 2026 ' . $storeName . '. All rights reserved.',
                 'show_all_products' => 1,
                 'show_category_wise_products' => 1,
-                'vendor_enabled' => 0,
-                'reseller_enabled' => 0,
             ],
             'categories' => [
                 ['name' => 'Smartphones', 'slug' => 'smartphones', 'parent_id' => 0, 'image' => 'public/demo/cat-smartphones.jpg'],
@@ -252,8 +247,6 @@ class PresetData
                 'copyright'  => '© 2026 ' . $storeName . '. All rights reserved.',
                 'show_all_products' => 1,
                 'show_category_wise_products' => 1,
-                'vendor_enabled' => 0,
-                'reseller_enabled' => 0,
             ],
             'categories' => [
                 ['name' => 'Mobile Phones', 'slug' => 'mobile-phones', 'parent_id' => 0, 'image' => 'public/demo/cat-mobile.jpg'],
@@ -329,8 +322,6 @@ class PresetData
                 'copyright'  => '© 2026 ' . $storeName . '. All rights reserved.',
                 'show_all_products' => 1,
                 'show_category_wise_products' => 1,
-                'vendor_enabled' => 0,
-                'reseller_enabled' => 0,
             ],
             'categories' => [
                 ['name' => 'Organic Fruits', 'slug' => 'organic-fruits', 'parent_id' => 0, 'image' => 'public/demo/cat-fruits.jpg'],
@@ -404,8 +395,6 @@ class PresetData
                 'copyright'  => '© 2026 ' . $storeName . '. All rights reserved.',
                 'show_all_products' => 1,
                 'show_category_wise_products' => 1,
-                'vendor_enabled' => 0,
-                'reseller_enabled' => 0,
             ],
             'categories' => [
                 ['name' => 'Men\'s Fashion', 'slug' => 'mens-fashion', 'parent_id' => 0, 'image' => 'public/demo/cat-mens.jpg'],
@@ -477,8 +466,6 @@ class PresetData
                 'copyright'  => '© 2026 ' . $storeName . '. All rights reserved.',
                 'show_all_products' => 1,
                 'show_category_wise_products' => 1,
-                'vendor_enabled' => 0,
-                'reseller_enabled' => 0,
             ],
             'categories' => [
                 ['name' => 'Skincare', 'slug' => 'skincare', 'parent_id' => 0, 'image' => 'public/demo/cat-skincare.jpg'],

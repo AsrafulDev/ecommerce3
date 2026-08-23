@@ -20,7 +20,7 @@ class WarrantyChallanService
             'challan_no'        => $challanNo,
             'challan_type'      => 'receive',
             'date'              => now()->format('Y-m-d H:i'),
-            'store_name'        => config('app.name', 'Store'),
+            'store_name'        => $this->storeName(),
             'store_address'     => optional(\App\Models\GeneralSetting::first())->address ?? '',
             'store_phone'       => optional(\App\Models\GeneralSetting::first())->phone ?? '',
             'customer_name'     => $claim->customer->name ?? 'N/A',
@@ -28,6 +28,7 @@ class WarrantyChallanService
             'product_name'      => $claim->product->name ?? 'N/A',
             'serial_number'     => $this->formatSerialNumbers($claim->warrantySale->serial_numbers ?? []),
             'claim_number'      => $claim->claim_number,
+            'issue_type'        => $claim->issue_type ?? 'N/A',
             'issue_description' => $claim->issue_description,
             'received_condition'=> $data['condition'] ?? 'As described',
             'accessories'       => $data['accessories'] ?? 'None',
@@ -43,12 +44,24 @@ class WarrantyChallanService
             'generated_by'      => auth()->id(),
         ]);
 
-        $claim->update([
-            'status'              => WarrantyClaimStatus::PRODUCT_RECEIVED->value,
-            'product_received_at' => now(),
-            'receive_challan_no'  => $challanNo,
-            'receive_notes'       => $data['notes'] ?? null,
-        ]);
+        // Only advance the claim to PRODUCT_RECEIVED if it hasn't already moved
+        // past the receive stage (e.g. instant replacement / already sent to
+        // supplier). Adding a receive challan later must not rewind the status.
+        $preReceiveStatuses = [
+            WarrantyClaimStatus::SUBMITTED->value,
+            WarrantyClaimStatus::UNDER_REVIEW->value,
+            WarrantyClaimStatus::APPROVED->value,
+            WarrantyClaimStatus::AWAITING_PRODUCT->value,
+        ];
+        $claimUpdate = [
+            'receive_challan_no' => $challanNo,
+            'receive_notes'      => $data['notes'] ?? null,
+        ];
+        if (in_array($claim->status, $preReceiveStatuses)) {
+            $claimUpdate['status']              = WarrantyClaimStatus::PRODUCT_RECEIVED->value;
+            $claimUpdate['product_received_at'] = now();
+        }
+        $claim->update($claimUpdate);
 
         $claim->stages()->create([
             'stage'        => 'product_inspection',
@@ -64,18 +77,23 @@ class WarrantyChallanService
     /**
      * Generate challan when product is sent to supplier.
      * IMPORTANT: No customer info on this challan — only store + supplier + product.
+     *
+     * @param string|null $serialOverride  Optional serial number to print (e.g. the
+     *                                     ORIGINAL damaged SN after an instant replacement,
+     *                                     when the warranty sale already holds the new SN).
      */
-    public function generateSendToSupplierChallan(WarrantyClaim $claim, array $data): WarrantyChallan
+    public function generateSendToSupplierChallan(WarrantyClaim $claim, array $data, ?string $serialOverride = null): WarrantyChallan
     {
         $challanNo = $this->generateChallanNo('SUP');
         $supplier = \App\Models\Supplier::find($data['supplier_id']);
         $setting = \App\Models\GeneralSetting::first();
+        $serialNumber = $serialOverride ?? $this->formatSerialNumbers($claim->warrantySale->serial_numbers ?? []);
 
         $challanData = [
             'challan_no'        => $challanNo,
             'challan_type'      => 'send_to_supplier',
             'date'              => now()->format('Y-m-d H:i'),
-            'store_name'        => config('app.name', 'Store'),
+            'store_name'        => $this->storeName(),
             'store_address'     => optional($setting)->address ?? '',
             'store_phone'       => optional($setting)->phone ?? '',
             'store_contact'     => optional($setting)->contact_person ?? 'N/A',
@@ -84,14 +102,17 @@ class WarrantyChallanService
             'supplier_phone'    => $supplier->phone ?? 'N/A',
             'supplier_contact'  => $supplier->contact_person ?? 'N/A',
             'product_name'      => $claim->product->name ?? 'N/A',
-            'serial_number'     => $this->formatSerialNumbers($claim->warrantySale->serial_numbers ?? []),
+            'serial_number'     => $serialNumber,
             'claim_number'      => $claim->claim_number,
+            'issue_type'        => $claim->issue_type ?? 'N/A',
+            'issue_description' => $claim->issue_description,
             'warranty_type'     => $claim->warrantySale->warranty_type,
             'warranty_days'     => $claim->warrantySale->warranty_days,
+            'warehouse'         => $data['warehouse'] ?? 'N/A',
             'courier'           => $data['courier'] ?? 'N/A',
             'tracking_id'       => $data['tracking_id'] ?? 'N/A',
             'notes'             => $data['notes'] ?? '',
-            'footer_text'       => 'For Supplier Warranty Claim. Product SN: ' . $this->formatSerialNumbers($claim->warrantySale->serial_numbers ?? []),
+            'footer_text'       => 'For Supplier Warranty Claim. Product SN: ' . $serialNumber,
         ];
 
         $challan = WarrantyChallan::create([
@@ -134,12 +155,14 @@ class WarrantyChallanService
             'date'                    => now()->format('Y-m-d H:i'),
             'supplier_name'           => $claim->sentSupplier->name ?? 'N/A',
             'supplier_return_challan' => $data['supplier_return_challan'] ?? 'N/A',
-            'store_name'              => config('app.name', 'Store'),
+            'store_name'              => $this->storeName(),
             'product_name'            => $claim->product->name ?? 'N/A',
             'original_sn'             => $this->formatSerialNumbers($claim->warrantySale->serial_numbers ?? []),
             'replacement_sn'          => $data['replacement_sn'] ?? null,
             'return_type'             => $data['return_type'] ?? 'repaired',
             'claim_number'            => $claim->claim_number,
+            'issue_type'              => $claim->issue_type ?? 'N/A',
+            'issue_description'       => $claim->issue_description,
             'supplier_charge'         => $data['supplier_charge'] ?? 0,
             'notes'                   => $data['notes'] ?? '',
             'footer_text'             => 'Product returned from supplier warranty claim.',
@@ -197,7 +220,7 @@ class WarrantyChallanService
             'challan_no'       => $challanNo,
             'challan_type'     => 'delivery',
             'date'             => now()->format('Y-m-d H:i'),
-            'store_name'       => config('app.name', 'Store'),
+            'store_name'       => $this->storeName(),
             'store_address'    => optional(\App\Models\GeneralSetting::first())->address ?? '',
             'store_phone'      => optional(\App\Models\GeneralSetting::first())->phone ?? '',
             'customer_name'    => $claim->customer->name ?? 'N/A',
@@ -206,6 +229,8 @@ class WarrantyChallanService
             'product_name'     => $claim->product->name ?? 'N/A',
             'serial_number'    => $this->formatSerialNumbers($warrantySale->serial_numbers ?? []),
             'claim_number'     => $claim->claim_number,
+            'issue_type'       => $claim->issue_type ?? 'N/A',
+            'issue_description'=> $claim->issue_description,
             'return_type'      => $claim->return_type ?? 'repaired',
             'warranty_type'    => $warrantySale->warranty_type,
             'warranty_days'    => $warrantySale->warranty_days,
@@ -247,6 +272,16 @@ class WarrantyChallanService
     }
 
     // ── Helper ──────────────────────────────
+
+    /**
+     * Website / store name shown on challans — from GeneralSetting (site name),
+     * falling back to the app name from config.
+     */
+    private function storeName(): string
+    {
+        $name = optional(\App\Models\GeneralSetting::first())->name;
+        return $name ?: (string) config('app.name', 'Store');
+    }
 
     private function generateChallanNo(string $prefix): string
     {

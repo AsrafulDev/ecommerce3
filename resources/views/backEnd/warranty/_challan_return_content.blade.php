@@ -26,6 +26,12 @@
     @endif
 </table>
 
+<div class="section-title">Claim Cause / Issue Details</div>
+<table class="info-table">
+    <tr><td class="label">Issue Type</td><td>: {{ $d['issue_type'] ?? 'N/A' }}</td></tr>
+    <tr><td class="label">Issue Description</td><td>: {{ $d['issue_description'] ?? 'N/A' }}</td></tr>
+</table>
+
 @if(!empty($d['notes']))
 <div class="section-title">Notes</div>
 <p>{{ $d['notes'] }}</p>

@@ -276,22 +276,6 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @php
-                                // Check if this is a reseller order (once, outside loop)
-                                // Reseller orders ALWAYS have customer_payable_amount field set
-                                $isResellerOrderItem = !empty($order->customer_payable_amount);
-                                
-                                // For reseller orders: calculate custom_price from customer_payable_amount
-                                $customPrice = null;
-                                $totalProductValue = 0;
-                                if ($isResellerOrderItem && $order->customer_payable_amount) {
-                                    $customPrice = $order->customer_payable_amount - $order->shipping_charge;
-                                    // Calculate total of all products (sum of sale_price * qty)
-                                    foreach ($order->orderdetails as $od) {
-                                        $totalProductValue += ($od->sale_price * $od->qty);
-                                    }
-                                }
-                            @endphp
                             @foreach($order->orderdetails as $key=>$value)
                             @php
                                 // 💰 Product discount (wholesale)
@@ -304,14 +288,8 @@
                                     $warrantyPrice = $warrantyTier ? (float)($warrantyTier->additional_cost ?? 0) : 0;
                                 }
 
-                                if ($isResellerOrderItem && $customPrice && $totalProductValue > 0) {
-                                    $thisProductValue = $value->sale_price * $value->qty;
-                                    $thisProductShare = ($thisProductValue / $totalProductValue) * $customPrice;
-                                    $displayPrice = $thisProductShare / $value->qty;
-                                } else {
-                                    // Show actual sale_price — the price customer paid per unit
-                                    $displayPrice = $value->sale_price;
-                                }
+                                // Show actual sale_price — the price customer paid per unit
+                                $displayPrice = $value->sale_price;
 
                                 // Per-unit subtotal (always = sale_price × qty)
                                 $lineSubtotal = $value->sale_price * $value->qty;
@@ -396,10 +374,6 @@
 
                     <div class="invoice-bottom">
                        @php
-    // Check if this is a reseller order
-    // Reseller orders ALWAYS have customer_payable_amount field set
-    $isResellerOrder = !empty($order->customer_payable_amount);
-
     $shipping = $order->shipping_charge;
     $discount = $order->discount;
 
@@ -416,22 +390,14 @@
     }
 
     // ⭐ Subtotal = sum of per-item line subtotals (includes warranty per-item, no separate row needed)
-    if ($isResellerOrder && $order->customer_payable_amount) {
-        $subtotal = $order->customer_payable_amount - $order->shipping_charge;
-    } else {
-        $subtotal = 0;
-        foreach ($order->orderdetails as $item) {
-            $subtotal += ($item->sale_price * $item->qty);
-        }
+    $subtotal = 0;
+    foreach ($order->orderdetails as $item) {
+        $subtotal += ($item->sale_price * $item->qty);
     }
     
     // ✅ Compute final total from order details (robust — not relying on stored order->amount)
-    if ($isResellerOrder) {
-        $finalTotal = $order->customer_payable_amount;
-    } else {
-        // subtotal (includes warranty in price) - product discount + shipping - coupon discount
-        $finalTotal = max(0, $subtotal - $totalProductDiscount + $shipping - $discount);
-    }
+    // subtotal (includes warranty in price) - product discount + shipping - coupon discount
+    $finalTotal = max(0, $subtotal - $totalProductDiscount + $shipping - $discount);
 
     // Payment Table থেকে নেওয়া Paid/Advance Amount
     $advancePaid = \App\Models\Payment::where('order_id', $order->id)->sum('amount');
@@ -442,12 +408,6 @@
 
 <table class="table" style="width: 350px; float: right; margin-bottom: 30px;">
     <tbody style="background:#f1f9f8">
-        @if($isResellerOrder)
-            <tr style="background:#ffc107;color:#000">
-                <td><strong><i class="fa fa-user-tag"></i> {{ __('Reseller Order') }} </strong></td>
-                <td></td>
-            </tr>
-        @endif
         <tr>
             <td><strong> {{ __('SubTotal') }} </strong></td>
             <td><strong>৳{{ number_format($subtotal, 2) }}</strong></td>
@@ -468,7 +428,7 @@
         </tr>
 
         <tr style="background:#4DBC60;color:#fff">
-            <td><strong>{{ $isResellerOrder ? 'Customer Payable Amount' : 'Final Total' }}</strong></td>
+            <td><strong>Final Total</strong></td>
             <td><strong>৳{{ number_format($finalTotal, 2) }}</strong></td>
         </tr>
 
@@ -544,16 +504,14 @@
 
 {{-- ══ POS RECEIPT (print only) ══ --}}
 @php
-    $isRes   = !empty($order->customer_payable_amount);
     $sub     = 0;
     $prodDisc = 0;
     foreach ($order->orderdetails as $od) {
         $sub += ($od->sale_price * $od->qty);
         $prodDisc += ((float)($od->product_discount ?? 0)) * $od->qty;
     }
-    if ($isRes && $order->customer_payable_amount) { $sub = $order->customer_payable_amount - $order->shipping_charge; }
     // ✅ Compute total from details — warranty already in sale_price
-    $ftotal  = $isRes ? $order->customer_payable_amount : max(0, $sub - $prodDisc + $order->shipping_charge - $order->discount);
+    $ftotal  = max(0, $sub - $prodDisc + $order->shipping_charge - $order->discount);
     $tqty    = $order->orderdetails->sum('qty');
     $pmethod = strtoupper($order->payment ? $order->payment->payment_method : 'N/A');
     $pstatus = $order->payment_status ?? ($order->payment ? $order->payment->payment_status : 'pending');
@@ -598,10 +556,7 @@
         <tbody>
             @foreach($order->orderdetails as $key => $value)
             @php
-                if ($isRes && $order->customer_payable_amount && $sub > 0) {
-                    $tv = $value->sale_price * $value->qty;
-                    $dp = (($tv / ($sub + $order->discount)) * $sub) / $value->qty;
-                } else { $dp = $value->sale_price; }
+                $dp = $value->sale_price;
                 $szd = null;
                 if ($value->size) { $szd = $value->size->sizeName ?? null; }
                 elseif ($value->product_size) {

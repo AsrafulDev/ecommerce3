@@ -67,6 +67,10 @@
         .copy-page { border: 0px solid #000 !important; box-shadow: none !important; page-break-after: always; }
         .copy-page:last-child { page-break-after: auto; }
     }
+
+    /* ── Supplier challan: each copy = exactly one A4 page ── */
+    .sup-copy { page-break-after: always; }
+    .sup-copy:last-child { page-break-after: auto; }
 </style>
 
 <div class="no-print text-end mb-3" style="max-width:800px;margin:10px auto;">
@@ -81,75 +85,49 @@
 @php $d = $challan->challan_data; @endphp
 
 {{-- ═══════════════════════════════════════════════ --}}
-{{-- RECEIVE CHALLAN (2 pages: Customer + Store)   --}}
+{{-- ALL CHALLAN TYPES — A4 template (2 copies)     --}}
 {{-- ═══════════════════════════════════════════════ --}}
 @if($challan->challan_type === 'receive')
-{{-- Page 1: Customer Copy --}}
-<div class="copy-page">
-    <div class="page-label page-customer">Customer Copy</div>
-    <div class="challan-box" style="box-shadow:none;padding:10px;margin:0;">
-        @include('backEnd.warranty._challan_receive_content', ['d' => $d])
-    </div>
-    <table class="sig-area"><tr>
-        <td><div class="sig-line">Customer Signature</div></td>
-        <td><div class="sig-line">Store Representative</div></td>
-    </tr></table>
+{{-- Copy 1: Customer Copy --}}
+<div class="sup-copy">
+    @include('backEnd.warranty._challan_a4_print', ['d' => $d, 'copyLabel' => 'Customer Copy', 'challanType' => 'receive'])
 </div>
-{{-- Page 2: Store Copy --}}
-<div class="copy-page">
-    <div class="page-label page-store">Store Copy</div>
-    <div class="challan-box" style="box-shadow:none;padding:10px;margin:0;">
-        @include('backEnd.warranty._challan_receive_content', ['d' => $d])
-    </div>
-    <table class="sig-area"><tr>
-        <td><div class="sig-line">Customer Signature</div></td>
-        <td><div class="sig-line">Store Representative</div></td>
-    </tr></table>
+{{-- Copy 2: Store Copy --}}
+<div class="sup-copy">
+    @include('backEnd.warranty._challan_a4_print', ['d' => $d, 'copyLabel' => 'Store Copy', 'challanType' => 'receive'])
 </div>
 @endif
 
-{{-- ═══════════════════════════════════════════════ --}}
-{{-- SEND TO SUPPLIER (2 pages: Supplier + Store)  --}}
-{{-- ═══════════════════════════════════════════════ --}}
 @if($challan->challan_type === 'send_to_supplier')
-{{-- Page 1: Supplier Copy --}}
-<div class="copy-page">
-    <div class="page-label page-supplier">Supplier Copy</div>
-    <div class="challan-box" style="box-shadow:none;padding:10px;margin:0;">
-        @include('backEnd.warranty._challan_supplier_content', ['d' => $d])
-    </div>
-    <table class="sig-area"><tr>
-        <td><div class="sig-line">Supplier Signature</div></td>
-        <td><div class="sig-line">Store Representative</div></td>
-    </tr></table>
+{{-- Copy 1: Supplier Copy --}}
+<div class="sup-copy">
+    @include('backEnd.warranty._challan_a4_print', ['d' => $d, 'copyLabel' => 'Supplier Copy', 'challanType' => 'send_to_supplier'])
 </div>
-{{-- Page 2: Store Copy --}}
-<div class="copy-page">
-    <div class="page-label page-store">Store Copy</div>
-    <div class="challan-box" style="box-shadow:none;padding:10px;margin:0;">
-        @include('backEnd.warranty._challan_supplier_content', ['d' => $d])
-    </div>
-    <table class="sig-area"><tr>
-        <td><div class="sig-line">Supplier Signature</div></td>
-        <td><div class="sig-line">Store Representative</div></td>
-    </tr></table>
+{{-- Copy 2: Store Copy --}}
+<div class="sup-copy">
+    @include('backEnd.warranty._challan_a4_print', ['d' => $d, 'copyLabel' => 'Store Copy', 'challanType' => 'send_to_supplier'])
 </div>
 @endif
 
-{{-- ═══════════════════════════════════════════════ --}}
-{{-- SUPPLIER RETURN / DELIVERY (single page)       --}}
-{{-- ═══════════════════════════════════════════════ --}}
-@if(in_array($challan->challan_type, ['receive_return', 'delivery']))
-<div class="copy-page">
-    @if($challan->challan_type === 'receive_return')
-        @include('backEnd.warranty._challan_return_content', ['d' => $d])
-    @else
-        @include('backEnd.warranty._challan_delivery_content', ['d' => $d])
-    @endif
-    <table class="sig-area"><tr>
-        <td><div class="sig-line">Customer Signature</div></td>
-        <td><div class="sig-line">Store Representative</div></td>
-    </tr></table>
+@if($challan->challan_type === 'receive_return')
+{{-- Copy 1: Supplier Copy --}}
+<div class="sup-copy">
+    @include('backEnd.warranty._challan_a4_print', ['d' => $d, 'copyLabel' => 'Supplier Copy', 'challanType' => 'receive_return'])
+</div>
+{{-- Copy 2: Store Copy --}}
+<div class="sup-copy">
+    @include('backEnd.warranty._challan_a4_print', ['d' => $d, 'copyLabel' => 'Store Copy', 'challanType' => 'receive_return'])
+</div>
+@endif
+
+@if($challan->challan_type === 'delivery')
+{{-- Copy 1: Customer Copy --}}
+<div class="sup-copy">
+    @include('backEnd.warranty._challan_a4_print', ['d' => $d, 'copyLabel' => 'Customer Copy', 'challanType' => 'delivery'])
+</div>
+{{-- Copy 2: Store Copy --}}
+<div class="sup-copy">
+    @include('backEnd.warranty._challan_a4_print', ['d' => $d, 'copyLabel' => 'Store Copy', 'challanType' => 'delivery'])
 </div>
 @endif
 

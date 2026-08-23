@@ -128,7 +128,7 @@
                 <div class="row g-2">
                     <div class="col-md-6 mb-2">
                         <label class="form-label">Supplier <span class="text-danger">*</span></label>
-                        <select name="supplier_id" class="form-select" required>
+                        <select name="supplier_id" class="form-select" id="add_supplier_id" required>
                             <option value="">— Select Supplier —</option>
                             @foreach($suppliers as $s)
                                 <option value="{{ $s->id }}">{{ $s->name }}</option>
@@ -137,7 +137,7 @@
                     </div>
                     <div class="col-md-6 mb-2">
                         <label class="form-label">Product <span class="text-danger">*</span></label>
-                        <select name="product_id" class="form-select" required>
+                        <select name="product_id" class="form-select" id="add_product_id" required>
                             <option value="">— Select Product —</option>
                             @foreach($products as $p)
                                 <option value="{{ $p->id }}">{{ $p->name }}</option>
@@ -153,6 +153,15 @@
                             @endforeach
                         </select>
                     </div>
+                    <div class="col-md-6 mb-2">
+                        <label class="form-label">Batch (optional)</label>
+                        <select name="batch_id" class="form-select" id="add_batch_id">
+                            <option value="">— None —</option>
+                            @foreach($batches as $b)
+                                <option value="{{ $b->id }}" data-product-id="{{ $b->product_id }}" data-supplier-id="{{ $b->supplier_id }}">{{ $b->batch_no ?: 'Batch #'.$b->id }} · {{ $b->product->name ?? 'Product' }} ({{ $b->remaining_qty }} left)</option>
+                            @endforeach
+                        </select>
+                    </div>
                     <div class="col-md-3 mb-2">
                         <label class="form-label">Warranty Days <span class="text-danger">*</span></label>
                         <input type="number" name="warranty_days" class="form-control" min="0" value="0" required>
@@ -164,6 +173,10 @@
                     <div class="col-12 mb-2">
                         <label class="form-label">Warranty Terms</label>
                         <input type="text" name="warranty_terms" class="form-control" placeholder="e.g. 1:1 exchange within warranty period">
+                    </div>
+                    <div class="col-12 mb-2">
+                        <label class="form-label">Notes</label>
+                        <textarea name="notes" class="form-control" rows="2" placeholder="Additional notes..."></textarea>
                     </div>
                     <div class="col-12">
                         <div class="form-check">
@@ -219,6 +232,17 @@
                                 @else
                                     Purchase Item #{{ $w->purchaseItem->id }}
                                 @endif
+                            @else
+                                <span class="text-muted">Not linked</span>
+                            @endif
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>Batch</th>
+                        <td>
+                            @if($w->batch)
+                                <strong>{{ $w->batch->batch_no ?: 'Batch #'.$w->batch->id }}</strong>
+                                @if($w->batch->remaining_qty !== null)<div class="small text-muted">Remaining: {{ $w->batch->remaining_qty }}</div>@endif
                             @else
                                 <span class="text-muted">Not linked</span>
                             @endif
@@ -281,7 +305,7 @@
                 <div class="row g-2">
                     <div class="col-md-6 mb-2">
                         <label class="form-label">Supplier <span class="text-danger">*</span></label>
-                        <select name="supplier_id" class="form-select" required>
+                        <select name="supplier_id" class="form-select edit-supplier-id" data-warranty-id="{{ $w->id }}" required>
                             @foreach($suppliers as $s)
                                 <option value="{{ $s->id }}" {{ $w->supplier_id == $s->id ? 'selected' : '' }}>{{ $s->name }}</option>
                             @endforeach
@@ -289,7 +313,7 @@
                     </div>
                     <div class="col-md-6 mb-2">
                         <label class="form-label">Product <span class="text-danger">*</span></label>
-                        <select name="product_id" class="form-select" required>
+                        <select name="product_id" class="form-select edit-product-id" data-warranty-id="{{ $w->id }}" required>
                             @foreach($products as $p)
                                 <option value="{{ $p->id }}" {{ $w->product_id == $p->id ? 'selected' : '' }}>{{ $p->name }}</option>
                             @endforeach
@@ -304,6 +328,15 @@
                             @endforeach
                         </select>
                     </div>
+                    <div class="col-md-6 mb-2">
+                        <label class="form-label">Batch (optional)</label>
+                        <select name="batch_id" class="form-select edit-batch-id" data-warranty-id="{{ $w->id }}">
+                            <option value="">— None —</option>
+                            @foreach($batches as $b)
+                                <option value="{{ $b->id }}" data-product-id="{{ $b->product_id }}" data-supplier-id="{{ $b->supplier_id }}" {{ $w->batch_id == $b->id ? 'selected' : '' }}>{{ $b->batch_no ?: 'Batch #'.$b->id }} · {{ $b->product->name ?? 'Product' }} ({{ $b->remaining_qty }} left)</option>
+                            @endforeach
+                        </select>
+                    </div>
                     <div class="col-md-3 mb-2">
                         <label class="form-label">Warranty Days <span class="text-danger">*</span></label>
                         <input type="number" name="warranty_days" class="form-control" min="0" value="{{ $w->warranty_days }}" required>
@@ -315,6 +348,10 @@
                     <div class="col-12 mb-2">
                         <label class="form-label">Warranty Terms</label>
                         <input type="text" name="warranty_terms" class="form-control" value="{{ $w->warranty_terms }}">
+                    </div>
+                    <div class="col-12 mb-2">
+                        <label class="form-label">Notes</label>
+                        <textarea name="notes" class="form-control" rows="2" placeholder="Additional notes...">{{ $w->notes }}</textarea>
                     </div>
                     <div class="col-12">
                         <div class="form-check">
@@ -332,4 +369,64 @@
     </div>
 </div>
 @endforeach
+
+<script>
+    // 🔎 Filter batch dropdown by the selected product + supplier (Add + Edit modals)
+    (function () {
+        function filterBatches(productSelect, supplierSelect, batchSelect) {
+            if (!productSelect || !batchSelect) return;
+            var productId = productSelect.value;
+            var supplierId = supplierSelect ? supplierSelect.value : '';
+            var selectedBatch = batchSelect.value; // remember current selection
+            var firstMatch = null;
+
+            Array.from(batchSelect.options).forEach(function (opt) {
+                if (opt.value === '') return; // keep the "— None —" option
+                var optProduct = opt.getAttribute('data-product-id');
+                var optSupplier = opt.getAttribute('data-supplier-id');
+                var show = true;
+                if (productId && optProduct !== productId) show = false;
+                if (supplierId && optSupplier !== supplierId) show = false;
+                opt.style.display = show ? '' : 'none';
+                if (show && !firstMatch) firstMatch = opt.value;
+            });
+
+            // If the currently selected batch no longer matches, auto-select
+            // the first matching batch (or "None" if nothing matches).
+            var selectedStillVisible = selectedBatch && Array.from(batchSelect.options)
+                .some(function (o) { return o.value === selectedBatch && o.style.display !== 'none'; });
+            if (!selectedStillVisible) {
+                batchSelect.value = firstMatch || '';
+            }
+        }
+
+        // Add modal
+        var addProduct = document.getElementById('add_product_id');
+        var addSupplier = document.getElementById('add_supplier_id');
+        var addBatch = document.getElementById('add_batch_id');
+        if (addProduct && addBatch) {
+            var addSync = function () { filterBatches(addProduct, addSupplier, addBatch); };
+            addProduct.addEventListener('change', addSync);
+            if (addSupplier) addSupplier.addEventListener('change', addSync);
+        }
+
+        // Edit modals (one per warranty)
+        document.querySelectorAll('.edit-product-id').forEach(function (productSelect) {
+            var wid = productSelect.getAttribute('data-warranty-id');
+            var batchSelect = document.querySelector('.edit-batch-id[data-warranty-id="' + wid + '"]');
+            var supplierSelect = document.querySelector('.edit-supplier-id[data-warranty-id="' + wid + '"]');
+            if (batchSelect) {
+                var editSync = function () { filterBatches(productSelect, supplierSelect, batchSelect); };
+                productSelect.addEventListener('change', editSync);
+                if (supplierSelect) supplierSelect.addEventListener('change', editSync);
+
+                // Apply the filter as soon as the edit modal opens (pre-selected values)
+                var editModal = document.getElementById('editModal' + wid);
+                if (editModal) {
+                    editModal.addEventListener('shown.bs.modal', editSync);
+                }
+            }
+        });
+    })();
+</script>
 @endsection

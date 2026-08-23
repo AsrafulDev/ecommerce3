@@ -396,14 +396,20 @@
 
             {{-- 🆕 Challans (inline, no separate page needed) --}}
             @php $claimChallans = $warrantyClaim->challans()->latest()->get(); @endphp
-            @if($claimChallans->isNotEmpty())
             <div class="card mb-3">
                 <div class="card-header d-flex justify-content-between align-items-center py-2">
-                    <strong>📄 Challans</strong>
-                    <a href="{{ route('admin.warranty.claims.challans', $warrantyClaim) }}" class="btn btn-sm btn-outline-secondary">View All</a>
+                    <strong>📄 Challans ({{ $claimChallans->count() }})</strong>
+                    <div class="d-flex gap-1">
+                        <button class="btn btn-sm btn-success" data-bs-toggle="modal" data-bs-target="#newChallanModal" title="Add new challan">
+                            <i class="fa fa-plus"></i> Add
+                        </button>
+                        @if($claimChallans->isNotEmpty())
+                        <a href="{{ route('admin.warranty.claims.challans', $warrantyClaim) }}" class="btn btn-sm btn-outline-secondary">View All</a>
+                        @endif
+                    </div>
                 </div>
                 <div class="card-body p-0">
-                    @foreach($claimChallans as $ch)
+                    @forelse($claimChallans as $ch)
                     <div class="d-flex justify-content-between align-items-center px-3 py-2 border-bottom">
                         <div>
                             <span class="badge bg-{{ match($ch->challan_type) {'receive'=>'primary','send_to_supplier'=>'warning','receive_return'=>'info','delivery'=>'success',default=>'secondary'} }} me-1">{{ $ch->challan_type_label }}</span>
@@ -415,10 +421,83 @@
                             <a href="{{ route('admin.warranty.challans.pdf', $ch) }}" class="btn btn-sm btn-outline-danger" title="Download PDF">📥</a>
                         </div>
                     </div>
+                    @empty
+                    <p class="text-muted text-center py-3 mb-0">No challans yet. Click <strong>+ Add</strong> to create one.</p>
+                    @endforelse
+                </div>
+            </div>
+
+            {{-- 🆕 Claiming Process checklist --}}
+            @php
+                $status = $warrantyClaim->status;
+                $processes = [
+                    [
+                        'key'    => 'receive',
+                        'label'  => '📦 Product Received',
+                        'done'   => !empty($warrantyClaim->receive_challan_no) || in_array($status, ['product_received','sent_to_supplier','awaiting_supplier_return','supplier_returned','serviced','ready_for_delivery','delivered','resolved']),
+                        'modal'  => 'receiveModal',
+                        'hint'   => 'Receive product from customer & generate receive challan',
+                    ],
+                    [
+                        'key'    => 'send_to_supplier',
+                        'label'  => '🚚 Sent to Supplier',
+                        'done'   => !empty($warrantyClaim->supplier_challan_no) || !empty($warrantyClaim->sent_supplier_id) || in_array($status, ['sent_to_supplier','awaiting_supplier_return','supplier_returned','serviced','ready_for_delivery','delivered','resolved']),
+                        'modal'  => 'sendSupplierModal',
+                        'hint'   => 'Send product to supplier for warranty claim & generate supplier challan',
+                    ],
+                    [
+                        'key'    => 'receive_return',
+                        'label'  => '📥 Supplier Return Received',
+                        'done'   => !empty($warrantyClaim->supplier_return_challan_no) || in_array($status, ['supplier_returned','serviced','ready_for_delivery','delivered','resolved']),
+                        'modal'  => 'supplierReturnModal',
+                        'hint'   => 'Record product returned from supplier & generate return challan',
+                    ],
+                    [
+                        'key'    => 'ready_for_delivery',
+                        'label'  => '✅ Ready for Delivery',
+                        'done'   => !empty($warrantyClaim->ready_for_delivery_at) || in_array($status, ['ready_for_delivery','delivered','resolved']),
+                        'modal'  => 'readyForDeliveryForm',
+                        'hint'   => 'Mark product ready to return to customer',
+                    ],
+                    [
+                        'key'    => 'delivery',
+                        'label'  => '🎉 Delivered to Customer',
+                        'done'   => !empty($warrantyClaim->delivery_challan_no) || in_array($status, ['delivered','resolved']),
+                        'modal'  => 'deliverModal',
+                        'hint'   => 'Deliver product to customer & generate delivery challan',
+                    ],
+                ];
+            @endphp
+            <div class="card mb-3">
+                <div class="card-header py-2"><strong>🔄 Claiming Process</strong></div>
+                <div class="card-body p-0">
+                    @foreach($processes as $proc)
+                    <div class="d-flex align-items-center px-3 py-2 border-bottom {{ $proc['done'] ? 'bg-soft-success' : '' }}">
+                        <div class="form-check me-2 mb-0">
+                            <input class="form-check-input" type="checkbox" id="proc_{{ $proc['key'] }}" {{ $proc['done'] ? 'checked' : '' }} disabled>
+                        </div>
+                        <div class="flex-grow-1">
+                            <label for="proc_{{ $proc['key'] }}" class="mb-0 {{ $proc['done'] ? 'text-success' : '' }}">
+                                <strong>{{ $proc['label'] }}</strong>
+                            </label>
+                            <br><small class="text-muted">{{ $proc['hint'] }}</small>
+                        </div>
+                        @if(!$proc['done'])
+                            @if($proc['modal'] === 'readyForDeliveryForm')
+                            <form action="{{ route('admin.warranty.claims.ready-for-delivery', $warrantyClaim) }}" method="POST" class="d-inline">
+                                @csrf
+                                <button class="btn btn-sm btn-outline-success">Do Now</button>
+                            </form>
+                            @else
+                            <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#{{ $proc['modal'] }}">Do Now</button>
+                            @endif
+                        @else
+                            <span class="badge bg-success">Done</span>
+                        @endif
+                    </div>
                     @endforeach
                 </div>
             </div>
-            @endif
         </div>
     </div>
 
@@ -490,10 +569,14 @@
                     <label class="form-label">Select Supplier</label>
                     <select name="supplier_id" class="form-select mb-2" required>
                         <option value="">-- Select --</option>
-                        @foreach(\App\Models\Supplier::orderBy('name')->get() as $sup)
+                        @forelse($productSuppliers ?? [] as $sup)
                             <option value="{{ $sup->id }}">{{ $sup->name }}</option>
-                        @endforeach
+                        @empty
+                            <option value="" disabled>No supplier found for this product</option>
+                        @endforelse
                     </select>
+                    <label class="form-label">Warehouse</label>
+                    <input type="text" name="warehouse" class="form-control mb-2" placeholder="Warehouse name / location">
                     <label class="form-label">Courier</label>
                     <input type="text" name="courier" class="form-control mb-2" placeholder="Courier name">
                     <label class="form-label">Tracking ID</label>
@@ -625,6 +708,25 @@
                     <input type="text" name="condition_note" class="form-control mb-2" placeholder="e.g. screen cracked, no accessories">
                     <label class="form-label">Accessories Received</label>
                     <input type="text" name="accessories" class="form-control mb-2" placeholder="Charger, box, manual...">
+                    <hr>
+                    <div class="alert alert-info py-2 mb-2">
+                        <small>🚚 <strong>Send damaged unit to supplier for warranty claim</strong> — optional. Select a supplier to generate a supplier challan for the damaged unit.</small>
+                    </div>
+                    <label class="form-label">Send to Supplier (for warranty claim)</label>
+                    <select name="supplier_id" class="form-select mb-2">
+                        <option value="">-- No supplier (keep in damage stock) --</option>
+                        @forelse($productSuppliers ?? [] as $sup)
+                            <option value="{{ $sup->id }}">{{ $sup->name }}</option>
+                        @empty
+                            <option value="" disabled>No supplier found for this product</option>
+                        @endforelse
+                    </select>
+                    <label class="form-label">Warehouse</label>
+                    <input type="text" name="warehouse" class="form-control mb-2" placeholder="Warehouse name / location">
+                    <label class="form-label">Courier</label>
+                    <input type="text" name="courier" class="form-control mb-2" placeholder="Courier name">
+                    <label class="form-label">Tracking ID</label>
+                    <input type="text" name="tracking_id" class="form-control mb-2" placeholder="Tracking number">
                     <div class="alert alert-warning py-2 mb-0">
                         <small>⚠️ Replaces the warranty serial number with the new unit's SN.</small>
                     </div>
@@ -659,6 +761,141 @@
         </div>
     </div>
 </div>
+
+{{-- ➕ New Challan Modal (add any challan type) --}}
+<div class="modal fade" id="newChallanModal" tabindex="-1">
+    <div class="modal-dialog">
+        <form id="newChallanForm" method="POST" class="modal-content">
+            @csrf
+            <div class="modal-header"><h5>➕ Add New Challan</h5></div>
+            <div class="modal-body">
+                <label class="form-label">Challan Type <span class="text-danger">*</span></label>
+                <select name="challan_type" id="new_challan_type" class="form-select mb-3" required>
+                    <option value="">-- Select challan type --</option>
+                    <option value="receive">📦 Product Receive</option>
+                    <option value="send_to_supplier">🚚 Send to Supplier</option>
+                    <option value="receive_return">📥 Supplier Return</option>
+                    <option value="delivery">🎉 Customer Delivery</option>
+                </select>
+
+                {{-- 📦 Receive fields --}}
+                <div class="challan-fields" data-type="receive" style="display:none;">
+                    <label class="form-label">Product Condition</label>
+                    <select name="condition" class="form-select mb-2">
+                        <option value="As described">As described</option>
+                        <option value="Minor damage">Minor damage</option>
+                        <option value="Major damage">Major damage</option>
+                        <option value="Missing accessories">Missing accessories</option>
+                    </select>
+                    <label class="form-label">Accessories Received</label>
+                    <input type="text" name="accessories" class="form-control mb-2" placeholder="Charger, box, manual...">
+                    <label class="form-label">Notes</label>
+                    <textarea name="notes" class="form-control" rows="2" placeholder="Any observations..."></textarea>
+                </div>
+
+                {{-- 🚚 Send to Supplier fields --}}
+                <div class="challan-fields" data-type="send_to_supplier" style="display:none;">
+                    <label class="form-label">Select Supplier <span class="text-danger">*</span></label>
+                    <select name="supplier_id" class="form-select mb-2" required>
+                        <option value="">-- Select --</option>
+                        @forelse($productSuppliers ?? [] as $sup)
+                            <option value="{{ $sup->id }}">{{ $sup->name }}</option>
+                        @empty
+                            <option value="" disabled>No supplier found for this product</option>
+                        @endforelse
+                    </select>
+                    <label class="form-label">Warehouse</label>
+                    <input type="text" name="warehouse" class="form-control mb-2" placeholder="Warehouse name / location">
+                    <label class="form-label">Courier</label>
+                    <input type="text" name="courier" class="form-control mb-2" placeholder="Courier name">
+                    <label class="form-label">Tracking ID</label>
+                    <input type="text" name="tracking_id" class="form-control mb-2" placeholder="Tracking number">
+                    <label class="form-label">Notes</label>
+                    <textarea name="notes" class="form-control" rows="2" placeholder="Additional info..."></textarea>
+                </div>
+
+                {{-- 📥 Supplier Return fields --}}
+                <div class="challan-fields" data-type="receive_return" style="display:none;">
+                    <label class="form-label">Return Type</label>
+                    <select name="return_type" class="form-select mb-2">
+                        <option value="repaired">Repaired</option>
+                        <option value="replaced">Replaced (new unit)</option>
+                        <option value="refunded">Refunded</option>
+                    </select>
+                    <label class="form-label">Replacement Serial Number</label>
+                    <input type="text" name="replacement_sn" class="form-control mb-2" placeholder="New SN from supplier">
+                    <label class="form-label">Supplier's Return Challan No</label>
+                    <input type="text" name="supplier_return_challan" class="form-control mb-2" placeholder="Supplier's challan reference">
+                    <label class="form-label">Supplier Charge (if any)</label>
+                    <input type="number" name="supplier_charge" class="form-control mb-2" placeholder="0.00" step="0.01" min="0">
+                    <label class="form-label">Notes</label>
+                    <textarea name="notes" class="form-control" rows="2"></textarea>
+                </div>
+
+                {{-- 🎉 Delivery fields --}}
+                <div class="challan-fields" data-type="delivery" style="display:none;">
+                    <label class="form-label">Delivery Method</label>
+                    <select name="delivery_method" class="form-select mb-2">
+                        <option value="Counter Pickup">Counter Pickup</option>
+                        <option value="Courier">Courier</option>
+                        <option value="Hand Delivery">Hand Delivery</option>
+                    </select>
+                    <label class="form-label">Customer Charge (if any)</label>
+                    <input type="number" name="customer_charge" class="form-control mb-2" placeholder="0.00" step="0.01" min="0" value="{{ $warrantyClaim->customer_charge ?? 0 }}">
+                    <label class="form-label">Notes</label>
+                    <textarea name="notes" class="form-control" rows="2" placeholder="Delivery notes..."></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button class="btn btn-primary">Generate Challan</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    // ➕ New Challan modal — toggle fields + set form action by challan type
+    (function () {
+        var typeSelect = document.getElementById('new_challan_type');
+        var form = document.getElementById('newChallanForm');
+        if (!typeSelect || !form) return;
+
+        var actions = {
+            'receive':           '{{ route('admin.warranty.claims.receive-product', $warrantyClaim) }}',
+            'send_to_supplier':  '{{ route('admin.warranty.claims.send-to-supplier', $warrantyClaim) }}',
+            'receive_return':    '{{ route('admin.warranty.claims.supplier-return', $warrantyClaim) }}',
+            'delivery':          '{{ route('admin.warranty.claims.deliver', $warrantyClaim) }}',
+        };
+
+        function sync() {
+            var type = typeSelect.value;
+            document.querySelectorAll('.challan-fields').forEach(function (el) {
+                el.style.display = (el.getAttribute('data-type') === type) ? '' : 'none';
+            });
+            // Only require supplier_id when the "Send to Supplier" type is selected,
+            // otherwise the hidden required field blocks form submission.
+            var supplierSelect = form.querySelector('select[name="supplier_id"]');
+            if (supplierSelect) {
+                if (type === 'send_to_supplier') {
+                    supplierSelect.setAttribute('required', 'required');
+                } else {
+                    supplierSelect.removeAttribute('required');
+                }
+            }
+            if (actions[type]) {
+                form.setAttribute('action', actions[type]);
+            }
+        }
+
+        typeSelect.addEventListener('change', sync);
+        // Reset when modal opens
+        document.getElementById('newChallanModal').addEventListener('shown.bs.modal', function () {
+            typeSelect.value = '';
+            sync();
+        });
+    })();
+</script>
 
 {{-- Reusable Media Gallery picker — "choose image from media library" --}}
 @include('backEnd.media._picker')

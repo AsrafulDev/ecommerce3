@@ -77,6 +77,14 @@
                                        class="btn btn-sm btn-outline-danger" title="Download PDF">
                                         📥
                                     </a>
+                                    <form action="{{ route('admin.warranty.challans.destroy', $challan) }}" method="POST" class="d-inline"
+                                          onsubmit="return confirm('Delete challan {{ $challan->challan_no }}? This cannot be undone.');">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="btn btn-sm btn-outline-dark" title="Delete challan">
+                                            🗑
+                                        </button>
+                                    </form>
                                 </div>
                             </td>
                         </tr>

@@ -166,21 +166,30 @@ class WarrantyController extends Controller
         $suppliers     = Supplier::orderBy('name')->get(['id', 'name']);
         $products      = Product::orderBy('name')->get(['id', 'name']);
         $purchaseItems = PurchaseItem::with('product:id,name')->latest()->get();
+        $batches       = \App\Models\StockBatch::with('product:id,name', 'supplier:id,name')
+                            ->where('type', 'in')
+                            ->where('remaining_qty', '>', 0)
+                            ->latest()
+                            ->get(['id', 'product_id', 'supplier_id', 'batch_no', 'remaining_qty']);
 
-        return view('backEnd.warranty.supplier_index', compact('warranties', 'suppliers', 'products', 'purchaseItems'));
+        return view('backEnd.warranty.supplier_index', compact('warranties', 'suppliers', 'products', 'purchaseItems', 'batches'));
     }
 
     public function supplierStore(Request $request): RedirectResponse
     {
         $data = $request->validate([
             'purchase_item_id'    => 'nullable|exists:purchase_items,id',
+            'batch_id'            => 'nullable|exists:stock_batches,id',
             'product_id'          => 'required|exists:products,id',
             'supplier_id'         => 'required|exists:suppliers,id',
             'warranty_days'       => 'required|integer|min:0',
             'warranty_start_date' => 'nullable|date',
             'warranty_terms'      => 'nullable|string',
+            'notes'               => 'nullable|string',
             'is_transferable'     => 'boolean',
         ]);
+
+        $data['warranty_days'] = (int) ($data['warranty_days'] ?? 0);
 
         $data['warranty_end_date'] = isset($data['warranty_start_date'])
             ? now()->parse($data['warranty_start_date'])->addDays($data['warranty_days'])
@@ -198,15 +207,19 @@ class WarrantyController extends Controller
         $data = $request->validate([
             'supplier_warranty_id' => 'required|exists:supplier_warranties,id',
             'purchase_item_id'     => 'nullable|exists:purchase_items,id',
+            'batch_id'             => 'nullable|exists:stock_batches,id',
             'product_id'           => 'required|exists:products,id',
             'supplier_id'          => 'required|exists:suppliers,id',
             'warranty_days'        => 'required|integer|min:0',
             'warranty_start_date'  => 'nullable|date',
             'warranty_terms'       => 'nullable|string',
+            'notes'                => 'nullable|string',
             'is_transferable'      => 'boolean',
         ]);
 
         $supplierWarranty = SupplierWarranty::findOrFail($request->supplier_warranty_id);
+
+        $data['warranty_days'] = (int) ($data['warranty_days'] ?? 0);
 
         $data['warranty_end_date'] = isset($data['warranty_start_date'])
             ? now()->parse($data['warranty_start_date'])->addDays($data['warranty_days'])
@@ -374,7 +387,17 @@ class WarrantyController extends Controller
             $load[] = 'stages.attachments';
         }
         $warrantyClaim->load($load);
-        return view('backEnd.warranty.claims_show', compact('warrantyClaim'));
+
+        // 🔎 Suppliers who actually supply THIS product (via purchases or stock batches)
+        $productSuppliers = \App\Models\Supplier::where(function ($q) use ($warrantyClaim) {
+            $q->whereHas('purchases.items', function ($qq) use ($warrantyClaim) {
+                $qq->where('product_id', $warrantyClaim->product_id);
+            })->orWhereHas('stockBatches', function ($qq) use ($warrantyClaim) {
+                $qq->where('product_id', $warrantyClaim->product_id);
+            });
+        })->orderBy('name')->get();
+
+        return view('backEnd.warranty.claims_show', compact('warrantyClaim', 'productSuppliers'));
     }
 
     public function claimsAction(WarrantyClaim $warrantyClaim, string $action, Request $request): RedirectResponse
@@ -501,8 +524,23 @@ class WarrantyController extends Controller
 
     // ── Pipeline Actions ──────────────────────
 
+    /**
+     * Check if a challan of the given type already exists for this claim.
+     * Used to enforce "one challan per type" per claim.
+     */
+    protected function challanTypeExists(WarrantyClaim $claim, string $type): bool
+    {
+        return WarrantyChallan::where('warranty_claim_id', $claim->id)
+            ->where('challan_type', $type)
+            ->exists();
+    }
+
     public function receiveProduct(Request $request, WarrantyClaim $warrantyClaim)
     {
+        if ($this->challanTypeExists($warrantyClaim, 'receive')) {
+            return back()->with('error', 'A Product Receive challan already exists for this claim.');
+        }
+
         $request->validate([
             'condition'          => 'required|string',
             'accessories'        => 'nullable|string',
@@ -542,8 +580,13 @@ class WarrantyController extends Controller
 
     public function sendToSupplier(Request $request, WarrantyClaim $warrantyClaim)
     {
+        if ($this->challanTypeExists($warrantyClaim, 'send_to_supplier')) {
+            return back()->with('error', 'A Send to Supplier challan already exists for this claim.');
+        }
+
         $request->validate([
             'supplier_id' => 'required|exists:suppliers,id',
+            'warehouse'   => 'nullable|string|max:100',
             'courier'     => 'nullable|string',
             'tracking_id' => 'nullable|string',
             'notes'       => 'nullable|string',
@@ -566,6 +609,10 @@ class WarrantyController extends Controller
 
     public function supplierReturn(Request $request, WarrantyClaim $warrantyClaim)
     {
+        if ($this->challanTypeExists($warrantyClaim, 'receive_return')) {
+            return back()->with('error', 'A Supplier Return challan already exists for this claim.');
+        }
+
         $request->validate([
             'return_type'             => 'required|in:repaired,replaced,refunded',
             'replacement_sn'          => 'nullable|string|max:100',
@@ -646,6 +693,10 @@ class WarrantyController extends Controller
 
     public function deliverToCustomer(Request $request, WarrantyClaim $warrantyClaim)
     {
+        if ($this->challanTypeExists($warrantyClaim, 'delivery')) {
+            return back()->with('error', 'A Customer Delivery challan already exists for this claim.');
+        }
+
         $request->validate([
             'delivery_method' => 'nullable|string',
             'notes'           => 'nullable|string',
@@ -741,6 +792,21 @@ class WarrantyController extends Controller
                   ->setPaper('a4', 'portrait');
 
         return $pdf->download($challan->challan_no . '.pdf');
+    }
+
+    /**
+     * Delete a challan (e.g. a duplicate). Only removes the challan record —
+     * the claim's status / challan_no references are left untouched.
+     */
+    public function destroyChallan(WarrantyChallan $challan): RedirectResponse
+    {
+        $claim = $challan->warrantyClaim;
+        $challanNo = $challan->challan_no;
+        $challan->delete();
+
+        log_activity('warranty', 'challan_delete', "Challan {$challanNo} deleted for claim #{$claim->claim_number}", $claim);
+
+        return back()->with('success', "Challan {$challanNo} deleted.");
     }
 
     public function fileClaimForCustomer(Request $request): RedirectResponse
@@ -843,6 +909,11 @@ class WarrantyController extends Controller
             'replacement_sn'        => 'nullable|string|max:100',
             'condition_note'        => 'nullable|string|max:255',
             'accessories'           => 'nullable|string|max:255',
+            // 🆕 Send damaged unit to supplier for warranty claim
+            'supplier_id'           => 'nullable|exists:suppliers,id',
+            'warehouse'             => 'nullable|string|max:100',
+            'courier'               => 'nullable|string|max:100',
+            'tracking_id'           => 'nullable|string|max:100',
         ]);
 
         $product = Product::findOrFail($request->replacement_product_id);
@@ -886,7 +957,27 @@ class WarrantyController extends Controller
             'created_by'                => auth()->id(),
         ]);
 
-        // 3️⃣ update warranty sale / claim serial to the replacement unit
+        // 3️⃣ 🆕 Send the damaged unit to the supplier for warranty claim (with challan)
+        //    Do this BEFORE setting READY_FOR_DELIVERY — the challan service sets
+        //    SENT_TO_SUPPLIER, which we then override back to READY_FOR_DELIVERY
+        //    (the customer's replacement is ready, the damaged unit is at the supplier).
+        if ($request->filled('supplier_id')) {
+            $challanService = app(\App\Services\WarrantyChallanService::class);
+            $challan = $challanService->generateSendToSupplierChallan($warrantyClaim, $request->all(), $originalSn);
+
+            // Damaged unit is now at the supplier
+            $damage->update([
+                'status'      => DamageStatus::SUPPLIER_HOLD->value,
+                'supplier_id' => $request->supplier_id,
+            ]);
+
+            $warrantyClaim->notes()->create([
+                'user_id' => auth()->id(),
+                'note'    => "Damaged unit (SN: {$originalSn}) sent to supplier for warranty claim. Challan #{$challan->challan_no}.",
+            ]);
+        }
+
+        // 4️⃣ update warranty sale / claim serial to the replacement unit
         if ($sale) {
             $sale->update(['serial_numbers' => [$request->replacement_sn]]);
         }
@@ -1091,7 +1182,7 @@ class WarrantyController extends Controller
 
     public function damageIndex(Request $request): View
     {
-        $damageProducts = DamageProduct::with(['product:id,name,stock', 'warrantyClaim:id,claim_number', 'logs'])
+        $damageProducts = DamageProduct::with(['product:id,name,stock', 'warrantyClaim:id,claim_number', 'logs', 'supplier:id,name'])
             // 🔍 Keyword: serial number(s) / condition note / product name+barcode / claim #
             ->when($request->filled('search'), function ($q) use ($request) {
                 $s = $request->input('search');

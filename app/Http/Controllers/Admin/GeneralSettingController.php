@@ -227,10 +227,6 @@ class GeneralSettingController extends Controller
             $input['favicon'] = $update_data->favicon;
         }
         $input['status'] = 1;
-        
-        // Handle vendor_enabled and reseller_enabled (checkbox returns '1' if checked, null if unchecked)
-        $input['vendor_enabled'] = $request->has('vendor_enabled') ? 1 : 0;
-        $input['reseller_enabled'] = $request->has('reseller_enabled') ? 1 : 0;
 
         // Handle theme_id and active_layout_id
         $input['theme_id'] = $request->filled('theme_id') ? $request->theme_id : $update_data->theme_id;

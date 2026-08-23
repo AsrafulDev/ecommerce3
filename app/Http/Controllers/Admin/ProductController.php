@@ -144,7 +144,6 @@ class ProductController extends Controller
             'stock'          => 'nullable|integer|min:0',
             'description'    => 'required',
             'advance_amount' => 'nullable|numeric|min:0',
-            'reseller_price' => 'nullable|numeric|min:0',
 
             'product_type'        => 'required|in:simple,variable,digital',
             'digital_file'        => 'nullable|file|max:51200', // 50MB
@@ -491,6 +490,9 @@ class ProductController extends Controller
             'images.color',
             'images.size',
             'variantPrices',
+            // Only stock-IN batches (purchases/adjustments) — 'out' batches are
+            // traceability records from sales/replacements and inflate the count.
+            'stockBatches' => fn ($q) => $q->where('type', 'in')->orderByDesc('id'),
             'stockBatches.supplier',
             'stockBatches.purchase',
         ])->findOrFail($id);
@@ -525,7 +527,6 @@ class ProductController extends Controller
             'supplier_price' => 'nullable|numeric|min:0',
             'stock'          => 'nullable|integer|min:0',
             'description'    => 'required',
-            'reseller_price' => 'nullable|numeric|min:0',
 
             'product_type'        => 'required|in:simple,variable,digital',
             'is_variant'          => 'nullable|boolean',

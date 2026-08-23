@@ -16,6 +16,7 @@ class DamageProduct extends Model
         'warranty_claim_id',
         'warranty_sale_id',
         'product_id',
+        'supplier_id',
         'original_serial_number',
         'replacement_serial_number',
         'damage_type',
@@ -58,6 +59,11 @@ class DamageProduct extends Model
     public function product()
     {
         return $this->belongsTo(Product::class);
+    }
+
+    public function supplier()
+    {
+        return $this->belongsTo(Supplier::class);
     }
 
     public function creator()

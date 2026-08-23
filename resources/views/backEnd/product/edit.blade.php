@@ -543,16 +543,6 @@
                         </div>
 
                         <div class="form-group mb-3">
-                            <label for="reseller_price" class="form-label"> {{ __('Reseller Price') }} </label>
-                            <input type="text" step="0.01" class="form-control @error('reseller_price') is-invalid @enderror"
-                                   name="reseller_price" value="{{ old('reseller_price', $edit_data->reseller_price) }}" id="reseller_price" placeholder="Reseller price (optional)" />
-                            <small class="text-muted"> {{ __('Special price for resellers. Leave empty if not applicable.') }} </small>
-                            @error('reseller_price')
-                            <span class="invalid-feedback" role="alert"><strong>{{ $message }}</strong></span>
-                            @enderror
-                        </div>
-
-                        <div class="form-group mb-3">
                             <label for="supplier_price" class="form-label"> {{ __('Purchase Price') }} <small class="text-muted">(Updated automatically from purchases)</small></label>
                             <input type="text" step="0.01" class="form-control bg-light @error('supplier_price') is-invalid @enderror"
                                    name="supplier_price" value="{{ old('supplier_price', $edit_data->supplier_price ?? $edit_data->purchase_price) }}" id="supplier_price" placeholder="From purchase" readonly />
