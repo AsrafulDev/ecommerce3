@@ -16,13 +16,12 @@ class InhouseProductController extends Controller
     }
 
     /**
-     * Display all inhouse products (products without vendor_id)
+     * Display all products (single-shop: every product is inhouse)
      */
     public function index(Request $request)
     {
-        // Show only inhouse products (vendor_id is null)
-        $query = Product::whereNull('vendor_id')
-            ->orderBy('id','DESC')
+        // Single-shop app — all products are inhouse (no vendor system)
+        $query = Product::orderBy('id','DESC')
             ->with('image','category');
 
         if ($request->keyword) {
@@ -48,8 +47,7 @@ class InhouseProductController extends Controller
      */
     public function show($id)
     {
-        $product = Product::whereNull('vendor_id')
-            ->with('image','images','category','subcategory','childcategory','brand','colors','sizes')
+        $product = Product::with('image','images','category','subcategory','childcategory','brand','colors','sizes')
             ->findOrFail($id);
             
         return view('backEnd.inhouse_product.show', compact('product'));

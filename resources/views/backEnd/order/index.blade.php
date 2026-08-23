@@ -380,14 +380,13 @@
       <div class="modal-body">
         <div class="form-group">
             <label for="pathaostore" class="form-label"> {{ __('Store') }} </label>
-           <select name="pathaostore" id="pathaostore" class="pathaostore form-control" >
-             <option value=""> {{ __('Select Store...') }} </option>
-             @if(isset($pathaostore['data']['data']))
-                 @foreach($pathaostore['data']['data'] as $store)
-                     <option value="{{ $store['store_id'] }}">{{ $store['store_name'] }}</option>
-                 @endforeach
-             @endif
-           </select>
+            @php
+                $websiteName = optional(\App\Models\GeneralSetting::first())->name ?: config('app.name', 'Store');
+                $firstStoreId = isset($pathaostore['data']['data'][0]['store_id']) ? $pathaostore['data']['data'][0]['store_id'] : '';
+            @endphp
+            <input type="hidden" name="pathaostore" id="pathaostore" value="{{ $firstStoreId }}">
+            <input type="text" class="form-control bg-light" value="{{ $websiteName }}" readonly>
+            <small class="text-muted">Single shop — Pathao store auto-selected.</small>
         </div>
 
         <div class="form-group mt-3">
