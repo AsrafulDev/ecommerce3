@@ -1,5 +1,6 @@
 {{-- Supplier Warranty Claim Challan — print template (A4) --}}
 @php
+    $siteName = optional(\App\Models\GeneralSetting::first())->name ?: config('app.name', 'Store');
     $issueTypeLabels = [
         'defective'     => 'Defective Product',
         'not_working'   => 'Not Working',
@@ -167,7 +168,7 @@
         <!-- HEADER -->
         <div class="header">
             <div>
-                <div class="company-name">{{ $d['store_name'] }}</div>
+                <div class="company-name">{{ $siteName }}</div>
                 <div class="company-subtitle">Supplier Warranty Claim Documentation</div>
             </div>
             <div class="copy-label">{{ $copyLabel ?? '' }}</div>
@@ -195,7 +196,7 @@
             <div class="parties">
                 <div class="party">
                     <div class="party-title">Sender / Store</div>
-                    <div class="party-name">{{ $d['store_name'] }}</div>
+                    <div class="party-name">{{ $siteName }}</div>
                     <div class="party-row">
                         <div class="label">Address</div>
                         <div class="value">{{ $d['store_address'] ?: '____________________________' }}</div>

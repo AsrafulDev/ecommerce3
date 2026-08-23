@@ -1,5 +1,8 @@
 {{-- Generic A4 Warranty Challan — print template (all types) --}}
 @php
+    // Current site title (from GeneralSetting) — used instead of the stored
+    // challan_data store_name so existing challans show the live site name.
+    $siteName = optional(\App\Models\GeneralSetting::first())->name ?: (string) config('app.name', 'Store');
     $issueTypeLabels = [
         'defective'     => 'Defective Product',
         'not_working'   => 'Not Working',
@@ -189,7 +192,7 @@
         <!-- HEADER -->
         <div class="header">
             <div>
-                <div class="company-name">{{ $d['store_name'] }}</div>
+                <div class="company-name">{{ $siteName }}</div>
                 <div class="company-subtitle">{{ $subtitle }}</div>
             </div>
             <div class="copy-label">{{ $copyLabel ?? '' }}</div>
@@ -219,7 +222,7 @@
             <div class="parties">
                 <div class="party">
                     <div class="party-title">Sender / Store</div>
-                    <div class="party-name">{{ $d['store_name'] ?? 'N/A' }}</div>
+                    <div class="party-name">{{ $siteName }}</div>
                     <div class="party-row">
                         <div class="label">Address</div>
                         <div class="value">{{ ($d['store_address'] ?? '') ?: '____________________________' }}</div>
@@ -252,7 +255,7 @@
             <div class="parties">
                 <div class="party">
                     <div class="party-title">Sender / Store</div>
-                    <div class="party-name">{{ $d['store_name'] ?? 'N/A' }}</div>
+                    <div class="party-name">{{ $siteName }}</div>
                     <div class="party-row">
                         <div class="label">Address</div>
                         <div class="value">{{ ($d['store_address'] ?? '') ?: '____________________________' }}</div>

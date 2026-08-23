@@ -1,6 +1,7 @@
 {{-- Send to Supplier Challan Content (Supplier + Store — NO customer info) --}}
+@php $siteName = optional(\App\Models\GeneralSetting::first())->name ?: config('app.name', 'Store'); @endphp
 <div class="challan-header">
-    <h3>{{ $d['store_name'] }}</h3>
+    <h3>{{ $siteName }}</h3>
     <div class="challan-no">Challan #: <strong>{{ $d['challan_no'] }}</strong></div>
     <span class="challan-type-badge badge-send">Sent to Supplier</span>
     <div style="float:right;font-size:13px;">Date: {{ $d['date'] }}</div>
@@ -8,7 +9,7 @@
 
 <div class="section-title">Store Information (Sender)</div>
 <table class="info-table">
-    <tr><td class="label">Store</td><td>: {{ $d['store_name'] }}</td></tr>
+    <tr><td class="label">Store</td><td>: {{ $siteName }}</td></tr>
     <tr><td class="label">Address</td><td>: {{ $d['store_address'] }}</td></tr>
     <tr><td class="label">Phone</td><td>: {{ $d['store_phone'] }}</td></tr>
     <tr><td class="label">Contact</td><td>: {{ $d['store_contact'] }}</td></tr>

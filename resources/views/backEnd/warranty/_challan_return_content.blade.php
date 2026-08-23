@@ -1,6 +1,6 @@
 {{-- Supplier Return Challan Content --}}
 <div class="challan-header">
-    <h3>{{ $d['store_name'] }}</h3>
+    <h3>{{ optional(\App\Models\GeneralSetting::first())->name ?: config('app.name', 'Store') }}</h3>
     <div class="challan-no">Challan #: <strong>{{ $d['challan_no'] }}</strong></div>
     <span class="challan-type-badge badge-return">Supplier Return</span>
     <div style="float:right;font-size:13px;">Date: {{ $d['date'] }}</div>
