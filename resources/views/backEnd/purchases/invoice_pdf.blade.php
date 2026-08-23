@@ -32,9 +32,9 @@
         <div>
             <h2>Purchase Invoice</h2>
             @if($generalsetting->white_logo)
-                <img src="{{asset($generalsetting->white_logo)}}" alt="{{ $generalsetting->site_name ?? 'CurlBazar' }}" style="max-height:45px;">
+                <img src="{{asset($generalsetting->white_logo)}}" alt="{{ $generalsetting->name ?? config('app.name') }}" style="max-height:45px;">
             @else
-                <h3>{{ $generalsetting->site_name ?? 'CurlBazar' }}</h3>
+                <h3>{{ $generalsetting->name ?? config('app.name') }}</h3>
             @endif
         </div>
         <div class="invoice-meta">
