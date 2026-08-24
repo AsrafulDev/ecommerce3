@@ -17,8 +17,6 @@
     /* POS receipt — hidden on screen, shown on print */
     .pos-receipt { display: none; }
 
-    @page { size: 80mm auto; margin: 3mm 4mm; }
-
     @media print {
         /* Hide admin layout */
         .navbar-custom, .left-side-menu, .right-bar,
@@ -37,6 +35,16 @@
         /* POS mode (default): hide customer invoice, show POS receipt */
         body:not(.print-a4) .customer-invoice { display: none !important; }
         body:not(.print-a4) .pos-receipt { display: block !important; }
+
+        /* A4 mode: remove admin offsets and stretch invoice to full page width */
+        body.print-a4 .customer-invoice .container {
+            width: 100% !important; max-width: 100% !important;
+            padding: 0 !important; margin: 0 !important;
+        }
+        body.print-a4 .invoice-innter {
+            width: 100% !important; max-width: 100% !important;
+            padding: 0 4px !important;
+        }
 
         /* Receipt styles */
         .pos-receipt * { font-family: 'Courier New', Courier, monospace; }
@@ -62,6 +70,12 @@
         .pos-receipt .rf small { font-size: 9px; font-style: italic; margin-top: 3px; display: block; }
     }
 </style>
+
+{{-- Per-mode @page rules — browsers cannot switch @page via a body class, so we toggle whole
+    style sheets from JS. A4 sheet comes first, POS second: if both are ever active, POS wins
+    (thermal stays the default when printing without pressing a button). --}}
+<style id="a4PageStyle" media="print">@page { size: A4 portrait; margin: 8mm 7mm; }</style>
+<style id="posPageStyle" media="print">@page { size: 80mm auto; margin: 3mm 4mm; }</style>
 
 <section class="customer-invoice ">
     <div class="container">
@@ -619,27 +633,40 @@
 <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" rel="stylesheet">
 
 <script>
+// Pick which @page sheet is active before printing (A4 vs 80mm thermal)
+function setPageStyle(mode) {
+    var a4 = document.getElementById('a4PageStyle');
+    var pos = document.getElementById('posPageStyle');
+    if (a4) a4.disabled = (mode !== 'a4');
+    if (pos) pos.disabled = (mode !== 'pos');
+}
+
 function printPOS() {
     // POS thermal print
+    setPageStyle('pos');
     document.body.classList.remove('print-a4');
     window.print();
 }
 
 function printA4() {
     // A4 customer invoice (hide POS receipt, show invoice)
+    setPageStyle('a4');
     document.body.classList.add('print-a4');
     window.print();
     document.body.classList.remove('print-a4');
+    setPageStyle('pos');
 }
 
 function printA4Detail() {
     // A4 detailed — shows both invoice + POS
+    setPageStyle('a4');
     document.body.classList.add('print-a4');
     var pos = document.querySelector('.pos-receipt');
     if (pos) pos.style.display = 'block';
     window.print();
     document.body.classList.remove('print-a4');
     if (pos) pos.style.display = 'none';
+    setPageStyle('pos');
 }
 
 function printFunction() {
