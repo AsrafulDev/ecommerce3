@@ -104,6 +104,15 @@ class PurchaseController extends Controller
         }));
         $variantsJson = json_encode(\App\Models\ProductVariantPrice::with(['color','size'])->get()->groupBy('product_id'));
 
+        // ⭐ Batch-wise pricing engine — per-product warranty tiers for the
+        //    Warranty Pricing expander in each purchase row.
+        $warrantyTiersJson = json_encode(
+            \App\Models\ProductWarrantyTier::where('is_active', true)
+                ->orderBy('sort_order')->orderBy('id')
+                ->get(['id', 'product_id', 'tier_name', 'warranty_days', 'additional_cost'])
+                ->groupBy('product_id')
+        );
+
         return view('backEnd.purchases.index', compact(
             'currentYear',
             'currentMonth',
@@ -114,6 +123,7 @@ class PurchaseController extends Controller
             'purchases',
             'suppliers',
             'products',
+            'warrantyTiersJson',
             'productsJson',
             'variantsJson'
         ));
@@ -134,6 +144,25 @@ class PurchaseController extends Controller
             'items.*.product_id' => 'required|exists:products,id',
             'items.*.qty'        => 'required|integer|min:1',
             'items.*.unit_cost'  => 'required|numeric|min:0',
+            // ⭐ Batch-wise pricing payload (optional)
+            'items.*.selling_price' => 'nullable|numeric|min:0',
+            'items.*.mrp'           => 'nullable|numeric|min:0',
+            'items.*.activate_website' => 'nullable|boolean',
+            'items.*.variant_prices' => 'nullable|array',
+            'items.*.variant_prices.*.variant_id' => 'nullable|integer',
+            'items.*.variant_prices.*.price'      => 'nullable|numeric|min:0',
+            'items.*.variant_prices.*.old_price'  => 'nullable|numeric|min:0',
+            'items.*.variant_prices.*.stock'      => 'nullable|integer|min:0',
+            'items.*.wholesale_tiers' => 'nullable|array',
+            'items.*.wholesale_tiers.*.variant_id'      => 'nullable|integer',
+            'items.*.wholesale_tiers.*.min_quantity'    => 'nullable|integer|min:1',
+            'items.*.wholesale_tiers.*.max_quantity'    => 'nullable|integer|min:1',
+            'items.*.wholesale_tiers.*.wholesale_price' => 'nullable|numeric|min:0',
+            'items.*.warranty_tiers' => 'nullable|array',
+            'items.*.warranty_tiers.*.variant_id'      => 'nullable|integer',
+            'items.*.warranty_tiers.*.tier_id'         => 'nullable|integer',
+            'items.*.warranty_tiers.*.additional_cost' => 'nullable|numeric|min:0',
+            'items.*.warranty_tiers.*.is_active'       => 'nullable|boolean',
             'discount'      => 'nullable|numeric|min:0',
             'shipping_cost' => 'nullable|numeric|min:0',
             'paid_amount'   => 'nullable|numeric|min:0',
@@ -220,8 +249,11 @@ class PurchaseController extends Controller
             // Stock
             $product->supplier_price = $cost;
             $product->save();
-            app(StockManagementService::class)->stockIn($product, [
+            $batch = app(StockManagementService::class)->stockIn($product, [
                 'quantity' => $qty, 'unit_cost' => $cost,
+                'selling_price'        => $item['selling_price'] ?? null,
+                'mrp'                  => $item['mrp'] ?? null,
+                'is_active_for_website'=> (bool) ($item['activate_website'] ?? false),
                 'supplier_id' => $request->supplier_id, 'purchase_id' => $purchase->id,
                 'variant_price_id' => $vid, 'reference_type' => 'purchase', 'reference_id' => $purchase->id,
                 'batch_no' => $item['batch_no'] ?? null,
@@ -229,6 +261,9 @@ class PurchaseController extends Controller
                 'exp_date' => $item['exp_date'] ?? null,
                 'custom_field' => $item['custom_field'] ?? null,
             ]);
+
+            // ⭐ Batch-wise pricing payload (variant / wholesale / warranty / activation)
+            $this->persistBatchPricing($purchaseItem, $batch, $item);
         }
 
         // SUPPLIER DUE
@@ -339,10 +374,36 @@ class PurchaseController extends Controller
         $item->returned_qty += $qty;
         $item->save();
 
-        $item->product->decrement('stock', $qty);
+        $product = $item->product;
+
+        // Decrement from batches FIFO (oldest with remaining stock first)
+        $remaining = $qty;
+        $batches = \App\Models\StockBatch::where('product_id', $product->id)
+            ->where('remaining_qty', '>', 0)
+            ->orderBy('created_at')
+            ->get();
+        foreach ($batches as $batch) {
+            if ($remaining <= 0) {
+                break;
+            }
+            $take = min($remaining, (int) $batch->remaining_qty);
+            $batch->decrement('remaining_qty', $take);
+            $remaining -= $take;
+        }
+
+        $product->decrement('stock', $qty);
 
         if ($item->variant) {
             $item->variant->decrement('stock', $qty);
+        }
+
+        // ⭐ Batch-wise pricing engine — keep website cache in sync and auto-advance
+        //    the active batch if this return depleted it.
+        if (config('pricing.batch_wise', false)) {
+            $pricing = app(\App\Services\PricingService::class);
+            $pricing->refreshProductCache($product);
+            $pricing->advanceActiveBatchIfDepleted($product);
+            app(StockManagementService::class)->syncStockFromBatches($product->id);
         }
 
         return back()->with('success','Purchase return processed & stock updated.');
@@ -443,7 +504,13 @@ class PurchaseController extends Controller
         $suppliers = Supplier::orderBy('name')->get();
         $products  = Product::orderBy('name')->get();
 
-        return view('backEnd.purchases.edit', compact('purchase', 'suppliers', 'products'));
+        // ⭐ Batch-wise pricing engine — batches created by this purchase
+        $batches = \App\Models\StockBatch::where('purchase_id', $id)
+            ->with('product:id,name', 'supplier:id,name', 'variantPrices')
+            ->orderByDesc('created_at')
+            ->get();
+
+        return view('backEnd.purchases.edit', compact('purchase', 'suppliers', 'products', 'batches'));
     }
 
     /**
@@ -743,5 +810,263 @@ class PurchaseController extends Controller
         $total_deletes = PurchaseLog::where('action', 'delete')->count();
 
         return view('backEnd.purchases.logs', compact('logs', 'total_edits', 'total_deletes'));
+    }
+
+    /**
+     * ⭐ Batch-wise pricing engine.
+     *
+     * Persists the per-batch sell price payload captured on the purchase form:
+     *   - batch_variant_prices     (per batch × variant)
+     *   - batch_wholesale_prices   (per batch × variant × qty tier)
+     *   - batch_warranty_tiers     (per batch × variant × tier)
+     *   - purchase_item_prices     (price snapshot for history/invoices)
+     *   - website batch activation (if requested)
+     *
+     * Only active when BATCH_WISE_PRICING=1 — legacy purchase flow is untouched.
+     */
+    private function persistBatchPricing(PurchaseItem $purchaseItem, \App\Models\StockBatch $batch, array $item): void
+    {
+        if (!(bool) config('pricing.batch_wise', false)) {
+            return;
+        }
+
+        // 1) Variant prices (per batch)
+        foreach (($item['variant_prices'] ?? []) as $vp) {
+            if (empty($vp['variant_id']) || empty($vp['price'])) {
+                continue;
+            }
+            \App\Models\BatchVariantPrice::updateOrCreate(
+                ['stock_batch_id' => $batch->id, 'variant_price_id' => (int) $vp['variant_id']],
+                [
+                    'price'     => (float) $vp['price'],
+                    'old_price' => isset($vp['old_price']) && $vp['old_price'] !== '' ? (float) $vp['old_price'] : null,
+                    'stock'     => (int) ($vp['stock'] ?? $batch->remaining_qty),
+                ]
+            );
+        }
+
+        // 2) Wholesale tiers (per batch)
+        foreach (($item['wholesale_tiers'] ?? []) as $wt) {
+            \App\Models\BatchWholesalePrice::create([
+                'stock_batch_id'   => $batch->id,
+                'variant_price_id' => !empty($wt['variant_id']) ? (int) $wt['variant_id'] : null,
+                'min_quantity'     => (int) ($wt['min_quantity'] ?? 1),
+                'max_quantity'     => !empty($wt['max_quantity']) ? (int) $wt['max_quantity'] : null,
+                'wholesale_price'  => (float) ($wt['wholesale_price'] ?? 0),
+            ]);
+        }
+
+        // 3) Warranty tiers (per batch)
+        foreach (($item['warranty_tiers'] ?? []) as $wt) {
+            if (empty($wt['tier_id'])) {
+                continue;
+            }
+            \App\Models\BatchWarrantyTier::updateOrCreate(
+                [
+                    'stock_batch_id'    => $batch->id,
+                    'variant_price_id'  => !empty($wt['variant_id']) ? (int) $wt['variant_id'] : null,
+                    'warranty_tier_id'  => (int) $wt['tier_id'],
+                ],
+                [
+                    'additional_cost' => (float) ($wt['additional_cost'] ?? 0),
+                    'is_active'       => (bool) ($wt['is_active'] ?? true),
+                ]
+            );
+        }
+
+        // 4) Purchase-item price snapshot
+        \App\Models\PurchaseItemPrice::create([
+            'purchase_item_id' => $purchaseItem->id,
+            'variant_price_id' => $purchaseItem->variant_price_id,
+            'selling_price'    => (float) ($item['selling_price'] ?? $batch->selling_price ?? 0),
+            'mrp'              => isset($item['mrp']) && $item['mrp'] !== '' ? (float) $item['mrp'] : $batch->mrp,
+            'wholesale_price'  => $batch->wholesale_price,
+            'wholesale_tiers'  => $item['wholesale_tiers'] ?? [],
+            'warranty_tiers'   => $item['warranty_tiers'] ?? [],
+        ]);
+
+        // 5) Activate as the website batch if requested
+        if (!empty($item['activate_website'])) {
+            app(\App\Services\PricingService::class)->setActiveWebsiteBatch($batch->product, $batch->id);
+        }
+    }
+
+    /**
+     * ⭐ Batch-wise pricing engine — right-panel accordion on purchases/manage.
+     * Renders the 4-tab panel (Batch → Variant → Wholesale → Warranty) for a product.
+     */
+    public function pricePanel(Request $request)
+    {
+        $product = Product::with([
+            'stockBatches.supplier',
+            'stockBatches.purchase',
+            'stockBatches.variantPrices',
+            'stockBatches.wholesalePrices',
+            'stockBatches.warrantyTiers.tier',
+            'variantPrices.color',
+            'variantPrices.size',
+            'wholesalePrices',
+            'warrantyTiers',
+        ])->findOrFail($request->product);
+
+        return response()->json([
+            'status' => 'success',
+            'html'   => view('backEnd.purchases.partials.price-panel', ['product' => $product])->render(),
+        ]);
+    }
+
+    /**
+     * Update a batch's base sell price / MRP / flags from the Batch tab.
+     */
+    public function saveBatchPricing(Request $request)
+    {
+        $request->validate([
+            'batch_id'       => 'required|integer',
+            'selling_price'  => 'nullable|numeric|min:0',
+            'mrp'            => 'nullable|numeric|min:0',
+            'pos_enabled'    => 'nullable|boolean',
+            'auto_advance'   => 'nullable|boolean',
+        ]);
+
+        $batch = \App\Models\StockBatch::findOrFail($request->batch_id);
+        $batch->selling_price = $request->filled('selling_price') ? (float) $request->selling_price : null;
+        $batch->mrp           = $request->filled('mrp') ? (float) $request->mrp : null;
+        $batch->pos_enabled   = (bool) $request->boolean('pos_enabled');
+        $batch->auto_advance  = (bool) $request->boolean('auto_advance');
+        $batch->is_manual_price = true;
+        $batch->price_updated_at = now();
+        $batch->price_updated_by = Auth::id();
+        $batch->save();
+
+        app(\App\Services\PricingService::class)->refreshProductCache($batch->product);
+
+        log_activity('pricing', 'update_batch', "Batch #{$batch->id} price updated", $batch, [
+            'selling_price' => $batch->selling_price,
+            'mrp'           => $batch->mrp,
+            'pos_enabled'   => $batch->pos_enabled,
+            'auto_advance'  => $batch->auto_advance,
+        ]);
+
+        return response()->json(['status' => 'success', 'message' => 'Batch price updated']);
+    }
+
+    /**
+     * Set a batch as the one active website batch (admin override).
+     */
+    public function activateWebsiteBatch(Request $request)
+    {
+        $request->validate(['batch_id' => 'required|integer']);
+        $batch = \App\Models\StockBatch::findOrFail($request->batch_id);
+        app(\App\Services\PricingService::class)->setActiveWebsiteBatch($batch->product, $batch->id);
+        return response()->json(['status' => 'success', 'message' => 'Website batch activated']);
+    }
+
+    /**
+     * Save per-variant prices for a batch (Variant tab).
+     */
+    public function saveVariantPricing(Request $request)
+    {
+        $request->validate([
+            'batch_id' => 'required|integer',
+            'prices'   => 'required|array',
+            'prices.*.variant_id' => 'required|integer',
+            'prices.*.price'      => 'nullable|numeric|min:0',
+            'prices.*.old_price'  => 'nullable|numeric|min:0',
+            'prices.*.stock'      => 'nullable|integer|min:0',
+        ]);
+
+        foreach ($request->prices as $row) {
+            \App\Models\BatchVariantPrice::updateOrCreate(
+                ['stock_batch_id' => $request->batch_id, 'variant_price_id' => (int) $row['variant_id']],
+                [
+                    'price'     => (float) ($row['price'] ?? 0),
+                    'old_price' => isset($row['old_price']) && $row['old_price'] !== '' ? (float) $row['old_price'] : null,
+                    'stock'     => (int) ($row['stock'] ?? 0),
+                ]
+            );
+        }
+
+        return response()->json(['status' => 'success', 'message' => 'Variant prices saved']);
+    }
+
+    /**
+     * Save wholesale tiers for a batch (Wholesale tab).
+     */
+    public function saveWholesalePricing(Request $request)
+    {
+        $request->validate([
+            'batch_id'   => 'required|integer',
+            'tiers'      => 'nullable|array',
+            'tiers.*.id' => 'nullable|integer',
+            'tiers.*.variant_id'      => 'nullable|integer',
+            'tiers.*.min_quantity'    => 'required|integer|min:1',
+            'tiers.*.max_quantity'    => 'nullable|integer|min:1',
+            'tiers.*.wholesale_price' => 'required|numeric|min:0',
+            'delete_ids' => 'nullable|array',
+        ]);
+
+        $batchId = (int) $request->batch_id;
+
+        foreach ((array) $request->delete_ids as $id) {
+            \App\Models\BatchWholesalePrice::where('id', $id)->where('stock_batch_id', $batchId)->delete();
+        }
+
+        foreach ((array) $request->tiers as $t) {
+            $data = [
+                'variant_price_id' => !empty($t['variant_id']) ? (int) $t['variant_id'] : null,
+                'min_quantity'     => (int) $t['min_quantity'],
+                'max_quantity'     => !empty($t['max_quantity']) ? (int) $t['max_quantity'] : null,
+                'wholesale_price'  => (float) $t['wholesale_price'],
+            ];
+            if (!empty($t['id'])) {
+                $row = \App\Models\BatchWholesalePrice::where('id', $t['id'])->where('stock_batch_id', $batchId)->first();
+                if ($row) {
+                    $row->update($data);
+                }
+            } else {
+                $data['stock_batch_id'] = $batchId;
+                \App\Models\BatchWholesalePrice::create($data);
+            }
+        }
+
+        return response()->json(['status' => 'success', 'message' => 'Wholesale tiers saved']);
+    }
+
+    /**
+     * Save warranty tier overrides for a batch (Warranty tab).
+     */
+    public function saveWarrantyPricing(Request $request)
+    {
+        $request->validate([
+            'batch_id' => 'required|integer',
+            'tiers'    => 'nullable|array',
+            'tiers.*.tier_id'         => 'required|integer',
+            'tiers.*.variant_id'      => 'nullable|integer',
+            'tiers.*.additional_cost' => 'nullable|numeric|min:0',
+            'tiers.*.is_active'       => 'nullable|boolean',
+            'delete_ids' => 'nullable|array',
+        ]);
+
+        $batchId = (int) $request->batch_id;
+
+        foreach ((array) $request->delete_ids as $id) {
+            \App\Models\BatchWarrantyTier::where('id', $id)->where('stock_batch_id', $batchId)->delete();
+        }
+
+        foreach ((array) $request->tiers as $t) {
+            \App\Models\BatchWarrantyTier::updateOrCreate(
+                [
+                    'stock_batch_id'   => $batchId,
+                    'variant_price_id' => !empty($t['variant_id']) ? (int) $t['variant_id'] : null,
+                    'warranty_tier_id' => (int) $t['tier_id'],
+                ],
+                [
+                    'additional_cost' => (float) ($t['additional_cost'] ?? 0),
+                    'is_active'       => (bool) ($t['is_active'] ?? true),
+                ]
+            );
+        }
+
+        return response()->json(['status' => 'success', 'message' => 'Warranty tiers saved']);
     }
 }

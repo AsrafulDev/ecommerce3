@@ -30,3 +30,4 @@ yarn-error.log
 
 # Runtime error logs
 config/error_log
+.env.testing

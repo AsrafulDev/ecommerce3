@@ -623,13 +623,31 @@ public function order_save(Request $request)
         // 🛡️ Stock reduce — batch-tracked (FIFO/LIFO/Average)
         $details = OrderDetails::where('order_id', $order->id)->with('product')->get();
         try {
-            $stockService = app(\App\Services\StockManagementService::class);
+            $stockService   = app(\App\Services\StockManagementService::class);
+            $pricingService = app(\App\Services\PricingService::class);
+
             foreach ($details as $row) {
                 if ($row->product && $row->qty > 0) {
-                    $stockService->stockOut($row->product, $row->qty, [
-                        'type' => 'sale',
-                        'id'   => $order->id,
-                    ]);
+                    if ($pricingService->isBatchWise()) {
+                        // ⭐ Batch-wise: FIFO allocation across website-enabled batches
+                        //    e.g. b1=3, b2=10, qty=8 → 3 from b1 + 5 from b2.
+                        $allocation = $pricingService->websiteAllocation($row->product, $row->qty);
+                        foreach ($allocation as $portion) {
+                            $stockService->stockOut($row->product, $portion['qty'], [
+                                'type' => 'sale',
+                                'id'   => $order->id,
+                            ], $portion['batch']->id);
+                        }
+                        // Auto-advance the active website batch when depleted
+                        $pricingService->advanceActiveBatchIfDepleted($row->product);
+                        // Refresh cached website price/stock columns
+                        $pricingService->refreshProductCache($row->product);
+                    } else {
+                        $stockService->stockOut($row->product, $row->qty, [
+                            'type' => 'sale',
+                            'id'   => $order->id,
+                        ]);
+                    }
                 }
             }
         } catch (\Throwable $e) {

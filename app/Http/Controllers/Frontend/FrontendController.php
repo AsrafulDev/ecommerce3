@@ -339,55 +339,81 @@ $brands = Brand::where('status', 1)
             })
             ->first();
 
-        // এখন price ঠিকভাবে fallback করো
-        if ($variantPrice && $variantPrice->price > 0) {
-            $finalPrice = $variantPrice->price;
-        } elseif (!empty($product->new_price) && $product->new_price > 0) {
-            $finalPrice = $product->new_price;
-        } elseif (!empty($product->old_price) && $product->old_price > 0) {
-            $finalPrice = $product->old_price;
-        } else {
-            $finalPrice = 1; // fallback price
-        }
-
-        // =========================================================
-        // �️ WARRANTY — apply adjustment
-        // =========================================================
+        // ⭐ Batch-wise pricing engine — resolve price from the active website batch
+        $pricing     = app(\App\Services\PricingService::class);
+        $batchWise   = $pricing->isBatchWise();
+        $variantId   = $variantPrice->id ?? null;
+        $finalPrice  = 0;
         $warrantyAdjustment = 0;
         $warrantyTierId = null;
-        if ($request->filled('warranty_tier_id')) {
-            $warrantyTier = \App\Models\ProductWarrantyTier::find($request->warranty_tier_id);
-            if ($warrantyTier && $warrantyTier->is_active) {
-                $warrantyAdjustment = (float) ($warrantyTier->additional_cost ?? 0);
-                $finalPrice += $warrantyAdjustment;
-                $warrantyTierId = $warrantyTier->id;
-            }
-        }
-
-        // =========================================================
-        // 🟢 WHOLESALE PRICING OVERRIDE
-        // =========================================================
         $wholesaleDiscount = 0;
-        $basePrice = $finalPrice; // capture before wholesale deduction
-        if ($product->is_wholesale) {
-            $cartQty = max(1, (int) ($request->qty ?? 1));
-            $vid = $variantPrice->id ?? null;
+        $basePrice = 0;
 
-            // Priority 1: variant-specific tier
-            $wholesaleTier = ProductWholesalePrice::where('product_id', $product->id)
-                ->where('variant_id', $vid)
-                ->where('min_quantity', '<=', $cartQty)
-                ->where(function ($q) use ($cartQty) {
-                    $q->whereNull('max_quantity')
-                      ->orWhere('max_quantity', '>=', $cartQty);
-                })
-                ->orderBy('min_quantity', 'desc')
-                ->first();
+        if ($batchWise) {
+            // Website is out of stock when no website-enabled batch has stock
+            if (!$pricing->isWebsiteSellable($product)) {
+                Toastr::error('এই পণ্যটি বর্তমানে স্টক আউট, অর্ডার করা যাবে না।', 'স্টক আউট!');
+                return redirect()->back()->withInput();
+            }
 
-            // Priority 2: global tier (variant_id = null)
-            if (! $wholesaleTier) {
+            $finalPrice = $pricing->price($product, null, $variantId, 'website');
+            if ($finalPrice <= 0) { $finalPrice = 1; } // safety fallback
+            $basePrice = $finalPrice;
+
+            // 🛡️ Warranty — surcharge from the active batch
+            if ($request->filled('warranty_tier_id')) {
+                $warrantyTier = \App\Models\ProductWarrantyTier::find($request->warranty_tier_id);
+                if ($warrantyTier && $warrantyTier->is_active) {
+                    $warrantyAdjustment = $pricing->warrantyAdjustment($product, $warrantyTier->id, null, $variantId);
+                    $finalPrice += $warrantyAdjustment;
+                    $warrantyTierId = $warrantyTier->id;
+                }
+            }
+
+            // 💰 Wholesale — discount from the active batch
+            if ($product->is_wholesale) {
+                $cartQty = max(1, (int) ($request->qty ?? 1));
+                $wholesaleDiscount = $pricing->wholesale($product, $cartQty, null, $variantId);
+                $finalPrice = max(0, $finalPrice - $wholesaleDiscount);
+            }
+        } else {
+            // এখন price ঠিকভাবে fallback করো (legacy)
+            if ($variantPrice && $variantPrice->price > 0) {
+                $finalPrice = $variantPrice->price;
+            } elseif (!empty($product->new_price) && $product->new_price > 0) {
+                $finalPrice = $product->new_price;
+            } elseif (!empty($product->old_price) && $product->old_price > 0) {
+                $finalPrice = $product->old_price;
+            } else {
+                $finalPrice = 1; // fallback price
+            }
+
+            // =========================================================
+            // WARRANTY — apply adjustment (legacy)
+            // =========================================================
+            $warrantyAdjustment = 0;
+            $warrantyTierId = null;
+            if ($request->filled('warranty_tier_id')) {
+                $warrantyTier = \App\Models\ProductWarrantyTier::find($request->warranty_tier_id);
+                if ($warrantyTier && $warrantyTier->is_active) {
+                    $warrantyAdjustment = (float) ($warrantyTier->additional_cost ?? 0);
+                    $finalPrice += $warrantyAdjustment;
+                    $warrantyTierId = $warrantyTier->id;
+                }
+            }
+
+            // =========================================================
+            // WHOLESALE PRICING OVERRIDE (legacy)
+            // =========================================================
+            $wholesaleDiscount = 0;
+            $basePrice = $finalPrice; // capture before wholesale deduction
+            if ($product->is_wholesale) {
+                $cartQty = max(1, (int) ($request->qty ?? 1));
+                $vid = $variantPrice->id ?? null;
+
+                // Priority 1: variant-specific tier
                 $wholesaleTier = ProductWholesalePrice::where('product_id', $product->id)
-                    ->whereNull('variant_id')
+                    ->where('variant_id', $vid)
                     ->where('min_quantity', '<=', $cartQty)
                     ->where(function ($q) use ($cartQty) {
                         $q->whereNull('max_quantity')
@@ -395,13 +421,30 @@ $brands = Brand::where('status', 1)
                     })
                     ->orderBy('min_quantity', 'desc')
                     ->first();
-            }
 
-            if ($wholesaleTier) {
-                $wholesaleDiscount = (float) ($wholesaleTier->wholesale_price ?? 0);
-                $finalPrice = max(0, $finalPrice - $wholesaleDiscount);
+                // Priority 2: global tier (variant_id = null)
+                if (! $wholesaleTier) {
+                    $wholesaleTier = ProductWholesalePrice::where('product_id', $product->id)
+                        ->whereNull('variant_id')
+                        ->where('min_quantity', '<=', $cartQty)
+                        ->where(function ($q) use ($cartQty) {
+                            $q->whereNull('max_quantity')
+                              ->orWhere('max_quantity', '>=', $cartQty);
+                        })
+                        ->orderBy('min_quantity', 'desc')
+                        ->first();
+                }
+
+                if ($wholesaleTier) {
+                    $wholesaleDiscount = (float) ($wholesaleTier->wholesale_price ?? 0);
+                    $finalPrice = max(0, $finalPrice - $wholesaleDiscount);
+                }
             }
         }
+
+        // ⭐ Resolved website batch for this line (used at checkout for FIFO
+        //    stock allocation + auto-advance). null in legacy mode.
+        $cartBatchId = $batchWise ? ($pricing->activeWebsiteBatch($product)?->id ?? null) : null;
 
         // সাইজ ও কালারের নাম (চেকআউট ও অর্ডার ডিসপ্লে এর জন্য)
         $sizeName = null;
@@ -441,9 +484,14 @@ $brands = Brand::where('status', 1)
                 'free_delivery'  => (int) ($product->free_delivery ?? 0),
 
                 // 🏷️ Original prices
-                'regular_price'       => (float) ($product->old_price ?? 0),
-                'sale_price'          => (float) ($product->new_price ?? 0),
+                'regular_price'       => $batchWise
+                                            ? ($pricing->mrp($product, null, $variantId) ?? 0)
+                                            : (float) ($product->old_price ?? 0),
+                'sale_price'          => $batchWise ? $basePrice : (float) ($product->new_price ?? 0),
                 'base_price'          => $basePrice,
+
+                // ⭐ Batch-wise pricing engine
+                'batch_id'            => $cartBatchId,
 
                 // 🛡️ Warranty
                 'warranty_tier_id'    => $warrantyTierId,
@@ -968,12 +1016,32 @@ $brands = Brand::where('status', 1)
             // non-blocking
         }
 
+        // ⭐ Batch-wise pricing engine — resolve variant prices from the active
+        //    website batch (base price/stock already come from the accessors).
+        $isWebsiteSellable = true;
+        $activeBatch = null;
+        if (app(\App\Services\PricingService::class)->isBatchWise()) {
+            $pricingSvc = app(\App\Services\PricingService::class);
+            $isWebsiteSellable = $pricingSvc->isWebsiteSellable($details);
+            $activeBatch = $pricingSvc->activeWebsiteBatch($details);
+
+            // Variant selector on the detail page should show batch-variant prices
+            $details->variantPrices->each(function ($vp) use ($pricingSvc, $details) {
+                $resolved = $pricingSvc->price($details, null, $vp->id, 'website');
+                if ($resolved > 0) {
+                    $vp->setAttribute('price', $resolved);
+                }
+            });
+        }
+
         return view('frontEnd.layouts.pages.details', compact(
             'details',
             'products',
             'shippingcharge',
             'reviews',
-            'vc_event_id'
+            'vc_event_id',
+            'isWebsiteSellable',
+            'activeBatch'
         ));
     }
 

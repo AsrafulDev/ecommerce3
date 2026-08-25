@@ -592,6 +592,20 @@ Route::get('purchases/export', [PurchaseController::class, 'export'])->name('pur
 Route::get('purchases/ajax', [PurchaseController::class, 'ajaxIndex'])
     ->name('purchases.ajax');
 
+// ⭐ Batch-wise pricing engine — purchases/manage right panel
+Route::get('purchases/price-panel', [PurchaseController::class, 'pricePanel'])
+    ->middleware(['auth:admin', 'admin'])->name('purchases.price.panel');
+Route::post('purchases/price/batch-save', [PurchaseController::class, 'saveBatchPricing'])
+    ->middleware(['auth:admin', 'admin', 'demo_mode'])->name('purchases.price.batch.save');
+Route::post('purchases/price/activate', [PurchaseController::class, 'activateWebsiteBatch'])
+    ->middleware(['auth:admin', 'admin', 'demo_mode'])->name('purchases.price.activate');
+Route::post('purchases/price/variant-save', [PurchaseController::class, 'saveVariantPricing'])
+    ->middleware(['auth:admin', 'admin', 'demo_mode'])->name('purchases.price.variant.save');
+Route::post('purchases/price/wholesale-save', [PurchaseController::class, 'saveWholesalePricing'])
+    ->middleware(['auth:admin', 'admin', 'demo_mode'])->name('purchases.price.wholesale.save');
+Route::post('purchases/price/warranty-save', [PurchaseController::class, 'saveWarrantyPricing'])
+    ->middleware(['auth:admin', 'admin', 'demo_mode'])->name('purchases.price.warranty.save');
+
 
 // ==== REPORT ROUTES ==== //
 Route::get('reports/orders',        [ReportController::class, 'orders'])->name('admin.reports.orders');

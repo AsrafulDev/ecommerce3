@@ -158,14 +158,23 @@ class StockController extends Controller
             'items.*.type'         => 'required|in:addition,reduction,correction',
             'items.*.quantity'     => 'required|numeric|min:0.01',
             'items.*.reason'       => 'nullable|string|max:500',
+            // ⭐ Batch-wise pricing engine — optional sell price / MRP on the new batch
+            'items.*.selling_price' => 'nullable|numeric|min:0',
+            'items.*.mrp'           => 'nullable|numeric|min:0',
+            'items.*.variant_id'    => 'nullable|integer',
+            'items.*.batch_id'      => 'nullable|integer',
         ]);
 
         $count = 0;
+        $touchedProducts = [];
         foreach ($request->items as $item) {
             $product = Product::findOrFail($item['product_id']);
+            $touchedProducts[$product->id] = $product;
             $currentStock = $product->stock;
             $qty = (float) $item['quantity'];
             $reason = $item['reason'] ?? 'Manual adjustment';
+            $sellingPrice = isset($item['selling_price']) && $item['selling_price'] !== '' ? (float) $item['selling_price'] : null;
+            $mrp = isset($item['mrp']) && $item['mrp'] !== '' ? (float) $item['mrp'] : null;
 
             $newStock = match ($item['type']) {
                 'addition'   => $currentStock + $qty,
@@ -180,7 +189,7 @@ class StockController extends Controller
                     $variant->save();
                 }
             } else {
-                $this->stockService->adjustStock($product, $newStock, $item['type'], $reason, auth('admin')->id());
+                $this->stockService->adjustStock($product, $newStock, $item['type'], $reason, auth('admin')->id(), $sellingPrice, $mrp);
             }
 
             // Batch-specific adjustment
@@ -193,11 +202,35 @@ class StockController extends Controller
                         'reduction' => max(0, $oldQty - $qty),
                         'correction'=> $qty,
                     };
+                    // Allow setting the batch's sell price / MRP directly
+                    if ($sellingPrice !== null) {
+                        $batch->selling_price = $sellingPrice;
+                    }
+                    if ($mrp !== null) {
+                        $batch->mrp = $mrp;
+                    }
+                    if ($sellingPrice !== null || $mrp !== null) {
+                        $batch->is_manual_price = true;
+                        $batch->price_updated_at = now();
+                        $batch->price_updated_by = auth('admin')->id();
+                    }
                     $batch->save();
                 }
             }
 
             $count++;
+        }
+
+        // ⭐ Batch-wise pricing engine — keep website cache + product stock in sync
+        if ($touchedProducts) {
+            $pricing = app(\App\Services\PricingService::class);
+            foreach ($touchedProducts as $id => $touched) {
+                if ($pricing->isBatchWise()) {
+                    $pricing->refreshProductCache($touched);
+                    $pricing->advanceActiveBatchIfDepleted($touched);
+                }
+                $this->stockService->syncStockFromBatches($id);
+            }
         }
 
         log_activity('stock', 'adjust', 'Manual stock adjustment: ' . $count . ' product(s)', null, [
@@ -357,6 +390,7 @@ class StockController extends Controller
             $totalQty    = 0;
             $totalAmount = 0;
             $items       = [];
+            $touchedProducts = [];
 
             foreach ($request->items as $idx => $item) {
                 $lineTotal = $item['qty'] * $item['unit_cost'];
@@ -374,6 +408,7 @@ class StockController extends Controller
 
                 // Restore stock: increase product stock, decrease batch remaining_qty
                 $product = Product::findOrFail($item['product_id']);
+                $touchedProducts[$product->id] = $product;
                 $product->increment('stock', $item['qty']);
 
                 if (!empty($item['batch_id'])) {
@@ -397,6 +432,15 @@ class StockController extends Controller
             ]);
 
             $return->items()->saveMany($items);
+
+            // ⭐ Batch-wise pricing engine — keep website cache consistent after restock
+            if (config('pricing.batch_wise', false)) {
+                $pricing = app(\App\Services\PricingService::class);
+                foreach ($touchedProducts as $id => $touched) {
+                    $pricing->refreshProductCache($touched);
+                }
+                $this->stockService->syncStockFromBatches();
+            }
 
             DB::commit();
             return redirect()->route('admin.stock.supplier-returns')

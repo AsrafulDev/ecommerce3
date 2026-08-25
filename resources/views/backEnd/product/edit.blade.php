@@ -38,6 +38,9 @@
     $currentType = old('product_type', $dbType);
     $isDigital   = $currentType === 'digital' || $edit_data->is_digital;
     $isVariable  = $currentType === 'variable' || $hasVariants;
+    // ⭐ Batch-wise pricing engine — when ON, sell prices are managed on
+    //    /admin/purchases/manage, NOT here (this page keeps variant identity only).
+    $batchWise = (bool) config('pricing.batch_wise', false);
     // Pre-build variant select options for wholesale JS
     $wholesaleVariantOptions = '';
     if ($hasVariants && isset($allVariants)) {
@@ -187,7 +190,7 @@
                                 @endphp
                                 <div class="variant-card variant-item">
                                     <div class="row align-items-end">
-                                        <div class="col-md-4 mb-2">
+                                        <div class="col-md-{{ $batchWise ? 6 : 4 }} mb-2">
                                             <label class="form-label">{{ __('Color') }}</label>
                                             <select name="variant_price[{{ $variantIndex }}][color_id]" class="form-control select2 variant-color-select">
                                                 <option value=""> {{ __('Select Color (Optional)') }} </option>
@@ -199,7 +202,7 @@
                                             </select>
                                         </div>
 
-                                        <div class="col-md-4 mb-2">
+                                        <div class="col-md-{{ $batchWise ? 6 : 4 }} mb-2">
                                             <label class="form-label">{{ __('Size') }}</label>
                                             <select name="variant_price[{{ $variantIndex }}][size_id]" class="form-control select2 variant-size-select">
                                                 <option value=""> {{ __('Select Size (Optional)') }} </option>
@@ -211,11 +214,13 @@
                                             </select>
                                         </div>
 
+                                        @if(!$batchWise)
                                         <div class="col-md-4 mb-2">
                                             <label class="form-label">{{ __('Price') }}</label>
                                             <input type="number" step="0.01" name="variant_price[{{ $variantIndex }}][price]"
                                                    value="{{ $vp->price }}" class="form-control" placeholder="{{ __('Enter Price') }}">
                                         </div>
+                                        @endif
 
                                         <div class="col-md-6 mb-2">
                                             <label class="form-label"> {{ __('Variant Image') }} </label>
@@ -236,7 +241,15 @@
                                                 </div>
                                             @endif
                                             <div class="variant-img-upload">
-                                                <input type="file" name="variant_image[{{ $variantIndex }}][image]" class="form-control form-control-sm variant-img-input" accept="image/*">
+                                                <input type="hidden" name="variant_image[{{ $variantIndex }}][image]" class="variant-media-path" id="variant_image_{{ $variantIndex }}_image" value="">
+                                                <div class="d-flex flex-wrap align-items-center gap-2">
+                                                    <button type="button" class="btn btn-sm btn-primary variant-media-pick rounded-pill px-3">
+                                                        <i class="fe-image me-1"></i> {{ __('Media Library') }}
+                                                    </button>
+                                                    <img class="variant-media-preview rounded border" id="variant_image_{{ $variantIndex }}_preview" src="" alt=""
+                                                         style="width:52px;height:52px;object-fit:cover;display:none;">
+                                                </div>
+                                                <input type="file" name="variant_image[{{ $variantIndex }}][image_file]" class="form-control form-control-sm variant-img-input mt-1" accept="image/*">
                                                 <div class="variant-img-preview mt-1" style="display:none;">
                                                     <img src="" alt="Preview" class="rounded border" style="max-width:60px;max-height:60px;object-fit:cover;">
                                                     <button type="button" class="btn btn-sm btn-danger variant-img-clear ms-1" title="{{ __('Remove') }}"><i class="fe-x"></i></button>
@@ -269,7 +282,7 @@
                             @empty
                                 <div class="variant-card variant-item">
                                     <div class="row align-items-end">
-                                        <div class="col-md-3 mb-2">
+                                        <div class="col-md-{{ $batchWise ? 4 : 3 }} mb-2">
                                             <label class="form-label">{{ __('Color') }}<small class="text-muted">(Optional)</small></label>
                                             <select name="variant_price[0][color_id]" class="form-control select2 variant-color-select">
                                                 <option value=""> {{ __('Select Color (Optional)') }} </option>
@@ -279,7 +292,7 @@
                                             </select>
                                         </div>
 
-                                        <div class="col-md-3 mb-2">
+                                        <div class="col-md-{{ $batchWise ? 4 : 3 }} mb-2">
                                             <label class="form-label">{{ __('Size') }}<small class="text-muted">(Optional)</small></label>
                                             <select name="variant_price[0][size_id]" class="form-control select2 variant-size-select">
                                                 <option value=""> {{ __('Select Size (Optional)') }} </option>
@@ -289,16 +302,26 @@
                                             </select>
                                         </div>
 
+                                        @if(!$batchWise)
                                         <div class="col-md-2 mb-2">
                                             <label class="form-label">{{ __('Price') }}<small class="text-muted">(Optional)</small></label>
                                             <input type="number" step="0.01" name="variant_price[0][price]"
                                                    class="form-control" placeholder="{{ __('Enter Price') }}">
                                         </div>
+                                        @endif
 
                                         <div class="col-md-2 mb-2">
                                             <label class="form-label"> {{ __('Variant Image') }} </label>
                                             <div class="variant-img-upload">
-                                                <input type="file" name="variant_image[0][image]" class="form-control form-control-sm variant-img-input" accept="image/*">
+                                                <input type="hidden" name="variant_image[0][image]" class="variant-media-path" id="variant_image_0_image" value="">
+                                                <div class="d-flex flex-wrap align-items-center gap-2">
+                                                    <button type="button" class="btn btn-sm btn-primary variant-media-pick rounded-pill px-3">
+                                                        <i class="fe-image me-1"></i> {{ __('Media Library') }}
+                                                    </button>
+                                                    <img class="variant-media-preview rounded border" id="variant_image_0_preview" src="" alt=""
+                                                         style="width:52px;height:52px;object-fit:cover;display:none;">
+                                                </div>
+                                                <input type="file" name="variant_image[0][image_file]" class="form-control form-control-sm variant-img-input mt-1" accept="image/*">
                                                 <div class="variant-img-preview mt-1" style="display:none;">
                                                     <img src="" alt="Preview" class="rounded border" style="max-width:60px;max-height:60px;object-fit:cover;">
                                                     <button type="button" class="btn btn-sm btn-danger variant-img-clear ms-1" title="{{ __('Remove') }}"><i class="fe-x"></i></button>
@@ -326,6 +349,7 @@
                     </div>
                 </div>
 
+                @if(!$batchWise)
                 {{-- WHOLESALE PRICING TIERS --}}
                 <div id="wholesale_area" style="{{ old('is_wholesale', $edit_data->is_wholesale ?? 0) ? 'display:block;' : 'display:none;' }}" class="card mb-4">
                     <div class="card-body">
@@ -410,8 +434,10 @@
                         </div>
                     </div>
                 </div>
+                @endif
 
-                {{-- 🛡️ WARRANTY TIERS --}}
+                @if(!$batchWise)
+                {{-- 🛡️ WARRANTY TIERS (legacy — in batch-wise mode tiers are managed on the Purchase page) --}}
                 @php
                     $warrantyTiers = $warrantyTiers ?? collect();
                     $supplierWarranty = $supplierWarranty ?? null;
@@ -453,6 +479,7 @@
                         </div>
                     </div>
                 </div>
+                @endif
 
                 {{-- SEO CONFIG CARD --}}
                 <div class="card mb-4">
@@ -516,12 +543,15 @@
                 </div>
             </div>
             <div class="col-lg-4">
-                
+
+
+
                 {{-- PRICING & INVENTORY CARD --}}
                 <div class="card mb-4">
                     <div class="card-body">
-                        <div class="section-title"><i class="fe-dollar-sign me-1"></i> {{ __('Pricing & Inventory') }} </div>
+                        <div class="section-title"><i class="fe-dollar-sign me-1"></i> {{ $batchWise ? __('Inventory') : __('Pricing & Inventory') }} </div>
 
+                        @if(!$batchWise)
                         <div class="row">
                             <div class="col-md-6 mb-3">
                                 <label for="old_price" class="form-label"> {{ __('Old Price') }} </label>
@@ -551,6 +581,7 @@
                             <span class="invalid-feedback" role="alert"><strong>{{ $message }}</strong></span>
                             @enderror
                         </div>
+                        @endif
 
                         <div class="form-group mb-3">
                             <label for="pro_unit" class="form-label">{{ __('Unit') }}</label>
@@ -574,6 +605,7 @@
                                             <th>{{ __('Batch') }}</th>
                                             <th class="text-end">{{ __('Qty') }}</th>
                                             <th class="text-end">{{ __('Unit Cost') }}</th>
+                                            <th class="text-end">{{ __('Sell') }}</th>
                                             <th>{{ __('Supplier') }}</th>
                                             <th class="text-end">{{ __('Expiry') }}</th>
                                         </tr>
@@ -603,12 +635,13 @@
                                             <td><strong>{{ $batch->batch_no ?: 'Batch #'.$batch->id }}</strong></td>
                                             <td class="text-end">{{ $batch->remaining_qty }}</td>
                                             <td class="text-end">৳{{ number_format($batch->unit_cost, 2) }}</td>
+                                            <td class="text-end">@if($batch->selling_price)৳{{ number_format($batch->selling_price, 2) }}@else<span class="text-muted">—</span>@endif</td>
                                             <td><small>{{ $batch->supplier->name ?? '—' }}</small></td>
                                             <td class="text-end"><small>{{ $batch->exp_date?->format('d M, Y') ?? '—' }}</small></td>
                                         </tr>
                                         @empty
                                         <tr>
-                                            <td colspan="5" class="text-center text-muted py-3">
+                                            <td colspan="6" class="text-center text-muted py-3">
                                                 {{ __('No batches yet — stock comes from purchases.') }}
                                             </td>
                                         </tr>
@@ -619,7 +652,7 @@
                                         <tr>
                                             <th>{{ __('Total') }}</th>
                                             <th class="text-end">{{ $edit_data->stockBatches->sum('remaining_qty') }}</th>
-                                            <th colspan="3"></th>
+                                            <th colspan="4"></th>
                                         </tr>
                                     </tfoot>
                                     @endif
@@ -956,13 +989,15 @@
                         </div>
 
                         <div class="row-auto mb-3">
-                         <div class="form-group mb-3">
+                         @if(!$batchWise)
+                        <div class="form-group mb-3">
                             <label class="d-block form-label"> {{ __('Wholesale Product') }} </label>
                             <label class="switch">
                                 <input type="checkbox" value="1" name="is_wholesale" id="is_wholesale" {{ old('is_wholesale', $edit_data->is_wholesale ?? 0) ? 'checked' : '' }}>
                                 <span class="slider round"></span>
                             </label>
                         </div>
+                        @endif
 
                         {{-- WARRANTY METHOD --}}
                         <div class="form-group mb-3">
@@ -1257,7 +1292,7 @@ $(function() {
             if (!oldName) return;
             
             if (oldName.includes('variant_image')) {
-                $(this).attr('name', 'variant_image[' + variantIndex + '][image]');
+                $(this).attr('name', oldName.replace(/\[(\d+)\]/, '[' + variantIndex + ']'));
             } else {
                 $(this).attr('name', oldName.replace(/\[\d+\]/, '[' + variantIndex + ']'));
             }
@@ -1273,6 +1308,10 @@ $(function() {
             }
         });
         
+        // Re-index the media picker ids + reset preview for the cloned row
+        newRow.find('.variant-media-path').attr('id', 'variant_image_' + variantIndex + '_image').val('');
+        newRow.find('.variant-media-preview').attr('id', 'variant_image_' + variantIndex + '_preview').attr('src', '').hide();
+
         // Change add button to remove button
         newRow.find('.add-variant')
             .removeClass('btn-success add-variant')
@@ -1291,6 +1330,16 @@ $(function() {
     // Remove variant row
     $(document).on('click', '.remove-variant', function() {
         $(this).closest('.variant-item').remove();
+    });
+
+    // Open the Media Library picker for a variant image row
+    $(document).on('click', '.variant-media-pick', function () {
+        var $cell = $(this).closest('.variant-img-upload');
+        var $path = $cell.find('.variant-media-path');
+        var $preview = $cell.find('.variant-media-preview');
+        if (window.openMediaPicker && $path.length) {
+            openMediaPicker('#' + $path.attr('id'), $preview.length ? '#' + $preview.attr('id') : null, 'path');
+        }
     });
 
     // Variant image preview
@@ -1661,7 +1710,8 @@ document.addEventListener('DOMContentLoaded', function () {
         return m ? m[1] : null;
     }
 
-    // 🛡️ Warranty Tier Management
+    // 🛡️ Warranty Tier Management (legacy — only when the product page owns warranty tiers)
+    @if(!$batchWise)
     const warrantyWrapper = document.getElementById('warranty-wrapper');
     const supplierDays = {{ $supplierDays ?? 0 }};
 
@@ -1709,6 +1759,7 @@ document.addEventListener('DOMContentLoaded', function () {
         reindexWarrantyRows();
         warrantyWrapper.appendChild(clone);
     });
+    @endif
 
 })();
 

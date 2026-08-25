@@ -406,7 +406,8 @@ class ProductController extends Controller
             }
         }
 
-        // VARIANT IMAGES (from Product Variants - variant_image[row_index][image], image_row links to row)
+        // VARIANT IMAGES — variant_image[row_index][image] is a Media-Library path string,
+        // variant_image[row_index][image_file] is a direct upload; image_row links to the row.
         if ($request->variant_price && is_array($request->variant_price)) {
             $savedFiles = [];
             $doneKeys = [];
@@ -418,18 +419,25 @@ class ProductController extends Controller
                     $sizeId = !empty($sizeId) ? $sizeId[0] : null;
                 }
                 if (!$colorId) continue;
-                $file = $request->file("variant_image.{$imageRow}.image");
-                if (!$file) continue;
                 $key = $colorId . '_' . ($sizeId ?: '0');
                 if (isset($doneKeys[$key])) continue;
                 $doneKeys[$key] = true;
+
+                // Prefer a Media-Library path; fall back to a direct file upload.
                 if (!isset($savedFiles[$imageRow])) {
-                    $name = time().'-'.uniqid().'-'.$file->getClientOriginalName();
-                    $name = strtolower(preg_replace('/\s+/', '-', $name));
-                    $path = 'public/uploads/product/';
-                    $file->move($path, $name);
-                    $savedFiles[$imageRow] = $path.$name;
+                    $mediaPath = $request->input("variant_image.{$imageRow}.image");
+                    $file = $request->file("variant_image.{$imageRow}.image_file");
+                    if (is_string($mediaPath) && trim($mediaPath) !== '') {
+                        $savedFiles[$imageRow] = trim($mediaPath);
+                    } elseif ($file) {
+                        $name = time().'-'.uniqid().'-'.$file->getClientOriginalName();
+                        $name = strtolower(preg_replace('/\s+/', '-', $name));
+                        $path = 'public/uploads/product/';
+                        $file->move($path, $name);
+                        $savedFiles[$imageRow] = $path.$name;
+                    }
                 }
+                if (!isset($savedFiles[$imageRow])) continue;
                 Productimage::create([
                     'product_id' => $product->id,
                     'image'      => $savedFiles[$imageRow],
@@ -769,7 +777,8 @@ class ProductController extends Controller
             }
         }
 
-        // VARIANT IMAGES (from Product Variants - variant_image[row][image], image_row links to row)
+        // VARIANT IMAGES — variant_image[row_index][image] is a Media-Library path string,
+        // variant_image[row_index][image_file] is a direct upload; image_row links to the row.
         if ($request->variant_price && is_array($request->variant_price)) {
             $savedFiles = [];
             $doneKeys = [];
@@ -781,18 +790,25 @@ class ProductController extends Controller
                     $sizeId = !empty($sizeId) ? $sizeId[0] : null;
                 }
                 if (!$colorId) continue;
-                $file = $request->file("variant_image.{$imageRow}.image");
-                if (!$file) continue;
                 $key = $colorId . '_' . ($sizeId ?: '0');
                 if (isset($doneKeys[$key])) continue;
                 $doneKeys[$key] = true;
+
+                // Prefer a Media-Library path; fall back to a direct file upload.
                 if (!isset($savedFiles[$imageRow])) {
-                    $name = time().'-'.uniqid().'-'.$file->getClientOriginalName();
-                    $name = strtolower(preg_replace('/\s+/', '-', $name));
-                    $path = 'public/uploads/product/';
-                    $file->move($path, $name);
-                    $savedFiles[$imageRow] = $path.$name;
+                    $mediaPath = $request->input("variant_image.{$imageRow}.image");
+                    $file = $request->file("variant_image.{$imageRow}.image_file");
+                    if (is_string($mediaPath) && trim($mediaPath) !== '') {
+                        $savedFiles[$imageRow] = trim($mediaPath);
+                    } elseif ($file) {
+                        $name = time().'-'.uniqid().'-'.$file->getClientOriginalName();
+                        $name = strtolower(preg_replace('/\s+/', '-', $name));
+                        $path = 'public/uploads/product/';
+                        $file->move($path, $name);
+                        $savedFiles[$imageRow] = $path.$name;
+                    }
                 }
+                if (!isset($savedFiles[$imageRow])) continue;
                 Productimage::create([
                     'product_id' => $product->id,
                     'image'      => $savedFiles[$imageRow],

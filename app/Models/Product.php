@@ -48,6 +48,44 @@ class Product extends Model
         return $this->status == 1 ? self::STATUS_ACTIVE : self::STATUS_DRAFT;
     }
 
+    /*
+    |--------------------------------------------------------------------------
+    | ⭐ Batch-wise pricing engine — storefront accessors
+    |--------------------------------------------------------------------------
+    | When BATCH_WISE_PRICING is ON, the storefront (cards, detail, cart) reads
+    | the CACHED active-batch values instead of the legacy columns, so every
+    | surface reflects the active website batch without N+1 queries.
+    |   new_price → products.website_price  (active batch selling price)
+    |   stock     → products.website_stock  (sum of website-enabled batches)
+    | When OFF (or the cache columns are absent), the raw column values are used.
+    */
+
+    public function getNewPriceAttribute($value)
+    {
+        if (config('pricing.batch_wise', false)
+            && array_key_exists('website_price', $this->attributes)
+            && $this->attributes['website_price'] !== null
+            && (float) $this->attributes['website_price'] > 0) {
+            return $this->attributes['website_price'];
+        }
+        return $value;
+    }
+
+    public function getStockAttribute($value)
+    {
+        if (config('pricing.batch_wise', false)
+            && array_key_exists('website_stock', $this->attributes)) {
+            return (int) $this->attributes['website_stock'];
+        }
+        return $value;
+    }
+
+    /** Raw (stored) new_price, ignoring the batch-wise accessor. */
+    public function getRawNewPriceAttribute()
+    {
+        return $this->attributes['new_price'] ?? null;
+    }
+
     // route model binding এ slug ব্যবহার
     public function getRouteKeyName()
     {

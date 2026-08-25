@@ -188,5 +188,97 @@
         </div>
     </form>
 
+    {{-- ⭐ Batch-wise pricing — this purchase's batches --}}
+    @if((bool) config('pricing.batch_wise', false) && $batches->isNotEmpty())
+    <div class="card card-modern mb-4">
+        <div class="card-header-modern">
+            <h6 class="m-0 font-weight-bold text-primary">
+                <i class="fe-tag me-1"></i> {{ __('Batch Pricing (this purchase)') }}
+                <small class="text-muted d-block">{{ __('Sell price / MRP per batch — website uses the active batch, POS uses the chosen batch') }}</small>
+            </h6>
+        </div>
+        <div class="card-body p-3">
+            <div class="table-responsive">
+                <table class="table table-sm table-bordered align-middle mb-2" style="font-size:13px;">
+                    <thead class="table-light">
+                        <tr>
+                            <th>{{ __('Batch') }}</th>
+                            <th>{{ __('Product') }}</th>
+                            <th class="text-end">{{ __('Remaining') }}</th>
+                            <th class="text-end">{{ __('Unit Cost') }}</th>
+                            <th style="width:110px;">{{ __('Sell Price') }}</th>
+                            <th style="width:110px;">{{ __('MRP') }}</th>
+                            <th class="text-center" style="width:150px;">{{ __('Website') }}</th>
+                            <th class="text-center">{{ __('Save') }}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach($batches as $b)
+                        <tr class="{{ $b->is_active_for_website ? 'table-success' : '' }}">
+                            <td>
+                                <strong>{{ $b->batch_no ?: 'Batch #'.$b->id }}</strong>
+                                @if($b->is_active_for_website) <span class="badge bg-success">{{ __('Active') }}</span> @endif
+                            </td>
+                            <td>{{ $b->product?->name }}</td>
+                            <td class="text-end">{{ $b->remaining_qty }}</td>
+                            <td class="text-end">৳{{ number_format($b->unit_cost, 2) }}</td>
+                            <td><input type="number" step="0.01" class="form-control form-control-sm pe-sell" data-id="{{ $b->id }}" value="{{ $b->selling_price }}"></td>
+                            <td><input type="number" step="0.01" class="form-control form-control-sm pe-mrp" data-id="{{ $b->id }}" value="{{ $b->mrp }}"></td>
+                            <td class="text-center">
+                                @if(!$b->is_active_for_website)
+                                <button type="button" class="btn btn-xs btn-success pe-activate" data-id="{{ $b->id }}">
+                                    <i class="fe-check-circle"></i> {{ __('Set Active') }}
+                                </button>
+                                @endif
+                            </td>
+                            <td class="text-center">
+                                <button type="button" class="btn btn-xs btn-primary pe-save" data-id="{{ $b->id }}" title="{{ __('Save price') }}">
+                                    <i class="fe-save"></i>
+                                </button>
+                            </td>
+                        </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+            <small class="text-muted"><i class="fe-info me-1"></i>{{ __('Only one batch can be the website active batch. When it sells out, auto-advance moves to the next FIFO batch with stock.') }}</small>
+        </div>
+    </div>
+    @endif
+
 </div>
 @endsection
+
+@push('scripts')
+<script>
+$(function () {
+    function pePost(url, data, cb) {
+        data._token = '{{ csrf_token() }}';
+        $.post(url, data, function (res) {
+            if (res.status === 'success') {
+                if (window.toastr) toastr.success(res.message || 'Saved');
+                if (cb) cb();
+                setTimeout(function () { location.reload(); }, 700);
+            } else {
+                if (window.toastr) toastr.error(res.message || 'Error');
+            }
+        }).fail(function () { if (window.toastr) toastr.error('Request failed'); });
+    }
+
+    // Save sell price + MRP for a batch
+    $(document).on('click', '.pe-save', function () {
+        var id = $(this).data('id');
+        pePost('{{ route("purchases.price.batch.save") }}', {
+            batch_id: id,
+            selling_price: $('.pe-sell[data-id="' + id + '"]').val(),
+            mrp: $('.pe-mrp[data-id="' + id + '"]').val()
+        });
+    });
+
+    // Set a batch as the website active batch
+    $(document).on('click', '.pe-activate', function () {
+        pePost('{{ route("purchases.price.activate") }}', { batch_id: $(this).data('id') });
+    });
+});
+</script>
+@endpush

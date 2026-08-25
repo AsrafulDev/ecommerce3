@@ -120,14 +120,25 @@ class ShoppingController extends Controller
             ->where('product_id', $id)
             ->value('image') ?? 'public/uploads/default.webp';
 
+        // ⭐ Batch-wise pricing engine — resolve from the active website batch
+        $pricing   = app(\App\Services\PricingService::class);
+        $batchWise = $pricing->isBatchWise();
+        if ($batchWise && !$pricing->isWebsiteSellable($productInfo)) {
+            Toastr::error('এই পণ্যটি বর্তমানে স্টক আউট, অর্ডার করা যাবে না।', 'স্টক আউট!');
+            return response()->json(['error' => 'Stock out']);
+        }
+        $sellPrice = $batchWise
+            ? max($pricing->price($productInfo, null, null, 'website'), 1)
+            : (float) ($productInfo->new_price ?? $productInfo->old_price ?? 1);
+
         $cartinfo = Cart::instance('shopping')->add([
             'id'   => $productInfo->id,
             'name' => $productInfo->name,
             'qty'  => $qty,
-            'price'=> (float) ($productInfo->new_price ?? $productInfo->old_price ?? 1),
+            'price'=> $sellPrice,
             'options' => [
                 'image'          => $productImage,
-                'old_price'      => (float) ($productInfo->old_price ?? 0),
+                'old_price'      => $batchWise ? ($pricing->mrp($productInfo) ?? 0) : (float) ($productInfo->old_price ?? 0),
                 'slug'           => $productInfo->slug,
                 'purchase_price' => (float) ($productInfo->purchase_price ?? 0),
 
@@ -141,9 +152,12 @@ class ShoppingController extends Controller
                 'free_delivery'  => (int) ($productInfo->free_delivery ?? 0),
 
                 // 🏷️ Original prices
-                'regular_price'       => (float) ($productInfo->old_price ?? 0),
-                'sale_price'          => (float) ($productInfo->new_price ?? 0),
-                'base_price'          => (float) ($productInfo->new_price ?? $productInfo->old_price ?? 1),
+                'regular_price'       => $batchWise ? ($pricing->mrp($productInfo) ?? 0) : (float) ($productInfo->old_price ?? 0),
+                'sale_price'          => $batchWise ? $sellPrice : (float) ($productInfo->new_price ?? 0),
+                'base_price'          => $sellPrice,
+
+                // ⭐ Batch-wise pricing engine
+                'batch_id'            => $batchWise ? ($pricing->activeWebsiteBatch($productInfo)?->id ?? null) : null,
 
                 // 🛡️ Warranty
                 'warranty_tier_id'    => null,

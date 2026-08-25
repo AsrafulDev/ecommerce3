@@ -62,6 +62,11 @@ class StockManagementService
             'remaining_qty'   => $qty,
             'unit_cost'       => $data['unit_cost'] ?? 0,
             'selling_price'   => $data['selling_price'] ?? null,
+            'mrp'             => $data['mrp'] ?? null,
+            'wholesale_price' => $data['wholesale_price'] ?? null,
+            'is_active_for_website' => (bool) ($data['is_active_for_website'] ?? false),
+            'pos_enabled'     => (bool) ($data['pos_enabled'] ?? true),
+            'auto_advance'    => (bool) ($data['auto_advance'] ?? config('pricing.auto_advance_default', true)),
             'mfg_date'        => $data['mfg_date'] ?? null,
             'exp_date'        => $data['exp_date'] ?? null,
             'custom_field'    => $data['custom_field'] ?? null,
@@ -384,7 +389,9 @@ class StockManagementService
         int $qty,
         string $type,    // 'addition', 'reduction', 'correction'
         string $reason,
-        ?int $variantPriceId = null
+        ?int $variantPriceId = null,
+        ?float $sellingPrice = null,
+        ?float $mrp = null
     ): StockAdjustment {
         $currentStock = (int) $product->stock;
         $newStock = $currentStock;
@@ -395,6 +402,8 @@ class StockManagementService
             $this->stockIn($product, [
                 'quantity'         => $qty,
                 'unit_cost'        => (float) ($product->purchase_price ?? 0),
+                'selling_price'    => $sellingPrice,
+                'mrp'              => $mrp,
                 'variant_price_id' => $variantPriceId,
                 'reference_type'   => 'adjustment',
             ]);
@@ -416,6 +425,8 @@ class StockManagementService
                 $this->stockIn($product, [
                     'quantity'         => $diff,
                     'unit_cost'        => (float) ($product->purchase_price ?? 0),
+                    'selling_price'    => $sellingPrice,
+                    'mrp'              => $mrp,
                     'variant_price_id' => $variantPriceId,
                     'reference_type'   => 'adjustment',
                 ]);
@@ -489,10 +500,37 @@ class StockManagementService
                 ->get()
                 ->keyBy('product_id');
 
+            // --- Website cache (batch-wise mode only) ---
+            $batchWise = (bool) config('pricing.batch_wise', false);
+            $websiteTotals = collect();
+            $activeBatches = collect();
+            if ($batchWise) {
+                // website_stock = SUM(remaining) of sellable (pos_enabled, not expired) batches
+                $websiteTotals = StockBatch::query()
+                    ->selectRaw('product_id')
+                    ->selectRaw('SUM(remaining_qty) as total_remaining')
+                    ->where('pos_enabled', 1)
+                    ->where('remaining_qty', '>', 0)
+                    ->where(function ($q) {
+                        $q->whereNull('exp_date')->orWhere('exp_date', '>=', now()->toDateString());
+                    })
+                    ->when($productId, fn ($q) => $q->where('product_id', $productId))
+                    ->groupBy('product_id')
+                    ->get()
+                    ->keyBy('product_id');
+
+                // website_price = active batch selling_price
+                $activeBatches = StockBatch::query()
+                    ->where('is_active_for_website', 1)
+                    ->when($productId, fn ($q) => $q->where('product_id', $productId))
+                    ->get(['id', 'product_id', 'selling_price'])
+                    ->keyBy('product_id');
+            }
+
             Product::query()
                 ->when($productId, fn ($q) => $q->where('id', $productId))
-                ->get(['id', 'stock'])
-                ->each(function (Product $product) use ($productTotals, &$count) {
+                ->get(['id', 'name', 'stock', 'new_price', 'website_price', 'website_stock'])
+                ->each(function (Product $product) use ($productTotals, $websiteTotals, $activeBatches, $batchWise, &$count) {
                     // Products with no batch rows keep their existing stock untouched
                     if (!$productTotals->has($product->id)) {
                         return;
@@ -501,6 +539,25 @@ class StockManagementService
                     if ((int) $product->stock !== $computed) {
                         $product->update(['stock' => $computed]);
                         $count++;
+                    }
+
+                    if ($batchWise) {
+                        $wStock = (int) ($websiteTotals[$product->id]->total_remaining ?? 0);
+                        $active  = $activeBatches->get($product->id);
+                        $wPrice  = $active ? (float) $active->selling_price : null;
+                        if ($wPrice === null || $wPrice <= 0) {
+                            $wPrice = (float) ($product->getRawOriginal('new_price') ?? 0);
+                        }
+                        if ((int) $product->website_stock !== $wStock
+                            || (float) ($product->website_price ?? 0) !== $wPrice
+                            || (float) ($product->getRawOriginal('new_price') ?? 0) !== $wPrice) {
+                            $updates = ['website_stock' => $wStock, 'website_price' => $wPrice];
+                            if ($wPrice > 0) {
+                                $updates['new_price'] = $wPrice; // keep catalog sort/filter aligned
+                            }
+                            $product->update($updates);
+                            $count++;
+                        }
                     }
                 });
 

@@ -26,6 +26,11 @@
 @endsection 
 
 @section('content')
+@php
+    // ⭐ Batch-wise pricing engine — when ON, sell prices are set after the first
+    //    purchase on /admin/purchases/manage (this page keeps catalog + variant identity).
+    $batchWise = (bool) config('pricing.batch_wise', false);
+@endphp
 <div class="container-fluid">
     <div class="row">
         <div class="col-12">
@@ -88,6 +93,7 @@
                     </div>
                 </div>
 
+                @if(!$batchWise)
                 <div class="card mb-4">
                     <div class="card-body">
                         <div class="form-group mb-3">
@@ -96,7 +102,9 @@
                         </div>
                     </div>
                 </div>
+                @endif
 
+                @if(!$batchWise)
                 <div id="wholesale_area" style="display:none;" class="card mb-4">
                     <div class="card-body">
                         <div class="section-title d-flex justify-content-between align-items-center">
@@ -127,6 +135,7 @@
                         </div>
                     </div>
                 </div>
+                @endif
 
                 <div class="card mb-4" id="variant_section">
                     <div class="card-body">
@@ -138,7 +147,7 @@
                         <div id="variant-wrapper">
                             <div class="variant-card variant-item">
                                 <div class="row align-items-end">
-                                    <div class="col-md-2 mb-2">
+                                    <div class="col-md-{{ $batchWise ? 3 : 2 }} mb-2">
                                         <label class="form-label">{{ __('Color') }}<small class="text-muted">(Optional)</small></label>
                                         <select name="variant_price[0][color_id]" class="form-control select2 variant-color-select">
                                             <option value="">{{ __('Select Color') }}</option>
@@ -147,7 +156,7 @@
                                             @endforeach
                                         </select>
                                     </div>
-                                    <div class="col-md-2 mb-2">
+                                    <div class="col-md-{{ $batchWise ? 3 : 2 }} mb-2">
                                         <label class="form-label">{{ __('Size') }}<small class="text-muted">(Optional)</small></label>
                                         <select name="variant_price[0][size_id]" class="form-control select2 variant-size-select">
                                             <option value="">{{ __('Select Size') }}</option>
@@ -156,14 +165,24 @@
                                             @endforeach
                                         </select>
                                     </div>
+                                    @if(!$batchWise)
                                     <div class="col-md-2 mb-2">
                                         <label class="form-label">{{ __('Price') }}</label>
                                         <input type="number" step="0.01" name="variant_price[0][price]" class="form-control" placeholder="0.00">
                                     </div>
+                                    @endif
                                     <div class="col-md-3 mb-2">
                                         <label class="form-label"> {{ __('Variant Image') }} </label>
                                         <div class="variant-img-upload position-relative">
-                                            <input type="file" name="variant_image[0][image]" class="form-control form-control-sm variant-img-input" accept="image/*">
+                                            <input type="hidden" name="variant_image[0][image]" class="variant-media-path" id="variant_image_0_image" value="">
+                                            <div class="d-flex flex-wrap align-items-center gap-2">
+                                                <button type="button" class="btn btn-sm btn-primary variant-media-pick rounded-pill px-3">
+                                                    <i class="fe-image me-1"></i> {{ __('Media Library') }}
+                                                </button>
+                                                <img class="variant-media-preview rounded border" id="variant_image_0_preview" src="" alt=""
+                                                     style="width:52px;height:52px;object-fit:cover;display:none;">
+                                            </div>
+                                            <input type="file" name="variant_image[0][image_file]" class="form-control form-control-sm variant-img-input mt-1" accept="image/*">
                                             <div class="variant-img-preview mt-1" style="display:none;">
                                                 <img src="" alt="Preview" class="rounded border" style="max-width:60px;max-height:60px;object-fit:cover;">
                                                 <button type="button" class="btn btn-sm btn-danger variant-img-clear ms-1" title="{{ __('Remove') }}"><i class="fe-x"></i></button>
@@ -238,8 +257,9 @@
             <div class="col-lg-4">
                 <div class="card mb-4">
                     <div class="card-body">
-                        <div class="section-title"><i class="fe-dollar-sign me-1"></i> {{ __('Pricing & Inventory') }} </div>
+                        <div class="section-title"><i class="fe-dollar-sign me-1"></i> {{ $batchWise ? __('Inventory') : __('Pricing & Inventory') }} </div>
                         
+                        @if(!$batchWise)
                         <div class="form-group mb-3">
                             <label class="form-label"> {{ __('Purchase Price') }} <small class="text-muted">(Optional)</small></label>
                             <input type="number" name="purchase_price" class="form-control border-primary" placeholder="0">
@@ -248,13 +268,14 @@
                         <div class="row">
                             <div class="col-md-6 mb-3">
                                 <label class="form-label"> {{ __('Old Price') }} </label>
-                                <input type="number" name="old_price" class="form-control">
+                                <input type="number" name="old_price" class="form-control" placeholder="0">
                             </div>
                             <div class="col-md-6 mb-3">
                                 <label class="form-label"> {{ __('New Price') }} <small class="text-muted">(Optional)</small></label>
                                 <input type="number" name="new_price" class="form-control font-weight-bold" placeholder="0">
                             </div>
                         </div>
+                        @endif
 
                         <div class="form-group mb-3">
                             <label class="form-label"> {{ __('Unit (kg/pc)') }} </label>
@@ -657,17 +678,22 @@
                 let oldName = $(this).attr('name');
                 if (oldName) {
                     if (oldName.includes('variant_image')) {
-                        $(this).attr('name', 'variant_image[' + variantIndex + '][image]');
+                        $(this).attr('name', oldName.replace(/\[(\d+)\]/, '[' + variantIndex + ']'));
                     } else {
                         $(this).attr('name', oldName.replace(/\[\d+\]/, '[' + variantIndex + ']'));
                     }
                 }
-                if ($(this).attr('type') !== 'file') $(this).val(null).trigger('change');
-                else {
-                    $(this).val('');
-                    $(this).siblings(".variant-img-preview").hide().find("img").attr("src", "");
-                }
+                $(this).val(null).trigger('change');
             });
+            // Rename variant_image inputs (hidden media path + file) to the new row index
+            firstRow.find('input[name*="variant_image"]').each(function(){
+                let oldName = $(this).attr('name');
+                if (oldName) $(this).attr('name', oldName.replace(/\[(\d+)\]/, '[' + variantIndex + ']'));
+            });
+            // Re-index media picker ids + reset previews for the cloned row
+            firstRow.find('.variant-media-path').attr('id', 'variant_image_' + variantIndex + '_image');
+            firstRow.find('.variant-media-preview').attr('id', 'variant_image_' + variantIndex + '_preview').attr('src', '').hide();
+            firstRow.find('.variant-img-preview').hide().find('img').attr('src', '');
 
             firstRow.find('.btn-remove-row').removeClass('d-none');
             wrapper.append(firstRow);
@@ -689,6 +715,16 @@
 
         $("body").on("click", ".btn-remove-row", function () {
             $(this).parents(".variant-item").remove();
+        });
+
+        // Open the Media Library picker for a variant image row
+        $("body").on("click", ".variant-media-pick", function () {
+            var $cell = $(this).closest(".variant-img-upload");
+            var $path = $cell.find(".variant-media-path");
+            var $preview = $cell.find(".variant-media-preview");
+            if (window.openMediaPicker && $path.length) {
+                openMediaPicker("#" + $path.attr("id"), $preview.length ? "#" + $preview.attr("id") : null, "path");
+            }
         });
 
         // Variant Image Preview & Clear

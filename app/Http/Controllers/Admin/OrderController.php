@@ -2221,16 +2221,28 @@ class OrderController extends Controller
         }
 
         $qty      = 1;
+
+        // ⭐ Batch-wise pricing engine — POS sells from ANY batch (auto = oldest sellable)
+        $pricing   = app(\App\Services\PricingService::class);
+        $batchWise = $pricing->isBatchWise();
+        $posBatch  = null;
+        $posPrice  = (float) ($product->new_price ?? $product->old_price ?? 0);
+        if ($batchWise) {
+            $posBatch = $pricing->posBatches($product)->first(); // FIFO default
+            $posPrice = $pricing->price($product, $posBatch?->id, null, 'pos');
+            if ($posPrice <= 0) { $posPrice = (float) ($product->new_price ?? 0); }
+        }
+
         $cartinfo = Cart::instance('pos_shopping')->add([
             'id'      => $product->id,
             'name'    => $product->name,
             'qty'     => $qty,
-            'price'   => $product->new_price,
+            'price'   => $posPrice,
             'options' => [
                 'product_id'      => $product->id,
                 'slug'            => $product->slug,
                 'image'           => (isset($product->image) && isset($product->image->image)) ? $product->image->image : null,
-                'old_price'       => $product->old_price,
+                'old_price'       => $batchWise ? ($pricing->mrp($product, $posBatch?->id) ?? 0) : $product->old_price,
                 'purchase_price'  => $product->purchase_price,
                 'product_size'    => null,
                 'product_color'   => null,
@@ -2239,8 +2251,8 @@ class OrderController extends Controller
                 'product_discount'=> 0,
                 'warranty_tier_id'=> null,
                 'warranty_adjustment' => 0,
-                'base_price'      => $product->new_price,
-                'batch_id'        => null,
+                'base_price'      => $posPrice,
+                'batch_id'        => $posBatch?->id,
                 'serial_numbers'  => [],
             ],
         ]);
@@ -2478,6 +2490,7 @@ class OrderController extends Controller
 
         $pid = $cartItem->options->product_id ?? $cartItem->id;
         $product = Product::find($pid);
+        $variant = null; // ⭐ initialized — referenced by batch-wise price resolution below
         // ✅ Start from current price (base + warranty) — recalculate only when size/color/warranty changes
         $newPrice = (float)(($cartItem->options->base_price ?? $cartItem->price) + ($cartItem->options->warranty_adjustment ?? 0));
         $sizeName = null;
@@ -2530,14 +2543,36 @@ class OrderController extends Controller
                 : ($cartItem->options->serial_numbers ?? []),
         ];
 
+        // ⭐ Batch-wise pricing engine — the sell price comes from the selected batch.
+        $pricingSvc = app(\App\Services\PricingService::class);
+        $batchWise  = $pricingSvc->isBatchWise();
+        $effectiveBatchId = $request->batch_id ?? $cartItem->options->batch_id ?? null;
+        $cartVariantId    = $cartItem->options->variant_price_id ?? ($variant->id ?? null);
+        if ($batchWise && $effectiveBatchId) {
+            $batch = \App\Models\StockBatch::find($effectiveBatchId);
+            if ($batch && $batch->product_id == $pid) {
+                $batchPrice = $pricingSvc->price($product, $batch->id, $cartVariantId, 'pos');
+                if ($batchPrice > 0) {
+                    $newPrice = $batchPrice;
+                }
+                $options['old_price']      = $pricingSvc->mrp($product, $batch->id, $cartVariantId) ?? 0;
+                $options['purchase_price'] = $batch->unit_cost;
+                $options['base_price']     = $newPrice;
+            }
+        }
+
         // 🛡️ Apply warranty adjustment — recalculate from product base price
         $effectiveWarrantyId = $request->warranty_tier_id ?? $cartItem->options->warranty_tier_id ?? null;
         $warrantyAdjustment = (float)($cartItem->options->warranty_adjustment ?? 0);
         if ($request->filled('warranty_tier_id')) {
             $tier = \App\Models\ProductWarrantyTier::find($request->warranty_tier_id);
             if ($tier && $tier->is_active) {
-                $warrantyAdjustment = (float) ($tier->additional_cost ?? 0);
-                $productBasePrice = $product->new_price ?? $product->old_price ?? $cartItem->price;
+                $warrantyAdjustment = $batchWise
+                    ? $pricingSvc->warrantyAdjustment($product, $tier->id, $effectiveBatchId, $cartVariantId)
+                    : (float) ($tier->additional_cost ?? 0);
+                $productBasePrice = $batchWise
+                    ? $newPrice // already the batch base price
+                    : ($product->new_price ?? $product->old_price ?? $cartItem->price);
                 $newPrice = $productBasePrice + $warrantyAdjustment;
             } else {
                 $warrantyAdjustment = 0;
@@ -3712,16 +3747,28 @@ class OrderController extends Controller
 
         // Add to cart (same logic as clicking a product card)
         $qty = 1;
+
+        // ⭐ Batch-wise pricing engine — POS sells from ANY batch (auto = oldest sellable)
+        $pricing   = app(\App\Services\PricingService::class);
+        $batchWise = $pricing->isBatchWise();
+        $posBatch  = null;
+        $posPrice  = $product->new_price ?? $product->old_price ?? 0;
+        if ($batchWise) {
+            $posBatch = $pricing->posBatches($product)->first(); // FIFO default
+            $posPrice = $pricing->price($product, $posBatch?->id, null, 'pos');
+            if ($posPrice <= 0) { $posPrice = $product->new_price ?? $product->old_price ?? 0; }
+        }
+
         $cartinfo = Cart::instance('pos_shopping')->add([
             'id'      => $product->id,
             'name'    => $product->name,
             'qty'     => $qty,
-            'price'   => $product->new_price ?? $product->old_price ?? 0,
+            'price'   => $posPrice,
             'options' => [
                 'product_id'      => $product->id,
                 'slug'            => $product->slug,
                 'image'           => optional($product->image)->image ?? null,
-                'old_price'       => $product->old_price,
+                'old_price'       => $batchWise ? ($pricing->mrp($product, $posBatch?->id) ?? 0) : $product->old_price,
                 'purchase_price'  => $product->purchase_price,
                 'product_size'    => null,
                 'product_color'   => null,
@@ -3730,8 +3777,8 @@ class OrderController extends Controller
                 'product_discount'=> 0,
                 'warranty_tier_id'=> null,
                 'warranty_adjustment' => 0,
-                'base_price'      => $product->new_price ?? $product->old_price ?? 0,
-                'batch_id'        => null,
+                'base_price'      => $posPrice,
+                'batch_id'        => $posBatch?->id,
                 'serial_numbers'  => [],
                 'barcode'         => $barcode,
             ],

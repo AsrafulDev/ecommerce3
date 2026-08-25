@@ -230,21 +230,38 @@
                                 </div>
                                 {{-- Batch info per product --}}
                                 <div class="row mt-1">
-                                    <div class="col-md-3">
+                                    <div class="col-md-2">
                                         <label class="form-label small">{{ __('Batch No') }}</label>
                                         <input type="text" name="items[0][batch_no]" class="form-control form-control-sm" placeholder="e.g. BT-001">
                                     </div>
-                                    <div class="col-md-3">
+                                    <div class="col-md-2">
                                         <label class="form-label small">{{ __('MFG Date') }}</label>
                                         <input type="date" name="items[0][mfg_date]" class="form-control form-control-sm">
                                     </div>
-                                    <div class="col-md-3">
+                                    <div class="col-md-2">
                                         <label class="form-label small">{{ __('EXP Date') }}</label>
                                         <input type="date" name="items[0][exp_date]" class="form-control form-control-sm">
                                     </div>
-                                    <div class="col-md-3">
-                                        <label class="form-label small">{{ __('Custom Field') }} <small class="text-muted">(optional)</small></label>
-                                        <input type="text" name="items[0][custom_field]" class="form-control form-control-sm" placeholder="Any extra info...">
+                                    <div class="col-md-2">
+                                        <label class="form-label small">{{ __('Custom Field') }}</label>
+                                        <input type="text" name="items[0][custom_field]" class="form-control form-control-sm" placeholder="Extra info">
+                                    </div>
+                                    <div class="col-md-2">
+                                        <label class="form-label small">{{ __('Selling Price') }} <small class="text-muted">(৳)</small></label>
+                                        <input type="number" step="0.01" name="items[0][selling_price]" class="form-control form-control-sm" placeholder="0.00">
+                                    </div>
+                                    <div class="col-md-2">
+                                        <label class="form-label small">{{ __('MRP') }} <small class="text-muted">(৳)</small></label>
+                                        <input type="number" step="0.01" name="items[0][mrp]" class="form-control form-control-sm" placeholder="0.00">
+                                    </div>
+                                </div>
+                                {{-- ⭐ Batch-wise extras: website activation --}}
+                                <div class="row mt-1">
+                                    <div class="col-auto">
+                                        <label class="form-check-label small">
+                                            <input type="checkbox" name="items[0][activate_website]" value="1" class="form-check-input pp-activate-cb me-1">
+                                            {{ __('Set as website active batch') }}
+                                        </label>
                                     </div>
                                 </div>
                                 {{-- Warranty per product --}}
@@ -267,6 +284,45 @@
                                             <option value="1">Yes</option><option value="0">No</option>
                                         </select>
                                     </div>
+                                </div>
+                                {{-- ⭐ Batch-wise pricing expanders (after supplier warranty info) --}}
+                                <div class="row mt-2">
+                                    <div class="col-12">
+                                        <div class="btn-group btn-group-sm" role="group">
+                                            <button type="button" class="btn btn-outline-info toggle-variant-pricing"><i class="fe-grid"></i> {{ __('Variant Pricing') }}</button>
+                                            <button type="button" class="btn btn-outline-warning toggle-wholesale-pricing"><i class="fe-layers"></i> {{ __('Wholesale Pricing') }}</button>
+                                            <button type="button" class="btn btn-outline-primary toggle-warranty-pricing"><i class="fe-shield"></i> {{ __('Warranty Pricing') }}</button>
+                                        </div>
+                                    </div>
+                                </div>
+                                {{-- Variant pricing (dynamic rows, filled by JS) --}}
+                                <div class="variant-pricing-block mt-1" style="display:none;">
+                                    <div class="table-responsive">
+                                        <table class="table table-sm table-bordered mb-0" style="background:#fff;">
+                                            <thead class="table-light"><tr><th>{{ __('Variant') }}</th><th>{{ __('Price') }}</th><th>{{ __('MRP') }}</th><th style="width:80px;">{{ __('Stock') }}</th></tr></thead>
+                                            <tbody class="variant-pricing-rows"></tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                                {{-- Wholesale pricing (dynamic tier rows, filled by JS) --}}
+                                <div class="wholesale-pricing-block mt-1" style="display:none;">
+                                    <div class="table-responsive">
+                                        <table class="table table-sm table-bordered mb-1" style="background:#fff;">
+                                            <thead class="table-light"><tr><th>{{ __('Variant') }}</th><th>{{ __('Min') }}</th><th>{{ __('Max') }}</th><th style="width:100px;">{{ __('Wholesale Price') }}</th><th style="width:40px;"></th></tr></thead>
+                                            <tbody class="wholesale-pricing-rows"></tbody>
+                                        </table>
+                                    </div>
+                                    <button type="button" class="btn btn-xs btn-outline-secondary add-wholesale-pricing-row"><i class="fa fa-plus"></i> {{ __('Add Tier') }}</button>
+                                </div>
+                                {{-- Warranty pricing (per product warranty tier, filled by JS) --}}
+                                <div class="warranty-pricing-block mt-1" style="display:none;">
+                                    <div class="table-responsive">
+                                        <table class="table table-sm table-bordered mb-0" style="background:#fff;">
+                                            <thead class="table-light"><tr><th>{{ __('Tier') }}</th><th>{{ __('Override Cost') }}</th><th>{{ __('Active') }}</th><th style="width:40px;"></th></tr></thead>
+                                            <tbody class="warranty-pricing-rows"></tbody>
+                                        </table>
+                                    </div>
+                                    <button type="button" class="btn btn-xs btn-outline-secondary add-warranty-pricing-row"><i class="fa fa-plus"></i> {{ __('Add Tier') }}</button>
                                 </div>
                             </div>
                         </div>
@@ -296,6 +352,21 @@
                             <button type="submit" class="btn btn-primary px-4"><i class="fe-save me-1"></i> Save Purchase</button>
                         </div>
                     </form>
+                </div>
+            </div>
+        </div>
+
+        {{-- ⭐ BATCH-WISE PRICING PANEL (right) — ① Batch ② Variant ③ Wholesale ④ Warranty --}}
+        <div class="col-lg-4 mb-4">
+            <div id="price-panel-container" data-product-id="">
+                <div class="card shadow-sm">
+                    <div class="card-header py-2 bg-white">
+                        <h6 class="m-0 fw-bold text-primary"><i class="fe-tag me-1"></i> {{ __('Pricing Panel') }}</h6>
+                    </div>
+                    <div class="card-body text-center text-muted py-5">
+                        <i class="fe-tag" style="font-size: 32px;"></i>
+                        <p class="small mb-0 mt-2">Select a product above to manage its batch-wise pricing.</p>
+                    </div>
                 </div>
             </div>
         </div>
@@ -468,6 +539,8 @@
     let rowIndex = 1;
     const allProducts = {!! $productsJson !!};
     const allVariants = {!! $variantsJson !!};
+    // ⭐ Batch-wise pricing engine — per-product warranty tiers (for the Warranty Pricing expander)
+    const allWarrantyTiers = {!! $warrantyTiersJson !!};
 
     function calcGrandTotal() {
         let total = 0;
@@ -516,12 +589,114 @@
         template.find('input[name*="[warranty_days]"]').val('0');
         template.find('.row-total').text('0');
         template.find('.variant-col').hide();
+        template.find('.variant-pricing-block, .wholesale-pricing-block, .warranty-pricing-block').hide();
+        template.find('.variant-pricing-rows, .wholesale-pricing-rows, .warranty-pricing-rows').html('');
+        template.find('.pp-activate-cb').prop('checked', false);
         template.find('[name]').each(function() {
             $(this).attr('name', $(this).attr('name').replace(/items\[\d+\]/, 'items[' + rowIndex + ']'));
         });
         $('#product-rows').append(template);
         rowIndex++;
         calcGrandTotal();
+    }
+
+    // ⭐ Populate the per-row variant pricing table for variable products
+    function populateVariantPricing(row, productId) {
+        const block = row.find('.variant-pricing-block');
+        const tbody = row.find('.variant-pricing-rows');
+        tbody.html('');
+        const variants = allVariants[productId] || [];
+        if (!variants.length) { block.hide(); return; }
+        block.show();
+
+        const m = row.find('.product-select').attr('name').match(/items\[(\d+)\]/);
+        const rowIdx = m ? m[1] : 0;
+
+        variants.forEach((v, i) => {
+            const label = [v.color?.colorName || v.color?.name, v.size?.sizeName || v.size?.name].filter(Boolean).join(' / ') || ('Variant #' + v.id);
+            tbody.append(
+                '<tr>' +
+                    '<td>' + label + '<div class="small text-muted">' + (v.sku || '') + '</div></td>' +
+                    '<td><input type="number" step="0.01" name="items[' + rowIdx + '][variant_prices][' + i + '][price]" class="form-control form-control-sm"></td>' +
+                    '<td><input type="number" step="0.01" name="items[' + rowIdx + '][variant_prices][' + i + '][old_price]" class="form-control form-control-sm"></td>' +
+                    '<td><input type="number" name="items[' + rowIdx + '][variant_prices][' + i + '][stock]" class="form-control form-control-sm"></td>' +
+                    '<input type="hidden" name="items[' + rowIdx + '][variant_prices][' + i + '][variant_id]" value="' + v.id + '">' +
+                '</tr>'
+            );
+        });
+    }
+
+    // ⭐ Build a blank wholesale tier row for a product row
+    function wholesaleRowHtml(row, rowIdx, i) {
+        const variants = allVariants[row.find('.product-select').val()] || [];
+        let opt = '<option value="">All</option>';
+        variants.forEach(v => {
+            const label = [v.color?.colorName || v.color?.name, v.size?.sizeName || v.size?.name].filter(Boolean).join(' / ') || ('Variant #' + v.id);
+            opt += '<option value="' + v.id + '">' + label + '</option>';
+        });
+        return '<tr>' +
+            '<td><select name="items[' + rowIdx + '][wholesale_tiers][' + i + '][variant_id]" class="form-select form-select-sm">' + opt + '</select></td>' +
+            '<td><input type="number" min="1" name="items[' + rowIdx + '][wholesale_tiers][' + i + '][min_quantity]" class="form-control form-control-sm" placeholder="Min"></td>' +
+            '<td><input type="number" min="1" name="items[' + rowIdx + '][wholesale_tiers][' + i + '][max_quantity]" class="form-control form-control-sm" placeholder="Max"></td>' +
+            '<td><input type="number" step="0.01" name="items[' + rowIdx + '][wholesale_tiers][' + i + '][wholesale_price]" class="form-control form-control-sm" placeholder="0.00"></td>' +
+            '<td class="text-center"><button type="button" class="btn btn-xs btn-outline-danger ws-remove-row" title="Remove">×</button></td>' +
+        '</tr>';
+    }
+
+    // ⭐ Ensure at least one wholesale tier row exists for the selected product
+    function populateWholesalePricing(row, productId) {
+        const tbody = row.find('.wholesale-pricing-rows');
+        if (!productId) { tbody.html(''); return; }
+        const m = row.find('.product-select').attr('name').match(/items\[(\d+)\]/);
+        const rowIdx = m ? m[1] : 0;
+        if (!tbody.children().length) {
+            tbody.append(wholesaleRowHtml(row, rowIdx, 0));
+        }
+    }
+
+    // ⭐ Populate the Warranty Pricing table from the product's warranty tiers
+    function populateWarrantyPricing(row, productId) {
+        const tbody = row.find('.warranty-pricing-rows');
+        tbody.html('');
+        const tiers = allWarrantyTiers[productId] || [];
+        if (!tiers.length) { return; }
+        const m = row.find('.product-select').attr('name').match(/items\[(\d+)\]/);
+        const rowIdx = m ? m[1] : 0;
+        tiers.forEach((t, i) => {
+            tbody.append(
+                '<tr>' +
+                    '<td><strong class="small">' + t.tier_name + '</strong> <small class="text-muted">(' + t.warranty_days + 'd · +' + t.additional_cost + ')</small>' +
+                        '<input type="hidden" name="items[' + rowIdx + '][warranty_tiers][' + i + '][tier_id]" value="' + t.id + '"></td>' +
+                    '<td><input type="number" step="0.01" name="items[' + rowIdx + '][warranty_tiers][' + i + '][additional_cost]" class="form-control form-control-sm" placeholder="Override"></td>' +
+                    '<td class="text-center">' +
+                        '<input type="hidden" name="items[' + rowIdx + '][warranty_tiers][' + i + '][is_active]" value="0">' +
+                        '<input type="checkbox" name="items[' + rowIdx + '][warranty_tiers][' + i + '][is_active]" value="1" class="form-check-input" checked>' +
+                    '</td>' +
+                    '<td class="text-center"></td>' +
+                '</tr>'
+            );
+        });
+    }
+
+    // ⭐ Build a NEW warranty tier row (Add New Tier) — pick a product tier + override cost + active
+    function warrantyRowHtml(row, rowIdx, i) {
+        const tiers = allWarrantyTiers[row.find('.product-select').val()] || [];
+        let opt = '<option value="">-- Select Tier --</option>';
+        tiers.forEach(t => {
+            opt += '<option value="' + t.id + '">' + t.tier_name + ' (' + t.warranty_days + 'd)</option>';
+        });
+        if (!tiers.length) {
+            opt = '<option value="">-- No tiers yet (create on product/warranty page) --</option>';
+        }
+        return '<tr>' +
+            '<td><select name="items[' + rowIdx + '][warranty_tiers][' + i + '][tier_id]" class="form-select form-select-sm">' + opt + '</select></td>' +
+            '<td><input type="number" step="0.01" name="items[' + rowIdx + '][warranty_tiers][' + i + '][additional_cost]" class="form-control form-control-sm" placeholder="Override"></td>' +
+            '<td class="text-center">' +
+                '<input type="hidden" name="items[' + rowIdx + '][warranty_tiers][' + i + '][is_active]" value="0">' +
+                '<input type="checkbox" name="items[' + rowIdx + '][warranty_tiers][' + i + '][is_active]" value="1" class="form-check-input" checked>' +
+            '</td>' +
+            '<td class="text-center"><button type="button" class="btn btn-xs btn-outline-danger wr-remove-row" title="Remove">×</button></td>' +
+        '</tr>';
     }
 
     $('#add-product-row').click(addProductRow);
@@ -536,7 +711,54 @@
 
     $('#product-rows').on('change', '.product-select', function() {
         const pid = $(this).val();
+        const row = $(this).closest('.product-row');
         loadVariants($(this), pid);
+        populateVariantPricing(row, pid);
+        populateWholesalePricing(row, pid);
+        populateWarrantyPricing(row, pid);
+        if (pid) ppLoadProduct(pid);
+        ppUpdateNewBatches();
+    });
+
+    // Live-update the right panel "New (this purchase)" preview as the batch is filled in
+    $('#product-rows').on('input',
+        'input[name*="[batch_no]"], input[name*="[qty]"], input[name*="[unit_cost]"], input[name*="[selling_price]"], input[name*="[mrp]"]',
+        ppUpdateNewBatches
+    );
+
+    // ⭐ 3 pricing expanders (Variant / Wholesale / Warranty) — after supplier warranty info
+    $('#product-rows').on('click', '.toggle-variant-pricing', function() {
+        $(this).closest('.product-row').find('.variant-pricing-block').toggle();
+    });
+    $('#product-rows').on('click', '.toggle-wholesale-pricing', function() {
+        $(this).closest('.product-row').find('.wholesale-pricing-block').toggle();
+    });
+    $('#product-rows').on('click', '.toggle-warranty-pricing', function() {
+        $(this).closest('.product-row').find('.warranty-pricing-block').toggle();
+    });
+
+    // Add / remove wholesale tier rows
+    $('#product-rows').on('click', '.add-wholesale-pricing-row', function() {
+        const row = $(this).closest('.product-row');
+        const tbody = row.find('.wholesale-pricing-rows');
+        const m = row.find('.product-select').attr('name').match(/items\[(\d+)\]/);
+        const rowIdx = m ? m[1] : 0;
+        tbody.append(wholesaleRowHtml(row, rowIdx, tbody.children().length));
+    });
+    $('#product-rows').on('click', '.ws-remove-row', function() {
+        $(this).closest('tr').remove();
+    });
+
+    // Add / remove warranty tier rows
+    $('#product-rows').on('click', '.add-warranty-pricing-row', function() {
+        const row = $(this).closest('.product-row');
+        const tbody = row.find('.warranty-pricing-rows');
+        const m = row.find('.product-select').attr('name').match(/items\[(\d+)\]/);
+        const rowIdx = m ? m[1] : 0;
+        tbody.append(warrantyRowHtml(row, rowIdx, tbody.children().length));
+    });
+    $('#product-rows').on('click', '.wr-remove-row', function() {
+        $(this).closest('tr').remove();
     });
 
     $('#product-rows').on('input', 'input[name*="qty"], input[name*="unit_cost"]', calcGrandTotal);
@@ -559,6 +781,55 @@
             $(this).val('');
         }
     });
+
+    // ⭐ BATCH-WISE PRICING PANEL (right side)
+    // Loads the 4-tab accordion for the selected product via AJAX.
+    function ppLoadProduct(productId) {
+        if (!productId) return;
+        $('#price-panel-container').css('opacity', '0.5');
+        $.get('{{ route("purchases.price.panel") }}', { product: productId }, function(res) {
+            if (res.status === 'success' && res.html) {
+                $('#price-panel-container')
+                    .attr('data-product-id', productId)
+                    .html(res.html);
+            }
+        }).always(function() {
+            $('#price-panel-container').css('opacity', '1');
+        });
+    }
+
+    // Reload the current panel after an inline save (used by the panel's own script)
+    window.ppReload = function() {
+        const pid = $('#price-panel-container').attr('data-product-id');
+        if (pid) ppLoadProduct(pid);
+    };
+
+    // ⭐ Live preview: current purchase's new batch(es) shown in the right panel
+    function ppUpdateNewBatches() {
+        const tbody = document.querySelector('#pp-new-batch-rows');
+        if (!tbody) return;
+        const pid = $('#price-panel-container').attr('data-product-id');
+        let html = '';
+        $('#product-rows .product-row').each(function () {
+            const sel = $(this).find('.product-select').val();
+            if (!pid || sel != pid) return;
+            const m = $(this).find('.product-select').attr('name').match(/items\[(\d+)\]/);
+            const idx = m ? m[1] : 0;
+            const batchNo = $(this).find('[name="items[' + idx + '][batch_no]"]').val() || ('Batch #' + ((+idx) + 1));
+            const qty  = $(this).find('[name="items[' + idx + '][qty]"]').val() || 0;
+            const cost = $(this).find('[name="items[' + idx + '][unit_cost]"]').val();
+            const sell = $(this).find('[name="items[' + idx + '][selling_price]"]').val();
+            const mrp  = $(this).find('[name="items[' + idx + '][mrp]"]').val();
+            html += '<tr class="table-warning">' +
+                '<td><strong>' + batchNo + '</strong></td>' +
+                '<td>' + qty + '</td>' +
+                '<td>' + (cost !== '' && cost !== undefined ? '৳' + (+cost).toFixed(2) : '—') + '</td>' +
+                '<td>' + (sell !== '' && sell !== undefined ? '৳' + (+sell).toFixed(2) : '—') + '</td>' +
+                '<td>' + (mrp !== '' && mrp !== undefined ? '৳' + (+mrp).toFixed(2) : '—') + '</td>' +
+            '</tr>';
+        });
+        tbody.innerHTML = html || '<tr><td colspan="5" class="text-center text-muted py-2">Fill a product row to preview the new batch.</td></tr>';
+    }
 
 </script>
 @endpush
