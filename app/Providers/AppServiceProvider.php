@@ -304,13 +304,13 @@ class AppServiceProvider extends ServiceProvider
             
             // Cache order count (2 minutes - needs to be fresh)
             $neworder = Cache::remember('new_order_count', 120, function () {
-                return Order::where('order_status', 1)->count();
+                return Order::where('order_status', \App\Enums\OrderStatus::PENDING->value)->count();
             });
             view()->share('neworder', $neworder);
             
             // Cache pending orders (2 minutes)
             $pendingorder = Cache::remember('pending_orders_list', 120, function () {
-                return Order::where('order_status', 1)->latest()->limit(9)->get();
+                return Order::where('order_status', \App\Enums\OrderStatus::PENDING->value)->latest()->limit(9)->get();
             });
             view()->share('pendingorder', $pendingorder);
             

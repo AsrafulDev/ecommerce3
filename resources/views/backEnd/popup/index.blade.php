@@ -179,19 +179,25 @@
                     <p class="text-muted small mb-3"><i class="fas fa-info-circle me-1"></i> শুধু ইমেইজ আপলোড করলেই পপআপ তৈরী হবে। বাকি ফিল্ডগুলো অপশনাল।</p>
 
                     <div class="row g-4">
-                        {{-- Image Upload - একমাত্র বাধ্যতামূলক --}}
+                        {{-- Image - মিডিয়া লাইব্রেরি থেকে বাছাই (সরাসরি আপলোডের বদলে) --}}
                         <div class="col-12">
                             <label class="form-label fw-bold small text-uppercase text-muted">পপআপ ইমেইজ <span class="text-danger">*</span></label>
-                            <div class="upload-area" onclick="document.getElementById('imageInput').click()">
-                                <input type="file" name="image" id="imageInput" class="d-none" accept="image/*" onchange="previewImage(this)" required>
-                                
+                            <div class="upload-area" role="button" onclick="openMediaPicker('#image_url', '#imgPreview', 'path')">
                                 <div id="uploadPlaceholder">
-                                    <i class="fas fa-cloud-upload-alt upload-icon"></i>
-                                    <p class="mb-1 text-dark fw-bold small">ইমেইজ সিলেক্ট করতে ক্লিক করুন</p>
-                                    <small class="text-muted d-block" style="font-size: 11px;">JPG, PNG, WebP — সুপারিশ: উল্লম্ব বানার ~৮০০×১০০০px (৪:৫ রেশিও) যেমন Fabrilife স্টাইল</small>
+                                    <i class="fas fa-images upload-icon"></i>
+                                    <p class="mb-1 text-dark fw-bold small">মিডিয়া লাইব্রেরি থেকে ইমেইজ বাছাই করুন</p>
+                                    <small class="text-muted d-block" style="font-size: 11px;">ক্লিক করুন → Media Library খুলবে (নতুন ইমেইজ আপলোডও করা যাবে)</small>
                                 </div>
                                 <img id="imgPreview" class="preview-img" src="#" alt="Preview">
                             </div>
+
+                            <div class="d-flex align-items-center justify-content-between mt-2 flex-wrap gap-2">
+                                <small class="text-muted" style="font-size: 11px;">
+                                    <i class="fas fa-info-circle me-1"></i>JPG, PNG, WebP — সুপারিশ: উল্লম্ব বানার ~৮০০×১০০০px (৪:৫ রেশিও) যেমন Fabrilife স্টাইল
+                                </small>
+                                <small class="text-muted text-truncate" id="image_url_file" style="font-size: 11px; max-width: 220px;"></small>
+                            </div>
+                            <input type="hidden" name="image_url" id="image_url" value="{{ old('image_url') }}">
                         </div>
 
                         {{-- অপশনাল ফিল্ড - এক্সপান্ডেবল --}}
@@ -247,21 +253,33 @@
     </div>
 </div>
 
+{{-- Reusable Media Gallery picker — "choose image from media library" --}}
+@include('backEnd.media._picker')
+
 {{-- 4. JavaScript --}}
 <script>
-    // Image Preview Function
-    function previewImage(input) {
-        if (input.files && input.files[0]) {
-            var reader = new FileReader();
-            reader.onload = function(e) {
-                document.getElementById('uploadPlaceholder').style.display = 'none';
-                var img = document.getElementById('imgPreview');
-                img.src = e.target.result;
-                img.style.display = 'block';
+    // When an image is chosen from the Media Library, show it in the preview
+    document.getElementById('image_url').addEventListener('change', function () {
+        if (this.value) {
+            document.getElementById('uploadPlaceholder').style.display = 'none';
+            var img = document.getElementById('imgPreview');
+            var src = this.value;
+            // stored as 'public/uploads/media/...' -> build absolute URL
+            if (src.indexOf('public/') === 0) {
+                src = window.location.origin + '/' + src;
             }
-            reader.readAsDataURL(input.files[0]);
+            img.src = src;
+            img.style.display = 'block';
         }
-    }
+    });
+
+    // Restore preview if validation failed after a media selection
+    @if(old('image_url'))
+        document.getElementById('uploadPlaceholder').style.display = 'none';
+        var img = document.getElementById('imgPreview');
+        img.src = window.location.origin + '/{{ old('image_url') }}';
+        img.style.display = 'block';
+    @endif
 
     // Auto Open Modal if Validation Fails
     @if($errors->any())

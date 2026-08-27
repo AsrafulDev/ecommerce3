@@ -18,24 +18,35 @@ class PopupController extends Controller
 
     public function store(Request $request)
     {
-        // শুধু ইমেজ বাধ্যতামূলক - সুদু ইমেজ আপলোড করেই পপআপ তৈরী করা যাবে
+        // শুধু ইমেজ বাধ্যতামূলক - মিডিয়া লাইব্রেরি থেকে বাছাই অথবা সরাসরি আপলোড
         $request->validate([
-            'image' => 'required|image|mimes:jpeg,png,jpg,gif,webp|max:5000',
+            'image'     => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:5000',
+            'image_url' => 'required_without:image|nullable|string',
         ]);
 
         try {
             $popup = new Popup();
 
-            // ইমেজ আপলোড
+            // ইমেজ: সরাসরি আপলোড অথবা মিডিয়া লাইব্রেরি থেকে বাছাই
             if ($request->hasFile('image')) {
                 $image = $request->file('image');
                 $new_name = time() . '.' . $image->getClientOriginalExtension();
                 $image->move(public_path('uploads/popup'), $new_name);
                 $popup->image = 'uploads/popup/' . $new_name;
+            } elseif ($request->filled('image_url')) {
+                // Selected from Media Gallery — popup stores WITHOUT 'public/' prefix
+                $mediaPath = $request->input('image_url');
+                if (str_starts_with($mediaPath, 'public/')) {
+                    $mediaPath = substr($mediaPath, 7);
+                }
+                $popup->image = $mediaPath;
             }
 
             // টাইটেল না দিলে ইমেজের নাম বা ডিফল্ট ব্যবহার
-            $popup->title = $request->title ?: pathinfo($request->file('image')->getClientOriginalName(), PATHINFO_FILENAME) ?: 'Popup';
+            $defaultTitle = $request->hasFile('image')
+                ? pathinfo($request->file('image')->getClientOriginalName(), PATHINFO_FILENAME)
+                : 'Popup';
+            $popup->title = $request->title ?: $defaultTitle;
             $popup->description = $request->description;
             $popup->btn_text = $request->btn_text;
             $popup->offer_end_text = $request->offer_end_text;

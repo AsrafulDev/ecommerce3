@@ -133,7 +133,7 @@
         </div>
     </div>
 
-    <form action="{{route('brands.store')}}" method="POST" enctype="multipart/form-data" data-parsley-validate>
+    <form action="{{route('brands.store')}}" method="POST" data-parsley-validate>
         @csrf
         <div class="row">
             
@@ -189,17 +189,17 @@
                         <h5 class="card-title"> {{ __('Brand Logo') }} </h5>
                     </div>
                     <div class="card-body">
-                        <div class="logo-upload-box" onclick="document.getElementById('image').click()">
-                            <input type="file" name="image" id="image" class="d-none" accept="image/*" onchange="readURL(this)">
-                            
+                        <div class="logo-upload-box" onclick="openMediaPicker('#image_url', '#preview_image', 'path')">
                             <img id="preview_image" class="preview-img" src="#" alt="Preview">
                             
                             <div id="upload_placeholder" class="upload-placeholder">
                                 <i class="fe-image"></i>
-                                <p> {{ __('Click to upload logo') }} </p>
-                                <small class="text-muted d-block mt-1">(PNG, JPG, WEBP)</small>
+                                <p> {{ __('Choose logo from Media Library') }} </p>
+                                <small class="text-muted d-block mt-1">(PNG, JPG, WEBP — আপনি নতুন ছবি আপলোডও করতে পারবেন)</small>
                             </div>
+                            <small class="text-success d-block mt-1" id="image_url_file"></small>
                         </div>
+                        <input type="hidden" name="image_url" id="image_url" value="{{ old('image_url') }}" required>
                         @error('image')
                             <div class="text-danger small mt-2 text-center">{{ $message }}</div>
                         @enderror
@@ -210,22 +210,12 @@
         </div>
     </form>
 </div>
+
+{{-- Reusable Media Gallery picker — "choose image from media library" --}}
+@include('backEnd.media._picker')
 @endsection
 
 @section('script')
 <script src="{{asset('public/backEnd/')}}/assets/libs/parsleyjs/parsley.min.js"></script>
 <script src="{{asset('public/backEnd/')}}/assets/js/pages/form-validation.init.js"></script>
-
-<script>
-    function readURL(input) {
-        if (input.files && input.files[0]) {
-            var reader = new FileReader();
-            reader.onload = function(e) {
-                $('#preview_image').attr('src', e.target.result).show();
-                $('#upload_placeholder').hide();
-            }
-            reader.readAsDataURL(input.files[0]);
-        }
-    }
-</script>
 @endsection

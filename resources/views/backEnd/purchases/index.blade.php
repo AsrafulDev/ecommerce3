@@ -318,11 +318,12 @@
                                 <div class="warranty-pricing-block mt-1" style="display:none;">
                                     <div class="table-responsive">
                                         <table class="table table-sm table-bordered mb-0" style="background:#fff;">
-                                            <thead class="table-light"><tr><th>{{ __('Tier') }}</th><th>{{ __('Override Cost') }}</th><th>{{ __('Active') }}</th><th style="width:40px;"></th></tr></thead>
+                                            <thead class="table-light"><tr><th>{{ __('Type') }}</th><th>{{ __('Name') }}</th><th>{{ __('Days') }}</th><th>{{ __('Cost') }}</th><th>{{ __('Active') }}</th><th style="width:40px;"></th></tr></thead>
                                             <tbody class="warranty-pricing-rows"></tbody>
                                         </table>
                                     </div>
-                                    <button type="button" class="btn btn-xs btn-outline-secondary add-warranty-pricing-row"><i class="fa fa-plus"></i> {{ __('Add Tier') }}</button>
+                                    <button type="button" class="btn btn-xs btn-outline-secondary add-warranty-pricing-row"><i class="fa fa-plus"></i> {{ __('Add Warranty Option') }}</button>
+                                    <small class="text-muted d-block mt-1"><i class="fe-info"></i> {{ __('Create warranty options directly here (No Warranty / Supplier / Extended) — no need to pre-create on the product page.') }}</small>
                                 </div>
                             </div>
                         </div>
@@ -654,7 +655,7 @@
         }
     }
 
-    // ⭐ Populate the Warranty Pricing table from the product's warranty tiers
+    // ⭐ Populate the Warranty Pricing table from the product's existing warranty tiers
     function populateWarrantyPricing(row, productId) {
         const tbody = row.find('.warranty-pricing-rows');
         tbody.html('');
@@ -665,8 +666,10 @@
         tiers.forEach((t, i) => {
             tbody.append(
                 '<tr>' +
-                    '<td><strong class="small">' + t.tier_name + '</strong> <small class="text-muted">(' + t.warranty_days + 'd · +' + t.additional_cost + ')</small>' +
+                    '<td><span class="badge bg-soft-info text-info small">' + (t.warranty_type || 'tier') + '</span>' +
                         '<input type="hidden" name="items[' + rowIdx + '][warranty_tiers][' + i + '][tier_id]" value="' + t.id + '"></td>' +
+                    '<td><span class="small">' + t.tier_name + '</span></td>' +
+                    '<td><span class="small">' + t.warranty_days + 'd</span></td>' +
                     '<td><input type="number" step="0.01" name="items[' + rowIdx + '][warranty_tiers][' + i + '][additional_cost]" class="form-control form-control-sm" placeholder="Override"></td>' +
                     '<td class="text-center">' +
                         '<input type="hidden" name="items[' + rowIdx + '][warranty_tiers][' + i + '][is_active]" value="0">' +
@@ -678,19 +681,21 @@
         });
     }
 
-    // ⭐ Build a NEW warranty tier row (Add New Tier) — pick a product tier + override cost + active
+    // ⭐ Build a NEW warranty option row (Add Warranty Option) — create by 3 types
+    //    (No Warranty / Supplier Warranty / Extended Warranty) right from the purchase.
     function warrantyRowHtml(row, rowIdx, i) {
-        const tiers = allWarrantyTiers[row.find('.product-select').val()] || [];
-        let opt = '<option value="">-- Select Tier --</option>';
-        tiers.forEach(t => {
-            opt += '<option value="' + t.id + '">' + t.tier_name + ' (' + t.warranty_days + 'd)</option>';
-        });
-        if (!tiers.length) {
-            opt = '<option value="">-- No tiers yet (create on product/warranty page) --</option>';
-        }
         return '<tr>' +
-            '<td><select name="items[' + rowIdx + '][warranty_tiers][' + i + '][tier_id]" class="form-select form-select-sm">' + opt + '</select></td>' +
-            '<td><input type="number" step="0.01" name="items[' + rowIdx + '][warranty_tiers][' + i + '][additional_cost]" class="form-control form-control-sm" placeholder="Override"></td>' +
+            '<td>' +
+                '<select name="items[' + rowIdx + '][warranty_tiers][' + i + '][warranty_type]" class="form-select form-select-sm warranty-type-select" data-i="' + i + '">' +
+                    '<option value="none">No Warranty</option>' +
+                    '<option value="supplier_warranty" selected>Supplier Warranty</option>' +
+                    '<option value="extended_warranty">Extended Warranty</option>' +
+                '</select>' +
+                '<input type="hidden" name="items[' + rowIdx + '][warranty_tiers][' + i + '][tier_id]" value="">' +
+            '</td>' +
+            '<td><input type="text" name="items[' + rowIdx + '][warranty_tiers][' + i + '][tier_name]" class="form-control form-control-sm warranty-tier-name" placeholder="Auto from type"></td>' +
+            '<td><input type="number" min="0" name="items[' + rowIdx + '][warranty_tiers][' + i + '][warranty_days]" class="form-control form-control-sm warranty-days-input" value="90"></td>' +
+            '<td><input type="number" step="0.01" name="items[' + rowIdx + '][warranty_tiers][' + i + '][additional_cost]" class="form-control form-control-sm" placeholder="0.00"></td>' +
             '<td class="text-center">' +
                 '<input type="hidden" name="items[' + rowIdx + '][warranty_tiers][' + i + '][is_active]" value="0">' +
                 '<input type="checkbox" name="items[' + rowIdx + '][warranty_tiers][' + i + '][is_active]" value="1" class="form-check-input" checked>' +
@@ -759,6 +764,22 @@
     });
     $('#product-rows').on('click', '.wr-remove-row', function() {
         $(this).closest('tr').remove();
+    });
+
+    // Auto-fill tier name + sensible default days when the warranty type changes
+    $('#product-rows').on('change', '.warranty-type-select', function() {
+        const $tr = $(this).closest('tr');
+        const nameInput = $tr.find('.warranty-tier-name');
+        const daysInput = $tr.find('.warranty-days-input');
+        const type = $(this).val();
+        if (!nameInput.val()) {
+            nameInput.val($(this).find('option:selected').text());
+        }
+        if (type === 'none') {
+            daysInput.val(0);
+        } else if (!daysInput.val() || daysInput.val() === '0') {
+            daysInput.val(90);
+        }
     });
 
     $('#product-rows').on('input', 'input[name*="qty"], input[name*="unit_cost"]', calcGrandTotal);

@@ -225,48 +225,27 @@
                                         <div class="col-md-6 mb-2">
                                             <label class="form-label"> {{ __('Variant Image') }} </label>
                                             @php
-                                                $matchImg = $edit_data->images->filter(function($img) use ($vp) {
+                                                $firstImg = $edit_data->images->filter(function($img) use ($vp) {
                                                     return ($img->color_id == $vp->color_id || (empty($img->color_id) && empty($vp->color_id)))
                                                         && ($img->size_id == $vp->size_id || (empty($img->size_id) && empty($vp->size_id)));
-                                                })->unique('image');
+                                                })->unique('image')->first();
                                             @endphp
-                                            @if($matchImg->isNotEmpty())
-                                                <div class="variant-existing-imgs d-flex flex-wrap gap-1 mb-2">
-                                                    @foreach($matchImg as $vImg)
-                                                        <div class="position-relative">
-                                                            <img src="{{ asset($vImg->image) }}" class="rounded border" style="width:50px;height:50px;object-fit:cover;" alt="">
-                                                            <a href="{{ route('products.image.destroy', ['id' => $vImg->id]) }}" class="btn btn-xs btn-danger position-absolute top-0 end-0 rounded-circle" style="padding:0 4px;top:-4px;right:-4px;" onclick="return confirm('Delete this image?')"><i class="mdi mdi-close"></i></a>
-                                                        </div>
-                                                    @endforeach
-                                                </div>
-                                            @endif
                                             <div class="variant-img-upload">
-                                                <input type="hidden" name="variant_image[{{ $variantIndex }}][image]" class="variant-media-path" id="variant_image_{{ $variantIndex }}_image" value="">
+                                                <input type="hidden" name="variant_image[{{ $variantIndex }}][image]" class="variant-media-path" id="variant_image_{{ $variantIndex }}_image" value="{{ $firstImg ? $firstImg->image : '' }}">
                                                 <div class="d-flex flex-wrap align-items-center gap-2">
                                                     <button type="button" class="btn btn-sm btn-primary variant-media-pick rounded-pill px-3">
                                                         <i class="fe-image me-1"></i> {{ __('Media Library') }}
                                                     </button>
-                                                    <img class="variant-media-preview rounded border" id="variant_image_{{ $variantIndex }}_preview" src="" alt=""
-                                                         style="width:52px;height:52px;object-fit:cover;display:none;">
-                                                </div>
-                                                <input type="file" name="variant_image[{{ $variantIndex }}][image_file]" class="form-control form-control-sm variant-img-input mt-1" accept="image/*">
-                                                <div class="variant-img-preview mt-1" style="display:none;">
-                                                    <img src="" alt="Preview" class="rounded border" style="max-width:60px;max-height:60px;object-fit:cover;">
-                                                    <button type="button" class="btn btn-sm btn-danger variant-img-clear ms-1" title="{{ __('Remove') }}"><i class="fe-x"></i></button>
+                                                    <img class="variant-media-preview rounded border" id="variant_image_{{ $variantIndex }}_preview" src="{{ $firstImg ? asset($firstImg->image) : '' }}" alt=""
+                                                         style="width:52px;height:52px;object-fit:cover;{{ $firstImg ? '' : 'display:none;' }}">
                                                 </div>
                                             </div>
                                         </div>
 
                                         <div class="col-md-2 mb-2 d-flex justify-content-end">
-                                            @if($loop->first)
-                                                <button type="button" class="btn btn-success add-variant" style="margin-top:5px;">
-                                                    <i class="fa fa-plus"></i>
-                                                </button>
-                                            @else
-                                                <button type="button" class="btn btn-danger remove-variant" style="margin-top:5px;">
-                                                    <i class="fa fa-trash"></i>
-                                                </button>
-                                            @endif
+                                            <button type="button" class="btn btn-danger remove-variant" style="margin-top:5px;" title="{{ __('Remove Variant') }}">
+                                                <i class="fa fa-trash"></i>
+                                            </button>
                                         </div>
                                     </div>
                                     <div class="row">
@@ -321,17 +300,12 @@
                                                     <img class="variant-media-preview rounded border" id="variant_image_0_preview" src="" alt=""
                                                          style="width:52px;height:52px;object-fit:cover;display:none;">
                                                 </div>
-                                                <input type="file" name="variant_image[0][image_file]" class="form-control form-control-sm variant-img-input mt-1" accept="image/*">
-                                                <div class="variant-img-preview mt-1" style="display:none;">
-                                                    <img src="" alt="Preview" class="rounded border" style="max-width:60px;max-height:60px;object-fit:cover;">
-                                                    <button type="button" class="btn btn-sm btn-danger variant-img-clear ms-1" title="{{ __('Remove') }}"><i class="fe-x"></i></button>
-                                                </div>
                                             </div>
                                         </div>
 
                                         <div class="col-md-1 mb-2 d-flex justify-content-end">
-                                            <button type="button" class="btn btn-success add-variant" style="margin-top:5px;">
-                                                <i class="fa fa-plus"></i>
+                                            <button type="button" class="btn btn-danger remove-variant" style="margin-top:5px;" title="{{ __('Remove Variant') }}">
+                                                <i class="fa fa-trash"></i>
                                             </button>
                                         </div>
                                     </div>
@@ -524,16 +498,6 @@
                                     <img id="metaImagePreview" src="{{ asset($edit_data->meta_image) }}" alt="Meta Image"
                                          class="border rounded mt-2" width="120"
                                          style="{{ !empty($edit_data->meta_image) ? '' : 'display:none;' }}">
-                                </div>
-
-                                {{-- 📤 Direct upload — hidden by default (not removed) --}}
-                                <div class="mt-1">
-                                    <button class="btn btn-sm btn-outline-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#metaDirectUploadCollapse">
-                                        <i class="fe-upload me-1"></i> {{ __('Direct Upload (optional)') }}
-                                    </button>
-                                    <div class="collapse mt-2" id="metaDirectUploadCollapse">
-                                        <input type="file" name="meta_image" id="meta_image" class="form-control" accept="image/*">
-                                    </div>
                                 </div>
 
                                 <small class="text-muted d-block mt-2">Recommended size: 1200x630px</small>
@@ -782,45 +746,6 @@
                             </div>
                             @endif
 
-                            {{-- 📤 DIRECT UPLOAD — hidden by default (not removed) --}}
-                            <div class="mt-3">
-                                <button class="btn btn-sm btn-outline-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#directUploadCollapse">
-                                    <i class="fe-upload me-1"></i> {{ __('Direct Upload (optional)') }}
-                                </button>
-                                <div class="collapse mt-2" id="directUploadCollapse">
-                                    <div class="increment-wrapper">
-                                        <div class="control-group increment mb-2 image-row">
-                                            <div class="row align-items-end g-2">
-                                                <div class="col-md-10">
-                                                    <label class="form-label small">{{ __('Image') }}</label>
-                                                    <input type="file" name="image[]" class="form-control form-control-sm @error('image') is-invalid @enderror" accept="image/*" />
-                                                </div>
-                                                <div class="col-md-2">
-                                                    <button class="btn btn-success btn-increment btn-sm w-100" type="button"><i class="fa fa-plus"></i></button>
-                                                </div>
-                                            </div>
-                                            @error('image')
-                                            <span class="invalid-feedback" role="alert"><strong>{{ $message }}</strong></span>
-                                            @enderror
-                                        </div>
-                                    </div>
-
-                                    {{-- Hidden Clone for JS --}}
-                                    <div class="clone hide" style="display: none;">
-                                        <div class="control-group mt-2 image-row">
-                                            <div class="row align-items-end g-2">
-                                                <div class="col-md-10">
-                                                    <label class="form-label small">{{ __('Image') }}</label>
-                                                    <input type="file" name="image[]" class="form-control form-control-sm" accept="image/*" />
-                                                </div>
-                                                <div class="col-md-2">
-                                                    <button class="btn btn-danger btn-remove-image btn-sm w-100" type="button"><i class="fa fa-trash"></i></button>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
                         </div>
 
                         {{-- ===== VIDEO SECTION (EDIT) ===== --}}
@@ -1266,7 +1191,11 @@
 $(function() {
     // Count existing variant rows
     let variantIndex = {{ $allVariants ? $allVariants->count() : 0 }};
-    
+
+    // Keep a template of the first row so we can always add a new variant,
+    // even after every row (including the first) has been removed.
+    var variantTemplate = $('#variant-wrapper .variant-item').first().prop('outerHTML');
+
     // Initialize Select2 on existing variant selects
     $('.variant-size-select').select2({ width: '100%' });
     $('.variant-color-select').select2({ width: '100%' });
@@ -1275,6 +1204,9 @@ $(function() {
     $(document).on('click', '.add-variant', function() {
         var wrapper = $('#variant-wrapper');
         var firstRow = wrapper.find('.variant-item').first();
+        if (!firstRow.length && variantTemplate) {
+            firstRow = $(variantTemplate); // rebuild a fresh row from the template (not yet in DOM)
+        }
         if (!firstRow.length) return;
         
         // Clone the first row
@@ -1340,26 +1272,6 @@ $(function() {
         if (window.openMediaPicker && $path.length) {
             openMediaPicker('#' + $path.attr('id'), $preview.length ? '#' + $preview.attr('id') : null, 'path');
         }
-    });
-
-    // Variant image preview
-    $(document).on('change', '.variant-img-input', function() {
-        var $input = $(this);
-        var $preview = $input.siblings('.variant-img-preview');
-        var $img = $preview.find('img');
-        var file = this.files[0];
-        if (file && file.type.startsWith('image/')) {
-            var reader = new FileReader();
-            reader.onload = function(e) { $img.attr('src', e.target.result); $preview.show(); };
-            reader.readAsDataURL(file);
-        } else { $preview.hide(); $img.attr('src', ''); }
-    });
-    
-    $(document).on('click', '.variant-img-clear', function() {
-        var $preview = $(this).closest('.variant-img-preview');
-        $preview.siblings('.variant-img-input').val('');
-        $preview.find('img').attr('src', '');
-        $preview.hide();
     });
 });
 </script>

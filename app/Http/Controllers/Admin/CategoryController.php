@@ -42,7 +42,7 @@ class CategoryController extends Controller
             // 'icon'   => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
         ]);
 
-        /* ========= Main Image Upload ========= */
+        /* ========= Main Image (direct upload OR Media Gallery) ========= */
         $image = $request->file('image');
         if ($image) {
             $name = time().'-'.$image->getClientOriginalName();
@@ -65,11 +65,14 @@ class CategoryController extends Controller
                 $constraint->aspectRatio();
             });
             $img->save($imageUrl);
+        } elseif ($request->filled('image_url')) {
+            // Media Gallery থেকে বাছাই (path mode) — সরাসরি আপলোড নয়
+            $imageUrl = $request->input('image_url');
         } else {
             $imageUrl = null;
         }
 
-        /* ========= Icon Image Upload (নতুন) ========= */
+        /* ========= Icon Image (direct upload OR Media Gallery) ========= */
         $icon      = $request->file('icon');
         $iconUrl   = null;
 
@@ -94,16 +97,19 @@ class CategoryController extends Controller
             });
 
             $iconImg->save($iconUrl);
+        } elseif ($request->filled('icon_url')) {
+            // Media Gallery থেকে বাছাই (path mode)
+            $iconUrl = $request->input('icon_url');
         }
 
-        /* ========= Input Prepare ========= */
-        $input = $request->all();
-
-        $input['slug'] = strtolower(preg_replace('/\s+/', '-', $request->name));
-        $input['slug'] = str_replace('/', '', $input['slug']);
+        /* ========= Input Prepare (whitelist — stray fields like 'files' are ignored) ========= */
+        $input = $request->only(['name', 'meta_title', 'meta_description']);
+        $input['status']     = $request->has('status') ? 1 : 0;
+        $input['slug']       = strtolower(preg_replace('/\s+/', '-', $request->name));
+        $input['slug']       = str_replace('/', '', $input['slug']);
 
         $input['parent_id']  = $request->parent_id ? $request->parent_id : 0;
-        $input['front_view'] = $request->front_view ? 1 : 0;
+        $input['front_view'] = $request->has('front_view') ? 1 : 0;
         $input['image']      = $imageUrl;
         $input['icon']       = $iconUrl; // নতুন icon কলাম
 
@@ -135,9 +141,9 @@ class CategoryController extends Controller
             return redirect()->back();
         }
         
-        $input       = $request->except('hidden_id');
+        $input       = $request->only(['name', 'meta_title', 'meta_description']);
 
-        /* ========= Main Image Update ========= */
+        /* ========= Main Image Update (direct upload OR Media Gallery) ========= */
         $image = $request->file('image');
         if ($image) {
             $name = time().'-'.$image->getClientOriginalName();
@@ -161,17 +167,20 @@ class CategoryController extends Controller
             });
             $img->save($imageUrl);
 
-            // পুরনো main image ডিলিট
-            if ($update_data->image) {
+            // পুরনো main image ডিলিট (Media Gallery শেয়ার্ড ফাইল হলে ডিলিট নয়)
+            if ($update_data->image && strpos($update_data->image, 'uploads/media/') === false) {
                 File::delete($update_data->image);
             }
 
             $input['image'] = $imageUrl;
+        } elseif ($request->filled('image_url')) {
+            // Media Gallery থেকে বাছাই (path mode)
+            $input['image'] = $request->input('image_url');
         } else {
             $input['image'] = $update_data->image;
         }
 
-        /* ========= Icon Update (নতুন) ========= */
+        /* ========= Icon Update (direct upload OR Media Gallery) ========= */
         $icon = $request->file('icon');
         if ($icon) {
             $iconName = time().'-icon-'.$icon->getClientOriginalName();
@@ -192,12 +201,15 @@ class CategoryController extends Controller
             });
             $iconImg->save($iconUrl);
 
-            // পুরনো icon থাকলে ডিলিট
-            if ($update_data->icon) {
+            // পুরনো icon থাকলে ডিলিট (Media Gallery শেয়ার্ড ফাইল হলে ডিলিট নয়)
+            if ($update_data->icon && strpos($update_data->icon, 'uploads/media/') === false) {
                 File::delete($update_data->icon);
             }
 
             $input['icon'] = $iconUrl;
+        } elseif ($request->filled('icon_url')) {
+            // Media Gallery থেকে বাছাই (path mode)
+            $input['icon'] = $request->input('icon_url');
         } else {
             $input['icon'] = $update_data->icon;
         }

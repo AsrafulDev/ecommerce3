@@ -109,7 +109,7 @@ class PurchaseController extends Controller
         $warrantyTiersJson = json_encode(
             \App\Models\ProductWarrantyTier::where('is_active', true)
                 ->orderBy('sort_order')->orderBy('id')
-                ->get(['id', 'product_id', 'tier_name', 'warranty_days', 'additional_cost'])
+                ->get(['id', 'product_id', 'tier_name', 'warranty_type', 'warranty_days', 'additional_cost'])
                 ->groupBy('product_id')
         );
 
@@ -161,6 +161,9 @@ class PurchaseController extends Controller
             'items.*.warranty_tiers' => 'nullable|array',
             'items.*.warranty_tiers.*.variant_id'      => 'nullable|integer',
             'items.*.warranty_tiers.*.tier_id'         => 'nullable|integer',
+            'items.*.warranty_tiers.*.warranty_type'   => 'nullable|string|max:50',
+            'items.*.warranty_tiers.*.tier_name'       => 'nullable|string|max:255',
+            'items.*.warranty_tiers.*.warranty_days'   => 'nullable|integer|min:0',
             'items.*.warranty_tiers.*.additional_cost' => 'nullable|numeric|min:0',
             'items.*.warranty_tiers.*.is_active'       => 'nullable|boolean',
             'discount'      => 'nullable|numeric|min:0',
@@ -857,15 +860,46 @@ class PurchaseController extends Controller
         }
 
         // 3) Warranty tiers (per batch)
+        //    Each row can reference an existing product tier (tier_id) OR create a
+        //    brand-new product warranty option by type (warranty_type) right from
+        //    the purchase — No Warranty / Supplier Warranty / Extended Warranty.
         foreach (($item['warranty_tiers'] ?? []) as $wt) {
-            if (empty($wt['tier_id'])) {
-                continue;
+            $tierId    = (int) ($wt['tier_id'] ?? 0);
+            $variantId = !empty($wt['variant_id']) ? (int) $wt['variant_id'] : null;
+
+            if (!$tierId) {
+                $wType = $wt['warranty_type'] ?? null;
+                if (!$wType) {
+                    continue;
+                }
+                $tierName = trim((string) ($wt['tier_name'] ?? ''));
+                if ($tierName === '') {
+                    $tierName = \App\Enums\WarrantyType::tryFrom($wType)?->label()
+                        ?? ucwords(str_replace('_', ' ', $wType));
+                }
+                $days = (int) ($wt['warranty_days'] ?? 0);
+                $cost = (float) ($wt['additional_cost'] ?? 0);
+
+                // Create the product-level tier once (keyed by type) — non-destructive.
+                $productTier = \App\Models\ProductWarrantyTier::firstOrCreate(
+                    ['product_id' => $batch->product_id, 'warranty_type' => $wType, 'variant_id' => null],
+                    [
+                        'tier_name'       => $tierName,
+                        'warranty_days'   => $days,
+                        'price'           => $cost,
+                        'additional_cost' => $cost,
+                        'is_active'       => (bool) ($wt['is_active'] ?? true),
+                        'sort_order'      => 0,
+                    ]
+                );
+                $tierId = $productTier->id;
             }
+
             \App\Models\BatchWarrantyTier::updateOrCreate(
                 [
                     'stock_batch_id'    => $batch->id,
-                    'variant_price_id'  => !empty($wt['variant_id']) ? (int) $wt['variant_id'] : null,
-                    'warranty_tier_id'  => (int) $wt['tier_id'],
+                    'variant_price_id'  => $variantId,
+                    'warranty_tier_id'  => $tierId,
                 ],
                 [
                     'additional_cost' => (float) ($wt['additional_cost'] ?? 0),

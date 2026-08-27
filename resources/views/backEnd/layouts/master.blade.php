@@ -751,10 +751,12 @@
     <ul class="nav-second-level">
       @can('order-list')
       <li><a href="{{ route('admin.orders', ['slug'=>'all']) }}"><i data-feather="file-plus"></i> {{ __('All Order') }} </a></li>
+      <li><a href="{{ route('admin.orders', ['slug'=>'pending']) }}"><i data-feather="file-plus"></i> {{ __('Pending Order') }} </a></li>
       <li><a href="{{ route('admin.incomplete-orders.index') }}"><i data-feather="file-plus"></i> {{ __('Incomplete Orders') }} </a></li>
       @foreach($orderstatus as $value)
         <li><a href="{{ route('admin.orders', ['slug'=>$value->slug]) }}"><i data-feather="file-plus"></i>{{ $value->name }}</a></li>
       @endforeach
+      <li><a href="{{ route('admin.all_duplicate_orders') }}"><i data-feather="alert-triangle"></i> {{ __('Duplicate Orders') }} </a></li>
       @endcan
       @can('order-edit')
       {{-- Order Status now managed via app/Enums/OrderStatus.php (enum-driven) --}}
@@ -1232,7 +1234,7 @@
 </li>
 @endcanany
 
-@canany(['api-manage'])
+@canany(['api-manage', 'fraud-setting-list', 'fraud-setting-edit'])
 <li>
   <a href="#sidebar-api-integration" data-bs-toggle="collapse">
     <i data-feather="save"></i>
@@ -1246,6 +1248,9 @@
       <li><a href="{{ route('courierapi.manage') }}"><i data-feather="file-plus"></i> {{ __('Courier API') }} </a></li>
       <li><a href="{{ route('admin.facebook_capi.edit') }}"><i data-feather="facebook"></i> {{ __('Facebook CAPI') }} </a></li>
       <li><a href="{{ route('admin.google_analytics.edit') }}"><i data-feather="bar-chart-2"></i> {{ __('Google Analytics 4') }} </a></li>
+      @can('fraud-setting-list')
+      <li><a href="{{ route('admin.fraud.index') }}"><i data-feather="shield"></i> {{ __('Fraud API') }} </a></li>
+      @endcan
     </ul>
   </div>
 </li>
@@ -1254,23 +1259,6 @@
 {{-- ============================================= --}}
 {{--  SECTION 11: SECURITY                         --}}
 {{-- ============================================= --}}
-@canany(['fraud-setting-list', 'fraud-setting-edit'])
-<li>
-  <a href="#sidebar-fraud" data-bs-toggle="collapse">
-    <i data-feather="shield"></i>
-    <span> {{ __('Fraud API Settings') }} </span>
-    <span class="menu-arrow"></span>
-  </a>
-  <div class="collapse" id="sidebar-fraud">
-    <ul class="nav-second-level">
-      @can('fraud-setting-list')
-      <li><a href="{{ route('admin.fraud.index') }}"><i data-feather="key"></i> {{ __('Manage Fraud API') }} </a></li>
-      @endcan
-    </ul>
-  </div>
-</li>
-@endcanany
-
 @can('fraud-check')
 <li>
   <a href="{{ route('manualFraud.page') }}">

@@ -317,6 +317,7 @@ Route::post('/admin/duplicate-order-check', [App\Http\Controllers\Admin\OrderCon
     ->middleware(['auth:admin', 'admin', 'demo_mode'])->name('admin.duplicate.order.check');
 Route::get('admin/manual-duplicate-order-check', [App\Http\Controllers\Admin\OrderController::class, 'manualDuplicateOrderCheckPage'])->middleware(['auth:admin', 'admin'])->name('manualDuplicateOrder.page');
 Route::post('admin/manual-duplicate-order-check', [App\Http\Controllers\Admin\OrderController::class, 'manualDuplicateOrderCheck'])->middleware(['auth:admin', 'admin', 'demo_mode'])->name('manualDuplicateOrder.check');
+Route::get('admin/all-duplicate-orders', [App\Http\Controllers\Admin\OrderController::class, 'allDuplicateOrders'])->middleware(['auth:admin', 'admin'])->name('admin.all_duplicate_orders');
 
 
 Route::get('/admin/dashboard', [App\Http\Controllers\Admin\DashboardController::class, 'index'])->name('dashboard');

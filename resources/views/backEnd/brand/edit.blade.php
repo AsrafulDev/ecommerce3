@@ -173,7 +173,7 @@
         </div>
     </div>
 
-    <form action="{{route('brands.update')}}" method="POST" enctype="multipart/form-data" data-parsley-validate>
+    <form action="{{route('brands.update')}}" method="POST" data-parsley-validate>
         @csrf
         <input type="hidden" value="{{$edit_data->id}}" name="id">
 
@@ -217,20 +217,21 @@
                         <label class="form-label mb-2"> {{ __('Brand Logo') }} </label>
                         
                         <div class="logo-upload-container p-0">
-                            <div class="logo-preview-box" onclick="document.getElementById('image').click()">
+                            <div class="logo-preview-box" onclick="openMediaPicker('#image_url', '#preview_image', 'path')">
                                 <img id="preview_image" src="{{ asset($edit_data->image) }}" alt="Logo">
-                                <div class="upload-hint"> {{ __('Click to change') }} </div>
+                                <div class="upload-hint"> <i class="fe-image me-1"></i>{{ __('Change from Media Library') }} </div>
                             </div>
-                            
-                            <input type="file" name="image" id="image" class="d-none" accept="image/*" onchange="readURL(this)">
-                            
+
+                            <input type="hidden" name="image_url" id="image_url" value="{{ old('image_url', $edit_data->image) }}">
+                            <small class="text-success d-block mt-1 text-center" id="image_url_file"></small>
+
                             @error('image')
                                 <div class="text-danger small mt-2 text-center">{{ $message }}</div>
                             @enderror
 
                             <div class="mt-3 text-center">
                                 <small class="text-muted d-block" style="font-size: 11px;">
-                                    Format: PNG, JPG, WEBP <br> Size: 120x120 px
+                                    Media Library থেকে ছবি বাছাই করুন (নতুন ছবি আপলোডও করা যাবে)
                                 </small>
                             </div>
                         </div>
@@ -241,22 +242,12 @@
         </div>
     </form>
 </div>
+
+{{-- Reusable Media Gallery picker — "choose image from media library" --}}
+@include('backEnd.media._picker')
 @endsection
 
 @section('script')
 <script src="{{asset('public/backEnd/')}}/assets/libs/parsleyjs/parsley.min.js"></script>
 <script src="{{asset('public/backEnd/')}}/assets/js/pages/form-validation.init.js"></script>
-
-<script>
-    function readURL(input) {
-        if (input.files && input.files[0]) {
-            var reader = new FileReader();
-            reader.onload = function(e) {
-                $('#preview_image').attr('src', e.target.result);
-                $('.upload-hint').text('Image Selected'); // Update hint text
-            }
-            reader.readAsDataURL(input.files[0]);
-        }
-    }
-</script>
 @endsection

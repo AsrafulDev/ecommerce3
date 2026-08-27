@@ -27,7 +27,7 @@ class BrandController extends Controller
             'name' => 'required',
             'status' => 'required',
         ]);
-        // image with intervention 
+        // image with intervention OR Media Gallery
         $image = $request->file('image');
         if($image){
             $name =  time().'-'.$image->getClientOriginalName();
@@ -44,16 +44,22 @@ class BrandController extends Controller
                 $constraint->aspectRatio();
             });
             $img->save($imageUrl); 
-        }else{
+        } elseif ($request->filled('image_url')) {
+            // Media Gallery থেকে বাছাই (path mode) — সরাসরি আপলোড নয়
+            $imageUrl = $request->input('image_url');
+        } else {
             $imageUrl = NULL;
         }
-       
 
-        $input = $request->all();
+        // whitelist — stray fields like 'files' / 'image_url' are ignored
+        $input = $request->only(['name', 'name_bn']);
         $input['slug'] = strtolower(preg_replace('/\s+/u', '-', trim($request->name)));
         $input['name_bn'] = $request->name_bn ?? $request->name;
+        $input['status'] = $request->has('status') ? 1 : 0;
         $input['image'] = $imageUrl;
         Brand::create($input);
+        Cache::forget('frontend_homepage_v1');
+        Cache::forget('brands_list');
         Toastr::success('Success','Data insert successfully');
         return redirect()->route('brands.index');
     }
@@ -70,7 +76,7 @@ class BrandController extends Controller
             'name' => 'required',
         ]);
         $update_data = Brand::find($request->id);
-        $input = $request->all();
+        $input = $request->only(['name', 'name_bn']);
         $image = $request->file('image');
         if($image){
             // image with intervention 
@@ -89,14 +95,21 @@ class BrandController extends Controller
             });
             $img->save($imageUrl);
             $input['image'] = $imageUrl;
-            File::delete($update_data->image);
-        }else{
+            if ($update_data->image && strpos($update_data->image, 'uploads/media/') === false) {
+                File::delete($update_data->image);
+            }
+        } elseif ($request->filled('image_url')) {
+            // Media Gallery থেকে বাছাই (path mode)
+            $input['image'] = $request->input('image_url');
+        } else {
             $input['image'] = $update_data->image;
         }
         $input['status'] = $request->status?1:0;
         $input['name_bn'] = $request->name_bn ?? $request->name;
         $update_data->update($input);
 
+        Cache::forget('frontend_homepage_v1');
+        Cache::forget('brands_list');
         Toastr::success('Success','Data update successfully');
         return redirect()->route('brands.index');
     }

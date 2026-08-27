@@ -137,7 +137,7 @@
                 </div>
                 @endif
 
-                <div class="card mb-4" id="variant_section">
+                <div class="card mb-4" id="variant_section" style="display:none;">
                     <div class="card-body">
                         <div class="section-title d-flex justify-content-between align-items-center">
                             <span><i class="fe-layers me-1"></i> {{ __('Product Variants (Size & Color)') }} </span>
@@ -182,15 +182,10 @@
                                                 <img class="variant-media-preview rounded border" id="variant_image_0_preview" src="" alt=""
                                                      style="width:52px;height:52px;object-fit:cover;display:none;">
                                             </div>
-                                            <input type="file" name="variant_image[0][image_file]" class="form-control form-control-sm variant-img-input mt-1" accept="image/*">
-                                            <div class="variant-img-preview mt-1" style="display:none;">
-                                                <img src="" alt="Preview" class="rounded border" style="max-width:60px;max-height:60px;object-fit:cover;">
-                                                <button type="button" class="btn btn-sm btn-danger variant-img-clear ms-1" title="{{ __('Remove') }}"><i class="fe-x"></i></button>
-                                            </div>
                                         </div>
                                     </div>
                                     <div class="col-md-1 mb-2">
-                                        <button type="button" class="btn btn-danger btn-remove-row d-none w-100"><i class="fe-trash-2"></i></button>
+                                        <button type="button" class="btn btn-danger btn-remove-row w-100" title="{{ __('Remove Variant') }}"><i class="fe-trash-2"></i></button>
                                     </div>
                                 </div>
                                 <div class="row">
@@ -239,15 +234,6 @@
                                          class="border rounded mt-2" width="120" style="display:none;">
                                 </div>
 
-                                {{-- 📤 Direct upload — hidden by default (not removed) --}}
-                                <div class="mt-1">
-                                    <button class="btn btn-sm btn-outline-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#metaDirectUploadCollapse">
-                                        <i class="fe-upload me-1"></i> {{ __('Direct Upload (optional)') }}
-                                    </button>
-                                    <div class="collapse mt-2" id="metaDirectUploadCollapse">
-                                        <input type="file" name="meta_image" class="form-control" accept="image/*">
-                                    </div>
-                                </div>
                             </div>
                         </div>
                     </div>
@@ -353,40 +339,6 @@
                                 <div id="mediaPickedPreviews" class="d-flex flex-wrap gap-2 mt-2"></div>
                             </div>
 
-                            {{-- 📤 DIRECT UPLOAD — hidden by default (not removed) --}}
-                            <div class="mt-1">
-                                <button class="btn btn-sm btn-outline-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#directUploadCollapse">
-                                    <i class="fe-upload me-1"></i> {{ __('Direct Upload (optional)') }}
-                                </button>
-                                <div class="collapse mt-2" id="directUploadCollapse">
-                                    <div class="increment-wrapper">
-                                        <div class="control-group increment mb-2 image-row">
-                                            <div class="row align-items-end g-2">
-                                                <div class="col-md-10">
-                                                    <label class="form-label small">{{ __('Image') }}</label>
-                                                    <input type="file" name="image[]" class="form-control form-control-sm" accept="image/*">
-                                                </div>
-                                                <div class="col-md-2">
-                                                    <button class="btn btn-success btn-increment btn-sm w-100" type="button"><i class="fa fa-plus"></i></button>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="clone d-none">
-                                        <div class="control-group mt-2 image-row">
-                                            <div class="row align-items-end g-2">
-                                                <div class="col-md-10">
-                                                    <label class="form-label small">{{ __('Image') }}</label>
-                                                    <input type="file" name="image[]" class="form-control form-control-sm" accept="image/*">
-                                                </div>
-                                                <div class="col-md-2">
-                                                    <button class="btn btn-danger btn-remove-image btn-sm w-100" type="button"><i class="fa fa-trash"></i></button>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
                         </div>
 
                         {{-- ===== VIDEO SECTION ===== --}}
@@ -633,28 +585,25 @@
             }
         });
 
-        // Image Increment
-        $(".btn-increment").click(function () {
-            var html = $(".clone").html();
-            $(".increment-wrapper").append(html);
-        });
-        $("body").on("click", ".btn-remove-image", function () {
-            $(this).parents(".control-group").remove();
-        });
-
-        // Product Type Toggle
+        // Product Type Toggle — variant section shows ONLY for "variable"
         $('#product_type').change(function(){
             let type = $(this).val();
             if(type === 'digital'){
                 $('#digital_area').slideDown();
                 $('#advance_area').slideUp();
                 $('#variant_section').slideUp();
-            } else {
+            } else if(type === 'variable'){
                 $('#digital_area').slideUp();
                 $('#advance_area').slideDown();
                 $('#variant_section').slideDown();
+            } else { // simple
+                $('#digital_area').slideUp();
+                $('#advance_area').slideDown();
+                $('#variant_section').slideUp();
             }
         });
+        // Apply the initial state (default = simple → variants hidden)
+        $('#product_type').trigger('change');
 
         // Initialize Select2 for size (single select)
         $('.variant-size-select').select2({
@@ -667,9 +616,18 @@
 
         // Dynamic Variant Add/Remove
         let variantIndex = 1;
+        // Keep a template of the first row so we can always add a new variant,
+        // even after every row (including the first) has been removed.
+        const variantTemplate = $("#variant-wrapper .variant-item").first().prop('outerHTML');
+
         $(".add-variant").click(function () {
             let wrapper = $("#variant-wrapper");
-            let firstRow = wrapper.find('.variant-item').first().clone();
+            let firstRow = wrapper.find('.variant-item').first();
+            if (!firstRow.length && variantTemplate) {
+                firstRow = $(variantTemplate); // rebuild a fresh row from the template (not yet in DOM)
+            }
+            if (!firstRow.length) return;
+            firstRow = firstRow.clone();
             
             // Clear inputs and fix select2
             firstRow.find('.select2-container').remove();
@@ -727,24 +685,6 @@
             }
         });
 
-        // Variant Image Preview & Clear
-        $("body").on("change", ".variant-img-input", function() {
-            var $input = $(this);
-            var $preview = $input.siblings(".variant-img-preview");
-            var $img = $preview.find("img");
-            var file = this.files[0];
-            if (file && file.type.startsWith("image/")) {
-                var reader = new FileReader();
-                reader.onload = function(e) { $img.attr("src", e.target.result); $preview.show(); };
-                reader.readAsDataURL(file);
-            } else { $preview.hide(); $img.attr("src", ""); }
-        });
-        $("body").on("click", ".variant-img-clear", function() {
-            var $preview = $(this).closest(".variant-img-preview");
-            $preview.siblings(".variant-img-input").val("");
-            $preview.find("img").attr("src", "");
-            $preview.hide();
-        });
 
         // Handle form submission - collect variant data (single size per variant)
         $('form[data-parsley-validate]').on('submit', function(e) {

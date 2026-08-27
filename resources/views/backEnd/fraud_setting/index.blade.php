@@ -192,37 +192,6 @@
                             </small>
                         </div>
 
-                        <div class="mb-4">
-                            <label class="fw-bold text-dark mb-1 d-block"> {{ __('Duplicate Order API URL') }} </label>
-                            <small class="text-muted d-block mb-2">ডুপ্লিকেট অর্ডার চেক করার জন্য API Endpoint URL</small>
-                            <input type="text" name="duplicate_order_api_url" class="form-control form-control-lg-custom" 
-                                   value="{{ old('duplicate_order_api_url', $data->duplicate_order_api_url ?? '') }}"
-                                   placeholder="https://api.example.com/check-duplicate">
-                        </div>
-
-                        <div class="row mb-4">
-                            <div class="col-md-4">
-                                <label class="fw-bold text-dark mb-1 d-block"> {{ __('API Method') }} </label>
-                                <select name="duplicate_order_method" class="form-control form-control-lg-custom">
-                                    <option value="POST" {{ ($data->duplicate_order_method ?? 'POST') == 'POST' ? 'selected' : '' }}>POST</option>
-                                    <option value="GET" {{ ($data->duplicate_order_method ?? 'POST') == 'GET' ? 'selected' : '' }}>GET</option>
-                                </select>
-                            </div>
-                            <div class="col-md-4">
-                                <label class="fw-bold text-dark mb-1 d-block"> {{ __('Phone Number Key') }} </label>
-                                <input type="text" name="duplicate_order_phone_key" class="form-control form-control-lg-custom" 
-                                       value="{{ old('duplicate_order_phone_key', $data->duplicate_order_phone_key ?? 'phone') }}"
-                                       placeholder="phone">
-                                <small class="text-muted">API তে ফোন পাঠানোর প্যারামিটার নাম</small>
-                            </div>
-                            <div class="col-md-4">
-                                <label class="fw-bold text-dark mb-1 d-block">{{ __('API Key') }}</label>
-                                <input type="text" name="duplicate_order_api_key" class="form-control form-control-lg-custom" 
-                                       value="{{ old('duplicate_order_api_key', $data->duplicate_order_api_key ?? '') }}"
-                                       placeholder="{{ __('API Key') }}">
-                            </div>
-                        </div>
-
                         @section('js')
                         <script>
                             document.getElementById('fraud_check_enabled').addEventListener('change', function() {

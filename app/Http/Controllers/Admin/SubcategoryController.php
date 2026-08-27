@@ -8,6 +8,7 @@ use Brian2694\Toastr\Facades\Toastr;
 use Intervention\Image\Facades\Image;
 use App\Models\Category;
 use App\Models\Subcategory;
+use Illuminate\Support\Facades\Cache;
 use File;
 use DB;
 
@@ -26,6 +27,18 @@ class SubcategoryController extends Controller
         $this->middleware('permission:subcategory-create', ['only' => ['create','store']]);
         $this->middleware('permission:subcategory-edit', ['only' => ['edit','update']]);
         $this->middleware('permission:subcategory-delete', ['only' => ['destroy']]);
+    }
+
+    /**
+     * Menu caches (categories/subcategories) must be invalidated whenever a
+     * subcategory is added/updated/removed, otherwise the admin dropdowns and
+     * frontend menus show stale (often empty) data for up to 30 minutes.
+     */
+    private function clearCategoryCaches(): void
+    {
+        Cache::forget('menu_categories');
+        Cache::forget('side_categories');
+        Cache::forget('frontend_homepage_v1');
     }
 
     public function index(Request $request)
@@ -74,6 +87,7 @@ class SubcategoryController extends Controller
 
         $input['image'] = $imageUrl;
         Subcategory::create($input);
+        $this->clearCategoryCaches();
         Toastr::success('Success','Data insert successfully');
         return redirect()->route('subcategories.index');
     }
@@ -125,6 +139,7 @@ class SubcategoryController extends Controller
         $input['status'] = $request->status?1:0;
         
         $update_data->update($input);
+        $this->clearCategoryCaches();
 
         Toastr::success('Success','Data update successfully');
         return redirect()->route('subcategories.index');
@@ -135,6 +150,7 @@ class SubcategoryController extends Controller
         $inactive = Subcategory::find($request->hidden_id);
         $inactive->status = 0;
         $inactive->save();
+        $this->clearCategoryCaches();
         Toastr::success('Success','Data inactive successfully');
         return redirect()->back();
     }
@@ -143,6 +159,7 @@ class SubcategoryController extends Controller
         $active = Subcategory::find($request->hidden_id);
         $active->status = 1;
         $active->save();
+        $this->clearCategoryCaches();
         Toastr::success('Success','Data active successfully');
         return redirect()->back();
     }
@@ -168,6 +185,7 @@ class SubcategoryController extends Controller
         }
 
         $subcategory->delete();
+        $this->clearCategoryCaches();
         Toastr::success('Success', 'Subcategory deleted successfully');
         return redirect()->back();
 

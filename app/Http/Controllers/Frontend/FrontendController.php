@@ -153,7 +153,7 @@ $brands = Brand::where('status', 1)
                 ->orderBy('id', 'ASC')
                 ->with([
                     'products' => function ($q) {
-                        $q->select('id', 'name', 'slug', 'new_price', 'old_price', 'category_id')
+                        $q->select('id', 'name', 'slug', 'new_price', 'old_price', 'category_id', 'stock')
                             ->where('status', 1)
                             ->where('approval_status', 'approved')
                             ->with(['image', 'prosizes', 'procolors', 'reviews'])

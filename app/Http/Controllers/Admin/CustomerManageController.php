@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Cache;
 use App\Models\CustomerProfit;
 use App\Models\Customer;
 use App\Models\IpBlock;
@@ -111,9 +112,13 @@ class CustomerManageController extends Controller
     public function ipblock_store(Request $request){
 
         $store_data = new IpBlock();
-        $store_data->ip_no = $request->ip_no;
+        $store_data->ip_no = trim($request->ip_no);
         $store_data->reason = $request->reason;
         $store_data->save();
+
+        // Block takes effect immediately — clear cached check for this IP
+        Cache::forget('ip_block_' . trim($request->ip_no));
+        Cache::forget('blocked_ips');
         Toastr::success('Success','IP address add successfully');
         return redirect()->back();
     }
@@ -123,9 +128,14 @@ class CustomerManageController extends Controller
             Toastr::error('Error','Record not found');
             return redirect()->back();
         }
-        $update_data->ip_no = $request->ip_no;
+        // Clear cached check for the OLD IP before overwriting it
+        Cache::forget('ip_block_' . $update_data->ip_no);
+        $update_data->ip_no = trim($request->ip_no);
         $update_data->reason = $request->reason;
         $update_data->save();
+        // And for the NEW IP
+        Cache::forget('ip_block_' . trim($request->ip_no));
+        Cache::forget('blocked_ips');
         Toastr::success('Success','IP address update successfully');
         return redirect()->back();
     }
@@ -135,7 +145,10 @@ class CustomerManageController extends Controller
             Toastr::error('Error','Record not found');
             return redirect()->back();
         }
+        // Unblock takes effect immediately — clear cached "blocked" result for this IP
+        Cache::forget('ip_block_' . $delete_data->ip_no);
         $delete_data->delete();
+        Cache::forget('blocked_ips');
         Toastr::success('Success','IP address delete successfully');
         return redirect()->back();
     }
@@ -143,7 +156,7 @@ class CustomerManageController extends Controller
     // AJAX method for quick IP block from order page
     public function ipblock_quick_store(Request $request){
         try {
-            $ip = $request->ip;
+            $ip = trim($request->ip);
             $reason = $request->reason ?? 'ফেইক অর্ডার';
             
             if(!$ip){
@@ -166,6 +179,10 @@ class CustomerManageController extends Controller
             $store_data->ip_no = $ip;
             $store_data->reason = $reason;
             $store_data->save();
+            
+            // Block takes effect immediately — clear cached check for this IP
+            Cache::forget('ip_block_' . $ip);
+            Cache::forget('blocked_ips');
             
             return response()->json([
                 'status' => 'success',

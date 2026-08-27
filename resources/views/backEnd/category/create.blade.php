@@ -114,7 +114,7 @@
         </div>
     </div>
 
-    <form action="{{route('categories.store')}}" method="POST" enctype="multipart/form-data" data-parsley-validate>
+    <form action="{{route('categories.store')}}" method="POST" data-parsley-validate>
         @csrf
         <div class="row">
             
@@ -202,12 +202,13 @@
                     <div class="card-body">
                         <div class="mb-4">
                             <label class="form-label"> {{ __('Main Image') }} <span class="text-danger">*</span></label>
-                            <div class="image-upload-box" onclick="document.getElementById('image').click()">
-                                <i class="fe-upload-cloud upload-icon" id="icon_main"></i>
-                                <p class="upload-text mb-0" id="text_main"> {{ __('Click to upload image') }} </p>
+                            <div class="image-upload-box" onclick="openMediaPicker('#image_url', '#preview_main', 'path')">
+                                <i class="fe-image upload-icon" id="icon_main"></i>
+                                <p class="upload-text mb-0" id="text_main"> {{ __('Choose image from Media Library') }} </p>
                                 <img id="preview_main" class="preview-img mt-2" src="#" alt="Preview">
-                                <input type="file" name="image" id="image" class="d-none" onchange="readURL(this, 'preview_main', 'icon_main', 'text_main')" required>
+                                <small class="text-success d-block mt-1" id="image_url_file"></small>
                             </div>
+                            <input type="hidden" name="image_url" id="image_url" value="{{ old('image_url') }}" required>
                             @error('image')
                                 <span class="text-danger small">{{ $message }}</span>
                             @enderror
@@ -215,12 +216,13 @@
 
                         <div class="mb-0">
                             <label class="form-label"> {{ __('Category Icon') }} </label>
-                            <div class="image-upload-box" onclick="document.getElementById('icon').click()">
+                            <div class="image-upload-box" onclick="openMediaPicker('#icon_url', '#preview_sub', 'path')">
                                 <i class="fe-image upload-icon" id="icon_sub"></i>
-                                <p class="upload-text mb-0" id="text_sub"> {{ __('Click to upload icon') }} </p>
+                                <p class="upload-text mb-0" id="text_sub"> {{ __('Choose icon from Media Library') }} </p>
                                 <img id="preview_sub" class="preview-img mt-2" src="#" alt="Preview" style="max-height: 60px;">
-                                <input type="file" name="icon" id="icon" class="d-none" onchange="readURL(this, 'preview_sub', 'icon_sub', 'text_sub')">
+                                <small class="text-success d-block mt-1" id="icon_url_file"></small>
                             </div>
+                            <input type="hidden" name="icon_url" id="icon_url" value="{{ old('icon_url') }}">
                             @error('icon')
                                 <span class="text-danger small">{{ $message }}</span>
                             @enderror
@@ -236,6 +238,9 @@
         </div>
     </form>
 </div>
+
+{{-- Reusable Media Gallery picker — "choose image from media library" --}}
+@include('backEnd.media._picker')
 @endsection
 
 @section('script')
@@ -259,18 +264,5 @@
         
         $(".select2").select2();
     });
-
-    // Image Preview Function
-    function readURL(input, previewId, iconId, textId) {
-        if (input.files && input.files[0]) {
-            var reader = new FileReader();
-            reader.onload = function(e) {
-                $('#' + previewId).attr('src', e.target.result).show();
-                $('#' + iconId).hide();
-                $('#' + textId).hide();
-            }
-            reader.readAsDataURL(input.files[0]);
-        }
-    }
 </script>
 @endsection

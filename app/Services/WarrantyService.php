@@ -18,15 +18,19 @@ use Illuminate\Support\Facades\DB;
 class WarrantyService
 {
     /**
-     * Generate warranty tiers for a product based on supplier warranty.
+     * Ensure default warranty tiers exist for a product based on supplier warranty.
+     *
+     * ⚠️ Non-destructive: existing tiers (with admin-configured prices/days) are
+     * NEVER overwritten — we only CREATE missing default tiers. This prevents a
+     * new purchase from clobbering the manually-set warranty tier prices.
      */
     public function generateTiers(Product $product, ?SupplierWarranty $supplierWarranty = null): array
     {
         $tiers = [];
         $basePrice = $product->selling_price ?? $product->purchase_price * 1.25;
 
-        // Tier 0: No Warranty (always available)
-        $tiers[] = ProductWarrantyTier::updateOrCreate(
+        // Tier 0: No Warranty (always available) — create only if missing
+        $tiers[] = ProductWarrantyTier::firstOrCreate(
             ['product_id' => $product->id, 'warranty_type' => WarrantyType::NONE->value],
             [
                 'tier_name'       => 'No Warranty',
@@ -38,9 +42,9 @@ class WarrantyService
             ]
         );
 
-        // Tier 1: Supplier Warranty (if available)
+        // Tier 1: Supplier Warranty (if available) — create only if missing
         if ($supplierWarranty && $supplierWarranty->is_sellable) {
-            $tiers[] = ProductWarrantyTier::updateOrCreate(
+            $tiers[] = ProductWarrantyTier::firstOrCreate(
                 ['product_id' => $product->id, 'warranty_type' => WarrantyType::SUPPLIER_WARRANTY->value],
                 [
                     'tier_name'       => 'Standard Warranty',

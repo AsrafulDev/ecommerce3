@@ -235,7 +235,7 @@ class ProductController extends Controller
         $input['costing_method']       = $request->costing_method ?: 'fifo';
         $input['low_stock_threshold']  = $request->filled('low_stock_threshold') ? (int) $request->low_stock_threshold : 0;
         $input['allow_negative_stock'] = $request->allow_negative_stock ? 1 : 0;
-        $input['weight']               = $request->weight;
+        $input['weight']               = $this->sanitizeWeight($request->weight);
 
         // 🏷️ Publish status — new string status, mirrored to legacy boolean
         $publishStatus = in_array($request->publish_status, ['active', 'draft', 'private'])
@@ -418,15 +418,23 @@ class ProductController extends Controller
                 if (is_array($sizeId)) {
                     $sizeId = !empty($sizeId) ? $sizeId[0] : null;
                 }
-                if (!$colorId) continue;
-                $key = $colorId . '_' . ($sizeId ?: '0');
+
+                // Skip rows that carry no image at all (no media path AND no file).
+                // ⚠️ An image CAN be attached even when the variant has no color.
+                $mediaPath = $request->input("variant_image.{$imageRow}.image");
+                $file = $request->file("variant_image.{$imageRow}.image_file");
+                $hasImage = (is_string($mediaPath) && trim($mediaPath) !== '') || $file;
+                if (!$hasImage) {
+                    continue;
+                }
+
+                // Dedup identical color+size combos (same variant identity).
+                $key = ($colorId ?: '0') . '_' . ($sizeId ?: '0');
                 if (isset($doneKeys[$key])) continue;
                 $doneKeys[$key] = true;
 
                 // Prefer a Media-Library path; fall back to a direct file upload.
                 if (!isset($savedFiles[$imageRow])) {
-                    $mediaPath = $request->input("variant_image.{$imageRow}.image");
-                    $file = $request->file("variant_image.{$imageRow}.image_file");
                     if (is_string($mediaPath) && trim($mediaPath) !== '') {
                         $savedFiles[$imageRow] = trim($mediaPath);
                     } elseif ($file) {
@@ -630,7 +638,7 @@ class ProductController extends Controller
         $input['costing_method']       = $request->costing_method ?: 'fifo';
         $input['low_stock_threshold']  = $request->filled('low_stock_threshold') ? (int) $request->low_stock_threshold : 0;
         $input['allow_negative_stock'] = $request->allow_negative_stock ? 1 : 0;
-        $input['weight']               = $request->weight;
+        $input['weight']               = $this->sanitizeWeight($request->weight);
 
         // Slug & flags
         $input['slug']            = strtolower(preg_replace('/[\/\s]+/', '-', $request->name.'-'.$product->id));
@@ -789,15 +797,23 @@ class ProductController extends Controller
                 if (is_array($sizeId)) {
                     $sizeId = !empty($sizeId) ? $sizeId[0] : null;
                 }
-                if (!$colorId) continue;
-                $key = $colorId . '_' . ($sizeId ?: '0');
+
+                // Skip rows that carry no image at all (no media path AND no file).
+                // ⚠️ An image CAN be attached even when the variant has no color.
+                $mediaPath = $request->input("variant_image.{$imageRow}.image");
+                $file = $request->file("variant_image.{$imageRow}.image_file");
+                $hasImage = (is_string($mediaPath) && trim($mediaPath) !== '') || $file;
+                if (!$hasImage) {
+                    continue;
+                }
+
+                // Dedup identical color+size combos (same variant identity).
+                $key = ($colorId ?: '0') . '_' . ($sizeId ?: '0');
                 if (isset($doneKeys[$key])) continue;
                 $doneKeys[$key] = true;
 
                 // Prefer a Media-Library path; fall back to a direct file upload.
                 if (!isset($savedFiles[$imageRow])) {
-                    $mediaPath = $request->input("variant_image.{$imageRow}.image");
-                    $file = $request->file("variant_image.{$imageRow}.image_file");
                     if (is_string($mediaPath) && trim($mediaPath) !== '') {
                         $savedFiles[$imageRow] = trim($mediaPath);
                     } elseif ($file) {
@@ -809,6 +825,25 @@ class ProductController extends Controller
                     }
                 }
                 if (!isset($savedFiles[$imageRow])) continue;
+
+                // Replace any previously attached image for this exact variant
+                // (color+size), so re-picking an image doesn't leave duplicates.
+                // Only when the variant has a real identity — never touch main images.
+                if ($colorId || $sizeId) {
+                    $existing = Productimage::where('product_id', $product->id)
+                        ->where('color_id', $colorId ?: null)
+                        ->where('size_id', $sizeId ?: null)
+                        ->get();
+
+                    if ($existing->firstWhere('image', $savedFiles[$imageRow])) {
+                        continue; // already attached — nothing to do
+                    }
+
+                    foreach ($existing as $oldImg) {
+                        $oldImg->delete();
+                    }
+                }
+
                 Productimage::create([
                     'product_id' => $product->id,
                     'image'      => $savedFiles[$imageRow],
@@ -930,6 +965,11 @@ class ProductController extends Controller
         if ($product->pro_video_path && file_exists($product->pro_video_path)) {
             @unlink($product->pro_video_path);
         }
+
+        // 🧹 damage_products.product_id has a RESTRICTIVE FK (no cascade) — delete
+        // those rows first, otherwise removing the product is blocked by the DB
+        // constraint (SQLSTATE 1451).
+        \App\Models\DamageProduct::where('product_id', $product->id)->delete();
 
         $product->delete();
         Toastr::success('Product deleted successfully');
@@ -1146,6 +1186,22 @@ class ProductController extends Controller
             $input['pro_video_type'] = $ytId ? 'youtube' : null;
             $input['pro_video_path'] = null;
         }
+    }
+
+    /**
+     * Normalize a free-text weight (e.g. "3KG", "0.5 kg", "2.5") into a plain
+     * number for the decimal `products.weight` column. Returns null when blank
+     * or non-numeric so we never hit MySQL "Data truncated" on unit suffixes.
+     */
+    private function sanitizeWeight($value)
+    {
+        if ($value === null || trim((string) $value) === '') {
+            return null;
+        }
+
+        preg_match('/-?\d+(\.\d+)?/', (string) $value, $matches);
+
+        return $matches ? (float) $matches[0] : null;
     }
 
     private function getYouTubeVideoId($input)

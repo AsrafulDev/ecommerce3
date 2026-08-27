@@ -35,6 +35,7 @@ use App\Helpers\FundHelper;
 use App\Models\Expense;
 use App\Services\RedXService;
 use App\Services\StockManagementService;
+use App\Services\DuplicateOrderService;
 use App\Enums\OrderStatus as OrderStatusEnum;
 use App\Enums\PaymentStatus as PaymentStatusEnum;
 
@@ -322,71 +323,15 @@ class OrderController extends Controller
             return response()->json(['status' => 'failed', 'message' => 'Mobile number missing']);
         }
 
-        // সেটিংস থেকে Duplicate Order API কনফিগারেশন নেওয়া
-        $generalSetting = GeneralSetting::where('status', 1)->first();
-        $apiKey     = $generalSetting->duplicate_order_api_key ?? null;
-        $apiUrl     = $generalSetting->duplicate_order_api_url ?? 'https://softmit.xyz/api/v1/check-duplicate-order';
-        $apiMethod  = strtoupper($generalSetting->duplicate_order_method ?? 'POST');
-        $phoneKey   = $generalSetting->duplicate_order_phone_key ?? 'phone';
-
-        if (!$apiKey) {
-            return response()->json(['status' => 'failed', 'message' => 'Duplicate Order API Key missing']);
-        }
-
+        // 🔄 Local duplicate detection — NO 3rd-party API call.
+        // Scans own orders for the same phone and tags them.
         try {
-            // API কল করা (Duplicate Order API)
-            $headers = [
-                'x-api-key'    => $apiKey,
-                'Content-Type' => 'application/json'
-            ];
+            $result = app(DuplicateOrderService::class)->tagOrders($mobile);
 
-            if ($apiMethod === 'GET') {
-                $response = Http::withHeaders($headers)->get($apiUrl, [$phoneKey => $mobile]);
-            } else {
-                $response = Http::withHeaders($headers)->post($apiUrl, [$phoneKey => $mobile]);
-            }
-
-            $res = $response->json();
-
-            if (isset($res['status']) && $res['status'] === 'success') {
-                
-                // এই মোবাইল নাম্বারের সব অর্ডার খুঁজে বের করা
-                $orders = Order::whereHas('shipping', function ($q) use ($mobile) {
-                    $q->where('phone', $mobile);
-                })->get();
-
-                if ($orders->isEmpty()) {
-                    return response()->json(['status' => 'failed', 'message' => 'Order not found for this mobile']);
-                }
-
-                // সব অর্ডারে লুপ চালিয়ে ডাটা আপডেট করা
-                foreach ($orders as $order) {
-                    
-                    if (isset($res['is_duplicate']) && $res['is_duplicate'] === true) {
-                        $order->is_duplicate_order = 1; 
-                        $order->duplicate_order_count = isset($res['duplicate_count']) ? $res['duplicate_count'] : 0;
-                        $order->duplicate_order_rate = isset($res['duplicate_rate']) ? $res['duplicate_rate'] : 0;
-                        $order->last_duplicate_order_date = isset($res['last_duplicate_date']) ? \Carbon\Carbon::parse($res['last_duplicate_date']) : null;
-                    } 
-                    elseif (isset($res['data'])) {
-                        $cData = $res['data'];
-
-                        // Duplicate order related data
-                        $order->is_duplicate_order = isset($cData['is_duplicate']) && $cData['is_duplicate'] === true ? 1 : 0;
-                        $order->duplicate_order_count = isset($cData['duplicate_count']) ? $cData['duplicate_count'] : 0;
-                        $order->duplicate_order_rate = isset($cData['duplicate_rate']) ? $cData['duplicate_rate'] : 0;
-                        $order->last_duplicate_order_date = isset($cData['last_duplicate_date']) ? \Carbon\Carbon::parse($cData['last_duplicate_date']) : null;
-                    }
-                    $order->save();
-                }
-
-                return response()->json([
-                    'status' => 'success',
-                    'data'   => $res
-                ]);
-            } else {
-                return response()->json(['status' => 'failed', 'message' => 'API Error']);
-            }
+            return response()->json([
+                'status' => 'success',
+                'data'   => $result,
+            ]);
         } catch (\Exception $e) {
             return response()->json(['status' => 'error', 'message' => $e->getMessage()]);
         }
@@ -405,51 +350,46 @@ class OrderController extends Controller
             return back()->with('error', 'দয়া করে একটি মোবাইল নাম্বার লিখুন');
         }
 
-        // 1. ডাটাবেস থেকে সেটিংস আনা
-        $generalSetting = GeneralSetting::where('status', 1)->first();
-        $apiKey     = $generalSetting->duplicate_order_api_key ?? null;
-        $apiUrl     = $generalSetting->duplicate_order_api_url ?? 'https://softmit.xyz/api/v1/check-duplicate-order';
-        $apiMethod  = strtoupper($generalSetting->duplicate_order_method ?? 'POST');
-        $phoneKey   = $generalSetting->duplicate_order_phone_key ?? 'phone';
-
-        if (!$apiKey) {
-            return back()->with('error', 'Duplicate Order API Key সেটিংস প্যানেলে সেট করা নেই');
-        }
-
+        // 🔄 Local duplicate detection — NO 3rd-party API call.
         try {
-            $headers = [
-                'x-api-key'    => $apiKey,
-                'Content-Type' => 'application/json'
-            ];
+            $data = app(DuplicateOrderService::class)->check($mobile);
 
-            if ($apiMethod === 'GET') {
-                $response = Http::withHeaders($headers)->get($apiUrl, [$phoneKey => $mobile]);
-            } else {
-                $response = Http::withHeaders($headers)->post($apiUrl, [$phoneKey => $mobile]);
-            }
-
-            $res = $response->json();
-
-            if (isset($res['status']) && $res['status'] === 'success') {
-                
-                if (isset($res['is_duplicate']) && $res['is_duplicate'] === true) {
-                    $data = [
-                        'is_duplicate' => true,
-                        'message'  => isset($res['message']) ? $res['message'] : 'Duplicate order detected',
-                        'duplicate_count' => isset($res['duplicate_count']) ? $res['duplicate_count'] : 0
-                    ];
-                } else {
-                    $data = isset($res['data']) ? $res['data'] : [];
-                }
-                
-                return view('backEnd.duplicate_order.manual_check', compact('mobile', 'data'));
-
-            } else {
-                return back()->with('error', isset($res['message']) ? $res['message'] : 'Duplicate order check ব্যর্থ হয়েছে');
-            }
+            return view('backEnd.duplicate_order.manual_check', compact('mobile', 'data'));
         } catch (\Exception $e) {
-            return back()->with('error', 'API Error: ' . $e->getMessage());
+            return back()->with('error', 'Error: ' . $e->getMessage());
         }
+    }
+
+    /**
+     * List ALL orders flagged as duplicate (is_duplicate_order = 1).
+     */
+    public function allDuplicateOrders(Request $request)
+    {
+        $show_data = Order::where('is_duplicate_order', 1)
+            ->with([
+                'shipping:id,order_id,name,phone,address',
+                'customer:id,name,phone,email',
+            ]);
+
+        // Optional search: invoice / customer phone / customer name
+        if ($request->keyword) {
+            $keyword = $request->keyword;
+            $show_data = $show_data->where(function ($query) use ($keyword) {
+                $query->where('invoice_id', 'LIKE', '%' . $keyword . '%')
+                    ->orWhereHas('shipping', function ($subQuery) use ($keyword) {
+                        $subQuery->where('phone', 'LIKE', '%' . $keyword . '%')
+                            ->orWhere('name', 'LIKE', '%' . $keyword . '%');
+                    })
+                    ->orWhereHas('customer', function ($subQuery) use ($keyword) {
+                        $subQuery->where('name', 'LIKE', '%' . $keyword . '%')
+                            ->orWhere('phone', 'LIKE', '%' . $keyword . '%');
+                    });
+            });
+        }
+
+        $show_data = $show_data->latest()->paginate(15)->withQueryString();
+
+        return view('backEnd.duplicate_order.index', compact('show_data'));
     }
 
     /*
@@ -2030,8 +1970,7 @@ class OrderController extends Controller
             ]);
         }
 
-        $payment                 = new Payment();
-        $payment->order_id       = $order->id;
+        $payment                 = Payment::where('order_id', $order->id)->firstOrNew(['order_id' => $order->id]);
         $payment->customer_id    = $customer_id;
         $payment->payment_method = $this->resolvePaymentMethodLabel($paymentSubMethod);
         $payment->amount         = $paid;
@@ -2173,7 +2112,7 @@ class OrderController extends Controller
         }
 
         Cart::instance('pos_shopping')->destroy();
-        Session::forget(['pos_shipping', 'pos_discount', 'pos_coupon_code']);
+        Session::forget(['pos_shipping', 'pos_discount', 'product_discount']);
 
         Toastr::success('Thanks, Your order place successfully', 'Success!');
         // 🆕 Stay on the POS page — show the Sale Complete panel (no page move)
@@ -2663,7 +2602,7 @@ class OrderController extends Controller
     public function cart_clear(Request $request)
     {
         Cart::instance('pos_shopping')->destroy();
-        Session::forget(['pos_shipping', 'pos_discount', 'pos_coupon_code']);
+        Session::forget(['pos_shipping', 'pos_discount', 'product_discount']);
         return redirect()->back();
     }
 
@@ -3833,7 +3772,7 @@ class OrderController extends Controller
 
         // Clear current cart
         Cart::instance('pos_shopping')->destroy();
-        Session::forget(['pos_shipping', 'pos_discount', 'pos_coupon_code']);
+        Session::forget(['pos_shipping', 'pos_discount', 'product_discount']);
 
         return response()->json([
             'success' => true,
@@ -3865,7 +3804,7 @@ class OrderController extends Controller
 
         // Clear current cart
         Cart::instance('pos_shopping')->destroy();
-        Session::forget(['pos_shipping', 'pos_discount', 'pos_coupon_code']);
+        Session::forget(['pos_shipping', 'pos_discount', 'product_discount']);
 
         // Restore cart data
         $cartItems = $heldCart->cart_data;
