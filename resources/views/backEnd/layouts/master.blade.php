@@ -1167,31 +1167,40 @@
 {{-- ============================================= --}}
 {{--  SECTION 10: CONFIGURATION                    --}}
 {{-- ============================================= --}}
+@php
+    // Detect whether we are inside the "Site Setting" section so the menu
+    // expands + highlights (General Setting, Social Media, Contact, Pages,
+    // Shipping Charge, Districts).
+    $siteSettingActive = request()->routeIs(
+        'settings.*', 'socialmedias.*', 'contact.*',
+        'pages.*', 'shippingcharges.*', 'admin.district.*'
+    );
+@endphp
 @canany(['setting-list', 'social-list', 'contact-list'])
-<li>
+<li class="{{ $siteSettingActive ? 'active menuitem-active' : '' }}">
   <a href="#siebar-sitesetting" data-bs-toggle="collapse">
     <i data-feather="settings"></i>
     <span> {{ __('Site Setting') }} </span>
     <span class="menu-arrow"></span>
   </a>
-  <div class="collapse" id="siebar-sitesetting">
+  <div class="collapse {{ $siteSettingActive ? 'show' : '' }}" id="siebar-sitesetting">
     <ul class="nav-second-level">
       @can('setting-list')
-      <li><a href="{{ route('settings.index') }}"><i data-feather="file-plus"></i> {{ __('General Setting') }} </a></li>
+      <li><a href="{{ route('settings.index') }}" class="{{ request()->routeIs('settings.*') ? 'active' : '' }}"><i data-feather="file-plus"></i> {{ __('General Setting') }} </a></li>
       @endcan
       @can('social-list')
-      <li><a href="{{ route('socialmedias.index') }}"><i data-feather="file-plus"></i> {{ __('Social Media') }} </a></li>
+      <li><a href="{{ route('socialmedias.index') }}" class="{{ request()->routeIs('socialmedias.*') ? 'active' : '' }}"><i data-feather="file-plus"></i> {{ __('Social Media') }} </a></li>
       @endcan
       @can('contact-list')
-      <li><a href="{{ route('contact.index') }}"><i data-feather="file-plus"></i> {{ __('Contact') }} </a></li>
+      <li><a href="{{ route('contact.index') }}" class="{{ request()->routeIs('contact.*') ? 'active' : '' }}"><i data-feather="file-plus"></i> {{ __('Contact') }} </a></li>
       @endcan
       @canany(['page-list', 'page-create', 'page-edit'])
-      <li><a href="{{ route('pages.index') }}"><i data-feather="file-plus"></i> {{ __('Create Page') }} </a></li>
+      <li><a href="{{ route('pages.index') }}" class="{{ request()->routeIs('pages.*') ? 'active' : '' }}"><i data-feather="file-plus"></i> {{ __('Create Page') }} </a></li>
       @endcanany
       @canany(['shipping-list', 'shipping-create', 'shipping-edit'])
-      <li><a href="{{ route('shippingcharges.index') }}"><i data-feather="file-plus"></i> {{ __('Shipping Charge') }} </a></li>
+      <li><a href="{{ route('shippingcharges.index') }}" class="{{ request()->routeIs('shippingcharges.*') ? 'active' : '' }}"><i data-feather="file-plus"></i> {{ __('Shipping Charge') }} </a></li>
       @endcanany
-      <li><a href="{{ route('admin.district.index') }}"><i data-feather="map-pin"></i> {{ __('Districts') }} </a></li>
+      <li><a href="{{ route('admin.district.index') }}" class="{{ request()->routeIs('admin.district.*') ? 'active' : '' }}"><i data-feather="map-pin"></i> {{ __('Districts') }} </a></li>
     </ul>
   </div>
 </li>

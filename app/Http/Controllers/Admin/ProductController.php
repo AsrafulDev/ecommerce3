@@ -954,7 +954,18 @@ class ProductController extends Controller
     // ================================
     public function destroy(Request $request)
     {
-        $product = Product::findOrFail($request->hidden_id);
+        // withTrashed: allow re-deleting a previously soft-deleted product
+        $product = Product::withTrashed()->findOrFail($request->hidden_id);
+
+        // 🧾 Transaction check: if the product has any order / warranty / damage /
+        //    stock-batch transaction, keep the history → soft delete only.
+        if ($product->hasTransactions()) {
+            $product->delete();
+            Toastr::success('Product deleted successfully');
+            return redirect()->back();
+        }
+
+        // ── Hard delete (no transactions → permanent) ──
 
         // digital ফাইল থাকলে ডিলিট
         if ($product->digital_file && Storage::disk('private')->exists($product->digital_file)) {
@@ -971,7 +982,7 @@ class ProductController extends Controller
         // constraint (SQLSTATE 1451).
         \App\Models\DamageProduct::where('product_id', $product->id)->delete();
 
-        $product->delete();
+        $product->forceDelete();
         Toastr::success('Product deleted successfully');
         return redirect()->back();
     }

@@ -35,6 +35,7 @@ class DefaultDatabaseSeeder extends Seeder
             SizeSeeder::class,
             DistrictSeeder::class,
             CouponSeeder::class,
+            ShippingChargeSeeder::class,
         ]);
 
         $this->command->info('Default data seeded (admin + settings only). No demo products/categories/brands were created.');

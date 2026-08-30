@@ -4,10 +4,11 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Product extends Model
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes;
 
     // সব ফিল্ড mass assign করতে পারো (যেমন আগে ছিল)
     protected $guarded = [];
@@ -34,7 +35,24 @@ class Product extends Model
             'is_sn_required'       => 'boolean',
             'min_wholesale_quantity' => 'integer',
             'free_delivery'        => 'boolean',
+            'deleted_at'           => 'datetime',
         ];
+    }
+
+    /**
+     * Does this product have any transaction history anywhere
+     * (order lines, warranty sales/claims, damage records, stock batches)?
+     *
+     * Used by delete logic: if TRUE the product must only be soft-deleted so the
+     * transaction history stays intact; if FALSE it can be hard-deleted.
+     */
+    public function hasTransactions(): bool
+    {
+        return OrderDetails::where('product_id', $this->id)->exists()
+            || WarrantySale::where('product_id', $this->id)->exists()
+            || WarrantyClaim::where('product_id', $this->id)->exists()
+            || DamageProduct::where('product_id', $this->id)->exists()
+            || StockBatch::where('product_id', $this->id)->exists();
     }
 
     /**

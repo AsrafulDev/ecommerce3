@@ -145,6 +145,11 @@ class LicenseService
             return ['valid' => true, 'data' => null, 'message' => 'Master domain — no verification needed.'];
         }
 
+        // Local environments (localhost / 127.0.0.1) never need validation.
+        if (self::isLocal()) {
+            return ['valid' => true, 'data' => null, 'message' => 'Local environment — no verification needed.'];
+        }
+
         // No license key configured yet — admin must set it from the License page.
         if ('' === $key) {
             return ['valid' => false, 'data' => null, 'message' => 'License key is not configured. Set it from the admin License page.'];

@@ -150,25 +150,39 @@
 
     {{-- Danger Zone: Full Site Reset --}}
     <div class="reset-card mb-4">
-        <div class="d-flex align-items-center justify-content-between">
+        <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
             <div>
                 <h5 class="fw-bold text-danger m-0"><i class="mdi mdi-alert-circle me-1"></i> {{ __('Danger Zone') }} </h5>
-                <p class="small text-muted m-0 mt-1"> {{ __('Reset deletes everything then re-seeds default data. Clean wipes everything leaving an empty site.') }} </p>
+                <p class="small text-muted m-0 mt-1"> {{ __('Reset performs a full hard reset (deletes EVERYTHING including orders, warranty sells, stock & products) then re-seeds base settings. Clean wipes everything leaving an empty site.') }} </p>
+                <small class="text-danger mt-2 d-block">
+                    <i class="mdi mdi-lock-outline me-1"></i>{{ __('Password required. After reset the admin password resets to the default:') }}
+                    <b>asraful@curlware.com / 123456</b>
+                </small>
             </div>
-            <div class="d-flex gap-2">
-                <form action="{{ route('demo.reset') }}" method="POST" class="d-inline">
+            <div class="d-flex gap-2 align-items-center flex-wrap">
+                <form action="{{ route('demo.reset') }}" method="POST">
                     @csrf
-                    <button type="submit" class="btn btn-outline-danger rounded-pill px-3"
-                            onclick="return confirm('⚠️ ARE YOU SURE?\n\nThis will PERMANENTLY DELETE all products, categories, orders, and all other data, then re-seed with default demo data.\n\nOnly admin users will be preserved.')">
-                        <i class="mdi mdi-restart me-1"></i> Reset + Seed
-                    </button>
+                    <div class="input-group input-group-sm">
+                        <span class="input-group-text bg-white"><i class="mdi mdi-lock"></i></span>
+                        <input type="password" name="password" class="form-control"
+                               placeholder="{{ __('Admin password') }}" autocomplete="current-password" required>
+                        <button type="submit" class="btn btn-outline-danger"
+                                onclick="return confirm('⚠️ ARE YOU SURE?\n\nThis is a FULL HARD RESET.\n\nIt will PERMANENTLY DELETE ALL data — products, categories, orders, warranty sells/claims, stock batches — EVERYTHING.\n\nThen it re-seeds ONLY the base settings: roles/permissions, general settings, sizes, colors, districts, and shipping (Inside Dhaka 70TK / Outside Dhaka 120TK).\n\nNO products are created. Admin password resets to 123456.\n\nType your admin password in the box to confirm.')">
+                            <i class="mdi mdi-restart me-1"></i> Reset + Seed
+                        </button>
+                    </div>
                 </form>
-                <form action="{{ route('demo.clean') }}" method="POST" class="d-inline">
+                <form action="{{ route('demo.clean') }}" method="POST">
                     @csrf
-                    <button type="submit" class="btn btn-danger rounded-pill px-3"
-                            onclick="return confirm('⚠️⚠️⚠️ ARE YOU SURE?\n\nThis will PERMANENTLY DELETE EVERYTHING — products, categories, orders, all data — with NOTHING added back!\n\nThe site will be completely empty.\n\nOnly admin users will remain.')">
-                        <i class="mdi mdi-delete-forever me-1"></i> Clean Everything
-                    </button>
+                    <div class="input-group input-group-sm">
+                        <span class="input-group-text bg-white"><i class="mdi mdi-lock"></i></span>
+                        <input type="password" name="password" class="form-control"
+                               placeholder="{{ __('Admin password') }}" autocomplete="current-password" required>
+                        <button type="submit" class="btn btn-danger"
+                                onclick="return confirm('⚠️⚠️⚠️ ARE YOU SURE?\n\nThis will PERMANENTLY DELETE EVERYTHING — products, categories, orders, all data — with NOTHING added back!\n\nThe site will be completely empty.\n\nOnly admin users will remain.\n\nType your admin password in the box to confirm.')">
+                            <i class="mdi mdi-delete-forever me-1"></i> Clean Everything
+                        </button>
+                    </div>
                 </form>
             </div>
         </div>

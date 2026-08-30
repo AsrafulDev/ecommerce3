@@ -144,6 +144,66 @@ class OrderController extends Controller
     |--------------------------------------------------------------------------
     */
 
+    /**
+     * ডায়নামিক Fraud-check API কল করুন (সেটিংস থেকে URL / Method / Phone Key / API Key)।
+     * URL দেওয়া না থাকলে bdcourier ফ্রি এন্ডপয়েন্ট ব্যবহার হয়।
+     *
+     * @return array|null decoded JSON response
+     */
+    private function callFraudApi(?GeneralSetting $setting, string $mobile): ?array
+    {
+        $apiUrl   = $setting?->duplicate_order_api_url ?: 'https://api.bdcourier.com/courier-check';
+        $method   = strtoupper(trim($setting?->duplicate_order_method ?? 'POST'));
+        $phoneKey = $setting?->duplicate_order_phone_key ?: 'phone';
+        $apiKey   = $setting?->duplicate_order_api_key ?: null;
+
+        $http = Http::timeout(30);
+        if ($apiKey) {
+            $http = $http->withToken($apiKey); // Authorization: Bearer <key>
+        }
+
+        $response = ($method === 'GET')
+            ? $http->get($apiUrl, [$phoneKey => $mobile])
+            : $http->asJson()->post($apiUrl, [$phoneKey => $mobile]);
+
+        return $response->json();
+    }
+
+    /**
+     * API response-এর courier data-গুলোকে সাধারণ ফরম্যাটে স্বাভাবিক করুন।
+     * প্রতিটি কুরিয়ার → ['total_parcel', 'success_parcel', 'cancelled_parcel', 'success_ratio']
+     *
+     * @return array{ couriers: array, summary: array }
+     */
+    private function normalizeFraudData(array $data): array
+    {
+        $keys = ['pathao', 'steadfast', 'parceldex', 'courrierfast', 'redx', 'paperfly', 'carrybee'];
+
+        $extract = function (array $c): array {
+            $total   = (int) ($c['total_parcel'] ?? $c['total_parcels'] ?? $c['total'] ?? 0);
+            $success = (int) ($c['success_parcel'] ?? $c['success_parcels'] ?? $c['success'] ?? 0);
+            $cancel  = (int) ($c['cancelled_parcel'] ?? $c['cancelled_parcels'] ?? $c['cancel'] ?? 0);
+            $ratio   = (int) round($c['success_ratio'] ?? ($total > 0 ? ($success / $total) * 100 : 0));
+
+            return [
+                'total_parcel'     => $total,
+                'success_parcel'   => $success,
+                'cancelled_parcel' => $cancel,
+                'success_ratio'    => $ratio,
+            ];
+        };
+
+        $couriers = [];
+        foreach ($keys as $key) {
+            $couriers[$key] = $extract($data[$key] ?? []);
+        }
+
+        return [
+            'couriers' => $couriers,
+            'summary'  => $extract($data['summary'] ?? []),
+        ];
+    }
+
     public function fraudCheck(Request $request)
     {
         $mobile = $request->input('mobile');
@@ -160,41 +220,27 @@ class OrderController extends Controller
             return response()->json(['status' => 'success', 'message' => 'Fraud check is disabled']);
         }
 
-        // ফ্রি API (কোন API Key লাগে না) — same as manual fraud check
-        $apiUrl = "https://www.fraudcheck.online/config/check-phone.php?phone=" . urlencode($mobile);
-
         try {
-            $response = Http::timeout(30)->get($apiUrl);
-            $res = $response->json();
+            // ডায়নামিক API কল (সেটিংস থেকে URL / Method / Phone Key / API Key)
+            $res = $this->callFraudApi($generalSetting, $mobile);
 
             // API থেকে valid response আসলেই ডাটা আপডেট হবে
-            if ($res && isset($res['mobile_number'])) {
+            if ($res && ($res['status'] ?? '') === 'success' && isset($res['data'])) {
 
-                // --- Transform API response to match frontend buildSummary() format ---
-                $apiCouriers = $res['apis'] ?? [];
+                $normalized = $this->normalizeFraudData($res['data']);
+                $couriers   = $normalized['couriers'];
+                $summary    = $normalized['summary'];
 
-                // Helper to extract courier stats from API courier data
-                $extractStats = function ($courierData) {
-                    return [
-                        'total_parcel'      => (int) ($courierData['total_parcels'] ?? 0),
-                        'success_parcel'    => (int) ($courierData['total_delivered_parcels'] ?? 0),
-                        'cancelled_parcel'  => (int) ($courierData['total_cancelled_parcels'] ?? 0),
-                    ];
-                };
-
-                // Map API courier names → frontend key names
-                $transformed = [
-                    'pathao'    => $extractStats($apiCouriers['Pathao'] ?? []),
-                    'redx'      => $extractStats($apiCouriers['Redex'] ?? []),
-                    'steadfast' => $extractStats($apiCouriers['CarryBee'] ?? []),
-                    'parceldex' => ['total_parcel' => 0, 'success_parcel' => 0, 'cancelled_parcel' => 0],
-                    'paperfly'  => ['total_parcel' => 0, 'success_parcel' => 0, 'cancelled_parcel' => 0],
-                ];
+                // Frontend buildSummary() যেসব কুরিয়ার চায়
+                $transformed = [];
+                foreach (['pathao', 'redx', 'steadfast', 'parceldex', 'paperfly'] as $key) {
+                    $transformed[$key] = $couriers[$key];
+                }
 
                 // Summary totals
-                $totalParcels   = (int) ($res['total_parcels'] ?? 0);
-                $totalDelivered = (int) ($res['total_delivered'] ?? 0);
-                $totalCancel    = (int) ($res['total_cancel'] ?? 0);
+                $totalParcels   = $summary['total_parcel'];
+                $totalDelivered = $summary['success_parcel'];
+                $totalCancel    = $summary['cancelled_parcel'];
                 $successRate    = $totalParcels > 0 ? round(($totalDelivered / $totalParcels) * 100) : 0;
 
                 // Update all orders for this phone number
@@ -202,24 +248,19 @@ class OrderController extends Controller
                     $q->where('phone', $mobile);
                 })->get();
 
+                $courierColumns = [
+                    'pathao'    => ['success' => 'pathao_success',    'cancel' => 'pathao_cancel',    'rate' => 'pathao_rate'],
+                    'redx'      => ['success' => 'redx_success',      'cancel' => 'redx_cancel',      'rate' => 'redx_rate'],
+                    'steadfast' => ['success' => 'steadfast_success', 'cancel' => 'steadfast_cancel', 'rate' => 'steadfast_rate'],
+                ];
+
                 foreach ($orders as $order) {
-                    // Pathao
-                    $order->pathao_success = $transformed['pathao']['success_parcel'];
-                    $order->pathao_cancel  = $transformed['pathao']['cancelled_parcel'];
-                    $pTotal = $transformed['pathao']['total_parcel'];
-                    $order->pathao_rate    = $pTotal > 0 ? round(($transformed['pathao']['success_parcel'] / $pTotal) * 100) : 0;
-
-                    // Redx
-                    $order->redx_success = $transformed['redx']['success_parcel'];
-                    $order->redx_cancel  = $transformed['redx']['cancelled_parcel'];
-                    $rTotal = $transformed['redx']['total_parcel'];
-                    $order->redx_rate    = $rTotal > 0 ? round(($transformed['redx']['success_parcel'] / $rTotal) * 100) : 0;
-
-                    // Steadfast (mapped from CarryBee)
-                    $order->steadfast_success = $transformed['steadfast']['success_parcel'];
-                    $order->steadfast_cancel  = $transformed['steadfast']['cancelled_parcel'];
-                    $cTotal = $transformed['steadfast']['total_parcel'];
-                    $order->steadfast_rate    = $cTotal > 0 ? round(($transformed['steadfast']['success_parcel'] / $cTotal) * 100) : 0;
+                    foreach ($courierColumns as $key => $cols) {
+                        $c = $couriers[$key];
+                        $order->{$cols['success']} = $c['success_parcel'];
+                        $order->{$cols['cancel']}  = $c['cancelled_parcel'];
+                        $order->{$cols['rate']}    = $c['success_ratio'];
+                    }
 
                     // Summary / Fraud rate
                     $order->fraud_success = $totalDelivered;
@@ -252,7 +293,7 @@ class OrderController extends Controller
 
                 return response()->json([
                     'status' => 'failed', 
-                    'message' => 'Fraud check API response invalid. Orders set to pending.'
+                    'message' => $res['message'] ?? 'Fraud check API response invalid. Orders set to pending.'
                 ]);
             }
         } catch (\Exception $e) {
@@ -291,18 +332,40 @@ class OrderController extends Controller
             return back()->with('error', 'দয়া করে একটি মোবাইল নাম্বার লিখুন');
         }
 
-        // ফ্রি API (কোন API Key লাগে না)
-        $apiUrl = "https://www.fraudcheck.online/config/check-phone.php?phone=" . urlencode($mobile);
+        // সেটিংস থেকে ডায়নামিক API কল
+        $generalSetting = GeneralSetting::where('status', 1)->first();
 
         try {
-            $response = Http::timeout(30)->get($apiUrl);
-            $res = $response->json();
+            $res = $this->callFraudApi($generalSetting, $mobile);
 
-            if ($res && isset($res['mobile_number'])) {
-                $data = $res;
+            if ($res && ($res['status'] ?? '') === 'success' && isset($res['data'])) {
+                $normalized = $this->normalizeFraudData($res['data']);
+                $couriers   = $normalized['couriers'];
+                $summary    = $normalized['summary'];
+
+                // manual_check view-এর প্রত্যাশিত ফরম্যাটে রূপান্তর
+                $apiEntry = function (array $c) {
+                    return [
+                        'total_parcels'           => $c['total_parcel'],
+                        'total_delivered_parcels' => $c['success_parcel'],
+                        'total_cancelled_parcels' => $c['cancelled_parcel'],
+                    ];
+                };
+
+                $data = [
+                    'total_parcels'   => $summary['total_parcel'],
+                    'total_delivered' => $summary['success_parcel'],
+                    'total_cancel'    => $summary['cancelled_parcel'],
+                    'apis' => [
+                        'Pathao'   => $apiEntry($couriers['pathao']),
+                        'Redex'    => $apiEntry($couriers['redx']),
+                        'CarryBee' => $apiEntry($couriers['carrybee']),
+                    ],
+                ];
+
                 return view('backEnd.fraud.manual_check', compact('mobile', 'data'));
             } else {
-                return back()->with('error', 'Fraud check ব্যর্থ হয়েছে');
+                return back()->with('error', $res['message'] ?? 'Fraud check ব্যর্থ হয়েছে');
             }
         } catch (\Exception $e) {
             return back()->with('error', 'API Error: ' . $e->getMessage());

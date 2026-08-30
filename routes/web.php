@@ -1027,11 +1027,12 @@ Route::get('stock/products/{id}/batches',     [StockController::class, 'getProdu
     Route::post('error-log/test', [ErrorLogController::class,'testLog'])->name('error-log.test');
     Route::post('error-log/delete', [ErrorLogController::class,'delete'])->name('error-log.delete');
 
-    // settings route 
+    // settings route
     Route::get('settings/manage', [GeneralSettingController::class,'index'])->name('settings.index');
     Route::get('settings/create', [GeneralSettingController::class,'create'])->name('settings.create');
     Route::post('settings/save', [GeneralSettingController::class,'store'])->name('settings.store');
-    Route::get('settings/{id}/edit', [GeneralSettingController::class,'edit'])->name('settings.edit');
+    // Single-vendor site → only one settings row, so no {id} in the URL
+    Route::get('settings/edit', [GeneralSettingController::class,'edit'])->name('settings.edit');
     Route::post('settings/update', [GeneralSettingController::class,'update'])->name('settings.update');
     Route::post('settings/inactive', [GeneralSettingController::class,'inactive'])->name('settings.inactive');
     Route::post('settings/active', [GeneralSettingController::class,'active'])->name('settings.active');

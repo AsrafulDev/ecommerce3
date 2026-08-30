@@ -21,6 +21,9 @@ use App\Models\ShippingCharge;
 use App\Helpers\PresetData;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
 use ZipArchive;
 use Toastr;
@@ -84,13 +87,19 @@ class DemoController extends Controller
         $layouts = HomepageLayout::with('sections')->get()->toArray();
         file_put_contents($tempDir . '/homepage_layouts.json', json_encode($layouts, JSON_PRETTY_PRINT));
 
-        // 4. Export general settings (only theme_id and active_layout_id)
+        // 4. Export general settings (full row) + base setup data
+        //    (colors, sizes, districts, shipping charges, roles, permissions)
         $setting = GeneralSetting::first();
-        $settings = $setting ? [
-            'theme_id' => $setting->theme_id,
-            'active_layout_id' => $setting->active_layout_id,
-        ] : [];
-        file_put_contents($tempDir . '/general_settings.json', json_encode($settings, JSON_PRETTY_PRINT));
+        file_put_contents(
+            $tempDir . '/general_settings.json',
+            json_encode($setting ? $setting->toArray() : [], JSON_PRETTY_PRINT)
+        );
+        foreach (['colors', 'sizes', 'districts', 'shipping_charges', 'roles', 'permissions'] as $table) {
+            file_put_contents(
+                $tempDir . '/' . $table . '.json',
+                json_encode(DB::table($table)->get()->toArray(), JSON_PRETTY_PRINT)
+            );
+        }
 
         // 5. Copy theme preview images
         $imgDir = $tempDir . '/images';
@@ -249,6 +258,10 @@ class DemoController extends Controller
                     $setting->save();
                 }
             }
+
+            // 5. Import base setup data (settings, colors, sizes, districts,
+            //    shipping charges, roles, permissions)
+            self::importBaseData($tempDir);
 
             DB::commit();
 
@@ -429,24 +442,49 @@ class DemoController extends Controller
     }
 
     /**
-     * Reset site — truncate all data tables and reseed with default DemoDataSeeder
-     * Note: TRUNCATE is DDL in MySQL and commits implicitly, so we cannot use DB transactions here.
+     * Reset site — FULL hard reset.
+     * 1. Asks the logged-in admin for their password (safety confirmation).
+     * 2. Truncates EVERY data table (orders, warranty sales/claims, damage
+     *    products, stock batches, products, …) so nothing is left behind.
+     * 3. Re-seeds only the base/default data (NO demo products):
+     *    roles + permissions, general settings, themes/layouts, admin user,
+     *    contacts, homepage sections, colors, sizes, districts, coupons and
+     *    shipping charges (Inside Dhaka 70TK / Outside Dhaka 120TK).
+     *
+     * Note: TRUNCATE is DDL in MySQL and commits implicitly, so we cannot use
+     * DB transactions here.
      */
-    public function resetSite()
+    public function resetSite(Request $request)
     {
+        // ── 1. Require the admin password before anything destructive ──
+        $request->validate(['password' => 'required']);
+        if (!Hash::check($request->password, auth('admin')->user()->password)) {
+            Toastr::error('Incorrect admin password. Reset was cancelled.', 'Error');
+            return redirect()->route('demo.index');
+        }
+
+        // Remember who we are so we can re-login after the users table is reset
+        $adminEmail = auth('admin')->user()->email;
+
         try {
-            self::truncateAllTables();
+            self::truncateAllTables();   // full hard reset — every table
             self::deleteUploadedFiles();
 
-            // Run the DemoDataSeeder for fresh default data
-            \Illuminate\Support\Facades\Artisan::call('db:seed', [
-                '--class' => 'Database\\Seeders\\DemoDataSeeder',
+            // ── 2. Re-seed base data only (no products) ──
+            Artisan::call('db:seed', [
+                '--class' => 'Database\\Seeders\\DefaultDatabaseSeeder',
                 '--force' => true,
             ]);
 
-            \Illuminate\Support\Facades\Cache::flush();
+            // ── 3. Re-authenticate the current admin (user row was re-created) ──
+            $fresh = \App\Models\User::where('email', $adminEmail)->first();
+            if ($fresh) {
+                auth('admin')->login($fresh);
+            }
 
-            Toastr::success('Site has been reset with default demo data!', 'Success');
+            Cache::flush();
+
+            Toastr::success('Site fully reset. Admin login → asraful@curlware.com / password: 123456', 'Success');
         } catch (\Exception $e) {
             Toastr::error('Reset failed: ' . $e->getMessage(), 'Error');
         }
@@ -457,14 +495,26 @@ class DemoController extends Controller
     /**
      * Clean site — truncate ALL data tables without re-seeding.
      * Also deletes uploaded files (uploads folder).
-     * Leaves the site completely empty (only admins/users remain).
+     * Leaves the site completely empty; only the admin users, roles and
+     * permissions are preserved so you can still log in.
      */
-    public function cleanSite()
+    public function cleanSite(Request $request)
     {
+        // ── Require the admin password before anything destructive ──
+        $request->validate(['password' => 'required']);
+        if (!Hash::check($request->password, auth('admin')->user()->password)) {
+            Toastr::error('Incorrect admin password. Clean was cancelled.', 'Error');
+            return redirect()->route('demo.index');
+        }
+
         try {
-            self::truncateAllTables();
+            // Keep the auth/ACL tables so the admin can still log in afterwards
+            self::truncateAllTables([
+                'users', 'roles', 'permissions',
+                'model_has_roles', 'model_has_permissions',
+            ]);
             self::deleteUploadedFiles();
-            \Illuminate\Support\Facades\Cache::flush();
+            Cache::flush();
 
             Toastr::success('All data has been wiped clean! The site is now empty.', 'Success');
         } catch (\Exception $e) {
@@ -538,44 +588,111 @@ class DemoController extends Controller
     }
 
     /**
-     * Truncate all data tables (shared between resetSite and cleanSite)
+     * Truncate EVERY data table in the database (full hard reset).
+     *
+     * The list is discovered from the live schema so no table is ever missed
+     * (orders, order_details, warranty_sales, warranty_claims, damage_products,
+     * stock_batches, products, …). Only Laravel system tables are skipped.
+     *
+     * @param array $keep tables to preserve (e.g. users/roles for "clean")
      */
-    private static function truncateAllTables(): void
+    private static function truncateAllTables(array $keep = []): void
     {
-        $tables = [
-            'categories', 'subcategories', 'childcategories', 'brands',
-            'products', 'productimages', 'productcolors', 'productsizes',
-            'product_variant_prices', 'product_wholesale_prices',
-            'banners', 'banner_categories', 'blogs',
-            'shipping_charges', 'reviews', 'orders', 'order_details',
-            'payments', 'shippings', 'carts',
-            'campaigns', 'campaign_product', 'campaign_reviews', 'coupons',
-            'courierapis', 'incomplete_orders',
-            'expenses', 'purchases', 'purchase_items', 'purchase_logs', 'expense_logs',
-            'vendors', 'vendor_wallets', 'vendor_wallet_transactions', 'vendor_withdrawals',
-            'suppliers', 'supplier_payments', 'stock_batches', 'complaints', 'contact_messages',
-            'fund_transactions', 'fund_transaction_logs',
-            'employees', 'employee_attendances', 'employee_leaves',
-            'employee_salaries', 'employee_bonuses', 'employee_salary_payments',
-            'refunds', 'newsletter_subscribers',
-            'districts', 'ip_blocks', 'ecom_pixels', 'tiktok_pixels',
-            'social_media', 'create_pages', 'order_statuses',
-            'payment_gateways', 'sms_gateways', 'google_tag_managers',
-            'seo_settings', 'ads_analytics_settings',
-            'popups', 'cron_job_settings',
-            'contact', 'contacts', 'colors', 'sizes',
-            'digital_downloads', 'password_resets',
-            'stolen_reports', 'facebook_capi_settings', 'facebook_page_settings',
-            'wholesale_products', 'wholesale_product_images',
-        ];
+        $keep = array_flip(array_merge(['migrations'], $keep));
 
         DB::statement('SET FOREIGN_KEY_CHECKS = 0');
+        $tables = DB::select('SHOW TABLES');
         foreach ($tables as $table) {
-            if (\Illuminate\Support\Facades\Schema::hasTable($table)) {
-                DB::table($table)->truncate();
+            $name = current((array) $table);
+            if (isset($keep[$name])) {
+                continue;
             }
+            DB::table($name)->truncate();
         }
         DB::statement('SET FOREIGN_KEY_CHECKS = 1');
+    }
+
+    /**
+     * Import base/setup data from an exported zip:
+     * full general settings, colors, sizes, districts, shipping charges,
+     * roles and permissions. Uses DELETE (not TRUNCATE) so it stays inside the
+     * surrounding DB transaction.
+     */
+    private static function importBaseData(string $tempDir): void
+    {
+        // ── General settings (full row) — update first row or create ──
+        // NOTE: theme_id / active_layout_id are handled by the existing
+        // step-4 mapping (position-based), so they are skipped here.
+        $settingsPath = $tempDir . '/general_settings.json';
+        if (file_exists($settingsPath)) {
+            $settings = json_decode(file_get_contents($settingsPath), true);
+            if (is_array($settings) && !empty($settings)) {
+                $data = array_diff_key($settings, array_flip([
+                    'id', 'created_at', 'updated_at', 'theme_id', 'active_layout_id',
+                ]));
+                $setting = GeneralSetting::first();
+                if ($setting) {
+                    foreach ($data as $key => $val) {
+                        if (\Illuminate\Support\Facades\Schema::hasColumn('general_settings', $key)) {
+                            $setting->$key = $val;
+                        }
+                    }
+                    $setting->save();
+                } else {
+                    GeneralSetting::create($data);
+                }
+            }
+        }
+
+        // ── Colors / sizes / districts / shipping charges / roles / permissions ──
+        foreach (['colors', 'sizes', 'districts', 'shipping_charges', 'roles', 'permissions'] as $table) {
+            self::importTable($tempDir, $table . '.json', $table);
+        }
+
+        // ── Re-sync the admin role assignment after importing roles/permissions ──
+        if (file_exists($tempDir . '/roles.json') || file_exists($tempDir . '/permissions.json')) {
+            if (\Illuminate\Support\Facades\Schema::hasTable('model_has_roles')) {
+                DB::table('model_has_roles')->delete();
+            }
+            if (\Illuminate\Support\Facades\Schema::hasTable('model_has_permissions')) {
+                DB::table('model_has_permissions')->delete();
+            }
+
+            app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
+
+            try {
+                Artisan::call('db:seed', [
+                    '--class' => 'Database\\Seeders\\CreateAdminUserSeeder',
+                    '--force' => true,
+                ]);
+            } catch (\Exception $e) {
+                // roles/permissions may not exist yet — non-fatal
+            }
+        }
+    }
+
+    /**
+     * Import a plain table dump (rows without id/timestamps) and re-insert it.
+     */
+    private static function importTable(string $tempDir, string $file, string $table): void
+    {
+        $path = $tempDir . '/' . $file;
+        if (!file_exists($path)) {
+            return;
+        }
+        $rows = json_decode(file_get_contents($path), true);
+        if (!is_array($rows) || empty($rows) || !\Illuminate\Support\Facades\Schema::hasTable($table)) {
+            return;
+        }
+
+        DB::table($table)->delete();
+        foreach ($rows as $row) {
+            $row = array_diff_key((array) $row, array_flip(['id', 'created_at', 'updated_at']));
+            DB::table($table)->insert(array_merge($row, [
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]));
+        }
     }
 
     /**

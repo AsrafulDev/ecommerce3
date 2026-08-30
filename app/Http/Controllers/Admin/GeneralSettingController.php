@@ -26,7 +26,7 @@ class GeneralSettingController extends Controller
         $setting = GeneralSetting::orderBy('id', 'desc')->first();
 
         if ($setting) {
-            return redirect()->route('settings.edit', $setting->id);
+            return redirect()->route('settings.edit');
         }
 
         return redirect()->route('settings.create');
@@ -124,9 +124,15 @@ class GeneralSettingController extends Controller
         return redirect()->route('settings.index');
     }
     
-    public function edit($id)
+    public function edit()
     {
-        $edit_data = GeneralSetting::find($id);
+        // Single-vendor site → only one settings row; no id needed in the URL.
+        $edit_data = GeneralSetting::orderBy('id', 'desc')->first();
+
+        if (!$edit_data) {
+            return redirect()->route('settings.create');
+        }
+
         $themes = \App\Models\Theme::where('is_active', true)->orderBy('name')->get();
         $layouts = \App\Models\HomepageLayout::orderBy('name')->get();
         return view('backEnd.settings.edit', compact('edit_data', 'themes', 'layouts'));
@@ -137,7 +143,13 @@ class GeneralSettingController extends Controller
         $this->validate($request, [
             'name' => 'required'
         ]);
-        $update_data = GeneralSetting::find($request->id);
+        // Single-record pattern: fall back to the only settings row when no id is posted.
+        $update_data = GeneralSetting::find($request->id) ?? GeneralSetting::orderBy('id', 'desc')->first();
+
+        if (!$update_data) {
+            Toastr::error('No settings record found. Create one first.', 'Error');
+            return redirect()->route('settings.create');
+        }
         $input = $request->all();
         // new white logo
         $image = $request->file('white_logo');
@@ -244,7 +256,7 @@ class GeneralSettingController extends Controller
         Cache::forget('common_menu');
 
         Toastr::success('Settings updated successfully!', 'Success');
-        return redirect()->route('settings.edit', $update_data->id);
+        return redirect()->route('settings.edit');
     }
  
     public function inactive(Request $request)
