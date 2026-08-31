@@ -1158,8 +1158,14 @@ $brands = Brand::where('status', 1)
             // ✅ id = district/area row id → resolve fee via shipping_charge_district pivot
             $area = District::find($request->id);
             $charge = $area ? $area->shippingCharges()->where('status', 1)->first() : null;
-            Session::put('shipping', $charge ? (float) $charge->amount : 0);
-            Session::put('shipping_id', $charge ? $charge->id : null);
+            // If the area is NOT linked to a charge, use the admin-created charge
+            // the customer picked (radio option). Linked charges always override it.
+            $chosen = null;
+            if (!$charge && $request->filled('shipping_charge_id')) {
+                $chosen = ShippingCharge::where('id', (int) $request->shipping_charge_id)->where('status', 1)->first();
+            }
+            Session::put('shipping', $charge ? (float) $charge->amount : ($chosen ? (float) $chosen->amount : 0));
+            Session::put('shipping_id', $charge ? $charge->id : ($chosen ? $chosen->id : null));
             Session::put('shipping_district', $area ? $area->district : null);
             Session::put('shipping_area_id', $area ? $area->id : null);
         } elseif ($request->id == 'area_clear') {

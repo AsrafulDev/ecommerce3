@@ -1967,6 +1967,7 @@ class OrderController extends Controller
         $order->discount        = $discount ? $discount : 0;
         $order->shipping_charge = isset($shippingfee->amount) ? $shippingfee->amount : 0;
         $order->customer_id     = $customer_id;
+        $order->coupon_code     = Session::get('pos_coupon_code') ?? ($request->coupon_code ?? null);
 
         // 🆕 Payment type: paid | partial | cod (from POS form)
         $paymentType            = strtolower(trim((string) $request->input('payment_type', 'paid')));
@@ -2235,6 +2236,19 @@ class OrderController extends Controller
             if ($posPrice <= 0) { $posPrice = (float) ($product->new_price ?? 0); }
         }
 
+        // ✅ Stable display order for NEW products — append after existing items so the
+        //   list never reorders on cart refresh. Monotonic counter, always above the
+        //   largest existing sort key.
+        $sortKey = (int) Session::get('pos_cart_sort_counter', 0);
+        $currentMax = (int) Cart::instance('pos_shopping')->content()->max(
+            fn($i) => (int) ($i->options->_sort_key ?? $i->options->details_id ?? 0)
+        );
+        if ($sortKey < $currentMax) {
+            $sortKey = $currentMax;
+        }
+        $sortKey++;
+        Session::put('pos_cart_sort_counter', $sortKey);
+
         $cartinfo = Cart::instance('pos_shopping')->add([
             'id'      => $product->id,
             'name'    => $product->name,
@@ -2256,6 +2270,7 @@ class OrderController extends Controller
                 'base_price'      => $posPrice,
                 'batch_id'        => $posBatch?->id,
                 'serial_numbers'  => [],
+                '_sort_key'       => $sortKey,
             ],
         ]);
         return response()->json(compact('cartinfo'));
@@ -2330,8 +2345,10 @@ class OrderController extends Controller
      */
     public function cart_refresh()
     {
+        // ✅ Sort by the stable per-item display order (_sort_key) so the product list
+        //   never reorders when SN / batch / variant / warranty is edited.
         $cartinfo = Cart::instance('pos_shopping')->content()
-            ->sortBy(fn($item) => ($item->options->details_id ?? $item->id));
+            ->sortBy(fn($item) => (int) ($item->options->_sort_key ?? $item->options->details_id ?? 0));
 
         $productDisc = 0;
         foreach ($cartinfo as $item) {
@@ -2370,6 +2387,7 @@ class OrderController extends Controller
                 'serial_numbers'  => $cart->options->serial_numbers ?? [],
                 'details_id'      => $cart->options->details_id ?? null,
                 '_unique_key'     => $cart->options->_unique_key ?? null,
+                '_sort_key'       => $cart->options->_sort_key ?? null,
                 'product_color_name' => $cart->options->product_color_name ?? null,
                 'product_size_name'  => $cart->options->product_size_name ?? null,
             ],
@@ -2402,6 +2420,7 @@ class OrderController extends Controller
                 'serial_numbers'  => $cart->options->serial_numbers ?? [],
                 'details_id'      => $cart->options->details_id ?? null,
                 '_unique_key'     => $cart->options->_unique_key ?? null,
+                '_sort_key'       => $cart->options->_sort_key ?? null,
                 'product_color_name' => $cart->options->product_color_name ?? null,
                 'product_size_name'  => $cart->options->product_size_name ?? null,
             ],
@@ -2440,6 +2459,7 @@ class OrderController extends Controller
                 'serial_numbers'  => $cart->options->serial_numbers ?? [],
                 'details_id'      => $cart->options->details_id ?? null,
                 '_unique_key'     => $cart->options->_unique_key ?? null,
+                '_sort_key'       => $cart->options->_sort_key ?? null,
                 'product_color_name' => $cart->options->product_color_name ?? null,
                 'product_size_name'  => $cart->options->product_size_name ?? null,
             ],
@@ -2487,8 +2507,14 @@ class OrderController extends Controller
             return response()->json(['error' => 'Cart item not found']);
         }
 
-        $sizeId  = $request->size_id ?: ($request->product_size ?: null);
-        $colorId = $request->color_id ?: ($request->product_color ?: null);
+        // Only override size/color when the request explicitly changes them (size/color
+        // selector). Batch / warranty / SN updates must NOT clear the selected variant.
+        $sizeId  = ($request->has('size_id') || $request->has('product_size'))
+            ? ($request->size_id ?: ($request->product_size ?: null))
+            : ($cartItem->options->size_id ?? null);
+        $colorId = ($request->has('color_id') || $request->has('product_color'))
+            ? ($request->color_id ?: ($request->product_color ?: null))
+            : ($cartItem->options->color_id ?? null);
 
         $pid = $cartItem->options->product_id ?? $cartItem->id;
         $product = Product::find($pid);
@@ -2538,6 +2564,7 @@ class OrderController extends Controller
             'product_discount'=> $cartItem->options->product_discount ?? 0,
             'details_id'      => $cartItem->options->details_id ?? null,
             '_unique_key'     => $cartItem->options->_unique_key ?? null,  // ✅ Preserve unique key
+            '_sort_key'       => $cartItem->options->_sort_key ?? null,    // ✅ Preserve stable display order
             'warranty_tier_id' => $request->warranty_tier_id ?? $cartItem->options->warranty_tier_id ?? null,
             'batch_id'        => $request->batch_id ?? $cartItem->options->batch_id ?? null,
             'serial_numbers'  => $request->has('serial_numbers') 
@@ -2665,7 +2692,7 @@ class OrderController extends Controller
     public function cart_clear(Request $request)
     {
         Cart::instance('pos_shopping')->destroy();
-        Session::forget(['pos_shipping', 'pos_discount', 'product_discount']);
+        Session::forget(['pos_shipping', 'pos_discount', 'product_discount', 'pos_cart_sort_counter']);
         return redirect()->back();
     }
 
@@ -2689,7 +2716,8 @@ class OrderController extends Controller
 
         $this->buildCartFromOrder($order);
 
-        $cartinfo     = Cart::instance('pos_shopping')->content();
+        $cartinfo = Cart::instance('pos_shopping')->content()
+            ->sortBy(fn($item) => (int) ($item->options->_sort_key ?? $item->options->details_id ?? 0));
         $shippinginfo = Shipping::where('order_id', $order->id)->first();
 
         return view('backEnd.order.edit', compact(
@@ -2708,6 +2736,7 @@ class OrderController extends Controller
     protected function buildCartFromOrder(Order $order): void
     {
         Cart::instance('pos_shopping')->destroy();
+        Session::forget('pos_cart_sort_counter');
 
         $shippinginfo = Shipping::where('order_id', $order->id)->first();
         Session::put('product_discount', $order->discount);
@@ -2765,6 +2794,8 @@ class OrderController extends Controller
                     'base_price'        => $actualPrice - $warrantyAdjustment,
                     'batch_id'          => $batchId,
                     'serial_numbers'    => optional($ordetails->warrantySale)->serial_numbers ?? [],
+                    // ✅ Stable display order — keeps loaded items in original order on every refresh
+                    '_sort_key'         => $ordetails->id,
                 ],
             ]);
         }
@@ -2811,6 +2842,7 @@ class OrderController extends Controller
         $order->discount        = isset($discount) ? $discount : 0;
         $order->shipping_charge = isset($shippingfee->amount) ? $shippingfee->amount : 0;
         $order->customer_id     = $customer->id;
+        $order->coupon_code     = Session::get('pos_coupon_code') ?? ($request->coupon_code ?? $order->coupon_code);
         $oldOrderStatus         = $order->order_status;
         $paymentGatewayInput    = strtolower(trim((string) $request->input('payment_gateway', 'cod')));
         $paymentStatusInput     = strtolower(trim((string) $request->input('payment_status', 'pending')));
@@ -3996,6 +4028,10 @@ class OrderController extends Controller
 
         $this->buildCartFromOrder($order);
 
+        // 🎟️ Restore coupon + discount so the POS cart matches the loaded order
+        Session::put('pos_coupon_code', $order->coupon_code ?? null);
+        Session::put('pos_discount', (float) ($order->discount ?? 0));
+
         $shipping = $order->shipping;
 
         return response()->json([
@@ -4011,6 +4047,9 @@ class OrderController extends Controller
             'payment_status' => $order->payment_status,
             'paid_amount'    => (float) $order->paid_amount,
             'due_amount'     => (float) $order->due_amount,
+            'shipping_charge'=> (float) $order->shipping_charge,
+            'coupon_code'    => $order->coupon_code ?? '',
+            'discount'       => (float) ($order->discount ?? 0),
             'cart_html'      => view('backEnd.order.cart_table_rows', ['cartinfo' => Cart::instance('pos_shopping')->content()])->render(),
         ]);
     }

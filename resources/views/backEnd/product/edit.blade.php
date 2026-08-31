@@ -719,10 +719,11 @@
                                 @foreach($edit_data->images->filter(fn($img) => !$img->color_id && !$img->size_id) as $image)
                                     <div class="position-relative me-2 mb-2">
                                         <img src="{{asset($image->image)}}" class="edit-image border" alt="">
-                                        <a href="{{route('products.image.destroy',['id'=>$image->id])}}"
-                                           class="btn btn-xs btn-danger waves-effect waves-light position-absolute top-0 end-0 rounded-circle"
+                                        <a href="{{route('products.image.remove',['id'=>$image->id])}}"
+                                           class="btn btn-xs btn-warning waves-effect waves-light position-absolute top-0 end-0 rounded-circle"
                                            style="padding: 0px 4px; top: -5px; right: -5px;"
-                                           onclick="return confirm('Delete this image?')">
+                                           title="{{ __('Remove from product (file stays in Media Library)') }}"
+                                           onclick="return confirm('{{ __("Remove this image from the product? The file will remain in the Media Library.") }}')">
                                             <i class="mdi mdi-close"></i>
                                         </a>
                                     </div>
@@ -739,7 +740,7 @@
                                             <span class="badge bg-info position-absolute bottom-0 start-0" style="font-size:9px;">
                                                 {{ $img->color ? ($img->color->colorName ?? $img->color->name) : '-' }} / {{ $img->size ? ($img->size->sizeName ?? $img->size->name) : '-' }}
                                             </span>
-                                            <a href="{{route('products.image.destroy',['id'=>$img->id])}}" class="btn btn-xs btn-danger position-absolute top-0 end-0 rounded-circle" style="padding:0 4px;top:-5px;right:-5px;" onclick="return confirm('Delete?')"><i class="mdi mdi-close"></i></a>
+                                            <a href="{{route('products.image.remove',['id'=>$img->id])}}" class="btn btn-xs btn-warning position-absolute top-0 end-0 rounded-circle" style="padding:0 4px;top:-5px;right:-5px;" title="{{ __('Remove from product (file stays in Media Library)') }}" onclick="return confirm('{{ __("Remove this image from the product? The file will remain in the Media Library.") }}')"><i class="mdi mdi-close"></i></a>
                                         </div>
                                     @endforeach
                                 </div>

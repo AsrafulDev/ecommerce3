@@ -29,7 +29,7 @@ class DemoModeMiddleware
 
         if (in_array($request->method(), ['GET', 'HEAD'], true)) {
             $destructiveGets = [
-                'admin/blog/delete', 'admin/products/image/destroy', 'admin/products/price/destroy',
+                'admin/blog/delete', 'admin/products/image/destroy', 'admin/products/image/remove', 'admin/products/price/destroy',
                 'admin/campaign/image/destroy', 'admin/order-bulk-destroy', 'admin/clear-cache',
             ];
             foreach ($destructiveGets as $p) {

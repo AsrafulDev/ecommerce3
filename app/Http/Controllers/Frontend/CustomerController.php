@@ -348,6 +348,15 @@ class CustomerController extends Controller
                 return [$area->id => (float) ($charge->amount ?? 0)];
             });
 
+        // ⭐ area_id → linked shipping-charge id (null = NOT linked). When an area is
+        //   linked to a charge the fee is auto-selected; when NOT linked the customer
+        //   can set the shipping charge manually.
+        $areaLinkedCharges = District::with('shippingCharges')->get()
+            ->mapWithKeys(function ($area) {
+                $charge = $area->shippingCharges->where('status', 1)->first();
+                return [$area->id => $charge ? $charge->id : null];
+            });
+
         // ⭐ Free Delivery Check - যদি সব প্রোডাক্ট free delivery eligible হয়, shipping charge 0
         // ⭐ Advance Check - যদি কার্টে advance amount > 0 থাকে, তাহলে advance payment option দেখানো হবে
         // ⭐ Digital Product Check - যদি কার্টে ডিজিটাল প্রোডাক্ট থাকে, তাহলে COD অপশন hide করা হবে
@@ -400,6 +409,7 @@ class CustomerController extends Controller
             'shippingcharge',
             'districts',
             'areaChargeMap',
+            'areaLinkedCharges',
             'bkash_gateway',
             'shurjopay_gateway',
             'uddoktapay_gateway',
@@ -505,10 +515,14 @@ public function order_save(Request $request)
             $shipping_area   = null;
 
             if (is_numeric($request->area)) {
-                // (a) Checkout: area = district/area row id → fee via shipping_charge_district pivot
-                $shippingAreaRow = District::find((int) $request->area);
-                if ($shippingAreaRow) {
-                    $shipping_area = $shippingAreaRow->shippingCharges()->where('status', 1)->first();
+                // (a) Checkout: area = district/area row id → fee via shipping_charge_district pivot.
+                //     The checkout form always posts a `district` field, which distinguishes
+                //     it from the legacy campaign page (area = ShippingCharge id).
+                if ($request->filled('district')) {
+                    $shippingAreaRow = District::find((int) $request->area);
+                    if ($shippingAreaRow) {
+                        $shipping_area = $shippingAreaRow->shippingCharges()->where('status', 1)->first();
+                    }
                 }
                 // (b) Legacy (campaign page): area = ShippingCharge id
                 if (!$shipping_area) {
@@ -516,8 +530,17 @@ public function order_save(Request $request)
                 }
             }
 
-            // (c) No charge linked to the area → 0 (NOT the session value)
-            $shippingfee = $shipping_area ? (float) $shipping_area->amount : 0;
+            // (c) No charge linked to the area → use the admin-created shipping
+            //     charge the customer picked (radio option). If a charge IS linked,
+            //     its amount always wins over any picked option.
+            if ($shipping_area) {
+                $shippingfee = (float) $shipping_area->amount;
+            } else {
+                $chosenCharge = $request->filled('shipping_charge_id')
+                    ? ShippingCharge::where('id', (int) $request->shipping_charge_id)->where('status', 1)->first()
+                    : null;
+                $shippingfee = $chosenCharge ? (float) $chosenCharge->amount : 0;
+            }
             Session::put('shipping', $shippingfee);
         }
 

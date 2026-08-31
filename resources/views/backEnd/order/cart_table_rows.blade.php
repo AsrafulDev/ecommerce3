@@ -31,9 +31,9 @@
         @endphp
 
        @if($hasSizes || $hasColors)
-        <div class="d-flex flex-column gap-1 mt-2">
+        <div class="d-flex flex-wrap gap-1 mt-2">
             @if($hasSizes)
-            <div>
+            <div class="{{ $hasColors ? 'flex-fill' : 'w-100' }}">
                 <label class="form-label small text-muted mb-0" style="font-size:11px">{{ __('Size') }}</label>
                 <select class="form-select form-select-sm cart-size-selector" data-id="{{ $value->rowId }}" data-product-id="{{ $pid }}" style="min-width:100px">
                     <option value="">{{ __('Select') }}</option>
@@ -44,7 +44,7 @@
             </div>
             @endif
             @if($hasColors)
-            <div>
+            <div class="{{ $hasSizes ? 'flex-fill' : 'w-100' }}">
                 <label class="form-label small text-muted mb-0" style="font-size:11px">{{ __('Color') }}</label>
                 <select class="form-select form-select-sm cart-color-selector" data-id="{{ $value->rowId }}" data-product-id="{{ $pid }}" style="min-width:100px">
                     <option value="">{{ __('Select') }}</option>

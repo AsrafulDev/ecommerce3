@@ -97,12 +97,30 @@
                                     <input type="text" id="address" class="form-control" placeholder="{{ __('Address') }}" name="address" value="{{$shippinginfo->address}}" required>
                                 </div>
                                 <div class="col-sm-12 mb-3">
+                                    @php
+                                        // ✅ Resolve the saved shipping method so it's pre-selected.
+                                        // POS orders store the charge NAME; web-checkout orders store a
+                                        // district string ("Area, District"). Match by exact name first,
+                                        // then fall back to the order's shipping amount.
+                                        $selectedAreaId = '';
+                                        $savedArea      = $shippinginfo->area ?? '';
+                                        $orderShipping  = (float) ($order->shipping_charge ?? 0);
+                                        foreach ($shippingcharge as $sc) {
+                                            if ($savedArea == $sc->name) { $selectedAreaId = $sc->id; break; }
+                                        }
+                                        if ($selectedAreaId === '') {
+                                            foreach ($shippingcharge as $sc) {
+                                                if (abs((float) $sc->amount - $orderShipping) < 0.001) { $selectedAreaId = $sc->id; break; }
+                                            }
+                                        }
+                                        $isStorePickup = ($selectedAreaId === '' && ($savedArea == 'Store Pickup' || $orderShipping <= 0));
+                                    @endphp
                                     <select id="area" class="form-control" name="area" required>
                                         <option value=""> {{ __('Delivery Area') }} </option>
                                         {{-- ✅ Default 0 TK shipping (admin only) --}}
-                                        <option value="0" @if($shippinginfo->area == 'Store Pickup') selected @endif>Store Pickup (৳0)</option>
+                                        <option value="0" @if($isStorePickup) selected @endif>Store Pickup (৳0)</option>
                                         @foreach($shippingcharge as $key=>$value)
-                                            <option value="{{$value->id}}" @if($shippinginfo->area == $value->name) selected @endif>{{$value->name}}</option>
+                                            <option value="{{$value->id}}" @if((string)$selectedAreaId === (string)$value->id) selected @endif>{{$value->name}}</option>
                                         @endforeach
                                     </select>
                                 </div>

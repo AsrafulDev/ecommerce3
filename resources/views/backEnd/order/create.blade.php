@@ -361,10 +361,10 @@
                                     class="form-control form-control-sm @error('area') is-invalid @enderror"
                                     name="area" required>
                                 <option value="">ডেলিভারি এরিয়া নির্বাচন করুন...</option>
-                                {{-- ✅ Default 0 TK shipping (admin only) --}}
-                                <option value="0" {{ old('area') == '0' ? 'selected' : '' }}>Store Pickup (৳0)</option>
+                                {{-- ✅ Default 0 TK shipping (admin only) — new/reset POS orders default to Store Pickup --}}
+                                <option value="0" {{ old('area', '0') == '0' ? 'selected' : '' }}>Store Pickup (৳0)</option>
                                 @foreach($shippingcharge ?? [] as $area)
-                                <option value="{{ $area->id }}" {{ old('area') == $area->id ? 'selected' : '' }}>
+                                <option value="{{ $area->id }}" data-name="{{ $area->name }}" data-amount="{{ (float) $area->amount }}" {{ old('area') == $area->id ? 'selected' : '' }}>
                                     {{ $area->name }} (৳{{ $area->amount }})
                                 </option>
                                 @endforeach
@@ -957,6 +957,55 @@
     // ============================================================
     // 🆕 ORDER LOAD BY INVOICE # (left of barcode)
     // ============================================================
+    // Resolve a saved delivery-area string to the matching option.
+    // POS orders save the charge NAME; web-checkout orders save a
+    // district string ("Area, District"). The <select> is keyed by id,
+    // so match by exact value → name → amount → fallback Store Pickup.
+    function selectAreaBySavedValue(areaVal, shippingAmount) {
+        var $area = $("#area");
+        if (!areaVal || areaVal === "Store Pickup" || areaVal == 0 || areaVal === "0") {
+            $area.val("0");
+            $area.trigger("change");
+            return;
+        }
+        var val = String(areaVal).trim();
+        var matched = false;
+        // 1) exact option value (id)
+        $area.find("option").each(function () {
+            if ($(this).val() === val) { $area.val($(this).val()); matched = true; return false; }
+        });
+        // 2) by saved charge name
+        if (!matched) {
+            $area.find("option[data-name]").each(function () {
+                if (String($(this).attr("data-name")).trim() === val) { $area.val($(this).val()); matched = true; return false; }
+            });
+        }
+        // 3) by the order's shipping amount (web-checkout orders store a district string)
+        if (!matched && shippingAmount) {
+            $area.find("option[data-amount]").each(function () {
+                if (Math.abs(parseFloat($(this).attr("data-amount")) - parseFloat(shippingAmount)) < 0.001) {
+                    $area.val($(this).val()); matched = true; return false;
+                }
+            });
+        }
+        // 4) fallback: Store Pickup
+        if (!matched) $area.val("0");
+        $area.trigger("change");
+    }
+
+    // 🎟️ Show/hide the coupon UI after loading an order
+    function restoreCouponUI(couponCode) {
+        if (couponCode) {
+            $("#pos_coupon_code").val(couponCode);
+            $("#pos_remove_coupon").show();
+            $("#pos_coupon_msg").removeClass("text-danger").addClass("text-success").text("কুপন প্রযোজ্য: " + couponCode);
+        } else {
+            $("#pos_coupon_code").val("");
+            $("#pos_remove_coupon").hide();
+            $("#pos_coupon_msg").text("");
+        }
+    }
+
     function loadOrderByInvoice(invoice) {
         if (!invoice) return;
         $.ajax({
@@ -968,13 +1017,8 @@
                     $("#name").val(res.customer.name);
                     $("#phone").val(res.customer.phone);
                     $("#address").val(res.customer.address);
-                    var areaVal = res.customer.area;
-                    // area might be text (like "Store Pickup") — select option 0
-                    if (areaVal === "Store Pickup" || areaVal == 0 || areaVal === "0") {
-                        $("#area").val("0").trigger("change");
-                    } else {
-                        $("#area").val(areaVal).trigger("change");
-                    }
+                    selectAreaBySavedValue(res.customer.area, res.shipping_charge);
+                    restoreCouponUI(res.coupon_code);
                     $("#pos_order_id").val(res.order_id);
                     $("#pos_update_invoice").text(res.invoice_id);
                     $("#pos_update_banner").show();
@@ -1233,8 +1277,8 @@
                     $("#name").val(res.customer.name);
                     $("#phone").val(res.customer.phone);
                     $("#address").val(res.customer.address);
-                    var areaVal = res.customer.area;
-                    $("#area").val(areaVal).trigger("change");
+                    selectAreaBySavedValue(res.customer.area, res.shipping_charge);
+                    restoreCouponUI(res.coupon_code);
 
                     // Enter update mode
                     $("#pos_order_id").val(res.order_id);

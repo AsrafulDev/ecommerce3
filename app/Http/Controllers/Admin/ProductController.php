@@ -1021,6 +1021,33 @@ class ProductController extends Controller
         return redirect()->back();
     }
 
+    /**
+     * Remove an attached image from the product — WITHOUT deleting the file.
+     *
+     * The physical file stays in the Media Library so it can be reused or
+     * permanently deleted from the Media Gallery manager. This is the only
+     * way images are detached on the product edit page (no direct delete).
+     */
+    public function imgremove(Request $request)
+    {
+        $img = Productimage::findOrFail($request->id);
+        $productId = $img->product_id;
+        $imagePath = $img->image;
+
+        // Detach ALL Productimage rows with the same path for this product
+        // (variant images saved per color/size share the same path). The file
+        // itself is intentionally NOT deleted here.
+        Productimage::where('product_id', $productId)->where('image', $imagePath)->delete();
+
+        $product = Product::find($productId);
+        if ($product) {
+            Cache::forget('product_details_' . $product->slug);
+        }
+
+        Toastr::success('Image removed from product. The file remains in the Media Library.');
+        return redirect()->back();
+    }
+
     // ================================
     // BULK ACTIONS (AJAX / POST)
     // ================================

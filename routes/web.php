@@ -598,6 +598,8 @@ Route::get('purchases/price-panel', [PurchaseController::class, 'pricePanel'])
     ->middleware(['auth:admin', 'admin'])->name('purchases.price.panel');
 Route::post('purchases/price/batch-save', [PurchaseController::class, 'saveBatchPricing'])
     ->middleware(['auth:admin', 'admin', 'demo_mode'])->name('purchases.price.batch.save');
+Route::post('purchases/price/batches-save', [PurchaseController::class, 'saveBatchesPricing'])
+    ->middleware(['auth:admin', 'admin', 'demo_mode'])->name('purchases.price.batches.save');
 Route::post('purchases/price/activate', [PurchaseController::class, 'activateWebsiteBatch'])
     ->middleware(['auth:admin', 'admin', 'demo_mode'])->name('purchases.price.activate');
 Route::post('purchases/price/variant-save', [PurchaseController::class, 'saveVariantPricing'])
@@ -923,6 +925,7 @@ Route::get('stock/products/{id}/batches',     [StockController::class, 'getProdu
     Route::post('products/active', [ProductController::class,'active'])->name('products.active');
     Route::post('products/destroy', [ProductController::class,'destroy'])->name('products.destroy');
     Route::get('products/image/destroy', [ProductController::class,'imgdestroy'])->name('products.image.destroy');
+    Route::get('products/image/remove', [ProductController::class,'imgremove'])->name('products.image.remove');
     Route::get('products/price/destroy', [ProductController::class,'pricedestroy'])->name('products.price.destroy');
     Route::post('products/update-deals', [ProductController::class,'update_deals'])->name('products.update_deals');
     Route::get('products/update-feature', [ProductController::class,'update_feature'])->name('products.update_feature');

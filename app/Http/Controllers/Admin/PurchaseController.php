@@ -509,11 +509,36 @@ class PurchaseController extends Controller
 
         // ⭐ Batch-wise pricing engine — batches created by this purchase
         $batches = \App\Models\StockBatch::where('purchase_id', $id)
-            ->with('product:id,name', 'supplier:id,name', 'variantPrices')
+            ->with([
+                'product:id,name,barcode',
+                'product.variantPrices',
+                'product.warrantyTiers',
+                'supplier:id,name',
+                'variantPrices',
+                'wholesalePrices',
+                'warrantyTiers',
+            ])
             ->orderByDesc('created_at')
             ->get();
 
-        return view('backEnd.purchases.edit', compact('purchase', 'suppliers', 'products', 'batches'));
+        // ── Summary stats (same as purchases/manage) ──
+        $currentYear  = now()->year;
+        $currentMonth = now()->month;
+        $yearlyTotal  = Purchase::whereYear('purchase_date', $currentYear)->sum('grand_total');
+        $monthlyTotal = Purchase::whereYear('purchase_date', $currentYear)
+                                ->whereMonth('purchase_date', $currentMonth)
+                                ->sum('grand_total');
+        $todayTotal   = Purchase::whereDate('purchase_date', now()->toDateString())->sum('grand_total');
+        $totalDue     = Purchase::sum('due_amount');
+
+        // ── Recent purchase history (same as purchases/manage) ──
+        $purchases = Purchase::with('supplier')->latest()->paginate(10);
+
+        return view('backEnd.purchases.edit', compact(
+            'purchase', 'suppliers', 'products', 'batches',
+            'currentYear', 'currentMonth', 'yearlyTotal', 'monthlyTotal', 'todayTotal', 'totalDue',
+            'purchases'
+        ));
     }
 
     /**
@@ -982,6 +1007,55 @@ class PurchaseController extends Controller
         ]);
 
         return response()->json(['status' => 'success', 'message' => 'Batch price updated']);
+    }
+
+    /**
+     * Bulk-update sell price + MRP for MANY batches at once (purchase edit page).
+     * Only sell prices are changed here — purchase/unit cost is never touched.
+     */
+    public function saveBatchesPricing(Request $request)
+    {
+        $request->validate([
+            'batches'                 => 'required|array',
+            'batches.*.batch_id'      => 'required|integer',
+            'batches.*.selling_price' => 'nullable|numeric|min:0',
+            'batches.*.mrp'           => 'nullable|numeric|min:0',
+        ]);
+
+        $count = 0;
+        $productIds = [];
+
+        DB::transaction(function () use ($request, &$count, &$productIds) {
+            foreach ((array) $request->batches as $row) {
+                $batch = \App\Models\StockBatch::find($row['batch_id'] ?? null);
+                if (!$batch) {
+                    continue;
+                }
+                $batch->selling_price = (isset($row['selling_price']) && $row['selling_price'] !== '')
+                    ? (float) $row['selling_price'] : null;
+                $batch->mrp = (isset($row['mrp']) && $row['mrp'] !== '') ? (float) $row['mrp'] : null;
+                $batch->is_manual_price = true;
+                $batch->price_updated_at = now();
+                $batch->price_updated_by = Auth::id();
+                $batch->save();
+                $productIds[$batch->product_id] = true;
+                $count++;
+            }
+        });
+
+        // Refresh cached catalog price for every touched product
+        foreach (array_keys($productIds) as $pid) {
+            $product = Product::find($pid);
+            if ($product) {
+                app(\App\Services\PricingService::class)->refreshProductCache($product);
+            }
+        }
+
+        log_activity('pricing', 'update_batches_bulk', "Bulk sell-price update ({$count} batches)", null, [
+            'count' => $count,
+        ]);
+
+        return response()->json(['status' => 'success', 'message' => $count . ' sell price(s) updated']);
     }
 
     /**

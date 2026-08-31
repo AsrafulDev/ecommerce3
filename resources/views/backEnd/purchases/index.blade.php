@@ -289,26 +289,16 @@
                                 <div class="row mt-2">
                                     <div class="col-12">
                                         <div class="btn-group btn-group-sm" role="group">
-                                            <button type="button" class="btn btn-outline-info toggle-variant-pricing"><i class="fe-grid"></i> {{ __('Variant Pricing') }}</button>
                                             <button type="button" class="btn btn-outline-warning toggle-wholesale-pricing"><i class="fe-layers"></i> {{ __('Wholesale Pricing') }}</button>
                                             <button type="button" class="btn btn-outline-primary toggle-warranty-pricing"><i class="fe-shield"></i> {{ __('Warranty Pricing') }}</button>
                                         </div>
-                                    </div>
-                                </div>
-                                {{-- Variant pricing (dynamic rows, filled by JS) --}}
-                                <div class="variant-pricing-block mt-1" style="display:none;">
-                                    <div class="table-responsive">
-                                        <table class="table table-sm table-bordered mb-0" style="background:#fff;">
-                                            <thead class="table-light"><tr><th>{{ __('Variant') }}</th><th>{{ __('Price') }}</th><th>{{ __('MRP') }}</th><th style="width:80px;">{{ __('Stock') }}</th></tr></thead>
-                                            <tbody class="variant-pricing-rows"></tbody>
-                                        </table>
                                     </div>
                                 </div>
                                 {{-- Wholesale pricing (dynamic tier rows, filled by JS) --}}
                                 <div class="wholesale-pricing-block mt-1" style="display:none;">
                                     <div class="table-responsive">
                                         <table class="table table-sm table-bordered mb-1" style="background:#fff;">
-                                            <thead class="table-light"><tr><th>{{ __('Variant') }}</th><th>{{ __('Min') }}</th><th>{{ __('Max') }}</th><th style="width:100px;">{{ __('Wholesale Price') }}</th><th style="width:40px;"></th></tr></thead>
+                                            <thead class="table-light"><tr><th>{{ __('Min') }}</th><th>{{ __('Max') }}</th><th style="width:100px;">{{ __('Wholesale Price') }}</th><th style="width:40px;"></th></tr></thead>
                                             <tbody class="wholesale-pricing-rows"></tbody>
                                         </table>
                                     </div>
@@ -590,8 +580,8 @@
         template.find('input[name*="[warranty_days]"]').val('0');
         template.find('.row-total').text('0');
         template.find('.variant-col').hide();
-        template.find('.variant-pricing-block, .wholesale-pricing-block, .warranty-pricing-block').hide();
-        template.find('.variant-pricing-rows, .wholesale-pricing-rows, .warranty-pricing-rows').html('');
+        template.find('.wholesale-pricing-block, .warranty-pricing-block').hide();
+        template.find('.wholesale-pricing-rows, .warranty-pricing-rows').html('');
         template.find('.pp-activate-cb').prop('checked', false);
         template.find('[name]').each(function() {
             $(this).attr('name', $(this).attr('name').replace(/items\[\d+\]/, 'items[' + rowIndex + ']'));
@@ -601,42 +591,11 @@
         calcGrandTotal();
     }
 
-    // ⭐ Populate the per-row variant pricing table for variable products
-    function populateVariantPricing(row, productId) {
-        const block = row.find('.variant-pricing-block');
-        const tbody = row.find('.variant-pricing-rows');
-        tbody.html('');
-        const variants = allVariants[productId] || [];
-        if (!variants.length) { block.hide(); return; }
-        block.show();
-
-        const m = row.find('.product-select').attr('name').match(/items\[(\d+)\]/);
-        const rowIdx = m ? m[1] : 0;
-
-        variants.forEach((v, i) => {
-            const label = [v.color?.colorName || v.color?.name, v.size?.sizeName || v.size?.name].filter(Boolean).join(' / ') || ('Variant #' + v.id);
-            tbody.append(
-                '<tr>' +
-                    '<td>' + label + '<div class="small text-muted">' + (v.sku || '') + '</div></td>' +
-                    '<td><input type="number" step="0.01" name="items[' + rowIdx + '][variant_prices][' + i + '][price]" class="form-control form-control-sm"></td>' +
-                    '<td><input type="number" step="0.01" name="items[' + rowIdx + '][variant_prices][' + i + '][old_price]" class="form-control form-control-sm"></td>' +
-                    '<td><input type="number" name="items[' + rowIdx + '][variant_prices][' + i + '][stock]" class="form-control form-control-sm"></td>' +
-                    '<input type="hidden" name="items[' + rowIdx + '][variant_prices][' + i + '][variant_id]" value="' + v.id + '">' +
-                '</tr>'
-            );
-        });
-    }
-
     // ⭐ Build a blank wholesale tier row for a product row
     function wholesaleRowHtml(row, rowIdx, i) {
-        const variants = allVariants[row.find('.product-select').val()] || [];
-        let opt = '<option value="">All</option>';
-        variants.forEach(v => {
-            const label = [v.color?.colorName || v.color?.name, v.size?.sizeName || v.size?.name].filter(Boolean).join(' / ') || ('Variant #' + v.id);
-            opt += '<option value="' + v.id + '">' + label + '</option>';
-        });
+        const selectedVariantId = row.find('.variant-select').val() || '';
         return '<tr>' +
-            '<td><select name="items[' + rowIdx + '][wholesale_tiers][' + i + '][variant_id]" class="form-select form-select-sm">' + opt + '</select></td>' +
+            '<input type="hidden" name="items[' + rowIdx + '][wholesale_tiers][' + i + '][variant_id]" value="' + selectedVariantId + '">' +
             '<td><input type="number" min="1" name="items[' + rowIdx + '][wholesale_tiers][' + i + '][min_quantity]" class="form-control form-control-sm" placeholder="Min"></td>' +
             '<td><input type="number" min="1" name="items[' + rowIdx + '][wholesale_tiers][' + i + '][max_quantity]" class="form-control form-control-sm" placeholder="Max"></td>' +
             '<td><input type="number" step="0.01" name="items[' + rowIdx + '][wholesale_tiers][' + i + '][wholesale_price]" class="form-control form-control-sm" placeholder="0.00"></td>' +
@@ -718,7 +677,6 @@
         const pid = $(this).val();
         const row = $(this).closest('.product-row');
         loadVariants($(this), pid);
-        populateVariantPricing(row, pid);
         populateWholesalePricing(row, pid);
         populateWarrantyPricing(row, pid);
         if (pid) ppLoadProduct(pid);
@@ -731,10 +689,7 @@
         ppUpdateNewBatches
     );
 
-    // ⭐ 3 pricing expanders (Variant / Wholesale / Warranty) — after supplier warranty info
-    $('#product-rows').on('click', '.toggle-variant-pricing', function() {
-        $(this).closest('.product-row').find('.variant-pricing-block').toggle();
-    });
+    // ⭐ 2 pricing expanders (Wholesale / Warranty) — after supplier warranty info
     $('#product-rows').on('click', '.toggle-wholesale-pricing', function() {
         $(this).closest('.product-row').find('.wholesale-pricing-block').toggle();
     });

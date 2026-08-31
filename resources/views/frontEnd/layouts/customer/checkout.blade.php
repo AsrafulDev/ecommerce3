@@ -142,6 +142,57 @@ if (typeof ttq !== 'undefined') {
         line-height: 1.5;
     }
 
+    /* --- Shipping Charge options (minimal single-line radio rows) --- */
+    .shipping-option-label {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        padding: 10px 14px;
+        margin-bottom: 8px;
+        cursor: pointer;
+        transition: all 0.15s ease;
+        background: #fff;
+    }
+    .shipping-option-label:hover {
+        border-color: #9ca3af;
+        background: #f8fafc;
+    }
+    .shipping-option-label:has(input:checked) {
+        border-color: var(--primary-color);
+        background: #f0f5ff;
+        box-shadow: 0 0 0 1px var(--primary-color);
+    }
+    .shipping-option-label input[type="radio"] {
+        accent-color: var(--primary-color);
+        width: 16px;
+        height: 16px;
+        margin: 0;
+        cursor: pointer;
+        flex-shrink: 0;
+    }
+    .shipping-option-label .so-name {
+        font-size: 14px;
+        font-weight: 600;
+        color: var(--text-dark);
+    }
+    .shipping-option-label .so-amount {
+        margin-left: auto;
+        font-size: 14px;
+        font-weight: 700;
+        color: var(--primary-color);
+        white-space: nowrap;
+    }
+    .shipping-option-label input:disabled {
+        opacity: 0.45;
+        cursor: not-allowed;
+    }
+    .shipping-option-label.shipping-locked:not(.shipping-option-selected) {
+        opacity: 0.55;
+        cursor: not-allowed;
+    }
+
     /* --- Payment Methods (Interactive Box) --- */
     .payment-option-label {
         display: flex;
@@ -555,6 +606,30 @@ if (typeof ttq !== 'undefined') {
                                         @endif
                                     </div>
                                 </div>
+                                <div class="col-12" id="shippingChargeWrapper" @if(!$requires_shipping) style="display:none;" @endif>
+                                    <div class="form-group">
+                                        <label class="form-label-custom">{{ __('Shipping Charge') }}</label>
+
+                                        {{-- Shipping charge options (admin-created, minimal single-line radios).
+                                             When the district/area is linked to a charge the linked one is
+                                             auto-selected & the rest are locked; otherwise the customer picks one. --}}
+                                        <div class="shipping-options-list" id="shippingOptionsList">
+                                            @forelse($shippingcharge as $charge)
+                                                <label class="shipping-option-label" data-charge-id="{{ $charge->id }}">
+                                                    <input type="radio" name="shipping_charge_id" value="{{ $charge->id }}"
+                                                           data-amount="{{ (float) $charge->amount }}"
+                                                           @if($loop->first) checked @endif>
+                                                    <span class="so-name">{{ $charge->name }}</span>
+                                                    <span class="so-amount">৳ {{ number_format($charge->amount, 2) }}</span>
+                                                </label>
+                                            @empty
+                                                <div class="alert alert-warning py-2 mb-0 small">{{ __('No shipping charge created yet. Please add one from the admin panel.') }}</div>
+                                            @endforelse
+                                        </div>
+
+                                        <small class="text-muted" id="shippingChargeHint">{{ __('Select a shipping charge. For linked areas it is selected automatically.') }}</small>
+                                    </div>
+                                </div>
                                 <div class="col-12">
                                     <div class="form-group">
                                         <label class="form-label-custom">{{ __('Order Note') }} ({{ __('Optional') }})</label>
@@ -919,8 +994,35 @@ if (typeof ttq !== 'undefined') {
         const cartItems = @json($cartItemsForJs ?? []);
         const hasAllFreeDelivery = @json($hasAllFreeDelivery ?? false);
         const areaChargeMap = @json($areaChargeMap ?? []);
+        const areaLinkedCharges = @json($areaLinkedCharges ?? []);
         const prevDistrict = @json(Session::get('shipping_district'));
         const prevArea = @json(Session::get('shipping_area_id'));
+
+        // ⭐ Is this area linked to a shipping charge (auto-select it)?
+        function isAreaLinked(areaId) {
+            if (!areaId) return false;
+            return areaLinkedCharges[areaId] ? true : false;
+        }
+
+        // Current selected shipping-charge amount (from the checked radio)
+        function getSelectedShippingCharge() {
+            var $sel = $('#shippingOptionsList input[name="shipping_charge_id"]:checked');
+            return $sel.length ? (parseFloat($sel.attr('data-amount')) || 0) : 0;
+        }
+
+        // Shipping/total display update (shared by area change + page load)
+        function updateShippingAmounts(shippingCharge) {
+            var grandTotal = baseSubtotal + shippingCharge - baseDiscount + baseWarrantyCharge;
+            var dueAmount = hasAdvance ? (grandTotal - advanceAmount) : 0;
+
+            $('#shippingAmount').text('৳ ' + shippingCharge.toFixed(2));
+            $('#grandTotalAmount').text('৳ ' + grandTotal.toFixed(2));
+
+            if (hasAdvance) {
+                $('#dueAmountCell').text('৳ ' + dueAmount.toFixed(2));
+                $('#dueAmountText').text(dueAmount.toFixed(2));
+            }
+        }
 
         // ⭐ District → Area cascade loader
         function loadAreasForDistrict(districtName) {
@@ -965,18 +1067,24 @@ if (typeof ttq !== 'undefined') {
             return allFreeDelivery;
         }
 
-        // Shipping/total display update (shared by area change + page load)
-        function updateShippingAmounts(shippingCharge) {
-            var grandTotal = baseSubtotal + shippingCharge - baseDiscount + baseWarrantyCharge;
-            var dueAmount = hasAdvance ? (grandTotal - advanceAmount) : 0;
-
-            $('#shippingAmount').text('৳ ' + shippingCharge.toFixed(2));
-            $('#grandTotalAmount').text('৳ ' + grandTotal.toFixed(2));
-
-            if (hasAdvance) {
-                $('#dueAmountCell').text('৳ ' + dueAmount.toFixed(2));
-                $('#dueAmountText').text(dueAmount.toFixed(2));
-            }
+        // Lock all shipping-charge options except the linked one (null = unlock all)
+        function lockShippingOptions(linkedChargeId) {
+            var $options = $('#shippingOptionsList');
+            $options.find('input[name="shipping_charge_id"]').each(function () {
+                var isLinked = linkedChargeId && String($(this).val()) === String(linkedChargeId);
+                if (linkedChargeId) {
+                    $(this).prop('disabled', !isLinked);
+                    $(this).prop('checked', isLinked);
+                } else {
+                    $(this).prop('disabled', false);
+                }
+            });
+            $options.find('.shipping-option-label').each(function () {
+                var $this = $(this);
+                var isLinked = linkedChargeId && String($this.attr('data-charge-id')) === String(linkedChargeId);
+                $this.toggleClass('shipping-locked', !!linkedChargeId && !isLinked);
+                $this.toggleClass('shipping-option-selected', isLinked);
+            });
         }
 
         // District পরিবর্তন হলে Area লোড
@@ -989,37 +1097,74 @@ if (typeof ttq !== 'undefined') {
 
         // এরিয়া পরিবর্তন হলে শিপিং চার্জ আপডেট
         $('#area').on('change', function () {
-            var selectedCharge = parseFloat($('option:selected', this).attr('data-charge')) || 0;
-            
-            // ⭐ Free Delivery Check - যদি সব প্রোডাক্ট free delivery eligible হয়, shipping charge 0
+            var areaId = $(this).val();
             var isFreeDelivery = checkFreeDelivery();
-            var shippingCharge = isFreeDelivery ? 0 : selectedCharge;
+            var linkedChargeId = isAreaLinked(areaId) ? areaLinkedCharges[areaId] : null;
+            var $options = $('#shippingOptionsList');
 
-            updateShippingAmounts(shippingCharge);
-
-            // ব্যাকএন্ডে শিপিং চার্জ সেট করা (free delivery হলে 0 পাঠাবে)
-            if (isFreeDelivery) {
+            // Free delivery (বা এরিয়া সিলেক্ট হয়নি) → শিপিং চার্জ নেই
+            if (isFreeDelivery || !areaId) {
+                lockShippingOptions(null);
+                updateShippingAmounts(0);
                 $.get('{{ route("shipping.charge") }}', { id: 'free_delivery' });
-            } else {
-                $.get('{{ route("shipping.charge") }}', { id: $(this).val(), type: 'area' });
+                saveIncompleteOrder();
+                return;
             }
-            
+
+            if (linkedChargeId) {
+                // ⭐ লিংকড এরিয়া → ওই চার্জ অটো সিলেক্ট, বাকিগুলো lock
+                lockShippingOptions(linkedChargeId);
+                updateShippingAmounts(getSelectedShippingCharge());
+                $.get('{{ route("shipping.charge") }}', { id: areaId, type: 'area' });
+            } else {
+                // নন-লিংকড এরিয়া → সব অপশন খোলা, কাস্টমার বাছাই করবে
+                lockShippingOptions(null);
+                if (!$options.find('input[name="shipping_charge_id"]:checked').length) {
+                    $options.find('input[name="shipping_charge_id"]').first().prop('checked', true);
+                }
+                updateShippingAmounts(getSelectedShippingCharge());
+                var selId = $options.find('input[name="shipping_charge_id"]:checked').val() || '';
+                $.get('{{ route("shipping.charge") }}', { id: areaId, type: 'area', shipping_charge_id: selId });
+            }
+
             // এরিয়া চেঞ্জ করলেও ইনকমপ্লিট অর্ডার আপডেট হবে (যদি নাম/ফোন/ঠিকানা থাকে)
             saveIncompleteOrder();
         });
 
-        // ⭐ Page Load হওয়ার সময় Free Delivery Check করে Initial Shipping Charge Set করা
+        // শিপিং চার্জ রেডিও বাছাই — শুধুমাত্র নন-লিংকড এরিয়ায় কাজ করবে
+        $('#shippingOptionsList input[name="shipping_charge_id"]').on('change', function () {
+            var areaId = $('#area').val();
+            // লিংকড এরিয়া বা free delivery হলে ম্যানুয়াল বাছাই উপেক্ষা করা হয়
+            if (!areaId || isAreaLinked(areaId) || checkFreeDelivery()) return;
+
+            updateShippingAmounts(getSelectedShippingCharge());
+            $.get('{{ route("shipping.charge") }}', { id: areaId, type: 'area', shipping_charge_id: $(this).val() });
+            saveIncompleteOrder();
+        });
+
+        // ⭐ Page Load — Initial Shipping Charge Set
         $(document).ready(function() {
-            // Check free delivery on page load
             var isFreeDeliveryOnLoad = hasAllFreeDelivery || checkFreeDelivery();
-            
+            var $options = $('#shippingOptionsList');
+
             if (isFreeDeliveryOnLoad) {
+                lockShippingOptions(null);
                 updateShippingAmounts(0);
                 $.get('{{ route("shipping.charge") }}', { id: 'free_delivery' });
+            } else if (prevArea && isAreaLinked(prevArea)) {
+                // আগের লিংকড এরিয়া restore → অটো সিলেক্ট
+                lockShippingOptions(areaLinkedCharges[prevArea]);
+                updateShippingAmounts(getSelectedShippingCharge());
             } else {
-                // Free delivery না হলে current shipping charge use করবে
-                var currentShipping = parseFloat($('#shippingAmount').text().replace(/[৳,\s]/g, '').trim()) || 0;
-                updateShippingAmounts(currentShipping);
+                // নন-লিংকড (বা আগের এরিয়া নেই) → session এর চার্জ বা প্রথমটা সিলেক্ট
+                lockShippingOptions(null);
+                var prevChargeId = @json(Session::get('shipping_id'));
+                if (prevChargeId && $options.find('input[value="' + prevChargeId + '"]').length) {
+                    $options.find('input[value="' + prevChargeId + '"]').prop('checked', true);
+                } else if (!$options.find('input[name="shipping_charge_id"]:checked').length) {
+                    $options.find('input[name="shipping_charge_id"]').first().prop('checked', true);
+                }
+                updateShippingAmounts(getSelectedShippingCharge());
             }
 
             // আগের নির্বাচিত district থাকলে সেটা restore করে area লোড
@@ -1052,11 +1197,11 @@ if (typeof ttq !== 'undefined') {
                     return; 
                 }
 
-                // ক্যালকুলেশন
-                var selectedCharge = parseFloat($('#area option:selected').attr('data-charge')) || 0;
-                // ⭐ Free Delivery Check
-                var isFreeDelivery = checkFreeDelivery();
-                var shippingCharge = isFreeDelivery ? 0 : selectedCharge;
+                // ক্যালকুলেশন (নির্বাচিত শিপিং চার্জ রেডিওই source of truth)
+                var shippingCharge = 0;
+                if (requiresShipping && !checkFreeDelivery()) {
+                    shippingCharge = getSelectedShippingCharge();
+                }
                 var total = (baseSubtotal + shippingCharge - baseDiscount + baseWarrantyCharge).toFixed(2);
 
                 // ডাটা পাঠানো
@@ -1090,9 +1235,10 @@ if (typeof ttq !== 'undefined') {
             var phone = $('input[name="phone"]').val();
             var address = $('input[name="address"]').val();
             if (!name || !phone || !address) return;
-            var selectedCharge = parseFloat($('#area option:selected').attr('data-charge')) || 0;
-            var isFreeDelivery = typeof checkFreeDelivery === 'function' ? checkFreeDelivery() : false;
-            var shippingCharge = isFreeDelivery ? 0 : selectedCharge;
+            var shippingCharge = 0;
+            if (requiresShipping && typeof checkFreeDelivery === 'function' && !checkFreeDelivery()) {
+                shippingCharge = getSelectedShippingCharge();
+            }
             var total = (baseSubtotal + shippingCharge - baseDiscount + baseWarrantyCharge).toFixed(2);
             var payload = JSON.stringify({
                 name: name, phone: phone, address: address,

@@ -5,6 +5,8 @@
 @php
     $batchWise = (bool) config('pricing.batch_wise', false);
     $batches   = $product->stockBatches->sortByDesc('created_at')->values();
+    $inBatches  = $batches->where('type', 'in')->values();
+    $outBatches = $batches->where('type', 'out')->values();
     $active    = $product->stockBatches->firstWhere('is_active_for_website', true);
     $sellable  = $product->stockBatches
         ->filter(fn ($b) => $b->pos_enabled && $b->remaining_qty > 0 && (!$b->exp_date || $b->exp_date->gte(now()->startOfDay())))
@@ -74,10 +76,10 @@
                                 </tbody>
                             </table>
 
-                            {{-- Existing batches — read-only info --}}
-                            <div class="small fw-bold text-muted mb-1">{{ __('Existing Batches') }}</div>
+                            {{-- Stock in — batches that brought stock into the product --}}
+                            <div class="small fw-bold text-muted mb-1">📥 {{ __('Stock In') }}</div>
                             <div class="table-responsive">
-                                <table class="table table-sm table-bordered mb-0" style="font-size:12px;">
+                                <table class="table table-sm table-bordered mb-2" style="font-size:12px;">
                                     <thead class="table-light">
                                         <tr>
                                             <th>{{ __('Batch') }}</th><th>{{ __('Ref') }}</th><th>{{ __('Supplier') }}</th>
@@ -86,7 +88,7 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        @forelse($batches as $b)
+                                        @forelse($inBatches as $b)
                                             @php $isActive = optional($active)->id === $b->id; @endphp
                                             <tr class="{{ $isActive ? 'table-success' : '' }}">
                                                 <td><strong style="font-size:12px;">{{ $b->batch_no ?: '#' . $b->id }}</strong></td>
@@ -101,6 +103,12 @@
                                                 <td>
                                                     @if($isActive)<span class="badge bg-success">{{ __('Active') }}</span>@endif
                                                     @if(!$b->pos_enabled)<span class="badge bg-secondary">{{ __('POS off') }}</span>@endif
+                                                    <div class="mt-1">
+                                                        <label class="small text-muted d-inline-flex align-items-center gap-1 mb-0">
+                                                            <input type="checkbox" class="pp-pos-toggle" data-id="{{ $b->id }}" {{ $b->pos_enabled ? 'checked' : '' }}>
+                                                            {{ __('POS') }}
+                                                        </label>
+                                                    </div>
                                                 </td>
                                                 <td>
                                                     @if(!$isActive)
@@ -109,11 +117,13 @@
                                                 </td>
                                             </tr>
                                         @empty
-                                            <tr><td colspan="11" class="text-center text-muted py-3">{{ __('No batches yet — stock comes from purchases.') }}</td></tr>
+                                            <tr><td colspan="11" class="text-center text-muted py-3">{{ __('No stock-in batches yet — stock comes from purchases.') }}</td></tr>
                                         @endforelse
                                     </tbody>
                                 </table>
                             </div>
+
+
                         </div>
                     </div>
                 </div>
@@ -142,7 +152,7 @@
                                             <td>{{ trim(($vp->color?->getDisplayName() ?? $vp->color?->colorName ?? $vp->color?->name ?? '') . ' ' . ($vp->size?->sizeName ?? $vp->size?->name ?? '')) ?: __('No Variant') }}
                                                 <div class="small text-muted">{{ $vp->sku }}</div></td>
                                             <td>৳{{ number_format($bvp->price ?? $vp->price, 2) }}</td>
-                                            <td>{{ $bvp->old_price ? '৳' . number_format($bvp->old_price, 2) : '—' }}</td>
+                                            <td>{{ ($bvp?->old_price ?? 0) ? '৳' . number_format($bvp->old_price, 2) : '—' }}</td>
                                             <td>{{ $bvp->stock ?? 0 }}</td>
                                         </tr>
                                     @endforeach
@@ -244,6 +254,17 @@
     document.querySelectorAll('.pp-activate').forEach(function (btn) {
         btn.addEventListener('click', function () {
             ppPost('{{ route("purchases.price.activate") }}', { batch_id: btn.getAttribute('data-id') });
+        });
+    });
+
+    // Toggle POS enabled flag for a batch
+    document.querySelectorAll('.pp-pos-toggle').forEach(function (checkbox) {
+        checkbox.addEventListener('change', function () {
+            const batchId = checkbox.getAttribute('data-id');
+            ppPost('{{ route("purchases.price.batch.save") }}', {
+                batch_id: batchId,
+                pos_enabled: checkbox.checked ? 1 : 0
+            });
         });
     });
 })();
