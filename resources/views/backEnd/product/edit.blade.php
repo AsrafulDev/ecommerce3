@@ -366,7 +366,7 @@
                                                        value="{{ old('wholesale_price.'.$key.'.max_quantity', $tier->max_quantity) }}" placeholder="Optional">
                                             </div>
                                             <div class="col-md-2 mb-2">
-                                                <label class="form-label"> {{ __('Discount (TK)') }} </label>
+                                                <label class="form-label"> {{ __('Wholesale Discount') }} </label>
                                                 <input type="number" step="0.01" name="wholesale_discount[{{ $key }}][wholesale_price]" class="form-control" 
                                                        value="{{ old('wholesale_price.'.$key.'.wholesale_price', $tier->wholesale_price) }}" placeholder="0.00">
                                             </div>
@@ -396,7 +396,7 @@
                                             <input type="number" name="wholesale_discount[0][max_quantity]" class="form-control" placeholder="e.g. 50 (optional)">
                                         </div>
                                         <div class="col-md-2 mb-2">
-                                            <label class="form-label"> {{ __('Discount (TK)') }} </label>
+                                            <label class="form-label"> {{ __('Wholesale Discount') }} </label>
                                             <input type="number" step="0.01" name="wholesale_discount[0][wholesale_price]" class="form-control" placeholder="0.00">
                                         </div>
                                         <div class="{{ $hasVariants ? 'col-md-1' : 'col-md-2' }} mb-2">
@@ -1457,14 +1457,14 @@ document.addEventListener('DOMContentLoaded', function () {
                     '<div class="col-md-3 mb-2"><label class="form-label">{{ __("Variant") }}</label><select name="wholesale_discount[' + wholesaleIndex + '][variant_id]" class="form-control select2 wholesale-variant-select">' + wholesaleVariantOptions + '</select></div>' +
                     '<div class="col-md-2 mb-2"><label class="form-label">{{ __("Min Quantity") }}</label><input type="number" name="wholesale_discount[' + wholesaleIndex + '][min_quantity]" class="form-control" placeholder="e.g. 10"></div>' +
                     '<div class="col-md-2 mb-2"><label class="form-label">{{ __("Max Quantity") }}</label><input type="number" name="wholesale_discount[' + wholesaleIndex + '][max_quantity]" class="form-control" placeholder="e.g. 50 (optional)"></div>' +
-                    '<div class="col-md-2 mb-2"><label class="form-label">{{ __("Discount (TK)") }}</label><input type="number" step="0.01" name="wholesale_discount[' + wholesaleIndex + '][wholesale_price]" class="form-control" placeholder="0.00"></div>' +
+                    '<div class="col-md-2 mb-2"><label class="form-label">{{ __("Wholesale Discount") }}</label><input type="number" step="0.01" name="wholesale_discount[' + wholesaleIndex + '][wholesale_price]" class="form-control" placeholder="0.00"></div>' +
                     '<div class="col-md-1 mb-2"><button type="button" class="btn btn-danger btn-remove-wholesale w-100" title="{{ __("Remove Tier") }}"><i class="fa fa-trash"></i></button></div>' +
                     '</div></div>';
             } else {
                 var html = '<div class="variant-card"><div class="row align-items-end">' +
                     '<div class="col-md-3 mb-2"><label class="form-label">{{ __("Min Quantity") }}</label><input type="number" name="wholesale_discount[' + wholesaleIndex + '][min_quantity]" class="form-control" placeholder="e.g. 10"></div>' +
                     '<div class="col-md-3 mb-2"><label class="form-label">{{ __("Max Quantity") }}</label><input type="number" name="wholesale_discount[' + wholesaleIndex + '][max_quantity]" class="form-control" placeholder="e.g. 50 (optional)"></div>' +
-                    '<div class="col-md-2 mb-2"><label class="form-label">{{ __("Discount (TK)") }}</label><input type="number" step="0.01" name="wholesale_discount[' + wholesaleIndex + '][wholesale_price]" class="form-control" placeholder="0.00"></div>' +
+                    '<div class="col-md-2 mb-2"><label class="form-label">{{ __("Wholesale Discount") }}</label><input type="number" step="0.01" name="wholesale_discount[' + wholesaleIndex + '][wholesale_price]" class="form-control" placeholder="0.00"></div>' +
                     '<div class="col-md-2 mb-2"><button type="button" class="btn btn-danger btn-remove-wholesale w-100" title="{{ __("Remove Tier") }}"><i class="fa fa-trash"></i></button></div>' +
                     '</div></div>';
             }
@@ -1519,14 +1519,14 @@ document.addEventListener('DOMContentLoaded', function () {
                     '<div class="col-md-3 mb-2"><label class="form-label">{{ __("Variant") }}</label><select name="wholesale_discount[0][variant_id]" class="form-control select2 wholesale-variant-select">' + wholesaleVariantOptions + '</select></div>' +
                     '<div class="col-md-2 mb-2"><label class="form-label">{{ __("Min Quantity") }}</label><input type="number" name="wholesale_discount[0][min_quantity]" class="form-control" placeholder="e.g. 10"></div>' +
                     '<div class="col-md-2 mb-2"><label class="form-label">{{ __("Max Quantity") }}</label><input type="number" name="wholesale_discount[0][max_quantity]" class="form-control" placeholder="e.g. 50 (optional)"></div>' +
-                    '<div class="col-md-2 mb-2"><label class="form-label">{{ __("Discount (TK)") }}</label><input type="number" step="0.01" name="wholesale_discount[0][wholesale_price]" class="form-control" placeholder="0.00"></div>' +
+                    '<div class="col-md-2 mb-2"><label class="form-label">{{ __("Wholesale Discount") }}</label><input type="number" step="0.01" name="wholesale_discount[0][wholesale_price]" class="form-control" placeholder="0.00"></div>' +
                     '<div class="col-md-1 mb-2"><button type="button" class="btn btn-success add-wholesale-tier w-100" title="{{ __("Add New Tier") }}"><i class="fa fa-plus"></i></button></div>' +
                     '</div></div>';
             } else {
                 var html = '<div class="variant-card"><div class="row align-items-end">' +
                     '<div class="col-md-3 mb-2"><label class="form-label">{{ __("Min Quantity") }}</label><input type="number" name="wholesale_discount[0][min_quantity]" class="form-control" placeholder="e.g. 10"></div>' +
                     '<div class="col-md-3 mb-2"><label class="form-label">{{ __("Max Quantity") }}</label><input type="number" name="wholesale_discount[0][max_quantity]" class="form-control" placeholder="e.g. 50 (optional)"></div>' +
-                    '<div class="col-md-2 mb-2"><label class="form-label">{{ __("Discount (TK)") }}</label><input type="number" step="0.01" name="wholesale_discount[0][wholesale_price]" class="form-control" placeholder="0.00"></div>' +
+                    '<div class="col-md-2 mb-2"><label class="form-label">{{ __("Wholesale Discount") }}</label><input type="number" step="0.01" name="wholesale_discount[0][wholesale_price]" class="form-control" placeholder="0.00"></div>' +
                     '<div class="col-md-2 mb-2"><button type="button" class="btn btn-success add-wholesale-tier w-100" title="{{ __("Add New Tier") }}"><i class="fa fa-plus"></i></button></div>' +
                     '</div></div>';
             }

@@ -16,6 +16,7 @@
     $variants  = $product->variantPrices;
     $hasVariants = $variants->count() > 0;
     $defaultBatchId = $active?->id ?? $batches->first()?->id;
+    $defaultBatch = $batches->firstWhere('id', $defaultBatchId);
 @endphp
 
 <div class="card shadow-sm mb-3">
@@ -138,7 +139,7 @@
                     </h2>
                     <div id="ppTabVariant" class="accordion-collapse collapse" aria-labelledby="ppHeadVariant" data-bs-parent="#ppAccordion">
                         <div class="accordion-body p-2">
-                            <div class="small text-muted mb-1">{{ __('Batch') }}: #{{ $batches->firstWhere('id', $defaultBatchId)?->batch_no ?: $defaultBatchId }}</div>
+                            <div class="small text-muted mb-1">{{ __('Batch') }}: #{{ $defaultBatch?->batch_no ?: $defaultBatchId }}</div>
                             <table class="table table-sm table-bordered mb-0" style="font-size:12px;">
                                 <thead class="table-light">
                                     <tr><th>{{ __('Variant') }}</th><th>{{ __('Price') }}</th><th>{{ __('MRP') }}</th><th>{{ __('Stock') }}</th></tr>
@@ -146,14 +147,17 @@
                                 <tbody>
                                     @foreach($variants as $vp)
                                         @php
-                                            $bvp = $product->stockBatches->firstWhere('id', $defaultBatchId)?->variantPrices->firstWhere('variant_price_id', $vp->id);
+                                            $bvp = $defaultBatch?->variantPrices->firstWhere('variant_price_id', $vp->id);
+                                            $variantStock = $defaultBatch?->variant_price_id === $vp->id
+                                                ? (int) $defaultBatch->remaining_qty
+                                                : 0;
                                         @endphp
                                         <tr>
                                             <td>{{ trim(($vp->color?->getDisplayName() ?? $vp->color?->colorName ?? $vp->color?->name ?? '') . ' ' . ($vp->size?->sizeName ?? $vp->size?->name ?? '')) ?: __('No Variant') }}
                                                 <div class="small text-muted">{{ $vp->sku }}</div></td>
                                             <td>৳{{ number_format($bvp->price ?? $vp->price, 2) }}</td>
                                             <td>{{ ($bvp?->old_price ?? 0) ? '৳' . number_format($bvp->old_price, 2) : '—' }}</td>
-                                            <td>{{ $bvp->stock ?? 0 }}</td>
+                                            <td><strong>{{ $variantStock }}</strong></td>
                                         </tr>
                                     @endforeach
                                 </tbody>
@@ -179,7 +183,7 @@
                                 <div class="border rounded p-1 mb-1 small">
                                     {{ $w->min_quantity }}{{ $w->max_quantity ? '–' . $w->max_quantity : '+' }} pcs
                                     @if($w->variant_price_id) · variant #{{ $w->variant_price_id }} @endif
-                                    → <strong>৳{{ number_format($w->wholesale_price, 2) }}</strong>
+                                    → <strong>− ৳{{ number_format($w->wholesale_price, 2) }}</strong>
                                 </div>
                             @empty
                                 <p class="text-muted small mb-0">{{ __('No wholesale tiers for this batch yet.') }}</p>

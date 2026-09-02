@@ -124,7 +124,7 @@
                                         <input type="number" name="wholesale_price[0][max_quantity]" class="form-control" placeholder="e.g. 50 (optional)">
                                     </div>
                                     <div class="col-md-2 mb-2">
-                                        <label class="form-label"> {{ __('Wholesale Price') }} </label>
+                                        <label class="form-label"> {{ __('Wholesale Discount') }} </label>
                                         <input type="number" step="0.01" name="wholesale_price[0][wholesale_price]" class="form-control" placeholder="0.00">
                                     </div>
                                     <div class="col-md-2 mb-2">

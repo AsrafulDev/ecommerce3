@@ -1151,7 +1151,7 @@ if (typeof ttq !== 'undefined') {
             return false;
         });
 
-        // Wholesale Price Update on Quantity Change - Modern Card Design
+        // Wholesale Discount Update on Quantity Change - Modern Card Design
         @if($details->is_wholesale && $details->wholesalePrices && $details->wholesalePrices->count() > 0)
         var wholesaleTiers = [
             @foreach($details->wholesalePrices->sortBy('min_quantity') as $tier)

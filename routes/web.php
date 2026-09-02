@@ -580,14 +580,15 @@ Route::delete('newsletter-subscribers/delete/{id}',
 // Purchase Routes
 Route::get('purchases/manage', [PurchaseController::class, 'index'])->name('purchases.index');
 Route::post('purchases/store', [PurchaseController::class, 'store'])->name('purchases.store');
+Route::post('purchases/drafts/save', [PurchaseController::class, 'saveDraft'])->name('purchases.drafts.save');
+Route::delete('purchases/drafts/{id}', [PurchaseController::class, 'destroyDraft'])->name('purchases.drafts.destroy');
 Route::get('purchases/logs', [PurchaseController::class, 'logs'])->name('purchases.logs');
-Route::get('purchases/{id}/edit', [PurchaseController::class, 'edit'])->name('purchases.edit');
-Route::post('purchases/{id}/update', [PurchaseController::class, 'update'])->name('purchases.update');
 Route::delete('purchases/{id}', [PurchaseController::class, 'destroy'])->name('purchases.destroy');
 Route::post('purchases/{id}/pay-due', [PurchaseController::class, 'payDue'])->name('purchases.pay_due');
 Route::post('purchase-item/{id}/return', [PurchaseController::class, 'returnItem'])->name('purchases.item_return');
 Route::get('purchases/{id}/invoice', [PurchaseController::class, 'invoice'])->name('purchases.invoice');
 Route::get('purchases/{id}/invoice/download', [PurchaseController::class, 'downloadInvoice'])->name('purchases.invoice.download');
+Route::get('purchases/{id}/edit-data', [PurchaseController::class, 'editData'])->name('purchases.edit.data');
 Route::get('purchases/export', [PurchaseController::class, 'export'])->name('purchases.export');
 // ✅ Purchases AJAX Pagination
 Route::get('purchases/ajax', [PurchaseController::class, 'ajaxIndex'])
@@ -602,6 +603,8 @@ Route::post('purchases/price/batches-save', [PurchaseController::class, 'saveBat
     ->middleware(['auth:admin', 'admin', 'demo_mode'])->name('purchases.price.batches.save');
 Route::post('purchases/price/activate', [PurchaseController::class, 'activateWebsiteBatch'])
     ->middleware(['auth:admin', 'admin', 'demo_mode'])->name('purchases.price.activate');
+Route::post('purchases/price/batch/sn-save', [PurchaseController::class, 'saveBatchSerials'])
+    ->middleware(['auth:admin', 'admin', 'demo_mode'])->name('purchases.price.batch.sn-save');
 Route::post('purchases/price/variant-save', [PurchaseController::class, 'saveVariantPricing'])
     ->middleware(['auth:admin', 'admin', 'demo_mode'])->name('purchases.price.variant.save');
 Route::post('purchases/price/wholesale-save', [PurchaseController::class, 'saveWholesalePricing'])

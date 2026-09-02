@@ -79,6 +79,18 @@ class StockManagementService
             ]),
         ]);
 
+        // Store per-unit serial numbers (SN) if provided for this stock-in
+        if (!empty($data['serial_numbers']) && is_array($data['serial_numbers'])) {
+            $serials = array_values(array_filter(array_map(
+                fn ($s) => trim((string) $s),
+                $data['serial_numbers']
+            )));
+            if ($serials) {
+                $batch->sn_stock = $serials;
+                $batch->save();
+            }
+        }
+
         // Update product stock count
         $product->increment('stock', $qty);
 

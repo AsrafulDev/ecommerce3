@@ -266,7 +266,7 @@
                                                     <tr>
                                                         <th> {{ __('Min Qty') }} </th>
                                                         <th> {{ __('Max Qty') }} </th>
-                                                        <th>{{ __('Price') }}</th>
+                                                        <th>{{ __('Wholesale Discount') }}</th>
                                                         <th>{{ __('Stock') }}</th>
                                                     </tr>
                                                 </thead>
@@ -275,7 +275,7 @@
                                                     <tr>
                                                         <td>{{ $tier->min_quantity }}</td>
                                                         <td>{{ $tier->max_quantity ?? 'Unlimited' }}</td>
-                                                        <td>৳{{ number_format($tier->wholesale_price, 2) }}</td>
+                                                        <td>− ৳{{ number_format($tier->wholesale_price, 2) }}</td>
                                                         <td>{{ $tier->stock ?? 0 }}</td>
                                                     </tr>
                                                     @endforeach

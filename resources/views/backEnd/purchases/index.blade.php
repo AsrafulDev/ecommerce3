@@ -157,11 +157,22 @@
         <div class="col-lg-8 mb-4">
             <div class="card mb-4">
                 <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary"><i class="fe-plus-circle me-1"></i> {{ __('New Purchase Entry') }} </h6>
+                    <h6 class="m-0 font-weight-bold text-primary" id="purchase-form-heading"><i class="fe-plus-circle me-1"></i> {{ __('New Purchase Entry') }} </h6>
                 </div>
                 <div class="card-body">
-                    <form action="{{ route('purchases.store') }}" method="POST">
+                    @if($errors->any())
+                        <div class="alert alert-danger py-2 small">
+                            <i class="fe-alert-triangle me-1"></i> <strong>{{ __('Could not save purchase:') }}</strong>
+                            <ul class="mb-0 mt-1 ps-3">
+                                @foreach($errors->all() as $e)
+                                    <li>{{ $e }}</li>
+                                @endforeach
+                            </ul>
+                        </div>
+                    @endif
+                    <form id="purchase-entry-form" action="{{ route('purchases.store') }}" method="POST" novalidate>
                         @csrf
+                        <input type="hidden" name="draft_id" id="purchase-draft-id" value="{{ $draftToResume?->id }}">
                         <div class="row">
                             <div class="col-md-4 mb-3">
                                 <label class="form-label"> {{ __('Supplier *') }} </label>
@@ -291,6 +302,7 @@
                                         <div class="btn-group btn-group-sm" role="group">
                                             <button type="button" class="btn btn-outline-warning toggle-wholesale-pricing"><i class="fe-layers"></i> {{ __('Wholesale Pricing') }}</button>
                                             <button type="button" class="btn btn-outline-primary toggle-warranty-pricing"><i class="fe-shield"></i> {{ __('Warranty Pricing') }}</button>
+                                            <button type="button" class="btn btn-outline-dark toggle-sn-list"><i class="fe-hash"></i> {{ __('SN List') }}</button>
                                         </div>
                                     </div>
                                 </div>
@@ -298,7 +310,7 @@
                                 <div class="wholesale-pricing-block mt-1" style="display:none;">
                                     <div class="table-responsive">
                                         <table class="table table-sm table-bordered mb-1" style="background:#fff;">
-                                            <thead class="table-light"><tr><th>{{ __('Min') }}</th><th>{{ __('Max') }}</th><th style="width:100px;">{{ __('Wholesale Price') }}</th><th style="width:40px;"></th></tr></thead>
+                                            <thead class="table-light"><tr><th>{{ __('Min') }}</th><th>{{ __('Max') }}</th><th style="width:120px;">{{ __('Wholesale Discount') }}</th><th style="width:40px;"></th></tr></thead>
                                             <tbody class="wholesale-pricing-rows"></tbody>
                                         </table>
                                     </div>
@@ -314,6 +326,13 @@
                                     </div>
                                     <button type="button" class="btn btn-xs btn-outline-secondary add-warranty-pricing-row"><i class="fa fa-plus"></i> {{ __('Add Warranty Option') }}</button>
                                     <small class="text-muted d-block mt-1"><i class="fe-info"></i> {{ __('Create warranty options directly here (No Warranty / Supplier / Extended) — no need to pre-create on the product page.') }}</small>
+                                </div>
+                                {{-- 🔢 Serial Numbers (SN) — one field per Qty at create; read-only list at edit --}}
+                                <div class="sn-block mt-1" style="display:none;">
+                                    <div class="small fw-bold text-muted mb-1">🔢 {{ __('Serial Numbers (SN)') }}
+                                        <small class="text-secondary sn-block-note">({{ __('one per unit') }} — {{ __('auto from Qty') }})</small>
+                                    </div>
+                                    <div class="sn-inputs"></div>
                                 </div>
                             </div>
                         </div>
@@ -339,8 +358,14 @@
                         </div>
 
                         <div class="d-flex justify-content-between align-items-center bg-light p-2 rounded mt-2">
-                            <strong>Grand Total: <span id="grand-total-display" class="text-primary">0.00</span> ৳</strong>
-                            <button type="submit" class="btn btn-primary px-4"><i class="fe-save me-1"></i> Save Purchase</button>
+                            <div>
+                                <strong>Grand Total: <span id="grand-total-display" class="text-primary">0.00</span> ৳</strong>
+                                <small id="purchase-draft-status" class="d-block text-muted"></small>
+                            </div>
+                            <div class="d-flex gap-2">
+                                <button type="button" id="save-purchase-draft" class="btn btn-outline-secondary px-3"><i class="fe-file-text me-1"></i> Save Draft</button>
+                                <button type="submit" id="publish-submit-btn" class="btn btn-primary px-4"><i class="fe-save me-1"></i> Publish Purchase</button>
+                            </div>
                         </div>
                     </form>
                 </div>
@@ -349,14 +374,14 @@
 
         {{-- ⭐ BATCH-WISE PRICING PANEL (right) — ① Batch ② Variant ③ Wholesale ④ Warranty --}}
         <div class="col-lg-4 mb-4">
-            <div id="price-panel-container" data-product-id="">
+            <div id="price-panel-container">
                 <div class="card shadow-sm">
                     <div class="card-header py-2 bg-white">
-                        <h6 class="m-0 fw-bold text-primary"><i class="fe-tag me-1"></i> {{ __('Pricing Panel') }}</h6>
+                        <h6 class="m-0 fw-bold text-primary"><i class="fe-shopping-bag me-1"></i> {{ __('Products / Stock In') }}</h6>
                     </div>
                     <div class="card-body text-center text-muted py-5">
-                        <i class="fe-tag" style="font-size: 32px;"></i>
-                        <p class="small mb-0 mt-2">Select a product above to manage its batch-wise pricing.</p>
+                        <i class="fe-shopping-bag" style="font-size: 32px;"></i>
+                        <p class="small mb-0 mt-2">Select products in the purchase above to see their stock-in batches.</p>
                     </div>
                 </div>
             </div>
@@ -399,6 +424,26 @@
         <div class="card-header py-3 d-flex justify-content-between align-items-center">
             <h6 class="m-0 font-weight-bold text-primary"><i class="fe-list me-1"></i> {{ __('Recent Purchase History') }} </h6>
         </div>
+        <div class="card-body py-2 border-bottom bg-white">
+            <form method="GET" action="{{ route('purchases.index') }}" class="row g-2 align-items-end">
+                <div class="col-md-4">
+                    <label class="form-label small text-muted mb-1">{{ __('Search') }}</label>
+                    <input type="text" name="search" class="form-control form-control-sm" value="{{ request('search') }}" placeholder="{{ __('Invoice # / supplier / phone') }}">
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label small text-muted mb-1">{{ __('From Date') }}</label>
+                    <input type="date" name="from_date" class="form-control form-control-sm" value="{{ request('from_date') }}">
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label small text-muted mb-1">{{ __('To Date') }}</label>
+                    <input type="date" name="to_date" class="form-control form-control-sm" value="{{ request('to_date') }}">
+                </div>
+                <div class="col-md-4 d-flex gap-2">
+                    <button class="btn btn-sm btn-primary flex-grow-1"><i class="fa fa-search"></i> {{ __('Filter') }}</button>
+                    <a href="{{ route('purchases.index') }}" class="btn btn-sm btn-light border"><i class="fa fa-refresh"></i> {{ __('Reset') }}</a>
+                </div>
+            </form>
+        </div>
         <div class="card-body p-0">
             <div id="purchase-table-wrapper" class="table-responsive">
                 <table class="table table-bordered table-hover mb-0" width="100%" cellspacing="0">
@@ -437,6 +482,9 @@
                             </td>
                             <td>
                                 <span class="fw-bold text-dark">{{ $p->invoice_no }}</span>
+                                @if((int) $p->status === 0)
+                                    <span class="badge bg-warning text-dark ms-1">{{ __('Draft') }}</span>
+                                @endif
                                 @if($p->updated_by)
                                     <i class="fe-edit-2 text-warning ms-1" title="Edited" style="font-size: 10px;"></i>
                                 @endif
@@ -454,6 +502,18 @@
                             <td class="text-end text-danger">{{ number_format($p->due_amount,2) }}</td>
                             <td class="text-center">
                                 <div class="d-flex justify-content-center align-items-center gap-1">
+                                    @if((int) $p->status === 0)
+                                        <a href="{{ route('purchases.index', ['draft' => $p->id]) }}" class="btn btn-action btn-outline-primary" title="{{ __('Resume Draft') }}">
+                                            <i class="fe-edit-3"></i>
+                                        </a>
+                                        <form method="POST" action="{{ route('purchases.drafts.destroy', $p->id) }}" class="d-inline">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="btn btn-action btn-outline-danger" title="{{ __('Delete Draft') }}" onclick="return confirm('{{ __('Delete this draft?') }}');">
+                                                <i class="fe-trash-2"></i>
+                                            </button>
+                                        </form>
+                                    @else
                                     <a href="{{ route('purchases.invoice',$p->id) }}" class="btn btn-action btn-outline-secondary" target="_blank" title="{{ __('Invoice') }}">
                                         <i class="fe-file-text"></i>
                                     </a>
@@ -475,7 +535,7 @@
                                     @endif
 
                                     @if($isAdmin)
-                                        <a href="{{ route('purchases.edit', $p->id) }}" class="btn btn-action btn-outline-primary ms-1" title="{{ __('Edit') }}">
+                                        <a href="#" class="btn btn-action btn-outline-primary purchase-edit-btn" data-url="{{ route('purchases.edit.data', $p->id) }}" title="{{ __('Edit') }}">
                                             <i class="fe-edit"></i>
                                         </a>
                                         <form method="POST" action="{{ route('purchases.destroy', $p->id) }}" class="d-inline delete-form">
@@ -485,6 +545,7 @@
                                                 <i class="fe-trash-2"></i>
                                             </button>
                                         </form>
+                                    @endif
                                     @endif
                                 </div>
                             </td>
@@ -532,6 +593,68 @@
     const allVariants = {!! $variantsJson !!};
     // ⭐ Batch-wise pricing engine — per-product warranty tiers (for the Warranty Pricing expander)
     const allWarrantyTiers = {!! $warrantyTiersJson !!};
+    const serverDraft = @json($draftToResume?->draft_data);
+    let draftSaveTimer;
+    let restoringDraft = false;
+
+    function savePurchaseDraft(showStatus) {
+        const fields = {};
+        $('#purchase-entry-form').serializeArray().forEach(function(field) {
+            // serial_numbers are repeatable array inputs — exclude so one value doesn't overwrite the rest
+            if (field.name !== '_token' && field.name !== 'draft_id' && !field.name.includes('[serial_numbers]')) {
+                fields[field.name] = field.value;
+            }
+        });
+        $.post('{{ route("purchases.drafts.save") }}', {
+            _token: '{{ csrf_token() }}',
+            draft_id: $('#purchase-draft-id').val(),
+            payload: JSON.stringify(fields)
+        }, function(response) {
+            if (response.status !== 'success') return;
+            $('#purchase-draft-id').val(response.draft_id);
+            if (showStatus) $('#purchase-draft-status').text('Draft saved at ' + new Date().toLocaleTimeString());
+        }).fail(function() {
+            if (showStatus && window.toastr) toastr.error('Draft could not be saved.');
+        });
+    }
+
+    function restorePurchaseDraft() {
+        const draft = serverDraft;
+        if (!draft) return;
+        restoringDraft = true;
+        const itemIndexes = Object.keys(draft)
+            .map(function(name) {
+                const match = name.match(/^items\[(\d+)\]/);
+                return match ? Number(match[1]) : null;
+            })
+            .filter(function(index) { return index !== null; });
+        const rowCount = itemIndexes.length ? Math.max.apply(null, itemIndexes) + 1 : 1;
+        while ($('#product-rows .product-row').length < rowCount) {
+            addProductRow();
+        }
+        Object.keys(draft).forEach(function(name) {
+            const $field = $('#purchase-entry-form').find('[name="' + name.replace(/"/g, '\\"') + '"]');
+            if ($field.is(':checkbox')) {
+                $field.prop('checked', String($field.val()) === String(draft[name]));
+            } else {
+                $field.val(draft[name]);
+            }
+        });
+        $('#product-rows .product-select').each(function() {
+            if ($(this).val()) $(this).trigger('change');
+        });
+        Object.keys(draft).forEach(function(name) {
+            const $field = $('#purchase-entry-form').find('[name="' + name.replace(/"/g, '\\"') + '"]');
+            if ($field.is(':checkbox')) {
+                $field.prop('checked', String($field.val()) === String(draft[name]));
+            } else {
+                $field.val(draft[name]);
+            }
+        });
+        calcGrandTotal();
+        $('#purchase-draft-status').text('Draft loaded. Continue editing or publish when ready.');
+        restoringDraft = false;
+    }
 
     function calcGrandTotal() {
         let total = 0;
@@ -582,6 +705,11 @@
         template.find('.variant-col').hide();
         template.find('.wholesale-pricing-block, .warranty-pricing-block').hide();
         template.find('.wholesale-pricing-rows, .warranty-pricing-rows').html('');
+        template.find('.sn-block').hide();
+        template.find('.sn-inputs').html('');
+        template.removeAttr('data-sn-qty');
+        template.removeAttr('data-batch-serials');
+        template.find('.toggle-sn-list').removeClass('btn-dark active').addClass('btn-outline-dark');
         template.find('.pp-activate-cb').prop('checked', false);
         template.find('[name]').each(function() {
             $(this).attr('name', $(this).attr('name').replace(/items\[\d+\]/, 'items[' + rowIndex + ']'));
@@ -629,7 +757,7 @@
                         '<input type="hidden" name="items[' + rowIdx + '][warranty_tiers][' + i + '][tier_id]" value="' + t.id + '"></td>' +
                     '<td><span class="small">' + t.tier_name + '</span></td>' +
                     '<td><span class="small">' + t.warranty_days + 'd</span></td>' +
-                    '<td><input type="number" step="0.01" name="items[' + rowIdx + '][warranty_tiers][' + i + '][additional_cost]" class="form-control form-control-sm" placeholder="Override"></td>' +
+                    '<td><input type="number" min="0" step="0.01" name="items[' + rowIdx + '][warranty_tiers][' + i + '][additional_cost]" class="form-control form-control-sm" placeholder="Override"></td>' +
                     '<td class="text-center">' +
                         '<input type="hidden" name="items[' + rowIdx + '][warranty_tiers][' + i + '][is_active]" value="0">' +
                         '<input type="checkbox" name="items[' + rowIdx + '][warranty_tiers][' + i + '][is_active]" value="1" class="form-check-input" checked>' +
@@ -654,7 +782,7 @@
             '</td>' +
             '<td><input type="text" name="items[' + rowIdx + '][warranty_tiers][' + i + '][tier_name]" class="form-control form-control-sm warranty-tier-name" placeholder="Auto from type"></td>' +
             '<td><input type="number" min="0" name="items[' + rowIdx + '][warranty_tiers][' + i + '][warranty_days]" class="form-control form-control-sm warranty-days-input" value="90"></td>' +
-            '<td><input type="number" step="0.01" name="items[' + rowIdx + '][warranty_tiers][' + i + '][additional_cost]" class="form-control form-control-sm" placeholder="0.00"></td>' +
+            '<td><input type="number" min="0" step="0.01" name="items[' + rowIdx + '][warranty_tiers][' + i + '][additional_cost]" class="form-control form-control-sm" placeholder="0.00"></td>' +
             '<td class="text-center">' +
                 '<input type="hidden" name="items[' + rowIdx + '][warranty_tiers][' + i + '][is_active]" value="0">' +
                 '<input type="checkbox" name="items[' + rowIdx + '][warranty_tiers][' + i + '][is_active]" value="1" class="form-check-input" checked>' +
@@ -670,6 +798,7 @@
             $(this).closest('.product-row').remove();
             reindexRows();
             calcGrandTotal();
+            ppLoadPanel();
         }
     });
 
@@ -679,15 +808,9 @@
         loadVariants($(this), pid);
         populateWholesalePricing(row, pid);
         populateWarrantyPricing(row, pid);
-        if (pid) ppLoadProduct(pid);
-        ppUpdateNewBatches();
+        buildSnFields(row);
+        ppLoadPanel();
     });
-
-    // Live-update the right panel "New (this purchase)" preview as the batch is filled in
-    $('#product-rows').on('input',
-        'input[name*="[batch_no]"], input[name*="[qty]"], input[name*="[unit_cost]"], input[name*="[selling_price]"], input[name*="[mrp]"]',
-        ppUpdateNewBatches
-    );
 
     // ⭐ 2 pricing expanders (Wholesale / Warranty) — after supplier warranty info
     $('#product-rows').on('click', '.toggle-wholesale-pricing', function() {
@@ -719,6 +842,130 @@
     });
     $('#product-rows').on('click', '.wr-remove-row', function() {
         $(this).closest('tr').remove();
+    });
+
+    // 🔢 SN LIST — auto-create one serial-number field per unit of Qty.
+    // No manual add/remove: fields follow the Qty automatically.
+    function buildSnFields(row) {
+        if (editingPurchaseId) return; // SNs are entered at create time — edit a batch's SNs via its View popup
+        const m = row.find('.product-select').attr('name')?.match(/items\[(\d+)\]/);
+        const idx = m ? m[1] : 0;
+        const qty = Math.max(0, parseInt(row.find('[name="items[' + idx + '][qty]"]').val(), 10) || 0);
+        const wrap = row.find('.sn-inputs');
+        const current = wrap.find('.sn-input').map(function () { return this.value; }).get();
+        const lastQty = parseInt(row.attr('data-sn-qty') || '-1', 10);
+        if (lastQty === qty) return; // unchanged — keep typed values & focus
+        row.attr('data-sn-qty', qty);
+        let html = '';
+        for (let i = 0; i < qty; i++) {
+            html += '<div class="input-group input-group-sm mb-1 sn-input-row" style="flex-wrap:nowrap;">' +
+                        '<span class="input-group-text bg-light text-muted" style="font-size:10px;">' + (i + 1) + '</span>' +
+                        '<input type="text" name="items[' + idx + '][serial_numbers][]" class="form-control form-control-sm sn-input" placeholder="SN ' + (i + 1) + '">' +
+                    '</div>';
+        }
+        wrap.html(html);
+        // Restore any already-typed serial numbers by index
+        wrap.find('.sn-input').each(function (i) {
+            if (current[i] !== undefined) this.value = current[i];
+        });
+    }
+
+    // Visual state so the button reflects open/closed
+    function setSnToggleState(btn, visible) {
+        if (!btn) return;
+        btn.classList.toggle('active', visible);
+        btn.classList.toggle('btn-dark', visible);
+        btn.classList.toggle('btn-outline-dark', !visible);
+    }
+
+    // Edit mode: show the batch serials as a read-only list (NO entry fields).
+    // Serials for a published purchase are edited from the batch View popup on the right.
+    function renderEditModeSnList(row) {
+        let serials = [];
+        try { serials = JSON.parse(row.attr('data-batch-serials') || '[]'); } catch (e) { serials = []; }
+        if (!Array.isArray(serials)) serials = [];
+        row.find('.sn-block-note').text('(batch serials — read only)');
+        let html;
+        if (serials.length) {
+            html = '<div class="sn-list-view">' + serials.map(function (s) {
+                return '<span class="badge bg-light text-dark border me-1 mb-1">' + s + '</span>';
+            }).join('') + '</div>';
+        } else {
+            html = '<div class="text-muted fst-italic small">No serial numbers saved on this batch yet.</div>';
+        }
+        html += '<div class="small text-muted mt-1"><i class="fe-info"></i> Edit serial numbers from the batch View popup on the right side.</div>';
+        row.find('.sn-inputs').html(html);
+    }
+
+    // Toggle the SN block; build entry fields (create) or a read-only list (edit) when opened
+    $('#product-rows').on('click', '.toggle-sn-list', function () {
+        const row = $(this).closest('.product-row');
+        const block = row.find('.sn-block');
+        block.toggle();
+        if (block.is(':visible')) {
+            if (editingPurchaseId) {
+                renderEditModeSnList(row);
+            } else {
+                buildSnFields(row);
+            }
+        }
+        setSnToggleState(this, block.is(':visible'));
+    });
+
+    // Keep SN fields in sync with Qty as it changes
+    $('#product-rows').on('input change', 'input[name*="[qty]"]', function () {
+        buildSnFields($(this).closest('.product-row'));
+    });
+
+    // 🔢 Warranty → SN required helpers
+    function purchaseRowIdx(row) {
+        const m = row.find('.product-select').attr('name')?.match(/items\[(\d+)\]/);
+        return m ? m[1] : null;
+    }
+    function purchaseRowWarrantyDays(row) {
+        const idx = purchaseRowIdx(row);
+        if (idx === null) return 0;
+        return parseInt(row.find('[name="items[' + idx + '][warranty_days]"]').val(), 10) || 0;
+    }
+    // Rows where warranty is set but an SN field is empty (auto-builds one field per unit)
+    function warrantySnProblems() {
+        const problems = [];
+        $('#product-rows .product-row').each(function () {
+            const row = $(this);
+            const idx = purchaseRowIdx(row);
+            if (idx === null) return;
+            if (purchaseRowWarrantyDays(row) <= 0) return;
+            const qty = parseInt(row.find('[name="items[' + idx + '][qty]"]').val(), 10) || 0;
+            if (qty <= 0) return;
+            buildSnFields(row); // ensure we have exactly one field per unit
+            const empties = [];
+            row.find('.sn-input').each(function (i) { if (String(this.value).trim() === '') empties.push(i); });
+            if (empties.length) problems.push({ row: row, idx: idx, empties: empties });
+        });
+        return problems;
+    }
+    // Auto-open the SN list on the first problem row and highlight empty fields
+    function focusSnProblems(problems) {
+        const p = problems[0];
+        if (!p) return;
+        const block = p.row.find('.sn-block');
+        block.show();
+        p.row.find('.sn-input').removeClass('is-invalid');
+        const first = p.row.find('.sn-input').eq(p.empties[0]);
+        first.addClass('is-invalid');
+        if (window.toastr) toastr.error('Warranty is set — every unit needs a serial number (SN). Please fill the highlighted field(s).');
+        if (block.length) $('html, body').animate({ scrollTop: block.offset().top - 150 }, 400);
+        setTimeout(function () { first.trigger('focus').trigger('select'); }, 500);
+    }
+    // Auto-open the SN list when a supplier warranty is set on a row
+    $('#product-rows').on('change input', 'input[name$="[warranty_days]"]', function () {
+        const name = $(this).attr('name') || '';
+        if (name.includes('[warranty_tiers]')) return; // skip per-tier rows
+        const row = $(this).closest('.product-row');
+        if ((parseInt($(this).val(), 10) || 0) > 0) {
+            row.find('.sn-block').show();
+            buildSnFields(row);
+        }
     });
 
     // Auto-fill tier name + sensible default days when the warranty type changes
@@ -758,54 +1005,346 @@
         }
     });
 
-    // ⭐ BATCH-WISE PRICING PANEL (right side)
-    // Loads the 4-tab accordion for the selected product via AJAX.
-    function ppLoadProduct(productId) {
-        if (!productId) return;
+    // ⭐ PRODUCT / STOCK PANEL (right side)
+    // Lists every product added in the purchase as an accordion row; each shows
+    // that product's Stock-In batch history with a "View" → batch detail popup.
+    function ppCollectProductIds() {
+        const ids = [];
+        $('#product-rows .product-row').each(function () {
+            const v = $(this).find('.product-select').val();
+            if (v) ids.push(v);
+        });
+        return ids;
+    }
+
+    function ppLoadPanel() {
         $('#price-panel-container').css('opacity', '0.5');
-        $.get('{{ route("purchases.price.panel") }}', { product: productId }, function(res) {
-            if (res.status === 'success' && res.html) {
-                $('#price-panel-container')
-                    .attr('data-product-id', productId)
-                    .html(res.html);
+        $.get('{{ route("purchases.price.panel") }}', { products: ppCollectProductIds() }, function (res) {
+            if (res.status === 'success') {
+                $('#price-panel-container').html(res.html);
             }
-        }).always(function() {
+        }).always(function () {
             $('#price-panel-container').css('opacity', '1');
         });
     }
 
-    // Reload the current panel after an inline save (used by the panel's own script)
-    window.ppReload = function() {
-        const pid = $('#price-panel-container').attr('data-product-id');
-        if (pid) ppLoadProduct(pid);
-    };
+    // Reload the panel after an inline action (used by the panel's own script)
+    window.ppReload = ppLoadPanel;
 
-    // ⭐ Live preview: current purchase's new batch(es) shown in the right panel
-    function ppUpdateNewBatches() {
-        const tbody = document.querySelector('#pp-new-batch-rows');
-        if (!tbody) return;
-        const pid = $('#price-panel-container').attr('data-product-id');
-        let html = '';
-        $('#product-rows .product-row').each(function () {
-            const sel = $(this).find('.product-select').val();
-            if (!pid || sel != pid) return;
-            const m = $(this).find('.product-select').attr('name').match(/items\[(\d+)\]/);
-            const idx = m ? m[1] : 0;
-            const batchNo = $(this).find('[name="items[' + idx + '][batch_no]"]').val() || ('Batch #' + ((+idx) + 1));
-            const qty  = $(this).find('[name="items[' + idx + '][qty]"]').val() || 0;
-            const cost = $(this).find('[name="items[' + idx + '][unit_cost]"]').val();
-            const sell = $(this).find('[name="items[' + idx + '][selling_price]"]').val();
-            const mrp  = $(this).find('[name="items[' + idx + '][mrp]"]').val();
-            html += '<tr class="table-warning">' +
-                '<td><strong>' + batchNo + '</strong></td>' +
-                '<td>' + qty + '</td>' +
-                '<td>' + (cost !== '' && cost !== undefined ? '৳' + (+cost).toFixed(2) : '—') + '</td>' +
-                '<td>' + (sell !== '' && sell !== undefined ? '৳' + (+sell).toFixed(2) : '—') + '</td>' +
-                '<td>' + (mrp !== '' && mrp !== undefined ? '৳' + (+mrp).toFixed(2) : '—') + '</td>' +
-            '</tr>';
+    $('#purchase-entry-form').on('input change', ':input', function() {
+        if (editingPurchaseId) return;
+        if (restoringDraft) return;
+        clearTimeout(draftSaveTimer);
+        draftSaveTimer = setTimeout(function() { savePurchaseDraft(false); }, 800);
+    });
+
+    $('#save-purchase-draft').on('click', function() {
+        if (editingPurchaseId) return;
+        savePurchaseDraft(true);
+    });
+
+    // Warranty additional cost is min:0 server-side — clamp negatives as they are
+    // typed so native min="0" validation never silently blocks the edit-mode submit.
+    $(document).on('input change', '[name*="[additional_cost]"]', function () {
+        if (this.value !== '' && parseFloat(this.value) < 0) {
+            this.value = '0';
+        }
+    });
+
+    $('#purchase-entry-form').on('submit', function(event) {
+        event.preventDefault();
+        const form = this;
+
+        // ⭐ EDIT MODE — update sell price, MRP, wholesale and warranty via AJAX
+        if (editingPurchaseId) {
+            const batches = [];
+            const wholesaleCalls = [];
+            const warrantyCalls = [];
+            $('#product-rows .product-row').each(function() {
+                const bid = $(this).attr('data-batch-id');
+                if (!bid) return;
+                const m = $(this).find('.product-select').attr('name').match(/items\[(\d+)\]/);
+                const idx = m ? m[1] : 0;
+                batches.push({
+                    batch_id: bid,
+                    selling_price: $(this).find('[name="items[' + idx + '][selling_price]"]').val(),
+                    mrp: $(this).find('[name="items[' + idx + '][mrp]"]').val()
+                });
+
+                // Wholesale tiers
+                const wsTiers = [];
+                $(this).find('.wholesale-pricing-rows tr').each(function() {
+                    const minQty = $(this).find('[name*="[min_quantity]"]').val();
+                    const wsPrice = $(this).find('[name*="[wholesale_price]"]').val();
+                    if (minQty === '' || minQty === undefined || wsPrice === '' || wsPrice === undefined) return;
+                    wsTiers.push({
+                        id: $(this).data('id') || null,
+                        min_quantity: minQty,
+                        max_quantity: $(this).find('[name*="[max_quantity]"]').val() || null,
+                        wholesale_price: wsPrice
+                    });
+                });
+                const removedWs = wsRemovedIds[bid] || [];
+                if (wsTiers.length || removedWs.length) {
+                    wholesaleCalls.push($.post('{{ route("purchases.price.wholesale.save") }}', {
+                        _token: '{{ csrf_token() }}',
+                        batch_id: bid,
+                        tiers: wsTiers,
+                        delete_ids: removedWs
+                    }));
+                }
+
+                // Warranty tiers
+                const tiers = [];
+                $(this).find('.warranty-pricing-rows tr').each(function() {
+                    const tierId = $(this).find('[name*="[tier_id]"]').val();
+                    if (!tierId) return;
+                    tiers.push({
+                        tier_id: tierId,
+                        warranty_type: $(this).find('[name*="[warranty_type]"]').val() || null,
+                        tier_name: $(this).find('[name*="[tier_name]"]').val() || null,
+                        warranty_days: $(this).find('[name*="[warranty_days]"]').val() || null,
+                        // Server rule is min:0 — clamp negatives instead of failing the whole update
+                        additional_cost: Math.max(0, parseFloat($(this).find('[name*="[additional_cost]"]').val()) || 0),
+                        is_active: $(this).find('[name*="[is_active]"]:checkbox').is(':checked') ? 1 : 0
+                    });
+                });
+                if (tiers.length) {
+                    warrantyCalls.push($.post('{{ route("purchases.price.warranty.save") }}', {
+                        _token: '{{ csrf_token() }}',
+                        batch_id: bid,
+                        tiers: tiers
+                    }));
+                }
+            });
+            const editBtn = $('#publish-submit-btn');
+            editBtn.prop('disabled', true).html('<i class="fe-loader me-1"></i> Updating…');
+            const promises = [$.post('{{ route("purchases.price.batches.save") }}', {
+                _token: '{{ csrf_token() }}',
+                batches: batches
+            })].concat(wholesaleCalls, warrantyCalls);
+            $.when.apply($, promises).then(function() {
+                if (window.toastr) toastr.success('Purchase updated.');
+                setTimeout(function() { location.reload(); }, 700);
+            }).fail(function(xhr) {
+                editBtn.prop('disabled', false).html('<i class="fe-save me-1"></i> Update Purchase');
+                // Show the real server/validation message instead of a generic one
+                let msg = 'Update failed.';
+                if (xhr && xhr.responseJSON) {
+                    const rj = xhr.responseJSON;
+                    if (rj && rj.message) {
+                        msg = rj.message;
+                    } else if (rj && rj.errors) {
+                        msg = Object.values(rj.errors).flat().join(' ');
+                    }
+                }
+                if (window.toastr) toastr.error(msg);
+            });
+            return;
+        }
+
+        // 🔢 Warranty → SN required: block publish + auto-open the SN list until filled
+        const snProblems = warrantySnProblems();
+        if (snProblems.length) {
+            focusSnProblems(snProblems);
+            return;
+        }
+
+        const publish = function() {
+            form.submit();
+        };
+        const message = 'Publishing this purchase creates stock, supplier due, and fund records. Purchase details, stock, costs, and payments will be locked. Only selling price and warranty cost can be updated afterward.';
+
+        if (typeof Swal === 'undefined') {
+            if (window.confirm(message + ' Continue?')) {
+                publish();
+            }
+            return;
+        }
+
+        Swal.fire({
+            title: 'Ready to publish?',
+            html: '<div class="text-start small text-muted">' +
+                '<p class="mb-3">Review the purchase carefully before publishing.</p>' +
+                '<div class="border rounded p-2 bg-light mb-2"><strong class="text-dark d-block mb-1">Publishing will create</strong>Stock, supplier due, and fund records.</div>' +
+                '<div class="border border-warning rounded p-2"><strong class="text-dark d-block mb-1">After publishing</strong>Purchase details, stock, costs, and payments are locked. Only selling price and warranty cost remain editable.</div>' +
+                '</div>',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Publish Purchase',
+            cancelButtonText: 'Keep Editing',
+            confirmButtonColor: '#dc3545',
+            cancelButtonColor: '#6c757d',
+            reverseButtons: true,
+            focusCancel: true
+        }).then(function(result) {
+            if (result.isConfirmed) {
+                publish();
+            }
         });
-        tbody.innerHTML = html || '<tr><td colspan="5" class="text-center text-muted py-2">Fill a product row to preview the new batch.</td></tr>';
+    });
+
+    // ⭐ PURCHASE EDIT — reuse the New Purchase Entry form for editing
+    let editingPurchaseId = null;
+
+    // Track removed existing wholesale tier rows (edit mode) so they can be deleted on save
+    const wsRemovedIds = {};
+    $(document).on('click', '.ws-remove-row', function () {
+        const $tr = $(this).closest('tr');
+        const id = $tr.data('id');
+        const batchId = $tr.closest('.product-row').attr('data-batch-id');
+        if (id && batchId) {
+            wsRemovedIds[batchId] = wsRemovedIds[batchId] || [];
+            wsRemovedIds[batchId].push(id);
+        }
+        $tr.remove();
+    });
+
+    function loadPurchaseIntoForm(data) {
+        editingPurchaseId = data.purchase.id;
+
+        // Reset the form to a clean state
+        $('#purchase-entry-form')[0].reset();
+        $('#purchase-draft-id').val('');
+        $('#product-rows .product-row:not(:first)').remove();
+        rowIndex = 1;
+        const firstRow = $('#product-rows .product-row').first();
+        firstRow.find('input').val('');
+        firstRow.find('input[name*="qty"]').val('1');
+        firstRow.find('.variant-col').hide();
+        firstRow.find('.wholesale-pricing-block, .warranty-pricing-block').hide();
+        firstRow.find('.wholesale-pricing-rows, .warranty-pricing-rows').html('');
+        firstRow.find('.sn-block').hide();
+        firstRow.find('.sn-inputs').html('');
+        firstRow.removeAttr('data-sn-qty');
+        firstRow.removeAttr('data-batch-serials');
+        firstRow.find('.pp-activate-cb').prop('checked', false);
+        firstRow.attr('data-batch-id', '');
+        firstRow.find('.product-select').val('');
+        firstRow.find('.variant-select').html('<option value="">All</option>');
+
+        // Purchase-level fields
+        $('#purchase-entry-form select[name="supplier_id"]').val(data.purchase.supplier_id || '');
+        $('#purchase-entry-form input[name="invoice_no"]').val(data.purchase.invoice_no || '');
+        $('#purchase-entry-form input[name="purchase_date"]').val(data.purchase.purchase_date || '');
+        $('#purchase-entry-form input[name="discount"]').val(data.purchase.discount || 0);
+        $('#purchase-entry-form input[name="shipping_cost"]').val(data.purchase.shipping_cost || 0);
+        $('#purchase-entry-form input[name="paid_amount"]').val(data.purchase.paid_amount || 0);
+        $('#purchase-entry-form input[name="note"]').val(data.purchase.note || '');
+
+        // Product rows
+        data.items.forEach(function (item, i) {
+            let $row;
+            if (i === 0) {
+                $row = firstRow;
+            } else {
+                addProductRow();
+                $row = $('#product-rows .product-row').last();
+            }
+            const m = $row.find('.product-select').attr('name').match(/items\[(\d+)\]/);
+            const idx = m ? m[1] : 0;
+            $row.attr('data-batch-id', item.batch_id || '');
+            $row.attr('data-batch-serials', JSON.stringify(item.serial_numbers || []));
+            $row.find('.product-select').val(item.product_id).trigger('change');
+            if (item.variant_id) {
+                $row.find('.variant-select').val(item.variant_id);
+            }
+            $row.find('[name="items[' + idx + '][qty]"]').val(item.qty);
+            $row.find('[name="items[' + idx + '][unit_cost]"]').val(item.unit_cost);
+            $row.find('[name="items[' + idx + '][batch_no]"]').val(item.batch_no || '');
+            $row.find('[name="items[' + idx + '][selling_price]"]').val(item.selling_price != null ? item.selling_price : '');
+            $row.find('[name="items[' + idx + '][mrp]"]').val(item.mrp != null ? item.mrp : '');
+
+            // Wholesale tiers (per batch)
+            const wsBody = $row.find('.wholesale-pricing-rows');
+            wsBody.html('');
+            (item.wholesale_tiers || []).forEach(function (w, k) {
+                wsBody.append(
+                    '<tr data-id="' + (w.id || '') + '">' +
+                        '<td><input type="number" min="1" name="items[' + idx + '][wholesale_tiers][' + k + '][min_quantity]" class="form-control form-control-sm" value="' + w.min_quantity + '"></td>' +
+                        '<td><input type="number" min="1" name="items[' + idx + '][wholesale_tiers][' + k + '][max_quantity]" class="form-control form-control-sm" value="' + (w.max_quantity || '') + '"></td>' +
+                        '<td><input type="number" step="0.01" name="items[' + idx + '][wholesale_tiers][' + k + '][wholesale_price]" class="form-control form-control-sm" value="' + w.wholesale_price + '"></td>' +
+                        '<td class="text-center"><button type="button" class="btn btn-xs btn-outline-danger ws-remove-row" title="Remove">×</button></td>' +
+                    '</tr>'
+                );
+            });
+            if (wsBody.children().length) {
+                $row.find('.wholesale-pricing-block').show();
+            }
+
+            // Warranty pricing tiers (per batch)
+            const wtBody = $row.find('.warranty-pricing-rows');
+            wtBody.html('');
+            (item.warranty_tiers || []).forEach(function (t, j) {
+                wtBody.append(
+                    '<tr>' +
+                        '<td><span class="badge bg-soft-info text-info small">' + (t.warranty_type || 'tier') + '</span>' +
+                            '<input type="hidden" name="items[' + idx + '][warranty_tiers][' + j + '][tier_id]" value="' + t.tier_id + '"></td>' +
+                        '<td><span class="small">' + (t.tier_name || '') + '</span></td>' +
+                        '<td><span class="small">' + (t.warranty_days || 0) + 'd</span></td>' +
+                        '<td><input type="number" min="0" step="0.01" name="items[' + idx + '][warranty_tiers][' + j + '][additional_cost]" class="form-control form-control-sm" value="' + t.additional_cost + '"></td>' +
+                        '<td class="text-center">' +
+                            '<input type="hidden" name="items[' + idx + '][warranty_tiers][' + j + '][is_active]" value="0">' +
+                            '<input type="checkbox" name="items[' + idx + '][warranty_tiers][' + j + '][is_active]" value="1" class="form-check-input" ' + (t.is_active ? 'checked' : '') + '>' +
+                        '</td>' +
+                        '<td class="text-center"></td>' +
+                    '</tr>'
+                );
+            });
+            if (wtBody.children().length) {
+                $row.find('.warranty-pricing-block').show();
+            }
+        });
+
+        calcGrandTotal();
+
+        // Lock purchase details, stock, costs and item info — sell/wholesale/warranty stay editable
+        $('#purchase-entry-form')
+            .find('select[name="supplier_id"], input[name="invoice_no"], input[name="purchase_date"], input[name="discount"], input[name="shipping_cost"], input[name="paid_amount"]')
+            .prop('disabled', true);
+        $('#product-rows .product-row').each(function () {
+            $(this).find(
+                '.product-select, .variant-select, .btn-remove-row, ' +
+                'input[name*="[qty]"], input[name*="[unit_cost]"], input[name*="[batch_no]"], ' +
+                'input[name*="[mfg_date]"], input[name*="[exp_date]"], input[name*="[custom_field]"], ' +
+                'input[name*="[activate_website]"], input[name*="[warranty_days]"], ' +
+                'input[name*="[warranty_start]"], input[name*="[warranty_terms]"], input[name*="[transferable]"], ' +
+                'input[name*="[serial_numbers]"]'
+            ).prop('disabled', true);
+        });
+        // In edit mode the SN List button stays available but only shows a read-only list of the
+        // batch serials (no entry fields) — serial edits happen from each batch's View popup on the right.
+        $('#product-rows .sn-block').hide();
+        $('#product-rows .toggle-sn-list').removeClass('btn-dark active').addClass('btn-outline-dark');
+        $('#add-product-row, #barcode-scan, #save-purchase-draft').prop('disabled', true);
+
+        $('#purchase-form-heading').html('<i class="fe-edit-3 me-1"></i> {{ __('Edit Purchase') }} — ' + data.purchase.invoice_no);
+        $('#publish-submit-btn').html('<i class="fe-save me-1"></i> Update Purchase');
+        $('#purchase-draft-status').text('{{ __('Editing published purchase — sell price, wholesale and warranty can be updated.') }}');
+
+        // Refresh the right-side product/stock panel for the products being edited
+        ppLoadPanel();
     }
+
+    // Load the purchase into the same form when Edit is clicked
+    $(document).on('click', '.purchase-edit-btn', function (e) {
+        e.preventDefault();
+        var url = $(this).data('url');
+        $.get(url, function (res) {
+            if (res.status !== 'success') {
+                if (window.toastr) toastr.error('Could not load purchase data.');
+                return;
+            }
+            loadPurchaseIntoForm(res);
+            $('html, body').animate({ scrollTop: $('#purchase-entry-form').offset().top - 20 }, 400);
+            if (window.toastr) toastr.info('Purchase loaded for editing.');
+        }).fail(function () { if (window.toastr) toastr.error('Request failed'); });
+    });
+
+    restorePurchaseDraft();
+
+    // Initial render of the product/stock panel (empty state if nothing selected yet)
+    ppLoadPanel();
 
 </script>
 @endpush

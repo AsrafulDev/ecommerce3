@@ -86,8 +86,30 @@ class PurchaseController extends Controller
         if ($request->to_date) {
             $query->whereDate('purchase_date', '<=', $request->to_date);
         }
+        if ($request->filled('search')) {
+            $term = trim($request->search);
+            $query->where(function ($q) use ($term) {
+                $q->where('invoice_no', 'like', "%{$term}%")
+                  ->orWhereHas('supplier', function ($sq) use ($term) {
+                      $sq->where('name', 'like', "%{$term}%")
+                         ->orWhere('phone', 'like', "%{$term}%");
+                  });
+            });
+        }
 
-        $purchases = $query->paginate(10);
+        $purchases = $query->paginate(10)->withQueryString();
+        $draftToResume = null;
+        if ($request->filled('draft')) {
+            $draftToResume = Purchase::where('id', $request->draft)
+                ->where('status', 0)
+                ->where('created_by', Auth::id())
+                ->first();
+            // Draft was already published/deleted → send the user to a clean form
+            if (!$draftToResume) {
+                return redirect()->route('purchases.index')
+                    ->with('error', 'Draft not found — it may have already been published.');
+            }
+        }
 
         // AJAX RESPONSE (ONLY TABLE)
         if ($request->ajax()) {
@@ -125,7 +147,8 @@ class PurchaseController extends Controller
             'products',
             'warrantyTiersJson',
             'productsJson',
-            'variantsJson'
+            'variantsJson',
+            'draftToResume'
         ));
     }
 
@@ -137,6 +160,7 @@ class PurchaseController extends Controller
     public function store(Request $request)
     {
         $request->validate([
+            'draft_id'      => 'nullable|integer',
             'supplier_id'   => 'required|exists:suppliers,id',
             'purchase_date' => 'required|date',
             'invoice_no'    => 'required|string|max:50',
@@ -166,10 +190,29 @@ class PurchaseController extends Controller
             'items.*.warranty_tiers.*.warranty_days'   => 'nullable|integer|min:0',
             'items.*.warranty_tiers.*.additional_cost' => 'nullable|numeric|min:0',
             'items.*.warranty_tiers.*.is_active'       => 'nullable|boolean',
+            'items.*.serial_numbers'      => 'nullable|array',
+            'items.*.serial_numbers.*'    => 'nullable|string|max:255',
             'discount'      => 'nullable|numeric|min:0',
             'shipping_cost' => 'nullable|numeric|min:0',
             'paid_amount'   => 'nullable|numeric|min:0',
         ]);
+
+        // 🔢 Warranty → SN required: every unit with a supplier warranty needs a serial number
+        $snErrors = [];
+        foreach ((array) $request->items as $index => $item) {
+            if ((int) ($item['warranty_days'] ?? 0) <= 0) {
+                continue;
+            }
+            $qty = (int) ($item['qty'] ?? 0);
+            $serials = array_values(array_filter(array_map('trim', (array) ($item['serial_numbers'] ?? []))));
+            if ($qty > 0 && count($serials) < $qty) {
+                $snErrors["items.$index.serial_numbers"] =
+                    "Warranty requires a serial number (SN) for every unit — provide {$qty} SN(s) (got " . count($serials) . ').';
+            }
+        }
+        if ($snErrors) {
+            return back()->withErrors($snErrors)->withInput();
+        }
 
         $discount      = $request->discount ?? 0;
         $shipping_cost = $request->shipping_cost ?? 0;
@@ -263,6 +306,7 @@ class PurchaseController extends Controller
                 'mfg_date' => $item['mfg_date'] ?? null,
                 'exp_date' => $item['exp_date'] ?? null,
                 'custom_field' => $item['custom_field'] ?? null,
+                'serial_numbers' => $item['serial_numbers'] ?? [],
             ]);
 
             // ⭐ Batch-wise pricing payload (variant / wholesale / warranty / activation)
@@ -300,7 +344,114 @@ class PurchaseController extends Controller
             $fund->save();
         }
 
+        // 📝 Audit: purchase created
+        $fundAfter  = $this->calculateFundBalance();
+        $fundBefore = $fundAfter + $paid; // this purchase only moved the fund OUT by $paid
+        $balanceDiff = $fundAfter - $fundBefore;
+        $balanceSign = ($balanceDiff >= 0) ? '+' : '';
+        PurchaseLog::create([
+            'purchase_id'         => $purchase->id,
+            'action'              => 'create',
+            'old_invoice_no'      => null,
+            'new_invoice_no'      => $purchase->invoice_no,
+            'old_purchase_date'   => null,
+            'new_purchase_date'   => $purchase->purchase_date,
+            'old_paid_amount'     => null,
+            'new_paid_amount'     => $purchase->paid_amount,
+            'old_grand_total'     => null,
+            'new_grand_total'     => $purchase->grand_total,
+            'old_note'            => null,
+            'new_note'            => $purchase->note,
+            'fund_balance_before' => $fundBefore,
+            'fund_balance_after'  => $fundAfter,
+            'description'         => "Purchase created: Invoice '{$purchase->invoice_no}' (Total: {$purchase->grand_total}, Paid: {$purchase->paid_amount}). Fund balance changed from {$fundBefore} to {$fundAfter} ({$balanceSign}{$balanceDiff})",
+            'performed_by'        => Auth::id(),
+        ]);
+
+        if ($request->filled('draft_id')) {
+            Purchase::where('id', $request->draft_id)
+                ->where('status', 0)
+                ->where('created_by', Auth::id())
+                ->delete();
+
+            // Draft is gone now — send to the clean purchases page (not back to ?draft=..)
+            return redirect()->route('purchases.index')
+                ->with('success', 'Purchase created & stock updated!');
+        }
+
         return back()->with('success','Purchase created & stock updated!');
+    }
+
+    /**
+     * Save an incomplete purchase form without creating operational records.
+     */
+    public function saveDraft(Request $request)
+    {
+        if (!$this->isAdmin()) {
+            abort(403, 'Only Admin can save purchase drafts.');
+        }
+
+        $request->validate([
+            'draft_id' => 'nullable|integer',
+            'payload'  => 'required|string',
+        ]);
+
+        $payload = json_decode($request->payload, true);
+        if (!is_array($payload)) {
+            return response()->json(['status' => 'error', 'message' => 'Invalid draft data.'], 422);
+        }
+
+        $attributes = [
+            'invoice_no'    => $payload['invoice_no'] ?? 'DRAFT-' . now()->format('YmdHis'),
+            'purchase_date' => $payload['purchase_date'] ?? now()->toDateString(),
+            'supplier_id'   => !empty($payload['supplier_id']) ? (int) $payload['supplier_id'] : null,
+            'note'          => $payload['note'] ?? null,
+            'draft_data'    => $payload,
+            'status'        => 0,
+            'created_by'    => Auth::id(),
+            'total_qty'     => 0,
+            'subtotal'      => 0,
+            'discount'      => 0,
+            'shipping_cost' => 0,
+            'grand_total'   => 0,
+            'paid_amount'   => 0,
+            'due_amount'    => 0,
+            'amount'        => 0,
+        ];
+
+        if ($request->filled('draft_id')) {
+            $draft = Purchase::where('id', $request->draft_id)
+                ->where('status', 0)
+                ->where('created_by', Auth::id())
+                ->firstOrFail();
+            $draft->update($attributes);
+        } else {
+            $draft = Purchase::create($attributes);
+        }
+
+        return response()->json([
+            'status'   => 'success',
+            'message'  => 'Draft saved.',
+            'draft_id' => $draft->id,
+        ]);
+    }
+
+    /**
+     * Delete an unpublished purchase draft without touching stock or accounting.
+     */
+    public function destroyDraft($id)
+    {
+        if (!$this->isAdmin()) {
+            abort(403, 'Only Admin can delete purchase drafts.');
+        }
+
+        Purchase::where('id', $id)
+            ->where('status', 0)
+            ->where('created_by', Auth::id())
+            ->firstOrFail()
+            ->delete();
+
+        return back()->with('success', 'Purchase draft deleted.');
     }
 
     /**
@@ -495,227 +646,6 @@ class PurchaseController extends Controller
     }
 
     /**
-     * Edit Purchase (Admin only)
-     */
-    public function edit($id)
-    {
-        if (!$this->isAdmin()) {
-            abort(403, 'Only Admin can edit purchases.');
-        }
-
-        $purchase = Purchase::with(['supplier', 'items.product', 'items.variant', 'payments'])->findOrFail($id);
-        $suppliers = Supplier::orderBy('name')->get();
-        $products  = Product::orderBy('name')->get();
-
-        // ⭐ Batch-wise pricing engine — batches created by this purchase
-        $batches = \App\Models\StockBatch::where('purchase_id', $id)
-            ->with([
-                'product:id,name,barcode',
-                'product.variantPrices',
-                'product.warrantyTiers',
-                'supplier:id,name',
-                'variantPrices',
-                'wholesalePrices',
-                'warrantyTiers',
-            ])
-            ->orderByDesc('created_at')
-            ->get();
-
-        // ── Summary stats (same as purchases/manage) ──
-        $currentYear  = now()->year;
-        $currentMonth = now()->month;
-        $yearlyTotal  = Purchase::whereYear('purchase_date', $currentYear)->sum('grand_total');
-        $monthlyTotal = Purchase::whereYear('purchase_date', $currentYear)
-                                ->whereMonth('purchase_date', $currentMonth)
-                                ->sum('grand_total');
-        $todayTotal   = Purchase::whereDate('purchase_date', now()->toDateString())->sum('grand_total');
-        $totalDue     = Purchase::sum('due_amount');
-
-        // ── Recent purchase history (same as purchases/manage) ──
-        $purchases = Purchase::with('supplier')->latest()->paginate(10);
-
-        return view('backEnd.purchases.edit', compact(
-            'purchase', 'suppliers', 'products', 'batches',
-            'currentYear', 'currentMonth', 'yearlyTotal', 'monthlyTotal', 'todayTotal', 'totalDue',
-            'purchases'
-        ));
-    }
-
-    /**
-     * Update Purchase (Admin only)
-     */
-    public function update(Request $request, $id)
-    {
-        if (!$this->isAdmin()) {
-            abort(403, 'Only Admin can update purchases.');
-        }
-
-        $request->validate([
-            'invoice_no'    => 'required|string|max:50',
-            'purchase_date' => 'required|date',
-            'paid_amount'   => 'nullable|numeric|min:0',
-            'note'          => 'nullable|string',
-        ]);
-
-        return DB::transaction(function () use ($request, $id) {
-            $purchase = Purchase::findOrFail($id);
-
-            // Save old values for logging
-            $old_invoice_no = $purchase->invoice_no;
-            $old_purchase_date = $purchase->purchase_date;
-            $old_paid_amount = $purchase->paid_amount;
-            $old_grand_total = $purchase->grand_total;
-            $old_note = $purchase->note;
-
-            // Calculate fund balance before update
-            $fund_balance_before = $this->calculateFundBalance();
-
-            // Update purchase
-            $new_paid_amount = (float) ($request->paid_amount ?? 0);
-            $paid_diff = $new_paid_amount - $old_paid_amount;
-
-            $purchase->update([
-                'invoice_no'    => $request->invoice_no,
-                'purchase_date' => $request->purchase_date,
-                'paid_amount'   => $new_paid_amount,
-                'due_amount'    => max(0, $purchase->grand_total - $new_paid_amount),
-                'note'          => $request->note ?? null,
-            ]);
-
-            // Update linked fund transactions if paid amount changed
-            if ($paid_diff != 0) {
-                // Get all supplier payments for this purchase
-                $payments = SupplierPayment::where('purchase_id', $purchase->id)->get();
-                $total_paid_via_fund = $payments->sum('amount');
-
-                if ($paid_diff > 0) {
-                    // Paid amount increased - need to create new fund transaction
-                    $fund = FundTransaction::create([
-                        'direction'  => 'out',
-                        'source'     => 'supplier_payment',
-                        'source_id'  => null,
-                        'amount'     => $paid_diff,
-                        'note'       => 'Purchase payment update: '.$purchase->invoice_no,
-                        'created_by' => Auth::id(),
-                    ]);
-
-                    $payment = SupplierPayment::create([
-                        'supplier_id'        => $purchase->supplier_id,
-                        'purchase_id'        => $purchase->id,
-                        'amount'             => $paid_diff,
-                        'payment_date'       => $request->purchase_date,
-                        'method'             => 'fund',
-                        'note'               => 'Payment adjustment',
-                        'fund_transaction_id'=> $fund->id,
-                        'created_by'         => Auth::id(),
-                    ]);
-
-                    $fund->source_id = $payment->id;
-                    $fund->save();
-                } else {
-                    // Paid amount decreased - need to delete/update fund transactions
-                    $amount_to_reduce = abs($paid_diff);
-                    foreach ($payments as $payment) {
-                        if ($amount_to_reduce <= 0) break;
-                        
-                        if ($payment->amount <= $amount_to_reduce) {
-                            // Delete entire payment
-                            if ($payment->fund_transaction_id) {
-                                $fund = FundTransaction::find($payment->fund_transaction_id);
-                                if ($fund) {
-                                    $fund->delete();
-                                }
-                            }
-                            $amount_to_reduce -= $payment->amount;
-                            $payment->delete();
-                        } else {
-                            // Reduce payment amount
-                            $payment->amount -= $amount_to_reduce;
-                            $payment->save();
-                            
-                            if ($payment->fund_transaction_id) {
-                                $fund = FundTransaction::find($payment->fund_transaction_id);
-                                if ($fund) {
-                                    $fund->amount -= $amount_to_reduce;
-                                    $fund->save();
-                                }
-                            }
-                            $amount_to_reduce = 0;
-                        }
-                    }
-                }
-            }
-
-            // Update supplier due
-            $supplier = $purchase->supplier;
-            $supplier->current_due = Purchase::where('supplier_id', $supplier->id)->sum('due_amount');
-            $supplier->save();
-
-            // Calculate fund balance after update
-            $fund_balance_after = $this->calculateFundBalance();
-
-            // Create log entry
-            $description = $this->generateEditDescription(
-                $old_invoice_no, $old_purchase_date, $old_paid_amount, $old_grand_total, $old_note,
-                $request->invoice_no, $request->purchase_date, $new_paid_amount, $purchase->grand_total, $request->note ?? null,
-                $fund_balance_before, $fund_balance_after
-            );
-
-            PurchaseLog::create([
-                'purchase_id' => $purchase->id,
-                'action' => 'edit',
-                'old_invoice_no' => $old_invoice_no,
-                'new_invoice_no' => $request->invoice_no,
-                'old_purchase_date' => $old_purchase_date,
-                'new_purchase_date' => $request->purchase_date,
-                'old_paid_amount' => $old_paid_amount,
-                'new_paid_amount' => $new_paid_amount,
-                'old_grand_total' => $old_grand_total,
-                'new_grand_total' => $purchase->grand_total,
-                'old_note' => $old_note,
-                'new_note' => $request->note ?? null,
-                'fund_balance_before' => $fund_balance_before,
-                'fund_balance_after' => $fund_balance_after,
-                'description' => $description,
-                'performed_by' => Auth::id(),
-            ]);
-
-            return redirect()->route('purchases.index')
-                             ->with('success', 'Purchase updated successfully! Fund balance adjusted automatically.');
-        });
-    }
-
-    /**
-     * Generate description for edit log
-     */
-    private function generateEditDescription($old_inv, $old_date, $old_paid, $old_total, $old_note,
-                                             $new_inv, $new_date, $new_paid, $new_total, $new_note,
-                                             $bal_before, $bal_after)
-    {
-        $parts = [];
-        
-        if ($old_inv != $new_inv) {
-            $parts[] = "Invoice changed from '{$old_inv}' to '{$new_inv}'";
-        }
-        
-        if ($old_date != $new_date) {
-            $parts[] = "Date changed from {$old_date} to {$new_date}";
-        }
-        
-        if ($old_paid != $new_paid) {
-            $diff = $new_paid - $old_paid;
-            $diff_sign = ($diff > 0) ? '+' : '';
-            $parts[] = "Paid amount changed from {$old_paid} to {$new_paid} ({$diff_sign}{$diff})";
-        }
-        
-        $balance_diff = $bal_after - $bal_before;
-        $balance_sign = ($balance_diff > 0) ? '+' : '';
-        $parts[] = "Fund balance changed from {$bal_before} to {$bal_after} ({$balance_sign}{$balance_diff})";
-        
-        return implode('. ', $parts);
-    }
-
-    /**
      * Delete Purchase (Admin only)
      */
     public function destroy($id)
@@ -777,17 +707,36 @@ class PurchaseController extends Controller
                 $payment->delete();
             }
 
-            // Reverse stock updates
-            foreach ($purchase->items as $item) {
-                $product = $item->product;
-                if ($product) {
-                    $product->stock = max(0, $product->stock - ($item->qty - $item->returned_qty));
-                    $product->save();
-                }
+            // ── Stock ledger cleanup ──────────────────────────────────────────────
+            // Remove this purchase's stock-in batches. stock_batches.remaining_qty is the
+            // source of truth for products.stock (see plan.md) — after removing the batches
+            // we recompute product/variant stock from whatever is left. This also avoids
+            // orphaned, still-sellable batches left behind by a deleted purchase.
+            $affectedProductIds = $purchase->items->pluck('product_id')->filter()->unique()->values();
 
-                if ($item->variant) {
-                    $item->variant->stock = max(0, $item->variant->stock - ($item->qty - $item->returned_qty));
-                    $item->variant->save();
+            \App\Models\StockBatch::where('purchase_id', $id)
+                ->where('type', 'in')
+                ->delete(); // FK cascades to batch_variant/wholesale/warranty pricing rows
+
+            foreach ($affectedProductIds as $productId) {
+                $product = Product::find($productId);
+                if (!$product) {
+                    continue;
+                }
+                $remaining = (int) \App\Models\StockBatch::where('product_id', $productId)
+                    ->where('type', 'in')
+                    ->where('remaining_qty', '>', 0)
+                    ->sum('remaining_qty');
+
+                if ($remaining > 0) {
+                    // Other batches still hold stock — resync from the ledger.
+                    app(StockManagementService::class)->syncStockFromBatches($productId);
+                } else {
+                    // Nothing left in the ledger — zero this product's stock copies.
+                    $product->stock = 0;
+                    $product->website_stock = 0;
+                    $product->save();
+                    \App\Models\ProductVariantPrice::where('product_id', $productId)->update(['stock' => 0]);
                 }
             }
 
@@ -834,10 +783,11 @@ class PurchaseController extends Controller
         $logs = $query->paginate(20)->withQueryString();
 
         // Summary statistics
+        $total_creates = PurchaseLog::where('action', 'create')->count();
         $total_edits = PurchaseLog::where('action', 'edit')->count();
         $total_deletes = PurchaseLog::where('action', 'delete')->count();
 
-        return view('backEnd.purchases.logs', compact('logs', 'total_edits', 'total_deletes'));
+        return view('backEnd.purchases.logs', compact('logs', 'total_creates', 'total_edits', 'total_deletes'));
     }
 
     /**
@@ -951,66 +901,188 @@ class PurchaseController extends Controller
     }
 
     /**
-     * ⭐ Batch-wise pricing engine — right-panel accordion on purchases/manage.
-     * Renders the 4-tab panel (Batch → Variant → Wholesale → Warranty) for a product.
+     * ⭐ Product / Stock panel for purchases/manage (right side).
+     * Lists EVERY product added in the purchase form as an accordion row
+     * (title = product). Each product shows its Stock-In batch history, and each
+     * batch row has a "View" button that opens a full-detail popup.
      */
     public function pricePanel(Request $request)
     {
-        $product = Product::with([
-            'stockBatches.supplier',
-            'stockBatches.purchase',
-            'stockBatches.variantPrices',
-            'stockBatches.wholesalePrices',
-            'stockBatches.warrantyTiers.tier',
-            'variantPrices.color',
-            'variantPrices.size',
-            'wholesalePrices',
-            'warrantyTiers',
-        ])->findOrFail($request->product);
+        $ids = (array) $request->input('products', $request->input('product', []));
+        $ids = array_values(array_unique(array_filter(array_map('intval', $ids))));
+
+        $products = collect();
+        if ($ids) {
+            $order = array_flip($ids);
+            $products = Product::with(['stockBatches.supplier', 'stockBatches.purchase'])
+                ->whereIn('id', $ids)
+                ->get()
+                ->sortBy(fn ($p) => $order[$p->id] ?? 9999)
+                ->values();
+        }
 
         return response()->json([
             'status' => 'success',
-            'html'   => view('backEnd.purchases.partials.price-panel', ['product' => $product])->render(),
+            'html'   => view('backEnd.purchases.partials.product-batch-panel', ['products' => $products])->render(),
         ]);
     }
 
     /**
-     * Update a batch's base sell price / MRP / flags from the Batch tab.
+     * ⭐ Purchase edit data — returns a purchase's values so the New Purchase
+     *    Entry form is reused for editing (published: sell price + warranty cost only).
+     */
+    public function editData($id)
+    {
+        if (!$this->isAdmin()) {
+            abort(403, 'Only Admin can edit purchases.');
+        }
+
+        $purchase = Purchase::findOrFail($id);
+
+        $batches = \App\Models\StockBatch::where('purchase_id', $id)
+            ->where('type', 'in')
+            ->with(['product:id,name', 'variant.color', 'variant.size', 'warrantyTiers.tier', 'wholesalePrices'])
+            ->get();
+
+        $items = $purchase->items()->get()->map(function ($item) use ($batches) {
+            $batch = $batches->first(function ($b) use ($item) {
+                return (int) $b->product_id === (int) $item->product_id
+                    && (int) ($b->variant_price_id ?: 0) === (int) ($item->variant_price_id ?: 0);
+            });
+
+            $warrantyTiers = ($batch?->warrantyTiers ?? collect())->map(function ($wt) {
+                return [
+                    'bwt_id'          => $wt->id,
+                    'tier_id'         => $wt->warranty_tier_id,
+                    'warranty_type'   => $wt->tier?->warranty_type,
+                    'tier_name'       => $wt->tier?->tier_name,
+                    'warranty_days'   => $wt->tier?->warranty_days,
+                    'additional_cost' => (float) $wt->additional_cost,
+                    'is_active'       => (bool) $wt->is_active,
+                ];
+            })->values();
+
+            $wholesaleTiers = ($batch?->wholesalePrices ?? collect())->map(function ($w) {
+                return [
+                    'id'              => $w->id,
+                    'min_quantity'    => $w->min_quantity,
+                    'max_quantity'    => $w->max_quantity,
+                    'wholesale_price' => (float) $w->wholesale_price,
+                ];
+            })->values();
+
+            return [
+                'batch_id'        => $batch?->id,
+                'product_id'      => $item->product_id,
+                'variant_id'      => $item->variant_price_id,
+                'qty'             => (int) $item->qty,
+                'unit_cost'       => (float) $item->unit_cost,
+                'batch_no'        => $batch?->batch_no,
+                'selling_price'   => $batch?->selling_price !== null ? (float) $batch->selling_price : null,
+                'mrp'             => $batch?->mrp !== null ? (float) $batch->mrp : null,
+                'serial_numbers'  => ($batch && is_array($batch->sn_stock)) ? array_values($batch->sn_stock) : [],
+                'wholesale_tiers' => $wholesaleTiers,
+                'warranty_tiers'  => $warrantyTiers,
+            ];
+        });
+
+        return response()->json([
+            'status' => 'success',
+            'purchase' => [
+                'id'            => $purchase->id,
+                'supplier_id'   => $purchase->supplier_id,
+                'invoice_no'    => $purchase->invoice_no,
+                'purchase_date' => $purchase->purchase_date
+                    ? \Carbon\Carbon::parse($purchase->purchase_date)->format('Y-m-d')
+                    : now()->toDateString(),
+                'discount'      => (float) $purchase->discount,
+                'shipping_cost' => (float) $purchase->shipping_cost,
+                'paid_amount'   => (float) $purchase->paid_amount,
+                'note'          => $purchase->note,
+            ],
+            'items' => $items,
+        ]);
+    }
+
+    /**
+    * Update a batch's sell price from the Batch tab.
      */
     public function saveBatchPricing(Request $request)
     {
         $request->validate([
             'batch_id'       => 'required|integer',
             'selling_price'  => 'nullable|numeric|min:0',
-            'mrp'            => 'nullable|numeric|min:0',
             'pos_enabled'    => 'nullable|boolean',
-            'auto_advance'   => 'nullable|boolean',
         ]);
 
         $batch = \App\Models\StockBatch::findOrFail($request->batch_id);
-        $batch->selling_price = $request->filled('selling_price') ? (float) $request->selling_price : null;
-        $batch->mrp           = $request->filled('mrp') ? (float) $request->mrp : null;
-        $batch->pos_enabled   = (bool) $request->boolean('pos_enabled');
-        $batch->auto_advance  = (bool) $request->boolean('auto_advance');
-        $batch->is_manual_price = true;
-        $batch->price_updated_at = now();
-        $batch->price_updated_by = Auth::id();
+
+        // Only touch fields that were actually sent — the POS toggle in the price
+        // panel posts just pos_enabled and must not wipe selling_price.
+        if ($request->has('selling_price')) {
+            $batch->selling_price = $request->filled('selling_price') ? (float) $request->selling_price : null;
+            $batch->is_manual_price = true;
+            $batch->price_updated_at = now();
+            $batch->price_updated_by = Auth::id();
+        }
+        if ($request->has('pos_enabled')) {
+            $batch->pos_enabled = (bool) $request->boolean('pos_enabled');
+        }
         $batch->save();
 
         app(\App\Services\PricingService::class)->refreshProductCache($batch->product);
 
-        log_activity('pricing', 'update_batch', "Batch #{$batch->id} price updated", $batch, [
+        log_activity('pricing', 'update_batch', "Batch #{$batch->id} updated", $batch, [
             'selling_price' => $batch->selling_price,
-            'mrp'           => $batch->mrp,
             'pos_enabled'   => $batch->pos_enabled,
-            'auto_advance'  => $batch->auto_advance,
         ]);
 
-        return response()->json(['status' => 'success', 'message' => 'Batch price updated']);
+        return response()->json(['status' => 'success', 'message' => 'Batch updated']);
     }
 
     /**
-     * Bulk-update sell price + MRP for MANY batches at once (purchase edit page).
+     * Update a batch's in-stock serial numbers (SN) from the batch detail popup.
+     * Only sn_stock (unsold units) is editable here; sold SNs are tracked separately.
+     */
+    public function saveBatchSerials(Request $request)
+    {
+        $request->validate([
+            'batch_id'  => 'required|integer',
+            'serials'   => 'nullable|array',
+            'serials.*' => 'nullable|string|max:255',
+        ]);
+
+        $batch = \App\Models\StockBatch::findOrFail($request->batch_id);
+
+        $serials = array_values(array_filter(array_map(
+            fn ($s) => trim((string) $s),
+            (array) $request->serials
+        )));
+
+        // Stock and SN count must match for serialised batches
+        $remaining = (int) $batch->remaining_qty;
+        if (count($serials) > 0 && count($serials) !== $remaining) {
+            return response()->json([
+                'status'  => 'error',
+                'message' => "Batch has {$remaining} unit(s) remaining, but you entered " . count($serials) . " serial number(s). Stock and SN count must match.",
+            ], 422);
+        }
+
+        $batch->sn_stock = $serials;
+        $batch->save();
+
+        log_activity('pricing', 'update_batch_serials', "Batch #{$batch->id} serial numbers updated", $batch, [
+            'sn_count' => count($serials),
+        ]);
+
+        return response()->json([
+            'status'  => 'success',
+            'message' => count($serials) . ' serial number(s) saved',
+        ]);
+    }
+
+    /**
+    * Bulk-update sell price + MRP for MANY batches at once (purchase edit page).
      * Only sell prices are changed here — purchase/unit cost is never touched.
      */
     public function saveBatchesPricing(Request $request)
@@ -1024,8 +1096,9 @@ class PurchaseController extends Controller
 
         $count = 0;
         $productIds = [];
+        $purchaseIds = [];
 
-        DB::transaction(function () use ($request, &$count, &$productIds) {
+        DB::transaction(function () use ($request, &$count, &$productIds, &$purchaseIds) {
             foreach ((array) $request->batches as $row) {
                 $batch = \App\Models\StockBatch::find($row['batch_id'] ?? null);
                 if (!$batch) {
@@ -1039,6 +1112,9 @@ class PurchaseController extends Controller
                 $batch->price_updated_by = Auth::id();
                 $batch->save();
                 $productIds[$batch->product_id] = true;
+                if ($batch->purchase_id) {
+                    $purchaseIds[$batch->purchase_id] = true;
+                }
                 $count++;
             }
         });
@@ -1054,6 +1130,35 @@ class PurchaseController extends Controller
         log_activity('pricing', 'update_batches_bulk', "Bulk sell-price update ({$count} batches)", null, [
             'count' => $count,
         ]);
+
+        // Record an 'edit' audit log for each purchase whose batches were updated
+        // (edit-mode "Update Purchase" on the manage page). Header fields are locked
+        // during edit, so old == new; the description explains what changed.
+        foreach (array_keys($purchaseIds) as $pid) {
+            $purchase = Purchase::find($pid);
+            if (!$purchase) {
+                continue;
+            }
+            $fundBalance = $this->calculateFundBalance();
+            PurchaseLog::create([
+                'purchase_id'         => $purchase->id,
+                'action'              => 'edit',
+                'old_invoice_no'      => $purchase->invoice_no,
+                'new_invoice_no'      => $purchase->invoice_no,
+                'old_purchase_date'   => $purchase->purchase_date,
+                'new_purchase_date'   => $purchase->purchase_date,
+                'old_paid_amount'     => $purchase->paid_amount,
+                'new_paid_amount'     => $purchase->paid_amount,
+                'old_grand_total'     => $purchase->grand_total,
+                'new_grand_total'     => $purchase->grand_total,
+                'old_note'            => $purchase->note,
+                'new_note'            => $purchase->note,
+                'fund_balance_before' => $fundBalance,
+                'fund_balance_after'  => $fundBalance,
+                'description'         => "Purchase edited: Invoice '{$purchase->invoice_no}' — sell price/MRP updated on {$count} batch(es).",
+                'performed_by'        => Auth::id(),
+            ]);
+        }
 
         return response()->json(['status' => 'success', 'message' => $count . ' sell price(s) updated']);
     }
@@ -1141,32 +1246,65 @@ class PurchaseController extends Controller
     }
 
     /**
-     * Save warranty tier overrides for a batch (Warranty tab).
+    * Save warranty tiers for a batch (Warranty tab) — cost, active flag, add/remove.
      */
     public function saveWarrantyPricing(Request $request)
     {
         $request->validate([
             'batch_id' => 'required|integer',
             'tiers'    => 'nullable|array',
-            'tiers.*.tier_id'         => 'required|integer',
-            'tiers.*.variant_id'      => 'nullable|integer',
+            'tiers.*.tier_id'         => 'nullable|integer',
+            'tiers.*.warranty_type'   => 'nullable|string|max:50',
+            'tiers.*.tier_name'       => 'nullable|string|max:255',
+            'tiers.*.warranty_days'   => 'nullable|integer|min:0',
             'tiers.*.additional_cost' => 'nullable|numeric|min:0',
             'tiers.*.is_active'       => 'nullable|boolean',
-            'delete_ids' => 'nullable|array',
+            'delete_ids'              => 'nullable|array',
         ]);
 
         $batchId = (int) $request->batch_id;
+        $batch   = \App\Models\StockBatch::findOrFail($batchId);
 
         foreach ((array) $request->delete_ids as $id) {
             \App\Models\BatchWarrantyTier::where('id', $id)->where('stock_batch_id', $batchId)->delete();
         }
 
         foreach ((array) $request->tiers as $t) {
+            $tierId = (int) ($t['tier_id'] ?? 0);
+
+            // New warranty option created directly from the purchase
+            if (!$tierId) {
+                $wType = $t['warranty_type'] ?? null;
+                if (!$wType) {
+                    continue;
+                }
+                $tierName = trim((string) ($t['tier_name'] ?? ''));
+                if ($tierName === '') {
+                    $tierName = \App\Enums\WarrantyType::tryFrom($wType)?->label()
+                        ?? ucwords(str_replace('_', ' ', $wType));
+                }
+                $days = (int) ($t['warranty_days'] ?? 0);
+                $cost = (float) ($t['additional_cost'] ?? 0);
+
+                $productTier = \App\Models\ProductWarrantyTier::firstOrCreate(
+                    ['product_id' => $batch->product_id, 'warranty_type' => $wType, 'variant_id' => null],
+                    [
+                        'tier_name'       => $tierName,
+                        'warranty_days'   => $days,
+                        'price'           => $cost,
+                        'additional_cost' => $cost,
+                        'is_active'       => (bool) ($t['is_active'] ?? true),
+                        'sort_order'      => 0,
+                    ]
+                );
+                $tierId = $productTier->id;
+            }
+
             \App\Models\BatchWarrantyTier::updateOrCreate(
                 [
                     'stock_batch_id'   => $batchId,
-                    'variant_price_id' => !empty($t['variant_id']) ? (int) $t['variant_id'] : null,
-                    'warranty_tier_id' => (int) $t['tier_id'],
+                    'variant_price_id' => null,
+                    'warranty_tier_id' => $tierId,
                 ],
                 [
                     'additional_cost' => (float) ($t['additional_cost'] ?? 0),

@@ -10,7 +10,7 @@ class Purchase extends Model
         'supplier_id','invoice_no','purchase_date',
         'total_qty','subtotal','discount','shipping_cost',
         'grand_total','paid_amount','due_amount',
-        'note','status','created_by','updated_by',
+        'note','status','draft_data','created_by','updated_by',
     ];
 
     protected $dates = ['purchase_date'];
@@ -19,6 +19,7 @@ class Purchase extends Model
     {
         return [
             'purchase_date' => 'date',
+            'draft_data' => 'array',
         ];
     }
 

@@ -86,7 +86,7 @@
             <h4 class="mb-1 fw-bold text-gray-800">
                 <i data-feather="activity" class="text-primary me-1"></i> Purchase Logs
             </h4>
-            <p class="text-muted small mb-0"> {{ __('Audit trail of edited and deleted purchase records.') }} </p>
+            <p class="text-muted small mb-0"> {{ __('Audit trail of every purchase — created, edited, and deleted.') }} </p>
         </div>
         <a href="{{ route('purchases.index') }}" class="btn btn-white border shadow-sm rounded-pill px-3">
             <i data-feather="arrow-left" class="me-1"></i> Back to Purchases
@@ -95,7 +95,18 @@
 
     {{-- STATS OVERVIEW --}}
     <div class="row mb-4">
-        <div class="col-md-6 mb-3 mb-md-0">
+        <div class="col-md-4 mb-3 mb-md-0">
+            <div class="stats-card">
+                <div class="stats-icon" style="background: rgba(28, 200, 138, 0.12); color: #1cc88a;">
+                    <i data-feather="plus-circle"></i>
+                </div>
+                <div>
+                    <h3 class="mb-0 fw-bold text-dark">{{ $total_creates }}</h3>
+                    <small class="text-muted text-uppercase fw-bold"> {{ __('Total Created Records') }} </small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-3 mb-md-0">
             <div class="stats-card">
                 <div class="stats-icon bg-icon-primary">
                     <i data-feather="edit-2"></i>
@@ -106,7 +117,7 @@
                 </div>
             </div>
         </div>
-        <div class="col-md-6">
+        <div class="col-md-4">
             <div class="stats-card">
                 <div class="stats-icon bg-icon-danger">
                     <i data-feather="trash-2"></i>
@@ -130,6 +141,7 @@
                         <label class="form-label small fw-bold text-muted"> {{ __('Action Type') }} </label>
                         <select name="action" class="form-select">
                             <option value=""> {{ __('All Actions') }} </option>
+                            <option value="create" {{ request('action') == 'create' ? 'selected' : '' }}>{{ __('Create') }}</option>
                             <option value="edit" {{ request('action') == 'edit' ? 'selected' : '' }}>{{ __('Edit') }}</option>
                             <option value="delete" {{ request('action') == 'delete' ? 'selected' : '' }}>{{ __('Delete') }}</option>
                         </select>
@@ -175,7 +187,11 @@
                                 
                                 {{-- Action Badge --}}
                                 <td>
-                                    @if($log->action == 'edit')
+                                    @if($log->action == 'create')
+                                        <span class="badge bg-success px-3 py-2 rounded-pill text-white">
+                                            <i data-feather="plus-circle" style="width:10px;"></i> {{ __('Created') }}
+                                        </span>
+                                    @elseif($log->action == 'edit')
                                         <span class="badge badge-soft-warning px-3 py-2 rounded-pill">
                                             <i data-feather="edit-2" style="width:10px;"></i> Edited
                                         </span>
