@@ -243,11 +243,27 @@ if (typeof ttq !== 'undefined') {
                                     <div class="product">
                                         <div class="product-cart">
                                             <p class="name">{{ $details->name }}</p>
+                                            @php
+                                                // 🎨 Batch-aware pre-variant range (Spec §23): show ৳min - ৳max until a variant is picked.
+                                                $ddHasRange = !is_null($details->price_min ?? null) && !is_null($details->price_max ?? null)
+                                                    && (float) $details->price_max > (float) $details->price_min && (float) $details->price_max > 0;
+                                                $ddSaleFrom = $ddHasRange ? (float) $details->price_min : null;
+                                                $ddSaleTo   = $ddHasRange ? (float) $details->price_max : null;
+                                                $ddMrpMin   = $ddHasRange ? ($details->mrp_min ?? null) : null;
+                                                $ddMrpMax   = $ddHasRange ? ($details->mrp_max ?? null) : null;
+                                                $ddMrpLabel = ($ddHasRange && $ddMrpMin !== null && $ddMrpMax !== null && $ddMrpMax > $ddMrpMin)
+                                                    ? '৳' . number_format((float) $ddMrpMin, 0) . ' - ৳' . number_format((float) $ddMrpMax, 0)
+                                                    : (($ddHasRange && $ddMrpMax !== null && $ddMrpMax > 0) ? '৳' . number_format((float) $ddMrpMax, 0) : null);
+                                            @endphp
                                             <p class="details-price">
-                                                @if ($details->old_price)
-                                                    <del>৳{{ $details->old_price }}</del>
-                                                @endif <span id="newPrice">৳{{ $details->new_price }}</span>
-
+                                                @if ($ddHasRange)
+                                                    @if ($ddMrpLabel) <del id="mrpPrice">{{ $ddMrpLabel }}</del> @endif
+                                                    <span id="newPrice" data-range="1" data-from="{{ $ddSaleFrom }}" data-to="{{ $ddSaleTo }}">৳{{ number_format($ddSaleFrom, 0) }} - ৳{{ number_format($ddSaleTo, 0) }}</span>
+                                                @else
+                                                    @if ($details->old_price)
+                                                        <del>৳{{ $details->old_price }}</del>
+                                                    @endif <span id="newPrice">৳{{ $details->new_price }}</span>
+                                                @endif
                                             </p>
                                             <div class="details-ratting-wrapper">
                                             @php
@@ -698,6 +714,17 @@ if (typeof ttq !== 'undefined') {
 <script>
     const variants = @json($details->variantPrices);
 
+    // 🎨 Batch-wise per-variant availability: variant_price_id → {sale, mrp, stock}
+    //    (computed by FrontendController::details from eligible batches — Spec §39)
+    const bpAvailability = @json($variantAvailability ?? []);
+    const bpEnabled = Object.keys(bpAvailability).length > 0;
+    if (bpEnabled) {
+        variants.forEach(function (v) {
+            var a = bpAvailability[v.id];
+            if (a && a.sale > 0) v.price = a.sale; // show THIS variant's batch price
+        });
+    }
+
     @if($details->is_wholesale && $details->wholesalePrices && $details->wholesalePrices->count() > 0)
     // Wholesale tiers are defined in the new block below (inside document.ready)
     @endif
@@ -735,6 +762,14 @@ if (typeof ttq !== 'undefined') {
             });
         }
 
+        // 🎨 Pre-variant price RANGE (Spec §23): keep the ৳min - ৳max text visible
+        //    until a specific combination is chosen — otherwise a single numeric
+        //    price would overwrite it while nothing is selected yet.
+        if (!match && $('#newPrice').attr('data-range') === '1') {
+            updateVariantStockUI(match);
+            return;
+        }
+
         // ✅ Step 1: Product sale price (new_price is the current sale price)
         let basePrice = parseFloat({{ $details->new_price }});
 
@@ -746,7 +781,52 @@ if (typeof ttq !== 'undefined') {
         window._currentBasePrice = basePrice;
         window._selectedVariantId = match ? match.id : null;
 
+        updateVariantStockUI(match);
+
         updateDisplayPrice();
+    }
+
+    // 🎨 Batch-aware: disable Add-to-Cart when the selected variant is out of stock
+    //    OR the chosen color+size combo does not match a real variant segment.
+    //    (Spec §18/§23/§39 — stock is computed from eligible batches server-side.)
+    function updateVariantStockUI(match) {
+        if (!bpEnabled) return; // legacy mode → existing behaviour
+        var $btns = $('.add_cart_btn, .order_now_btn');
+
+        // No variant selectors at all → never disable here.
+        var colorRadios = $("input[name='product_color']");
+        var sizeRadios  = $("input[name='product_size']");
+        if (!colorRadios.length && !sizeRadios.length) {
+            $btns.prop('disabled', false).css('opacity', '');
+            return;
+        }
+
+        // A full selection is only "ready" when every present group has a choice.
+        var colorPicked = colorRadios.length ? !!colorRadios.filter(':checked').length : true;
+        var sizePicked  = sizeRadios.length  ? !!sizeRadios.filter(':checked').length  : true;
+        if (!colorPicked || !sizePicked) {
+            // Incomplete → keep enabled; the existing validation asks to pick the rest.
+            $btns.prop('disabled', false).css('opacity', '');
+            window._bpNoticeShown = false;
+            return;
+        }
+
+        var vid = match ? match.id : null;
+        var a   = vid ? (bpAvailability[vid] || null) : null;
+
+        if (!vid || !a || a.stock <= 0) {
+            // Invalid combination (no variant segment) OR a real segment with no stock.
+            $btns.prop('disabled', true).css('opacity', '.5');
+            if (!window._bpNoticeShown && typeof showAlert === 'function') {
+                window._bpNoticeShown = true;
+                showAlert('error', !vid
+                    ? 'This color/size combination is not available'
+                    : 'This variant is out of stock');
+            }
+            return;
+        }
+        $btns.prop('disabled', false).css('opacity', '');
+        window._bpNoticeShown = false;
     }
 
     // ✅ Unified price display pipeline: base → variant → wholesale discount → warranty adjustment

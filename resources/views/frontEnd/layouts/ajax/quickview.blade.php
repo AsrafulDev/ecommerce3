@@ -1,3 +1,15 @@
+@php
+    // ⭐ Batch-aware price label (attached by controller; falls back to static columns)
+    $qHasRange = !is_null($data->price_min ?? null) && !is_null($data->price_max ?? null);
+    $qSaleMin  = $qHasRange ? (float) $data->price_min : (float) ($data->new_price ?? 0);
+    $qSaleMax  = $qHasRange ? (float) $data->price_max : $qSaleMin;
+    $qMrpMin   = ($qHasRange ? ($data->mrp_min ?? null) : null) ?? (($data->old_price ?? 0) ? (float) $data->old_price : null);
+    $qMrpMax   = $qHasRange ? ($data->mrp_max ?? $qMrpMin) : $qMrpMin;
+    $qSale     = ($qSaleMax > $qSaleMin) ? number_format($qSaleMin, 0) . ' - ' . number_format($qSaleMax, 0) : number_format($qSaleMax, 0);
+    $qMrp      = ($qMrpMin !== null && $qMrpMax !== null && $qMrpMax > $qMrpMin)
+                ? number_format($qMrpMin, 0) . ' - ' . number_format($qMrpMax, 0)
+                : ($qMrpMax !== null ? number_format($qMrpMax, 0) : null);
+@endphp
 <div class="modal-view quick-product">
 	<button class="close-modal">x</button>
 	<div class="quick-product-img">
@@ -7,7 +19,7 @@
 		<div class="product-details-cart">
             <p class="name">{{$data->name}}</p>
              <p style="display: none;" class="product_star"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i> ({{$data->reviews_count}} customer review)</p>
-            <p class="details-price">৳{{$data->new_price}} @if($data->old_price)<del>৳{{$data->old_price}}</del>@endif</p>
+            <p class="details-price">৳{{$qSale}} @if($qMrp)<del>৳{{$qMrp}}</del>@endif</p>
             <div class="details_short">
                 {!! $data->short_description !!}
             </div>
@@ -21,7 +33,7 @@
                         <input type="text" name="qty" value="1"/>
                         <span class="plus">+</span>
                     </div>
-                    <button type="submit" class="add-to-cart cart_store" data-id="{{$data->id}}" data-name="{{ addslashes($data->name) }}" data-price="{{ $data->new_price ?? 0 }}" data-category="{{ addslashes($data->category->name ?? '') }}">add to cart</button>
+                    <button type="submit" class="add-to-cart cart_store" data-id="{{$data->id}}" data-name="{{ addslashes($data->name) }}" data-price="{{ $qSaleMax }}" data-category="{{ addslashes($data->category->name ?? '') }}">add to cart</button>
                 </div>
             </form>
             <a href="{{route('product',['id'=>$data->id])}}" style="display: none;" class="details-wishlist">Go To Details</a>

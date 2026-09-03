@@ -681,12 +681,44 @@ public function order_save(Request $request)
                     if ($pricingService->isBatchWise()) {
                         // ⭐ Batch-wise: FIFO allocation across website-enabled batches
                         //    e.g. b1=3, b2=10, qty=8 → 3 from b1 + 5 from b2.
+
+                        // 🔒 Concurrency / oversell protection (Spec §30): hold row locks
+                        //    on this product's sellable batches inside the transaction so a
+                        //    simultaneous order for the same batches serializes here instead
+                        //    of both deducting the same remaining_qty.
+                        \App\Models\StockBatch::where('product_id', $row->product_id)
+                            ->sellable()
+                            ->orderBy('mfg_date')
+                            ->orderBy('created_at')
+                            ->orderBy('id')
+                            ->lockForUpdate()
+                            ->get();
+
                         $allocation = $pricingService->websiteAllocation($row->product, $row->qty);
+                        $rowBatchSnapshot = [];
                         foreach ($allocation as $portion) {
-                            $stockService->stockOut($row->product, $portion['qty'], [
+                            $result = $stockService->stockOut($row->product, $portion['qty'], [
                                 'type' => 'sale',
                                 'id'   => $order->id,
                             ], $portion['batch']->id);
+                            // 📦 Per-batch order snapshot (Spec §28/§29): record exactly
+                            //    which batches fulfilled this line + the per-batch sale
+                            //    price, so order history stays accurate after batch prices
+                            //    change. Stored in order_details.batch_ids (array cast) —
+                            //    same batch_details shape admin/refund flows already use.
+                            foreach (($result['batch_details'] ?? []) as $bd) {
+                                $bd['unit_price'] = $pricingService->price(
+                                    $row->product,
+                                    $bd['batch_id'] ?? null,
+                                    $row->variant_price_id,
+                                    'website'
+                                );
+                                $rowBatchSnapshot[] = $bd;
+                            }
+                        }
+                        if ($rowBatchSnapshot) {
+                            $row->batch_ids = $rowBatchSnapshot;
+                            $row->save();
                         }
                         // Auto-advance the active website batch when depleted
                         $pricingService->advanceActiveBatchIfDepleted($row->product);

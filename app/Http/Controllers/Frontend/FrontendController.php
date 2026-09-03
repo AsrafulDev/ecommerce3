@@ -204,6 +204,20 @@ $brands = Brand::where('status', 1)
             $isFlashSaleActive = $flashSaleEndDate && \Carbon\Carbon::parse($flashSaleEndDate)->isFuture();
         }
 
+        // ⭐ Batch-wise pricing: attach storefront price ranges so product cards
+        //    render ৳10 - ৳12 (range) instead of a static single price.
+        $pricingSvc = app(\App\Services\PricingService::class);
+        foreach (['flas_sales', 'hotdeal_top', 'hotdeal_bottom', 'all_products'] as $var) {
+            if ($$var !== null) {
+                $pricingSvc->attachCatalogRanges($$var);
+            }
+        }
+        if ($homeproducts) {
+            $homeproducts->each(function ($cat) use ($pricingSvc) {
+                $pricingSvc->attachCatalogRanges($cat->products);
+            });
+        }
+
         return compact(
             'seo',
             'generalsetting',
@@ -228,6 +242,63 @@ $brands = Brand::where('status', 1)
             'isHotDealActive',
             'isFlashSaleActive'
         );
+    }
+
+    /**
+     * ⭐ Batch-wise catalog helpers (Phase 2.2/2.3).
+     * When BATCH_WISE_PRICING is ON, catalog sorting + the price slider/filter
+     * operate on each product's LOWEST sellable batch sale price (MIN of
+     * stock_batches.selling_price) instead of the static products.new_price.
+     * With the flag OFF these helpers no-op → legacy new_price behaviour.
+     */
+
+    protected function batchCatalogEnabled(): bool
+    {
+        return app(\App\Services\PricingService::class)->isBatchWise();
+    }
+
+    /**
+     * Per-product grouped subquery: product_id → MIN(sellable batch selling_price).
+     * Only sellable batches (pos_enabled + remaining_qty>0 + not expired + priced).
+     *
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
+    protected function batchMinSaleSub()
+    {
+        return \App\Models\StockBatch::query()
+            ->selectRaw('stock_batches.product_id AS product_id')
+            ->selectRaw('MIN(stock_batches.selling_price) AS min_sale')
+            ->where('stock_batches.pos_enabled', true)
+            ->where('stock_batches.remaining_qty', '>', 0)
+            ->where('stock_batches.selling_price', '>', 0)
+            ->where(function ($q) {
+                $q->whereNull('stock_batches.exp_date')
+                  ->orWhere('stock_batches.exp_date', '>=', now()->toDateString());
+            })
+            ->groupBy('stock_batches.product_id');
+    }
+
+    /**
+     * LEFT JOIN the per-product batch min-sale onto a Product query so its rows can
+     * be ordered / filtered by batch price. Products without a sellable batch keep
+     * a NULL min_sale (they stay visible, like the “stock out” card state).
+     *
+     * @param \Illuminate\Database\Eloquent\Builder $query
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
+    protected function joinBatchMinSale($query)
+    {
+        return $query->leftJoinSub($this->batchMinSaleSub(), 'bm', function ($join) {
+            $join->on('products.id', '=', 'bm.product_id');
+        });
+    }
+
+    /**
+     * Batch-aware price-sort column name (alias 'bm.min_sale' or legacy 'new_price').
+     */
+    protected function batchPriceSortColumn(): string
+    {
+        return $this->batchCatalogEnabled() ? 'bm.min_sale' : 'new_price';
     }
 
     // ===========================
@@ -356,9 +427,43 @@ $brands = Brand::where('status', 1)
                 return redirect()->back()->withInput();
             }
 
+            // 🎨 Variant eligibility (Spec §18/§26): a specific batch serves ONLY its own
+            //    variant — reject combinations with no eligible batch stock (or that don't
+            //    match a real variant), instead of silently selling them from the active batch.
+            $hasVariants = $product->variantPrices()->exists();
+            $pickedColorOrSize = $request->filled('product_color') || $request->filled('product_size');
+            if ($hasVariants && $pickedColorOrSize) {
+                if (!$variantPrice) {
+                    Toastr::error('এই কালার/সাইজ কম্বিনেশনটি বৈধ নয়।', 'ভ্যালিডেশন!');
+                    return redirect()->back()->withInput();
+                }
+                $variantEligibleStock = (int) $pricing->eligibleBatches($product, $variantPrice->id)->sum('remaining_qty');
+                if ($variantEligibleStock <= 0) {
+                    Toastr::error('এই ভ্যারিয়েন্টটি বর্তমানে স্টক আউট।', 'স্টক আউট!');
+                    return redirect()->back()->withInput();
+                }
+            }
+
             $finalPrice = $pricing->price($product, null, $variantId, 'website');
             if ($finalPrice <= 0) { $finalPrice = 1; } // safety fallback
             $basePrice = $finalPrice;
+
+            // ⭐ Per-batch billing (Spec §5, config PRICING_MULTI_BATCH_PRICING=per_batch):
+            //    charge the quantity-weighted average of the allocated batches so the
+            //    line total equals Σ(qty_i × price_i) — never a single active-batch
+            //    price applied to the whole quantity. Default stays 'active_batch'.
+            if (config('pricing.multi_batch_pricing', 'active_batch') === 'per_batch' && $requestedQty > 0) {
+                $weightedUnit = $pricing->weightedAllocationUnit(
+                    $product,
+                    $requestedQty,
+                    $variantId,
+                    $pricing->allocationMethod($product)
+                );
+                if ($weightedUnit > 0) {
+                    $finalPrice = $weightedUnit;
+                    $basePrice  = $weightedUnit;
+                }
+            }
 
             // 🛡️ Warranty — surcharge from the active batch
             if ($request->filled('warranty_tier_id')) {
@@ -370,12 +475,12 @@ $brands = Brand::where('status', 1)
                 }
             }
 
-            // 💰 Wholesale — discount from the active batch
-            if ($product->is_wholesale) {
-                $cartQty = max(1, (int) ($request->qty ?? 1));
-                $wholesaleDiscount = $pricing->wholesale($product, $cartQty, null, $variantId);
-                $finalPrice = max(0, $finalPrice - $wholesaleDiscount);
-            }
+            // 💰 Wholesale — discount from the active batch. In batch-wise mode the
+            //    wholesale tiers BELONG to the batch, so a matching tier always applies
+            //    (independent of the legacy products.is_wholesale flag). No tier → 0.
+            $cartQty = max(1, (int) ($request->qty ?? 1));
+            $wholesaleDiscount = $pricing->wholesale($product, $cartQty, null, $variantId);
+            $finalPrice = max(0, $finalPrice - $wholesaleDiscount);
         } else {
             // এখন price ঠিকভাবে fallback করো (legacy)
             if ($variantPrice && $variantPrice->price > 0) {
@@ -574,15 +679,20 @@ $brands = Brand::where('status', 1)
             ->where('approval_status', 'approved')
             ->select('id', 'name', 'slug', 'new_price', 'old_price', 'stock');
 
+        // ⭐ Batch-wise: sort & filter by the lowest sellable batch price.
+        if ($this->batchCatalogEnabled()) {
+            $products = $this->joinBatchMinSale($products);
+        }
+
         // sorting (same pattern as category/shop)
         if ($request->sort == 1) {
             $products = $products->orderBy('created_at', 'desc');
         } elseif ($request->sort == 2) {
             $products = $products->orderBy('created_at', 'asc');
         } elseif ($request->sort == 3) {
-            $products = $products->orderBy('new_price', 'desc');
+            $products = $products->orderBy($this->batchPriceSortColumn(), 'desc');
         } elseif ($request->sort == 4) {
-            $products = $products->orderBy('new_price', 'asc');
+            $products = $products->orderBy($this->batchPriceSortColumn(), 'asc');
         } elseif ($request->sort == 5) {
             $products = $products->orderBy('name', 'asc');
         } elseif ($request->sort == 6) {
@@ -591,17 +701,20 @@ $brands = Brand::where('status', 1)
             $products = $products->latest();
         }
 
-        $min_price = $products->min('new_price');
-        $max_price = $products->max('new_price');
+        $min_price = $this->batchCatalogEnabled() ? (float) (clone $products)->min('bm.min_sale') : $products->min('new_price');
+        $max_price = $this->batchCatalogEnabled() ? (float) (clone $products)->max('bm.min_sale') : $products->max('new_price');
 
         if ($request->min_price && $request->max_price) {
-            $products = $products->whereBetween('new_price', [
+            $priceColumn = $this->batchPriceSortColumn();
+            $products = $products->whereBetween($priceColumn, [
                 $request->min_price,
                 $request->max_price
             ]);
         }
 
         $products = $products->paginate(24);
+
+        app(\App\Services\PricingService::class)->attachCatalogRanges($products);
 
         return view('frontEnd.layouts.pages.brand', compact(
             'brand',
@@ -659,14 +772,19 @@ $brands = Brand::where('status', 1)
         $products = Product::where(['status' => 1, 'approval_status' => 'approved', 'topsale' => 1])
             ->select('id', 'name', 'slug', 'new_price', 'old_price','stock');
 
+        // ⭐ Batch-wise: sort & filter by the lowest sellable batch price.
+        if ($this->batchCatalogEnabled()) {
+            $products = $this->joinBatchMinSale($products);
+        }
+
         if ($request->sort == 1) {
             $products = $products->orderBy('created_at', 'desc');
         } elseif ($request->sort == 2) {
             $products = $products->orderBy('created_at', 'asc');
         } elseif ($request->sort == 3) {
-            $products = $products->orderBy('new_price', 'desc');
+            $products = $products->orderBy($this->batchPriceSortColumn(), 'desc');
         } elseif ($request->sort == 4) {
-            $products = $products->orderBy('new_price', 'asc');
+            $products = $products->orderBy($this->batchPriceSortColumn(), 'asc');
         } elseif ($request->sort == 5) {
             $products = $products->orderBy('name', 'asc');
         } elseif ($request->sort == 6) {
@@ -675,13 +793,15 @@ $brands = Brand::where('status', 1)
             $products = $products->latest();
         }
 
-        $min_price = $products->min('new_price');
-        $max_price = $products->max('new_price');
+        $priceColumn = $this->batchPriceSortColumn();
+        $min_price = $this->batchCatalogEnabled() ? (float) (clone $products)->min('bm.min_sale') : $products->min('new_price');
+        $max_price = $this->batchCatalogEnabled() ? (float) (clone $products)->max('bm.min_sale') : $products->max('new_price');
         if($request->min_price && $request->max_price){
-            $products = $products->where('new_price','>=',$request->min_price);
-            $products = $products->where('new_price','<=',$request->max_price);
+            $products = $products->where($priceColumn,'>=',$request->min_price);
+            $products = $products->where($priceColumn,'<=',$request->max_price);
         }
         $products = $products->paginate(36);
+        app(\App\Services\PricingService::class)->attachCatalogRanges($products);
         return view('frontEnd.layouts.pages.hotdeals', compact('products'));
     }
 
@@ -689,6 +809,11 @@ $brands = Brand::where('status', 1)
     {
         $products = Product::where(['status' => 1, 'approval_status' => 'approved'])
             ->select('id', 'name', 'slug', 'new_price', 'old_price','stock','category_id','brand_id');
+
+        // ⭐ Batch-wise: sort & filter by the lowest sellable batch price.
+        if ($this->batchCatalogEnabled()) {
+            $products = $this->joinBatchMinSale($products);
+        }
 
         // Filter by category
         if ($request->filled('category')) {
@@ -719,9 +844,9 @@ $brands = Brand::where('status', 1)
         } elseif ($request->sort == 2) {
             $products = $products->orderBy('created_at', 'asc');
         } elseif ($request->sort == 3) {
-            $products = $products->orderBy('new_price', 'desc');
+            $products = $products->orderBy($this->batchPriceSortColumn(), 'desc');
         } elseif ($request->sort == 4) {
-            $products = $products->orderBy('new_price', 'asc');
+            $products = $products->orderBy($this->batchPriceSortColumn(), 'asc');
         } elseif ($request->sort == 5) {
             $products = $products->orderBy('name', 'asc');
         } elseif ($request->sort == 6) {
@@ -730,11 +855,12 @@ $brands = Brand::where('status', 1)
             $products = $products->latest();
         }
 
-        $min_price = $products->min('new_price');
-        $max_price = $products->max('new_price');
+        $priceColumn = $this->batchPriceSortColumn();
+        $min_price = $this->batchCatalogEnabled() ? (float) (clone $products)->min('bm.min_sale') : $products->min('new_price');
+        $max_price = $this->batchCatalogEnabled() ? (float) (clone $products)->max('bm.min_sale') : $products->max('new_price');
         if($request->min_price && $request->max_price){
-            $products = $products->where('new_price','>=',$request->min_price);
-            $products = $products->where('new_price','<=',$request->max_price);
+            $products = $products->where($priceColumn,'>=',$request->min_price);
+            $products = $products->where($priceColumn,'<=',$request->max_price);
         }
         $products = $products->paginate(36);
 
@@ -755,6 +881,8 @@ $brands = Brand::where('status', 1)
             $q->where(['status' => 1, 'approval_status' => 'approved']);
         })->select('id', 'colorName', 'color')->get();
 
+        app(\App\Services\PricingService::class)->attachCatalogRanges($products);
+
         return view('frontEnd.layouts.pages.shop', compact('products', 'categories', 'brands', 'sizes', 'colors', 'min_price', 'max_price'));
     }
 
@@ -766,14 +894,19 @@ $brands = Brand::where('status', 1)
         $products = Product::where(['status' => 1, 'approval_status' => 'approved', 'flashsale' => 1])
             ->select('id', 'name', 'slug', 'new_price', 'old_price','stock');
 
+        // ⭐ Batch-wise: sort & filter by the lowest sellable batch price.
+        if ($this->batchCatalogEnabled()) {
+            $products = $this->joinBatchMinSale($products);
+        }
+
         if ($request->sort == 1) {
             $products = $products->orderBy('created_at', 'desc');
         } elseif ($request->sort == 2) {
             $products = $products->orderBy('created_at', 'asc');
         } elseif ($request->sort == 3) {
-            $products = $products->orderBy('new_price', 'desc');
+            $products = $products->orderBy($this->batchPriceSortColumn(), 'desc');
         } elseif ($request->sort == 4) {
-            $products = $products->orderBy('new_price', 'asc');
+            $products = $products->orderBy($this->batchPriceSortColumn(), 'asc');
         } elseif ($request->sort == 5) {
             $products = $products->orderBy('name', 'asc');
         } elseif ($request->sort == 6) {
@@ -782,13 +915,15 @@ $brands = Brand::where('status', 1)
             $products = $products->latest();
         }
 
-        $min_price = $products->min('new_price');
-        $max_price = $products->max('new_price');
+        $priceColumn = $this->batchPriceSortColumn();
+        $min_price = $this->batchCatalogEnabled() ? (float) (clone $products)->min('bm.min_sale') : $products->min('new_price');
+        $max_price = $this->batchCatalogEnabled() ? (float) (clone $products)->max('bm.min_sale') : $products->max('new_price');
         if($request->min_price && $request->max_price){
-            $products = $products->where('new_price','>=',$request->min_price);
-            $products = $products->where('new_price','<=',$request->max_price);
+            $products = $products->where($priceColumn,'>=',$request->min_price);
+            $products = $products->where($priceColumn,'<=',$request->max_price);
         }
         $products = $products->paginate(36);
+        app(\App\Services\PricingService::class)->attachCatalogRanges($products);
         return view('frontEnd.layouts.pages.flashsales', compact('products'));
     }
 
@@ -799,6 +934,12 @@ $brands = Brand::where('status', 1)
 
         $products = Product::where(['status' => 1, 'approval_status' => 'approved', 'category_id' => $category->id])
             ->select('id', 'name', 'slug', 'new_price', 'old_price', 'category_id', 'stock');
+
+        // ⭐ Batch-wise: sort & filter by the lowest sellable batch price.
+        if ($this->batchCatalogEnabled()) {
+            $products = $this->joinBatchMinSale($products);
+        }
+
         $subcategories = Subcategory::where('category_id', $category->id)->get();
 
         if ($request->sort == 1) {
@@ -806,9 +947,9 @@ $brands = Brand::where('status', 1)
         } elseif ($request->sort == 2) {
             $products = $products->orderBy('created_at', 'asc');
         } elseif ($request->sort == 3) {
-            $products = $products->orderBy('new_price', 'desc');
+            $products = $products->orderBy($this->batchPriceSortColumn(), 'desc');
         } elseif ($request->sort == 4) {
-            $products = $products->orderBy('new_price', 'asc');
+            $products = $products->orderBy($this->batchPriceSortColumn(), 'asc');
         } elseif ($request->sort == 5) {
             $products = $products->orderBy('name', 'asc');
         } elseif ($request->sort == 6) {
@@ -836,11 +977,12 @@ $brands = Brand::where('status', 1)
             });
         }
 
-        $min_price = $products->min('new_price');
-        $max_price = $products->max('new_price');
+        $priceColumn = $this->batchPriceSortColumn();
+        $min_price = $this->batchCatalogEnabled() ? (float) (clone $products)->min('bm.min_sale') : $products->min('new_price');
+        $max_price = $this->batchCatalogEnabled() ? (float) (clone $products)->max('bm.min_sale') : $products->max('new_price');
         if($request->min_price && $request->max_price){
-            $products = $products->where('new_price','>=',$request->min_price);
-            $products = $products->where('new_price','<=',$request->max_price);
+            $products = $products->where($priceColumn,'>=',$request->min_price);
+            $products = $products->where($priceColumn,'<=',$request->max_price);
         }
 
         $selectedSubcategories = $request->input('subcategory', []);
@@ -865,6 +1007,8 @@ $brands = Brand::where('status', 1)
             $q->where(['status' => 1, 'approval_status' => 'approved', 'category_id' => $category->id]);
         })->select('id', 'colorName', 'color')->get();
 
+        app(\App\Services\PricingService::class)->attachCatalogRanges($products);
+
         return view('frontEnd.layouts.pages.category', compact('category', 'products', 'subcategories', 'brands', 'sizes', 'colors', 'min_price', 'max_price','soldShow'));
     }
 
@@ -874,6 +1018,12 @@ $brands = Brand::where('status', 1)
         $subcategory = Subcategory::where(['slug' => $slug, 'status' => 1])->firstOrFail();
         $products = Product::where(['status' => 1, 'approval_status' => 'approved', 'category_id' => $subcategory->category_id])
             ->select('id', 'name', 'slug', 'new_price', 'old_price', 'category_id', 'stock');
+
+        // ⭐ Batch-wise: sort & filter by the lowest sellable batch price.
+        if ($this->batchCatalogEnabled()) {
+            $products = $this->joinBatchMinSale($products);
+        }
+
         $childcategories = Childcategory::where('subcategory_id', $subcategory->id)->get();
 
         if ($request->sort == 1) {
@@ -881,9 +1031,9 @@ $brands = Brand::where('status', 1)
         } elseif ($request->sort == 2) {
             $products = $products->orderBy('created_at', 'asc');
         } elseif ($request->sort == 3) {
-            $products = $products->orderBy('new_price', 'desc');
+            $products = $products->orderBy($this->batchPriceSortColumn(), 'desc');
         } elseif ($request->sort == 4) {
-            $products = $products->orderBy('new_price', 'asc');
+            $products = $products->orderBy($this->batchPriceSortColumn(), 'asc');
         } elseif ($request->sort == 5) {
             $products = $products->orderBy('name', 'asc');
         } elseif ($request->sort == 6) {
@@ -892,11 +1042,12 @@ $brands = Brand::where('status', 1)
             $products = $products->latest();
         }
 
-        $min_price = $products->min('new_price');
-        $max_price = $products->max('new_price');
+        $priceColumn = $this->batchPriceSortColumn();
+        $min_price = $this->batchCatalogEnabled() ? (float) (clone $products)->min('bm.min_sale') : $products->min('new_price');
+        $max_price = $this->batchCatalogEnabled() ? (float) (clone $products)->max('bm.min_sale') : $products->max('new_price');
         if($request->min_price && $request->max_price){
-            $products = $products->where('new_price','>=',$request->min_price);
-            $products = $products->where('new_price','<=',$request->max_price);
+            $products = $products->where($priceColumn,'>=',$request->min_price);
+            $products = $products->where($priceColumn,'<=',$request->max_price);
         }
 
         $selectedChildcategories = $request->input('childcategory', []);
@@ -913,6 +1064,8 @@ $brands = Brand::where('status', 1)
             ->select('id', 'name', 'slug')
             ->get();
 
+        app(\App\Services\PricingService::class)->attachCatalogRanges($products);
+
         return view('frontEnd.layouts.pages.subcategory', compact('subcategory', 'products', 'impproducts', 'childcategories', 'max_price', 'min_price','soldShow'));
     }
 
@@ -924,14 +1077,19 @@ $brands = Brand::where('status', 1)
         $products = Product::where(['status' => 1, 'approval_status' => 'approved', 'category_id' => $childcategory->subcategory->category_id ?? 1])->with('category')
             ->select('id', 'name', 'slug', 'new_price', 'old_price', 'category_id', 'stock');
 
+        // ⭐ Batch-wise: sort & filter by the lowest sellable batch price.
+        if ($this->batchCatalogEnabled()) {
+            $products = $this->joinBatchMinSale($products);
+        }
+
         if ($request->sort == 1) {
             $products = $products->orderBy('created_at', 'desc');
         } elseif ($request->sort == 2) {
             $products = $products->orderBy('created_at', 'asc');
         } elseif ($request->sort == 3) {
-            $products = $products->orderBy('new_price', 'desc');
+            $products = $products->orderBy($this->batchPriceSortColumn(), 'desc');
         } elseif ($request->sort == 4) {
-            $products = $products->orderBy('new_price', 'asc');
+            $products = $products->orderBy($this->batchPriceSortColumn(), 'asc');
         } elseif ($request->sort == 5) {
             $products = $products->orderBy('name', 'asc');
         } elseif ($request->sort == 6) {
@@ -940,11 +1098,12 @@ $brands = Brand::where('status', 1)
             $products = $products->latest();
         }
 
-        $min_price = $products->min('new_price');
-        $max_price = $products->max('new_price');
+        $priceColumn = $this->batchPriceSortColumn();
+        $min_price = $this->batchCatalogEnabled() ? (float) (clone $products)->min('bm.min_sale') : $products->min('new_price');
+        $max_price = $this->batchCatalogEnabled() ? (float) (clone $products)->max('bm.min_sale') : $products->max('new_price');
         if($request->min_price && $request->max_price){
-            $products = $products->where('new_price','>=',$request->min_price);
-            $products = $products->where('new_price','<=',$request->max_price);
+            $products = $products->where($priceColumn,'>=',$request->min_price);
+            $products = $products->where($priceColumn,'<=',$request->max_price);
         }
 
         $products = $products->paginate(24);
@@ -953,6 +1112,8 @@ $brands = Brand::where('status', 1)
             ->limit(6)
             ->select('id', 'name', 'slug','stock')
             ->get();
+
+        app(\App\Services\PricingService::class)->attachCatalogRanges($products);
 
         return view('frontEnd.layouts.pages.childcategory', compact('childcategory', 'products', 'impproducts', 'min_price', 'max_price', 'childcategories','soldShow'));
     }
@@ -984,6 +1145,8 @@ $brands = Brand::where('status', 1)
             ->select('id', 'name', 'slug', 'new_price', 'old_price', 'stock', 'category_id', 'brand_id', 'pro_unit')
             ->limit(12)
             ->get();
+
+        app(\App\Services\PricingService::class)->attachCatalogRanges($products);
 
         $shippingcharge = Cache::remember('shipping_charges_active', 300, fn() => ShippingCharge::where('status', 1)->get());
         $reviews = Review::where('product_id', $details->id)
@@ -1020,6 +1183,7 @@ $brands = Brand::where('status', 1)
         //    website batch (base price/stock already come from the accessors).
         $isWebsiteSellable = true;
         $activeBatch = null;
+        $variantAvailability = [];
         if (app(\App\Services\PricingService::class)->isBatchWise()) {
             $pricingSvc = app(\App\Services\PricingService::class);
             $isWebsiteSellable = $pricingSvc->isWebsiteSellable($details);
@@ -1032,6 +1196,60 @@ $brands = Brand::where('status', 1)
                     $vp->setAttribute('price', $resolved);
                 }
             });
+
+            // Attach the storefront price range (price_min/max, mrp_min/max) so the
+            // view can render batch-accurate prices, and mirror the resolved default
+            // into the legacy new_price/old_price attributes the page + its JS read.
+            // (View-only overrides — never persisted — and they also defeat the
+            //  10-min `product_details_*` cache staleness when a batch price changes.)
+            $pricingSvc->attachCatalogRanges($details);
+
+            $defaultSale = $pricingSvc->price($details, null, null, 'website');
+            $defaultMrp  = $pricingSvc->mrp($details, null, null);
+            if ($defaultSale > 0) {
+                $details->setAttribute('new_price', round($defaultSale, 2));
+            }
+            if ($defaultMrp !== null && $defaultMrp > 0) {
+                $details->setAttribute('old_price', round($defaultMrp, 2));
+            }
+
+            // 💰 Batch-wise wholesale: surface the ACTIVE batch's own quantity-discount
+            //    tiers on the details page (Spec §9 — wholesale belongs to the batch).
+            $wholesaleRows = $activeBatch ? $activeBatch->wholesalePrices()->get() : collect();
+            if ($wholesaleRows->isEmpty() && $details->is_wholesale && $details->wholesalePrices->count()) {
+                $wholesaleRows = $details->wholesalePrices; // legacy product-level fallback
+            }
+            if ($wholesaleRows->isNotEmpty()) {
+                // Normalize batch rows to the shape the details blade/JS expect.
+                $wholesaleRows = $wholesaleRows
+                    ->map(function ($w) {
+                        $w->setAttribute('variant_id', $w->variant_price_id ?? null);
+                        $w->setAttribute('stock', null);
+                        return $w;
+                    })
+                    ->sortBy('min_quantity')
+                    ->values();
+                $details->setRelation('wholesalePrices', $wholesaleRows);
+                if (!$details->is_wholesale) {
+                    $details->setAttribute('is_wholesale', true); // view-only, matches batch tier
+                }
+            }
+
+            // 🎨 Per-variant batch availability (Spec §18/§39): for each combination,
+            //    the applicable sale price (min), MRP and total stock across its
+            //    eligible batches (specific + ALL fallback). The JS uses this to show
+            //    the right price per variant and disable out-of-stock combinations.
+            if ($details->variantPrices->count()) {
+                foreach ($details->variantPrices as $vp) {
+                    $eligible = $pricingSvc->eligibleBatches($details, $vp->id);
+                    $range    = $pricingSvc->priceRange($details, $vp->id);
+                    $variantAvailability[$vp->id] = [
+                        'sale'  => $range['max_sale'] > 0 ? $range['min_sale'] : 0,
+                        'mrp'   => $range['max_mrp'] ?? null,
+                        'stock' => (int) $eligible->sum('remaining_qty'),
+                    ];
+                }
+            }
         }
 
         return view('frontEnd.layouts.pages.details', compact(
@@ -1041,7 +1259,8 @@ $brands = Brand::where('status', 1)
             'reviews',
             'vc_event_id',
             'isWebsiteSellable',
-            'activeBatch'
+            'activeBatch',
+            'variantAvailability'
         ));
     }
 
@@ -1051,6 +1270,10 @@ $brands = Brand::where('status', 1)
             ->with('images')
             ->withCount('reviews')
             ->first();
+
+        if ($data['data']) {
+            app(\App\Services\PricingService::class)->attachCatalogRanges($data['data']);
+        }
 
         $data = view('frontEnd.layouts.ajax.quickview', $data)->render();
         if ($data != '') {
@@ -1074,6 +1297,8 @@ $brands = Brand::where('status', 1)
         }
         $products = $products->get();
 
+        app(\App\Services\PricingService::class)->attachCatalogRanges($products);
+
         if (empty($request->category) && empty($keyword)) {
             $products = collect();
         }
@@ -1095,15 +1320,20 @@ $brands = Brand::where('status', 1)
             $products = $products->where('category_id', $request->category);
         }
 
+        // ⭐ Batch-wise: sort & filter by the lowest sellable batch price.
+        if ($this->batchCatalogEnabled()) {
+            $products = $this->joinBatchMinSale($products);
+        }
+
         // sorting
         if ($request->sort == 1) {
             $products = $products->orderBy('created_at', 'desc');
         } elseif ($request->sort == 2) {
             $products = $products->orderBy('created_at', 'asc');
         } elseif ($request->sort == 3) {
-            $products = $products->orderBy('new_price', 'desc');
+            $products = $products->orderBy($this->batchPriceSortColumn(), 'desc');
         } elseif ($request->sort == 4) {
-            $products = $products->orderBy('new_price', 'asc');
+            $products = $products->orderBy($this->batchPriceSortColumn(), 'asc');
         } elseif ($request->sort == 5) {
             $products = $products->orderBy('name', 'asc');
         } elseif ($request->sort == 6) {
@@ -1113,13 +1343,16 @@ $brands = Brand::where('status', 1)
         }
 
         // price range filter
+        $priceColumn = $this->batchPriceSortColumn();
         if ($request->min_price && $request->max_price) {
-            $products = $products->where('new_price', '>=', $request->min_price);
-            $products = $products->where('new_price', '<=', $request->max_price);
+            $products = $products->where($priceColumn, '>=', $request->min_price);
+            $products = $products->where($priceColumn, '<=', $request->max_price);
         }
 
         $products = $products->paginate(36);
         $keyword = $request->keyword ?? $request->q ?? '';
+
+        app(\App\Services\PricingService::class)->attachCatalogRanges($products);
 
         // Facebook CAPI Search (server-side)
         if (!empty($keyword)) {

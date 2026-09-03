@@ -15,6 +15,8 @@ class StockBatch extends Model
         'mrp', 'wholesale_price',
         'is_active_for_website', 'pos_enabled', 'auto_advance',
         'is_manual_price', 'price_updated_at', 'price_updated_by',
+        // storefront variant applicability (specific OR all variants)
+        'is_all_variants',
     ];
 
     protected function casts(): array
@@ -32,6 +34,7 @@ class StockBatch extends Model
             'pos_enabled' => 'boolean',
             'auto_advance' => 'boolean',
             'is_manual_price' => 'boolean',
+            'is_all_variants' => 'boolean',
             'mfg_date' => 'date',
             'exp_date' => 'date',
             'price_updated_at' => 'datetime',

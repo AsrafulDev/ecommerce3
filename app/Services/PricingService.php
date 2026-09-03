@@ -11,6 +11,7 @@ use App\Models\StockBatch;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Schema;
 
 /**
  * PricingService — the single source of truth for sellable prices.
@@ -127,35 +128,294 @@ class PricingService
     /**
      * FIFO allocation of a quantity across sellable batches.
      * e.g. b1=3, b2=10, qty=8 → [[b1,3],[b2,5]].
+     * Backward-compatible wrapper around allocate('FIFO').
      *
      * @return array<int, array{batch: StockBatch, qty: int}>
      */
     public function websiteAllocation(Product $product, int $qty): array
     {
+        return $this->allocate($product, $qty, null, 'FIFO');
+    }
+
+    // ──────────────────────────────────────────────────────
+    // ⭐ Storefront batch display & allocation API
+    //    (Spec: eligible batches → price range → allocate)
+    // ──────────────────────────────────────────────────────
+
+    /**
+     * Per-product stock allocation method used by the storefront:
+     * FIFO (oldest first) | LIFO (newest first) | AVG (weighted-average pricing).
+     */
+    public function allocationMethod(Product $product): string
+    {
+        if (!Schema::hasColumn('products', 'allocation_method')) {
+            return 'FIFO';
+        }
+        $method = strtoupper((string) ($product->allocation_method ?? 'FIFO'));
+        return in_array($method, ['FIFO', 'LIFO', 'AVG'], true) ? $method : 'FIFO';
+    }
+
+    /**
+     * Eligible (active + in-stock + unexpired) batches for a product.
+     *
+     * When $variantId is given, only batches applicable to that combination are
+     * returned ([Spec §25]):
+     *   - is_all_variants = true            → ALL-variant fallback pool
+     *   - variant_price_id == $variantId    → batch bought for this specific variant
+     *   - has a BatchVariantPrice row for V → explicitly priced for this variant
+     *   - true product-level batch          → variant_price_id null AND no per-variant rows
+     * Batches scoped to OTHER specific variants are excluded.
+     *
+     * @return Collection<int, StockBatch> ordered FIFO (oldest batch first)
+     */
+    public function eligibleBatches(Product $product, ?int $variantId = null): Collection
+    {
+        if (!$this->isBatchWise()) {
+            return collect();
+        }
+
+        $query = StockBatch::where('product_id', $product->id)->sellable();
+
+        if ($variantId) {
+            $query->where(function ($q) use ($variantId) {
+                // 1) ALL-variant batch → shared pool for every combination.
+                $q->where('is_all_variants', true)
+                  // 2) batch explicitly bought for THIS variant (variant_price_id set,
+                  //    is_all_variants=false) → serves ONLY this variant — bvp rows on a
+                  //    specific batch must NOT make it serve other variants.
+                  ->orWhere('variant_price_id', $variantId)
+                  // 3) product-level batch (variant_price_id null): serves this variant
+                  //    when it lists the variant via batch_variant_prices, or when it has
+                  //    no per-variant structure at all (pure shared pool).
+                  ->orWhere(function ($pool) use ($variantId) {
+                      $pool->whereNull('variant_price_id')
+                           ->where(function ($b) use ($variantId) {
+                               $b->whereDoesntHave('variantPrices')
+                                 ->orWhereHas('variantPrices', fn ($vp) => $vp->where('variant_price_id', $variantId));
+                           });
+                  });
+            });
+        }
+
+        return $query->orderBy('mfg_date')->orderBy('created_at')->orderBy('id')->get();
+    }
+
+    /**
+     * Stock-aware price range across eligible batches ([Spec §4/§22/§33]).
+     *
+     * Returns:
+     *   min_sale / max_sale : min & max sellable batch price (0 when none)
+     *   min_mrp  / max_mrp  : min & max MRP (null when no batch carries MRP)
+     *   count               : number of priced eligible batches
+     * Exhausted / expired / disabled batches are excluded (never shown).
+     */
+    public function priceRange(Product $product, ?int $variantId = null): array
+    {
+        $range = [
+            'min_sale' => 0.0,
+            'max_sale' => 0.0,
+            'min_mrp'  => null,
+            'max_mrp'  => null,
+            'count'    => 0,
+        ];
+
+        if (!$this->isBatchWise()) {
+            // Legacy fallback: a single product-level price.
+            $sale = $this->legacyPrice($product, $variantId);
+            if ($sale > 0) {
+                $range['min_sale'] = $range['max_sale'] = round($sale, 2);
+                $range['count'] = 1;
+            }
+            return $range;
+        }
+
+        $sales = [];
+        $mrps  = [];
+        foreach ($this->eligibleBatches($product, $variantId) as $batch) {
+            $sale = $this->batchSalePrice($batch, $variantId);
+            if ($sale > 0) {
+                $sales[] = $sale;
+            }
+            $mrp = $this->batchMrpValue($batch, $variantId);
+            if ($mrp !== null && $mrp > 0) {
+                $mrps[] = $mrp;
+            }
+        }
+
+        if ($sales) {
+            $range['min_sale'] = round((float) min($sales), 2);
+            $range['max_sale'] = round((float) max($sales), 2);
+        }
+        if ($mrps) {
+            $range['min_mrp'] = round((float) min($mrps), 2);
+            $range['max_mrp'] = round((float) max($mrps), 2);
+        }
+        $range['count'] = count($sales);
+
+        return $range;
+    }
+
+    /**
+     * Allocate a requested quantity across eligible batches ([Spec §5–§8]).
+     *
+     * FIFO → consume the oldest eligible batch first.
+     * LIFO → consume the newest eligible batch first.
+     * AVG  → physical consumption stays oldest-first, but every portion is priced
+     *        at the quantity-weighted average sale price of the eligible batches.
+     *
+     * @return array<int, array{batch: StockBatch, qty: int, unit_price: float, mrp: float|null}>
+     */
+    public function allocate(Product $product, int $qty, ?int $variantId = null, ?string $method = null): array
+    {
         if (!$this->isBatchWise()) {
             return [];
         }
 
+        $method = strtoupper((string) ($method ?: $this->allocationMethod($product)));
+        $method = in_array($method, ['FIFO', 'LIFO', 'AVG'], true) ? $method : 'FIFO';
+
+        // Eligible batches arrive FIFO-ordered (oldest first).
+        $batches = $this->eligibleBatches($product, $variantId)->values();
+
+        // AVG pricing rule: quantity-weighted average of eligible batch prices.
+        $avgPrice = null;
+        if ($method === 'AVG') {
+            $totalQty  = 0;
+            $totalVal  = 0.0;
+            foreach ($batches as $b) {
+                $q = max(0, (int) $b->remaining_qty);
+                $totalQty += $q;
+                $totalVal += $q * $this->batchSalePrice($b, $variantId);
+            }
+            if ($totalQty > 0) {
+                $avgPrice = $totalVal / $totalQty;
+            }
+            // Physical consumption is still FIFO for stock accounting.
+            $method = 'FIFO';
+        }
+
+        if ($method === 'LIFO') {
+            $batches = $batches->reverse()->values();
+        }
+
         $alloc = [];
-        $need  = $qty;
-
-        $batches = StockBatch::where('product_id', $product->id)
-            ->sellable()
-            ->orderBy('mfg_date')
-            ->orderBy('created_at')
-            ->orderBy('id')
-            ->get();
-
+        $need  = max(0, (int) $qty);
         foreach ($batches as $batch) {
             if ($need <= 0) {
                 break;
             }
             $take = min($need, (int) $batch->remaining_qty);
-            $alloc[] = ['batch' => $batch, 'qty' => $take];
+            $alloc[] = [
+                'batch'      => $batch,
+                'qty'        => $take,
+                'unit_price' => $avgPrice !== null ? round($avgPrice, 2) : $this->batchSalePrice($batch, $variantId),
+                'mrp'        => $this->batchMrpValue($batch, $variantId),
+            ];
             $need -= $take;
         }
 
         return $alloc;
+    }
+
+    /**
+     * Weighted per-unit sale price of a requested quantity across its eligible
+     * batches (used by per-batch billing — Spec §5/§8).
+     *
+     * Billing a whole cart line at this unit price yields exactly Σ(qty_i × price_i)
+     * (e.g. b1=3@10, b2=17@12, qty 20 → unit 11.7 → total 234). Only returned when
+     * the allocation fully covers the requested quantity; otherwise 0 (caller falls
+     * back to the active-batch price).
+     */
+    public function weightedAllocationUnit(Product $product, int $qty, ?int $variantId = null, ?string $method = null): float
+    {
+        if (!$this->isBatchWise() || $qty <= 0) {
+            return 0.0;
+        }
+        $alloc = $this->allocate($product, $qty, $variantId, $method);
+        $qtySum = 0;
+        $valSum = 0.0;
+        foreach ($alloc as $portion) {
+            $qtySum += $portion['qty'];
+            $valSum += $portion['qty'] * $portion['unit_price'];
+        }
+        if ($qtySum < $qty || $qtySum <= 0) {
+            return 0.0; // cannot fully allocate at these prices
+        }
+        return round($valSum / $qtySum, 2);
+    }
+
+    /**
+     * Attach batch price-range attributes to a set of products using ONE grouped
+     * query (no N+1). Accepts a Collection, Paginator or a single Product.
+     *
+     * Attributes set on each product (views share one code path):
+     *   price_min / price_max   : min & max sellable batch sale price
+     *   mrp_min  / mrp_max      : min & max batch MRP (null when absent)
+     *   price_single            : true when min == max (render a single price)
+     *   stock_sellable          : sum of sellable batch qty
+     * When batch-wise is OFF these fall back to the static product columns
+     * (new_price / old_price / stock), so non-batch pages still work.
+     */
+    public function attachCatalogRanges($products): void
+    {
+        if ($products === null) {
+            return;
+        }
+
+        if ($products instanceof Product) {
+            $items = collect([$products]);
+        } elseif (method_exists($products, 'getCollection')) { // LengthAwarePaginator
+            $items = $products->getCollection();
+        } elseif ($products instanceof Collection) {
+            $items = $products;
+        } else {
+            return;
+        }
+
+        $items = $items->filter(fn ($p) => $p instanceof Product)->values();
+        if ($items->isEmpty()) {
+            return;
+        }
+
+        if (!$this->isBatchWise()) {
+            // Legacy mode: single product price from the static columns.
+            foreach ($items as $p) {
+                $sale = (float) ($p->getRawOriginal('new_price') ?? 0);
+                $mrp  = (float) ($p->old_price ?? 0);
+                $p->setAttribute('price_min', $sale > 0 ? $sale : 0.0);
+                $p->setAttribute('price_max', $sale > 0 ? $sale : 0.0);
+                $p->setAttribute('mrp_min', $mrp > 0 ? $mrp : null);
+                $p->setAttribute('mrp_max', $mrp > 0 ? $mrp : null);
+                $p->setAttribute('price_single', true);
+                $p->setAttribute('stock_sellable', (int) ($p->stock ?? 0));
+            }
+            return;
+        }
+
+        // Batch-wise: one query for every sellable batch of the loaded products.
+        $rows = StockBatch::whereIn('product_id', $items->pluck('id'))
+            ->sellable()
+            ->get(['product_id', 'selling_price', 'mrp', 'remaining_qty'])
+            ->groupBy('product_id');
+
+        foreach ($items as $p) {
+            $batches = $rows->get($p->id, collect());
+
+            $sales = $batches
+                ->map(fn ($b) => (float) $b->selling_price)
+                ->filter(fn ($v) => $v > 0);
+
+            $mrps = $batches
+                ->map(fn ($b) => $b->mrp !== null ? (float) $b->mrp : null)
+                ->filter();
+
+            $p->setAttribute('price_min', $sales->isNotEmpty() ? round($sales->min(), 2) : 0.0);
+            $p->setAttribute('price_max', $sales->isNotEmpty() ? round($sales->max(), 2) : 0.0);
+            $p->setAttribute('mrp_min', $mrps->isNotEmpty() ? round($mrps->min(), 2) : null);
+            $p->setAttribute('mrp_max', $mrps->isNotEmpty() ? round($mrps->max(), 2) : null);
+            $p->setAttribute('price_single', $sales->isNotEmpty() && $sales->min() == $sales->max());
+            $p->setAttribute('stock_sellable', (int) $batches->sum('remaining_qty'));
+        }
     }
 
     // ──────────────────────────────────────────────────────
@@ -178,23 +438,8 @@ class PricingService
             return 0; // caller renders OUT OF STOCK
         }
 
-        // Variant-specific price for this batch
-        if ($variantId) {
-            $bvp = BatchVariantPrice::where('stock_batch_id', $batch->id)
-                ->where('variant_price_id', $variantId)
-                ->first();
-            if ($bvp && (float) $bvp->price > 0) {
-                return (float) $bvp->price;
-            }
-        }
-
-        // Batch base price
-        if ($batch->selling_price > 0) {
-            return (float) $batch->selling_price;
-        }
-
-        // Legacy fallback
-        return $this->legacyPrice($product, $variantId);
+        $price = $this->batchSalePrice($batch, $variantId);
+        return $price > 0 ? $price : $this->legacyPrice($product, $variantId);
     }
 
     /**
@@ -212,17 +457,9 @@ class PricingService
             return null;
         }
 
-        if ($variantId) {
-            $bvp = BatchVariantPrice::where('stock_batch_id', $batch->id)
-                ->where('variant_price_id', $variantId)
-                ->first();
-            if ($bvp && $bvp->old_price !== null && (float) $bvp->old_price > 0) {
-                return (float) $bvp->old_price;
-            }
-        }
-
-        if ($batch->mrp !== null && (float) $batch->mrp > 0) {
-            return (float) $batch->mrp;
+        $mrp = $this->batchMrpValue($batch, $variantId);
+        if ($mrp !== null && $mrp > 0) {
+            return $mrp;
         }
 
         $legacy = (float) ($product->old_price ?? 0);
@@ -370,11 +607,13 @@ class PricingService
         $stock  = StockBatch::where('product_id', $product->id)->sellable()->sum('remaining_qty');
 
         $price = null;
+        $mrp   = null;
         if ($active) {
-            $price = (float) ($active->selling_price ?? 0);
+            $price = $this->batchSalePrice($active, null);
             if ($price <= 0) {
                 $price = (float) ($product->getRawOriginal('new_price') ?? 0);
             }
+            $mrp = $this->batchMrpValue($active, null);
         }
 
         $product->website_price = $price;
@@ -384,6 +623,11 @@ class PricingService
         // without rewriting every query.
         if ($price !== null && (float) $price > 0) {
             $product->new_price = $price;
+        }
+        // Mirror the active batch MRP into old_price so <del> strikethrough
+        // pricing and discount badges also reflect the batch (not stale admin input).
+        if ($mrp !== null && (float) $mrp > 0) {
+            $product->old_price = $mrp;
         }
         $product->saveQuietly();
     }
@@ -401,6 +645,47 @@ class PricingService
         if ($channel === 'website') {
             return $this->activeWebsiteBatch($product);
         }
+        return null;
+    }
+
+    /**
+     * Sell price of ONE batch for a variant (shared by price/priceRange/allocate).
+     * Priority: batch_variant_prices override → batch selling_price.
+     * Returns 0.0 when the batch carries no sellable price.
+     */
+    protected function batchSalePrice(StockBatch $batch, ?int $variantId = null): float
+    {
+        if ($variantId) {
+            $bvp = BatchVariantPrice::where('stock_batch_id', $batch->id)
+                ->where('variant_price_id', $variantId)
+                ->first();
+            if ($bvp && (float) $bvp->price > 0) {
+                return (float) $bvp->price;
+            }
+        }
+
+        return (float) $batch->selling_price;
+    }
+
+    /**
+     * MRP / compare-at price of ONE batch for a variant (nullable).
+     * Priority: batch_variant_prices old_price → batch mrp.
+     */
+    protected function batchMrpValue(StockBatch $batch, ?int $variantId = null): ?float
+    {
+        if ($variantId) {
+            $bvp = BatchVariantPrice::where('stock_batch_id', $batch->id)
+                ->where('variant_price_id', $variantId)
+                ->first();
+            if ($bvp && $bvp->old_price !== null && (float) $bvp->old_price > 0) {
+                return (float) $bvp->old_price;
+            }
+        }
+
+        if ($batch->mrp !== null && (float) $batch->mrp > 0) {
+            return (float) $batch->mrp;
+        }
+
         return null;
     }
 

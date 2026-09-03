@@ -20,8 +20,30 @@
 @php
     $pcDesign      = $generalsetting->product_card_style ?? 'default';
     $pcImg         = $image_url ?? asset($product->image ? $product->image->image : '');
-    $pcDiscount    = $product->old_price ? (int) round((($product->old_price - $product->new_price) * 100) / $product->old_price) : 0;
-    $pcStockOut    = !is_null($product->stock) && $product->stock < 1;
+
+    // ⭐ Batch-aware price range (attached by the controller via
+    //    PricingService::attachCatalogRanges() when batch-wise is ON).
+    //    Falls back to the static new_price/old_price columns otherwise.
+    $pcHasRange   = !is_null($product->price_min ?? null) && !is_null($product->price_max ?? null);
+    $pcSaleMin    = $pcHasRange ? (float) $product->price_min : (float) ($product->new_price ?? 0);
+    $pcSaleMax    = $pcHasRange ? (float) $product->price_max : $pcSaleMin;
+    $pcMrpMin     = ($pcHasRange ? ($product->mrp_min ?? null) : null)
+                    ?? (($product->old_price ?? 0) ? (float) $product->old_price : null);
+    $pcMrpMax     = $pcHasRange ? ($product->mrp_max ?? $pcMrpMin) : $pcMrpMin;
+
+    $pcShowRange  = $pcHasRange && $pcSaleMax > $pcSaleMin; // render "min - max"
+    $pcSaleLabel  = $pcShowRange
+                    ? number_format($pcSaleMin, 0) . ' - ' . number_format($pcSaleMax, 0)
+                    : number_format($pcSaleMax, 0);
+    $pcMrpLabel   = ($pcMrpMin !== null && $pcMrpMax !== null && $pcMrpMax > $pcMrpMin)
+                    ? number_format($pcMrpMin, 0) . ' - ' . number_format($pcMrpMax, 0)
+                    : ($pcMrpMax !== null ? number_format($pcMrpMax, 0) : null);
+
+    $pcDiscount    = ($pcMrpMax !== null && $pcMrpMax > $pcSaleMax)
+                    ? (int) round((($pcMrpMax - $pcSaleMax) * 100) / $pcMrpMax)
+                    : 0;
+    $pcStockOut    = ($pcHasRange && $pcSaleMax <= 0)
+                    || (!is_null($product->stock) && $product->stock < 1);
     $pcHasVariants = !$product->prosizes->isEmpty() || !$product->procolors->isEmpty();
     $pcHasWarranty = ($product->warranty_method ?? 'active') === 'active'
         && $product->warrantyTiers()->where('is_active', true)->where('warranty_type', '!=', 'none')->exists();
@@ -47,7 +69,7 @@
 {{-- ============ PREMIUM (new default) — layered shadow, hover quick-actions, gradient price ============ --}}
 <div class="product_item wist_item pc-premium {{ $classes ?? '' }}" {!! $attrs ?? '' !!}>
     <div class="pc-premium__media">
-        @if ($product->old_price)
+        @if ($pcMrpLabel)
             <span class="pc-premium__badge">-{{ $pcDiscount }}%</span>
         @endif
         <a class="pro_img pc-premium__img" href="{{ route('product', $product->slug) }}">
@@ -76,8 +98,8 @@
         @endif
         <a class="pc-premium__name" href="{{ route('product', $product->slug) }}">{{ Str::limit($product->name, 60) }}</a>
         <div class="pc-premium__price">
-            @if ($product->old_price) <del>৳ {{ $product->old_price }}</del> @endif
-            <span class="pc-premium__now">৳ {{ $product->new_price }}</span>
+            @if ($pcMrpLabel) <del>৳ {{ $pcMrpLabel }}</del> @endif
+            <span class="pc-premium__now">৳ {{ $pcSaleLabel }}</span>
         </div>
         @if ($pcHasWarranty)
             <small class="pc-premium__warranty">🛡️ {{ __('Warranty') }}</small>
@@ -112,7 +134,7 @@
     </div>
     <div class="pc-overlay__panel">
         <div class="pc-overlay__meta">
-            @if ($product->old_price)
+            @if ($pcMrpLabel)
                 <span class="pc-overlay__badge">-{{ $pcDiscount }}%</span>
             @endif
             @if ($pcStarsHtml)
@@ -120,8 +142,8 @@
             @endif
             <a class="pc-overlay__name" href="{{ route('product', $product->slug) }}">{{ Str::limit($product->name, 60) }}</a>
             <div class="pc-overlay__price">
-                @if ($product->old_price) <del>৳ {{ $product->old_price }}</del> @endif
-                <span>৳ {{ $product->new_price }}</span>
+                @if ($pcMrpLabel) <del>৳ {{ $pcMrpLabel }}</del> @endif
+                <span>৳ {{ $pcSaleLabel }}</span>
             </div>
         </div>
         <div class="pc-overlay__btn">
@@ -133,7 +155,7 @@
 @elseif ($pcDesign === 'ribbon')
 {{-- ============ RIBBON — pennant ribbon badge, centered body, split action bar ============ --}}
 <div class="product_item wist_item pc-ribbon {{ $classes ?? '' }}" {!! $attrs ?? '' !!}>
-    @if ($product->old_price)
+    @if ($pcMrpLabel)
         <div class="pc-ribbon__badge"><span>-{{ $pcDiscount }}%</span></div>
     @endif
     <div class="pc-ribbon__media">
@@ -150,8 +172,8 @@
         @endif
         <a class="pc-ribbon__name" href="{{ route('product', $product->slug) }}">{{ Str::limit($product->name, 60) }}</a>
         <div class="pc-ribbon__price">
-            @if ($product->old_price) <del>৳ {{ $product->old_price }}</del> @endif
-            <span>৳ {{ $product->new_price }}</span>
+            @if ($pcMrpLabel) <del>৳ {{ $pcMrpLabel }}</del> @endif
+            <span>৳ {{ $pcSaleLabel }}</span>
         </div>
     </div>
     <div class="pc-ribbon__btn">
@@ -175,11 +197,11 @@
             @endif
             <a class="pc-glass__name" href="{{ route('product', $product->slug) }}">{{ Str::limit($product->name, 55) }}</a>
             <div class="pc-glass__price">
-                @if ($product->old_price) <del>৳ {{ $product->old_price }}</del> @endif
-                <span>৳ {{ $product->new_price }}</span>
+                @if ($pcMrpLabel) <del>৳ {{ $pcMrpLabel }}</del> @endif
+                <span>৳ {{ $pcSaleLabel }}</span>
             </div>
         </div>
-        @if ($product->old_price)
+        @if ($pcMrpLabel)
             <span class="pc-glass__badge">-{{ $pcDiscount }}%</span>
         @endif
         @if (!$pcHasVariants && !$pcStockOut)
@@ -199,7 +221,7 @@
 {{-- ============ CLASSIC STRUCTURE (legacy / minimal / classic / dark / rounded / gradient) ============ --}}
 <div class="product_item wist_item {{ $classes ?? '' }}" {!! $attrs ?? '' !!}>
     <div class="product_item_inner">
-        @if ($product->old_price)
+        @if ($pcMrpLabel)
             <div class="sale-badge">
                 <div class="sale-badge-inner">
                     <div class="sale-badge-box">
@@ -227,8 +249,8 @@
             @endif
             <div class="pro_price">
                 <p>
-                    @if ($product->old_price) <del>৳ {{ $product->old_price }}</del> @endif
-                    ৳ {{ $product->new_price }}
+                    @if ($pcMrpLabel) <del>৳ {{ $pcMrpLabel }}</del> @endif
+                    ৳ {{ $pcSaleLabel }}
                 </p>
             </div>
         </div>

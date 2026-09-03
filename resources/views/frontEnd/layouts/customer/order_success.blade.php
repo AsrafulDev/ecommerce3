@@ -316,6 +316,10 @@
 @push('script')
 <script>
 (function () {
+    // ✅ Order placed → clear the stored checkout customer info so a future
+    //    checkout starts clean.
+    try { localStorage.removeItem('lara_checkout_customer'); } catch (e) {}
+
     var orderId    = '{{ $order->invoice_id }}';
     var storageKey = 'purchase_fired_' + orderId;
 

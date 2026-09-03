@@ -19,11 +19,25 @@ class WarrantyDisplayService
             ->where('is_active', true)->orderBy('sort_order');
         if ($variantId) { $query->forVariant($variantId); } else { $query->global(); }
         $tiers = $query->get();
-        $basePrice = $product->new_price ?? $product->old_price ?? 0;
+
+        // ⭐ Batch-wise: the surcharge and the base price come from the batch
+        //    (batch_warranty_tiers.additional_cost / active batch selling price),
+        //    falling back to the product tier cost when no batch override exists.
+        $pricing = app(PricingService::class);
+        $isBatchWise = $pricing->isBatchWise();
+        $batchBase = 0;
+        if ($isBatchWise) {
+            $resolved = $pricing->price($product, null, $variantId, 'website');
+            $batchBase = $resolved > 0 ? $resolved : 0;
+        }
+        $basePrice = $batchBase > 0 ? $batchBase : ($product->new_price ?? $product->old_price ?? 0);
         $displayable = [];
 
         foreach ($tiers as $tier) {
-            $adj = (float) ($tier->additional_cost ?? 0);
+            // Single source of truth for the per-batch warranty surcharge (+/−/0).
+            $adj = $isBatchWise
+                ? $pricing->warrantyAdjustment($product, $tier->id, null, $variantId)
+                : (float) ($tier->additional_cost ?? 0);
             $finalPrice = $basePrice + $adj;
             $label = $tier->warranty_days > 0 ? $tier->tier_name : $tier->tier_name;
             $badge = $adj < 0 ? 'Save '.abs($adj).' TK!' : ($adj > 0 ? '+'.$adj.' TK' : ($tier->badge ?? null));

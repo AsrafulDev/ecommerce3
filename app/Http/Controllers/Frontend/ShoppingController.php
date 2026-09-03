@@ -448,7 +448,15 @@ if ($product->is_wholesale) {
         $item = Cart::instance('shopping')->get($request->id);
         $qty  = $item->qty + 1;
 
-        Cart::instance('shopping')->update($request->id, $qty);
+        if ($this->isPerBatchMode()) {
+            // ⭐ Per-batch billing (Phase 5): re-allocate for the new qty & reprice.
+            Cart::instance('shopping')->update($request->id, [
+                'qty'   => $qty,
+                'price' => $this->perBatchUnitPrice($item, $qty),
+            ]);
+        } else {
+            Cart::instance('shopping')->update($request->id, $qty);
+        }
 
         $data = Cart::instance('shopping')->content();
         return view('frontEnd.layouts.ajax.cart', compact('data'));
@@ -460,10 +468,52 @@ if ($product->is_wholesale) {
         $item = Cart::instance('shopping')->get($request->id);
         $qty  = max(1, $item->qty - 1); // ১ এর নিচে নামবে না
 
-        Cart::instance('shopping')->update($request->id, $qty);
+        if ($this->isPerBatchMode()) {
+            // ⭐ Per-batch billing (Phase 5): re-allocate for the new qty & reprice.
+            Cart::instance('shopping')->update($request->id, [
+                'qty'   => $qty,
+                'price' => $this->perBatchUnitPrice($item, $qty),
+            ]);
+        } else {
+            Cart::instance('shopping')->update($request->id, $qty);
+        }
 
         $data = Cart::instance('shopping')->content();
         return view('frontEnd.layouts.ajax.cart', compact('data'));
+    }
+
+    // ⭐ Per-batch billing helpers (Phase 5) — active only when
+    //    BATCH_WISE_PRICING=true AND PRICING_MULTI_BATCH_PRICING=per_batch.
+    protected function isPerBatchMode(): bool
+    {
+        return app(\App\Services\PricingService::class)->isBatchWise()
+            && config('pricing.multi_batch_pricing', 'active_batch') === 'per_batch';
+    }
+
+    /**
+     * Recompute the per-unit price of a cart row for a new qty under per-batch
+     * billing: quantity-weighted unit across eligible batches, then re-apply the
+     * row's warranty + wholesale adjustments (kept from add). Total stays
+     * Σ(qty_i × price_i). Falls back to the current price when not allocatable.
+     */
+    protected function perBatchUnitPrice($item, int $qty): float
+    {
+        if ($qty <= 0 || !$item) {
+            return (float) $item->price;
+        }
+        $pricing = app(\App\Services\PricingService::class);
+        $product = \App\Models\Product::find($item->id);
+        if (!$product) {
+            return (float) $item->price;
+        }
+        $variantId = $item->options->variant_price_id ?? null;
+        $weighted  = $pricing->weightedAllocationUnit($product, $qty, $variantId, $pricing->allocationMethod($product));
+        if ($weighted <= 0) {
+            return (float) $item->price;
+        }
+        $warrantyAdj   = (float) ($item->options->warranty_adjustment ?? 0);
+        $wholesaleDisc = (float) ($item->options->wholesale_discount ?? 0);
+        return max(0, round($weighted + $warrantyAdj - $wholesaleDisc, 2));
     }
 
     // 🟢 Cart count (header)

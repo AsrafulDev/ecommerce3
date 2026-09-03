@@ -1370,4 +1370,102 @@ if (typeof ttq !== 'undefined') {
     })();
 
 </script>
+
+{{-- 🧾 কাস্টমার ইনফো auto-save (localStorage) + cross-tab sync — রিলোড/ব্যাক/ট্যাব বদলেও ডেটা হারায় না --}}
+<script>
+(function () {
+    var LS_KEY = 'lara_checkout_customer';
+    var FIELDS = ['name', 'phone', 'address', 'order_note'];
+
+    function readForm() {
+        var data = {};
+        FIELDS.forEach(function (n) {
+            var el = document.querySelector('#checkout-form [name="' + n + '"]');
+            if (el) data[n] = el.value;
+        });
+        return data;
+    }
+
+    // ডিবাউন্সড অটো-সেভ (প্রতি টাইপে নয়)
+    var saveTimer = null;
+    function scheduleSave() {
+        if (saveTimer) clearTimeout(saveTimer);
+        saveTimer = setTimeout(saveNow, 250);
+    }
+    function saveNow() {
+        if (saveTimer) { clearTimeout(saveTimer); saveTimer = null; }
+        try { localStorage.setItem(LS_KEY, JSON.stringify(readForm())); } catch (e) {}
+        showSaved('✓ Auto-saved');
+    }
+
+    function applyToFields(data) {
+        FIELDS.forEach(function (n) {
+            var el = document.querySelector('#checkout-form [name="' + n + '"]');
+            if (el && data[n] !== undefined && data[n] !== null && data[n] !== '') el.value = data[n];
+        });
+    }
+    function restore() {
+        var raw = null;
+        try { raw = localStorage.getItem(LS_KEY); } catch (e) {}
+        if (!raw) return;
+        var data = null;
+        try { data = JSON.parse(raw); } catch (e) { return; }
+        if (!data || typeof data !== 'object') return;
+        applyToFields(data);
+        showSaved('Draft restored', 1600);
+    }
+
+    // ছোট্ট "Auto-saved" pill (পেজের কোণে)
+    var savedPill = null;
+    function showSaved(msg, timeout) {
+        if (!savedPill) {
+            savedPill = document.createElement('div');
+            savedPill.id = 'checkoutAutosavePill';
+            document.body.appendChild(savedPill);
+        }
+        savedPill.textContent = msg || '✓ Auto-saved';
+        savedPill.className = 'show';
+        if (timeout !== false) {
+            clearTimeout(showSaved._t);
+            showSaved._t = setTimeout(function () { if (savedPill) savedPill.className = ''; }, timeout || 1800);
+        }
+    }
+
+    function init() {
+        var form = document.getElementById('checkout-form');
+        if (!form) return;
+
+        restore();
+        form.addEventListener('input', scheduleSave);
+        form.addEventListener('change', scheduleSave);
+
+        // Cross-tab sync: অন্য ট্যাবে সেভ হলে এই ট্যাবেও আপডেট হবে
+        window.addEventListener('storage', function (e) {
+            if (e.key === LS_KEY && e.newValue) {
+                var d = null;
+                try { d = JSON.parse(e.newValue); } catch (err) {}
+                if (d && typeof d === 'object') applyToFields(d);
+            }
+        });
+
+        // ট্যাব/পেজ বন্ধের আগে নিশ্চিত করে লিখে রাখি
+        window.addEventListener('pagehide', saveNow);
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', init);
+    } else {
+        init();
+    }
+
+    // অর্ডার সম্পন্ন হওয়ার পর সাফ করতে order_success পেজ থেকে কল হয়
+    window.clearCheckoutCustomerLocal = function () {
+        try { localStorage.removeItem(LS_KEY); } catch (e) {}
+    };
+})();
+</script>
+<style>
+#checkoutAutosavePill{ position:fixed; right:16px; bottom:16px; z-index:10060; background:#198754; color:#fff; padding:7px 14px; border-radius:30px; font-size:13px; opacity:0; pointer-events:none; transition:opacity .25s; box-shadow:0 4px 12px rgba(0,0,0,.18);}
+#checkoutAutosavePill.show{ opacity:1; }
+</style>
 @endpush
