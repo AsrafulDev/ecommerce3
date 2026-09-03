@@ -100,11 +100,11 @@
   </div>
 
   <div class="quick-actions">
-    <a href="#" class="quick-action-btn"><i class="fas fa-plus-circle"></i> New Order</a>
-    <a href="#" class="quick-action-btn"><i class="fas fa-box"></i> Add Product</a>
-    <a href="#" class="quick-action-btn"><i class="fas fa-tag"></i> Add Coupon</a>
-    <a href="#" class="quick-action-btn"><i class="fas fa-pen"></i> Write Blog</a>
-    <a href="#" class="quick-action-btn"><i class="fas fa-coins"></i> Fund</a>
+    <a href="{{ route('admin.order.create') }}" class="quick-action-btn"><i class="fas fa-plus-circle"></i> New Order</a>
+    <a href="{{ route('products.create') }}" class="quick-action-btn"><i class="fas fa-box"></i> Add Product</a>
+    <a href="{{ route('admin.coupons.create') }}" class="quick-action-btn"><i class="fas fa-tag"></i> Add Coupon</a>
+    <a href="{{ route('admin.blog.create') }}" class="quick-action-btn"><i class="fas fa-pen"></i> Write Blog</a>
+    <a href="{{ route('admin.fund.index') }}" class="quick-action-btn"><i class="fas fa-coins"></i> Fund</a>
   </div>
 
   <div class="stat-grid">

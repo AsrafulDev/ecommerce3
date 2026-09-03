@@ -6,7 +6,7 @@
 	<meta name="csrf-token" content="{{ csrf_token() }}">
 
 	<title>Reset Password | {{$generalsetting->name}}</title>
-	<link rel="shortcut icon" href="{{asset($generalsetting->favicon)}}" alt="{{$generalsetting->name}}" />
+	<link rel="shortcut icon" href="{{asset($generalsetting->favicon ?? 'public/assets/images/CurlBazar.svg')}}" alt="{{$generalsetting->name ?? 'CurlBazar'}}" />
 
 	<!-- google font -->
 	<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Poppins:300,400,500,600,700">
@@ -32,7 +32,7 @@
 						<div class="card text-left">
 							<div class="card-body">
 								<div class="mb-5 text-center">
-									<img src="{{asset($generalsetting->dark_logo)}}" class="mw-100 mb-4" height="40">
+									<img src="{{asset($generalsetting->dark_logo ?? 'public/assets/images/CurlBazar.svg')}}" class="mw-100 mb-4" height="40">
 									<h1 class="h3 text-primary mb-0">{{ __('Reset Password') }}</h1>
 									<p> {{ __('Enter your new password below') }} </p>
 								</div>

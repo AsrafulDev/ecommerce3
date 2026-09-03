@@ -10,7 +10,7 @@
 		
         <!-- App favicon -->
 
-        <link rel="shortcut icon" href="{{asset($generalsetting->favicon)}}" alt="{{$generalsetting->name}} Favicon" />
+        <link rel="shortcut icon" href="{{asset($generalsetting->favicon ?? 'public/frontEnd/images/default-favicon.ico')}}" alt="{{$generalsetting->name ?? ''}} Favicon" />
         <meta name="author" content="Creative Design" />
         <link rel="canonical" href="{{ url()->current() }}" />
         @stack('seo') 
@@ -31,8 +31,8 @@
         <link rel="stylesheet" href="{{ url('/responsive.css') }}?v={{ time() }}">
                 <link rel="stylesheet" href="{{asset('public/frontEnd/css/main.css')}}" />
 
-        <meta name="facebook-domain-verification" content="{{$generalsetting->facebook_verification}}" />
-        <meta name="google-site-verification" content="{{$generalsetting->google_verification}}" />
+        <meta name="facebook-domain-verification" content="{{$generalsetting->facebook_verification ?? ''}}" />
+        <meta name="google-site-verification" content="{{$generalsetting->google_verification ?? ''}}" />
 
         {{-- Data Layer - must load first for GTM/GA4/Facebook/TikTok --}}
         <script>
@@ -469,7 +469,7 @@
                 100% { transform: translateX(-50%); }
             }
         </style>
-        {!! $generalsetting->header_code !!}
+        {!! $generalsetting->header_code ?? '' !!}
     </head>
     @php
         $pcPageContext = request()->route() && request()->route()->getName() === 'home' ? 'pc-home' : 'pc-other';
@@ -485,7 +485,7 @@
         <div class="mobile-menu">
                 <div class="mobile-menu-logo">
                     <div class="logo-image">
-                        <img src="{{ asset($generalsetting->dark_logo ?: 'public/assets/images/CurlBazar.svg') }}" alt="" />
+                        <img src="{{ asset($generalsetting->dark_logo ?? 'public/assets/images/CurlBazar.svg') }}" alt="" />
                     </div>
                     <div class="mobile-menu-close">
                         <i class="fa fa-times"></i>
@@ -1041,7 +1041,7 @@
 
   <!-- Chat Options -->
   <div class="chat-options" id="chatOptions">
-          <a href="https://m.me/{{$generalsetting->facebook_page_username}}" target="_blank" class="chat-btn messenger" title="Messenger">
+          <a href="https://m.me/{{$generalsetting->facebook_page_username ?? 'softmit'}}" target="_blank" class="chat-btn messenger" title="Messenger">
       <i class="fab fa-facebook-messenger"></i>
     </a>
           <a href="https://wa.me/{{ $contact->whatsapp ?? '8801519607646' }}" target="_blank" class="chat-btn whatsapp" title="WhatsApp">

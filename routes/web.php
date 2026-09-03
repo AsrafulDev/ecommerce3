@@ -73,7 +73,13 @@ use App\Http\Controllers\Frontend\ContactMessageController as FrontendContactMes
 use App\Http\Controllers\Frontend\BlogController;
 use App\Http\Controllers\Admin\BlogController as AdminBlogController;
 use App\Http\Controllers\Admin\PopupController;
+use App\Http\Controllers\InstallerController;
 
+// First-run install wizard — only reachable while the DB is empty.
+Route::middleware(['redirect.if.installed'])->group(function () {
+    Route::get('install', [InstallerController::class, 'index'])->name('install.index');
+    Route::post('install', [InstallerController::class, 'store'])->name('install.store');
+});
 
 Route::get('admin/clear-cache', function () {
     Artisan::call('optimize:clear');
@@ -525,118 +531,118 @@ Route::get('/admin/products/{id}/variants', function($id) {
 // admin route group
 Route::group(['middleware' => ['auth:admin','admin','lock','check_refer','demo_mode'], 'prefix' => 'admin'], function () {
 	// 🟢 Coupon Management
-Route::get('coupon/manage', [CouponController::class, 'index'])->name('admin.coupons.index');
-Route::get('coupon/create', [CouponController::class, 'create'])->name('admin.coupons.create');
-Route::post('coupon/save', [CouponController::class, 'store'])->name('admin.coupons.store');
-Route::get('coupon/{id}/edit', [CouponController::class, 'edit'])->name('admin.coupons.edit');
-Route::match(['put', 'post'], 'coupon/update/{id}', [CouponController::class, 'update'])->name('admin.coupons.update');
+    Route::get('coupon/manage', [CouponController::class, 'index'])->name('admin.coupons.index');
+    Route::get('coupon/create', [CouponController::class, 'create'])->name('admin.coupons.create');
+    Route::post('coupon/save', [CouponController::class, 'store'])->name('admin.coupons.store');
+    Route::get('coupon/{id}/edit', [CouponController::class, 'edit'])->name('admin.coupons.edit');
+    Route::match(['put', 'post'], 'coupon/update/{id}', [CouponController::class, 'update'])->name('admin.coupons.update');
 
-Route::delete('coupon/destroy/{id}', [CouponController::class, 'destroy'])
-     ->name('admin.coupons.destroy');
+    Route::delete('coupon/destroy/{id}', [CouponController::class, 'destroy'])
+        ->name('admin.coupons.destroy');
 
-// লাইসেন্স ইনফরমেশন দেখার রাউট
-Route::get('license-info', [App\Http\Controllers\Admin\LicenseController::class, 'licenseInfo'])->name('admin.license.info');
+    // লাইসেন্স ইনফরমেশন দেখার রাউট
+    Route::get('license-info', [App\Http\Controllers\Admin\LicenseController::class, 'licenseInfo'])->name('admin.license.info');
 
-// লাইসেন্স কী আপডেট করার রাউট (অ্যাডমিন থেকে, DB-তে সংরক্ষণ)
-Route::post('license-info/save-key', [App\Http\Controllers\Admin\LicenseController::class, 'saveLicenseKey'])->name('admin.license.save');
+    // লাইসেন্স কী আপডেট করার রাউট (অ্যাডমিন থেকে, DB-তে সংরক্ষণ)
+    Route::post('license-info/save-key', [App\Http\Controllers\Admin\LicenseController::class, 'saveLicenseKey'])->name('admin.license.save');
 
-// Update Management Routes (License Protected)
-Route::get('updates', [App\Http\Controllers\Admin\UpdateController::class, 'index'])->name('admin.updates.index');
-Route::get('updates/check', [App\Http\Controllers\Admin\UpdateController::class, 'checkUpdates'])->name('admin.updates.check');
-Route::get('updates/info', [App\Http\Controllers\Admin\UpdateController::class, 'getUpdateInfo'])->name('admin.updates.info');
-Route::post('updates/download', [App\Http\Controllers\Admin\UpdateController::class, 'downloadUpdate'])->name('admin.updates.download');
-Route::post('updates/install', [App\Http\Controllers\Admin\UpdateController::class, 'installUpdate'])->name('admin.updates.install');
-Route::get('updates/backups', [App\Http\Controllers\Admin\UpdateController::class, 'listBackups'])->name('admin.updates.backups');
-Route::post('updates/create-backup', [App\Http\Controllers\Admin\UpdateController::class, 'createBackup'])->name('admin.updates.create-backup');
-Route::get('updates/backup/download/{filename}', [App\Http\Controllers\Admin\UpdateController::class, 'downloadBackup'])->name('admin.updates.backup.download');
-// Update Release Routes (For Main Website)
-Route::get('update-release', [App\Http\Controllers\Admin\UpdateReleaseController::class, 'index'])->name('admin.update.release');
-Route::post('update-release', [App\Http\Controllers\Admin\UpdateReleaseController::class, 'store'])->name('admin.update.release.store');
-Route::post('update-release/{id}/toggle', [App\Http\Controllers\Admin\UpdateReleaseController::class, 'toggleActive'])->name('admin.update.release.toggle');
-Route::delete('update-release/{id}', [App\Http\Controllers\Admin\UpdateReleaseController::class, 'destroy'])->name('admin.update.release.destroy');
+    // Update Management Routes (License Protected)
+    Route::get('updates', [App\Http\Controllers\Admin\UpdateController::class, 'index'])->name('admin.updates.index');
+    Route::get('updates/check', [App\Http\Controllers\Admin\UpdateController::class, 'checkUpdates'])->name('admin.updates.check');
+    Route::get('updates/info', [App\Http\Controllers\Admin\UpdateController::class, 'getUpdateInfo'])->name('admin.updates.info');
+    Route::post('updates/download', [App\Http\Controllers\Admin\UpdateController::class, 'downloadUpdate'])->name('admin.updates.download');
+    Route::post('updates/install', [App\Http\Controllers\Admin\UpdateController::class, 'installUpdate'])->name('admin.updates.install');
+    Route::get('updates/backups', [App\Http\Controllers\Admin\UpdateController::class, 'listBackups'])->name('admin.updates.backups');
+    Route::post('updates/create-backup', [App\Http\Controllers\Admin\UpdateController::class, 'createBackup'])->name('admin.updates.create-backup');
+    Route::get('updates/backup/download/{filename}', [App\Http\Controllers\Admin\UpdateController::class, 'downloadBackup'])->name('admin.updates.backup.download');
+    // Update Release Routes (For Main Website)
+    Route::get('update-release', [App\Http\Controllers\Admin\UpdateReleaseController::class, 'index'])->name('admin.update.release');
+    Route::post('update-release', [App\Http\Controllers\Admin\UpdateReleaseController::class, 'store'])->name('admin.update.release.store');
+    Route::post('update-release/{id}/toggle', [App\Http\Controllers\Admin\UpdateReleaseController::class, 'toggleActive'])->name('admin.update.release.toggle');
+    Route::delete('update-release/{id}', [App\Http\Controllers\Admin\UpdateReleaseController::class, 'destroy'])->name('admin.update.release.destroy');
 
-Route::get('contact-messages',
-        [ContactMessageController::class, 'index']
-    )->name('admin.contact.messages');
+    Route::get('contact-messages',
+            [ContactMessageController::class, 'index']
+        )->name('admin.contact.messages');
 
-Route::post('contact-messages/status/{id}',
-        [ContactMessageController::class, 'status']
-    )->name('admin.contact.messages.status');
+    Route::post('contact-messages/status/{id}',
+            [ContactMessageController::class, 'status']
+        )->name('admin.contact.messages.status');
 
-Route::delete('contact-messages/delete/{id}',
-        [ContactMessageController::class, 'destroy']
-    )->name('admin.contact.messages.delete');
+    Route::delete('contact-messages/delete/{id}',
+            [ContactMessageController::class, 'destroy']
+        )->name('admin.contact.messages.delete');
 
-// Newsletter Subscribers
-Route::get('newsletter-subscribers',
-    [\App\Http\Controllers\Admin\NewsletterSubscriberController::class, 'index']
-)->name('admin.newsletter.subscribers');
+    // Newsletter Subscribers
+    Route::get('newsletter-subscribers',
+        [\App\Http\Controllers\Admin\NewsletterSubscriberController::class, 'index']
+    )->name('admin.newsletter.subscribers');
 
-Route::delete('newsletter-subscribers/delete/{id}',
-    [\App\Http\Controllers\Admin\NewsletterSubscriberController::class, 'destroy']
-)->name('admin.newsletter.subscribers.delete');
-	 
-	 
-// Purchase Routes
-Route::get('purchases/manage', [PurchaseController::class, 'index'])->name('purchases.index');
-Route::post('purchases/store', [PurchaseController::class, 'store'])->name('purchases.store');
-Route::post('purchases/drafts/save', [PurchaseController::class, 'saveDraft'])->name('purchases.drafts.save');
-Route::delete('purchases/drafts/{id}', [PurchaseController::class, 'destroyDraft'])->name('purchases.drafts.destroy');
-Route::get('purchases/logs', [PurchaseController::class, 'logs'])->name('purchases.logs');
-Route::delete('purchases/{id}', [PurchaseController::class, 'destroy'])->name('purchases.destroy');
-Route::post('purchases/{id}/pay-due', [PurchaseController::class, 'payDue'])->name('purchases.pay_due');
-Route::post('purchase-item/{id}/return', [PurchaseController::class, 'returnItem'])->name('purchases.item_return');
-Route::get('purchases/{id}/invoice', [PurchaseController::class, 'invoice'])->name('purchases.invoice');
-Route::get('purchases/{id}/invoice/download', [PurchaseController::class, 'downloadInvoice'])->name('purchases.invoice.download');
-Route::get('purchases/{id}/edit-data', [PurchaseController::class, 'editData'])->name('purchases.edit.data');
-Route::get('purchases/export', [PurchaseController::class, 'export'])->name('purchases.export');
-// ✅ Purchases AJAX Pagination
-Route::get('purchases/ajax', [PurchaseController::class, 'ajaxIndex'])
-    ->name('purchases.ajax');
+    Route::delete('newsletter-subscribers/delete/{id}',
+        [\App\Http\Controllers\Admin\NewsletterSubscriberController::class, 'destroy']
+    )->name('admin.newsletter.subscribers.delete');
+        
+        
+    // Purchase Routes
+    Route::get('purchases/manage', [PurchaseController::class, 'index'])->name('purchases.index');
+    Route::post('purchases/store', [PurchaseController::class, 'store'])->name('purchases.store');
+    Route::post('purchases/drafts/save', [PurchaseController::class, 'saveDraft'])->name('purchases.drafts.save');
+    Route::delete('purchases/drafts/{id}', [PurchaseController::class, 'destroyDraft'])->name('purchases.drafts.destroy');
+    Route::get('purchases/logs', [PurchaseController::class, 'logs'])->name('purchases.logs');
+    Route::delete('purchases/{id}', [PurchaseController::class, 'destroy'])->name('purchases.destroy');
+    Route::post('purchases/{id}/pay-due', [PurchaseController::class, 'payDue'])->name('purchases.pay_due');
+    Route::post('purchase-item/{id}/return', [PurchaseController::class, 'returnItem'])->name('purchases.item_return');
+    Route::get('purchases/{id}/invoice', [PurchaseController::class, 'invoice'])->name('purchases.invoice');
+    Route::get('purchases/{id}/invoice/download', [PurchaseController::class, 'downloadInvoice'])->name('purchases.invoice.download');
+    Route::get('purchases/{id}/edit-data', [PurchaseController::class, 'editData'])->name('purchases.edit.data');
+    Route::get('purchases/export', [PurchaseController::class, 'export'])->name('purchases.export');
+    // ✅ Purchases AJAX Pagination
+    Route::get('purchases/ajax', [PurchaseController::class, 'ajaxIndex'])
+        ->name('purchases.ajax');
 
-// ⭐ Batch-wise pricing engine — purchases/manage right panel
-Route::get('purchases/price-panel', [PurchaseController::class, 'pricePanel'])
-    ->middleware(['auth:admin', 'admin'])->name('purchases.price.panel');
-Route::post('purchases/price/batch-save', [PurchaseController::class, 'saveBatchPricing'])
-    ->middleware(['auth:admin', 'admin', 'demo_mode'])->name('purchases.price.batch.save');
-Route::post('purchases/price/batches-save', [PurchaseController::class, 'saveBatchesPricing'])
-    ->middleware(['auth:admin', 'admin', 'demo_mode'])->name('purchases.price.batches.save');
-Route::post('purchases/price/activate', [PurchaseController::class, 'activateWebsiteBatch'])
-    ->middleware(['auth:admin', 'admin', 'demo_mode'])->name('purchases.price.activate');
-Route::post('purchases/price/batch/sn-save', [PurchaseController::class, 'saveBatchSerials'])
-    ->middleware(['auth:admin', 'admin', 'demo_mode'])->name('purchases.price.batch.sn-save');
-Route::post('purchases/price/variant-save', [PurchaseController::class, 'saveVariantPricing'])
-    ->middleware(['auth:admin', 'admin', 'demo_mode'])->name('purchases.price.variant.save');
-Route::post('purchases/price/wholesale-save', [PurchaseController::class, 'saveWholesalePricing'])
-    ->middleware(['auth:admin', 'admin', 'demo_mode'])->name('purchases.price.wholesale.save');
-Route::post('purchases/price/warranty-save', [PurchaseController::class, 'saveWarrantyPricing'])
-    ->middleware(['auth:admin', 'admin', 'demo_mode'])->name('purchases.price.warranty.save');
+    // ⭐ Batch-wise pricing engine — purchases/manage right panel
+    Route::get('purchases/price-panel', [PurchaseController::class, 'pricePanel'])
+        ->middleware(['auth:admin', 'admin'])->name('purchases.price.panel');
+    Route::post('purchases/price/batch-save', [PurchaseController::class, 'saveBatchPricing'])
+        ->middleware(['auth:admin', 'admin', 'demo_mode'])->name('purchases.price.batch.save');
+    Route::post('purchases/price/batches-save', [PurchaseController::class, 'saveBatchesPricing'])
+        ->middleware(['auth:admin', 'admin', 'demo_mode'])->name('purchases.price.batches.save');
+    Route::post('purchases/price/activate', [PurchaseController::class, 'activateWebsiteBatch'])
+        ->middleware(['auth:admin', 'admin', 'demo_mode'])->name('purchases.price.activate');
+    Route::post('purchases/price/batch/sn-save', [PurchaseController::class, 'saveBatchSerials'])
+        ->middleware(['auth:admin', 'admin', 'demo_mode'])->name('purchases.price.batch.sn-save');
+    Route::post('purchases/price/variant-save', [PurchaseController::class, 'saveVariantPricing'])
+        ->middleware(['auth:admin', 'admin', 'demo_mode'])->name('purchases.price.variant.save');
+    Route::post('purchases/price/wholesale-save', [PurchaseController::class, 'saveWholesalePricing'])
+        ->middleware(['auth:admin', 'admin', 'demo_mode'])->name('purchases.price.wholesale.save');
+    Route::post('purchases/price/warranty-save', [PurchaseController::class, 'saveWarrantyPricing'])
+        ->middleware(['auth:admin', 'admin', 'demo_mode'])->name('purchases.price.warranty.save');
 
 
-// ==== REPORT ROUTES ==== //
-Route::get('reports/orders',        [ReportController::class, 'orders'])->name('admin.reports.orders');
-Route::get('reports/purchases',     [ReportController::class, 'purchases'])->name('admin.reports.purchases');
-Route::get('reports/expenses',      [ReportController::class, 'expenses'])->name('admin.reports.expenses');
-Route::get('reports/stock',         [ReportController::class, 'stock'])->name('admin.reports.stock');
-Route::get('reports/profit-loss',   [ReportController::class, 'profitLoss'])->name('admin.reports.profit_loss');
+    // ==== REPORT ROUTES ==== //
+    Route::get('reports/orders',        [ReportController::class, 'orders'])->name('admin.reports.orders');
+    Route::get('reports/purchases',     [ReportController::class, 'purchases'])->name('admin.reports.purchases');
+    Route::get('reports/expenses',      [ReportController::class, 'expenses'])->name('admin.reports.expenses');
+    Route::get('reports/stock',         [ReportController::class, 'stock'])->name('admin.reports.stock');
+    Route::get('reports/profit-loss',   [ReportController::class, 'profitLoss'])->name('admin.reports.profit_loss');
 
-// ============================================================
-// 🆕 STOCK MANAGEMENT ROUTES
-// ============================================================
-Route::get('stock/dashboard',         [StockController::class, 'index'])->name('admin.stock.dashboard');
-Route::get('stock/batches',           [StockController::class, 'batches'])->name('admin.stock.batches');
-Route::get('stock/adjustments',       [StockController::class, 'adjustments'])->name('admin.stock.adjustments');
-Route::get('stock/adjustments/create',[StockController::class, 'createAdjustment'])->name('admin.stock.adjustments.create');
-Route::post('stock/adjustments/store',[StockController::class, 'storeAdjustment'])->name('admin.stock.adjustments.store');
-Route::get('stock/valuation',         [StockController::class, 'valuation'])->name('admin.stock.valuation');
-Route::get('stock/cogs',              [StockController::class, 'cogs'])->name('admin.stock.cogs');
-Route::get('stock/barcode/print',     [StockController::class, 'printBarcode'])->name('admin.stock.barcode.print');
+    // ============================================================
+    // 🆕 STOCK MANAGEMENT ROUTES
+    // ============================================================
+    Route::get('stock/dashboard',         [StockController::class, 'index'])->name('admin.stock.dashboard');
+    Route::get('stock/batches',           [StockController::class, 'batches'])->name('admin.stock.batches');
+    Route::get('stock/adjustments',       [StockController::class, 'adjustments'])->name('admin.stock.adjustments');
+    Route::get('stock/adjustments/create',[StockController::class, 'createAdjustment'])->name('admin.stock.adjustments.create');
+    Route::post('stock/adjustments/store',[StockController::class, 'storeAdjustment'])->name('admin.stock.adjustments.store');
+    Route::get('stock/valuation',         [StockController::class, 'valuation'])->name('admin.stock.valuation');
+    Route::get('stock/cogs',              [StockController::class, 'cogs'])->name('admin.stock.cogs');
+    Route::get('stock/barcode/print',     [StockController::class, 'printBarcode'])->name('admin.stock.barcode.print');
 
-// Supplier Returns
-Route::get('stock/supplier-returns',          [StockController::class, 'supplierReturns'])->name('admin.stock.supplier-returns');
-Route::get('stock/supplier-returns/create',   [StockController::class, 'createSupplierReturn'])->name('admin.stock.supplier-returns.create');
-Route::post('stock/supplier-returns/store',   [StockController::class, 'storeSupplierReturn'])->name('admin.stock.supplier-returns.store');
-Route::get('stock/products/{id}/batches',     [StockController::class, 'getProductBatches'])->name('admin.stock.product-batches');
+    // Supplier Returns
+    Route::get('stock/supplier-returns',          [StockController::class, 'supplierReturns'])->name('admin.stock.supplier-returns');
+    Route::get('stock/supplier-returns/create',   [StockController::class, 'createSupplierReturn'])->name('admin.stock.supplier-returns.create');
+    Route::post('stock/supplier-returns/store',   [StockController::class, 'storeSupplierReturn'])->name('admin.stock.supplier-returns.store');
+    Route::get('stock/products/{id}/batches',     [StockController::class, 'getProductBatches'])->name('admin.stock.product-batches');
 
     // Supplier Routes
     Route::get('suppliers/manage', [SupplierController::class, 'index'])->name('admin.suppliers.index');

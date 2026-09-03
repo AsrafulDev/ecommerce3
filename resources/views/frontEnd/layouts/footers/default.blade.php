@@ -6,7 +6,7 @@
                 <div class="col-sm-4 mb-3 mb-sm-0">
                     <div class="footer-about">
                         <a href="{{ route('home') }}">
-                            <img src="{{ asset($generalsetting->dark_logo ?: 'public/assets/images/CurlBazar.svg') }}" alt="" />
+                            <img src="{{ asset($generalsetting->dark_logo ?? 'public/assets/images/CurlBazar.svg') }}" alt="" />
                         </a>
                         <p>{{ optional($generalsetting)->footer_about_text ?? '' }}</p>
                         <a href="tel:{{ $contact->hotline ?? '01XXX-XXXXXX' }}" class="footer-hotlint">{{ $contact->hotline ?? '01XXX-XXXXXX' }}</a>

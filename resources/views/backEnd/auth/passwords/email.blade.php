@@ -6,7 +6,7 @@
 	<meta name="csrf-token" content="{{ csrf_token() }}">
 
 	<title>Forgot Password | {{$generalsetting->name}}</title>
-	<link rel="shortcut icon" href="{{asset($generalsetting->favicon)}}" alt="{{$generalsetting->name}}" />
+	<link rel="shortcut icon" href="{{asset($generalsetting->favicon ?? 'public/assets/images/CurlBazar.svg')}}" alt="{{$generalsetting->name ?? 'CurlBazar'}}" />
 
 	<link rel="stylesheet" href="{{asset('public/backEnd/')}}/assets_login/css/vendors.css">
 	<link rel="stylesheet" href="{{asset('public/backEnd/')}}/assets_login/css/aiz-core.css">
@@ -22,7 +22,7 @@
 						<div class="card text-left">
 							<div class="card-body">
 								<div class="mb-5 text-center">
-									<img src="{{asset($generalsetting->dark_logo)}}" class="mw-100 mb-4" height="40">
+									<img src="{{asset($generalsetting->dark_logo ?? 'public/assets/images/CurlBazar.svg')}}" class="mw-100 mb-4" height="40">
 									<h1 class="h3 text-primary mb-0">{{ __('Forgot Password') }}</h1>
 									<p> {{ __('Enter your email to reset password') }} </p>
 								</div>

@@ -9,8 +9,8 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
 	<!-- Favicon -->
-	<link rel="shortcut icon" href="{{asset($generalsetting->favicon)}}" alt="{{$generalsetting->name}}" />
-	<title>Admin Login | {{$generalsetting->name}}</title>
+	<link rel="shortcut icon" href="{{asset($generalsetting->favicon ?? 'public/assets/images/CurlBazar.svg')}}" alt="{{$generalsetting->name ?? 'CurlBazar'}}" />
+	<title>Admin Login | {{$generalsetting->name ?? 'CurlBazar'}}</title>
 
 	<!-- google font -->
 	<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Poppins:300,400,500,600,700">
@@ -58,8 +58,8 @@
                 <div class="card text-left">
                     <div class="card-body">
                         <div class="mb-5 text-center">
-                                                            <img src="{{asset($generalsetting->dark_logo)}}" class="mw-100 mb-4" height="40">
-                                                        <h1 class="h3 text-primary mb-0">Welcome to {{$generalsetting->name}}</h1>
+                                                            <img src="{{asset($generalsetting->dark_logo ?? 'public/assets/images/CurlBazar.svg')}}" class="mw-100 mb-4" height="40">
+                                                        <h1 class="h3 text-primary mb-0">Welcome to {{$generalsetting->name ?? 'CurlBazar'}}</h1>
                             <p> {{ __('Login to your account.') }} </p>
                         </div>
                         
