@@ -15,14 +15,6 @@ class HomepageSectionSeeder extends Seeder
     {
         $sections = [
             [
-                'name' => 'Full-Width Hero Slider',
-                'slug' => 'fullwidth-slider',
-                'description' => 'Full container-width hero slider with fade transitions and dot navigation.',
-                'icon' => 'mdi-panorama-wide',
-                'is_system' => true, 'is_active' => true,
-                'default_columns' => 'col-sm-12', 'default_order' => 1,
-            ],
-            [
                 'name' => 'Main Slider',
                 'slug' => 'main-slider',
                 'description' => 'Hero/banner carousel with left sidebar categories.',
@@ -38,15 +30,6 @@ class HomepageSectionSeeder extends Seeder
                 'icon' => 'mdi-image-multiple',
                 'is_system' => true, 'is_active' => true,
                 'default_columns' => 'col-sm-12', 'default_order' => 3,
-            ],
-            [
-                'name' => 'Sidebar Categories',
-                'slug' => 'sidebar-categories',
-                'description' => 'Left sidebar category navigation menu.',
-                'icon' => 'mdi mdi-menu',
-                'is_system' => true, 'is_active' => true,
-                'default_columns' => 'col-sm-3', 'default_order' => 2,
-                'settings_schema' => json_encode(['show_icons' => true, 'expand_on_hover' => true]),
             ],
             [
                 'name' => 'Top Categories',
