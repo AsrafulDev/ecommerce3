@@ -190,19 +190,19 @@ class IncompleteOrderController extends Controller
                 $detail->qty              = $qty;
                 $detail->save();
 
-                // 🔻 স্টক কমানো
-                if ($product) {
+                // 🔻 স্টক কমানো — batch-aware via StockManagementService (Phase 2.2).
+                //    products.stock is a denormalized copy; stock_batches is the source
+                //    of truth → ALWAYS mutate through stockOut(), never raw columns.
+                if ($product && Schema::hasColumn('products', 'stock')) {
+                    $stockResult = app(\App\Services\StockManagementService::class)->stockOut($product, (int) $qty, [
+                        'type' => 'sale',
+                        'id'   => $order->id,
+                    ]);
 
-                    if (Schema::hasColumn('products', 'stock')) {
-                        $product->stock = max(0, (int)$product->stock - (int)$qty);
-                        $product->save();
-                    } elseif (Schema::hasColumn('products', 'qty')) {
-                        $product->qty = max(0, (int)$product->qty - (int)$qty);
-                        $product->save();
-                    } elseif (Schema::hasColumn('products', 'quantity')) {
-                        $product->quantity = max(0, (int)$product->quantity - (int)$qty);
-                        $product->save();
-                    }
+                    // Persist COGS + batch allocation on the detail row for audit.
+                    $detail->cogs      = $stockResult['cogs'] ?? null;
+                    $detail->batch_ids = $stockResult['batch_details'] ?? null;
+                    $detail->save();
                 }
             }
 

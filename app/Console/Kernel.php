@@ -42,6 +42,31 @@ class Kernel extends ConsoleKernel
         // ── Warranty ──────────────────────────
         $schedule->command('warranty:expire')->hourly();
         $schedule->command('warranty:update-tiers')->dailyAt('03:00');
+
+        // ── Stock reconciliation ──────────────────────────
+        // Nightly dry-run to detect stock drift between products.stock and stock_batches.remaining_qty.
+        // If mismatches are found, alert via logs (can be extended to email/Slack if monitoring is set up).
+        $schedule->command('stock:sync-from-batches --dry-run')
+            ->dailyAt('02:00')
+            ->withoutOverlapping()
+            ->onSuccess(function () {
+                \Log::channel('stock')->info('Nightly stock reconcile: no mismatches detected.');
+            })
+            ->onFailure(function () {
+                \Log::channel('stock')->warning('Nightly stock reconcile found mismatches or errored — check manually.');
+            });
+
+        // ── Log retention ──────────────────────────
+        // Monthly archival of activity logs older than 90 days to prevent unbounded table growth.
+        $schedule->command('logs:archive-activity --days=90')
+            ->monthlyOn(1, '04:00')
+            ->withoutOverlapping()
+            ->onSuccess(function () {
+                \Log::info('Monthly activity log archival completed.');
+            })
+            ->onFailure(function () {
+                \Log::warning('Monthly activity log archival failed.');
+            });
     }
 
     protected function commands()

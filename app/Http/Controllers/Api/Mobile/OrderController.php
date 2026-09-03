@@ -190,9 +190,12 @@ class OrderController extends Controller
                 'payment_status' => 'pending',
             ]);
 
-            // Create order details
+            // Create order details + batch-tracked stock reduction.
+            // Phase 2.5: stock moves ONLY via StockManagementService::stockOut
+            // (mirrors the storefront order_save engine) — never a raw products.stock
+            // write. COGS + batch allocation are stored on the detail for audit.
             foreach ($cartItems as $cartItem) {
-                OrderDetails::create([
+                $detail = OrderDetails::create([
                     'order_id' => $order->id,
                     'product_id' => $cartItem->product_id,
                     'product_name' => $cartItem->product->name,
@@ -203,11 +206,34 @@ class OrderController extends Controller
                     'product_size' => $cartItem->size_id,
                 ]);
 
-                // Reduce stock
                 $product = $cartItem->product;
-                if ($product) {
-                    $product->stock = max(0, $product->stock - $cartItem->quantity);
-                    $product->save();
+                if ($product && (int) $cartItem->quantity > 0) {
+                    $qty            = (int) $cartItem->quantity;
+                    $stockService   = app(\App\Services\StockManagementService::class);
+                    $pricingService = app(\App\Services\PricingService::class);
+                    $stockOutRef    = ['type' => 'sale', 'id' => $order->id];
+
+                    if ($pricingService->isBatchWise()) {
+                        // Website sellable-batch FIFO allocation (e.g. b1=3, b2=10, qty=8 → 3+5).
+                        $allocation = $pricingService->websiteAllocation($product, $qty);
+                        $cogs       = 0;
+                        $batchIds   = [];
+                        foreach ($allocation as $portion) {
+                            $result = $stockService->stockOut($product, $portion['qty'], $stockOutRef, $portion['batch']->id);
+                            $cogs += (float) ($result['cogs'] ?? 0);
+                            $batchIds = array_merge($batchIds, $result['batch_details'] ?? []);
+                        }
+                        $pricingService->advanceActiveBatchIfDepleted($product);
+                        $pricingService->refreshProductCache($product);
+                    } else {
+                        $result   = $stockService->stockOut($product, $qty, $stockOutRef);
+                        $cogs     = $result['cogs'] ?? null;
+                        $batchIds = $result['batch_details'] ?? null;
+                    }
+
+                    $detail->cogs      = $cogs;
+                    $detail->batch_ids = $batchIds;
+                    $detail->save();
                 }
             }
 

@@ -223,19 +223,11 @@ class RefundController extends Controller
 
             $refund->save();
 
-            // Restore product stock if order was cancelled
-            if ($refund->order->order_status == 'cancelled') {
-                $orderDetails = OrderDetails::where('order_id', $refund->order_id)
-                    ->with('product')
-                    ->get();
-
-                foreach ($orderDetails as $detail) {
-                    if ($detail->product) {
-                        $detail->product->stock += $detail->qty;
-                        $detail->product->save();
-                    }
-                }
-            }
+            // Phase 2.1: stock restock belongs to the order CANCEL/RETURN path
+            // (OrderStatusService::handleStatusChange → stockIn reference_type=sale_return)
+            // ONLY — never to a refund. A refund is money-only. Restocking here
+            // double-restored cancelled orders AND drifted products.stock (raw +=
+            // with no stock_batches row), breaking the batch source-of-truth.
         });
 
         Toastr::success('Refund processed successfully.', 'Success');

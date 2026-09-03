@@ -231,142 +231,162 @@ class PurchaseController extends Controller
         $paid = min($grandTotal, (float) ($request->paid_amount ?? 0));
         $due  = $grandTotal - $paid;
 
-        // CREATE PURCHASE
-        $purchase = Purchase::create([
-            'supplier_id'   => $request->supplier_id,
-            'invoice_no'    => $request->invoice_no,
-            'purchase_date' => $request->purchase_date,
-            'total_qty'     => $totalQty,
-            'subtotal'      => $subtotal,
-            'discount'      => $discount,
-            'shipping_cost' => $shipping_cost,
-            'grand_total'   => $grandTotal,
-            'paid_amount'   => $paid,
-            'due_amount'    => $due,
-            'note'          => $request->note,
-            'status'        => 1,
-            'created_by'    => Auth::id(),
-        ]);
+        // ⭐ Phase 1.1 — publish inside ONE DB transaction so a mid-loop failure
+        //    (bad supplier on item 2, tier error, …) can't leave a partial
+        //    purchase (header/items/stock/fund). Rollback wipes everything.
+        try {
+            DB::beginTransaction();
 
-        // CREATE PURCHASE ITEMS + WARRANTY + STOCK per item
-        foreach ($request->items as $item) {
-            $qty   = (int) ($item['qty'] ?? 0);
-            $cost  = (float) ($item['unit_cost'] ?? 0);
-            $line  = $qty * $cost;
-            $pid   = $item['product_id'];
-            $vid   = $item['variant_id'] ?? null;
-
-            // Load the product up-front — needed for warranty tiers AND stock below
-            $product = Product::findOrFail($pid);
-
-            $purchaseItem = PurchaseItem::create([
-                'purchase_id'      => $purchase->id,
-                'product_id'       => $pid,
-                'variant_price_id' => $vid,
-                'qty'              => $qty,
-                'unit_cost'        => $cost,
-                'line_total'       => $line,
-                'custom_field'     => $item['custom_field'] ?? null,
+            // CREATE PURCHASE
+            $purchase = Purchase::create([
+                'supplier_id'   => $request->supplier_id,
+                'invoice_no'    => $request->invoice_no,
+                'purchase_date' => $request->purchase_date,
+                'total_qty'     => $totalQty,
+                'subtotal'      => $subtotal,
+                'discount'      => $discount,
+                'shipping_cost' => $shipping_cost,
+                'grand_total'   => $grandTotal,
+                'paid_amount'   => $paid,
+                'due_amount'    => $due,
+                'note'          => $request->note,
+                'status'        => 1,
+                'created_by'    => Auth::id(),
             ]);
 
-            // 🛡️ Warranty per item
-            $wDays = (int) ($item['warranty_days'] ?? 0);
-            if ($wDays > 0) {
-                $wStart = $item['warranty_start'] ?? now()->format('Y-m-d');
-                $supplierWarranty = \App\Models\SupplierWarranty::create([
-                    'purchase_item_id'   => $purchaseItem->id,
-                    'product_id'         => $pid,
-                    'supplier_id'        => $request->supplier_id,
-                    'warranty_days'      => $wDays,
-                    'warranty_start_date' => $wStart,
-                    'warranty_end_date'  => \Carbon\Carbon::parse($wStart)->addDays($wDays),
-                    'warranty_type'      => 'supplier_warranty',
-                    'warranty_terms'     => $item['warranty_terms'] ?? null,
-                    'is_transferable'    => (bool) ($item['transferable'] ?? true),
+            // CREATE PURCHASE ITEMS + WARRANTY + STOCK per item
+            foreach ($request->items as $item) {
+                $qty   = (int) ($item['qty'] ?? 0);
+                $cost  = (float) ($item['unit_cost'] ?? 0);
+                $line  = $qty * $cost;
+                $pid   = $item['product_id'];
+                $vid   = $item['variant_id'] ?? null;
+
+                // Load the product up-front — needed for warranty tiers AND stock below
+                $product = Product::findOrFail($pid);
+
+                $purchaseItem = PurchaseItem::create([
+                    'purchase_id'      => $purchase->id,
+                    'product_id'       => $pid,
+                    'variant_price_id' => $vid,
+                    'qty'              => $qty,
+                    'unit_cost'        => $cost,
+                    'line_total'       => $line,
+                    'custom_field'     => $item['custom_field'] ?? null,
                 ]);
 
-                // ✅ Auto-generate product warranty tiers from supplier warranty
-                app(\App\Services\WarrantyService::class)->generateTiers($product, $supplierWarranty);
+                // 🛡️ Warranty per item
+                $wDays = (int) ($item['warranty_days'] ?? 0);
+                if ($wDays > 0) {
+                    $wStart = $item['warranty_start'] ?? now()->format('Y-m-d');
+                    $supplierWarranty = \App\Models\SupplierWarranty::create([
+                        'purchase_item_id'   => $purchaseItem->id,
+                        'product_id'         => $pid,
+                        'supplier_id'        => $request->supplier_id,
+                        'warranty_days'      => $wDays,
+                        'warranty_start_date' => $wStart,
+                        'warranty_end_date'  => \Carbon\Carbon::parse($wStart)->addDays($wDays),
+                        'warranty_type'      => 'supplier_warranty',
+                        'warranty_terms'     => $item['warranty_terms'] ?? null,
+                        'is_transferable'    => (bool) ($item['transferable'] ?? true),
+                    ]);
 
-                // Also update product supplier_price
-                \App\Models\Product::where('id', $pid)->update(['supplier_price' => $cost]);
+                    // ✅ Auto-generate product warranty tiers from supplier warranty
+                    app(\App\Services\WarrantyService::class)->generateTiers($product, $supplierWarranty);
+
+                    // Also update product supplier_price
+                    \App\Models\Product::where('id', $pid)->update(['supplier_price' => $cost]);
+                }
+
+                // Stock
+                $product->supplier_price = $cost;
+                $product->save();
+                $batch = app(StockManagementService::class)->stockIn($product, [
+                    'quantity' => $qty, 'unit_cost' => $cost,
+                    'selling_price'        => $item['selling_price'] ?? null,
+                    'mrp'                  => $item['mrp'] ?? null,
+                    'is_active_for_website'=> (bool) ($item['activate_website'] ?? false),
+                    'supplier_id' => $request->supplier_id, 'purchase_id' => $purchase->id,
+                    'variant_price_id' => $vid, 'reference_type' => 'purchase', 'reference_id' => $purchase->id,
+                    'batch_no' => $item['batch_no'] ?? null,
+                    'mfg_date' => $item['mfg_date'] ?? null,
+                    'exp_date' => $item['exp_date'] ?? null,
+                    'custom_field' => $item['custom_field'] ?? null,
+                    'serial_numbers' => $item['serial_numbers'] ?? [],
+                ]);
+
+                // ⭐ Batch-wise pricing payload (variant / wholesale / warranty / activation)
+                $this->persistBatchPricing($purchaseItem, $batch, $item);
             }
 
-            // Stock
-            $product->supplier_price = $cost;
-            $product->save();
-            $batch = app(StockManagementService::class)->stockIn($product, [
-                'quantity' => $qty, 'unit_cost' => $cost,
-                'selling_price'        => $item['selling_price'] ?? null,
-                'mrp'                  => $item['mrp'] ?? null,
-                'is_active_for_website'=> (bool) ($item['activate_website'] ?? false),
-                'supplier_id' => $request->supplier_id, 'purchase_id' => $purchase->id,
-                'variant_price_id' => $vid, 'reference_type' => 'purchase', 'reference_id' => $purchase->id,
-                'batch_no' => $item['batch_no'] ?? null,
-                'mfg_date' => $item['mfg_date'] ?? null,
-                'exp_date' => $item['exp_date'] ?? null,
-                'custom_field' => $item['custom_field'] ?? null,
-                'serial_numbers' => $item['serial_numbers'] ?? [],
+            // SUPPLIER DUE
+            $supplier = Supplier::findOrFail($request->supplier_id);
+            $supplier->current_due += ($grandTotal - $paid);
+            $supplier->save();
+
+            // FUND PAYMENT
+            if ($paid > 0) {
+                $fund = FundTransaction::create([
+                    'direction'  => 'out',
+                    'source'     => 'supplier_payment',
+                    'source_id'  => null,
+                    'amount'     => $paid,
+                    'note'       => 'Purchase payment: '.$purchase->invoice_no,
+                    'created_by' => Auth::id(),
+                ]);
+
+                $payment = SupplierPayment::create([
+                    'supplier_id'        => $supplier->id,
+                    'purchase_id'        => $purchase->id,
+                    'amount'             => $paid,
+                    'payment_date'       => $request->purchase_date,
+                    'method'             => 'fund',
+                    'note'               => 'Initial payment',
+                    'fund_transaction_id'=> $fund->id,
+                    'created_by'         => Auth::id(),
+                ]);
+
+                $fund->source_id = $payment->id;
+                $fund->save();
+            }
+
+            // 📝 Audit: purchase created (inside the tx — vanishes on rollback too)
+            $fundAfter  = $this->calculateFundBalance();
+            $fundBefore = $fundAfter + $paid; // this purchase only moved the fund OUT by $paid
+            $balanceDiff = $fundAfter - $fundBefore;
+            $balanceSign = ($balanceDiff >= 0) ? '+' : '';
+            PurchaseLog::create([
+                'purchase_id'         => $purchase->id,
+                'action'              => 'create',
+                'old_invoice_no'      => null,
+                'new_invoice_no'      => $purchase->invoice_no,
+                'old_purchase_date'   => null,
+                'new_purchase_date'   => $purchase->purchase_date,
+                'old_paid_amount'     => null,
+                'new_paid_amount'     => $purchase->paid_amount,
+                'old_grand_total'     => null,
+                'new_grand_total'     => $purchase->grand_total,
+                'old_note'            => null,
+                'new_note'            => $purchase->note,
+                'fund_balance_before' => $fundBefore,
+                'fund_balance_after'  => $fundAfter,
+                'description'         => "Purchase created: Invoice '{$purchase->invoice_no}' (Total: {$purchase->grand_total}, Paid: {$purchase->paid_amount}). Fund balance changed from {$fundBefore} to {$fundAfter} ({$balanceSign}{$balanceDiff})",
+                'performed_by'        => Auth::id(),
             ]);
 
-            // ⭐ Batch-wise pricing payload (variant / wholesale / warranty / activation)
-            $this->persistBatchPricing($purchaseItem, $batch, $item);
+            DB::commit();
+        } catch (\Throwable $e) {
+            DB::rollBack();
+
+            \Illuminate\Support\Facades\Log::error(
+                'Purchase create failed — all changes rolled back: '.$e->getMessage(),
+                ['invoice_no' => $request->invoice_no, 'supplier_id' => $request->supplier_id, 'trace' => $e->getTraceAsString()]
+            );
+
+            return back()
+                ->withErrors(['error' => 'Purchase could not be saved — no records were written. '.$e->getMessage()])
+                ->withInput();
         }
-
-        // SUPPLIER DUE
-        $supplier = Supplier::findOrFail($request->supplier_id);
-        $supplier->current_due += ($grandTotal - $paid);
-        $supplier->save();
-
-        // FUND PAYMENT
-        if ($paid > 0) {
-            $fund = FundTransaction::create([
-                'direction'  => 'out',
-                'source'     => 'supplier_payment',
-                'source_id'  => null,
-                'amount'     => $paid,
-                'note'       => 'Purchase payment: '.$purchase->invoice_no,
-                'created_by' => Auth::id(),
-            ]);
-
-            $payment = SupplierPayment::create([
-                'supplier_id'        => $supplier->id,
-                'purchase_id'        => $purchase->id,
-                'amount'             => $paid,
-                'payment_date'       => $request->purchase_date,
-                'method'             => 'fund',
-                'note'               => 'Initial payment',
-                'fund_transaction_id'=> $fund->id,
-                'created_by'         => Auth::id(),
-            ]);
-
-            $fund->source_id = $payment->id;
-            $fund->save();
-        }
-
-        // 📝 Audit: purchase created
-        $fundAfter  = $this->calculateFundBalance();
-        $fundBefore = $fundAfter + $paid; // this purchase only moved the fund OUT by $paid
-        $balanceDiff = $fundAfter - $fundBefore;
-        $balanceSign = ($balanceDiff >= 0) ? '+' : '';
-        PurchaseLog::create([
-            'purchase_id'         => $purchase->id,
-            'action'              => 'create',
-            'old_invoice_no'      => null,
-            'new_invoice_no'      => $purchase->invoice_no,
-            'old_purchase_date'   => null,
-            'new_purchase_date'   => $purchase->purchase_date,
-            'old_paid_amount'     => null,
-            'new_paid_amount'     => $purchase->paid_amount,
-            'old_grand_total'     => null,
-            'new_grand_total'     => $purchase->grand_total,
-            'old_note'            => null,
-            'new_note'            => $purchase->note,
-            'fund_balance_before' => $fundBefore,
-            'fund_balance_after'  => $fundAfter,
-            'description'         => "Purchase created: Invoice '{$purchase->invoice_no}' (Total: {$purchase->grand_total}, Paid: {$purchase->paid_amount}). Fund balance changed from {$fundBefore} to {$fundAfter} ({$balanceSign}{$balanceDiff})",
-            'performed_by'        => Auth::id(),
-        ]);
 
         if ($request->filled('draft_id')) {
             Purchase::where('id', $request->draft_id)
@@ -530,23 +550,15 @@ class PurchaseController extends Controller
 
         $product = $item->product;
 
-        // Decrement from batches FIFO (oldest with remaining stock first)
-        $remaining = $qty;
-        $batches = \App\Models\StockBatch::where('product_id', $product->id)
-            ->where('remaining_qty', '>', 0)
-            ->orderBy('created_at')
-            ->get();
-        foreach ($batches as $batch) {
-            if ($remaining <= 0) {
-                break;
-            }
-            $take = min($remaining, (int) $batch->remaining_qty);
-            $batch->decrement('remaining_qty', $take);
-            $remaining -= $take;
-        }
+        // ⭐ Phase 2.6 — route the return through StockManagementService::stockOut
+        //    (batch FIFO/LIFO deduction + COGS + a `purchase_return` trace row).
+        //    NO manual remaining_qty / products.stock decrements.
+        app(StockManagementService::class)->stockOut($product, $qty, [
+            'type' => 'purchase_return',
+            'id'   => $item->purchase_id,
+        ]);
 
-        $product->decrement('stock', $qty);
-
+        // Reverse the purchase-time variant stock-in increment (denormalized copy).
         if ($item->variant) {
             $item->variant->decrement('stock', $qty);
         }

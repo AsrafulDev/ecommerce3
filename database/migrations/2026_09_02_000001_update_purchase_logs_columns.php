@@ -19,23 +19,32 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('purchase_logs', function (Blueprint $table) {
-            $add = fn(string $type, string $col, ...$args) => !Schema::hasColumn('purchase_logs', $col)
-                ? $table->{$type}($col, ...$args)
-                : null;
+            // NOTE: on fresh installs the create migration already defines all of
+            // these columns, so Schema::hasColumn() is true and we must skip them
+            // (the old "$add(...)->nullable()" pattern crashed with
+            // "nullable() on null" on migrate:fresh). The guard still matters for
+            // live DBs created with the older schema.
+            $addIfMissing = [
+                ['string', 'old_invoice_no', [50]],
+                ['string', 'new_invoice_no', [50]],
+                ['date', 'old_purchase_date', []],
+                ['date', 'new_purchase_date', []],
+                ['decimal', 'old_paid_amount', [15, 2]],
+                ['decimal', 'new_paid_amount', [15, 2]],
+                ['decimal', 'old_grand_total', [15, 2]],
+                ['decimal', 'new_grand_total', [15, 2]],
+                ['decimal', 'fund_balance_before', [15, 2]],
+                ['decimal', 'fund_balance_after', [15, 2]],
+                ['string', 'description', [500]],
+                // users.id is INT UNSIGNED — unsignedInteger, no FK (errno 150 guard)
+                ['unsignedInteger', 'performed_by', []],
+            ];
 
-            $add('string', 'old_invoice_no', 50)->nullable();
-            $add('string', 'new_invoice_no', 50)->nullable();
-            $add('date', 'old_purchase_date')->nullable();
-            $add('date', 'new_purchase_date')->nullable();
-            $add('decimal', 'old_paid_amount', 15, 2)->nullable();
-            $add('decimal', 'new_paid_amount', 15, 2)->nullable();
-            $add('decimal', 'old_grand_total', 15, 2)->nullable();
-            $add('decimal', 'new_grand_total', 15, 2)->nullable();
-            $add('decimal', 'fund_balance_before', 15, 2)->nullable();
-            $add('decimal', 'fund_balance_after', 15, 2)->nullable();
-            $add('string', 'description', 500)->nullable();
-            // users.id is INT UNSIGNED — unsignedInteger, no FK (errno 150 guard)
-            $add('unsignedInteger', 'performed_by')->nullable();
+            foreach ($addIfMissing as [$type, $col, $args]) {
+                if (!Schema::hasColumn('purchase_logs', $col)) {
+                    $table->{$type}($col, ...$args)->nullable();
+                }
+            }
         });
 
         // Legacy NOT NULL balance_* columns aren't written by the code and

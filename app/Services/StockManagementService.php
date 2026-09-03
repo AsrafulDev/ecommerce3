@@ -270,6 +270,95 @@ class StockManagementService
         ];
     }
 
+    // ══════════════════════════════════════════════════════════
+    // 🏷️  SERIAL NUMBER (SN) MOVEMENT — Phase 5.1
+    //     Sold serials move batch.sn_stock → batch.sn_sold; cancels move them back.
+    // ══════════════════════════════════════════════════════════
+
+    /**
+     * Move sold serials from a batch's sn_stock to its sn_sold.
+     * Only serials actually present in sn_stock are moved (others are logged).
+     */
+    public function moveSerialsToSold(StockBatch $batch, array $serials): void
+    {
+        $serials = array_values(array_unique(array_filter(array_map('trim', $serials))));
+        if (!$serials) {
+            return;
+        }
+
+        $stock = is_array($batch->sn_stock) ? $batch->sn_stock : [];
+        $sold  = is_array($batch->sn_sold) ? $batch->sn_sold : [];
+        $notFound = [];
+
+        foreach ($serials as $sn) {
+            $idx = array_search($sn, $stock, true);
+            if ($idx !== false) {
+                unset($stock[$idx]);
+                if (!in_array($sn, $sold, true)) {
+                    $sold[] = $sn;
+                }
+            } else {
+                $notFound[] = $sn;
+            }
+        }
+
+        $batch->sn_stock = array_values($stock);
+        $batch->sn_sold  = array_values($sold);
+        $batch->save();
+
+        if ($notFound) {
+            Log::warning('SN move to sold: serials not found in batch sn_stock', [
+                'batch_id' => $batch->id,
+                'product_id' => $batch->product_id,
+                'serials'  => $notFound,
+            ]);
+        }
+    }
+
+    /**
+     * Restore sold serials from a batch's sn_sold back to its sn_stock
+     * (cancel / return path).
+     */
+    public function restoreSerialsFromSold(StockBatch $batch, array $serials): void
+    {
+        $serials = array_values(array_unique(array_filter(array_map('trim', $serials))));
+        if (!$serials) {
+            return;
+        }
+
+        $stock = is_array($batch->sn_stock) ? $batch->sn_stock : [];
+        $sold  = is_array($batch->sn_sold) ? $batch->sn_sold : [];
+        $notFound = [];
+
+        foreach ($serials as $sn) {
+            $idx = array_search($sn, $sold, true);
+            if ($idx !== false) {
+                unset($sold[$idx]);
+                if (!in_array($sn, $stock, true)) {
+                    // Collect serials to restore in the original provided order,
+                    // then prepend them so restored serials appear before remaining stock
+                    // (preserves the expected ordering after a restore).
+                    $stock = array_merge([$sn], $stock);
+                }
+            } else {
+                $notFound[] = $sn;
+            }
+        }
+
+        // Remove duplicates while preserving order
+        $batch->sn_sold  = array_values($sold);
+        $batch->sn_stock = array_values(array_unique($stock));
+        $batch->save();
+
+        if ($notFound) {
+            Log::warning('SN restore: serials not found in batch sn_sold', [
+                'batch_id' => $batch->id,
+                'product_id' => $batch->product_id,
+                'serials'  => $notFound,
+            ]);
+        }
+    }
+
     /**
      * Resolve a human-readable reference (e.g. "Sale #26887", "Purchase #PUR-...")
      * from the reference array so batch records show the source document.

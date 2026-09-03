@@ -204,6 +204,12 @@ class ShoppingController extends Controller
             return redirect()->back();
         }
 
+        // Enforce max uses at apply-time (pre-check). Final atomic increment occurs at order save.
+        if (!empty($coupon->max_uses) && (int) $coupon->max_uses > 0 && (int) $coupon->used_count >= (int) $coupon->max_uses) {
+            Toastr::error('Coupon usage limit reached', 'Error');
+            return redirect()->back();
+        }
+
         $discount = $coupon->type == 'percent'
             ? ($subtotal * ($coupon->value / 100))
             : $coupon->value;

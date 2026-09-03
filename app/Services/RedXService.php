@@ -5,6 +5,7 @@ namespace App\Services;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use App\Models\Courierapi;
+use App\Enums\OrderStatus;
 
 class RedXService
 {
@@ -446,23 +447,27 @@ class RedXService
     }
 
     /**
-     * Map RedX status to order status
+     * Map RedX status to an OrderStatus enum (Phase 3.1 — was legacy ints).
+     * Values mirror the old numeric table (via OrderStatus::fromLegacyId) so
+     * behaviour is unchanged, just enum-typed.
      *
      * @param string $redxStatus
-     * @return int|null
+     * @return OrderStatus|null
      */
-    public function mapStatusToOrderStatus(string $redxStatus)
+    public function mapStatusToOrderStatus(string $redxStatus): ?OrderStatus
     {
         $statusMap = [
-            'ready-for-delivery' => 5,      // Processing/Shipped
-            'delivery-in-progress' => 5,     // Processing/Shipped
-            'delivered' => 6,                // Completed
-            'agent-hold' => 5,               // On Hold
-            'agent-returning' => 5,          // Returning
-            'returned' => 11,                // Cancelled/Returned
-            'agent-area-change' => 5,        // Area Change
+            'ready-for-delivery'    => 5,   // PACKED (was "Ready to Ship")
+            'delivery-in-progress'  => 5,
+            'delivered'             => 6,   // COMPLETED
+            'agent-hold'            => 5,
+            'agent-returning'       => 5,
+            'returned'              => 11,  // CANCELLED
+            'agent-area-change'     => 5,
         ];
 
-        return $statusMap[$redxStatus] ?? null;
+        $legacy = $statusMap[$redxStatus] ?? null;
+
+        return $legacy !== null ? OrderStatus::fromLegacyId($legacy) : null;
     }
 }

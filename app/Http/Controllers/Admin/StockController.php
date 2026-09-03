@@ -406,17 +406,9 @@ class StockController extends Controller
                     'reason'      => $item['reason'] ?? null,
                 ]);
 
-                // Restore stock: increase product stock, decrease batch remaining_qty
+                // Track products so they're restocked via the service below.
                 $product = Product::findOrFail($item['product_id']);
                 $touchedProducts[$product->id] = $product;
-                $product->increment('stock', $item['qty']);
-
-                if (!empty($item['batch_id'])) {
-                    $batch = StockBatch::find($item['batch_id']);
-                    if ($batch) {
-                        $batch->increment('remaining_qty', $item['qty']);
-                    }
-                }
             }
 
             $return = SupplierReturn::create([
@@ -432,6 +424,24 @@ class StockController extends Controller
             ]);
 
             $return->items()->saveMany($items);
+
+            // ⭐ Phase 2.7 — restock goods returned by the supplier through
+            //    StockManagementService::stockIn (creates an 'in' batch + updates
+            //    products.stock). NEVER raw products.stock / remaining_qty increments.
+            foreach ($items as $line) {
+                $product = $touchedProducts[$line->product_id] ?? null;
+                if (!$product) {
+                    continue;
+                }
+                app(StockManagementService::class)->stockIn($product, [
+                    'quantity'       => (float) $line->qty,
+                    'unit_cost'      => (float) $line->unit_cost,
+                    'supplier_id'    => $return->supplier_id,
+                    'purchase_id'    => $return->purchase_id,
+                    'reference_type' => 'purchase_return',
+                    'reference_id'   => $return->id,
+                ]);
+            }
 
             // ⭐ Batch-wise pricing engine — keep website cache consistent after restock
             if (config('pricing.batch_wise', false)) {

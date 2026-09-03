@@ -87,7 +87,8 @@ class OrderHelper
             }
         }
 
-        Cart::instance('shopping')->destroy();
+        // NOTE: cart clearing moved to the CALLERS so it only happens AFTER the
+        // checkout DB transaction commits — a rollback must never empty the cart.
     }
 }
 

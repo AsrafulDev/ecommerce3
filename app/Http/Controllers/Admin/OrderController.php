@@ -36,6 +36,7 @@ use App\Models\Expense;
 use App\Services\RedXService;
 use App\Services\StockManagementService;
 use App\Services\DuplicateOrderService;
+use App\Services\OrderStatusService;
 use App\Enums\OrderStatus as OrderStatusEnum;
 use App\Enums\PaymentStatus as PaymentStatusEnum;
 
@@ -52,91 +53,13 @@ class OrderController extends Controller
 {
     /*
     |--------------------------------------------------------------------------
-    | COMMON STOCK HANDLER (Updated for Enum-based status)
+    | STOCK SIDE-EFFECTS ON STATUS CHANGE
     |--------------------------------------------------------------------------
-    |
-    | activeStatuses = confirmed, picking, packing, packed, shipped, out_for_delivery, delivered, completed
-    | cancel => restore stock if old status was active
-    |
+    | Delegated to the ONE shared engine (App\Services\OrderStatusService::
+    | handleStatusChange) — extracted in Phase 3.2. Handles active↔stock and
+    | CANCELLED/RETURNED restock (sale_return).
+    |--------------------------------------------------------------------------
     */
-    protected function handleStockChange(Order $order, $oldStatus, $newStatus)
-    {
-        $oldEnum = is_int($oldStatus) ? OrderStatusEnum::fromLegacyId($oldStatus) : OrderStatusEnum::tryFrom($oldStatus);
-        $newEnum = is_int($newStatus) ? OrderStatusEnum::fromLegacyId($newStatus) : OrderStatusEnum::tryFrom($newStatus);
-
-        if (!$oldEnum || !$newEnum) {
-            return;
-        }
-
-        $wasActive = $oldEnum->consumesStock();
-        $isActive  = $newEnum->consumesStock();
-
-        /** @var StockManagementService $stockService */
-        $stockService = app(StockManagementService::class);
-
-        // 1) Entering active status → decrease stock (with batch tracking)
-        if ($isActive && !$wasActive) {
-            $details = OrderDetails::where('order_id', $order->id)
-                ->with('product', 'warrantySale')
-                ->get();
-
-            foreach ($details as $row) {
-                if (!$row->product) {
-                    continue;
-                }
-
-                try {
-                    // ✅ Pass user-selected batch from WarrantySale if available
-                    $preferredBatchId = optional($row->warrantySale)->stock_batch_id;
-                    $result = $stockService->stockOut($row->product, (int) $row->qty, [
-                        'type' => 'sale',
-                        'id'   => $order->id,
-                    ], $preferredBatchId);
-
-                    // Store COGS and batch details on the order detail
-                    $row->update([
-                        'cogs'      => $result['cogs'],
-                        'batch_ids' => $result['batch_details'],
-                    ]);
-                } catch (\RuntimeException $e) {
-                    // Fallback: simple stock decrement if batch tracking fails
-                    $row->product->decrement('stock', (int) $row->qty);
-                    Log::warning('Stock batch deduction failed, used fallback', [
-                        'product' => $row->product_id,
-                        'order'   => $order->id,
-                        'error'   => $e->getMessage(),
-                    ]);
-                }
-            }
-        }
-
-        // 2) Cancelled → restore stock if was active
-        if ($newEnum === OrderStatusEnum::CANCELLED && $wasActive) {
-            $details = OrderDetails::where('order_id', $order->id)
-                ->with('product')
-                ->get();
-
-            foreach ($details as $row) {
-                if (!$row->product) {
-                    continue;
-                }
-
-                // Restore stock — create a positive batch entry
-                $stockService->stockIn($row->product, [
-                    'quantity'       => (int) $row->qty,
-                    'unit_cost'      => (float) ($row->product->purchase_price ?? 0),
-                    'reference_type' => 'sale_return',
-                    'reference_id'   => $order->id,
-                ]);
-
-                // Clear COGS since it's reversed
-                $row->update([
-                    'cogs'       => null,
-                    'batch_ids'  => null,
-                ]);
-            }
-        }
-    }
 
     /*
     |--------------------------------------------------------------------------
@@ -1071,7 +994,7 @@ class OrderController extends Controller
         }
 
         // Handle stock change
-        $this->handleStockChange($order, $oldStatus, $newStatus);
+        app(OrderStatusService::class)->handleStatusChange($order, $oldStatus, $newStatus);
 
         \Log::info('Order status manually updated', [
             'order_id' => $order->id,
@@ -1122,21 +1045,15 @@ class OrderController extends Controller
         }
 
         if ($newStatus === OrderStatusEnum::COMPLETED->value && $oldStatus !== OrderStatusEnum::COMPLETED->value) {
-            FundTransaction::create([
-                'direction'  => 'in',
-                'source'     => 'sale',
-                'source_id'  => $order->id,
-                'amount'     => $order->amount,
-                'note'       => 'Order complete (#' . $order->invoice_id . ') via process page',
-                'created_by' => auth()->id(),
-            ]);
-
+            // Phase 4 — guarded credit: one sale row per order even if the same
+            // order is completed via multiple paths (process page, webhook, bulk…).
+            \App\Helpers\FundHelper::creditSale($order, 'Order complete (#' . $order->invoice_id . ') via process page', auth()->id());
         }
 
         $order->save();
 
         // স্টক হ্যান্ডেল
-        $this->handleStockChange($order, $oldStatus, $newStatus);
+        app(OrderStatusService::class)->handleStatusChange($order, $oldStatus, $newStatus);
 
         $shipping_update = Shipping::where('order_id', $order->id)->first();
         $shippingfee     = ShippingCharge::find($request->area);
@@ -1355,8 +1272,8 @@ class OrderController extends Controller
                 }
             }
 
-            // Stock handling (pass string values, handleStockChange converts internally)
-            $this->handleStockChange($order, $oldStatus, $targetStatusValue);
+            // Stock handling (pass string values, OrderStatusService converts internally)
+            app(OrderStatusService::class)->handleStatusChange($order, $oldStatus, $targetStatusValue);
 
             // SMS notification
             if ($sms_gateway && $order->customer) {
@@ -2161,18 +2078,23 @@ class OrderController extends Controller
         }
 
         // নতুন অর্ডার প্লেস করলে স্টক কমানো (pass string enum value, NOT cast to int)
-        $this->handleStockChange($order, 0, $order->order_status);
+        app(OrderStatusService::class)->handleStatusChange($order, 0, $order->order_status);
 
-        // 💰 Payment received হলে ফান্ডে টাকা যোগ করুন (only the paid amount)
+        // 💰 Payment received হলে ফান্ডে টাকা যোগ করুন (only the paid amount).
+        //    Phase 4 — guarded per (order, amount) so a re-run can't double-credit.
         if ($paid > 0) {
-            FundTransaction::create([
-                'direction' => 'in',
-                'source'    => 'sale',
-                'source_id' => $order->id,
-                'amount'    => $paid,
-                'note'      => 'POS Order #' . $order->invoice_id,
-                'created_by'=> auth()->id(),
-            ]);
+            $exists = FundTransaction::where('source', 'sale')->where('source_id', $order->id)
+                ->where('amount', $paid)->exists();
+            if (!$exists) {
+                FundTransaction::create([
+                    'direction' => 'in',
+                    'source'    => 'sale',
+                    'source_id' => $order->id,
+                    'amount'    => $paid,
+                    'note'      => 'POS Order #' . $order->invoice_id,
+                    'created_by'=> auth()->id(),
+                ]);
+            }
         }
 
         Cart::instance('pos_shopping')->destroy();
@@ -2666,6 +2588,11 @@ class OrderController extends Controller
             return response()->json(['success' => false, 'message' => "ন্যূনতম ক্রয় ৳{$minPurchase} প্রয়োজন"]);
         }
 
+        // Enforce max uses at apply-time (pre-check). Final atomic increment occurs at order save.
+        if (!empty($coupon->max_uses) && (int) $coupon->max_uses > 0 && (int) $coupon->used_count >= (int) $coupon->max_uses) {
+            return response()->json(['success' => false, 'message' => 'কুপন ব্যবহারের সীমা শেষ হয়েছে']);
+        }
+
         $type = strtolower((string) ($coupon->type ?? 'flat'));
         $value = (float) ($coupon->value ?? 0);
         if ($type === 'percent' || $type === 'percentage') {
@@ -3043,7 +2970,7 @@ class OrderController extends Controller
         }
 
         if ($oldOrderStatus !== $order->order_status) {
-            $this->handleStockChange($order, $oldOrderStatus, $order->order_status);
+            app(OrderStatusService::class)->handleStatusChange($order, $oldOrderStatus, $order->order_status);
         }
 
         // 🆕 Status unchanged → but user may have changed batch/qty. Move the stock
@@ -3397,7 +3324,7 @@ class OrderController extends Controller
             ], 422);
         }
 
-        $this->handleStockChange($order, $oldStatus, $order->getOriginal('order_status'));
+        app(OrderStatusService::class)->handleStatusChange($order, $oldStatus, $order->getOriginal('order_status'));
 
         return response()->json([
             'status'      => 'success',
@@ -3729,7 +3656,7 @@ class OrderController extends Controller
         }
 
         // Restore stock on cancellation
-        $this->handleStockChange($order, $oldStatus, OrderStatusEnum::CANCELLED->value);
+        app(OrderStatusService::class)->handleStatusChange($order, $oldStatus, OrderStatusEnum::CANCELLED->value);
 
         return $this->actionSuccessResponse($order, 'Order cancelled');
     }
@@ -4104,15 +4031,20 @@ class OrderController extends Controller
             $payment->save();
         }
 
-        // 4) Fund credit
-        FundTransaction::create([
-            'direction'  => 'in',
-            'source'     => 'sale',
-            'source_id'  => $order->id,
-            'amount'     => $amount,
-            'note'       => 'Payment received — Order #' . $order->invoice_id,
-            'created_by' => auth()->id(),
-        ]);
+        // 4) Fund credit — Phase 4: guarded per (order, amount) so repeat calls
+        //    (e.g. duplicate gateway callbacks for the same amount) can't double-credit.
+        $exists = FundTransaction::where('source', 'sale')->where('source_id', $order->id)
+            ->where('amount', $amount)->exists();
+        if (!$exists) {
+            FundTransaction::create([
+                'direction'  => 'in',
+                'source'     => 'sale',
+                'source_id'  => $order->id,
+                'amount'     => $amount,
+                'note'       => 'Payment received — Order #' . $order->invoice_id,
+                'created_by' => auth()->id(),
+            ]);
+        }
 
         // 5) Note
         $order->addNote(

@@ -13,6 +13,7 @@ use App\Models\SmsGateway;
 use App\Models\GeneralSetting;
 use App\Models\User;
 use App\Services\RedXService;
+use App\Enums\OrderStatus as OrderStatusEnum;
 use Illuminate\Support\Facades\Log;
 
 class RedXWebhookController extends Controller
@@ -61,43 +62,44 @@ class RedXWebhookController extends Controller
                 ], 404);
             }
 
-            // Map RedX status to order status
+            // Map RedX status → OrderStatus enum (RedXService, Phase 3.1).
             $redxService = new RedXService();
-            $newOrderStatus = $redxService->mapStatusToOrderStatus($status);
+            $newEnum = $redxService->mapStatusToOrderStatus($status);
 
-            if ($newOrderStatus !== null) {
-                $oldStatus = (int) $order->order_status;
-                $newOrderStatus = (int) $newOrderStatus;
-                
-                // Update order status
-                $order->order_status = $newOrderStatus;
-                $order->save();
+            if ($newEnum !== null) {
+                $current = $order->order_status;
+                $oldEnum = is_numeric($current)
+                    ? OrderStatusEnum::fromLegacyId((int) $current)     // legacy int rows
+                    : (OrderStatusEnum::tryFrom($current) ?? OrderStatusEnum::PENDING);
 
-                // Handle stock change (same logic as OrderController)
-                $this->handleStockChange($order, $oldStatus, $newOrderStatus);
+                // Phase 2.3 — enum-driven transition (writes enum value + a system
+                // order_note via Order::transitionTo). Never a raw int write.
+                // No hardcoded user id (webhook is system-driven; FK-safe).
+                $order->transitionTo($newEnum, 'Status updated via RedX webhook');
 
-                // If order is delivered/completed (status = 6)
-                if ($newOrderStatus == 6 && $oldStatus != 6) {
-                    // Add money to fund
-                    FundTransaction::create([
-                        'direction'  => 'in',
-                        'source'     => 'sale',
-                        'source_id'  => $order->id,
-                        'amount'     => $order->amount,
-                        'note'       => 'Order complete via RedX webhook (#' . $order->invoice_id . ')',
-                        'created_by' => 1, // System user
-                    ]);
+                // ONE shared stock engine (OrderStatusService) — never a private
+                // direct-write copy that drifted products.stock.
+                app(\App\Services\OrderStatusService::class)
+                    ->handleStatusChange($order, $oldEnum->value, $newEnum->value);
+
+                // Guarded fund credit — one 'in' sale row per order (Phase 4).
+                if ($newEnum === OrderStatusEnum::COMPLETED && $oldEnum !== OrderStatusEnum::COMPLETED) {
+                    \App\Helpers\FundHelper::creditSale(
+                        $order,
+                        'Order complete via RedX webhook (#' . $order->invoice_id . ')',
+                        1
+                    );
                 }
 
                 // Send SMS notification if configured
-                $this->sendStatusUpdateSMS($order, $newOrderStatus);
+                $this->sendStatusUpdateSMS($order, $newEnum);
 
                 Log::info('RedX Webhook: Order status updated successfully', [
                     'order_id' => $order->id,
                     'invoice_id' => $order->invoice_id,
                     'tracking_id' => $trackingNumber,
-                    'old_status' => $oldStatus,
-                    'new_status' => $newOrderStatus,
+                    'old_status' => $oldEnum->value,
+                    'new_status' => $newEnum->value,
                     'redx_status' => $status
                 ]);
             } else {
@@ -126,54 +128,20 @@ class RedXWebhookController extends Controller
         }
     }
 
-    /**
-     * Handle stock change when order status changes
-     * Same logic as OrderController
-     */
-    private function handleStockChange(Order $order, int $oldStatus, int $newStatus)
-    {
-        $activeStatuses = [1, 2, 3, 5, 6, 8];
-
-        // 1) প্রথমবার active status এ ঢুকলে স্টক কমবে
-        if (in_array($newStatus, $activeStatuses) && !in_array($oldStatus, $activeStatuses)) {
-            $details = OrderDetails::where('order_id', $order->id)
-                ->with('product:id,stock')
-                ->get();
-
-            foreach ($details as $row) {
-                if ($row->product) {
-                    $row->product->stock = max(0, $row->product->stock - $row->qty);
-                    $row->product->save();
-                }
-            }
-        }
-
-        // 2) cancel (11) হলে, যদি আগেরটা active group এ থাকে -> স্টক রিস্টোর
-        if ($newStatus == 11 && in_array($oldStatus, $activeStatuses)) {
-            $details = OrderDetails::where('order_id', $order->id)
-                ->with('product:id,stock')
-                ->get();
-
-            foreach ($details as $row) {
-                if ($row->product) {
-                    $row->product->stock = $row->product->stock + $row->qty;
-                    $row->product->save();
-                }
-            }
-        }
-    }
+    // NOTE (Phase 2.3/3.2): the private duplicate stock engine was REMOVED — stock
+    // is handled by the ONE shared engine App\Services\OrderStatusService::
+    // handleStatusChange (batch-tracked stockOut/stockIn + sale_return restock).
 
     /**
      * Send SMS notification when order status changes
      */
-    private function sendStatusUpdateSMS(Order $order, int $newStatus)
+    private function sendStatusUpdateSMS(Order $order, OrderStatusEnum $newStatus)
     {
         try {
             $sms_gateway = SmsGateway::where('status', 1)->first();
             $site_setting = GeneralSetting::first();
-            $orderStatus = OrderStatus::find($newStatus);
 
-            if ($sms_gateway && $order->customer && $orderStatus) {
+            if ($sms_gateway && $order->customer) {
                 $url  = $sms_gateway->url;
                 $data = [
                     "api_key"  => $sms_gateway->api_key,
@@ -182,7 +150,7 @@ class RedXWebhookController extends Controller
                     "senderid" => $sms_gateway->serderid,
                     "message"  => "Dear {$order->customer->name},\r\n"
                         . "Your order (Order ID: {$order->invoice_id}) status has been updated to: "
-                        . "{$orderStatus->name} via RedX Courier.\r\n"
+                        . "{$newStatus->label()} via RedX Courier.\r\n"
                         . "Thank you for using {$site_setting->name}!",
                 ];
 

@@ -9,6 +9,8 @@ use App\Models\CronJobSetting;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use App\Services\RedXService;
+use App\Services\OrderStatusService;
+use App\Enums\OrderStatus;
 
 class CheckCourierOrderStatus extends Command
 {
@@ -43,7 +45,9 @@ class CheckCourierOrderStatus extends Command
 
         $this->info("Courier status sync started — limit: {$limit}");
 
-        $orders = Order::where('order_status', 5)
+        // Phase 3.1 — enum statuses (was legacy int 5 which matched nothing after
+        // the enum migration). Track packed/shipped orders that are with a courier.
+        $orders = Order::whereIn('order_status', [OrderStatus::PACKED->value, OrderStatus::SHIPPED->value])
             ->whereNotNull('courier_type')
             ->whereNotNull('courier_tracking_id')
             ->whereIn('courier_type', ['pathao', 'steadfast', 'redx'])
@@ -71,27 +75,31 @@ class CheckCourierOrderStatus extends Command
 
         foreach ($orders as $order) {
             try {
-                $status = $this->checkOrderStatus($order);
+                $status = $this->checkOrderStatus($order); // OrderStatus|null
 
-                if ($status === null) {
+                if ($status === null || $status === $order->status_enum) {
                     $unchanged++;
                     continue;
                 }
 
-                $oldStatus = $order->order_status;
-                $order->order_status = $status;
-                $order->save();
+                $oldEnum = $order->status_enum;
+
+                // Phase 3.1 — enum-driven transition (enum value + system order_note).
+                $order->transitionTo($status, "Status updated via {$order->courier_type} courier sync");
+
+                // ONE shared stock engine — batch-tracked stockOut/stockIn side effects.
+                app(OrderStatusService::class)->handleStatusChange($order, $oldEnum->value, $status->value);
 
                 $updated++;
-                $this->info("Order #{$order->invoice_id} ({$order->courier_type}): {$oldStatus} → {$status}");
+                $this->info("Order #{$order->invoice_id} ({$order->courier_type}): {$oldEnum->label()} → {$status->label()}");
 
                 Log::info("Courier order status auto-updated", [
                     'order_id'     => $order->id,
                     'invoice_id'   => $order->invoice_id,
                     'courier_type' => $order->courier_type,
                     'tracking_id'  => $order->courier_tracking_id,
-                    'old_status'   => $oldStatus,
-                    'new_status'   => $status,
+                    'old_status'   => $oldEnum->value,
+                    'new_status'   => $status->value,
                 ]);
 
             } catch (\Exception $e) {
@@ -126,7 +134,7 @@ class CheckCourierOrderStatus extends Command
      * Check order status from courier API
      *
      * @param Order $order
-     * @return int|null Returns new order_status or null if no change needed
+     * @return OrderStatus|null Returns the target OrderStatus or null if no change needed
      */
     private function checkOrderStatus(Order $order)
     {
@@ -215,12 +223,12 @@ class CheckCourierOrderStatus extends Command
 
             $pathaoStatus = strtolower($data['data']['order_status_slug'] ?? '');
 
-            // Map Pathao status to our order status
+            // Map Pathao status to our order status (Phase 3.1 — enum).
             // Pathao statuses: Pending, Delivered, Cancelled, etc.
             if (in_array($pathaoStatus, ['delivered', 'completed'])) {
-                return 6; // Completed/Delivered
+                return OrderStatus::COMPLETED;
             } elseif (in_array($pathaoStatus, ['cancelled', 'canceled'])) {
-                return 11; // Cancelled
+                return OrderStatus::CANCELLED;
             }
 
             return null; // No status change needed
@@ -297,12 +305,12 @@ class CheckCourierOrderStatus extends Command
 
             $steadfastStatus = strtolower($data['delivery_status'] ?? '');
 
-            // Map Steadfast status to our order status
+            // Map Steadfast status to our order status (Phase 3.1 — enum).
             // Steadfast statuses: delivered, cancelled, partial_delivered, etc.
             if (in_array($steadfastStatus, ['delivered', 'delivered_approval_pending'])) {
-                return 6; // Completed/Delivered
+                return OrderStatus::COMPLETED;
             } elseif (in_array($steadfastStatus, ['cancelled', 'cancelled_approval_pending'])) {
-                return 11; // Cancelled
+                return OrderStatus::CANCELLED;
             }
 
             return null; // No status change needed

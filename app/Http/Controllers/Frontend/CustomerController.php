@@ -585,67 +585,94 @@ public function order_save(Request $request)
             }
         }
 
-        // Main Order save
-        $order = new Order();
-        $order->invoice_id      = rand(11111,99999);
-        $order->amount          = $grandTotal; // অর্ডারে সবসময় টোটাল এমাউন্ট থাকবে
-        $order->shipping_charge = $shippingfee;
-        $order->customer_id     = $customer_id;
-        $order->order_status    = \App\Enums\OrderStatus::PENDING->value;
-        $order->order_type      = $request->payment_method === 'cod' ? 'cod' : 'online';
-        $order->note            = $request->note;
-        $order->order_note      = $request->order_note;
-        $order->payment_status  = 'pending';
-        $order->coupon_code     = Session::get('coupon_code') ?? null;
-        $order->discount        = $discount ?? 0;
-        $order->ip_address      = $request->ip();
-        
-        $order->save();
-
-        // Shipping info
-        $shipping = new Shipping();
-        $shipping->order_id    = $order->id;
-        $shipping->customer_id = $customer_id;
-        $shipping->name        = $request->name;
-        $shipping->phone       = $request->phone;
-        $shipping->address     = $request->address;
-        
-        if ($shippingAreaRow) {
-            $shipping->area = $shippingAreaRow->area_name . ', ' . $shippingAreaRow->district;
-        } elseif ($shipping_area) {
-            $shipping->area = $shipping_area->name;
-        } else {
-            $shipping->area = 'Digital / Free Shipping';
-        }
-        $shipping->save();
-
-        // Payment info
-        $payment = new Payment();
-        $payment->order_id       = $order->id;
-        $payment->customer_id    = $customer_id;
-        $payment->payment_method = $request->payment_method;
-
-        // =========================================================
-        // ⭐ ফিক্সড লজিক: ডাটাবেসে কত টাকা সেভ করব?
-        // =========================================================
-        if (in_array($request->payment_method, ['bkash', 'shurjopay', 'uddoktapay', 'aamarpay'])) {
-            // অনলাইন পেমেন্ট: শুরুতে ০ রাখব। পেমেন্ট ক্যান্সেল হলে ০ থাকবে (Unpaid দেখাবে)।
-            // পেমেন্ট সাকসেস হলে IPN/Callback এসে এই ০ কে আপডেট করে $payable_amount বসিয়ে দিবে।
-            $payment->amount = 0; 
-        } else {
-            // COD: এখানে সরাসরি এমাউন্ট বসিয়ে দিব
-            $payment->amount = $payable_amount;
-        }
-
-        $payment->payment_status = 'pending';
-        $payment->save();
-
-        // Order details save
-        OrderHelper::saveOrderDetails($order);
-
-        // 🛡️ Stock reduce — batch-tracked (FIFO/LIFO/Average)
-        $details = OrderDetails::where('order_id', $order->id)->with('product')->get();
+        // ⭐ Phase 1.2 — order + shipping + payment + details + warranty + stock
+        //    are written inside ONE DB transaction (UPDATE-PLAN 1.2). A mid-save
+        //    failure rolls back everything; the cart is only cleared post-commit.
         try {
+            DB::beginTransaction();
+
+            // Main Order save
+            $order = new Order();
+            // Generate a collision-resistant invoice id (date + random token)
+            $order->invoice_id      = \App\Helpers\InvoiceHelper::generateInvoiceId();
+            $order->amount          = $grandTotal; // অর্ডারে সবসময় টোটাল এমাউন্ট থাকবে
+            $order->shipping_charge = $shippingfee;
+            $order->customer_id     = $customer_id;
+            $order->order_status    = \App\Enums\OrderStatus::PENDING->value;
+            $order->order_type      = $request->payment_method === 'cod' ? 'cod' : 'online';
+            $order->note            = $request->note;
+            $order->order_note      = $request->order_note;
+            $order->payment_status  = 'pending';
+            // Atomically reserve coupon usage (if a coupon is present in session)
+            $order->coupon_code = null;
+            $sessionCoupon = Session::get('coupon_code') ?? null;
+            if ($sessionCoupon) {
+                $coupon = Coupon::where('code', $sessionCoupon)
+                    ->where('status', 1)
+                    ->where(function ($q) {
+                        $q->where('max_uses', 0)->orWhereColumn('used_count', '<', 'max_uses');
+                    })
+                    ->lockForUpdate()
+                    ->first();
+
+                if (!$coupon) {
+                    throw new \RuntimeException('Coupon invalid or exhausted.');
+                }
+
+                $coupon->increment('used_count');
+                $order->coupon_code = $coupon->code;
+            }
+            $order->discount        = $discount ?? 0;
+            $order->ip_address      = $request->ip();
+            
+            $order->save();
+
+            // Shipping info
+            $shipping = new Shipping();
+            $shipping->order_id    = $order->id;
+            $shipping->customer_id = $customer_id;
+            $shipping->name        = $request->name;
+            $shipping->phone       = $request->phone;
+            $shipping->address     = $request->address;
+            
+            if ($shippingAreaRow) {
+                $shipping->area = $shippingAreaRow->area_name . ', ' . $shippingAreaRow->district;
+            } elseif ($shipping_area) {
+                $shipping->area = $shipping_area->name;
+            } else {
+                $shipping->area = 'Digital / Free Shipping';
+            }
+            $shipping->save();
+
+            // Payment info
+            $payment = new Payment();
+            $payment->order_id       = $order->id;
+            $payment->customer_id    = $customer_id;
+            $payment->payment_method = $request->payment_method;
+
+            // =========================================================
+            // ⭐ ফিক্সড লজিক: ডাটাবেসে কত টাকা সেভ করব?
+            // =========================================================
+            if (in_array($request->payment_method, ['bkash', 'shurjopay', 'uddoktapay', 'aamarpay'])) {
+                // অনলাইন পেমেন্ট: শুরুতে ০ রাখব। পেমেন্ট ক্যান্সেল হলে ০ থাকবে (Unpaid দেখাবে)।
+                // পেমেন্ট সাকসেস হলে IPN/Callback এসে এই ০ কে আপডেট করে $payable_amount বসিয়ে দিবে।
+                $payment->amount = 0; 
+            } else {
+                // COD: এখানে সরাসরি এমাউন্ট বসিয়ে দিব
+                $payment->amount = $payable_amount;
+            }
+
+            $payment->payment_status = 'pending';
+            $payment->save();
+
+            // Order details save
+            OrderHelper::saveOrderDetails($order);
+
+            // 🛡️ Stock reduce — batch-tracked (FIFO/LIFO/Average).
+            //    Phase 2.4: NO silent fallback to a direct `products.stock` write —
+            //    a stock-out failure throws and the 1.2 outer transaction rolls back
+            //    the whole order (fail-safe, never batch-inconsistent).
+            $details = OrderDetails::where('order_id', $order->id)->with('product')->get();
             $stockService   = app(\App\Services\StockManagementService::class);
             $pricingService = app(\App\Services\PricingService::class);
 
@@ -673,75 +700,82 @@ public function order_save(Request $request)
                     }
                 }
             }
-        } catch (\Throwable $e) {
-            \Log::warning('Batch stock-out failed for order #'.$order->id.': '.$e->getMessage());
-            foreach ($details as $row) {
-                if ($row->product) {
-                    $row->product->stock = max(0, ($row->product->stock ?? 0) - $row->qty);
-                    $row->product->save();
-                }
-            }
-        }
 
- // === Customer SMS ===
-        try {
-            $sms_gateway = SmsGateway::where(['status' => 1, 'order' => 1])->first();
-            if(!$sms_gateway){
-                $sms_gateway = SmsGateway::where('status', 1)->first();
-            }
-
-            if($sms_gateway) {
-                $customerPhone = isset($shipping) && $shipping->phone ? $shipping->phone : ($request->phone ?? ($order->customer->phone ?? null));
-                $customerName  = isset($shipping) && $shipping->name ? $shipping->name : ($request->name ?? ($order->customer->name ?? 'Customer'));
-                $site_setting = GeneralSetting::where('status', 1)->first();
-
-                if($customerPhone) {
-                    $customerMessage = "প্রিয় {$customerName}! আপনার অর্ডার #{$order->invoice_id} সফলভাবে গ্রহণ করা হয়েছে। মোট: {$order->amount} Tk. {$site_setting->name}";
-                    $phone = preg_replace('/[^0-9+]/','', $customerPhone);
-                    $resp = $this->sendSms($sms_gateway, $phone, $customerMessage, $sms_gateway->serderid ?? $sms_gateway->senderid ?? '');
-                    \Log::info("Customer SMS to {$phone}: resp=" . substr($resp ?? '',0,200));
-                } else {
-                    \Log::warning("Customer SMS skipped: no phone for order {$order->id}");
-                }
-            }
-        } catch(\Exception $e) {
-            \Log::error("Customer SMS error for order {$order->id}: " . $e->getMessage());
-        }
-
-        // === Admin SMS ===
-        try {
-            $sms_gateway = SmsGateway::where('status', 1)->first();
-            if($sms_gateway) {
-                $adminPhones = env('ADMIN_PHONE_LIST', null);
-                if(!$adminPhones && isset($sms_gateway->admin_phone)){
-                    $adminPhones = $sms_gateway->admin_phone;
-                }
-                if(!$adminPhones){
-                    $contact = Contact::first();
-                    $adminPhones = $contact->phone ?? null;
+            // === Customer SMS ===
+            try {
+                $sms_gateway = SmsGateway::where(['status' => 1, 'order' => 1])->first();
+                if(!$sms_gateway){
+                    $sms_gateway = SmsGateway::where('status', 1)->first();
                 }
 
-                $site_setting = GeneralSetting::where('status', 1)->first();
-                $customerName = isset($request->name) ? $request->name : ($order->customer->name ?? 'Customer');
-                $customerPhone = isset($request->phone) ? $request->phone : ($order->customer->phone ?? '');
-                $adminMessage = "নতুন অর্ডার এসেছে!\nOrder#: {$order->invoice_id}\nকাস্টমার: {$customerName}\nমোবাইল: {$customerPhone}\nমোট: {$order->amount} Tk {$site_setting->name}";
+                if($sms_gateway) {
+                    $customerPhone = isset($shipping) && $shipping->phone ? $shipping->phone : ($request->phone ?? ($order->customer->phone ?? null));
+                    $customerName  = isset($shipping) && $shipping->name ? $shipping->name : ($request->name ?? ($order->customer->name ?? 'Customer'));
+                    $site_setting = GeneralSetting::where('status', 1)->first();
 
-                if($adminPhones){
-                    $numbers = array_filter(array_map('trim', explode(',', $adminPhones)));
-                    foreach($numbers as $adminPhone){
-                        $adminPhone = preg_replace('/[^0-9+]/', '', $adminPhone);
-                        $senderid = $sms_gateway->serderid ?? $sms_gateway->senderid ?? '';
-                        $resp = $this->sendSms($sms_gateway, $adminPhone, $adminMessage, $senderid);
-                        \Log::info("Admin SMS to {$adminPhone}: resp=" . substr($resp ?? '',0,200));
+                    if($customerPhone) {
+                        $customerMessage = "প্রিয় {$customerName}! আপনার অর্ডার #{$order->invoice_id} সফলভাবে গ্রহণ করা হয়েছে। মোট: {$order->amount} Tk. {$site_setting->name}";
+                        $phone = preg_replace('/[^0-9+]/','', $customerPhone);
+                        $resp = $this->sendSms($sms_gateway, $phone, $customerMessage, $sms_gateway->serderid ?? $sms_gateway->senderid ?? '');
+                        \Log::info("Customer SMS to {$phone}: resp=" . substr($resp ?? '',0,200));
+                    } else {
+                        \Log::warning("Customer SMS skipped: no phone for order {$order->id}");
                     }
                 }
+            } catch(\Exception $e) {
+                \Log::error("Customer SMS error for order {$order->id}: " . $e->getMessage());
             }
-        } catch(\Exception $e){
-            \Log::error('Admin SMS send failed: '.$e->getMessage());
-        }
 
-        // Incomplete order delete
-        IncompleteOrder::where('phone', $request->phone)->delete();
+            // === Admin SMS ===
+            try {
+                $sms_gateway = SmsGateway::where('status', 1)->first();
+                if($sms_gateway) {
+                    $adminPhones = env('ADMIN_PHONE_LIST', null);
+                    if(!$adminPhones && isset($sms_gateway->admin_phone)){
+                        $adminPhones = $sms_gateway->admin_phone;
+                    }
+                    if(!$adminPhones){
+                        $contact = Contact::first();
+                        $adminPhones = $contact->phone ?? null;
+                    }
+
+                    $site_setting = GeneralSetting::where('status', 1)->first();
+                    $customerName = isset($request->name) ? $request->name : ($order->customer->name ?? 'Customer');
+                    $customerPhone = isset($request->phone) ? $request->phone : ($order->customer->phone ?? '');
+                    $adminMessage = "নতুন অর্ডার এসেছে!\nOrder#: {$order->invoice_id}\nকাস্টমার: {$customerName}\nমোবাইল: {$customerPhone}\nমোট: {$order->amount} Tk {$site_setting->name}";
+
+                    if($adminPhones){
+                        $numbers = array_filter(array_map('trim', explode(',', $adminPhones)));
+                        foreach($numbers as $adminPhone){
+                            $adminPhone = preg_replace('/[^0-9+]/', '', $adminPhone);
+                            $senderid = $sms_gateway->serderid ?? $sms_gateway->senderid ?? '';
+                            $resp = $this->sendSms($sms_gateway, $adminPhone, $adminMessage, $senderid);
+                            \Log::info("Admin SMS to {$adminPhone}: resp=" . substr($resp ?? '',0,200));
+                        }
+                    }
+                }
+            } catch(\Exception $e){
+                \Log::error('Admin SMS send failed: '.$e->getMessage());
+            }
+
+            // Incomplete order delete
+            IncompleteOrder::where('phone', $request->phone)->delete();
+
+            DB::commit();
+
+            // ✅ Cart cleared only AFTER commit — a rollback must never eat the customer's cart.
+            Cart::instance('shopping')->destroy();
+        } catch (\Throwable $e) {
+            DB::rollBack();
+
+            \Illuminate\Support\Facades\Log::error(
+                'Checkout failed — order rolled back: '.$e->getMessage(),
+                ['phone' => $request->phone, 'trace' => $e->getTraceAsString()]
+            );
+
+            Toastr::error('দুঃখিত, অর্ডারটি সংরক্ষণ করা যায়নি। আবার চেষ্টা করুন।', 'Failed!');
+            return redirect()->back();
+        }
 
         // =========================================================
         // ⭐ পেমেন্ট গেটওয়ে রিডাইরেক্ট (FIXED)
