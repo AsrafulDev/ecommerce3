@@ -22,7 +22,7 @@
         <div class="mobile-logo">
             <div class="menu-bar"><a class="toggle"><i class="fa-solid fa-bars"></i></a></div>
             <div class="menu-logo">
-                <a href="{{ route('home') }}"><img src="{{ asset($generalsetting->dark_logo ?: 'public/assets/images/CurlBazar.svg') }}" alt="" /></a>
+                <a href="{{ route('home') }}"><img src="{{ asset($generalsetting->dark_logo ?? 'public/assets/images/CurlBazar.svg') }}" alt="" /></a>
             </div>
             <div class="menu-bag">
                 <a href="{{ route('customer.checkout') }}" class="margin-shopping">
@@ -50,7 +50,7 @@
                     <div class="col-sm-12">
                         <div class="logo-header">
                             <div class="main-logo">
-                                <a href="{{ route('home') }}"><img src="{{ asset($generalsetting->dark_logo ?: 'public/assets/images/CurlBazar.svg') }}" alt="" /></a>
+                                <a href="{{ route('home') }}"><img src="{{ asset($generalsetting->dark_logo ?? 'public/assets/images/CurlBazar.svg') }}" alt="" /></a>
                             </div>
                             <div class="main-search">
                                 <form action="{{ route('search') }}">

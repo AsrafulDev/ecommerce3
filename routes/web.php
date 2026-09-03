@@ -70,7 +70,13 @@ use App\Http\Controllers\Frontend\ContactMessageController as FrontendContactMes
 use App\Http\Controllers\Frontend\BlogController;
 use App\Http\Controllers\Admin\BlogController as AdminBlogController;
 use App\Http\Controllers\Admin\PopupController;
+use App\Http\Controllers\InstallerController;
 
+// First-run install wizard — only reachable while the DB is empty.
+Route::middleware(['redirect.if.installed'])->group(function () {
+    Route::get('install', [InstallerController::class, 'index'])->name('install.index');
+    Route::post('install', [InstallerController::class, 'store'])->name('install.store');
+});
 
 Route::get('admin/clear-cache', function () {
     Artisan::call('optimize:clear');

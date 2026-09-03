@@ -85,6 +85,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'ipcheck' => \App\Http\Middleware\IpFilter::class,
             'check_refer' => \App\Http\Middleware\CheckReffer::class,
             'demo_mode' => \App\Http\Middleware\DemoModeMiddleware::class,
+            'redirect.if.installed' => \App\Http\Middleware\RedirectIfInstalled::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
