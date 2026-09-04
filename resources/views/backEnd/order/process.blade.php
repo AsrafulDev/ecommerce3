@@ -66,8 +66,9 @@
 
             {{-- ✅ Product Image --}}
             <td>
-                <img src="{{ asset($product->image->image ?? 'public/no-image.png') }}"
-                     height="50" width="50" alt="Product Image">
+                <img src="{{ asset($product->image->image ?? 'public/assets/images/placeholder.webp') }}"
+                     height="50" width="50" alt="Product Image"
+                     onerror="this.src='{{ asset('public/assets/images/placeholder.webp') }}'">
             </td>
 
             {{-- ✅ Product Name --}}

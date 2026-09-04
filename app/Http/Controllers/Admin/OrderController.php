@@ -2123,8 +2123,37 @@ class OrderController extends Controller
 
     public function cart_add(Request $request)
     {
-        $product = Product::select('id', 'name', 'stock', 'new_price', 'old_price', 'purchase_price', 'slug')
+        $product = Product::select('id', 'name', 'stock', 'new_price', 'old_price', 'purchase_price', 'slug', 'allow_negative_stock')
             ->where(['id' => $request->id])->first();
+
+        if (!$product) {
+            return response()->json(['error' => true, 'message' => 'Product not found'], 404);
+        }
+
+        // ⭐ Batch-wise pricing engine — POS sells from ANY batch (auto = oldest sellable)
+        $pricing   = app(\App\Services\PricingService::class);
+        $batchWise = $pricing->isBatchWise();
+        $posBatch  = $batchWise ? $pricing->posBatches($product)->first() : null; // FIFO default
+
+        // 🚦 Stock ceiling — never let POS add past available stock unless the
+        //   product explicitly allows negative stock (mirrors
+        //   StockManagementService::stockOut's allowNegative bypass). Counts qty
+        //   already sitting in the cart for this product+batch, across every row —
+        //   a click-happy cashier can otherwise stack several qty-1 rows past stock.
+        $maxQty = $pricing->maxOrderableQty($product, 'pos', $posBatch?->id);
+        if ($maxQty !== null) {
+            $currentQty = (int) Cart::instance('pos_shopping')->content()
+                ->filter(fn ($item) => ($item->options->product_id ?? $item->id) == $product->id
+                    && ($item->options->batch_id ?? null) == $posBatch?->id)
+                ->sum('qty');
+
+            if ($currentQty + 1 > $maxQty) {
+                return response()->json([
+                    'error'   => true,
+                    'message' => "স্টকে যা আছে তার বেশি যোগ করা যাবে না। সর্বোচ্চ {$maxQty} টি স্টকে আছে।",
+                ], 422);
+            }
+        }
 
         // ✅ Merge only when ALL unconfigured: same product + variant, no warranty, no batch, no SN
         $existing = Cart::instance('pos_shopping')->search(function ($cartItem) use ($product) {
@@ -2155,13 +2184,8 @@ class OrderController extends Controller
 
         $qty      = 1;
 
-        // ⭐ Batch-wise pricing engine — POS sells from ANY batch (auto = oldest sellable)
-        $pricing   = app(\App\Services\PricingService::class);
-        $batchWise = $pricing->isBatchWise();
-        $posBatch  = null;
-        $posPrice  = (float) ($product->new_price ?? $product->old_price ?? 0);
+        $posPrice = (float) ($product->new_price ?? $product->old_price ?? 0);
         if ($batchWise) {
-            $posBatch = $pricing->posBatches($product)->first(); // FIFO default
             $posPrice = $pricing->price($product, $posBatch?->id, null, 'pos');
             if ($posPrice <= 0) { $posPrice = (float) ($product->new_price ?? 0); }
         }
@@ -2296,6 +2320,35 @@ class OrderController extends Controller
     {
         $qty  = $request->qty + 1;
         $cart = Cart::instance('pos_shopping')->content()->where('rowId', $request->id)->first();
+
+        if (!$cart) {
+            return response()->json(['error' => true, 'message' => 'Cart item not found'], 404);
+        }
+
+        // 🚦 Stock ceiling — same rule cart_add enforces (bypassed when the product
+        //   has allow_negative_stock). Sums every OTHER row already holding this
+        //   product+batch so stacked qty-1 rows can't add up past real stock.
+        $pid     = $cart->options->product_id ?? $cart->id;
+        $batchId = $cart->options->batch_id ?? null;
+        $product = Product::select('id', 'stock', 'allow_negative_stock')->find($pid);
+        if ($product) {
+            $pricing = app(\App\Services\PricingService::class);
+            $maxQty  = $pricing->maxOrderableQty($product, 'pos', $batchId);
+            if ($maxQty !== null) {
+                $otherQty = (int) Cart::instance('pos_shopping')->content()
+                    ->filter(fn ($item) => $item->rowId !== $cart->rowId
+                        && ($item->options->product_id ?? $item->id) == $pid
+                        && ($item->options->batch_id ?? null) == $batchId)
+                    ->sum('qty');
+
+                if ($otherQty + $qty > $maxQty) {
+                    return response()->json([
+                        'error'   => true,
+                        'message' => "স্টকে যা আছে তার বেশি নেওয়া যাবে না। সর্বোচ্চ {$maxQty} টি স্টকে আছে।",
+                    ], 422);
+                }
+            }
+        }
 
         $cartinfo = Cart::instance('pos_shopping')->update($request->id, [
             'qty'     => $qty,
@@ -2507,6 +2560,7 @@ class OrderController extends Controller
         $batchWise  = $pricingSvc->isBatchWise();
         $effectiveBatchId = $request->batch_id ?? $cartItem->options->batch_id ?? null;
         $cartVariantId    = $cartItem->options->variant_price_id ?? ($variant->id ?? null);
+        $clampedQty       = null;
         if ($batchWise && $effectiveBatchId) {
             $batch = \App\Models\StockBatch::find($effectiveBatchId);
             if ($batch && $batch->product_id == $pid) {
@@ -2517,6 +2571,23 @@ class OrderController extends Controller
                 $options['old_price']      = $pricingSvc->mrp($product, $batch->id, $cartVariantId) ?? 0;
                 $options['purchase_price'] = $batch->unit_cost;
                 $options['base_price']     = $newPrice;
+
+                // 🚦 Stock ceiling — switching this row onto a batch with less room
+                //   than its current qty must clamp it down (unless the product
+                //   allows negative stock). Other rows already on this batch count
+                //   against the same ceiling.
+                $maxQty = $pricingSvc->maxOrderableQty($product, 'pos', $batch->id);
+                if ($maxQty !== null) {
+                    $otherQty = (int) Cart::instance('pos_shopping')->content()
+                        ->filter(fn ($item) => $item->rowId !== $rowId
+                            && ($item->options->product_id ?? $item->id) == $pid
+                            && ($item->options->batch_id ?? null) == $batch->id)
+                        ->sum('qty');
+                    $room = $maxQty - $otherQty;
+                    if ($room < $cartItem->qty) {
+                        $clampedQty = max(1, $room);
+                    }
+                }
             }
         }
 
@@ -2540,7 +2611,11 @@ class OrderController extends Controller
         $options['warranty_adjustment'] = $warrantyAdjustment;
         $options['base_price']          = $newPrice - $warrantyAdjustment;
 
-        $updatedItem = Cart::instance('pos_shopping')->update($rowId, ['price' => $newPrice, 'options' => $options]);
+        $updatePayload = ['price' => $newPrice, 'options' => $options];
+        if ($clampedQty !== null) {
+            $updatePayload['qty'] = $clampedQty;
+        }
+        $updatedItem = Cart::instance('pos_shopping')->update($rowId, $updatePayload);
 
         Log::channel('single')->info('[POS cart_update] Saved', [
             'rowId' => $updatedItem ? $updatedItem->rowId : $rowId,
@@ -2714,7 +2789,7 @@ class OrderController extends Controller
                 'price'   => $actualPrice,
                 'options' => [
                     'product_id'        => $ordetails->product_id,
-                    'image'             => (isset($ordetails->image) && isset($ordetails->image->image) ? $ordetails->image->image : 'public/no-image.png'),
+                    'image'             => (isset($ordetails->image) && isset($ordetails->image->image) ? $ordetails->image->image : 'public/assets/images/placeholder.webp'),
                     'purchase_price'    => $ordetails->purchase_price,
                     'product_discount'  => $ordetails->product_discount,
                     'details_id'        => $ordetails->id,

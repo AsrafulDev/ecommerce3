@@ -51,6 +51,44 @@ class PurchaseController extends Controller
         $total_out = FundTransaction::where('direction', 'out')->sum('amount');
         return $total_in - $total_out;
     }
+
+    /**
+     * Which of these serial numbers appear more than once in the same array —
+     * used to reject duplicate SNs typed for the same purchase line.
+     */
+    private function findInternalDuplicates(array $serials): array
+    {
+        $counts = array_count_values($serials);
+        return array_values(array_keys(array_filter($counts, fn ($c) => $c > 1)));
+    }
+
+    /**
+     * Which of these serial numbers already exist for this product — checked
+     * against `batch_sn_lists` (the queryable mirror of every batch's
+     * sn_stock/sn_sold, see StockBatch::mirrorSnToList()), across ALL of the
+     * product's batches, both currently in stock and already sold. SN must be
+     * unique per product for its whole lifetime, not just within one batch.
+     *
+     * @param int|null $excludeBatchId  Skip this batch's own list (editing a
+     *                                  batch's SNs in place isn't a clash with itself).
+     */
+    private function findDuplicateSerialsForProduct(int $productId, array $serials, ?int $excludeBatchId = null): array
+    {
+        $serials = array_values(array_unique(array_filter(array_map('trim', $serials))));
+        if (empty($serials)) {
+            return [];
+        }
+
+        $existing = [];
+        \App\Models\BatchSnList::where('product_id', $productId)
+            ->when($excludeBatchId, fn ($q) => $q->where('batch_id', '!=', $excludeBatchId))
+            ->get(['stock_sn', 'sold_sn'])
+            ->each(function ($row) use (&$existing) {
+                $existing = array_merge($existing, (array) $row->stock_sn, (array) $row->sold_sn);
+            });
+
+        return array_values(array_intersect($serials, $existing));
+    }
     /**
      * ==============================
      * Purchase List + Summary
@@ -197,17 +235,45 @@ class PurchaseController extends Controller
             'paid_amount'   => 'nullable|numeric|min:0',
         ]);
 
-        // 🔢 Warranty → SN required: every unit with a supplier warranty needs a serial number
+        // 🔢 Warranty → SN required: every unit with a supplier warranty needs a serial number.
+        // 🔁 SN must be unique per product — no repeats within this same submission, and none
+        //    already recorded (in stock or sold) against any earlier batch of that product.
         $snErrors = [];
+        $seenInRequest = []; // product_id => [serial, ...] already claimed by an earlier item this submission
         foreach ((array) $request->items as $index => $item) {
-            if ((int) ($item['warranty_days'] ?? 0) <= 0) {
-                continue;
-            }
-            $qty = (int) ($item['qty'] ?? 0);
+            $pid     = $item['product_id'] ?? null;
+            $qty     = (int) ($item['qty'] ?? 0);
             $serials = array_values(array_filter(array_map('trim', (array) ($item['serial_numbers'] ?? []))));
-            if ($qty > 0 && count($serials) < $qty) {
+
+            if ((int) ($item['warranty_days'] ?? 0) > 0 && $qty > 0 && count($serials) < $qty) {
                 $snErrors["items.$index.serial_numbers"] =
                     "Warranty requires a serial number (SN) for every unit — provide {$qty} SN(s) (got " . count($serials) . ').';
+                continue;
+            }
+
+            if (!$pid || empty($serials)) {
+                continue;
+            }
+
+            $internalDupes = $this->findInternalDuplicates($serials);
+            if ($internalDupes) {
+                $snErrors["items.$index.serial_numbers"] =
+                    'Duplicate serial number(s) entered for this item: ' . implode(', ', $internalDupes);
+                continue;
+            }
+
+            $clashInRequest = array_values(array_intersect($serials, $seenInRequest[$pid] ?? []));
+            if ($clashInRequest) {
+                $snErrors["items.$index.serial_numbers"] =
+                    'Serial number(s) already used elsewhere in this purchase: ' . implode(', ', $clashInRequest);
+                continue;
+            }
+            $seenInRequest[$pid] = array_merge($seenInRequest[$pid] ?? [], $serials);
+
+            $existingClash = $this->findDuplicateSerialsForProduct((int) $pid, $serials);
+            if ($existingClash) {
+                $snErrors["items.$index.serial_numbers"] =
+                    'Serial number(s) already exist for this product: ' . implode(', ', $existingClash);
             }
         }
         if ($snErrors) {
@@ -1104,6 +1170,23 @@ class PurchaseController extends Controller
             return response()->json([
                 'status'  => 'error',
                 'message' => "Batch has {$remaining} unit(s) remaining, but you entered " . count($serials) . " serial number(s). Stock and SN count must match.",
+            ], 422);
+        }
+
+        // 🔁 SN must be unique per product — reject repeats within this list, and
+        //    any SN already recorded (stock or sold) on another batch of the same product.
+        $internalDupes = $this->findInternalDuplicates($serials);
+        if ($internalDupes) {
+            return response()->json([
+                'status'  => 'error',
+                'message' => 'Duplicate serial number(s) entered: ' . implode(', ', $internalDupes),
+            ], 422);
+        }
+        $existingClash = $this->findDuplicateSerialsForProduct($batch->product_id, $serials, $batch->id);
+        if ($existingClash) {
+            return response()->json([
+                'status'  => 'error',
+                'message' => 'Serial number(s) already exist for this product: ' . implode(', ', $existingClash),
             ], 422);
         }
 

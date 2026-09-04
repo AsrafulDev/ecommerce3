@@ -15,18 +15,24 @@ class SetLocale
         $supported = ['en', 'bn'];
 
         $setting = Cache::remember('general_setting', 1800, function () {
-            return GeneralSetting::where('status', 1)->first();
+            try {
+                return GeneralSetting::where('status', 1)->first();
+            } catch (\Throwable $e) {
+                // DB not migrated yet (fresh install, mid-install wizard) —
+                // fall back to the config locale instead of a hard 500.
+                return null;
+            }
         });
 
         // 🛡️ Admin panel: always use admin_language, ignore session
         if ($request->is('admin*')) {
-            $locale = $setting->admin_language ?? config('app.locale');
+            $locale = $setting?->admin_language ?? config('app.locale');
         }
         // 🏠 Frontend: session > default_language > config fallback
         elseif (session()->has('locale')) {
             $locale = session('locale');
         } else {
-            $locale = $setting->default_language ?? config('app.locale');
+            $locale = $setting?->default_language ?? config('app.locale');
         }
 
         // Validate locale exists

@@ -578,6 +578,25 @@ class PricingService
         return (int) $query->sum('remaining_qty');
     }
 
+    /**
+     * The maximum quantity of this product (optionally: this batch/variant) that
+     * may still be added to a cart / order. Returns null when the product has
+     * `allow_negative_stock` enabled — meaning no ceiling should be enforced —
+     * so this mirrors the same allowNegative bypass StockManagementService::
+     * stockOut() uses at order-save time. Cart layers (POS + storefront) MUST
+     * use this — not sellableStock() directly — to decide whether to block a
+     * qty increase, so a product without negative stock allowed can never be
+     * added past real stock, while one that allows it is never capped.
+     */
+    public function maxOrderableQty(Product $product, string $channel = 'website', ?int $batchId = null, ?int $variantId = null): ?int
+    {
+        if ((bool) ($product->allow_negative_stock ?? false)) {
+            return null;
+        }
+
+        return $this->sellableStock($product, $channel, $batchId, $variantId);
+    }
+
     public function isWebsiteSellable(Product $product): bool
     {
         if (!$this->isBatchWise()) {

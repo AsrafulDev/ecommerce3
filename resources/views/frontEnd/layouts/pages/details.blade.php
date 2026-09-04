@@ -650,7 +650,7 @@ if (typeof ttq !== 'undefined') {
             <div class="col-sm-12">
                 <div class="product-inner owl-carousel related_slider">
                     @foreach ($products as $key => $value)
-                    @php $relImg = $value->image ? $value->image->image : null; $relSrc = ($relImg && file_exists(public_path($relImg))) ? asset($relImg) : asset('public/assets/images/no-image.png'); @endphp
+                    @php $relImg = $value->image ? $value->image->image : null; $relSrc = ($relImg && file_exists(public_path($relImg))) ? asset($relImg) : asset('public/assets/images/placeholder.webp'); @endphp
                     @include('frontEnd.layouts.sections.product-card', ['product' => $value, 'classes' => 'wow zoomIn', 'attrs' => 'data-wow-duration="1.5s" data-wow-delay="0.'.$key.'s"', 'image_url' => $relSrc])
                     @endforeach
                 </div>

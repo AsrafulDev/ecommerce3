@@ -1,6 +1,6 @@
 @foreach($cartinfo as $key=>$value)
 <tr>
-  <td><img height="30" src="{{asset($value->options->image)}}" onerror="this.src='{{ asset('public/assets/images/no-image.png') }}'"></td>
+  <td><img height="30" src="{{asset($value->options->image)}}" onerror="this.src='{{ asset('public/assets/images/placeholder.webp') }}'"></td>
   <td>
       <div class="fw-semibold">{{$value->name}}</div>
         @php
@@ -104,29 +104,52 @@
         </div>
         @endif
 
-        {{-- 🔢 Serial Numbers — per-unit input with add/remove --}}
-        <div class="mt-1 sn-inputs-container" data-id="{{ $value->rowId }}" data-product-id="{{ $pid }}">
-            <label class="form-label small text-muted mb-1" style="font-size:11px">
-                {{ __('Product SN') }} <small>(qty: {{ $value->qty }})</small>
-            </label>
-            @php
-                $sns = is_array($value->options->serial_numbers ?? null) ? $value->options->serial_numbers : [];
-                if (empty($sns)) $sns = [''];
-            @endphp
-            @foreach($sns as $i => $sn)
-            <div class="input-group input-group-sm mb-1 sn-input-row" style="flex-wrap:nowrap;">
-                <input type="text"
-                       class="form-control form-control-sm cart-sn-input"
-                       data-id="{{ $value->rowId }}"
-                       data-product-id="{{ $pid }}"
-                       placeholder="Scan/type SN..."
-                       value="{{ $sn }}"
-                       style="font-size:11px;">
-                <button type="button" class="btn btn-sm btn-outline-danger sn-remove-btn" title="Remove SN" tabindex="-1">×</button>
+        {{-- 🔢 Serial Numbers —
+             • Product/batch already has SN inventory recorded  → one SELECT per unit
+               (qty), picked from that batch's in-stock SNs.
+             • No SN inventory recorded yet → "Add SN" button reveals one free-text
+               box per unit (qty), same style as the purchase-entry SN list. --}}
+        @php
+            $effectiveBatch = $selectedBatchId
+                ? $batches->firstWhere('id', $selectedBatchId)
+                : $batches->first();
+            $availableSns = ($effectiveBatch && is_array($effectiveBatch->sn_stock)) ? array_values($effectiveBatch->sn_stock) : [];
+            $chosenSns = is_array($value->options->serial_numbers ?? null) ? $value->options->serial_numbers : [];
+        @endphp
+        @if(!empty($availableSns))
+            <div class="mt-1 sn-select-container" data-id="{{ $value->rowId }}" data-product-id="{{ $pid }}">
+                <label class="form-label small text-muted mb-1" style="font-size:11px">
+                    {{ __('Product SN') }} <small>(qty: {{ $value->qty }})</small>
+                </label>
+                @for($i = 0; $i < $value->qty; $i++)
+                    <select class="form-select form-select-sm cart-sn-select mb-1" style="font-size:11px;">
+                        <option value="">{{ __('Select SN') }} #{{ $i + 1 }}</option>
+                        @foreach($availableSns as $sn)
+                            <option value="{{ $sn }}" {{ ($chosenSns[$i] ?? null) === $sn ? 'selected' : '' }}>{{ $sn }}</option>
+                        @endforeach
+                    </select>
+                @endfor
             </div>
-            @endforeach
-            <button type="button" class="btn btn-sm btn-outline-secondary sn-add-btn" style="font-size:10px;" tabindex="-1">＋ Add SN</button>
-        </div>
+        @else
+            @php $hasTypedSns = !empty(array_filter($chosenSns)); @endphp
+            <div class="mt-1 sn-manual-container" data-id="{{ $value->rowId }}" data-product-id="{{ $pid }}">
+                <button type="button" class="btn btn-sm btn-outline-secondary toggle-cart-sn {{ $hasTypedSns ? 'active btn-dark' : '' }}" style="font-size:10px;">
+                    <i class="fe-hash"></i> {{ __('Add SN') }} <small>({{ __('qty') }}: {{ $value->qty }})</small>
+                </button>
+                <div class="cart-sn-inputs mt-1" style="display:{{ $hasTypedSns ? 'block' : 'none' }};">
+                    @for($i = 0; $i < $value->qty; $i++)
+                        <div class="input-group input-group-sm mb-1 sn-input-row" style="flex-wrap:nowrap;">
+                            <span class="input-group-text bg-light text-muted" style="font-size:10px;">{{ $i + 1 }}</span>
+                            <input type="text"
+                                   class="form-control form-control-sm cart-sn-input"
+                                   placeholder="SN {{ $i + 1 }}"
+                                   value="{{ $chosenSns[$i] ?? '' }}"
+                                   style="font-size:11px;">
+                        </div>
+                    @endfor
+                </div>
+            </div>
+        @endif
   </td>
   <td>
     <div class="qty-cart vcart-qty">

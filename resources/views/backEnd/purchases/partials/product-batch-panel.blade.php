@@ -195,8 +195,9 @@
                                 </div>
                                 <div id="pp_sn_view" class="mt-1 text-secondary">—</div>
                                 <div id="pp_sn_editor" style="display:none;">
-                                    <textarea id="pp_sn_text" class="form-control form-control-sm mt-1" rows="2" placeholder="SN-001, SN-002, ..."></textarea>
-                                    <div class="text-muted small mt-1">{{ __('Separate serial numbers with commas.') }}</div>
+                                    {{-- One small box per unit — same style as the purchase-entry SN list --}}
+                                    <div id="pp_sn_inputs" class="sn-inputs mt-1"></div>
+                                    <div class="text-muted small mt-1">{{ __('One box per unit — count must match remaining stock.') }}</div>
                                     <div class="d-flex gap-2 mt-2">
                                         <button type="button" class="btn btn-sm btn-success pp-sn-save" id="pp_sn_save"><i class="fe-check me-1"></i> {{ __('Save SNs') }}</button>
                                         <button type="button" class="btn btn-sm btn-light border pp-sn-cancel" id="pp_sn_cancel">{{ __('Cancel') }}</button>
@@ -232,6 +233,11 @@
 <script>
 (function () {
     'use strict';
+
+    // Set by showBatchModal() whenever the popup opens — how many SN boxes the
+    // editor should build (= remaining_qty) and their current values.
+    var currentBatchRemaining = 0;
+    var currentBatchSnIn = [];
 
     // POST + reload the panel (mirrors previous panel helpers)
     function ppPost(url, data) {
@@ -279,16 +285,55 @@
         .catch(function () { if (window.toastr) toastr.error('Request failed'); });
     }
 
-    // 🔢 SN — shown as a comma-separated list; editing happens only in this SN section
+    // 🔢 SN — one small box per unit (same style as the purchase-entry SN list),
+    //    built to match remaining_qty and pre-filled from the batch's current SNs.
+    function buildPpSnInputs(count, existingValues) {
+        var wrap = document.getElementById('pp_sn_inputs');
+        if (!wrap) return;
+        var html = '';
+        for (var i = 0; i < count; i++) {
+            html += '<div class="input-group input-group-sm sn-input-row" style="flex-wrap:nowrap;">' +
+                        '<span class="input-group-text bg-light text-muted" style="font-size:10px;">' + (i + 1) + '</span>' +
+                        '<input type="text" class="form-control form-control-sm sn-input" placeholder="SN ' + (i + 1) + '">' +
+                    '</div>';
+        }
+        wrap.innerHTML = html;
+        var inputs = wrap.querySelectorAll('.sn-input');
+        for (var j = 0; j < inputs.length; j++) {
+            if (existingValues[j] !== undefined) inputs[j].value = existingValues[j];
+        }
+    }
+
+    // Same value typed twice for this batch is invalid — flag every box sharing
+    // a duplicated value red, live as the admin types (mirrors the purchase form).
+    function markPpDuplicateSn() {
+        var inputs = Array.prototype.slice.call(document.querySelectorAll('#pp_sn_inputs .sn-input'));
+        var counts = {};
+        inputs.forEach(function (el) {
+            var val = (el.value || '').trim();
+            if (val) counts[val] = (counts[val] || 0) + 1;
+        });
+        inputs.forEach(function (el) {
+            var val = (el.value || '').trim();
+            el.classList.toggle('is-invalid', !!val && counts[val] > 1);
+        });
+    }
+    var ppSnInputsWrap = document.getElementById('pp_sn_inputs');
+    if (ppSnInputsWrap) {
+        ppSnInputsWrap.addEventListener('input', function (e) {
+            if (e.target && e.target.classList.contains('sn-input')) markPpDuplicateSn();
+        });
+    }
+
     function ppOpenSnEditor() {
         var view = document.getElementById('pp_sn_view');
         var editor = document.getElementById('pp_sn_editor');
-        var text = document.getElementById('pp_sn_text');
-        if (!editor || !text) return;
-        text.value = (view && view.textContent && view.textContent !== '—') ? view.textContent : '';
+        if (!editor) return;
+        buildPpSnInputs(currentBatchRemaining, currentBatchSnIn);
         if (view) view.style.display = 'none';
         editor.style.display = '';
-        text.focus();
+        var first = document.querySelector('#pp_sn_inputs .sn-input');
+        if (first) first.focus();
     }
 
     function ppCloseSnEditor() {
@@ -308,9 +353,15 @@
     if (ppSnSaveBtn) {
         ppSnSaveBtn.addEventListener('click', function () {
             var batchId = ppSnSaveBtn.dataset.batchId;
-            var text = document.getElementById('pp_sn_text');
-            if (!batchId || !text) return;
-            var vals = text.value.split(',').map(function (s) { return s.trim(); });
+            if (!batchId) return;
+            var inputs = Array.prototype.slice.call(document.querySelectorAll('#pp_sn_inputs .sn-input'));
+            markPpDuplicateSn();
+            var hasDup = inputs.some(function (el) { return el.classList.contains('is-invalid'); });
+            if (hasDup) {
+                if (window.toastr) toastr.error('Duplicate serial number(s) — each SN must be unique.');
+                return;
+            }
+            var vals = inputs.map(function (el) { return el.value.trim(); });
             ppPost('{{ route("purchases.price.batch.sn-save") }}', { batch_id: batchId, serials: vals });
         });
     }
@@ -343,7 +394,7 @@
         set('pp_status', statusBits.length ? statusBits.join(', ') : 'Normal');
         set('pp_title_batch', b.batch_no ? String(b.batch_no) : ('#' + b.id));
 
-        // SN — in-stock SNs shown as a comma-separated list; edit only in this SN section
+        // SN — in-stock SNs shown as a comma-separated list; edit as one box per unit
         var snIn = Array.isArray(b.sn_in) ? b.sn_in : [];
         var snSold = Array.isArray(b.sn_sold) ? b.sn_sold : [];
         var soldCountEl = document.getElementById('pp_sn_sold_count');
@@ -356,6 +407,8 @@
         if (inViewEl) inViewEl.textContent = snIn.length ? snIn.join(', ') : '—';
         var snSaveBtn = document.getElementById('pp_sn_save');
         if (snSaveBtn) snSaveBtn.dataset.batchId = b.id;
+        currentBatchRemaining = parseInt(b.remaining, 10) || 0;
+        currentBatchSnIn = snIn;
         ppCloseSnEditor();
 
         // Actions

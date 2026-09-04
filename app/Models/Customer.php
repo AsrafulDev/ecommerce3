@@ -66,11 +66,11 @@ class Customer extends Authenticatable
     {
         $image = $this->attributes['image'] ?? null;
         $defaultImage = 'public/assets/images/user.webp';
-        $fallbackImage = 'public/assets/images/no-image.png';
-        
+        $fallbackImage = 'public/assets/images/placeholder.webp';
+
         // If image is empty or doesn't exist, use default
         if (empty($image) || !file_exists(public_path($image))) {
-            // Check if default user.png exists, otherwise use no-image.png
+            // Check if default user.webp exists, otherwise use the generic placeholder
             if (file_exists(public_path($defaultImage))) {
                 return $defaultImage;
             }

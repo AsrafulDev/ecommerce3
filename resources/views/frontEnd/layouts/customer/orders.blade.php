@@ -171,8 +171,8 @@ $pendingOrdersCount = \App\Models\Order::where('customer_id', $customerId)
                                                             $productImage = $detail->image->image;
                                                         }
                                                     @endphp
-                                                    <img src="{{ $productImage ? asset($productImage) : asset('public/assets/images/no-image.png') }}" 
-                                                         onerror="this.src='{{ asset('public/assets/images/no-image.png') }}'"
+                                                    <img src="{{ $productImage ? asset($productImage) : asset('public/assets/images/placeholder.webp') }}" 
+                                                         onerror="this.src='{{ asset('public/assets/images/placeholder.webp') }}'"
                                                          class="w-12 h-12 rounded object-cover border border-gray-200"
                                                          alt="{{ $detail->product_name ?? 'Product' }}">
                                                 @endforeach

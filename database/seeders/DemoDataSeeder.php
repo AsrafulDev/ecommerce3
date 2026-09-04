@@ -193,9 +193,32 @@ class DemoDataSeeder extends Seeder
         }
 
         // ========== PRODUCTS (all categories) ==========
+        // ⚠️ Stock is batch-wise now (see CLAUDE.md pitfalls #1/#2): products.stock
+        // is a denormalized copy, source of truth is stock_batches.remaining_qty.
+        // Each product below is created with stock = 0, then given real opening
+        // stock via StockManagementService::stockIn() backed by a demo Purchase,
+        // exactly like Admin\PurchaseController::store() does — never by setting
+        // products.stock directly.
         if (DB::table('products')->count() == 0) {
             $catIds = DB::table('categories')->pluck('id', 'slug');
             $brandIds = DB::table('brands')->pluck('id', 'name');
+
+            // Demo supplier + one opening-stock purchase invoice back every batch
+            // created below, so Suppliers/Purchases/Stock Batches all show real,
+            // consistent history instead of orphaned stock.
+            $supplierId = DB::table('suppliers')->count() === 0
+                ? DB::table('suppliers')->insertGetId([
+                    'name'       => 'Demo Supplier',
+                    'phone'      => '01700000000',
+                    'email'      => 'supplier@demo.com',
+                    'company'    => 'Demo Supplier Co.',
+                    'is_active'  => 1,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ])
+                : DB::table('suppliers')->orderBy('id')->value('id');
+
+            $adminId = DB::table('users')->orderBy('id')->value('id') ?? 1;
 
             $products = [
                 // Electronics (5)
@@ -246,17 +269,46 @@ class DemoDataSeeder extends Seeder
                 ['name' => 'Car Floor Mats Set', 'cat' => 'automotive', 'brand' => 'Toyota', 'price' => 3499, 'old' => 4500, 'stock' => 150, 'topsale' => 0, 'flashsale' => 0],
             ];
 
+            // One opening-stock purchase invoice bundles every batch created below
+            // (mirrors Admin\PurchaseController::store()'s purchase + purchase_items
+            // + stock_batches trio, so the seeded data matches the real flow).
+            $totalQty = array_sum(array_column($products, 'stock'));
+            $subtotal = 0;
+            foreach ($products as $p) {
+                $subtotal += round($p['price'] * 0.7) * $p['stock'];
+            }
+            $purchaseId = DB::table('purchases')->insertGetId([
+                'supplier_id'   => $supplierId,
+                'invoice_no'    => 'INV-DEMO-OPENING',
+                'purchase_date' => now()->toDateString(),
+                'total_qty'     => $totalQty,
+                'subtotal'      => $subtotal,
+                'grand_total'   => $subtotal,
+                'paid_amount'   => $subtotal,
+                'due_amount'    => 0,
+                'note'          => 'Opening stock (demo data)',
+                'status'        => 1,
+                'created_by'    => $adminId,
+                'created_at'    => now(),
+                'updated_at'    => now(),
+            ]);
+
+            $stockService = app(\App\Services\StockManagementService::class);
+            $pricingService = app(\App\Services\PricingService::class);
+
             foreach ($products as $i => $p) {
+                $unitCost = round($p['price'] * 0.7);
+
                 $pid = DB::table('products')->insertGetId([
                     'name' => $p['name'],
                     'slug' => Str::slug($p['name']) . '-' . ($i + 1),
                     'category_id' => $catIds[$p['cat']] ?? 1,
                     'brand_id' => $brandIds[$p['brand']] ?? 1,
                     'product_code' => 'PRD-' . str_pad($i + 1, 4, '0', STR_PAD_LEFT),
-                    'purchase_price' => round($p['price'] * 0.7),
+                    'purchase_price' => $unitCost,
                     'old_price' => $p['old'],
                     'new_price' => $p['price'],
-                    'stock' => $p['stock'],
+                    'stock' => 0, // batch-wise: never set directly — stockIn() below derives it
                     'topsale' => $p['topsale'],
                     'flashsale' => $p['flashsale'],
                     'status' => 1,
@@ -274,8 +326,35 @@ class DemoDataSeeder extends Seeder
                     'created_at' => now(),
                     'updated_at' => now(),
                 ]);
+
+                DB::table('purchase_items')->insert([
+                    'purchase_id' => $purchaseId,
+                    'product_id'  => $pid,
+                    'qty'         => $p['stock'],
+                    'unit_cost'   => $unitCost,
+                    'line_total'  => $unitCost * $p['stock'],
+                    'created_at'  => now(),
+                    'updated_at'  => now(),
+                ]);
+
+                // Opening stock batch — creates the stock_batches row and increments
+                // products.stock via StockManagementService (source of truth).
+                $product = \App\Models\Product::find($pid);
+                $batch = $stockService->stockIn($product, [
+                    'quantity'       => $p['stock'],
+                    'unit_cost'      => $unitCost,
+                    'selling_price'  => $p['price'],
+                    'mrp'            => $p['old'],
+                    'supplier_id'    => $supplierId,
+                    'purchase_id'    => $purchaseId,
+                    'reference_type' => 'purchase',
+                    'reference_id'   => $purchaseId,
+                ]);
+
+                // Make it the live website/POS batch (first batch for the product).
+                $pricingService->setActiveWebsiteBatch($product, $batch->id);
             }
-            $this->command->info('- Products created with images');
+            $this->command->info('- Products created with images + opening stock batches');
         }
 
         // ========== BLOGS ==========

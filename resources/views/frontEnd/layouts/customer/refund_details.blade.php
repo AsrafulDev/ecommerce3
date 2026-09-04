@@ -31,6 +31,20 @@ $totalOrderAmount = \App\Models\Order::where('customer_id', $customerId)->sum('a
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>{{ __('Refund Details') }} #{{ $refund->refund_id }} | {{ $siteName->name ?? 'Gadget Style' }}</title>
+
+    <!-- 🖼️ System-wide broken-image fallback — see frontEnd/layouts/master.blade.php -->
+    <script>
+        (function () {
+            var FALLBACK = '{{ asset('public/assets/images/placeholder.webp') }}';
+            document.addEventListener('error', function (e) {
+                var el = e.target;
+                if (!el || el.tagName !== 'IMG' || el.dataset.fallbackApplied) return;
+                el.dataset.fallbackApplied = '1';
+                el.src = FALLBACK;
+            }, true);
+        })();
+    </script>
+
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     {{-- 🎨 Customer Panel Theme Variables --}}

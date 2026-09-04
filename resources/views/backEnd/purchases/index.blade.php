@@ -84,6 +84,12 @@
     }
     .pay-input { width: 80px; font-size: 0.8rem; border-radius: 4px; border: 1px solid #d1d3e2; padding: 4px; }
     .pay-btn { padding: 4px 10px; font-size: 0.8rem; border-radius: 4px; font-weight: 600; }
+
+    /* --- Serial Numbers (SN) — compact boxes, flowed side-by-side instead of
+       one full-width row per unit, so a big Qty doesn't eat the whole panel --- */
+    .sn-inputs { display: flex; flex-wrap: wrap; gap: 4px; }
+    .sn-input-row { width: auto; margin-bottom: 0 !important; }
+    .sn-input { flex: 0 0 auto; width: 12ch; min-width: 12ch; max-width: 15ch; }
 </style>
 @endsection
 
@@ -185,7 +191,7 @@
                             </div>
                             <div class="col-md-4 mb-3">
                                 <label class="form-label"> {{ __('Invoice No *') }} </label>
-                                <input type="text" name="invoice_no" class="form-control" value="{{ 'PUR-'.time() }}" required readonly style="background-color: #f8f9fc;">
+                                <input type="text" name="invoice_no" class="form-control" value="{{ 'PUR-'.time() }}" required style="background-color: #f8f9fc;">
                             </div>
                             <div class="col-md-4 mb-3">
                                 <label class="form-label"> {{ __('Date *') }} </label>
@@ -600,10 +606,17 @@
     function savePurchaseDraft(showStatus) {
         const fields = {};
         $('#purchase-entry-form').serializeArray().forEach(function(field) {
-            // serial_numbers are repeatable array inputs — exclude so one value doesn't overwrite the rest
-            if (field.name !== '_token' && field.name !== 'draft_id' && !field.name.includes('[serial_numbers]')) {
-                fields[field.name] = field.value;
+            if (field.name === '_token' || field.name === 'draft_id') return;
+            // serial_numbers are repeatable array inputs sharing ONE name
+            // ("items[i][serial_numbers][]") — collect them into an array under a
+            // single key instead of letting each value overwrite the last one.
+            const snMatch = field.name.match(/^(items\[\d+\]\[serial_numbers\])\[\]$/);
+            if (snMatch) {
+                const key = snMatch[1];
+                (fields[key] = fields[key] || []).push(field.value);
+                return;
             }
+            fields[field.name] = field.value;
         });
         $.post('{{ route("purchases.drafts.save") }}', {
             _token: '{{ csrf_token() }}',
@@ -651,6 +664,24 @@
                 $field.val(draft[name]);
             }
         });
+        // 🔢 Serial numbers were saved as an array under "items[i][serial_numbers]"
+        //    (see savePurchaseDraft) — the actual SN inputs don't exist until the SN
+        //    panel is built for the row's qty, so open it and fill them in here.
+        Object.keys(draft).forEach(function(name) {
+            const m = name.match(/^items\[(\d+)\]\[serial_numbers\]$/);
+            if (!m) return;
+            const serials = Array.isArray(draft[name]) ? draft[name] : [];
+            if (!serials.length) return;
+            const row = $('#product-rows .product-row').eq(Number(m[1]));
+            if (!row.length) return;
+            row.find('.sn-block').show();
+            setSnToggleState(row.find('.toggle-sn-list')[0], true);
+            buildSnFields(row);
+            row.find('.sn-inputs .sn-input').each(function(i) {
+                if (serials[i] !== undefined) this.value = serials[i];
+            });
+        });
+
         calcGrandTotal();
         $('#purchase-draft-status').text('Draft loaded. Continue editing or publish when ready.');
         restoringDraft = false;
@@ -957,6 +988,63 @@
         if (block.length) $('html, body').animate({ scrollTop: block.offset().top - 150 }, 400);
         setTimeout(function () { first.trigger('focus').trigger('select'); }, 500);
     }
+
+    // 🔁 SN must be unique — same value typed twice for one product (e.g. "1212"
+    // and "1212") is rejected; different values ("1212" and "1213") are fine.
+    // Flags every input sharing a duplicated value red, live as the user types.
+    function markDuplicateSnInputs(row) {
+        const inputs = row.find('.sn-input').toArray();
+        const counts = {};
+        inputs.forEach(function (el) {
+            const val = String(el.value || '').trim();
+            if (val) counts[val] = (counts[val] || 0) + 1;
+        });
+        inputs.forEach(function (el) {
+            const val = String(el.value || '').trim();
+            $(el).toggleClass('is-invalid', !!val && counts[val] > 1);
+        });
+    }
+    $('#product-rows').on('input blur', '.sn-input', function () {
+        markDuplicateSnInputs($(this).closest('.product-row'));
+    });
+
+    // Same check across the whole form at publish time — also catches the same
+    // SN reused across two different rows for the SAME product.
+    function duplicateSnProblems() {
+        const groups = {}; // product_id (or row index, if none selected) -> { value: [input, ...] }
+        $('#product-rows .product-row').each(function () {
+            const row = $(this);
+            const idx = purchaseRowIdx(row);
+            if (idx === null) return;
+            const key = row.find('.product-select').val() || ('row-' + idx);
+            row.find('.sn-input').each(function () {
+                const val = String(this.value || '').trim();
+                if (!val) return;
+                groups[key] = groups[key] || {};
+                (groups[key][val] = groups[key][val] || []).push({ row: row, input: this });
+            });
+        });
+        const problems = [];
+        Object.keys(groups).forEach(function (key) {
+            Object.keys(groups[key]).forEach(function (val) {
+                if (groups[key][val].length > 1) problems.push({ value: val, entries: groups[key][val] });
+            });
+        });
+        return problems;
+    }
+    function focusDuplicateSnProblems(problems) {
+        const p = problems[0];
+        if (!p) return;
+        p.entries.forEach(function (e) {
+            e.row.find('.sn-block').show();
+            $(e.input).addClass('is-invalid');
+        });
+        const first = $(p.entries[0].input);
+        if (window.toastr) toastr.error('Serial number "' + p.value + '" is entered ' + p.entries.length + ' times — each SN must be unique.');
+        const block = first.closest('.sn-block');
+        if (block.length) $('html, body').animate({ scrollTop: block.offset().top - 150 }, 400);
+        setTimeout(function () { first.trigger('focus').trigger('select'); }, 500);
+    }
     // Auto-open the SN list when a supplier warranty is set on a row
     $('#product-rows').on('change input', 'input[name$="[warranty_days]"]', function () {
         const name = $(this).attr('name') || '';
@@ -1109,11 +1197,13 @@
                         is_active: $(this).find('[name*="[is_active]"]:checkbox').is(':checked') ? 1 : 0
                     });
                 });
-                if (tiers.length) {
+                const removedWt = wtRemovedIds[bid] || [];
+                if (tiers.length || removedWt.length) {
                     warrantyCalls.push($.post('{{ route("purchases.price.warranty.save") }}', {
                         _token: '{{ csrf_token() }}',
                         batch_id: bid,
-                        tiers: tiers
+                        tiers: tiers,
+                        delete_ids: removedWt
                     }));
                 }
             });
@@ -1147,6 +1237,13 @@
         const snProblems = warrantySnProblems();
         if (snProblems.length) {
             focusSnProblems(snProblems);
+            return;
+        }
+
+        // 🔁 SN must be unique — block publish if the same SN was typed twice
+        const dupSnProblems = duplicateSnProblems();
+        if (dupSnProblems.length) {
+            focusDuplicateSnProblems(dupSnProblems);
             return;
         }
 
@@ -1196,6 +1293,19 @@
         if (id && batchId) {
             wsRemovedIds[batchId] = wsRemovedIds[batchId] || [];
             wsRemovedIds[batchId].push(id);
+        }
+        $tr.remove();
+    });
+
+    // Track removed existing warranty tier rows (edit mode) so they can be deleted on save
+    const wtRemovedIds = {};
+    $(document).on('click', '.wr-remove-row', function () {
+        const $tr = $(this).closest('tr');
+        const id = $tr.data('id');
+        const batchId = $tr.closest('.product-row').attr('data-batch-id');
+        if (id && batchId) {
+            wtRemovedIds[batchId] = wtRemovedIds[batchId] || [];
+            wtRemovedIds[batchId].push(id);
         }
         $tr.remove();
     });
@@ -1277,7 +1387,7 @@
             wtBody.html('');
             (item.warranty_tiers || []).forEach(function (t, j) {
                 wtBody.append(
-                    '<tr>' +
+                    '<tr data-id="' + (t.bwt_id || '') + '">' +
                         '<td><span class="badge bg-soft-info text-info small">' + (t.warranty_type || 'tier') + '</span>' +
                             '<input type="hidden" name="items[' + idx + '][warranty_tiers][' + j + '][tier_id]" value="' + t.tier_id + '"></td>' +
                         '<td><span class="small">' + (t.tier_name || '') + '</span></td>' +
@@ -1287,7 +1397,7 @@
                             '<input type="hidden" name="items[' + idx + '][warranty_tiers][' + j + '][is_active]" value="0">' +
                             '<input type="checkbox" name="items[' + idx + '][warranty_tiers][' + j + '][is_active]" value="1" class="form-check-input" ' + (t.is_active ? 'checked' : '') + '>' +
                         '</td>' +
-                        '<td class="text-center"></td>' +
+                        '<td class="text-center"><button type="button" class="btn btn-xs btn-outline-danger wr-remove-row" title="Remove">×</button></td>' +
                     '</tr>'
                 );
             });

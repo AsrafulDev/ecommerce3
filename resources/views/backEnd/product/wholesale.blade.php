@@ -149,7 +149,7 @@
                                         </div>
                                     </td>
                                     <td>
-                                        <img src="{{ asset($product->image ? $product->image->image : 'public/assets/images/no-image.png') }}" 
+                                        <img src="{{ asset($product->image ? $product->image->image : 'public/assets/images/placeholder.webp') }}" 
                                              alt="{{ $product->name }}" 
                                              class="product-img" 
                                              style="width: 50px; height: 50px;">

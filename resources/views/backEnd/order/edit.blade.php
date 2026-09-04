@@ -296,6 +296,8 @@ function updatePaymentStatus(orderId) {
              success: function(res){
                $('#cartTable').html(res.cart_html);
                $('#cart_details').html(res.details_html);
+               // Re-apply the SN dropdown mutual-exclusion after every repaint
+               $('#cartTable .sn-select-container').each(function () { syncCartSnSelectOptions($(this)); });
              }
           });
       }
@@ -311,6 +313,11 @@ function updatePaymentStatus(orderId) {
             dataType: "json",
             success: function(cartinfo){
                 return cart_refresh();
+            },
+            error: function(xhr){
+                // 🚦 Stock ceiling (e.g. product not allowed to sell past stock)
+                var msg = xhr.responseJSON && xhr.responseJSON.message;
+                if (msg) { toastr ? toastr.error(msg) : alert(msg); }
             }
             });
         }
@@ -328,6 +335,12 @@ function updatePaymentStatus(orderId) {
                dataType: "json",
             success: function(cartinfo){
                 return cart_refresh();
+            },
+            error: function(xhr){
+                // 🚦 Stock ceiling — qty already at max available (unless the
+                //    product allows negative stock)
+                var msg = xhr.responseJSON && xhr.responseJSON.message;
+                if (msg) { toastr ? toastr.error(msg) : alert(msg); }
             }
           });
         }
@@ -465,13 +478,29 @@ $(document).on("change", ".cart-batch-selector", function(){
     });
 });
 
-// ✅ Serial Numbers — per-input with add/remove (delegated)
-// Collect ALL SNs for the row when any input changes
-$(document).on("change blur", ".cart-sn-input", function(){
-    var rowId = $(this).closest('.sn-inputs-container').data('id');
-    var productId = $(this).closest('.sn-inputs-container').data('product-id');
+// ✅ Serial Numbers — manual mode (no SN inventory recorded yet): one free-text
+//    box per unit, qty-driven from the server (see cart_table_rows.blade.php).
+function markDuplicateCartSn(container) {
+    var inputs = container.find('.cart-sn-input').toArray();
+    var counts = {};
+    inputs.forEach(function (el) {
+        var val = $.trim(el.value || '');
+        if (val) counts[val] = (counts[val] || 0) + 1;
+    });
+    inputs.forEach(function (el) {
+        var val = $.trim(el.value || '');
+        $(el).toggleClass('is-invalid', !!val && counts[val] > 1);
+    });
+}
+$(document).on("input", ".sn-manual-container .cart-sn-input", function(){
+    markDuplicateCartSn($(this).closest('.sn-manual-container'));
+});
+$(document).on("change blur", ".sn-manual-container .cart-sn-input", function(){
+    var container = $(this).closest('.sn-manual-container');
+    var rowId = container.data('id');
+    var productId = container.data('product-id');
     var sns = [];
-    $(this).closest('.sn-inputs-container').find('.cart-sn-input').each(function(){
+    container.find('.cart-sn-input').each(function(){
         var v = $.trim($(this).val());
         if (v) sns.push(v);
     });
@@ -484,34 +513,48 @@ $(document).on("change blur", ".cart-sn-input", function(){
     });
 });
 
-// Add new SN input row
-$(document).on("click", ".sn-add-btn", function(){
-    var container = $(this).closest('.sn-inputs-container');
-    var rowId = container.data('id');
-    var productId = container.data('product-id');
-    var row = $('<div class="input-group input-group-sm mb-1 sn-input-row" style="flex-wrap:nowrap;">' +
-        '<input type="text" class="form-control form-control-sm cart-sn-input" ' +
-        'data-id="' + rowId + '" data-product-id="' + productId + '" ' +
-        'placeholder="Scan/type SN..." style="font-size:11px;">' +
-        '<button type="button" class="btn btn-sm btn-outline-danger sn-remove-btn" title="Remove SN" tabindex="-1">×</button>' +
-        '</div>');
-    $(this).before(row);
-    row.find('.cart-sn-input').focus();
+// Toggle the manual SN box list open/closed (pure UI — boxes are always
+// server-rendered, one per unit of qty; nothing to build here)
+$(document).on("click", ".toggle-cart-sn", function(){
+    var wrap = $(this).closest('.sn-manual-container').find('.cart-sn-inputs');
+    wrap.toggle();
+    $(this).toggleClass('active btn-dark', wrap.is(':visible'));
 });
 
-// Remove SN input row
-$(document).on("click", ".sn-remove-btn", function(){
-    var container = $(this).closest('.sn-inputs-container');
-    var row = $(this).closest('.sn-input-row');
-    // Keep at least one input
-    if (container.find('.sn-input-row').length <= 1) {
-        row.find('.cart-sn-input').val('').trigger('change');
-        return;
-    }
-    row.remove();
-    // Trigger save with remaining SNs
-    container.find('.cart-sn-input:first').trigger('change');
+// ✅ Serial Numbers — select mode (product/batch already has SN inventory):
+//    one dropdown per unit, picked from the batch's in-stock SNs. Picking a
+//    value disables it in every sibling dropdown so the same physical unit
+//    can't be assigned to two units in this line.
+function syncCartSnSelectOptions(container) {
+    var selects = container.find('.cart-sn-select');
+    var chosen = selects.map(function(){ return this.value; }).get().filter(Boolean);
+    selects.each(function(){
+        var mine = this.value;
+        $(this).find('option').each(function(){
+            if (!this.value) return; // placeholder always enabled
+            this.disabled = chosen.indexOf(this.value) !== -1 && this.value !== mine;
+        });
+    });
+}
+$(document).on("change", ".cart-sn-select", function(){
+    var container = $(this).closest('.sn-select-container');
+    syncCartSnSelectOptions(container);
+    var rowId = container.data('id');
+    var productId = container.data('product-id');
+    var sns = [];
+    container.find('.cart-sn-select').each(function(){
+        var v = $.trim($(this).val());
+        if (v) sns.push(v);
+    });
+    $.ajax({
+       cache: false, type:"GET",
+       data:{id:rowId, product_id:productId, serial_numbers:sns.join(',')},
+       url:"{{ route('admin.order.cart.update') }}",
+       dataType: "json",
+       success: function(){ cart_refresh(); }
+    });
 });
+$('.sn-select-container').each(function(){ syncCartSnSelectOptions($(this)); });
 </script>
 @endsection
 

@@ -2,6 +2,23 @@
 <html lang="en">
     <head>
         <meta charset="utf-8" />
+
+        <!-- 🖼️ System-wide broken-image fallback — registered first so it can
+             catch load errors from images the browser starts fetching as soon
+             as the HTML is parsed. Swaps any failed <img> to the placeholder
+             graphic instead of the browser's broken-image icon. Guards
+             against a loop if the placeholder itself is unreachable. -->
+        <script>
+            (function () {
+                var FALLBACK = '{{ asset('public/assets/images/placeholder.webp') }}';
+                document.addEventListener('error', function (e) {
+                    var el = e.target;
+                    if (!el || el.tagName !== 'IMG' || el.dataset.fallbackApplied) return;
+                    el.dataset.fallbackApplied = '1';
+                    el.src = FALLBACK;
+                }, true);
+            })();
+        </script>
       <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
      
         <meta name="csrf-token" content="{{ csrf_token() }}" />

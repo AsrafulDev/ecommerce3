@@ -317,7 +317,7 @@
                             <div class="product-item">
                                 <div class="d-flex align-items-center">
                                     <div class="prod-img-box">
-                                        <img src="{{ asset($product->image->image ?? 'public/frontEnd/images/no-image.png') }}" alt="Product">
+                                        <img src="{{ asset($product->image->image ?? 'public/assets/images/placeholder.webp') }}" alt="Product" onerror="this.src='{{ asset('public/assets/images/placeholder.webp') }}'">
                                     </div>
                                     <div class="prod-details">
                                         <h5>{{ $product->product_name }}</h5>

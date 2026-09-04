@@ -344,11 +344,33 @@ if ($product->is_wholesale) {
             ?? DB::table('productimages')->where('product_id', $product->id)->value('image')
             ?? 'public/uploads/default.webp';
 
+        // 🚦 Stock ceiling — the qty +/- stepper enforces this (availableStockForItem),
+        //    but a direct "Buy Now" / qty-input add bypassed it entirely, letting a
+        //    product without allow_negative_stock be oversold straight from the PDP.
+        $qty = max(1, (int) ($request->qty ?? 1));
+        $pricing = app(\App\Services\PricingService::class);
+        $existingQty = (int) Cart::instance('shopping')->content()
+            ->filter(fn ($line) => $line->id == $product->id
+                && ($line->options->product_size ?? null) == ($request->product_size ?? null)
+                && ($line->options->product_color ?? null) == ($request->product_color ?? null))
+            ->sum('qty');
+        $max = $pricing->maxOrderableQty($product, 'website', null, $variantId);
+        if ($max !== null) {
+            if ($max <= $existingQty) {
+                Toastr::error('এই পণ্যটি বর্তমানে স্টক আউট, অর্ডার করা যাবে না।', 'স্টক আউট!');
+                return redirect()->back();
+            }
+            if ($existingQty + $qty > $max) {
+                $qty = $max - $existingQty;
+                Toastr::error('স্টকে যত আছে তার বেশি অর্ডার করা যাবে না। সর্বোচ্চ ' . $max . ' টি নিতে পারবেন।', 'স্টক সীমা!');
+            }
+        }
+
         // ✅ Add to cart
         Cart::instance('shopping')->add([
             'id'   => $product->id,
             'name' => $product->name,
-            'qty'  => $request->qty ?? 1,
+            'qty'  => $qty,
             'price'=> $price,
             'options' => [
                 'slug'           => $product->slug,
@@ -488,7 +510,8 @@ if ($product->is_wholesale) {
      *   • batch-wise (default): sum of sellable (website-enabled) batch stock,
      *     variant-aware when the row carries a variant.
      *   • legacy: products.stock.
-     * Returns null when the product is gone (no limit can be derived).
+     * Returns null when the product is gone, OR when it has
+     * `allow_negative_stock` enabled — either way, no limit should be enforced.
      */
     protected function availableStockForItem($item): ?int
     {
@@ -499,12 +522,10 @@ if ($product->is_wholesale) {
         if (!$product) {
             return null;
         }
-        $pricing = app(\App\Services\PricingService::class);
-        if ($pricing->isBatchWise()) {
-            $variantId = $item->options->variant_price_id ?? null;
-            return max(0, $pricing->sellableStock($product, 'website', null, $variantId));
-        }
-        return max(0, (int) $product->stock);
+        $pricing   = app(\App\Services\PricingService::class);
+        $variantId = $item->options->variant_price_id ?? null;
+        $max       = $pricing->maxOrderableQty($product, 'website', null, $variantId);
+        return $max === null ? null : max(0, $max);
     }
 
     // 🟢 Decrement quantity — same reprice so dropping below a wholesale tier
