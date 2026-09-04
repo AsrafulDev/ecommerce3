@@ -442,48 +442,83 @@ if ($product->is_wholesale) {
         return view('frontEnd.layouts.ajax.cart', compact('data'));
     }
 
-    // 🟢 Increment quantity
+    // 🟢 Increment quantity — enforces the same stock limit the product page
+    //    add-to-cart uses, and reprices from the ACTUAL pricing method when a qty
+    //    change crosses a wholesale tier.
     public function cart_increment(Request $request)
     {
-        $item = Cart::instance('shopping')->get($request->id);
-        $qty  = $item->qty + 1;
+        $cart  = Cart::instance('shopping');
+        $item  = $cart->get($request->id);
+        $qty   = (int) $item->qty + 1;
+        $max   = $this->availableStockForItem($item);
+        $blocked = false;
 
-        if ($this->isPerBatchMode()) {
-            // ⭐ Per-batch billing (Phase 5): re-allocate for the new qty & reprice.
-            Cart::instance('shopping')->update($request->id, [
-                'qty'   => $qty,
-                'price' => $this->perBatchUnitPrice($item, $qty),
-            ]);
+        // 🚦 Side cart / checkout MUST enforce the same "max X" stock rule as the
+        //    product page — otherwise a user can keep pressing + past the real
+        //    (batch/website) stock and oversell.
+        if ($max !== null && $max >= 1 && $qty > $max) {
+            $blocked = true;
+            Toastr::error(
+                'স্টকে যত আছে তার বেশি অর্ডার করা যাবে না। সর্বোচ্চ ' . $max . ' টি নিতে পারবেন।',
+                'স্টক সীমা!'
+            );
+        } elseif ($max !== null && $max < 1) {
+            // No sellable stock left — never allow increasing an OOS line.
+            $blocked = true;
+            Toastr::error('এই পণ্যটি বর্তমানে স্টক আউট, অর্ডার করা যাবে না।', 'স্টক আউট!');
         } else {
-            Cart::instance('shopping')->update($request->id, $qty);
+            $this->repriceCartRow($item, $qty);
         }
 
         $data = Cart::instance('shopping')->content();
-        return view('frontEnd.layouts.ajax.cart', compact('data'));
+        $view = view('frontEnd.layouts.ajax.cart', compact('data'));
+
+        if ($blocked) {
+            // Full-page reloads (e.g. checkout) show the flashed Toastr from the
+            // session; AJAX refreshes (side cart) read this header to toast now.
+            return response($view->render())->withHeaders(['X-Cart-Stock-Limit' => (string) $max]);
+        }
+
+        return $view;
     }
 
-    // 🟢 Decrement quantity
+    /**
+     * How many units of this cart line's product can still be ordered — the SAME
+     * number the product page add-to-cart caps at:
+     *   • batch-wise (default): sum of sellable (website-enabled) batch stock,
+     *     variant-aware when the row carries a variant.
+     *   • legacy: products.stock.
+     * Returns null when the product is gone (no limit can be derived).
+     */
+    protected function availableStockForItem($item): ?int
+    {
+        if (!$item) {
+            return null;
+        }
+        $product = Product::find($item->id);
+        if (!$product) {
+            return null;
+        }
+        $pricing = app(\App\Services\PricingService::class);
+        if ($pricing->isBatchWise()) {
+            $variantId = $item->options->variant_price_id ?? null;
+            return max(0, $pricing->sellableStock($product, 'website', null, $variantId));
+        }
+        return max(0, (int) $product->stock);
+    }
+
+    // 🟢 Decrement quantity — same reprice so dropping below a wholesale tier
+    //    (e.g. 2–5 pcs → 1 pc) restores the actual full unit price.
     public function cart_decrement(Request $request)
     {
         $item = Cart::instance('shopping')->get($request->id);
-        $qty  = max(1, $item->qty - 1); // ১ এর নিচে নামবে না
-
-        if ($this->isPerBatchMode()) {
-            // ⭐ Per-batch billing (Phase 5): re-allocate for the new qty & reprice.
-            Cart::instance('shopping')->update($request->id, [
-                'qty'   => $qty,
-                'price' => $this->perBatchUnitPrice($item, $qty),
-            ]);
-        } else {
-            Cart::instance('shopping')->update($request->id, $qty);
-        }
+        $this->repriceCartRow($item, max(1, (int) $item->qty - 1)); // ১ এর নিচে নামবে না
 
         $data = Cart::instance('shopping')->content();
         return view('frontEnd.layouts.ajax.cart', compact('data'));
     }
 
-    // ⭐ Per-batch billing helpers (Phase 5) — active only when
-    //    BATCH_WISE_PRICING=true AND PRICING_MULTI_BATCH_PRICING=per_batch.
+    // ⭐ Per-batch billing helper — active when PRICING_MULTI_BATCH_PRICING=per_batch.
     protected function isPerBatchMode(): bool
     {
         return app(\App\Services\PricingService::class)->isBatchWise()
@@ -491,29 +526,70 @@ if ($product->is_wholesale) {
     }
 
     /**
-     * Recompute the per-unit price of a cart row for a new qty under per-batch
-     * billing: quantity-weighted unit across eligible batches, then re-apply the
-     * row's warranty + wholesale adjustments (kept from add). Total stays
-     * Σ(qty_i × price_i). Falls back to the current price when not allocatable.
+     * ⭐ Reprice a cart row for a new qty using the SAME pricing method used at
+     *    add-to-cart. Previously qty changes only repriced under per-batch billing
+     *    (and even then re-used the stale wholesale/warranty amounts), so dropping
+     *    below a quantity-discount tier (e.g. 2–5 pcs → 1 pc) kept the discounted
+     *    unit price. Now the base price, wholesale discount and warranty are all
+     *    re-derived for the new qty from the product's actual (active) batch:
+     *        unit = base + warranty − wholesale(new qty)
      */
-    protected function perBatchUnitPrice($item, int $qty): float
+    protected function repriceCartRow($item, int $qty): void
     {
-        if ($qty <= 0 || !$item) {
-            return (float) $item->price;
+        if (!$item) {
+            return;
         }
+        $cart    = Cart::instance('shopping');
         $pricing = app(\App\Services\PricingService::class);
-        $product = \App\Models\Product::find($item->id);
-        if (!$product) {
-            return (float) $item->price;
+        $product = Product::find($item->id);
+
+        if (!$product || $qty <= 0) {
+            $cart->update($item->rowId, ['qty' => max(1, $qty)]);
+            return;
         }
-        $variantId = $item->options->variant_price_id ?? null;
-        $weighted  = $pricing->weightedAllocationUnit($product, $qty, $variantId, $pricing->allocationMethod($product));
-        if ($weighted <= 0) {
-            return (float) $item->price;
+
+        $variantId      = $item->options->variant_price_id ?? null;
+        $warrantyTierId = $item->options->warranty_tier_id ?? null;
+
+        // 1) Base unit price — before warranty/wholesale. Uses the current active
+        //    website batch (the "actual" storefront price), or the qty-weighted
+        //    average across eligible batches under per-batch billing.
+        $base = $this->isPerBatchMode()
+            ? $pricing->weightedAllocationUnit($product, $qty, $variantId, $pricing->allocationMethod($product))
+            : $pricing->price($product, null, $variantId, 'website');
+
+        if ($base <= 0) {
+            // Out of stock / not allocatable — keep the row's previous value.
+            $base = (float) ($item->options->base_price ?? $item->price);
+            $base = $base > 0 ? $base : 1;
         }
-        $warrantyAdj   = (float) ($item->options->warranty_adjustment ?? 0);
-        $wholesaleDisc = (float) ($item->options->wholesale_discount ?? 0);
-        return max(0, round($weighted + $warrantyAdj - $wholesaleDisc, 2));
+
+        // 2) Warranty surcharge (re-derived for the resolved batch/tier).
+        $warrantyAdj = (float) ($item->options->warranty_adjustment ?? 0);
+        if ($warrantyTierId) {
+            $warrantyAdj = $pricing->warrantyAdjustment($product, $warrantyTierId, null, $variantId);
+        }
+
+        // 3) Wholesale quantity-discount for the NEW qty — 0 when the qty no
+        //    longer falls inside a tier (this is the piece that was missing).
+        $wholesale = $pricing->wholesale($product, $qty, null, $variantId);
+
+        $unit = max(0, round($base + $warrantyAdj - $wholesale, 2));
+
+        // Update the line price + the option fields the cart/checkout read, so the
+        //   discount badge, strike-through base price and OrderHelper stay in sync.
+        $options = $item->options->all();
+        $options['base_price']          = $base;
+        $options['sale_price']          = $base;
+        $options['regular_price']       = (float) ($options['regular_price'] ?? $base);
+        $options['warranty_adjustment'] = $warrantyAdj;
+        $options['wholesale_discount']  = $wholesale;
+
+        $cart->update($item->rowId, [
+            'qty'     => $qty,
+            'price'   => $unit,
+            'options' => $options,
+        ]);
     }
 
     // 🟢 Cart count (header)

@@ -277,6 +277,7 @@ class PurchaseController extends Controller
 
                 // 🛡️ Warranty per item
                 $wDays = (int) ($item['warranty_days'] ?? 0);
+                $supplierWarranty = null;
                 if ($wDays > 0) {
                     $wStart = $item['warranty_start'] ?? now()->format('Y-m-d');
                     $supplierWarranty = \App\Models\SupplierWarranty::create([
@@ -315,8 +316,28 @@ class PurchaseController extends Controller
                     'serial_numbers' => $item['serial_numbers'] ?? [],
                 ]);
 
-                // ⭐ Batch-wise pricing payload (variant / wholesale / warranty / activation)
+                // 🛡️ Link the supplier warranty to the created batch + variant, and flag the batch
+                if ($supplierWarranty) {
+                    $supplierWarranty->update([
+                        'batch_id'   => $batch->id,
+                        'variant_id' => $vid ?: null,
+                    ]);
+                    $batch->update(['has_purchase_warranty' => true]);
+                }
+
+                // ⭐ Batch-wise pricing payload (variant / wholesale / warranty)
                 $this->persistBatchPricing($purchaseItem, $batch, $item);
+
+                // 🟢 Activate as the website batch — when the admin ticks
+                //    "Set as website active batch", OR when this is the product's
+                //    first batch (so a freshly created batch shows on the site).
+                //    Works with BATCH_WISE_PRICING on or off.
+                $alreadyActive = \App\Models\StockBatch::where('product_id', $product->id)
+                    ->where('is_active_for_website', true)
+                    ->exists();
+                if (!empty($item['activate_website']) || !$alreadyActive) {
+                    app(\App\Services\PricingService::class)->setActiveWebsiteBatch($product, $batch->id);
+                }
             }
 
             // SUPPLIER DUE
@@ -816,9 +837,8 @@ class PurchaseController extends Controller
      */
     private function persistBatchPricing(PurchaseItem $purchaseItem, \App\Models\StockBatch $batch, array $item): void
     {
-        if (!(bool) config('pricing.batch_wise', false)) {
-            return;
-        }
+        // Always persist the per-batch wholesale/warranty/variant pricing payload so
+        // it is saved at purchase time regardless of the BATCH_WISE_PRICING flag.
 
         // 1) Variant prices (per batch)
         foreach (($item['variant_prices'] ?? []) as $vp) {
@@ -895,6 +915,18 @@ class PurchaseController extends Controller
             );
         }
 
+        // 3.5) Feature flags on the batch (batch-wise pricing payload present)
+        $flags = [];
+        if (\App\Models\BatchWholesalePrice::where('stock_batch_id', $batch->id)->exists()) {
+            $flags['has_wholesale'] = true;
+        }
+        if (\App\Models\BatchWarrantyTier::where('stock_batch_id', $batch->id)->exists()) {
+            $flags['has_sell_warranty'] = true;
+        }
+        if ($flags) {
+            $batch->update($flags);
+        }
+
         // 4) Purchase-item price snapshot
         \App\Models\PurchaseItemPrice::create([
             'purchase_item_id' => $purchaseItem->id,
@@ -905,11 +937,6 @@ class PurchaseController extends Controller
             'wholesale_tiers'  => $item['wholesale_tiers'] ?? [],
             'warranty_tiers'   => $item['warranty_tiers'] ?? [],
         ]);
-
-        // 5) Activate as the website batch if requested
-        if (!empty($item['activate_website'])) {
-            app(\App\Services\PricingService::class)->setActiveWebsiteBatch($batch->product, $batch->id);
-        }
     }
 
     /**

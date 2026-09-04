@@ -174,6 +174,9 @@
                             <span><i class="fe-layers me-1"></i> {{ __('Product Variants (Color & Size)') }} </span>
                             <button type="button" class="btn btn-sm btn-success add-variant rounded-pill px-3"><i class="fa fa-plus me-1"></i> {{ __('Add Variant') }} </button>
                         </div>
+                        <small class="text-muted d-block mb-2">
+                            <i class="fe-info me-1"></i> {{ __('Variant sell price & stock are managed per batch (Purchase → Batch Management). The picked variant image is saved to the variant automatically.') }}
+                        </small>
 
                         <div id="variant-wrapper">
                             @php
@@ -190,7 +193,7 @@
                                 @endphp
                                 <div class="variant-card variant-item">
                                     <div class="row align-items-end">
-                                        <div class="col-md-{{ $batchWise ? 6 : 4 }} mb-2">
+                                        <div class="col-md-4 mb-2">
                                             <label class="form-label">{{ __('Color') }}</label>
                                             <select name="variant_price[{{ $variantIndex }}][color_id]" class="form-control select2 variant-color-select">
                                                 <option value=""> {{ __('Select Color (Optional)') }} </option>
@@ -202,7 +205,7 @@
                                             </select>
                                         </div>
 
-                                        <div class="col-md-{{ $batchWise ? 6 : 4 }} mb-2">
+                                        <div class="col-md-4 mb-2">
                                             <label class="form-label">{{ __('Size') }}</label>
                                             <select name="variant_price[{{ $variantIndex }}][size_id]" class="form-control select2 variant-size-select">
                                                 <option value=""> {{ __('Select Size (Optional)') }} </option>
@@ -214,13 +217,11 @@
                                             </select>
                                         </div>
 
-                                        @if(!$batchWise)
                                         <div class="col-md-4 mb-2">
-                                            <label class="form-label">{{ __('Price') }}</label>
-                                            <input type="number" step="0.01" name="variant_price[{{ $variantIndex }}][price]"
-                                                   value="{{ $vp->price }}" class="form-control" placeholder="{{ __('Enter Price') }}">
+                                            <label class="form-label">{{ __('Barcode') }} <small class="text-muted">(Optional)</small></label>
+                                            <input type="text" name="variant_price[{{ $variantIndex }}][barcode]"
+                                                   value="{{ $vp->barcode }}" class="form-control" placeholder="Scan or enter barcode">
                                         </div>
-                                        @endif
 
                                         <div class="col-md-6 mb-2">
                                             <label class="form-label"> {{ __('Variant Image') }} </label>
@@ -261,7 +262,7 @@
                             @empty
                                 <div class="variant-card variant-item">
                                     <div class="row align-items-end">
-                                        <div class="col-md-{{ $batchWise ? 4 : 3 }} mb-2">
+                                        <div class="col-md-3 mb-2">
                                             <label class="form-label">{{ __('Color') }}<small class="text-muted">(Optional)</small></label>
                                             <select name="variant_price[0][color_id]" class="form-control select2 variant-color-select">
                                                 <option value=""> {{ __('Select Color (Optional)') }} </option>
@@ -271,7 +272,7 @@
                                             </select>
                                         </div>
 
-                                        <div class="col-md-{{ $batchWise ? 4 : 3 }} mb-2">
+                                        <div class="col-md-3 mb-2">
                                             <label class="form-label">{{ __('Size') }}<small class="text-muted">(Optional)</small></label>
                                             <select name="variant_price[0][size_id]" class="form-control select2 variant-size-select">
                                                 <option value=""> {{ __('Select Size (Optional)') }} </option>
@@ -281,13 +282,11 @@
                                             </select>
                                         </div>
 
-                                        @if(!$batchWise)
-                                        <div class="col-md-2 mb-2">
-                                            <label class="form-label">{{ __('Price') }}<small class="text-muted">(Optional)</small></label>
-                                            <input type="number" step="0.01" name="variant_price[0][price]"
-                                                   class="form-control" placeholder="{{ __('Enter Price') }}">
+                                        <div class="col-md-3 mb-2">
+                                            <label class="form-label">{{ __('Barcode') }} <small class="text-muted">(Optional)</small></label>
+                                            <input type="text" name="variant_price[0][barcode]"
+                                                   class="form-control" placeholder="Scan or enter barcode">
                                         </div>
-                                        @endif
 
                                         <div class="col-md-2 mb-2">
                                             <label class="form-label"> {{ __('Variant Image') }} </label>
@@ -323,92 +322,7 @@
                     </div>
                 </div>
 
-                @if(!$batchWise)
-                {{-- WHOLESALE PRICING TIERS --}}
-                <div id="wholesale_area" style="{{ old('is_wholesale', $edit_data->is_wholesale ?? 0) ? 'display:block;' : 'display:none;' }}" class="card mb-4">
-                    <div class="card-body">
-                        <div class="section-title d-flex justify-content-between align-items-center">
-                            <span><i class="fe-dollar-sign me-1"></i> {{ __('Wholesale Pricing Tiers') }} </span>
-                            <button type="button" class="btn btn-sm btn-success add-wholesale-tier rounded-pill px-3"><i class="fa fa-plus me-1"></i> {{ __('Add New Tier') }} </button>
-                        </div>
-                        
-                        <div id="wholesale-wrapper">
-                            @if($wholesalePrices && $wholesalePrices->count() > 0)
-                                @foreach($wholesalePrices as $key => $tier)
-                                    <div class="variant-card">
-                                        <div class="row align-items-end">
-                                            @if($hasVariants)
-                                            <div class="col-md-3 mb-2">
-                                                <label class="form-label"> {{ __('Variant') }} </label>
-                                                <select name="wholesale_discount[{{ $key }}][variant_id]" class="form-control select2 wholesale-variant-select">
-                                                    <option value=""> {{ __('All Variants') }} </option>
-                                                    @foreach($allVariants as $vp)
-                                                        @php
-                                                            $vpColorName = $vp->color ? ($vp->color->colorName ?? $vp->color->name) : '';
-                                                            $vpSizeName  = $vp->size ? ($vp->size->sizeName ?? $vp->size->name) : '';
-                                                            $variantLabel = trim($vpColorName . ' ' . $vpSizeName);
-                                                        @endphp
-                                                        <option value="{{ $vp->id }}" {{ $tier->variant_id == $vp->id ? 'selected' : '' }}>
-                                                            {{ $variantLabel ?: __('No Variant') }}
-                                                        </option>
-                                                    @endforeach
-                                                </select>
-                                            </div>
-                                            @endif
-                                            <div class="{{ $hasVariants ? 'col-md-2' : 'col-md-3' }} mb-2">
-                                                <label class="form-label"> {{ __('Min Quantity') }} </label>
-                                                <input type="number" name="wholesale_discount[{{ $key }}][min_quantity]" class="form-control" 
-                                                       value="{{ old('wholesale_price.'.$key.'.min_quantity', $tier->min_quantity) }}">
-                                            </div>
-                                            <div class="{{ $hasVariants ? 'col-md-2' : 'col-md-3' }} mb-2">
-                                                <label class="form-label"> {{ __('Max Quantity') }} </label>
-                                                <input type="number" name="wholesale_discount[{{ $key }}][max_quantity]" class="form-control" 
-                                                       value="{{ old('wholesale_price.'.$key.'.max_quantity', $tier->max_quantity) }}" placeholder="Optional">
-                                            </div>
-                                            <div class="col-md-2 mb-2">
-                                                <label class="form-label"> {{ __('Wholesale Discount') }} </label>
-                                                <input type="number" step="0.01" name="wholesale_discount[{{ $key }}][wholesale_price]" class="form-control" 
-                                                       value="{{ old('wholesale_price.'.$key.'.wholesale_price', $tier->wholesale_price) }}" placeholder="0.00">
-                                            </div>
-                                            <div class="{{ $hasVariants ? 'col-md-1' : 'col-md-2' }} mb-2">
-                                                <button type="button" class="btn btn-danger btn-remove-wholesale w-100" title="{{ __('Remove Tier') }}"><i class="fa fa-trash"></i></button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                @endforeach
-                            @else
-                                <div class="variant-card">
-                                    <div class="row align-items-end">
-                                        @if($hasVariants)
-                                        <div class="col-md-3 mb-2">
-                                            <label class="form-label"> {{ __('Variant') }} </label>
-                                            <select name="wholesale_discount[0][variant_id]" class="form-control select2 wholesale-variant-select">
-                                                {!! $wholesaleVariantOptions !!}
-                                            </select>
-                                        </div>
-                                        @endif
-                                        <div class="{{ $hasVariants ? 'col-md-2' : 'col-md-3' }} mb-2">
-                                            <label class="form-label"> {{ __('Min Quantity') }} </label>
-                                            <input type="number" name="wholesale_discount[0][min_quantity]" class="form-control" placeholder="e.g. 10">
-                                        </div>
-                                        <div class="{{ $hasVariants ? 'col-md-2' : 'col-md-3' }} mb-2">
-                                            <label class="form-label"> {{ __('Max Quantity') }} </label>
-                                            <input type="number" name="wholesale_discount[0][max_quantity]" class="form-control" placeholder="e.g. 50 (optional)">
-                                        </div>
-                                        <div class="col-md-2 mb-2">
-                                            <label class="form-label"> {{ __('Wholesale Discount') }} </label>
-                                            <input type="number" step="0.01" name="wholesale_discount[0][wholesale_price]" class="form-control" placeholder="0.00">
-                                        </div>
-                                        <div class="{{ $hasVariants ? 'col-md-1' : 'col-md-2' }} mb-2">
-                                            <button type="button" class="btn btn-success add-wholesale-tier w-100" title="{{ __('Add New Tier') }}"><i class="fa fa-plus"></i></button>
-                                        </div>
-                                    </div>
-                                </div>
-                            @endif
-                        </div>
-                    </div>
-                </div>
-                @endif
+
 
                 @if(!$batchWise)
                 {{-- 🛡️ WARRANTY TIERS (legacy — in batch-wise mode tiers are managed on the Purchase page) --}}
@@ -513,39 +427,9 @@
                 {{-- PRICING & INVENTORY CARD --}}
                 <div class="card mb-4">
                     <div class="card-body">
-                        <div class="section-title"><i class="fe-dollar-sign me-1"></i> {{ $batchWise ? __('Inventory') : __('Pricing & Inventory') }} </div>
+                        <div class="section-title"><i class="fe-dollar-sign me-1"></i> {{ __('Inventory') }} </div>
 
-                        @if(!$batchWise)
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label for="old_price" class="form-label"> {{ __('Old Price') }} </label>
-                                <input type="text" class="form-control @error('old_price') is-invalid @enderror"
-                                       name="old_price" value="{{ $edit_data->old_price }}" id="old_price" />
-                                @error('old_price')
-                                <span class="invalid-feedback" role="alert"><strong>{{ $message }}</strong></span>
-                                @enderror
-                            </div>
 
-                            <div class="col-md-6 mb-3">
-                                <label for="new_price" class="form-label"> {{ __('New Price') }} <small class="text-muted">(Optional)</small></label>
-                                <input type="text" class="form-control font-weight-bold @error('new_price') is-invalid @enderror"
-                                       name="new_price" value="{{ $edit_data->new_price }}" id="new_price" placeholder="0" />
-                                @error('new_price')
-                                <span class="invalid-feedback" role="alert"><strong>{{ $message }}</strong></span>
-                                @enderror
-                            </div>
-                        </div>
-
-                        <div class="form-group mb-3">
-                            <label for="supplier_price" class="form-label"> {{ __('Purchase Price') }} <small class="text-muted">(Updated automatically from purchases)</small></label>
-                            <input type="text" step="0.01" class="form-control bg-light @error('supplier_price') is-invalid @enderror"
-                                   name="supplier_price" value="{{ old('supplier_price', $edit_data->supplier_price ?? $edit_data->purchase_price) }}" id="supplier_price" placeholder="From purchase" readonly />
-                            <small class="text-muted"><i class="fe-info me-1"></i> {{ __('This price comes from purchase records. Cannot be edited here.') }}</small>
-                            @error('supplier_price')
-                            <span class="invalid-feedback" role="alert"><strong>{{ $message }}</strong></span>
-                            @enderror
-                        </div>
-                        @endif
 
                         <div class="form-group mb-3">
                             <label for="pro_unit" class="form-label">{{ __('Unit') }}</label>
@@ -915,16 +799,6 @@
                         </div>
 
                         <div class="row-auto mb-3">
-                         @if(!$batchWise)
-                        <div class="form-group mb-3">
-                            <label class="d-block form-label"> {{ __('Wholesale Product') }} </label>
-                            <label class="switch">
-                                <input type="checkbox" value="1" name="is_wholesale" id="is_wholesale" {{ old('is_wholesale', $edit_data->is_wholesale ?? 0) ? 'checked' : '' }}>
-                                <span class="slider round"></span>
-                            </label>
-                        </div>
-                        @endif
-
                         {{-- WARRANTY METHOD --}}
                         <div class="form-group mb-3">
                             <label for="warranty_method" class="form-label">🛡️ {{ __('Warranty Method') }} </label>

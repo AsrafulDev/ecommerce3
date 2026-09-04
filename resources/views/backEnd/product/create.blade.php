@@ -26,11 +26,6 @@
 @endsection 
 
 @section('content')
-@php
-    // ⭐ Batch-wise pricing engine — when ON, sell prices are set after the first
-    //    purchase on /admin/purchases/manage (this page keeps catalog + variant identity).
-    $batchWise = (bool) config('pricing.batch_wise', false);
-@endphp
 <div class="container-fluid">
     <div class="row">
         <div class="col-12">
@@ -93,49 +88,7 @@
                     </div>
                 </div>
 
-                @if(!$batchWise)
-                <div class="card mb-4">
-                    <div class="card-body">
-                        <div class="form-group mb-3">
-                            <label class="d-block form-label"> {{ __('Wholesale Product') }} </label>
-                            <label class="switch"><input type="checkbox" value="1" name="is_wholesale" id="is_wholesale"><span class="slider round"></span></label>
-                        </div>
-                    </div>
-                </div>
-                @endif
 
-                @if(!$batchWise)
-                <div id="wholesale_area" style="display:none;" class="card mb-4">
-                    <div class="card-body">
-                        <div class="section-title d-flex justify-content-between align-items-center">
-                            <span><i class="fe-dollar-sign me-1"></i> {{ __('Wholesale Pricing Tiers') }} </span>
-                            <button type="button" class="btn btn-sm btn-success add-wholesale-tier rounded-pill px-3"><i class="fa fa-plus me-1"></i> {{ __('Add New Tier') }} </button>
-                        </div>
-                        
-                        <div id="wholesale-wrapper">
-                            <div class="variant-card">
-                                <div class="row align-items-end">
-                                    <div class="col-md-3 mb-2">
-                                        <label class="form-label"> {{ __('Min Quantity') }} </label>
-                                        <input type="number" name="wholesale_price[0][min_quantity]" class="form-control" placeholder="e.g. 10">
-                                    </div>
-                                    <div class="col-md-3 mb-2">
-                                        <label class="form-label"> {{ __('Max Quantity') }} </label>
-                                        <input type="number" name="wholesale_price[0][max_quantity]" class="form-control" placeholder="e.g. 50 (optional)">
-                                    </div>
-                                    <div class="col-md-2 mb-2">
-                                        <label class="form-label"> {{ __('Wholesale Discount') }} </label>
-                                        <input type="number" step="0.01" name="wholesale_price[0][wholesale_price]" class="form-control" placeholder="0.00">
-                                    </div>
-                                    <div class="col-md-2 mb-2">
-                                        <button type="button" class="btn btn-success add-wholesale-tier w-100"><i class="fa fa-plus"></i></button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                @endif
 
                 <div class="card mb-4" id="variant_section" style="display:none;">
                     <div class="card-body">
@@ -143,11 +96,14 @@
                             <span><i class="fe-layers me-1"></i> {{ __('Product Variants (Size & Color)') }} </span>
                             <button type="button" class="btn btn-sm btn-success add-variant rounded-pill px-3"><i class="fa fa-plus me-1"></i> {{ __('Add New Variant') }} </button>
                         </div>
-                        
+                        <small class="text-muted d-block mb-2">
+                            <i class="fe-info me-1"></i> {{ __('Variant sell price & stock are managed per batch (Purchase → Batch Management). The picked variant image is saved to the variant automatically.') }}
+                        </small>
+
                         <div id="variant-wrapper">
                             <div class="variant-card variant-item">
                                 <div class="row align-items-end">
-                                    <div class="col-md-{{ $batchWise ? 3 : 2 }} mb-2">
+                                    <div class="col-md-2 mb-2">
                                         <label class="form-label">{{ __('Color') }}<small class="text-muted">(Optional)</small></label>
                                         <select name="variant_price[0][color_id]" class="form-control select2 variant-color-select">
                                             <option value="">{{ __('Select Color') }}</option>
@@ -156,7 +112,7 @@
                                             @endforeach
                                         </select>
                                     </div>
-                                    <div class="col-md-{{ $batchWise ? 3 : 2 }} mb-2">
+                                    <div class="col-md-2 mb-2">
                                         <label class="form-label">{{ __('Size') }}<small class="text-muted">(Optional)</small></label>
                                         <select name="variant_price[0][size_id]" class="form-control select2 variant-size-select">
                                             <option value="">{{ __('Select Size') }}</option>
@@ -165,13 +121,11 @@
                                             @endforeach
                                         </select>
                                     </div>
-                                    @if(!$batchWise)
-                                    <div class="col-md-2 mb-2">
-                                        <label class="form-label">{{ __('Price') }}</label>
-                                        <input type="number" step="0.01" name="variant_price[0][price]" class="form-control" placeholder="0.00">
-                                    </div>
-                                    @endif
                                     <div class="col-md-3 mb-2">
+                                        <label class="form-label">{{ __('Barcode') }} <small class="text-muted">(Optional)</small></label>
+                                        <input type="text" name="variant_price[0][barcode]" class="form-control" placeholder="Scan or enter barcode">
+                                    </div>
+                                    <div class="col-md-4 mb-2">
                                         <label class="form-label"> {{ __('Variant Image') }} </label>
                                         <div class="variant-img-upload position-relative">
                                             <input type="hidden" name="variant_image[0][image]" class="variant-media-path" id="variant_image_0_image" value="">
@@ -243,25 +197,9 @@
             <div class="col-lg-4">
                 <div class="card mb-4">
                     <div class="card-body">
-                        <div class="section-title"><i class="fe-dollar-sign me-1"></i> {{ $batchWise ? __('Inventory') : __('Pricing & Inventory') }} </div>
+                        <div class="section-title"><i class="fe-dollar-sign me-1"></i> {{ __('Inventory') }} </div>
                         
-                        @if(!$batchWise)
-                        <div class="form-group mb-3">
-                            <label class="form-label"> {{ __('Purchase Price') }} <small class="text-muted">(Optional)</small></label>
-                            <input type="number" name="purchase_price" class="form-control border-primary" placeholder="0">
-                        </div>
 
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label"> {{ __('Old Price') }} </label>
-                                <input type="number" name="old_price" class="form-control" placeholder="0">
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label"> {{ __('New Price') }} <small class="text-muted">(Optional)</small></label>
-                                <input type="number" name="new_price" class="form-control font-weight-bold" placeholder="0">
-                            </div>
-                        </div>
-                        @endif
 
                         <div class="form-group mb-3">
                             <label class="form-label"> {{ __('Unit (kg/pc)') }} </label>
@@ -696,11 +634,11 @@
                 let $row = $(this);
                 let colorId = $row.find('.variant-color-select').val() || null;
                 let sizeId = $row.find('.variant-size-select').val() || null;
-                let price = $row.find('input[name*="[price]"]').val() || 0;
+                let barcode = $row.find('input[name*="[barcode]"]').val() || '';
                 
                 if (!colorId && !sizeId) return;
                 
-                variantData.push({ index: variantIndex++, color_id: colorId, size_id: sizeId, price: price, image_row: rowIndex });
+                variantData.push({ index: variantIndex++, color_id: colorId, size_id: sizeId, barcode: barcode, image_row: rowIndex });
                 rowIndex++;
             });
             
@@ -710,43 +648,12 @@
             variantData.forEach(function(v) {
                 $('<input>').attr({ type: 'hidden', name: 'variant_price[' + v.index + '][color_id]', value: v.color_id }).appendTo($('form[data-parsley-validate]'));
                 $('<input>').attr({ type: 'hidden', name: 'variant_price[' + v.index + '][size_id]', value: v.size_id || '' }).appendTo($('form[data-parsley-validate]'));
-                $('<input>').attr({ type: 'hidden', name: 'variant_price[' + v.index + '][price]', value: v.price }).appendTo($('form[data-parsley-validate]'));
+                $('<input>').attr({ type: 'hidden', name: 'variant_price[' + v.index + '][barcode]', value: v.barcode }).appendTo($('form[data-parsley-validate]'));
                 $('<input>').attr({ type: 'hidden', name: 'variant_price[' + v.index + '][image_row]', value: v.image_row }).appendTo($('form[data-parsley-validate]'));
             });
         });
 
-        // Wholesale toggle
-        $("#is_wholesale").on("change", function () {
-            if ($(this).is(':checked')) {
-                $("#wholesale_area").slideDown();
-                $("#wholesale_area input").prop('required', true);
-            } else {
-                $("#wholesale_area").slideUp();
-                $("#wholesale_area input").prop('required', false);
-            }
-        });
 
-        // Wholesale pricing tiers
-        let wholesaleIndex = 1;
-        $("body").on("click", ".add-wholesale-tier", function () {
-            let wrapper = $("#wholesale-wrapper");
-            let firstRow = wrapper.find(".variant-card").first().clone();
-            
-            firstRow.find('input').each(function(){
-                let oldName = $(this).attr('name');
-                $(this).attr('name', oldName.replace(/\[\d+\]/, '[' + wholesaleIndex + ']'));
-                $(this).val('');
-            });
-
-            // Change add button to remove button
-            firstRow.find('.add-wholesale-tier').removeClass('btn-success add-wholesale-tier').addClass('btn-danger btn-remove-wholesale').html('<i class="fa fa-trash"></i>');
-            wrapper.append(firstRow);
-            wholesaleIndex++;
-        });
-
-        $("body").on("click", ".btn-remove-wholesale", function () {
-            $(this).parents(".variant-card").remove();
-        });
 
         // AJAX Categories
         $("#category_id").on("change", function () {

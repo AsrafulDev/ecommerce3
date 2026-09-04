@@ -2032,6 +2032,7 @@ class OrderController extends Controller
                 'order_id'       => $order->id,
                 'customer_id'    => $customer_id,
                 'product_id'     => $order_details->product_id,
+                'variant_id'     => $order_details->variant_price_id ?? null,
                 'serial_numbers' => $serialNumbers,
                 'stock_batch_id' => $cart->options->batch_id ?? null,
                 'purchase_id'    => $this->resolvePurchaseId($order_details->product_id, $cart->options->batch_id ?? null),
@@ -2075,6 +2076,13 @@ class OrderController extends Controller
                 ['order_detail_id' => $order_details->id],
                 $warrantyData
             );
+
+            // Flag the sold batch as carrying a (real) sell warranty
+            $hasSellWarranty = (($warrantyData['warranty_type'] ?? 'none') !== 'none');
+            if ($hasSellWarranty && !empty($warrantyData['stock_batch_id'])) {
+                \App\Models\StockBatch::whereKey((int) $warrantyData['stock_batch_id'])
+                    ->update(['has_sell_warranty' => true]);
+            }
         }
 
         // নতুন অর্ডার প্লেস করলে স্টক কমানো (pass string enum value, NOT cast to int)

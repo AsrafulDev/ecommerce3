@@ -24,7 +24,9 @@ class PricingService
 {
     public function isBatchWise(): bool
     {
-        return (bool) config('pricing.batch_wise', false);
+        // Batch-wise is the system default (no BATCH_WISE_PRICING toggle).
+        // (Tests may still override config('pricing.batch_wise') locally.)
+        return (bool) config('pricing.batch_wise', true);
     }
 
     // ──────────────────────────────────────────────────────
@@ -42,6 +44,9 @@ class PricingService
 
         $active = StockBatch::where('product_id', $product->id)
             ->activeForWebsite()
+            // pos_enabled = false disables a batch for BOTH web and POS (D3) —
+            // a flagged-but-disabled batch must never be shown/priced on the website.
+            ->where('pos_enabled', true)
             ->first();
 
         // Safety net: if the active batch is depleted and auto-advance is on,
@@ -59,10 +64,9 @@ class PricingService
      */
     public function setActiveWebsiteBatch(Product $product, int $batchId): ?StockBatch
     {
-        if (!$this->isBatchWise()) {
-            return null;
-        }
-
+        // Works with BATCH_WISE_PRICING on OR off: a batch marked as the website
+        // batch should always drive the storefront (flag only changes whether the
+        // full batch-price engine reads it vs. the mirrored product columns).
         $batch = StockBatch::where('id', $batchId)->where('product_id', $product->id)->first();
         if (!$batch) {
             return null;
@@ -599,11 +603,18 @@ class PricingService
 
     public function refreshProductCache(Product $product): void
     {
-        if (!config('pricing.cache_website_price', true) || !$this->isBatchWise()) {
+        // Runs for both batch-wise and legacy mode: when a website batch is active
+        // its selling price/MRP are mirrored onto the product (new_price/old_price +
+        // website_price/website_stock), so the storefront always reflects the batch.
+        if (!config('pricing.cache_website_price', true)) {
             return;
         }
 
-        $active = StockBatch::where('product_id', $product->id)->activeForWebsite()->first();
+        // pos_enabled=false disables a batch for BOTH web and POS (D3)
+        $active = StockBatch::where('product_id', $product->id)
+            ->activeForWebsite()
+            ->where('pos_enabled', true)
+            ->first();
         $stock  = StockBatch::where('product_id', $product->id)->sellable()->sum('remaining_qty');
 
         $price = null;

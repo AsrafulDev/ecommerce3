@@ -16,6 +16,8 @@ class ProductVariantPrice extends Model
         'price',
         'stock',
         'sku',
+        'barcode',
+        'image',
     ];
 
     public $timestamps = false; // 🟢 timestamps বন্ধ

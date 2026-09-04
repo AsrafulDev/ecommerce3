@@ -87,22 +87,46 @@ class WarrantyService
                     ->first();
             }
 
-            return WarrantySale::updateOrCreate(
+            // Resolve the batch this line was fulfilled from (rich order-detail snapshot)
+            $batchId = null;
+            $purchaseId = null;
+            $batchIds = (array) $orderDetail->batch_ids;
+            $firstBatch = $batchIds[0] ?? null;
+            if (is_array($firstBatch)) {
+                $batchId    = isset($firstBatch['batch_id']) ? (int) $firstBatch['batch_id'] : null;
+                $purchaseId = isset($firstBatch['purchase_id']) ? (int) $firstBatch['purchase_id'] : null;
+            } elseif (is_numeric($firstBatch)) {
+                $batchId = (int) $firstBatch;
+            }
+
+            $sale = WarrantySale::updateOrCreate(
                 ['order_detail_id' => $orderDetail->id],
                 [
                     'order_id'                 => $order->id,
                     'product_warranty_tier_id' => $tier->id,
                     'customer_id'              => $order->customer_id,
                     'product_id'               => $orderDetail->product_id,
+                    'variant_id'               => $orderDetail->variant_price_id ?? null,
+                    'stock_batch_id'           => $batchId,
+                    'purchase_id'              => $purchaseId,
                     'supplier_warranty_id'     => $supplierWarranty?->id,
                     'warranty_type'            => $tier->warranty_type,
                     'warranty_days'            => $tier->warranty_days,
                     'warranty_start_date'      => null,
                     'warranty_end_date'        => null,
                     'warranty_price'           => $tier->price,
+                    'terms'                    => $supplierWarranty?->warranty_terms ?? null,
+                    'is_transferable'          => true,
                     'status'                   => WarrantySaleStatus::ACTIVE->value,
                 ]
             );
+
+            // Flag the batch as sold-with-warranty when a real warranty is attached
+            if ($tier->warranty_type !== WarrantyType::NONE->value && $batchId) {
+                \App\Models\StockBatch::whereKey($batchId)->update(['has_sell_warranty' => true]);
+            }
+
+            return $sale;
         });
     }
 

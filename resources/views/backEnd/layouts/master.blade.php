@@ -782,9 +782,8 @@
   <div class="collapse" id="siebar-product">
     <ul class="nav-second-level">
       @can('product-list')
-      <li><a href="{{ route('inhouse.products.index') }}"><i data-feather="package"></i> {{ __('All Inhouse Products') }} </a></li>
+      <li><a href="{{ route('inhouse.products.index') }}"><i data-feather="package"></i> {{ __('All Products') }} </a></li>
       <li><a href="{{ route('products.pending') }}"><i data-feather="clock"></i> {{ __('Pending Products') }} </a></li>
-      <li><a href="{{ route('admin.products.wholesale') }}"><i data-feather="layers"></i> {{ __('Wholesale Products') }} </a></li>
       @endcan
       @can('product-create')
       <li><a href="{{ route('products.create') }}"><i data-feather="plus-circle"></i>{{ __('Add Product') }}</a></li>

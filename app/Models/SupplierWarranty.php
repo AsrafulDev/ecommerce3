@@ -13,6 +13,7 @@ class SupplierWarranty extends Model
         'purchase_item_id',
         'batch_id',
         'product_id',
+        'variant_id',
         'supplier_id',
         'warranty_days',
         'warranty_start_date',
@@ -48,6 +49,11 @@ class SupplierWarranty extends Model
     public function product()
     {
         return $this->belongsTo(Product::class);
+    }
+
+    public function variant()
+    {
+        return $this->belongsTo(ProductVariantPrice::class, 'variant_id');
     }
 
     public function supplier()

@@ -5,13 +5,11 @@ return [
     |--------------------------------------------------------------------------
     | Batch-Wise Pricing Engine
     |--------------------------------------------------------------------------
-    | Master switch for the batch-anchored pricing model. When OFF the system
-    | keeps the legacy resolution (products.new_price → variant price) so the
-    | upgrade can be shipped and rolled back without breaking the storefront.
-    |
-    | Env: BATCH_WISE_PRICING (bool) — default false
+    | The system is batch-wise by design (no toggle): prices, wholesale and
+    | warranty are batch-scoped, and a product without a sellable batch shows as
+    | out of stock. The legacy products.new_price resolution is only a mirror.
     */
-    'batch_wise' => (bool) env('BATCH_WISE_PRICING', false),
+    'batch_wise' => true,
 
     /*
     |--------------------------------------------------------------------------

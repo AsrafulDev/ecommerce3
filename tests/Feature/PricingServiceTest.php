@@ -27,6 +27,11 @@ class PricingServiceTest extends TestCase
     {
         // Runs against the in-memory SQLite DB from .env.testing (never live MySQL).
         parent::setUp();
+
+        // Batch-wise pricing engine must be ON for these tests (no reliance on an
+        // external BATCH_WISE_PRICING env var — full `php artisan test` stays green).
+        config(['pricing.batch_wise' => true]);
+        config(['pricing.cache_website_price' => false]);
     }
 
     protected function makeProduct(array $attrs = []): Product
@@ -78,6 +83,24 @@ class PricingServiceTest extends TestCase
 
         $this->assertFalse($svc->isWebsiteSellable($product));
         $this->assertSame(0, $svc->sellableStock($product, 'website'));
+    }
+
+    /**
+     * D3 — pos_enabled = false disables a batch for BOTH web and POS: even a
+     * batch flagged active-for-website must NOT be shown/priced on the website.
+     */
+    public function test_pos_disabled_batch_not_used_by_website(): void
+    {
+        $product = $this->makeProduct();
+        $batch = $this->makeBatch($product, 5, 150.00, true);
+        $batch->update(['pos_enabled' => false]); // flag still active, but disabled
+
+        $svc = app(PricingService::class);
+
+        $this->assertNull($svc->activeWebsiteBatch($product));
+        $this->assertFalse($svc->isWebsiteSellable($product));
+        $this->assertSame(0.0, $svc->price($product, null, null, 'website'));
+        $this->assertSame(0, $svc->posBatches($product)->count());
     }
 
     public function test_fifo_allocation_spans_batches(): void

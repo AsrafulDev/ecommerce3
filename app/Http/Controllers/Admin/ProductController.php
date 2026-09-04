@@ -387,6 +387,7 @@ class ProductController extends Controller
                 $colorId = $variant['color_id'] ?? null;
                 $sizeId  = $variant['size_id'] ?? null;
                 $price   = $variant['price'] ?? 0;
+                $barcode = isset($variant['barcode']) ? trim((string) $variant['barcode']) : null;
 
                 // Handle if size_id is accidentally an array
                 if (is_array($sizeId)) {
@@ -399,6 +400,7 @@ class ProductController extends Controller
                         'color_id'   => $colorId ?: null,
                         'size_id'    => $sizeId ?: null,
                         'price'      => $price,
+                        'barcode'    => $barcode ?: null,
                         // Stock is maintained via purchase batches / stock adjustments only
                         'stock'      => 0,
                     ]);
@@ -471,6 +473,9 @@ class ProductController extends Controller
                 }
             }
         }
+
+        // Phase 4 — mirror each variant's representative image into product_variant_prices.image
+        $this->syncVariantImagesFromGallery($product);
 
         Toastr::success('Product created successfully!');
         return redirect()->route('inhouse.products.index');
@@ -854,12 +859,15 @@ class ProductController extends Controller
         }
 
         // VARIANTS UPDATE - Single size per variant
-        // Preserve existing variant stock (maintained via purchase batches / stock adjustments)
+        // Preserve existing variant stock + barcode (maintained via purchase batches / stock adjustments)
         $existingVariantStock = [];
+        $existingVariantBarcode = [];
         ProductVariantPrice::where('product_id', $product->id)
             ->get()
-            ->each(function ($vp) use (&$existingVariantStock) {
-                $existingVariantStock[($vp->color_id ?: 0) . '_' . ($vp->size_id ?: 0)] = (int) $vp->stock;
+            ->each(function ($vp) use (&$existingVariantStock, &$existingVariantBarcode) {
+                $variantKey = ($vp->color_id ?: 0) . '_' . ($vp->size_id ?: 0);
+                $existingVariantStock[$variantKey]   = (int) $vp->stock;
+                $existingVariantBarcode[$variantKey] = $vp->barcode;
             });
 
         ProductVariantPrice::where('product_id', $product->id)->delete();
@@ -869,6 +877,7 @@ class ProductController extends Controller
                 $colorId = $variant['color_id'] ?? null;
                 $sizeId  = $variant['size_id'] ?? null;
                 $price   = $variant['price'] ?? 0;
+                $barcode = isset($variant['barcode']) ? trim((string) $variant['barcode']) : '';
 
                 // Handle if size_id is accidentally an array
                 if (is_array($sizeId)) {
@@ -879,12 +888,15 @@ class ProductController extends Controller
                     // Stock is maintained via purchase batches / stock adjustments only — preserve existing
                     $stockKey = ($colorId ?: 0) . '_' . ($sizeId ?: 0);
                     $stock    = $existingVariantStock[$stockKey] ?? 0;
+                    // Keep the previously saved barcode when the field is left empty
+                    $barcode  = $barcode !== '' ? $barcode : ($existingVariantBarcode[$stockKey] ?? null);
 
                     ProductVariantPrice::create([
                         'product_id' => $product->id,
                         'color_id'   => $colorId ?: null,
                         'size_id'    => $sizeId ?: null,
                         'price'      => $price,
+                        'barcode'    => $barcode ?: null,
                         'stock'      => $stock,
                     ]);
                 }
@@ -944,6 +956,9 @@ class ProductController extends Controller
                 }
             }
         }
+
+        // Phase 4 — mirror each variant's representative image into product_variant_prices.image
+        $this->syncVariantImagesFromGallery($product);
 
         Toastr::success('Product updated successfully!');
         return redirect()->route('inhouse.products.index');
@@ -1259,6 +1274,35 @@ class ProductController extends Controller
         );
 
         return $matches[1] ?? null;
+    }
+
+    /**
+     * Phase 4 — mirror each variant's representative image (from the `productimages`
+     * gallery, which the Variant Image picker edits) into `product_variant_prices.image`
+     * so the variant table carries its own image. Non-destructive: never overwrites an
+     * image already set on the variant row.
+     */
+    private function syncVariantImagesFromGallery(Product $product): void
+    {
+        $gallery = \App\Models\Productimage::where('product_id', $product->id)
+            ->orderBy('id')
+            ->get(['color_id', 'size_id', 'image']);
+
+        foreach ($product->variantPrices as $vp) {
+            if (!empty($vp->image)) {
+                continue;
+            }
+            $img = $gallery->first(function ($g) use ($vp) {
+                $gC = $g->color_id !== null ? (int) $g->color_id : null;
+                $gS = $g->size_id !== null ? (int) $g->size_id : null;
+                $vC = $vp->color_id !== null ? (int) $vp->color_id : null;
+                $vS = $vp->size_id !== null ? (int) $vp->size_id : null;
+                return $gC === $vC && $gS === $vS;
+            });
+            if ($img) {
+                $vp->update(['image' => $img->image]);
+            }
+        }
     }
 
     /**

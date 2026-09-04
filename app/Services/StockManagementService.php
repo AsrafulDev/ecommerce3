@@ -51,6 +51,8 @@ class StockManagementService
             throw new \InvalidArgumentException('Stock-in quantity must be positive.');
         }
 
+        $totalCost = round($qty * (float) ($data['unit_cost'] ?? 0), 2);
+
         // Create the batch record
         $batch = StockBatch::create([
             'product_id'      => $product->id,
@@ -61,12 +63,16 @@ class StockManagementService
             'quantity'        => $qty,
             'remaining_qty'   => $qty,
             'unit_cost'       => $data['unit_cost'] ?? 0,
+            'total_cost'      => $totalCost,
             'selling_price'   => $data['selling_price'] ?? null,
             'mrp'             => $data['mrp'] ?? null,
             'wholesale_price' => $data['wholesale_price'] ?? null,
             'is_active_for_website' => (bool) ($data['is_active_for_website'] ?? false),
             'pos_enabled'     => (bool) ($data['pos_enabled'] ?? true),
             'auto_advance'    => (bool) ($data['auto_advance'] ?? config('pricing.auto_advance_default', true)),
+            'has_purchase_warranty' => (bool) ($data['has_purchase_warranty'] ?? false),
+            'has_sell_warranty'     => (bool) ($data['has_sell_warranty'] ?? false),
+            'has_wholesale'         => (bool) ($data['has_wholesale'] ?? false),
             'mfg_date'        => $data['mfg_date'] ?? null,
             'exp_date'        => $data['exp_date'] ?? null,
             'custom_field'    => $data['custom_field'] ?? null,
@@ -621,8 +627,10 @@ class StockManagementService
                     ->keyBy('product_id');
 
                 // website_price = active batch selling_price
+                // (pos_enabled = false disables a batch for BOTH web and POS — D3)
                 $activeBatches = StockBatch::query()
                     ->where('is_active_for_website', 1)
+                    ->where('pos_enabled', 1)
                     ->when($productId, fn ($q) => $q->where('product_id', $productId))
                     ->get(['id', 'product_id', 'selling_price'])
                     ->keyBy('product_id');

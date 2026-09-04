@@ -144,7 +144,7 @@ File: `resources/views/frontEnd/layouts/pages/details.blade.php` (+ `FrontendCon
 
 > ⭐ Implemented behind `config('pricing.multi_batch_pricing')` — **default stays `active_batch`** (zero behaviour change). When set to **`per_batch`** (with `BATCH_WISE_PRICING=true`):
 > - **Add to cart** bills the **quantity-weighted average** of the allocated batches (`PricingService::weightedAllocationUnit()`), so the line total equals **Σ(qty_i × price_i)** exactly (T1: 3×10 + 17×12 = 234, not 20×12) while keeping ONE cart row (no duplicate display rows).
-> - **Qty change** (increment/decrement) **re-allocates & reprices** the row for the new quantity (`ShoppingController::perBatchUnitPrice()` + `isPerBatchMode()`).
+> - **Qty change** (increment/decrement) always **reprices** the row for the new quantity via `ShoppingController::repriceCartRow()` — it re-derives the base unit (active-batch price, or the qty-weighted average under `per_batch`) **and re-resolves the batch wholesale quantity-discount + warranty for the new qty**. This fixes the case where dropping below a wholesale tier (e.g. 2–5 pcs → 1 pc) kept the discounted unit price.
 > - Per-batch record is preserved at checkout by the Phase 6.1 order snapshot.
 > **Deviation note (D3):** spec's "separate internal lines per batch" is implemented as a single weighted-unit line (identical money total, simpler UI/invoice). Switching to visually separate per-batch lines can be layered on later via the same `weightedAllocationUnit`/allocation data.
 > **Scope:** `cart_update` (color/size change) and `changeProduct` keep legacy pricing (not re-priced) — documented, low usage.
@@ -153,7 +153,7 @@ Files: `FrontendController::cartStore`, `Frontend/ShoppingController` (cart_show
 
 - [x] 5.1 **Add to cart = allocate.** ✅ `cartStore` allocates via `allocate()` and prices at the weighted per-unit of the eligible batches (`weightedAllocationUnit()`).
 - [x] 5.2 **Price correctness invariant:** total = Σ per-batch `qty × unit` (e.g. `3×10 + 17×12 = 234`) ✅ — covered by `test_weighted_allocation_unit_preserves_per_batch_total`.
-- [x] 5.3 **Cart qty change re-allocates.** ✅ `cart_increment`/`cart_decrement` re-allocate & reprice (`perBatchUnitPrice()`); falls back gracefully.
+- [x] 5.3 **Cart qty change re-prices (always on).** ✅ `cart_increment`/`cart_decrement` call `repriceCartRow()` — re-derives base + wholesale tier + warranty for the new qty in every mode (not just `per_batch`); falls back gracefully when out of stock.
 - [ ] 5.4 Cart summary/sidebar show per-batch detail internally — 🟡 not rendered as separate lines (single weighted row). Optional enhancement.
 
 ---

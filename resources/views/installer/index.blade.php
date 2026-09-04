@@ -55,46 +55,72 @@
                                 <form method="POST" action="{{ route('install.store') }}">
                                     @csrf
 
+                                    @php
+                                        // Fresh arrival (auto-redirect / first visit) vs. returning with
+                                        // validation errors — demo values only pre-fill on a fresh form.
+                                        $freshForm = empty(session('_old_input', []));
+                                    @endphp
+
                                     <h6 class="text-uppercase fs-12 text-muted mb-2">Store information</h6>
                                     <div class="form-group">
                                         <label>Site name</label>
-                                        <input type="text" name="site_name" class="form-control @error('site_name') is-invalid @enderror" value="{{ old('site_name', 'My Store') }}" required>
+                                        <input type="text" name="site_name" class="form-control @error('site_name') is-invalid @enderror" value="{{ old('site_name', $demo['site_name']) }}" required>
                                         @error('site_name')<span class="invalid-feedback d-block">{{ $message }}</span>@enderror
                                     </div>
 
                                     <h6 class="text-uppercase fs-12 text-muted mb-2 mt-4">Admin account</h6>
                                     <div class="form-group">
                                         <label>Name</label>
-                                        <input type="text" name="admin_name" class="form-control @error('admin_name') is-invalid @enderror" value="{{ old('admin_name') }}" required>
+                                        <input type="text" name="admin_name" class="form-control @error('admin_name') is-invalid @enderror" value="{{ old('admin_name', $demo['admin_name']) }}" required>
                                         @error('admin_name')<span class="invalid-feedback d-block">{{ $message }}</span>@enderror
                                     </div>
                                     <div class="form-group">
                                         <label>Email</label>
-                                        <input type="email" name="admin_email" class="form-control @error('admin_email') is-invalid @enderror" value="{{ old('admin_email') }}" required>
+                                        <input type="email" name="admin_email" class="form-control @error('admin_email') is-invalid @enderror" value="{{ old('admin_email', $demo['admin_email']) }}" required>
                                         @error('admin_email')<span class="invalid-feedback d-block">{{ $message }}</span>@enderror
                                     </div>
                                     <div class="row">
                                         <div class="col-sm-6">
                                             <div class="form-group">
                                                 <label>Password</label>
-                                                <input type="password" name="admin_password" class="form-control @error('admin_password') is-invalid @enderror" required>
+                                                <input type="password" name="admin_password" class="form-control @error('admin_password') is-invalid @enderror" value="{{ $demo['admin_password'] }}" required>
                                                 @error('admin_password')<span class="invalid-feedback d-block">{{ $message }}</span>@enderror
                                             </div>
                                         </div>
                                         <div class="col-sm-6">
                                             <div class="form-group">
                                                 <label>Confirm password</label>
-                                                <input type="password" name="admin_password_confirmation" class="form-control" required>
+                                                <input type="password" name="admin_password_confirmation" class="form-control" value="{{ $demo['admin_password'] }}" required>
                                             </div>
                                         </div>
                                     </div>
 
+                                    @if(!empty($hasExistingTables))
+                                        <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                                            <strong>Heads up!</strong> Existing database tables were detected.
+                                            The installer will <u>clean the database and re-run all migrations</u>
+                                            (any current data will be removed).
+                                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                        </div>
+                                    @endif
+
                                     <div class="form-group mt-3">
                                         <label class="aiz-checkbox">
-                                            <input type="checkbox" name="seed_demo" value="1" {{ old('seed_demo') ? 'checked' : '' }}>
+                                            <input type="checkbox" name="seed_demo" value="1" {{ ($freshForm || old('seed_demo')) ? 'checked' : '' }}>
                                             <span>Also import demo data (categories, products, banners)</span>
                                             <span class="aiz-square-check"></span>
                                         </label>
+                                    </div>
+
+                                    <div class="form-group mt-2">
+                                        <label class="aiz-checkbox">
+                                            <input type="checkbox" name="clean_database" value="1" {{ (old('clean_database') || !empty($hasExistingTables)) ? 'checked' : '' }}>
+                                            <span>🗑 Clean database &amp; reinstall (drops all existing tables, runs fresh migrations)</span>
+                                            <span class="aiz-square-check"></span>
+                                        </label>
+                                        <small class="text-muted d-block">
+                                            Auto-enabled when leftover tables are found; leave unchecked for a brand-new empty database.
+                                        </small>
                                     </div>
 
                                     <button type="submit" class="btn btn-primary btn-lg btn-block mt-2">Install</button>

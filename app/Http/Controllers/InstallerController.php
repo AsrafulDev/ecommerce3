@@ -25,16 +25,19 @@ use Illuminate\Support\Facades\Schema;
 class InstallerController extends Controller
 {
     /**
-     * Installed = base setup data already exists. Treated as "not installed"
-     * if the DB isn't reachable / tables aren't migrated yet.
+     * Installed = the setup marker or any user already exists. Treated as
+     * "not installed" only when the database is unreachable or has neither
+     * marker nor user data.
      */
     public static function isInstalled(): bool
     {
         try {
-            return Schema::hasTable('general_settings')
-                && Schema::hasTable('users')
-                && DB::table('general_settings')->count() > 0
-                && DB::table('users')->count() > 0;
+            $hasSettings = Schema::hasTable('general_settings')
+                && DB::table('general_settings')->exists();
+            $hasUsers = Schema::hasTable('users')
+                && DB::table('users')->exists();
+
+            return $hasSettings || $hasUsers;
         } catch (\Throwable $e) {
             return false;
         }
@@ -42,21 +45,50 @@ class InstallerController extends Controller
 
     public function index()
     {
-        return view('installer.index');
+        return view('installer.index', [
+            // True when the DB already has leftover tables (partial/old install) —
+            // the wizard will clean & re-migrate automatically.
+            'hasExistingTables' => $this->databaseHasTables(),
+
+            // ✨ Demo pre-fill values — used to pre-populate the form on a fresh
+            // /install (auto-redirect / empty DB) so a one-click demo setup works.
+            'demo' => [
+                'site_name'      => 'My Store',
+                'admin_name'     => 'Admin',
+                'admin_email'    => 'admin@demo.com',
+                'admin_password' => '123456',
+            ],
+        ]);
     }
 
     public function store(Request $request)
     {
+        // Never allow a second install or a direct POST to bypass the route
+        // middleware once setup data/user data already exists.
+        if (self::isInstalled()) {
+            return redirect()->route('login')->with('error', 'Application is already installed.');
+        }
+
         $request->validate([
             'site_name'            => ['required', 'string', 'max:55'],
             'admin_name'           => ['required', 'string', 'max:255'],
             'admin_email'          => ['required', 'email', 'max:255'],
             'admin_password'       => ['required', 'string', 'min:6', 'confirmed'],
+            'clean_database'       => ['nullable', 'boolean'],
             'seed_demo'            => ['nullable', 'boolean'],
         ]);
 
         try {
-            Artisan::call('migrate', ['--force' => true]);
+            // 🔄 AUTO CLEAN — if the DB already has leftover tables (partial/old
+            // install) the wizard drops everything and re-runs migrations so the
+            // setup is always clean. The "clean_database" checkbox forces the same.
+            $needsClean = $request->boolean('clean_database') || $this->databaseHasTables();
+
+            if ($needsClean) {
+                Artisan::call('migrate:fresh', ['--force' => true]);
+            } else {
+                Artisan::call('migrate', ['--force' => true]);
+            }
 
             Artisan::call('db:seed', [
                 '--class' => DefaultDatabaseSeeder::class,
@@ -94,5 +126,23 @@ class InstallerController extends Controller
         }
 
         return redirect()->route('admin.dashboard')->with('success', 'Installation complete. Welcome!');
+    }
+
+    /**
+     * True when the configured database already contains any app tables
+     * (partial/old install). Used to auto-clean before re-migrating.
+     */
+    private function databaseHasTables(): bool
+    {
+        try {
+            foreach (['migrations', 'general_settings', 'users', 'products'] as $table) {
+                if (Schema::hasTable($table)) {
+                    return true;
+                }
+            }
+        } catch (\Throwable $e) {
+            // DB unreachable / not configured — nothing to clean
+        }
+        return false;
     }
 }

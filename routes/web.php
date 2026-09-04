@@ -907,11 +907,10 @@ Route::group(['middleware' => ['auth:admin','admin','lock','check_refer','demo_m
    
    
     // Inhouse Products
-    Route::get('inhouse-products/manage', [App\Http\Controllers\Admin\InhouseProductController::class,'index'])->name('inhouse.products.index');
+    Route::get('products/manage', [ProductController::class,'index'])->name('inhouse.products.index');
     Route::get('inhouse-products/{id}/show', [App\Http\Controllers\Admin\InhouseProductController::class,'show'])->name('inhouse.products.show');
     
     // product
-    Route::get('products/wholesale', [ProductController::class,'wholesale'])->name('admin.products.wholesale');
     Route::get('products/{id}/show', [ProductController::class,'show'])->name('products.show');
     Route::get('products/create', [ProductController::class,'create'])->name('products.create');
     

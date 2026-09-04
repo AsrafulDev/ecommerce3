@@ -9,7 +9,7 @@ class StockBatch extends Model
     protected $fillable = [
         'product_id', 'variant_price_id', 'purchase_id', 'supplier_id',
         'batch_no', 'quantity', 'remaining_qty', 'sn_stock', 'sn_sold',
-        'unit_cost', 'selling_price', 'custom_field',
+        'unit_cost', 'total_cost', 'selling_price', 'custom_field',
         'mfg_date', 'exp_date', 'type', 'reference_type', 'reference_id', 'reference_no',
         // batch-wise pricing engine
         'mrp', 'wholesale_price',
@@ -17,6 +17,8 @@ class StockBatch extends Model
         'is_manual_price', 'price_updated_at', 'price_updated_by',
         // storefront variant applicability (specific OR all variants)
         'is_all_variants',
+        // commerce feature flags (batch-scoped)
+        'has_purchase_warranty', 'has_sell_warranty', 'has_wholesale',
     ];
 
     protected function casts(): array
@@ -27,6 +29,7 @@ class StockBatch extends Model
             'sn_stock' => 'array',
             'sn_sold' => 'array',
             'unit_cost' => 'decimal:2',
+            'total_cost' => 'decimal:2',
             'selling_price' => 'decimal:2',
             'mrp' => 'decimal:2',
             'wholesale_price' => 'decimal:2',
@@ -35,10 +38,52 @@ class StockBatch extends Model
             'auto_advance' => 'boolean',
             'is_manual_price' => 'boolean',
             'is_all_variants' => 'boolean',
+            'has_purchase_warranty' => 'boolean',
+            'has_sell_warranty' => 'boolean',
+            'has_wholesale' => 'boolean',
             'mfg_date' => 'date',
             'exp_date' => 'date',
             'price_updated_at' => 'datetime',
         ];
+    }
+
+    protected static function booted(): void
+    {
+        // Keep batch_sn_lists in sync whenever this batch's serial lists change
+        static::saved(function (self $batch) {
+            if (!$batch->wasChanged('sn_stock') && !$batch->wasChanged('sn_sold')) {
+                return;
+            }
+            $batch->mirrorSnToList();
+        });
+    }
+
+    /**
+     * Mirror this batch's SN lists (sn_stock / sn_sold) into the dedicated
+     * `batch_sn_lists` table so SN history is queryable independently.
+     */
+    public function mirrorSnToList(): void
+    {
+        $stock = $this->sn_stock ?? [];
+        $sold  = $this->sn_sold ?? [];
+        $stock = is_array($stock) ? $stock : [];
+        $sold  = is_array($sold) ? $sold : [];
+
+        $hasList = \App\Models\BatchSnList::where('batch_id', $this->id)->exists();
+        if (!$stock && !$sold && !$hasList) {
+            return; // never had serial numbers — nothing to mirror
+        }
+
+        \App\Models\BatchSnList::updateOrCreate(
+            ['batch_id' => $this->id],
+            [
+                'product_id'  => $this->product_id,
+                'variant_id'  => $this->variant_price_id,
+                'purchase_id' => $this->purchase_id,
+                'stock_sn'    => $stock,
+                'sold_sn'     => $sold,
+            ]
+        );
     }
 
     public function product()
@@ -95,6 +140,11 @@ class StockBatch extends Model
         return $this->hasMany(BatchWarrantyTier::class, 'stock_batch_id');
     }
 
+    public function snList()
+    {
+        return $this->hasOne(BatchSnList::class, 'batch_id');
+    }
+
     // Scopes
 
     /** The single batch the website shows & prices from */
@@ -103,7 +153,12 @@ class StockBatch extends Model
         return $query->where('is_active_for_website', true);
     }
 
-    /** Batches that are sellable (not hidden) with remaining stock */
+    /**
+     * Batches that are sellable (not hidden) with remaining stock.
+     * D3: `pos_enabled = false` disables a batch for BOTH website and POS —
+     * this scope is the shared eligibility filter for web (via PricingService)
+     * and POS (`posBatches`), so a disabled batch is excluded from both.
+     */
     public function scopeSellable($query)
     {
         return $query->where('pos_enabled', true)

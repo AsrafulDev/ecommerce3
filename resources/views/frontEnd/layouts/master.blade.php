@@ -1896,7 +1896,11 @@ document.getElementById("chatToggle").addEventListener("click", function() {
                         type: "GET",
                         data: { id: id },
                         url: "{{route('cart.increment')}}",
-                        success: function (data) {
+                        success: function (data, textStatus, xhr) {
+                            var limit = xhr && xhr.getResponseHeader("X-Cart-Stock-Limit");
+                            if (limit !== null && limit !== "" && typeof toastr !== "undefined") {
+                                toastr.error("স্টকে যত আছে তার বেশি অর্ডার করা যাবে না। সর্বোচ্চ " + limit + " টি নিতে পারবেন।", "স্টক সীমা!");
+                            }
                             if (data) {
                                 $(".cartlist").html(data);
                                 cart_count();
@@ -1915,7 +1919,7 @@ document.getElementById("chatToggle").addEventListener("click", function() {
                         type: "GET",
                         data: { id: id },
                         url: "{{route('cart.decrement')}}",
-                        success: function (data) {
+                        success: function (data, textStatus, xhr) {
                             if (data) {
                                 $(".cartlist").html(data);
                                 cart_count();
