@@ -208,6 +208,10 @@
     }
     .recent-drawer-body{ overflow-y:auto; padding:0 16px; }
     .recent-drawer-body table thead{ position:sticky; top:0; background:#f1f5f9; z-index:1; }
+    .sn-select-container select option:disabled{
+        background-color:#f1f5f9;
+        cursor:not-allowed;
+    }
 </style>
 <link href="{{asset('public/backEnd')}}/assets/libs/select2/css/select2.min.css" rel="stylesheet" type="text/css" />
 <link href="{{asset('public/backEnd')}}/assets/libs/summernote/summernote-lite.min.css" rel="stylesheet" type="text/css" />

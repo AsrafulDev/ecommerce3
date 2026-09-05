@@ -18,6 +18,10 @@
         color: #333;
         margin-bottom: 15px;
     }
+    .sn-select-container select option:disabled{
+        background-color:#f1f5f9;
+        cursor:not-allowed;
+    }
 </style>
 <link href="{{asset('public/backEnd')}}/assets/libs/select2/css/select2.min.css" rel="stylesheet" type="text/css" />
 <link href="{{asset('public/backEnd')}}/assets/libs/summernote/summernote-lite.min.css" rel="stylesheet" type="text/css" />

@@ -325,7 +325,6 @@ if (typeof ttq !== 'undefined') {
                                                             <tr>
                                                                 <th style="padding: 12px; font-size: 14px; font-weight: 600;">{{ __('Quantity') }}</th>
                                                                 <th style="padding: 12px; font-size: 14px; font-weight: 600;">{{ __('Discount') }}</th>
-                                                                <th style="padding: 12px; font-size: 14px; font-weight: 600;">{{ __('Stock') }}</th>
                                                             </tr>
                                                         </thead>
                                                         <tbody id="wholesale-tbody">
@@ -341,9 +340,6 @@ if (typeof ttq !== 'undefined') {
                                                                 </td>
                                                                 <td style="padding: 12px; font-size: 14px; font-weight: 600; color: #dc3545;">
                                                                     − ৳{{ number_format($tier->wholesale_price, 2) }}
-                                                                </td>
-                                                                <td style="padding: 12px; font-size: 14px; color: {{ ($tier->stock ?? 0) > 0 ? '#28a745' : '#dc3545' }};">
-                                                                    {{ $tier->stock ?? 0 }} pcs
                                                                 </td>
                                                             </tr>
                                                             @endforeach
