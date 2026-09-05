@@ -226,7 +226,7 @@ class PurchaseController extends Controller
             'items.*.warranty_tiers.*.warranty_type'   => 'nullable|string|max:50',
             'items.*.warranty_tiers.*.tier_name'       => 'nullable|string|max:255',
             'items.*.warranty_tiers.*.warranty_days'   => 'nullable|integer|min:0',
-            'items.*.warranty_tiers.*.additional_cost' => 'nullable|numeric|min:0',
+            'items.*.warranty_tiers.*.additional_cost' => 'nullable|numeric',
             'items.*.warranty_tiers.*.is_active'       => 'nullable|boolean',
             'items.*.serial_numbers'      => 'nullable|array',
             'items.*.serial_numbers.*'    => 'nullable|string|max:255',
@@ -1379,7 +1379,7 @@ class PurchaseController extends Controller
             'tiers.*.warranty_type'   => 'nullable|string|max:50',
             'tiers.*.tier_name'       => 'nullable|string|max:255',
             'tiers.*.warranty_days'   => 'nullable|integer|min:0',
-            'tiers.*.additional_cost' => 'nullable|numeric|min:0',
+            'tiers.*.additional_cost' => 'nullable|numeric',
             'tiers.*.is_active'       => 'nullable|boolean',
             'delete_ids'              => 'nullable|array',
         ]);

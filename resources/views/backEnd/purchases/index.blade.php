@@ -1131,14 +1131,6 @@
         savePurchaseDraft(true);
     });
 
-    // Warranty additional cost is min:0 server-side — clamp negatives as they are
-    // typed so native min="0" validation never silently blocks the edit-mode submit.
-    $(document).on('input change', '[name*="[additional_cost]"]', function () {
-        if (this.value !== '' && parseFloat(this.value) < 0) {
-            this.value = '0';
-        }
-    });
-
     $('#purchase-entry-form').on('submit', function(event) {
         event.preventDefault();
         const form = this;
@@ -1192,8 +1184,7 @@
                         warranty_type: $(this).find('[name*="[warranty_type]"]').val() || null,
                         tier_name: $(this).find('[name*="[tier_name]"]').val() || null,
                         warranty_days: $(this).find('[name*="[warranty_days]"]').val() || null,
-                        // Server rule is min:0 — clamp negatives instead of failing the whole update
-                        additional_cost: Math.max(0, parseFloat($(this).find('[name*="[additional_cost]"]').val()) || 0),
+                        additional_cost: parseFloat($(this).find('[name*="[additional_cost]"]').val()) || 0,
                         is_active: $(this).find('[name*="[is_active]"]:checkbox').is(':checked') ? 1 : 0
                     });
                 });
