@@ -788,7 +788,7 @@
                         '<input type="hidden" name="items[' + rowIdx + '][warranty_tiers][' + i + '][tier_id]" value="' + t.id + '"></td>' +
                     '<td><span class="small">' + t.tier_name + '</span></td>' +
                     '<td><span class="small">' + t.warranty_days + 'd</span></td>' +
-                    '<td><input type="number" min="0" step="0.01" name="items[' + rowIdx + '][warranty_tiers][' + i + '][additional_cost]" class="form-control form-control-sm" placeholder="Override"></td>' +
+                    '<td><input type="number" step="0.01" name="items[' + rowIdx + '][warranty_tiers][' + i + '][additional_cost]" class="form-control form-control-sm" placeholder="Override"></td>' +
                     '<td class="text-center">' +
                         '<input type="hidden" name="items[' + rowIdx + '][warranty_tiers][' + i + '][is_active]" value="0">' +
                         '<input type="checkbox" name="items[' + rowIdx + '][warranty_tiers][' + i + '][is_active]" value="1" class="form-check-input" checked>' +
@@ -813,7 +813,7 @@
             '</td>' +
             '<td><input type="text" name="items[' + rowIdx + '][warranty_tiers][' + i + '][tier_name]" class="form-control form-control-sm warranty-tier-name" placeholder="Auto from type"></td>' +
             '<td><input type="number" min="0" name="items[' + rowIdx + '][warranty_tiers][' + i + '][warranty_days]" class="form-control form-control-sm warranty-days-input" value="90"></td>' +
-            '<td><input type="number" min="0" step="0.01" name="items[' + rowIdx + '][warranty_tiers][' + i + '][additional_cost]" class="form-control form-control-sm" placeholder="0.00"></td>' +
+            '<td><input type="number" step="0.01" name="items[' + rowIdx + '][warranty_tiers][' + i + '][additional_cost]" class="form-control form-control-sm" placeholder="0.00"></td>' +
             '<td class="text-center">' +
                 '<input type="hidden" name="items[' + rowIdx + '][warranty_tiers][' + i + '][is_active]" value="0">' +
                 '<input type="checkbox" name="items[' + rowIdx + '][warranty_tiers][' + i + '][is_active]" value="1" class="form-check-input" checked>' +
@@ -1392,7 +1392,7 @@
                             '<input type="hidden" name="items[' + idx + '][warranty_tiers][' + j + '][tier_id]" value="' + t.tier_id + '"></td>' +
                         '<td><span class="small">' + (t.tier_name || '') + '</span></td>' +
                         '<td><span class="small">' + (t.warranty_days || 0) + 'd</span></td>' +
-                        '<td><input type="number" min="0" step="0.01" name="items[' + idx + '][warranty_tiers][' + j + '][additional_cost]" class="form-control form-control-sm" value="' + t.additional_cost + '"></td>' +
+                        '<td><input type="number" step="0.01" name="items[' + idx + '][warranty_tiers][' + j + '][additional_cost]" class="form-control form-control-sm" value="' + t.additional_cost + '"></td>' +
                         '<td class="text-center">' +
                             '<input type="hidden" name="items[' + idx + '][warranty_tiers][' + j + '][is_active]" value="0">' +
                             '<input type="checkbox" name="items[' + idx + '][warranty_tiers][' + j + '][is_active]" value="1" class="form-check-input" ' + (t.is_active ? 'checked' : '') + '>' +
