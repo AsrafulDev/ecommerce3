@@ -1000,6 +1000,7 @@ Route::group(['middleware' => ['auth:admin','admin','lock','check_refer','demo_m
     Route::post('demo/import', [DemoController::class, 'importDemo'])->name('demo.import');
     Route::post('demo/import-preset/{slug}', [DemoController::class, 'importPreset'])->name('demo.import-preset');
     Route::post('demo/import-zip', [DemoController::class, 'importPresetZip'])->name('demo.import-zip');
+    Route::post('demo/import-json', [DemoController::class, 'importPresetJson'])->name('demo.import-json');
     Route::post('demo/reset', [DemoController::class, 'resetSite'])->name('demo.reset');
     Route::post('demo/clean', [DemoController::class, 'cleanSite'])->name('demo.clean');
     Route::get('demo/delete-preset/{name}', [DemoController::class, 'deletePreset'])->name('demo.delete-preset');

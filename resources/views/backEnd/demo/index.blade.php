@@ -140,6 +140,16 @@
                                 <a href="{{ $preset['live_url'] }}" target="_blank" class="btn btn-sm btn-outline-secondary rounded-pill">
                                     <i class="mdi mdi-open-in-new me-1"></i>{{ __('Preview') }}</a>
                             </div>
+                            <div class="d-flex gap-2 mt-2">
+                                <a href="{{ route('preset.restore-theme', $slug) }}"
+                                   class="btn btn-sm btn-outline-warning rounded-pill flex-fill"
+                                   onclick="return confirm('Sync this preset theme and logos?')">
+                                    <i class="mdi mdi-palette-swatch me-1"></i>{{ __('Sync Theme') }}</a>
+                                <a href="{{ route('preset.restore-layout', $slug) }}"
+                                   class="btn btn-sm btn-outline-info rounded-pill flex-fill"
+                                   onclick="return confirm('Sync this preset homepage layout?')">
+                                    <i class="mdi mdi-view-dashboard-edit me-1"></i>{{ __('Sync Layout') }}</a>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -188,25 +198,81 @@
         </div>
     </div>
 
-    {{-- Export / Import --}}
+    {{-- Backup & Restore --}}
     <div class="row">
-        {{-- Export Card --}}
+        {{-- Full Site Backup Card --}}
         <div class="col-md-6 mb-4">
             <div class="card shadow-none border rounded-4 h-100">
                 <div class="card-body p-4">
                     <div class="d-flex align-items-center mb-3">
                         <div class="demo-icon me-3" style="background:#e0f2fe;color:#0284c7;">
-                            <i class="mdi mdi-export"></i>
+                            <i class="mdi mdi-backup-restore"></i>
                         </div>
                         <div>
-                            <h5 class="fw-bold m-0"> {{ __('Export Current Setup') }} </h5>
-                            <small class="text-muted"> {{ __('Download your themes, layouts & settings as a zip') }} </small>
+                            <h5 class="fw-bold m-0"> {{ __('Full Site Backup') }} </h5>
+                            <small class="text-muted"> {{ __('Database, uploads, themes, layouts & settings') }} </small>
                         </div>
                     </div>
-                    <p class="small text-muted">This will export all {{ $themes->count() }} themes, {{ $layouts->count() }} layouts, and section configurations.</p>
-                    <a href="{{ route('demo.export') }}" class="btn btn-primary rounded-pill px-4">
-                        <i class="mdi mdi-download me-1"></i> Export Demo
-                    </a>
+                    <p class="small text-muted">Create a complete site backup ZIP. It includes the database and all uploaded media files.</p>
+                    <form action="{{ route('backup.create') }}" method="POST">
+                        @csrf
+                        <button type="submit" class="btn btn-primary rounded-pill px-4">
+                            <i class="mdi mdi-content-save me-1"></i> Create Full Backup
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        {{-- Restore Backup Card --}}
+        <div class="col-md-6 mb-4">
+            <div class="card shadow-none border rounded-4 h-100">
+                <div class="card-body p-4">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="demo-icon me-3" style="background:#fee2e2;color:#dc2626;">
+                            <i class="mdi mdi-restore"></i>
+                        </div>
+                        <div>
+                            <h5 class="fw-bold m-0"> {{ __('Restore Site Backup') }} </h5>
+                            <small class="text-muted"> {{ __('Restore database, uploads & settings from a backup ZIP') }} </small>
+                        </div>
+                    </div>
+                    <form action="{{ route('backup.restore') }}" method="POST" enctype="multipart/form-data">
+                        @csrf
+                        <div class="mb-3">
+                            <input type="file" name="backup_file" class="form-control" accept=".zip" required>
+                        </div>
+                        <button type="submit" class="btn btn-danger rounded-pill px-4"
+                                onclick="return confirm('This will replace the current database and uploaded files. Continue?')">
+                            <i class="mdi mdi-restore me-1"></i> Restore Backup
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        {{-- Import Preset JSON Card --}}
+        <div class="col-md-6 mb-4">
+            <div class="card shadow-none border rounded-4 h-100">
+                <div class="card-body p-4">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="demo-icon me-3" style="background:#fef3c7;color:#d97706;">
+                            <i class="mdi mdi-code-json"></i>
+                        </div>
+                        <div>
+                            <h5 class="fw-bold m-0">{{ __('Import data.json') }}</h5>
+                            <small class="text-muted">JSON image URLs are downloaded into local media folders</small>
+                        </div>
+                    </div>
+                    <form action="{{ route('demo.import-json') }}" method="POST" enctype="multipart/form-data">
+                        @csrf
+                        <div class="mb-3">
+                            <input type="file" name="preset_json" class="form-control" accept=".json,application/json" required>
+                        </div>
+                        <button type="submit" class="btn btn-warning rounded-pill px-4">
+                            <i class="mdi mdi-database-import me-1"></i> Import JSON
+                        </button>
+                    </form>
                 </div>
             </div>
         </div>
@@ -220,8 +286,8 @@
                             <i class="mdi mdi-package-variant-closed"></i>
                         </div>
                         <div>
-                            <h5 class="fw-bold m-0"> {{ __('Upload Preset Zip') }} </h5>
-                            <small class="text-muted">Upload a preset zip (data.json + images/)</small>
+                            <h5 class="fw-bold m-0">{{ __('Import Preset ZIP') }}</h5>
+                            <small class="text-muted">Preset data.json with optional images folder</small>
                         </div>
                     </div>
                     <form action="{{ route('demo.import-zip') }}" method="POST" enctype="multipart/form-data">
@@ -230,7 +296,7 @@
                             <input type="file" name="preset_zip" class="form-control" accept=".zip" required>
                         </div>
                         <button type="submit" class="btn btn-success rounded-pill px-4">
-                            <i class="mdi mdi-upload me-1"></i> Import Preset Zip
+                            <i class="mdi mdi-upload me-1"></i> Import Preset ZIP
                         </button>
                     </form>
                 </div>

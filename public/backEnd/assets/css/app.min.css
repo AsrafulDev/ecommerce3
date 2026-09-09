@@ -8225,7 +8225,7 @@ span.flatpickr-weekday {
 }
 .logo-box img {
     max-width: 100%;
-    height: auto !important;
+    height: 50px !important;
 }
 
 @media (max-width: 767px) {

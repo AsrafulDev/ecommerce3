@@ -24,6 +24,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;
 use ZipArchive;
 use Toastr;
@@ -332,6 +333,12 @@ class DemoController extends Controller
         $slug = preg_replace('/[^a-z0-9-]/', '', strtolower(str_replace(' ', '-', $slug)));
 
         try {
+            // Make the uploaded preset independent of the live image host.
+            $zipImageDir = $tempDir . '/images';
+            if (!is_dir($zipImageDir)) mkdir($zipImageDir, 0755, true);
+            self::downloadPresetImages($data, $zipImageDir);
+            file_put_contents($jsonPath, json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
+
             // ── Copy all images flat → public/uploads/images/ ──
             $publicImagesDir = public_path('uploads/images');
             if (!is_dir($publicImagesDir)) mkdir($publicImagesDir, 0755, true);
@@ -340,7 +347,6 @@ class DemoController extends Controller
             copy($jsonPath, $publicImagesDir . '/data.json');
 
             $copyCount = 0;
-            $zipImageDir = $tempDir . '/images';
             if (is_dir($zipImageDir)) {
                 $iterator = new \RecursiveIteratorIterator(
                     new \RecursiveDirectoryIterator($zipImageDir, \RecursiveDirectoryIterator::SKIP_DOTS),
@@ -368,6 +374,36 @@ class DemoController extends Controller
         }
 
         self::cleanTempDir($tempDir);
+        return redirect()->route('demo.index');
+    }
+
+    /**
+     * Upload and import a standalone data.json preset.
+     */
+    public function importPresetJson(Request $request)
+    {
+        $request->validate([
+            'preset_json' => 'required|file|mimes:json,txt|max:51200',
+        ]);
+
+        $file = $request->file('preset_json');
+        $data = json_decode(file_get_contents($file->getRealPath()), true);
+        if (!is_array($data) || !isset($data['meta'])) {
+            Toastr::error('Invalid data.json format!', 'Error');
+            return redirect()->back();
+        }
+
+        try {
+            $downloadCount = self::downloadPresetImagesToMedia($data);
+            self::seedPresetData($data, $data['meta']['slug'] ?? 'json-import');
+            Cache::flush();
+
+            $name = $data['meta']['name'] ?? 'JSON preset';
+            Toastr::success("「{$name}」 imported successfully! {$downloadCount} images downloaded.", 'Success');
+        } catch (\Throwable $e) {
+            Toastr::error('Import failed: ' . $e->getMessage(), 'Error');
+        }
+
         return redirect()->route('demo.index');
     }
 
@@ -542,6 +578,175 @@ class DemoController extends Controller
         @rmdir($dir);
     }
 
+    /**
+     * Download remote image fields from a preset and replace them with local paths.
+     */
+    private static function downloadPresetImages(array &$data, string $imageDir): void
+    {
+        $imageKeys = [
+            'image', 'gallery_images', 'white_logo', 'dark_logo', 'favicon',
+        ];
+        $downloaded = [];
+
+        $walk = function (&$value, ?string $key = null) use (&$walk, $imageKeys, &$downloaded, $imageDir): void {
+            if (is_array($value)) {
+                foreach ($value as $childKey => &$childValue) {
+                    $childField = $key === 'gallery_images' ? 'image' : (string) $childKey;
+                    $walk($childValue, $childField);
+                }
+                unset($childValue);
+                return;
+            }
+
+            if (!is_string($value) || !in_array($key, $imageKeys, true)) return;
+            if (!filter_var($value, FILTER_VALIDATE_URL) || !preg_match('/^https?:\/\//i', $value)) return;
+            if (isset($downloaded[$value])) {
+                $value = $downloaded[$value];
+                return;
+            }
+
+            $response = Http::timeout(30)->retry(2, 200)->get($value);
+            if (!$response->successful() || $response->body() === '') {
+                throw new \RuntimeException("Unable to download preset image: {$value}");
+            }
+
+            $urlPath = parse_url($value, PHP_URL_PATH) ?: '';
+            $filename = basename($urlPath) ?: 'preset-image';
+            $filename = preg_replace('/[^a-zA-Z0-9._-]/', '-', $filename);
+            if (!pathinfo($filename, PATHINFO_EXTENSION)) {
+                $extension = match (strtolower((string) $response->header('Content-Type'))) {
+                    'image/png' => 'png',
+                    'image/webp' => 'webp',
+                    'image/gif' => 'gif',
+                    default => 'jpg',
+                };
+                $filename .= '.' . $extension;
+            }
+
+            $target = $imageDir . '/' . $filename;
+            $suffix = 1;
+            while (file_exists($target)) {
+                $target = $imageDir . '/' . pathinfo($filename, PATHINFO_FILENAME)
+                    . '-' . $suffix++ . '.' . pathinfo($filename, PATHINFO_EXTENSION);
+            }
+            file_put_contents($target, $response->body());
+
+            $localPath = 'public/uploads/images/' . basename($target);
+            $downloaded[$value] = $localPath;
+            $value = $localPath;
+        };
+
+        $walk($data);
+    }
+
+    /**
+     * Download JSON image URLs directly into the public media structure.
+     */
+    private static function downloadPresetImagesToMedia(array &$data): int
+    {
+        $mediaBase = public_path('uploads/media');
+        $downloaded = [];
+        $count = 0;
+
+        $download = static function (string $url, string $folder) use (&$downloaded, &$count, $mediaBase): string {
+            // Accept JSON URLs containing unencoded spaces in the filename.
+            $url = preg_replace('/\s+/', '%20', trim($url));
+            if (!filter_var($url, FILTER_VALIDATE_URL) || !preg_match('/^https?:\/\//i', $url)) return $url;
+            $cacheKey = $folder . '|' . $url;
+            if (isset($downloaded[$cacheKey])) return $downloaded[$cacheKey];
+
+            $response = Http::timeout(30)->retry(2, 200)->get($url);
+            if (!$response->successful() || $response->body() === '') {
+                throw new \RuntimeException("Unable to download image: {$url}");
+            }
+
+            $directory = $mediaBase . '/' . $folder;
+            if (!is_dir($directory)) mkdir($directory, 0755, true);
+            $urlPath = parse_url($url, PHP_URL_PATH) ?: '';
+            $filename = preg_replace('/[^a-zA-Z0-9._-]/', '-', basename($urlPath) ?: 'image');
+            if (!pathinfo($filename, PATHINFO_EXTENSION)) {
+                $extension = match (strtolower((string) $response->header('Content-Type'))) {
+                    'image/png' => 'png', 'image/webp' => 'webp', 'image/gif' => 'gif', default => 'jpg',
+                };
+                $filename .= '.' . $extension;
+            }
+
+            $target = $directory . '/' . $filename;
+            $suffix = 1;
+            while (file_exists($target)) {
+                $target = $directory . '/' . pathinfo($filename, PATHINFO_FILENAME)
+                    . '-' . $suffix++ . '.' . pathinfo($filename, PATHINFO_EXTENSION);
+            }
+            file_put_contents($target, $response->body());
+            $localPath = 'public/uploads/media/' . $folder . '/' . basename($target);
+            $downloaded[$cacheKey] = $localPath;
+            $count++;
+            return $localPath;
+        };
+
+        // Import image-like fields that are not part of the standard preset schema.
+        // Keep live_url, links, and other navigation URLs untouched.
+        $imageKeys = [
+            'image', 'image_url', 'image_one', 'image_two', 'image_three',
+            'thumbnail', 'thumbnail_url', 'meta_image', 'logo', 'white_logo',
+            'dark_logo', 'favicon', 'banner_image', 'cover_image', 'icon',
+        ];
+        $folderForKey = static function (?string $parentKey, string $key): string {
+            $context = strtolower(($parentKey ?? '') . ' ' . $key);
+            if (str_contains($context, 'categor')) return 'category';
+            if (str_contains($context, 'brand')) return 'brand';
+            if (str_contains($context, 'product')) return 'product';
+            if (str_contains($context, 'banner') || str_contains($context, 'slider')) return 'banner';
+            return 'adds';
+        };
+        $walk = function (&$value, ?string $parentKey = null, ?string $folder = null) use (&$walk, $imageKeys, $folderForKey, $download): void {
+            if (!is_array($value)) return;
+            foreach ($value as $key => &$child) {
+                $key = (string) $key;
+                $childFolder = $folder ?: $folderForKey($parentKey, $key);
+                if (is_string($child)
+                    && in_array(strtolower($key), $imageKeys, true)
+                    && filter_var($child, FILTER_VALIDATE_URL)
+                    && preg_match('/^https?:\/\//i', $child)) {
+                    $child = $download($child, $childFolder);
+                } elseif (is_array($child)) {
+                    $walk($child, $key, $childFolder);
+                }
+            }
+            unset($child);
+        };
+
+        $walk($data);
+
+        foreach ($data['categories'] ?? [] as &$item) {
+            if (!empty($item['image']) && filter_var($item['image'], FILTER_VALIDATE_URL)) $item['image'] = $download($item['image'], 'category');
+        }
+        foreach ($data['brands'] ?? [] as &$item) {
+            if (is_array($item) && !empty($item['image']) && filter_var($item['image'], FILTER_VALIDATE_URL)) $item['image'] = $download($item['image'], 'brand');
+        }
+        foreach ($data['products'] ?? [] as &$item) {
+            if (!empty($item['image']) && filter_var($item['image'], FILTER_VALIDATE_URL)) $item['image'] = $download($item['image'], 'product');
+            foreach ($item['gallery_images'] ?? [] as &$galleryImage) {
+                if (filter_var($galleryImage, FILTER_VALIDATE_URL)) $galleryImage = $download($galleryImage, 'product');
+            }
+            unset($galleryImage);
+        }
+        foreach ($data['banners'] ?? [] as &$item) {
+            if (!empty($item['image']) && filter_var($item['image'], FILTER_VALIDATE_URL)) $item['image'] = $download($item['image'], 'banner');
+        }
+        foreach ($data['blogs'] ?? [] as &$item) {
+            if (!empty($item['image']) && filter_var($item['image'], FILTER_VALIDATE_URL)) $item['image'] = $download($item['image'], 'adds');
+        }
+        foreach (['white_logo', 'dark_logo', 'favicon'] as $key) {
+            if (!empty($data['general_settings'][$key]) && filter_var($data['general_settings'][$key], FILTER_VALIDATE_URL)) {
+                $data['general_settings'][$key] = $download($data['general_settings'][$key], 'adds');
+            }
+        }
+        unset($item);
+
+        return $count;
+    }
+
     private static function deleteUploadedFiles(): void
     {
         $uploadDir = public_path('uploads');
@@ -697,7 +902,7 @@ class DemoController extends Controller
 
     /**
      * Seed preset data into the database.
-     * All image paths are normalised to public/uploads/images/{basename} here.
+     * Local media paths are preserved; older image paths remain supported.
      */
     private static function seedPresetData(array $data, string $slug = 'default'): void
     {
@@ -718,14 +923,11 @@ class DemoController extends Controller
         }
 
         // ── Image path normaliser ──────────────────────────────────
-        // Every image path is stored as: public/uploads/images/{basename}
-        // No matter what format the JSON uses — we just pull the filename.
+        // Preserve local media paths and normalize external/legacy paths.
         $imgBase = 'public/uploads/images/';
         $normalizePath = static function (?string &$path) use ($imgBase): void {
             if (empty($path)) return;
-            // Already in our flat format — skip
-            if (str_starts_with($path, $imgBase)) return;
-            // Just use the basename
+            if (str_starts_with($path, 'public/uploads/media/') || str_starts_with($path, $imgBase)) return;
             $path = $imgBase . basename($path);
         };
 
@@ -844,9 +1046,16 @@ class DemoController extends Controller
             ]);
 
             // Product gallery images (stored in productimages table)
-            $galleryImages = $p['gallery_images'] ?? [];
-            if (empty($galleryImages)) {
-                $galleryImages = [$productImage];
+            // The storefront reads the first productimages row as the primary image.
+            // Always seed the downloaded primary image first, then append the gallery.
+            $galleryImages = [$productImage];
+            foreach ($p['gallery_images'] ?? [] as $galleryImage) {
+                if (is_array($galleryImage)) {
+                    $galleryImage = $galleryImage['image'] ?? $galleryImage['url'] ?? null;
+                }
+                if (is_string($galleryImage) && $galleryImage !== '') {
+                    $galleryImages[] = $galleryImage;
+                }
             }
             foreach ($galleryImages as $gi) {
                 $img = $gi;
