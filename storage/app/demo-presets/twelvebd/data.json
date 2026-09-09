@@ -1,0 +1,715 @@
+{
+    "meta": {
+        "name": "Twelve Fashion Shop",
+        "slug": "twelve-fashion",
+        "description": "Bangladeshi fashion store demo inspired by the public structure of TwelveBD, featuring men's, women's and kids' fashion.",
+        "live_url": "https://twelvebd.com/",
+        "color": "#111111",
+        "icon": "mdi-hanger"
+    },
+    "general_settings": {
+        "name": "Twelve Fashion BD",
+        "white_logo": "public/assets/images/demo-fashion-logo-white.png",
+        "dark_logo": "public/assets/images/demo-fashion-logo-dark.png",
+        "favicon": "public/favicon.ico",
+        "copyright": "© 2026 Twelve Fashion BD. Demo importer.",
+        "show_all_products": 1,
+        "show_category_wise_products": 1,
+        "vendor_enabled": 0,
+        "reseller_enabled": 0
+    },
+    "theme": {
+        "name": "Twelve Fashion",
+        "slug": "twelve-fashion",
+        "primary_color": "#111111",
+        "secondary_color": "#333333",
+        "accent_color": "#b91c1c",
+        "text_color": "#222222",
+        "heading_color": "#111111",
+        "body_bg_color": "#ffffff",
+        "header_bg_color": "#ffffff",
+        "header_text_color": "#111111",
+        "footer_bg_color": "#111111",
+        "footer_text_color": "#dddddd",
+        "is_default": true,
+        "is_active": true
+    },
+    "categories": [
+        {
+            "id": 1,
+            "parent_id": 0,
+            "name": "Mens",
+            "slug": "mens",
+            "image": "https://twelvebd.com/cdn/shop/files/113540_14.jpg?v=1778579183&width=533",
+            "status": 1
+        },
+        {
+            "id": 2,
+            "parent_id": 0,
+            "name": "Womens",
+            "slug": "womens",
+            "image": "https://twelvebd.com/cdn/shop/files/RA-3PCS-TW26-03EF-109464_3.jpg?v=1772469487&width=533",
+            "status": 1
+        },
+        {
+            "id": 3,
+            "parent_id": 0,
+            "name": "Kids",
+            "slug": "kids",
+            "image": "https://twelvebd.com/cdn/shop/files/ZA-2PCS-TG26-03EF-109138_3.jpg?v=1771822183&width=533",
+            "status": 1
+        },
+        {
+            "id": 4,
+            "parent_id": 0,
+            "name": "Accessories",
+            "slug": "accessories",
+            "image": "https://twelvebd.com/cdn/shop/files/AJ-POLA-TM26-03EF-91306_16.jpg?v=1771737429&width=533",
+            "status": 1
+        }
+    ],
+    "subcategories": [
+        {
+            "name": "Polo",
+            "slug": "mens-polo",
+            "category_id": 1,
+            "image": null,
+            "status": 1,
+            "cat": "mens"
+        },
+        {
+            "name": "Casual Shirt",
+            "slug": "mens-casual-shirt",
+            "category_id": 1,
+            "image": null,
+            "status": 1,
+            "cat": "mens"
+        },
+        {
+            "name": "Formal Shirt",
+            "slug": "mens-formal-shirt",
+            "category_id": 1,
+            "image": null,
+            "status": 1,
+            "cat": "mens"
+        },
+        {
+            "name": "Panjabi",
+            "slug": "mens-panjabi",
+            "category_id": 1,
+            "image": null,
+            "status": 1,
+            "cat": "mens"
+        },
+        {
+            "name": "Denim Pant",
+            "slug": "mens-denim-pant",
+            "category_id": 1,
+            "image": null,
+            "status": 1,
+            "cat": "mens"
+        },
+        {
+            "name": "T-Shirt",
+            "slug": "mens-t-shirt",
+            "category_id": 1,
+            "image": null,
+            "status": 1,
+            "cat": "mens"
+        },
+        {
+            "name": "Three Piece",
+            "slug": "womens-three-piece",
+            "category_id": 2,
+            "image": null,
+            "status": 1,
+            "cat": "womens"
+        },
+        {
+            "name": "Two Piece",
+            "slug": "womens-two-piece",
+            "category_id": 2,
+            "image": null,
+            "status": 1,
+            "cat": "womens"
+        },
+        {
+            "name": "Kurti",
+            "slug": "womens-kurti",
+            "category_id": 2,
+            "image": null,
+            "status": 1,
+            "cat": "womens"
+        },
+        {
+            "name": "Tops",
+            "slug": "womens-tops",
+            "category_id": 2,
+            "image": null,
+            "status": 1,
+            "cat": "womens"
+        },
+        {
+            "name": "Gown",
+            "slug": "womens-gown",
+            "category_id": 2,
+            "image": null,
+            "status": 1,
+            "cat": "womens"
+        },
+        {
+            "name": "Boys Collection",
+            "slug": "boys-collection",
+            "category_id": 3,
+            "image": null,
+            "status": 1,
+            "cat": "kids"
+        },
+        {
+            "name": "Girls Collection",
+            "slug": "girls-collection",
+            "category_id": 3,
+            "image": null,
+            "status": 1,
+            "cat": "kids"
+        }
+    ],
+    "brands": [
+        {
+            "name": "Twelve",
+            "image": "https://twelvebd.com/cdn/shop/files/113540_14.jpg?v=1778579183&width=533"
+        }
+    ],
+    "products": [
+        {
+            "name": "Mens Maroon Casual Shirt",
+            "slug": "mens-maroon-casual-shirt-twelve-demo-1",
+            "category_id": 1,
+            "brand_id": 1,
+            "new_price": 1841.4,
+            "old_price": 3069.0,
+            "stock": 53,
+            "image": "https://twelvebd.com/cdn/shop/files/113540_14.jpg?v=1778579183&width=533",
+            "gallery_images": [
+                "https://twelvebd.com/cdn/shop/files/113540_14.jpg?v=1778579183&width=533"
+            ],
+            "description": "<p>Premium bamboo blend casual shirt; slim fit. Public TwelveBD product shows sizes S, M, L, XL, 2XL and MAROON color.</p><p><strong>Demo source:</strong> public TwelveBD storefront structure. Replace local demo image with licensed/original media before production use.</p>",
+            "meta_title": "Mens Maroon Casual Shirt",
+            "meta_description": "Premium bamboo blend casual shirt; slim fit. Public TwelveBD product shows sizes S, M, L, XL, 2XL and MAROON color.",
+            "status": 1,
+            "topsale": 1,
+            "flashsale": 1,
+            "feature_product": 1,
+            "cat": "mens",
+            "brand": "Twelve",
+            "price": 1841.4,
+            "old": 3069.0,
+            "stock_batches": [
+                {
+                    "supplier": "Twelve Fashion Supplier",
+                    "batch_no": "TW-DEMO-01-A",
+                    "quantity": 53,
+                    "unit_cost": 1141.67
+                }
+            ]
+        },
+        {
+            "name": "Mens Gray Cotton T-Shirt",
+            "slug": "mens-gray-cotton-t-shirt-twelve-demo-2",
+            "category_id": 1,
+            "brand_id": 1,
+            "new_price": 719.4,
+            "old_price": 1199.0,
+            "stock": 56,
+            "image": "https://twelvebd.com/cdn/shop/files/AJ-TSHA-TM26-03EF-91206_6.jpg?v=1777892606&width=533",
+            "gallery_images": [
+                "https://twelvebd.com/cdn/shop/files/AJ-TSHA-TM26-03EF-91206_6.jpg?v=1777892606&width=533"
+            ],
+            "description": "<p>Men's cotton T-shirt demo item.</p><p><strong>Demo source:</strong> public TwelveBD storefront structure. Replace local demo image with licensed/original media before production use.</p>",
+            "meta_title": "Mens Gray Cotton T-Shirt",
+            "meta_description": "Men's cotton T-shirt demo item.",
+            "status": 1,
+            "topsale": 1,
+            "flashsale": 1,
+            "feature_product": 0,
+            "cat": "mens",
+            "brand": "Twelve",
+            "price": 719.4,
+            "old": 1199.0,
+            "stock_batches": [
+                {
+                    "supplier": "Twelve Fashion Supplier",
+                    "batch_no": "TW-DEMO-02-A",
+                    "quantity": 56,
+                    "unit_cost": 446.03
+                }
+            ]
+        },
+        {
+            "name": "Mens Navy & Peach Cotton Polo",
+            "slug": "mens-navy-and-peach-cotton-polo-twelve-demo-3",
+            "category_id": 1,
+            "brand_id": 1,
+            "new_price": 1115.4,
+            "old_price": 1859.0,
+            "stock": 59,
+            "image": "https://twelvebd.com/cdn/shop/files/AJ-POLA-TM26-03EF-91306_16.jpg?v=1771737429&width=533",
+            "gallery_images": [
+                "https://twelvebd.com/cdn/shop/files/AJ-POLA-TM26-03EF-91306_16.jpg?v=1771737429&width=533"
+            ],
+            "description": "<p>Men's cotton polo demo item.</p><p><strong>Demo source:</strong> public TwelveBD storefront structure. Replace local demo image with licensed/original media before production use.</p>",
+            "meta_title": "Mens Navy & Peach Cotton Polo",
+            "meta_description": "Men's cotton polo demo item.",
+            "status": 1,
+            "topsale": 1,
+            "flashsale": 1,
+            "feature_product": 1,
+            "cat": "mens",
+            "brand": "Twelve",
+            "price": 1115.4,
+            "old": 1859.0,
+            "stock_batches": [
+                {
+                    "supplier": "Twelve Fashion Supplier",
+                    "batch_no": "TW-DEMO-03-A",
+                    "quantity": 59,
+                    "unit_cost": 691.55
+                }
+            ]
+        },
+        {
+            "name": "Mens Linen Blended Band Collar Shirt",
+            "slug": "mens-linen-blended-band-collar-shirt-twelve-demo-4",
+            "category_id": 1,
+            "brand_id": 1,
+            "new_price": 1445.4,
+            "old_price": 2409.0,
+            "stock": 62,
+            "image": "https://twelvebd.com/cdn/shop/files/HI-CSHTLS-TM26-03EF-96382_18.jpg?v=1767264005&width=533",
+            "gallery_images": [
+                "https://twelvebd.com/cdn/shop/files/HI-CSHTLS-TM26-03EF-96382_18.jpg?v=1767264005&width=533"
+            ],
+            "description": "<p>Men's linen blended band collar shirt.</p><p><strong>Demo source:</strong> public TwelveBD storefront structure. Replace local demo image with licensed/original media before production use.</p>",
+            "meta_title": "Mens Linen Blended Band Collar Shirt",
+            "meta_description": "Men's linen blended band collar shirt.",
+            "status": 1,
+            "topsale": 1,
+            "flashsale": 1,
+            "feature_product": 0,
+            "cat": "mens",
+            "brand": "Twelve",
+            "price": 1445.4,
+            "old": 2409.0,
+            "stock_batches": [
+                {
+                    "supplier": "Twelve Fashion Supplier",
+                    "batch_no": "TW-DEMO-04-A",
+                    "quantity": 62,
+                    "unit_cost": 896.15
+                }
+            ]
+        },
+        {
+            "name": "Mens Black Blended Silk Panjabi",
+            "slug": "mens-black-blended-silk-panjabi-twelve-demo-5",
+            "category_id": 1,
+            "brand_id": 1,
+            "new_price": 2303.4,
+            "old_price": 3839.0,
+            "stock": 65,
+            "image": "https://twelvebd.com/cdn/shop/files/SB-PANE-TM26-03EF-104187_4.jpg?v=1771133102&width=533",
+            "gallery_images": [
+                "https://twelvebd.com/cdn/shop/files/SB-PANE-TM26-03EF-104187_4.jpg?v=1771133102&width=533"
+            ],
+            "description": "<p>Men's blended silk Panjabi.</p><p><strong>Demo source:</strong> public TwelveBD storefront structure. Replace local demo image with licensed/original media before production use.</p>",
+            "meta_title": "Mens Black Blended Silk Panjabi",
+            "meta_description": "Men's blended silk Panjabi.",
+            "status": 1,
+            "topsale": 1,
+            "flashsale": 1,
+            "feature_product": 0,
+            "cat": "mens",
+            "brand": "Twelve",
+            "price": 2303.4,
+            "old": 3839.0,
+            "stock_batches": [
+                {
+                    "supplier": "Twelve Fashion Supplier",
+                    "batch_no": "TW-DEMO-05-A",
+                    "quantity": 65,
+                    "unit_cost": 1428.11
+                }
+            ]
+        },
+        {
+            "name": "Mens Navy Embroidered Panjabi",
+            "slug": "mens-navy-embroidered-panjabi-twelve-demo-6",
+            "category_id": 1,
+            "brand_id": 1,
+            "new_price": 4151.4,
+            "old_price": 6919.0,
+            "stock": 68,
+            "image": "https://twelvebd.com/cdn/shop/files/PH-PANP-TM26-03EF-110395_2.jpg?v=1772515671&width=533",
+            "gallery_images": [
+                "https://twelvebd.com/cdn/shop/files/PH-PANP-TM26-03EF-110395_2.jpg?v=1772515671&width=533"
+            ],
+            "description": "<p>Men's embroidered Panjabi.</p><p><strong>Demo source:</strong> public TwelveBD storefront structure. Replace local demo image with licensed/original media before production use.</p>",
+            "meta_title": "Mens Navy Embroidered Panjabi",
+            "meta_description": "Men's embroidered Panjabi.",
+            "status": 1,
+            "topsale": 1,
+            "flashsale": 1,
+            "feature_product": 0,
+            "cat": "mens",
+            "brand": "Twelve",
+            "price": 4151.4,
+            "old": 6919.0,
+            "stock_batches": [
+                {
+                    "supplier": "Twelve Fashion Supplier",
+                    "batch_no": "TW-DEMO-06-A",
+                    "quantity": 68,
+                    "unit_cost": 2573.87
+                }
+            ]
+        },
+        {
+            "name": "Mens Dark Blue Cotton Stretch Denim Pant",
+            "slug": "mens-dark-blue-cotton-stretch-denim-pant-twelve-demo-7",
+            "category_id": 1,
+            "brand_id": 1,
+            "new_price": 1643.4,
+            "old_price": 2739.0,
+            "stock": 71,
+            "image": "https://twelvebd.com/cdn/shop/files/IA-DEN-TM26-05EA-111266_8.jpg?v=1777801490&width=533",
+            "gallery_images": [
+                "https://twelvebd.com/cdn/shop/files/IA-DEN-TM26-05EA-111266_8.jpg?v=1777801490&width=533"
+            ],
+            "description": "<p>Men's cotton stretch denim pant.</p><p><strong>Demo source:</strong> public TwelveBD storefront structure. Replace local demo image with licensed/original media before production use.</p>",
+            "meta_title": "Mens Dark Blue Cotton Stretch Denim Pant",
+            "meta_description": "Men's cotton stretch denim pant.",
+            "status": 1,
+            "topsale": 1,
+            "flashsale": 1,
+            "feature_product": 0,
+            "cat": "mens",
+            "brand": "Twelve",
+            "price": 1643.4,
+            "old": 2739.0,
+            "stock_batches": [
+                {
+                    "supplier": "Twelve Fashion Supplier",
+                    "batch_no": "TW-DEMO-07-A",
+                    "quantity": 71,
+                    "unit_cost": 1018.91
+                }
+            ]
+        },
+        {
+            "name": "Womens Purple Three Piece Set",
+            "slug": "womens-purple-three-piece-set-twelve-demo-8",
+            "category_id": 2,
+            "brand_id": 1,
+            "new_price": 2831.4,
+            "old_price": 4719.0,
+            "stock": 74,
+            "image": "https://twelvebd.com/cdn/shop/files/RA-3PCS-TW26-03EF-109464_3.jpg?v=1772469487&width=533",
+            "gallery_images": [
+                "https://twelvebd.com/cdn/shop/files/RA-3PCS-TW26-03EF-109464_3.jpg?v=1772469487&width=533"
+            ],
+            "description": "<p>Women's purple three-piece set.</p><p><strong>Demo source:</strong> public TwelveBD storefront structure. Replace local demo image with licensed/original media before production use.</p>",
+            "meta_title": "Womens Purple Three Piece Set",
+            "meta_description": "Women's purple three-piece set.",
+            "status": 1,
+            "topsale": 1,
+            "flashsale": 1,
+            "feature_product": 1,
+            "cat": "womens",
+            "brand": "Twelve",
+            "price": 2831.4,
+            "old": 4719.0,
+            "stock_batches": [
+                {
+                    "supplier": "Twelve Fashion Supplier",
+                    "batch_no": "TW-DEMO-08-A",
+                    "quantity": 74,
+                    "unit_cost": 1755.47
+                }
+            ]
+        },
+        {
+            "name": "Womens Blended Silk Three Piece Set",
+            "slug": "womens-blended-silk-three-piece-set-twelve-demo-9",
+            "category_id": 2,
+            "brand_id": 1,
+            "new_price": 2831.4,
+            "old_price": 4719.0,
+            "stock": 77,
+            "image": "https://twelvebd.com/cdn/shop/files/JA-3PCS-TW26-03EF-103568_7.jpg?v=1767260184&width=533",
+            "gallery_images": [
+                "https://twelvebd.com/cdn/shop/files/JA-3PCS-TW26-03EF-103568_7.jpg?v=1767260184&width=533"
+            ],
+            "description": "<p>Women's blended silk three-piece set.</p><p><strong>Demo source:</strong> public TwelveBD storefront structure. Replace local demo image with licensed/original media before production use.</p>",
+            "meta_title": "Womens Blended Silk Three Piece Set",
+            "meta_description": "Women's blended silk three-piece set.",
+            "status": 1,
+            "topsale": 0,
+            "flashsale": 1,
+            "feature_product": 0,
+            "cat": "womens",
+            "brand": "Twelve",
+            "price": 2831.4,
+            "old": 4719.0,
+            "stock_batches": [
+                {
+                    "supplier": "Twelve Fashion Supplier",
+                    "batch_no": "TW-DEMO-09-A",
+                    "quantity": 77,
+                    "unit_cost": 1755.47
+                }
+            ]
+        },
+        {
+            "name": "Womens Pink Blended Fabric Two Piece",
+            "slug": "womens-pink-blended-fabric-two-piece-twelve-demo-10",
+            "category_id": 2,
+            "brand_id": 1,
+            "new_price": 2105.4,
+            "old_price": 3509.0,
+            "stock": 80,
+            "image": "https://twelvebd.com/cdn/shop/files/KF-2PCS-TW26-07EA-110204_2.jpg?v=1779362873&width=533",
+            "gallery_images": [
+                "https://twelvebd.com/cdn/shop/files/KF-2PCS-TW26-07EA-110204_2.jpg?v=1779362873&width=533"
+            ],
+            "description": "<p>Women's pink blended fabric two-piece.</p><p><strong>Demo source:</strong> public TwelveBD storefront structure. Replace local demo image with licensed/original media before production use.</p>",
+            "meta_title": "Womens Pink Blended Fabric Two Piece",
+            "meta_description": "Women's pink blended fabric two-piece.",
+            "status": 1,
+            "topsale": 0,
+            "flashsale": 1,
+            "feature_product": 0,
+            "cat": "womens",
+            "brand": "Twelve",
+            "price": 2105.4,
+            "old": 3509.0,
+            "stock_batches": [
+                {
+                    "supplier": "Twelve Fashion Supplier",
+                    "batch_no": "TW-DEMO-10-A",
+                    "quantity": 80,
+                    "unit_cost": 1305.35
+                }
+            ]
+        },
+        {
+            "name": "Womens Layered Kurti",
+            "slug": "womens-layered-kurti-twelve-demo-11",
+            "category_id": 2,
+            "brand_id": 1,
+            "new_price": 1973.4,
+            "old_price": 3289.0,
+            "stock": 83,
+            "image": "https://twelvebd.com/cdn/shop/files/RA-KURP-TW26-03EF-88675_2.jpg?v=1771488436&width=533",
+            "gallery_images": [
+                "https://twelvebd.com/cdn/shop/files/RA-KURP-TW26-03EF-88675_2.jpg?v=1771488436&width=533"
+            ],
+            "description": "<p>Women's layered kurti.</p><p><strong>Demo source:</strong> public TwelveBD storefront structure. Replace local demo image with licensed/original media before production use.</p>",
+            "meta_title": "Womens Layered Kurti",
+            "meta_description": "Women's layered kurti.",
+            "status": 1,
+            "topsale": 0,
+            "flashsale": 1,
+            "feature_product": 0,
+            "cat": "womens",
+            "brand": "Twelve",
+            "price": 1973.4,
+            "old": 3289.0,
+            "stock_batches": [
+                {
+                    "supplier": "Twelve Fashion Supplier",
+                    "batch_no": "TW-DEMO-11-A",
+                    "quantity": 83,
+                    "unit_cost": 1223.51
+                }
+            ]
+        },
+        {
+            "name": "Womens Silk Embroidered Kurti",
+            "slug": "womens-silk-embroidered-kurti-twelve-demo-12",
+            "category_id": 2,
+            "brand_id": 1,
+            "new_price": 1907.4,
+            "old_price": 3179.0,
+            "stock": 86,
+            "image": "https://twelvebd.com/cdn/shop/files/RA-KURP-TW26-03EF-110117_9.jpg?v=1771483965&width=533",
+            "gallery_images": [
+                "https://twelvebd.com/cdn/shop/files/RA-KURP-TW26-03EF-110117_9.jpg?v=1771483965&width=533"
+            ],
+            "description": "<p>Women's silk embroidered kurti.</p><p><strong>Demo source:</strong> public TwelveBD storefront structure. Replace local demo image with licensed/original media before production use.</p>",
+            "meta_title": "Womens Silk Embroidered Kurti",
+            "meta_description": "Women's silk embroidered kurti.",
+            "status": 1,
+            "topsale": 0,
+            "flashsale": 1,
+            "feature_product": 0,
+            "cat": "womens",
+            "brand": "Twelve",
+            "price": 1907.4,
+            "old": 3179.0,
+            "stock_batches": [
+                {
+                    "supplier": "Twelve Fashion Supplier",
+                    "batch_no": "TW-DEMO-12-A",
+                    "quantity": 86,
+                    "unit_cost": 1182.59
+                }
+            ]
+        },
+        {
+            "name": "Girls Digital Printed Two Piece Set",
+            "slug": "girls-digital-printed-two-piece-set-twelve-demo-13",
+            "category_id": 3,
+            "brand_id": 1,
+            "new_price": 1247.4,
+            "old_price": 2079.0,
+            "stock": 89,
+            "image": "https://twelvebd.com/cdn/shop/files/ZA-2PCS-TG26-03EF-109138_3.jpg?v=1771822183&width=533",
+            "gallery_images": [
+                "https://twelvebd.com/cdn/shop/files/ZA-2PCS-TG26-03EF-109138_3.jpg?v=1771822183&width=533"
+            ],
+            "description": "<p>Girls digital printed two-piece set.</p><p><strong>Demo source:</strong> public TwelveBD storefront structure. Replace local demo image with licensed/original media before production use.</p>",
+            "meta_title": "Girls Digital Printed Two Piece Set",
+            "meta_description": "Girls digital printed two-piece set.",
+            "status": 1,
+            "topsale": 0,
+            "flashsale": 1,
+            "feature_product": 1,
+            "cat": "kids",
+            "brand": "Twelve",
+            "price": 1247.4,
+            "old": 2079.0,
+            "stock_batches": [
+                {
+                    "supplier": "Twelve Fashion Supplier",
+                    "batch_no": "TW-DEMO-13-A",
+                    "quantity": 89,
+                    "unit_cost": 773.39
+                }
+            ]
+        },
+        {
+            "name": "Boy's Viscose Kabli",
+            "slug": "boys-viscose-kabli-twelve-demo-14",
+            "category_id": 3,
+            "brand_id": 1,
+            "new_price": 1841.4,
+            "old_price": 3069.0,
+            "stock": 92,
+            "image": "https://twelvebd.com/cdn/shop/files/MY-KABE-TB26-03EF-109771_3.jpg?v=1770474536&width=533",
+            "gallery_images": [
+                "https://twelvebd.com/cdn/shop/files/MY-KABE-TB26-03EF-109771_3.jpg?v=1770474536&width=533"
+            ],
+            "description": "<p>Boy's viscose Kabli.</p><p><strong>Demo source:</strong> public TwelveBD storefront structure. Replace local demo image with licensed/original media before production use.</p>",
+            "meta_title": "Boy's Viscose Kabli",
+            "meta_description": "Boy's viscose Kabli.",
+            "status": 1,
+            "topsale": 0,
+            "flashsale": 1,
+            "feature_product": 0,
+            "cat": "kids",
+            "brand": "Twelve",
+            "price": 1841.4,
+            "old": 3069.0,
+            "stock_batches": [
+                {
+                    "supplier": "Twelve Fashion Supplier",
+                    "batch_no": "TW-DEMO-14-A",
+                    "quantity": 92,
+                    "unit_cost": 1141.67
+                }
+            ]
+        },
+        {
+            "name": "Girls Viscose Two Piece Set",
+            "slug": "girls-viscose-two-piece-set-twelve-demo-15",
+            "category_id": 3,
+            "brand_id": 1,
+            "new_price": 1379.4,
+            "old_price": 2299.0,
+            "stock": 95,
+            "image": "https://twelvebd.com/cdn/shop/files/ZA-2PCS-TG26-03EF-109138_3.jpg?v=1771822183&width=533",
+            "gallery_images": [
+                "https://twelvebd.com/cdn/shop/files/ZA-2PCS-TG26-03EF-109138_3.jpg?v=1771822183&width=533"
+            ],
+            "description": "<p>Girls viscose two-piece set.</p><p><strong>Demo source:</strong> public TwelveBD storefront structure. Replace local demo image with licensed/original media before production use.</p>",
+            "meta_title": "Girls Viscose Two Piece Set",
+            "meta_description": "Girls viscose two-piece set.",
+            "status": 1,
+            "topsale": 0,
+            "flashsale": 1,
+            "feature_product": 0,
+            "cat": "kids",
+            "brand": "Twelve",
+            "price": 1379.4,
+            "old": 2299.0,
+            "stock_batches": [
+                {
+                    "supplier": "Twelve Fashion Supplier",
+                    "batch_no": "TW-DEMO-15-A",
+                    "quantity": 95,
+                    "unit_cost": 855.23
+                }
+            ]
+        }
+    ],
+    "blogs": [
+        {
+            "title": "End of Summer Fashion Sale",
+            "short_desc": "Explore seasonal fashion offers for men, women and kids.",
+            "views": 1200,
+            "image": "https://twelvebd.com/cdn/shop/files/KF-2PCS-TW26-07EA-110204_2.jpg?v=1779362873&width=533"
+        },
+        {
+            "title": "New Fashion Arrivals",
+            "short_desc": "Discover new shirts, polos, panjabi, kurtis, three-piece sets and kids' collections.",
+            "views": 950,
+            "image": "https://twelvebd.com/cdn/shop/files/AJ-POLA-TM26-03EF-91306_16.jpg?v=1771737429&width=533"
+        }
+    ],
+    "shipping_charges": [
+        {
+            "name": "Inside Dhaka",
+            "amount": 80
+        },
+        {
+            "name": "Outside Dhaka",
+            "amount": 130
+        }
+    ],
+    "banners": [
+        {
+            "category_id": 1,
+            "image": "https://twelvebd.com/cdn/shop/files/113540_14.jpg?v=1778579183&width=533",
+            "link": "/category/mens"
+        },
+        {
+            "category_id": 2,
+            "image": "https://twelvebd.com/cdn/shop/files/RA-3PCS-TW26-03EF-109464_3.jpg?v=1772469487&width=533",
+            "link": "/category/womens"
+        },
+        {
+            "category_id": 3,
+            "image": "https://twelvebd.com/cdn/shop/files/ZA-2PCS-TG26-03EF-109138_3.jpg?v=1771822183&width=533",
+            "link": "/category/kids"
+        }
+    ],
+    "suppliers": [
+        {
+            "name": "Twelve Fashion Supplier",
+            "phone": "01700000000",
+            "email": "fashion@demo.com",
+            "address": "Dhaka, Bangladesh",
+            "status": 1
+        }
+    ]
+}
