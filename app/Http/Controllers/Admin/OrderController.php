@@ -42,6 +42,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Str;
 use Gloudemans\Shoppingcart\Facades\Cart;
 use Brian2694\Toastr\Facades\Toastr;
 use Illuminate\Support\Facades\Mail;
@@ -984,6 +985,42 @@ class OrderController extends Controller
         return view('backEnd.order.invoice', compact('order', 'statusOptions', 'orderstatus', 'availableActions', 'pipelineActions'));
     }
 
+    public function searchInvoice(Request $request)
+    {
+        $request->validate([
+            'invoice_id' => ['required', 'string', 'max:100'],
+        ]);
+
+        $invoiceId = trim($request->input('invoice_id'));
+        $order = Order::where('invoice_id', $invoiceId)->first();
+
+        if (!$order) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Invoice not found.',
+            ], 404);
+        }
+
+        return response()->json([
+            'status' => 'success',
+            'invoice_id' => $order->invoice_id,
+            'url' => route('admin.order.invoice', ['invoice_id' => $order->invoice_id]),
+        ]);
+    }
+
+    public function printInvoice($invoice_id, Request $request)
+    {
+        $order = Order::where('invoice_id', $invoice_id)
+            ->with(['orderdetails', 'payment', 'shipping', 'customer'])
+            ->firstOrFail();
+
+        $type = $request->input('type', 'pos') === 'a4' ? 'a4' : 'pos';
+        $generalsetting = GeneralSetting::first();
+        $contact = \App\Models\Contact::first();
+
+        return view('backEnd.order.print_invoice', compact('order', 'type', 'generalsetting', 'contact'));
+    }
+
     public function process($invoice_id)
     {
         $data = Order::where(['invoice_id' => $invoice_id])
@@ -1903,10 +1940,11 @@ class OrderController extends Controller
     public function order_store(Request $request)
     {
         $this->validate($request, [
-            'name'    => 'required',
-            'phone'   => 'required',
-            'address' => 'required',
+            'name'    => 'nullable|string|max:255',
+            'phone'   => 'nullable|string|max:30',
+            'address' => 'nullable|string|max:500',
             'area'    => 'required',
+            'paid_amount' => 'nullable|numeric|min:0',
         ]);
 
         if (Cart::instance('pos_shopping')->count() <= 0) {
@@ -1918,8 +1956,26 @@ class OrderController extends Controller
         $subtotal   = (float) preg_replace('/[^\d.]/', '', (string) $subtotalRaw);
         $discount   = (float) (Session::get('pos_discount') ?? 0);
         $shippingfee = ShippingCharge::find($request->area);
+        $isStorePickup = (string) $request->input('area') === '0';
 
-        $exits_customer = Customer::where('phone', $request->phone)
+        $isGuest = $request->boolean('is_guest');
+        $customerName = trim((string) $request->input('name'));
+        $customerPhone = trim((string) $request->input('phone'));
+        $customerAddress = trim((string) $request->input('address'));
+
+        if ($isGuest) {
+            $customerName = $customerName ?: 'Walk-in Guest';
+            $customerPhone = $customerPhone ?: 'guest-' . strtolower((string) Str::uuid());
+            $customerAddress = $customerAddress ?: 'Walk-in customer';
+        } else {
+            $this->validate($request, [
+                'name' => 'required|string|max:255',
+                'phone' => 'required|string|max:30',
+                'address' => 'required|string|max:500',
+            ]);
+        }
+
+        $exits_customer = Customer::where('phone', $customerPhone)
             ->select('phone', 'id')->first();
 
         if ($exits_customer) {
@@ -1927,9 +1983,9 @@ class OrderController extends Controller
         } else {
             $password        = rand(111111, 999999);
             $store           = new Customer();
-            $store->name     = $request->name;
-            $store->slug     = $request->name;
-            $store->phone    = $request->phone;
+            $store->name     = $customerName;
+            $store->slug     = $customerName;
+            $store->phone    = $customerPhone;
             $store->password = bcrypt($password);
             $store->verify   = 1;
             $store->status   = 'active';
@@ -1948,6 +2004,10 @@ class OrderController extends Controller
         $paymentType            = strtolower(trim((string) $request->input('payment_type', 'paid')));
         $paymentSubMethod       = trim((string) $request->input('payment_method', 'Cash'));
         $paymentNote            = trim((string) $request->input('payment_note', ''));
+        $paidAmount             = $paymentType === 'cod'
+            ? 0.0
+            : min(max((float) $request->input('paid_amount', $order->amount), 0), (float) $order->amount);
+        $paymentStatusInput     = $paidAmount <= 0 ? 'pending' : ($paidAmount < (float) $order->amount ? 'partial' : 'paid');
 
         $order->order_type      = $paymentType === 'cod' ? 'cod' : 'pos';
         // POS paid → completed immediately (skip fulfillment)
@@ -1955,7 +2015,7 @@ class OrderController extends Controller
         $order->order_status    = $paymentType === 'cod' 
             ? OrderStatusEnum::PENDING->value 
             : OrderStatusEnum::COMPLETED->value;
-        $order->payment_status  = $paymentType === 'cod' ? 'pending' : 'paid';
+        $order->payment_status  = $paymentStatusInput;
         $order->note            = $request->note;
         $order->save();
 
@@ -1972,17 +2032,20 @@ class OrderController extends Controller
         $shipping              = new Shipping();
         $shipping->order_id    = $order->id;
         $shipping->customer_id = $customer_id;
-        $shipping->name        = $request->name;
-        $shipping->phone       = $request->phone;
-        $shipping->address     = $request->address;
-        $shipping->area        = isset($shippingfee->name) ? $shippingfee->name : '';
+        $shipping->name        = $customerName;
+        $shipping->phone       = $customerPhone;
+        $shipping->address     = $customerAddress;
+        $shipping->area        = $isStorePickup
+            ? 'Store Pickup'
+            : (isset($shippingfee->name) ? $shippingfee->name : '');
         $shipping->save();
 
         $payment                 = new Payment();
         $payment->order_id       = $order->id;
         $payment->customer_id    = $customer_id;
         $payment->payment_method = $this->resolvePaymentMethodLabel($paymentSubMethod);
-        $payment->amount         = $order->amount;
+        $payment->amount         = $paidAmount;
+        $payment->trx_id         = $paymentNote ?: null;
         $payment->payment_status = $order->payment_status;
         $payment->save();
 
@@ -2036,22 +2099,73 @@ class OrderController extends Controller
         $this->handleStockChange($order, 0, (int) $order->order_status);
 
         // 💰 Payment received হলে ফান্ডে টাকা যোগ করুন
-        if (in_array($paymentStatusInput, ['paid', 'completed', 'success', 'approved'], true)) {
+        if ($paidAmount > 0) {
             FundTransaction::create([
                 'direction' => 'in',
                 'source'    => 'sale',
                 'source_id' => $order->id,
-                'amount'    => $order->amount,
+            'amount'    => $paidAmount,
                 'note'      => 'POS Order #' . $order->invoice_id,
                 'created_by'=> auth()->id(),
             ]);
         }
 
         Cart::instance('pos_shopping')->destroy();
-        Session::forget(['pos_shipping', 'pos_discount', 'pos_coupon_code']);
+        Session::forget(['pos_shipping', 'pos_discount', 'pos_coupon_code', 'pos_customer_name', 'pos_customer_phone']);
 
         Toastr::success('Thanks, Your order place successfully', 'Success!');
         return redirect('admin/order/pending');
+    }
+
+    public function receiveDuePayment(Request $request)
+    {
+        $request->validate([
+            'order_id' => 'required|integer|exists:orders,id',
+            'amount' => 'required|numeric|gt:0',
+            'payment_method' => 'nullable|string|max:55',
+            'payment_note' => 'nullable|string|max:255',
+        ]);
+
+        $order = Order::findOrFail($request->order_id);
+        $payment = Payment::firstOrNew(['order_id' => $order->id]);
+        $alreadyPaid = (float) ($payment->amount ?? 0);
+        $due = max((float) $order->amount - $alreadyPaid, 0);
+        $received = min((float) $request->amount, $due);
+
+        if ($received <= 0) {
+            return response()->json(['status' => 'error', 'message' => 'This order has no remaining due.'], 422);
+        }
+
+        $payment->customer_id = $order->customer_id;
+        $payment->payment_method = $this->resolvePaymentMethodLabel($request->input('payment_method', 'Cash'));
+        $payment->amount = $alreadyPaid + $received;
+        $payment->trx_id = $request->input('payment_note') ?: $payment->trx_id;
+        $payment->payment_status = $payment->amount >= (float) $order->amount ? 'paid' : 'partial';
+        $payment->save();
+
+        $order->payment_status = $payment->payment_status;
+        $order->save();
+
+        FundTransaction::create([
+            'direction' => 'in',
+            'source' => 'sale',
+            'source_id' => $order->id,
+            'amount' => $received,
+            'note' => 'Due payment received — Order #' . $order->invoice_id,
+            'created_by' => auth()->id(),
+        ]);
+
+        $response = [
+            'status' => 'success',
+            'message' => 'Payment received successfully.',
+            'paid' => $payment->amount,
+            'due' => max((float) $order->amount - $payment->amount, 0),
+            'payment_status' => $payment->payment_status,
+        ];
+
+        return $request->expectsJson()
+            ? response()->json($response)
+            : redirect()->back()->with('success', $response['message']);
     }
 
     public function cart_add(Request $request)

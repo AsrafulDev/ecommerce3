@@ -871,6 +871,13 @@
 </li>
 @endcanany
 
+<li class="{{ request()->routeIs('admin.media.*') ? 'active' : '' }}">
+  <a href="{{ route('admin.media.index') }}">
+    <i data-feather="folder"></i>
+    <span> {{ __('Media Gallery') }} </span>
+  </a>
+</li>
+
 @canany(['popup-list','popup-manage'])
 <li class="{{ request()->routeIs('admin.popup.*') ? 'active' : '' }}">
     <a href="{{ route('admin.popup.index') }}">
@@ -1208,6 +1215,9 @@
       <li><a href="{{ route('layouts.index') }}"><i data-feather="file-plus"></i> {{ __('Layout Builder') }} </a></li>
       @endcanany
       <li><a href="{{ route('headerfooter.index') }}"><i data-feather="layout"></i> {{ __('Header & Footer') }} </a></li>
+      @canany(['theme-list', 'theme-create', 'theme-edit'])
+      <li><a href="{{ route('product.design') }}"><i data-feather="grid"></i> {{ __('Product Design') }} </a></li>
+      @endcanany
       <li><a href="{{ route('demo.index') }}"><i data-feather="upload"></i> {{ __('Demo Import/Export') }} </a></li>
     </ul>
   </div>

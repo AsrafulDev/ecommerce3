@@ -31,10 +31,12 @@ use App\Http\Controllers\Admin\SocialMediaController;
 use App\Http\Controllers\Admin\ContactController;
 use App\Http\Controllers\Admin\BannerCategoryController;
 use App\Http\Controllers\Admin\BannerController;
+use App\Http\Controllers\Admin\MediaController;
 use App\Http\Controllers\Admin\CreatePageController;
 use App\Http\Controllers\Admin\CampaignController;
 use App\Http\Controllers\Admin\ThemeController;
 use App\Http\Controllers\Admin\LayoutController;
+use App\Http\Controllers\Admin\ProductDesignController;
 use App\Http\Controllers\Admin\DemoController;
 use App\Http\Controllers\Admin\BackupController;
 use App\Http\Controllers\Admin\HeaderFooterController;
@@ -894,6 +896,10 @@ Route::get('dashboard', [DashboardController::class, 'dashboard'])->name('admin.
     Route::post('theme/active', [ThemeController::class, 'active'])->name('themes.active');
     Route::post('theme/destroy', [ThemeController::class, 'destroy'])->name('themes.destroy');
 
+    // Product card design and responsive storefront settings.
+    Route::get('product-design', [ProductDesignController::class, 'index'])->name('product.design');
+    Route::post('product-design/save', [ProductDesignController::class, 'store'])->name('product.design.save');
+
     // Layout Management Routes
     Route::get('layouts', [LayoutController::class, 'index'])->name('layouts.index');
     Route::get('layout/create', [LayoutController::class, 'create'])->name('layouts.create');
@@ -1007,6 +1013,19 @@ Route::get('dashboard', [DashboardController::class, 'dashboard'])->name('admin.
     Route::post('banner/inactive', [BannerController::class,'inactive'])->name('banners.inactive');
     Route::post('banner/active', [BannerController::class,'active'])->name('banners.active');
     Route::post('banner/destroy', [BannerController::class,'destroy'])->name('banners.destroy');
+
+    // Media manager and reusable picker.
+    Route::get('media', [MediaController::class, 'index'])->name('admin.media.index');
+    Route::post('media/folder/create', [MediaController::class, 'createFolder'])->name('admin.media.folder.create');
+    Route::post('media/folder/rename', [MediaController::class, 'renameFolder'])->name('admin.media.folder.rename');
+    Route::post('media/folder/delete', [MediaController::class, 'deleteFolder'])->name('admin.media.folder.delete');
+    Route::post('media/upload', [MediaController::class, 'upload'])->name('admin.media.upload');
+    Route::post('media/file/rename', [MediaController::class, 'renameFile'])->name('admin.media.file.rename');
+    Route::post('media/file/delete', [MediaController::class, 'deleteFile'])->name('admin.media.file.delete');
+    Route::post('media/move', [MediaController::class, 'move'])->name('admin.media.move');
+    Route::post('media/copy', [MediaController::class, 'copy'])->name('admin.media.copy');
+    Route::get('media/picker', [MediaController::class, 'pickerContent'])->name('admin.media.picker');
+    Route::post('media/picker/upload', [MediaController::class, 'pickerUpload'])->name('admin.media.picker.upload');
     
     // contact route 
     Route::get('page/manage', [CreatePageController::class,'index'])->name('pages.index');
@@ -1021,6 +1040,8 @@ Route::get('dashboard', [DashboardController::class, 'dashboard'])->name('admin.
     // Pos route
     Route::get('order/create', [OrderController::class,'order_create'])->name('admin.order.create');
     Route::post('order/store', [OrderController::class,'order_store'])->name('admin.order.store');
+    Route::post('order/receive-due', [OrderController::class, 'receiveDuePayment'])->name('admin.order.receive_due');
+    Route::get('order/recent', fn () => redirect()->route('admin.orders', 'all'))->name('admin.order.recent');
     Route::get('order/cart-add', [OrderController::class,'cart_add'])->name('admin.order.cart_add');
     Route::get('order/cart-content', [OrderController::class,'cart_content'])->name('admin.order.cart_content');
     Route::get('order/cart-increment', [OrderController::class,'cart_increment'])->name('admin.order.cart_increment');
@@ -1040,6 +1061,7 @@ Route::get('dashboard', [DashboardController::class, 'dashboard'])->name('admin.
     Route::get('order/held-carts', [OrderController::class, 'heldCarts'])->name('admin.order.held_carts');
     Route::post('order/restore-hold/{id}', [OrderController::class, 'restoreHold'])->name('admin.order.restore_hold');
     Route::delete('order/delete-hold/{id}', [OrderController::class, 'deleteHold'])->name('admin.order.delete_hold');
+    Route::get('order/search-invoice', [OrderController::class, 'searchInvoice'])->name('admin.order.search_invoice');
 
     // Order route 
 	Route::get('order/{slug}/ajax', [OrderController::class, 'ajaxIndex'])->name('admin.orders.ajax');
@@ -1048,6 +1070,7 @@ Route::get('dashboard', [DashboardController::class, 'dashboard'])->name('admin.
     Route::get('order/edit/{invoice_id}', [OrderController::class,'order_edit'])->name('admin.order.edit');
     Route::post('order/update', [OrderController::class,'order_update'])->name('admin.order.update');
     Route::get('order/invoice/{invoice_id}', [OrderController::class,'invoice'])->name('admin.order.invoice');
+    Route::get('order/invoice/{invoice_id}/print', [OrderController::class, 'printInvoice'])->name('admin.order.invoice.print');
     Route::get('order/process/{invoice_id}', [OrderController::class,'process'])->name('admin.order.process');
     Route::post('order/change', [OrderController::class,'order_process'])->name('admin.order_change');
     Route::post('order/destroy', [OrderController::class,'destroy'])->name('admin.order.destroy');

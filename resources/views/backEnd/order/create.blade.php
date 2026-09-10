@@ -194,20 +194,28 @@
             <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
                 <div class="d-flex align-items-center gap-2">
                     <h4 class="mb-0"> {{ __('Point of Sale') }} </h4>
+                    <a href="{{ route('admin.order.recent') }}" class="btn btn-sm btn-outline-secondary rounded-pill" title="Recent Orders">
+                        <i class="fas fa-history me-1"></i> {{ __('Recent Orders') }}
+                    </a>
                     {{-- 🆕 Held Orders Button --}}
                     <button type="button" id="btn-held-orders" class="btn btn-sm btn-info rounded-pill" title="Held Orders">
                         <i class="fas fa-pause-circle me-1"></i> {{ __('Held Orders') }}
                     </button>
                 </div>
                 <div class="d-flex align-items-center gap-2">
+                    <div class="input-group input-group-sm" style="max-width:220px;">
+                        <span class="input-group-text bg-white border-end-0"><i class="fas fa-file-invoice"></i></span>
+                        <input type="text" id="pos_invoice_search" class="form-control form-control-sm border-start-0" placeholder="Invoice number">
+                        <button type="button" id="pos_invoice_search_btn" class="btn btn-sm btn-outline-primary" title="Search Invoice">Go</button>
+                    </div>
+                    <span id="pos_invoice_search_msg" class="small text-muted" style="min-width:80px;"></span>
                     {{-- 🆕 Barcode Scanner Input --}}
                     <div class="input-group input-group-sm" style="max-width:260px;">
                         <span class="input-group-text bg-white border-end-0"><i class="fas fa-barcode"></i></span>
                         <input type="text"
                                id="barcode_input"
                                class="form-control form-control-sm border-start-0"
-                               placeholder="Scan barcode..."
-                               autofocus>
+                               placeholder="Scan barcode...">
                     </div>
                     <span id="barcode_msg" class="small text-muted" style="min-width:100px;"></span>
                     <form method="get" action="{{route('admin.order.cart_clear')}}" class="d-inline">
@@ -280,14 +288,24 @@
 
                     {{-- CUSTOMER --}}
                     <div class="col-md-6">
-                        <div class="pos-section-title"> {{ __('Customer') }} </div>
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <span class="pos-section-title mb-0"> {{ __('Customer') }} </span>
+                            <button type="button" id="btn-guest-customer" class="btn btn-sm btn-outline-secondary rounded-pill" title="Walk-in Guest">
+                                <i class="fas fa-user me-1"></i> {{ __('Guest') }}
+                            </button>
+                        </div>
+
+                        <div class="form-check form-switch mb-2">
+                            <input class="form-check-input" type="checkbox" id="pos_is_guest" name="is_guest" value="1" {{ old('is_guest') ? 'checked' : '' }}>
+                            <label class="form-check-label small" for="pos_is_guest">{{ __('Guest / Walk-in customer') }}</label>
+                        </div>
 
                         <div class="mb-2">
                             <input type="text"
                                    id="name"
                                    class="form-control form-control-sm @error('name') is-invalid @enderror"
                                    placeholder="Customer Name"
-                                   name="name" required
+                                   name="name"
                                    value="{{ Session::pull('pos_customer_name', old('name', '')) }}">
                             @error('name')<span class="invalid-feedback"><strong>{{ $message }}</strong></span>@enderror
                         </div>
@@ -297,7 +315,7 @@
                                    id="phone"
                                    class="form-control form-control-sm @error('phone') is-invalid @enderror"
                                    placeholder="Mobile Number"
-                                   name="phone" required
+                                   name="phone"
                                    value="{{ Session::pull('pos_customer_phone', old('phone', '')) }}">
                             @error('phone')<span class="invalid-feedback"><strong>{{ $message }}</strong></span>@enderror
                         </div>
@@ -307,7 +325,7 @@
                                    id="address"
                                    class="form-control form-control-sm @error('address') is-invalid @enderror"
                                    placeholder="{{ __('Address') }}"
-                                   name="address" required>
+                                   name="address">
                             @error('address')<span class="invalid-feedback"><strong>{{ $message }}</strong></span>@enderror
                         </div>
 
@@ -316,6 +334,7 @@
                                     class="form-control form-control-sm @error('area') is-invalid @enderror"
                                     name="area" required>
                                 <option value="">ডেলিভারি এরিয়া নির্বাচন করুন...</option>
+                                <option value="0" {{ old('area', '0') == '0' ? 'selected' : '' }}>Store Pickup (৳0)</option>
                                 @foreach($shippingcharge ?? [] as $area)
                                 <option value="{{ $area->id }}" {{ old('area') == $area->id ? 'selected' : '' }}>
                                     {{ $area->name }} (৳{{ $area->amount }})
@@ -334,6 +353,12 @@
                                 <option value="paid">{{ __('Paid (Cash/Card/Bank/MFS)') }}</option>
                                 <option value="cod">{{ __('Cash on Delivery (COD)') }}</option>
                             </select>
+                        </div>
+
+                        <div class="mb-2" id="pos_paid_amount_wrap">
+                            <label class="form-label small mb-1"><strong>{{ __('Paid Now') }}:</strong></label>
+                            <input type="number" min="0" step="0.01" id="pos_paid_amount" name="paid_amount" class="form-control form-control-sm" value="{{ old('paid_amount') }}" placeholder="Leave blank for full payment">
+                            <small class="text-muted">{{ __('Leave blank for full payment, or enter a partial amount.') }}</small>
                         </div>
 
                         {{-- 🆕 Payment Sub-Method (shown for both paid and COD) --}}
@@ -465,6 +490,29 @@
 <script type="text/javascript">
     $(document).ready(function () {
         $(".select2").select2();
+
+        function syncPosCustomerFields() {
+            var guest = $("#pos_is_guest").is(":checked");
+            $("#name, #phone, #address").prop("required", !guest);
+            $("#name, #phone, #address").toggleClass("bg-light", guest);
+        }
+
+        function syncPosPaymentFields() {
+            var cod = $("#pos_payment_type").val() === "cod";
+            $("#pos_paid_amount_wrap").toggle(!cod);
+            if (cod) $("#pos_paid_amount").val("");
+        }
+
+        $("#pos_is_guest").on("change", syncPosCustomerFields);
+        $("#pos_payment_type").on("change", syncPosPaymentFields);
+        $("#btn-guest-customer").on("click", function () {
+            $("#pos_is_guest").prop("checked", true).trigger("change");
+            $("#name").val("Walk-in Customer");
+            $("#phone").val("01");
+            $("#address").val("Walk-in");
+        });
+        syncPosCustomerFields();
+        syncPosPaymentFields();
     });
 
     // -------- CART CONTENT LOADERS ----------
@@ -729,7 +777,7 @@
                             .text("✓ " + res.product.name);
                         cart_content();
                         cart_details();
-                        $("#barcode_input").val("").focus();
+                        $("#barcode_input").val("");
                     }
                 },
                 error: function (xhr) {
@@ -738,30 +786,40 @@
                         msg = xhr.responseJSON.error;
                     }
                     $("#barcode_msg").removeClass("text-success").addClass("text-danger").text(msg);
-                    $("#barcode_input").val("").focus();
+                    $("#barcode_input").val("");
                 }
             });
         }
     });
 
-    // Auto-focus barcode input unless user is typing elsewhere
-    $(document).on("focusin", function (e) {
-        var tag = e.target.tagName;
-        if (tag === "INPUT" || tag === "SELECT" || tag === "TEXTAREA") {
-            if (e.target.id !== "barcode_input") {
-                window._barcodeAutoFocus = false;
+    // -------- INVOICE SEARCH ----------
+    function searchPosInvoice() {
+        var invoiceId = $("#pos_invoice_search").val().trim();
+        if (!invoiceId) return;
+
+        $.ajax({
+            type: "GET",
+            url: "{{ route('admin.order.search_invoice') }}",
+            data: { invoice_id: invoiceId },
+            dataType: "json",
+            beforeSend: function () {
+                $("#pos_invoice_search_msg").removeClass("text-danger text-success").text("Searching...");
+            },
+            success: function (res) {
+                window.location.href = res.url;
+            },
+            error: function (xhr) {
+                var message = xhr.responseJSON && xhr.responseJSON.message ? xhr.responseJSON.message : "Invoice not found.";
+                $("#pos_invoice_search_msg").removeClass("text-success").addClass("text-danger").text(message);
             }
-        }
-    });
-    $(document).on("focusout", function (e) {
-        var tag = e.target.tagName;
-        if (tag === "INPUT" || tag === "SELECT" || tag === "TEXTAREA") {
-            window._barcodeAutoFocus = true;
-            setTimeout(function () {
-                if (window._barcodeAutoFocus !== false) {
-                    $("#barcode_input").focus();
-                }
-            }, 100);
+        });
+    }
+
+    $("#pos_invoice_search_btn").on("click", searchPosInvoice);
+    $("#pos_invoice_search").on("keypress", function (e) {
+        if (e.which === 13) {
+            e.preventDefault();
+            searchPosInvoice();
         }
     });
 

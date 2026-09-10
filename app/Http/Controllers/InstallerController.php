@@ -25,16 +25,19 @@ use Illuminate\Support\Facades\Schema;
 class InstallerController extends Controller
 {
     /**
-     * Installed = base setup data already exists. Treated as "not installed"
-     * if the DB isn't reachable / tables aren't migrated yet.
+    * Installed = the setup marker or any user already exists. Treated as
+    * "not installed" only when the database is unreachable or has neither
+    * marker nor user data.
      */
     public static function isInstalled(): bool
     {
         try {
-            return Schema::hasTable('general_settings')
-                && Schema::hasTable('users')
-                && DB::table('general_settings')->count() > 0
-                && DB::table('users')->count() > 0;
+            $hasSettings = Schema::hasTable('general_settings')
+                && DB::table('general_settings')->exists();
+            $hasUsers = Schema::hasTable('users')
+                && DB::table('users')->exists();
+
+            return $hasSettings || $hasUsers;
         } catch (\Throwable $e) {
             return false;
         }
@@ -42,21 +45,36 @@ class InstallerController extends Controller
 
     public function index()
     {
-        return view('installer.index');
+        return view('installer.index', [
+            'hasExistingTables' => $this->databaseHasTables(),
+            'demo' => [
+                'site_name' => 'My Store',
+                'admin_name' => 'Admin',
+                'admin_email' => 'admin@demo.com',
+                'admin_password' => '123456',
+            ],
+        ]);
     }
 
     public function store(Request $request)
     {
+        if (self::isInstalled()) {
+            return redirect()->route('login')->with('error', 'Application is already installed.');
+        }
+
         $request->validate([
             'site_name'            => ['required', 'string', 'max:55'],
             'admin_name'           => ['required', 'string', 'max:255'],
             'admin_email'          => ['required', 'email', 'max:255'],
             'admin_password'       => ['required', 'string', 'min:6', 'confirmed'],
+            'clean_database'       => ['nullable', 'boolean'],
             'seed_demo'            => ['nullable', 'boolean'],
         ]);
 
         try {
-            Artisan::call('migrate', ['--force' => true]);
+            $needsClean = $request->boolean('clean_database') || $this->databaseHasTables();
+
+            Artisan::call($needsClean ? 'migrate:fresh' : 'migrate', ['--force' => true]);
 
             Artisan::call('db:seed', [
                 '--class' => DefaultDatabaseSeeder::class,
@@ -94,5 +112,20 @@ class InstallerController extends Controller
         }
 
         return redirect()->route('admin.dashboard')->with('success', 'Installation complete. Welcome!');
+    }
+
+    private function databaseHasTables(): bool
+    {
+        try {
+            foreach (['migrations', 'general_settings', 'users', 'products'] as $table) {
+                if (Schema::hasTable($table)) {
+                    return true;
+                }
+            }
+        } catch (\Throwable $e) {
+            // The installer will surface the database error during migration.
+        }
+
+        return false;
     }
 }

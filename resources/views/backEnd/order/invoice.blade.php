@@ -65,6 +65,8 @@
                 <a href="/admin/order/all" class="no-print"><strong><i class="fe-arrow-left"></i> {{ __('Back To Order') }} </strong></a>
             </div>
             <div class="col-sm-6 text-end">
+                <a href="{{ route('admin.order.invoice.print', ['invoice_id' => $order->invoice_id, 'type' => 'a4']) }}" target="_blank" class="no-print btn btn-xs btn-outline-primary"><i class="fa fa-file-pdf"></i> A4</a>
+                <a href="{{ route('admin.order.invoice.print', ['invoice_id' => $order->invoice_id, 'type' => 'pos']) }}" target="_blank" class="no-print btn btn-xs btn-outline-dark"><i class="fa fa-receipt"></i> POS</a>
                 <button onclick="printFunction()" class="no-print btn btn-xs btn-success waves-effect waves-light"><i class="fa fa-print"></i></button>
             </div>
 

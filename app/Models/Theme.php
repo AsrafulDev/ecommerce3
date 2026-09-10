@@ -17,7 +17,7 @@ class Theme extends Model
         'border_color', 'sale_badge_bg', 'sale_badge_text',
         'font_family', 'heading_font', 'body_font_size', 'heading_font_weight',
         'layout_style', 'border_radius', 'card_shadow',
-        'custom_css',
+        'custom_css', 'page_custom_css',
         // Admin panel colors
         'sidebar_bg_color', 'sidebar_text_color', 'topbar_bg_color', 'admin_card_bg',
     ];

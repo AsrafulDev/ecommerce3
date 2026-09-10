@@ -35,7 +35,8 @@ return Application::configure(basePath: dirname(__DIR__))
         // 🌐 Web Middleware Group
         // =================================================================
         $middleware->web(prepend: [
-            // Vendor/Reseller middleware removed
+            // Redirect an uninitialized application before DB-dependent routes boot.
+            \App\Http\Middleware\RedirectIfNotInstalled::class,
         ]);
         $middleware->web(append: [
             \App\Http\Middleware\EncryptCookies::class,

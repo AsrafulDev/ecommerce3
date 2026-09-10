@@ -12,7 +12,7 @@ return new class extends Migration
             Schema::create('order_notes', function (Blueprint $table) {
                 $table->id();
                 $table->unsignedInteger('order_id');
-                $table->unsignedBigInteger('user_id')->nullable();
+                $table->unsignedInteger('user_id')->nullable();
                 $table->text('content');
                 $table->string('type', 20)->default('info');
                 // type: info, warning, success, danger

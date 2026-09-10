@@ -465,8 +465,21 @@
             }
         </style>
         {!! $generalsetting->header_code ?? '' !!}
+        @include('frontEnd.layouts.sections.product-card-styles')
+        @include('frontEnd.layouts.sections.product-card-layout')
     </head>
-    <body class="gotop">
+    @php
+        $pcPageContext = request()->route() && request()->route()->getName() === 'home' ? 'pc-home' : 'pc-other';
+        $routeName = request()->route() ? (string) request()->route()->getName() : '';
+        $pageClass = $routeName === 'home'
+            ? 'page-home'
+            : 'page-' . str_replace(['.', '/', '\\'], '-', strtolower(trim($routeName, '.')));
+        $urlPath = trim((string) parse_url(request()->getRequestUri() ?? '/', PHP_URL_PATH), '/');
+        $urlClass = $urlPath === ''
+            ? 'pageurl-home'
+            : 'pageurl-' . str_replace(['/', '?', '=', '&', '.'], '-', strtolower($urlPath));
+    @endphp
+    <body class="gotop product-card-{{ $generalsetting->product_card_style ?? 'default' }} {{ $pcPageContext }} {{ $pageClass }} {{ $urlClass }}">
        
         @php $subtotal = Cart::instance('shopping')->subtotal(); @endphp
         <div class="mobile-menu">

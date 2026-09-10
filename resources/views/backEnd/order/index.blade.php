@@ -183,6 +183,14 @@
                                                 }
                                             @endphp
                                             ৳{{ number_format($showAmount, 2) }}
+                                            @if($paid < $total)
+                                                <form action="{{ route('admin.order.receive_due') }}" method="POST" class="mt-1 d-flex gap-1">
+                                                    @csrf
+                                                    <input type="hidden" name="order_id" value="{{ $value->id }}">
+                                                    <input type="number" name="amount" min="0.01" max="{{ $total - $paid }}" step="0.01" class="form-control form-control-sm" placeholder="Receive due" required style="max-width:90px;">
+                                                    <button type="submit" class="btn btn-sm btn-outline-success" title="Receive payment"><i class="fe-dollar-sign"></i></button>
+                                                </form>
+                                            @endif
                                         </td>
 
                                         <td>{{ $value->status ? $value->status->name : '' }}</td>

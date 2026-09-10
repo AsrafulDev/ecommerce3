@@ -21,6 +21,10 @@ use App\Models\ShippingCharge;
 use App\Helpers\PresetData;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;
 use ZipArchive;
 use Toastr;
@@ -63,66 +67,68 @@ class DemoController extends Controller
     }
 
     /**
-     * Export current themes, layouts, and settings as a zip file
+     * Export ALL database tables as JSON + ALL media files as a downloadable ZIP.
+     * ZIP structure:
+     *   data/           — one JSON file per database table
+     *   uploads/        — full copy of public/uploads/ (images, media)
      */
     public function exportDemo()
     {
-        $tempDir = storage_path('app/demo-export-' . time());
-        if (!is_dir($tempDir)) {
-            mkdir($tempDir, 0755, true);
+        ini_set('max_execution_time', 600);
+        ini_set('memory_limit', '512M');
+
+        $tempDir = storage_path('app/demo-export-' . microtime(true));
+        @mkdir($tempDir, 0755, true);
+
+        // ── 1. Export every database table as a separate JSON file ──
+        $dataDir = $tempDir . '/data';
+        @mkdir($dataDir, 0755, true);
+
+        $tables = DB::select('SHOW TABLES');
+        $dbName = DB::getDatabaseName();
+        $tableRows = [];
+        foreach ($tables as $table) {
+            $tableName = reset($table);
+            if ($tableName === 'migrations') continue;
+
+            $rows = DB::table($tableName)->get()->toArray();
+            // Convert stdClass → array for clean JSON
+            $rows = array_map(fn($r) => (array) $r, $rows);
+            file_put_contents(
+                $dataDir . '/' . $tableName . '.json',
+                json_encode($rows, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES)
+            );
+            $tableRows[$tableName] = count($rows);
         }
 
-        // 1. Export themes
-        $themes = Theme::all()->toArray();
-        file_put_contents($tempDir . '/themes.json', json_encode($themes, JSON_PRETTY_PRINT));
+        // Write a manifest so restore knows table order & counts
+        file_put_contents(
+            $dataDir . '/_manifest.json',
+            json_encode([
+                'database'   => $dbName,
+                'exported_at' => now()->toDateTimeString(),
+                'tables'     => $tableRows,
+            ], JSON_PRETTY_PRINT)
+        );
 
-        // 2. Export homepage sections
-        $sections = HomepageSection::all()->toArray();
-        file_put_contents($tempDir . '/homepage_sections.json', json_encode($sections, JSON_PRETTY_PRINT));
-
-        // 3. Export layouts with their sections
-        $layouts = HomepageLayout::with('sections')->get()->toArray();
-        file_put_contents($tempDir . '/homepage_layouts.json', json_encode($layouts, JSON_PRETTY_PRINT));
-
-        // 4. Export general settings (only theme_id and active_layout_id)
-        $setting = GeneralSetting::first();
-        $settings = $setting ? [
-            'theme_id' => $setting->theme_id,
-            'active_layout_id' => $setting->active_layout_id,
-        ] : [];
-        file_put_contents($tempDir . '/general_settings.json', json_encode($settings, JSON_PRETTY_PRINT));
-
-        // 5. Copy theme preview images
-        $imgDir = $tempDir . '/images';
-        mkdir($imgDir, 0755, true);
-        foreach ($themes as $theme) {
-            if (!empty($theme['preview_image']) && file_exists(public_path($theme['preview_image']))) {
-                $name = basename($theme['preview_image']);
-                copy(public_path($theme['preview_image']), $imgDir . '/' . $name);
-            }
-        }
-        // Copy section preview images
-        foreach ($sections as $section) {
-            if (!empty($section['preview_image']) && file_exists(public_path($section['preview_image']))) {
-                $name = basename($section['preview_image']);
-                copy(public_path($section['preview_image']), $imgDir . '/' . $name);
-            }
+        // ── 2. Copy ALL uploads / media files ──
+        $uploadsSource = public_path('uploads');
+        if (is_dir($uploadsSource)) {
+            $this->copyDirRecursive($uploadsSource, $tempDir . '/uploads');
         }
 
-        // 6. Create zip
-        $zipPath = storage_path('app/demo-presets/' . 'demo-export-' . date('Y-m-d-His') . '.zip');
-        $zipDir = dirname($zipPath);
-        if (!is_dir($zipDir)) {
-            mkdir($zipDir, 0755, true);
-        }
+        // ── 3. Create ZIP and stream download ──
+        $zipName = 'full-backup-' . date('Y-m-d_His') . '.zip';
+        $zipPath = storage_path('app/demo-presets/' . $zipName);
+        @mkdir(dirname($zipPath), 0755, true);
 
         $zip = new ZipArchive();
         if ($zip->open($zipPath, ZipArchive::CREATE | ZipArchive::OVERWRITE) === true) {
-            $files = new \RecursiveIteratorIterator(
-                new \RecursiveDirectoryIterator($tempDir),
+            $iterator = new \RecursiveIteratorIterator(
+                new \RecursiveDirectoryIterator($tempDir, \RecursiveDirectoryIterator::SKIP_DOTS),
                 \RecursiveIteratorIterator::LEAVES_ONLY
             );
-            foreach ($files as $file) {
+            foreach ($iterator as $file) {
                 if (!$file->isDir()) {
                     $relativePath = substr($file->getRealPath(), strlen($tempDir) + 1);
                     $zip->addFile($file->getRealPath(), $relativePath);
@@ -131,14 +137,48 @@ class DemoController extends Controller
             $zip->close();
         }
 
-        // Cleanup temp
-        array_map('unlink', glob($tempDir . '/images/*'));
-        rmdir($tempDir . '/images');
-        array_map('unlink', glob($tempDir . '/*.json'));
-        rmdir($tempDir);
+        // ── 4. Cleanup temp directory ──
+        $this->deleteDir($tempDir);
 
-        Toastr::success('Demo exported successfully!', 'Success');
-        return response()->download($zipPath)->deleteFileAfterSend(false);
+        return response()->download($zipPath, $zipName)->deleteFileAfterSend(true);
+    }
+
+    /**
+     * Recursively copy a directory.
+     */
+    private function copyDirRecursive(string $src, string $dst): void
+    {
+        @mkdir($dst, 0755, true);
+        $items = scandir($src);
+        foreach ($items as $item) {
+            if ($item === '.' || $item === '..') continue;
+            $srcPath = $src . '/' . $item;
+            $dstPath = $dst . '/' . $item;
+            if (is_dir($srcPath)) {
+                $this->copyDirRecursive($srcPath, $dstPath);
+            } else {
+                copy($srcPath, $dstPath);
+            }
+        }
+    }
+
+    /**
+     * Recursively delete a directory.
+     */
+    private function deleteDir(string $dir): void
+    {
+        if (!is_dir($dir)) return;
+        $items = scandir($dir);
+        foreach ($items as $item) {
+            if ($item === '.' || $item === '..') continue;
+            $path = $dir . '/' . $item;
+            if (is_dir($path)) {
+                $this->deleteDir($path);
+            } else {
+                @unlink($path);
+            }
+        }
+        @rmdir($dir);
     }
 
     /**
@@ -250,6 +290,10 @@ class DemoController extends Controller
                 }
             }
 
+            // 5. Import base setup data (settings, colors, sizes, districts,
+            //    shipping charges, roles, permissions)
+            self::importBaseData($tempDir);
+
             DB::commit();
 
             // Cleanup
@@ -319,6 +363,12 @@ class DemoController extends Controller
         $slug = preg_replace('/[^a-z0-9-]/', '', strtolower(str_replace(' ', '-', $slug)));
 
         try {
+            // Make the uploaded preset independent of the live image host.
+            $zipImageDir = $tempDir . '/images';
+            if (!is_dir($zipImageDir)) mkdir($zipImageDir, 0755, true);
+            self::downloadPresetImages($data, $zipImageDir);
+            file_put_contents($jsonPath, json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
+
             // ── Copy all images flat → public/uploads/images/ ──
             $publicImagesDir = public_path('uploads/images');
             if (!is_dir($publicImagesDir)) mkdir($publicImagesDir, 0755, true);
@@ -327,7 +377,6 @@ class DemoController extends Controller
             copy($jsonPath, $publicImagesDir . '/data.json');
 
             $copyCount = 0;
-            $zipImageDir = $tempDir . '/images';
             if (is_dir($zipImageDir)) {
                 $iterator = new \RecursiveIteratorIterator(
                     new \RecursiveDirectoryIterator($zipImageDir, \RecursiveDirectoryIterator::SKIP_DOTS),
@@ -355,6 +404,36 @@ class DemoController extends Controller
         }
 
         self::cleanTempDir($tempDir);
+        return redirect()->route('demo.index');
+    }
+
+    /**
+     * Upload and import a standalone data.json preset.
+     */
+    public function importPresetJson(Request $request)
+    {
+        $request->validate([
+            'preset_json' => 'required|file|mimes:json,txt|max:51200',
+        ]);
+
+        $file = $request->file('preset_json');
+        $data = json_decode(file_get_contents($file->getRealPath()), true);
+        if (!is_array($data) || !isset($data['meta'])) {
+            Toastr::error('Invalid data.json format!', 'Error');
+            return redirect()->back();
+        }
+
+        try {
+            $downloadCount = self::downloadPresetImagesToMedia($data);
+            self::seedPresetData($data, $data['meta']['slug'] ?? 'json-import');
+            Cache::flush();
+
+            $name = $data['meta']['name'] ?? 'JSON preset';
+            Toastr::success("「{$name}」 imported successfully! {$downloadCount} images downloaded.", 'Success');
+        } catch (\Throwable $e) {
+            Toastr::error('Import failed: ' . $e->getMessage(), 'Error');
+        }
+
         return redirect()->route('demo.index');
     }
 
@@ -429,24 +508,49 @@ class DemoController extends Controller
     }
 
     /**
-     * Reset site — truncate all data tables and reseed with default DemoDataSeeder
-     * Note: TRUNCATE is DDL in MySQL and commits implicitly, so we cannot use DB transactions here.
+     * Reset site — FULL hard reset.
+     * 1. Asks the logged-in admin for their password (safety confirmation).
+     * 2. Truncates EVERY data table (orders, warranty sales/claims, damage
+     *    products, stock batches, products, …) so nothing is left behind.
+     * 3. Re-seeds only the base/default data (NO demo products):
+     *    roles + permissions, general settings, themes/layouts, admin user,
+     *    contacts, homepage sections, colors, sizes, districts, coupons and
+     *    shipping charges (Inside Dhaka 70TK / Outside Dhaka 120TK).
+     *
+     * Note: TRUNCATE is DDL in MySQL and commits implicitly, so we cannot use
+     * DB transactions here.
      */
-    public function resetSite()
+    public function resetSite(Request $request)
     {
+        // ── 1. Require the admin password before anything destructive ──
+        $request->validate(['password' => 'required']);
+        if (!Hash::check($request->password, auth('admin')->user()->password)) {
+            Toastr::error('Incorrect admin password. Reset was cancelled.', 'Error');
+            return redirect()->route('demo.index');
+        }
+
+        // Remember who we are so we can re-login after the users table is reset
+        $adminEmail = auth('admin')->user()->email;
+
         try {
-            self::truncateAllTables();
+            self::truncateAllTables();   // full hard reset — every table
             self::deleteUploadedFiles();
 
-            // Run the DemoDataSeeder for fresh default data
-            \Illuminate\Support\Facades\Artisan::call('db:seed', [
-                '--class' => 'Database\\Seeders\\DemoDataSeeder',
+            // ── 2. Re-seed base data only (no products) ──
+            Artisan::call('db:seed', [
+                '--class' => 'Database\\Seeders\\DefaultDatabaseSeeder',
                 '--force' => true,
             ]);
 
-            \Illuminate\Support\Facades\Cache::flush();
+            // ── 3. Re-authenticate the current admin (user row was re-created) ──
+            $fresh = \App\Models\User::where('email', $adminEmail)->first();
+            if ($fresh) {
+                auth('admin')->login($fresh);
+            }
 
-            Toastr::success('Site has been reset with default demo data!', 'Success');
+            Cache::flush();
+
+            Toastr::success('Site fully reset. Admin login → asraful@curlware.com / password: 123456', 'Success');
         } catch (\Exception $e) {
             Toastr::error('Reset failed: ' . $e->getMessage(), 'Error');
         }
@@ -457,14 +561,26 @@ class DemoController extends Controller
     /**
      * Clean site — truncate ALL data tables without re-seeding.
      * Also deletes uploaded files (uploads folder).
-     * Leaves the site completely empty (only admins/users remain).
+     * Leaves the site completely empty; only the admin users, roles and
+     * permissions are preserved so you can still log in.
      */
-    public function cleanSite()
+    public function cleanSite(Request $request)
     {
+        // ── Require the admin password before anything destructive ──
+        $request->validate(['password' => 'required']);
+        if (!Hash::check($request->password, auth('admin')->user()->password)) {
+            Toastr::error('Incorrect admin password. Clean was cancelled.', 'Error');
+            return redirect()->route('demo.index');
+        }
+
         try {
-            self::truncateAllTables();
+            // Keep the auth/ACL tables so the admin can still log in afterwards
+            self::truncateAllTables([
+                'users', 'roles', 'permissions',
+                'model_has_roles', 'model_has_permissions',
+            ]);
             self::deleteUploadedFiles();
-            \Illuminate\Support\Facades\Cache::flush();
+            Cache::flush();
 
             Toastr::success('All data has been wiped clean! The site is now empty.', 'Success');
         } catch (\Exception $e) {
@@ -492,6 +608,175 @@ class DemoController extends Controller
         @rmdir($dir);
     }
 
+    /**
+     * Download remote image fields from a preset and replace them with local paths.
+     */
+    private static function downloadPresetImages(array &$data, string $imageDir): void
+    {
+        $imageKeys = [
+            'image', 'gallery_images', 'white_logo', 'dark_logo', 'favicon',
+        ];
+        $downloaded = [];
+
+        $walk = function (&$value, ?string $key = null) use (&$walk, $imageKeys, &$downloaded, $imageDir): void {
+            if (is_array($value)) {
+                foreach ($value as $childKey => &$childValue) {
+                    $childField = $key === 'gallery_images' ? 'image' : (string) $childKey;
+                    $walk($childValue, $childField);
+                }
+                unset($childValue);
+                return;
+            }
+
+            if (!is_string($value) || !in_array($key, $imageKeys, true)) return;
+            if (!filter_var($value, FILTER_VALIDATE_URL) || !preg_match('/^https?:\/\//i', $value)) return;
+            if (isset($downloaded[$value])) {
+                $value = $downloaded[$value];
+                return;
+            }
+
+            $response = Http::timeout(30)->retry(2, 200)->get($value);
+            if (!$response->successful() || $response->body() === '') {
+                throw new \RuntimeException("Unable to download preset image: {$value}");
+            }
+
+            $urlPath = parse_url($value, PHP_URL_PATH) ?: '';
+            $filename = basename($urlPath) ?: 'preset-image';
+            $filename = preg_replace('/[^a-zA-Z0-9._-]/', '-', $filename);
+            if (!pathinfo($filename, PATHINFO_EXTENSION)) {
+                $extension = match (strtolower((string) $response->header('Content-Type'))) {
+                    'image/png' => 'png',
+                    'image/webp' => 'webp',
+                    'image/gif' => 'gif',
+                    default => 'jpg',
+                };
+                $filename .= '.' . $extension;
+            }
+
+            $target = $imageDir . '/' . $filename;
+            $suffix = 1;
+            while (file_exists($target)) {
+                $target = $imageDir . '/' . pathinfo($filename, PATHINFO_FILENAME)
+                    . '-' . $suffix++ . '.' . pathinfo($filename, PATHINFO_EXTENSION);
+            }
+            file_put_contents($target, $response->body());
+
+            $localPath = 'public/uploads/images/' . basename($target);
+            $downloaded[$value] = $localPath;
+            $value = $localPath;
+        };
+
+        $walk($data);
+    }
+
+    /**
+     * Download JSON image URLs directly into the public media structure.
+     */
+    private static function downloadPresetImagesToMedia(array &$data): int
+    {
+        $mediaBase = public_path('uploads/media');
+        $downloaded = [];
+        $count = 0;
+
+        $download = static function (string $url, string $folder) use (&$downloaded, &$count, $mediaBase): string {
+            // Accept JSON URLs containing unencoded spaces in the filename.
+            $url = preg_replace('/\s+/', '%20', trim($url));
+            if (!filter_var($url, FILTER_VALIDATE_URL) || !preg_match('/^https?:\/\//i', $url)) return $url;
+            $cacheKey = $folder . '|' . $url;
+            if (isset($downloaded[$cacheKey])) return $downloaded[$cacheKey];
+
+            $response = Http::timeout(30)->retry(2, 200)->get($url);
+            if (!$response->successful() || $response->body() === '') {
+                throw new \RuntimeException("Unable to download image: {$url}");
+            }
+
+            $directory = $mediaBase . '/' . $folder;
+            if (!is_dir($directory)) mkdir($directory, 0755, true);
+            $urlPath = parse_url($url, PHP_URL_PATH) ?: '';
+            $filename = preg_replace('/[^a-zA-Z0-9._-]/', '-', basename($urlPath) ?: 'image');
+            if (!pathinfo($filename, PATHINFO_EXTENSION)) {
+                $extension = match (strtolower((string) $response->header('Content-Type'))) {
+                    'image/png' => 'png', 'image/webp' => 'webp', 'image/gif' => 'gif', default => 'jpg',
+                };
+                $filename .= '.' . $extension;
+            }
+
+            $target = $directory . '/' . $filename;
+            $suffix = 1;
+            while (file_exists($target)) {
+                $target = $directory . '/' . pathinfo($filename, PATHINFO_FILENAME)
+                    . '-' . $suffix++ . '.' . pathinfo($filename, PATHINFO_EXTENSION);
+            }
+            file_put_contents($target, $response->body());
+            $localPath = 'public/uploads/media/' . $folder . '/' . basename($target);
+            $downloaded[$cacheKey] = $localPath;
+            $count++;
+            return $localPath;
+        };
+
+        // Import image-like fields that are not part of the standard preset schema.
+        // Keep live_url, links, and other navigation URLs untouched.
+        $imageKeys = [
+            'image', 'image_url', 'image_one', 'image_two', 'image_three',
+            'thumbnail', 'thumbnail_url', 'meta_image', 'logo', 'white_logo',
+            'dark_logo', 'favicon', 'banner_image', 'cover_image', 'icon',
+        ];
+        $folderForKey = static function (?string $parentKey, string $key): string {
+            $context = strtolower(($parentKey ?? '') . ' ' . $key);
+            if (str_contains($context, 'categor')) return 'category';
+            if (str_contains($context, 'brand')) return 'brand';
+            if (str_contains($context, 'product')) return 'product';
+            if (str_contains($context, 'banner') || str_contains($context, 'slider')) return 'banner';
+            return 'adds';
+        };
+        $walk = function (&$value, ?string $parentKey = null, ?string $folder = null) use (&$walk, $imageKeys, $folderForKey, $download): void {
+            if (!is_array($value)) return;
+            foreach ($value as $key => &$child) {
+                $key = (string) $key;
+                $childFolder = $folder ?: $folderForKey($parentKey, $key);
+                if (is_string($child)
+                    && in_array(strtolower($key), $imageKeys, true)
+                    && filter_var($child, FILTER_VALIDATE_URL)
+                    && preg_match('/^https?:\/\//i', $child)) {
+                    $child = $download($child, $childFolder);
+                } elseif (is_array($child)) {
+                    $walk($child, $key, $childFolder);
+                }
+            }
+            unset($child);
+        };
+
+        $walk($data);
+
+        foreach ($data['categories'] ?? [] as &$item) {
+            if (!empty($item['image']) && filter_var($item['image'], FILTER_VALIDATE_URL)) $item['image'] = $download($item['image'], 'category');
+        }
+        foreach ($data['brands'] ?? [] as &$item) {
+            if (is_array($item) && !empty($item['image']) && filter_var($item['image'], FILTER_VALIDATE_URL)) $item['image'] = $download($item['image'], 'brand');
+        }
+        foreach ($data['products'] ?? [] as &$item) {
+            if (!empty($item['image']) && filter_var($item['image'], FILTER_VALIDATE_URL)) $item['image'] = $download($item['image'], 'product');
+            foreach ($item['gallery_images'] ?? [] as &$galleryImage) {
+                if (filter_var($galleryImage, FILTER_VALIDATE_URL)) $galleryImage = $download($galleryImage, 'product');
+            }
+            unset($galleryImage);
+        }
+        foreach ($data['banners'] ?? [] as &$item) {
+            if (!empty($item['image']) && filter_var($item['image'], FILTER_VALIDATE_URL)) $item['image'] = $download($item['image'], 'banner');
+        }
+        foreach ($data['blogs'] ?? [] as &$item) {
+            if (!empty($item['image']) && filter_var($item['image'], FILTER_VALIDATE_URL)) $item['image'] = $download($item['image'], 'adds');
+        }
+        foreach (['white_logo', 'dark_logo', 'favicon'] as $key) {
+            if (!empty($data['general_settings'][$key]) && filter_var($data['general_settings'][$key], FILTER_VALIDATE_URL)) {
+                $data['general_settings'][$key] = $download($data['general_settings'][$key], 'adds');
+            }
+        }
+        unset($item);
+
+        return $count;
+    }
+
     private static function deleteUploadedFiles(): void
     {
         $uploadDir = public_path('uploads');
@@ -501,7 +786,7 @@ class DemoController extends Controller
         $cleanDirs = [
             'category', 'brand', 'product', 'banner', 'campaign',
             'blogs', 'subcategory', 'settings', 'popup', 'customer',
-            'user', 'users', 'vendor', 'demo', 'reseller', 'videos',
+            'user', 'users', 'demo', 'videos',
             'images',
         ];
 
@@ -538,52 +823,116 @@ class DemoController extends Controller
     }
 
     /**
-     * Truncate all data tables (shared between resetSite and cleanSite)
+     * Truncate EVERY data table in the database (full hard reset).
+     *
+     * The list is discovered from the live schema so no table is ever missed
+     * (orders, order_details, warranty_sales, warranty_claims, damage_products,
+     * stock_batches, products, …). Only Laravel system tables are skipped.
+     *
+     * @param array $keep tables to preserve (e.g. users/roles for "clean")
      */
-    private static function truncateAllTables(): void
+    private static function truncateAllTables(array $keep = []): void
     {
-        $tables = [
-            'categories', 'subcategories', 'childcategories', 'brands',
-            'products', 'productimages', 'productcolors', 'productsizes',
-            'product_variant_prices', 'product_wholesale_prices',
-            'banners', 'banner_categories', 'blogs',
-            'shipping_charges', 'reviews', 'orders', 'order_details',
-            'payments', 'shippings', 'carts',
-            'campaigns', 'campaign_product', 'campaign_reviews', 'coupons',
-            'courierapis', 'incomplete_orders',
-            'expenses', 'purchases', 'purchase_items', 'purchase_logs', 'expense_logs',
-            'vendors', 'vendor_wallets', 'vendor_wallet_transactions', 'vendor_withdrawals',
-            'suppliers', 'supplier_payments', 'complaints', 'contact_messages',
-            'fund_transactions', 'fund_transaction_logs',
-            'employees', 'employee_attendances', 'employee_leaves',
-            'employee_salaries', 'employee_bonuses', 'employee_salary_payments',
-            'refunds', 'newsletter_subscribers',
-            'districts', 'ip_blocks', 'ecom_pixels', 'tiktok_pixels',
-            'social_media', 'create_pages', 'order_statuses',
-            'payment_gateways', 'sms_gateways', 'google_tag_managers',
-            'seo_settings', 'ads_analytics_settings',
-            'popups', 'cron_job_settings',
-            'contact', 'contacts', 'colors', 'sizes',
-            'digital_downloads', 'password_resets',
-            'reseller_deposits', 'reseller_wallet_transactions', 'reseller_withdrawals',
-            'reseller_landing_pages', 'reseller_landing_products',
-            'reseller_landing_contact_messages', 'reseller_landing_newsletter_subscribers',
-            'stolen_reports', 'facebook_capi_settings', 'facebook_page_settings',
-            'wholesale_products', 'wholesale_product_images',
-        ];
+        $keep = array_flip(array_merge(['migrations'], $keep));
 
         DB::statement('SET FOREIGN_KEY_CHECKS = 0');
+        $tables = DB::select('SHOW TABLES');
         foreach ($tables as $table) {
-            if (\Illuminate\Support\Facades\Schema::hasTable($table)) {
-                DB::table($table)->truncate();
+            $name = current((array) $table);
+            if (isset($keep[$name])) {
+                continue;
             }
+            DB::table($name)->truncate();
         }
         DB::statement('SET FOREIGN_KEY_CHECKS = 1');
     }
 
     /**
+     * Import base/setup data from an exported zip:
+     * full general settings, colors, sizes, districts, shipping charges,
+     * roles and permissions. Uses DELETE (not TRUNCATE) so it stays inside the
+     * surrounding DB transaction.
+     */
+    private static function importBaseData(string $tempDir): void
+    {
+        // ── General settings (full row) — update first row or create ──
+        // NOTE: theme_id / active_layout_id are handled by the existing
+        // step-4 mapping (position-based), so they are skipped here.
+        $settingsPath = $tempDir . '/general_settings.json';
+        if (file_exists($settingsPath)) {
+            $settings = json_decode(file_get_contents($settingsPath), true);
+            if (is_array($settings) && !empty($settings)) {
+                $data = array_diff_key($settings, array_flip([
+                    'id', 'created_at', 'updated_at', 'theme_id', 'active_layout_id',
+                ]));
+                $setting = GeneralSetting::first();
+                if ($setting) {
+                    foreach ($data as $key => $val) {
+                        if (\Illuminate\Support\Facades\Schema::hasColumn('general_settings', $key)) {
+                            $setting->$key = $val;
+                        }
+                    }
+                    $setting->save();
+                } else {
+                    GeneralSetting::create($data);
+                }
+            }
+        }
+
+        // ── Colors / sizes / districts / shipping charges / roles / permissions ──
+        foreach (['colors', 'sizes', 'districts', 'shipping_charges', 'roles', 'permissions'] as $table) {
+            self::importTable($tempDir, $table . '.json', $table);
+        }
+
+        // ── Re-sync the admin role assignment after importing roles/permissions ──
+        if (file_exists($tempDir . '/roles.json') || file_exists($tempDir . '/permissions.json')) {
+            if (\Illuminate\Support\Facades\Schema::hasTable('model_has_roles')) {
+                DB::table('model_has_roles')->delete();
+            }
+            if (\Illuminate\Support\Facades\Schema::hasTable('model_has_permissions')) {
+                DB::table('model_has_permissions')->delete();
+            }
+
+            app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
+
+            try {
+                Artisan::call('db:seed', [
+                    '--class' => 'Database\\Seeders\\CreateAdminUserSeeder',
+                    '--force' => true,
+                ]);
+            } catch (\Exception $e) {
+                // roles/permissions may not exist yet — non-fatal
+            }
+        }
+    }
+
+    /**
+     * Import a plain table dump (rows without id/timestamps) and re-insert it.
+     */
+    private static function importTable(string $tempDir, string $file, string $table): void
+    {
+        $path = $tempDir . '/' . $file;
+        if (!file_exists($path)) {
+            return;
+        }
+        $rows = json_decode(file_get_contents($path), true);
+        if (!is_array($rows) || empty($rows) || !\Illuminate\Support\Facades\Schema::hasTable($table)) {
+            return;
+        }
+
+        DB::table($table)->delete();
+        foreach ($rows as $row) {
+            $row = array_diff_key((array) $row, array_flip(['id', 'created_at', 'updated_at']));
+            DB::table($table)->insert(array_merge($row, [
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]));
+        }
+    }
+
+    /**
      * Seed preset data into the database.
-     * All image paths are normalised to public/uploads/images/{basename} here.
+     * Local media paths are preserved; older image paths remain supported.
      */
     private static function seedPresetData(array $data, string $slug = 'default'): void
     {
@@ -595,7 +944,8 @@ class DemoController extends Controller
                     'banners','banner_categories','blogs','shipping_charges',
                     'reviews','campaigns','campaign_reviews','coupons',
                     'orders','order_details','payments','shippings','carts',
-                    'carts','incomplete_orders'];
+                    'carts','incomplete_orders',
+                    'suppliers','stock_batches'];
         foreach ($tables as $table) {
             if (\Illuminate\Support\Facades\Schema::hasTable($table)) {
                 DB::table($table)->truncate();
@@ -603,14 +953,11 @@ class DemoController extends Controller
         }
 
         // ── Image path normaliser ──────────────────────────────────
-        // Every image path is stored as: public/uploads/images/{basename}
-        // No matter what format the JSON uses — we just pull the filename.
+        // Preserve local media paths and normalize external/legacy paths.
         $imgBase = 'public/uploads/images/';
         $normalizePath = static function (?string &$path) use ($imgBase): void {
             if (empty($path)) return;
-            // Already in our flat format — skip
-            if (str_starts_with($path, $imgBase)) return;
-            // Just use the basename
+            if (str_starts_with($path, 'public/uploads/media/') || str_starts_with($path, $imgBase)) return;
             $path = $imgBase . basename($path);
         };
 
@@ -685,6 +1032,23 @@ class DemoController extends Controller
             $brandMap[$brandName] = $id;
         }
 
+        // 4.5. Suppliers (for batch-based stock)
+        $supplierMap = [];
+        foreach ($data['suppliers'] ?? [] as $s) {
+            $supplierName = is_string($s) ? $s : ($s['name'] ?? 'Supplier');
+            if ($supplierName === '' || isset($supplierMap[$supplierName])) continue;
+            $id = DB::table('suppliers')->insertGetId([
+                'name'       => $supplierName,
+                'phone'      => is_array($s) ? ($s['phone'] ?? null) : null,
+                'email'      => is_array($s) ? ($s['email'] ?? null) : null,
+                'address'    => is_array($s) ? ($s['address'] ?? null) : null,
+                'status'     => 1,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+            $supplierMap[$supplierName] = $id;
+        }
+
         // 5. Products
         foreach ($data['products'] ?? [] as $i => $p) {
             $catId = $catMap[$p['cat']] ?? 1;
@@ -712,9 +1076,16 @@ class DemoController extends Controller
             ]);
 
             // Product gallery images (stored in productimages table)
-            $galleryImages = $p['gallery_images'] ?? [];
-            if (empty($galleryImages)) {
-                $galleryImages = [$productImage];
+            // The storefront reads the first productimages row as the primary image.
+            // Always seed the downloaded primary image first, then append the gallery.
+            $galleryImages = [$productImage];
+            foreach ($p['gallery_images'] ?? [] as $galleryImage) {
+                if (is_array($galleryImage)) {
+                    $galleryImage = $galleryImage['image'] ?? $galleryImage['url'] ?? null;
+                }
+                if (is_string($galleryImage) && $galleryImage !== '') {
+                    $galleryImages[] = $galleryImage;
+                }
             }
             foreach ($galleryImages as $gi) {
                 $img = $gi;
@@ -724,6 +1095,35 @@ class DemoController extends Controller
                     'image'      => $img,
                     'created_at' => now(),
                     'updated_at' => now(),
+                ]);
+            }
+
+            // Supplier-based stock batches (quantity by batch)
+            $batchRows = $p['stock_batches'] ?? [];
+            if (empty($batchRows)) {
+                $batchRows = [[
+                    'supplier'  => null,
+                    'batch_no'  => 'B-' . $pid,
+                    'quantity'  => (int) ($p['stock'] ?? 0),
+                    'unit_cost' => 0,
+                ]];
+            }
+            foreach ($batchRows as $b) {
+                $qty = (int) ($b['quantity'] ?? 0);
+                if ($qty <= 0) continue;
+                $supplierName = is_array($b) ? ($b['supplier'] ?? null) : null;
+                DB::table('stock_batches')->insert([
+                    'product_id'     => $pid,
+                    'supplier_id'    => $supplierMap[$supplierName] ?? null,
+                    'batch_no'       => $b['batch_no'] ?? ('B-' . $pid),
+                    'quantity'       => $qty,
+                    'remaining_qty'  => $qty,
+                    'unit_cost'      => $b['unit_cost'] ?? 0,
+                    'selling_price'  => $p['price'] ?? null,
+                    'type'           => 'in',
+                    'reference_type' => 'purchase',
+                    'created_at'     => now(),
+                    'updated_at'     => now(),
                 ]);
             }
         }
