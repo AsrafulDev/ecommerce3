@@ -67,72 +67,68 @@ class DemoController extends Controller
     }
 
     /**
-     * Export current themes, layouts, and settings as a zip file
+     * Export ALL database tables as JSON + ALL media files as a downloadable ZIP.
+     * ZIP structure:
+     *   data/           — one JSON file per database table
+     *   uploads/        — full copy of public/uploads/ (images, media)
      */
     public function exportDemo()
     {
-        $tempDir = storage_path('app/demo-export-' . time());
-        if (!is_dir($tempDir)) {
-            mkdir($tempDir, 0755, true);
-        }
+        ini_set('max_execution_time', 600);
+        ini_set('memory_limit', '512M');
 
-        // 1. Export themes
-        $themes = Theme::all()->toArray();
-        file_put_contents($tempDir . '/themes.json', json_encode($themes, JSON_PRETTY_PRINT));
+        $tempDir = storage_path('app/demo-export-' . microtime(true));
+        @mkdir($tempDir, 0755, true);
 
-        // 2. Export homepage sections
-        $sections = HomepageSection::all()->toArray();
-        file_put_contents($tempDir . '/homepage_sections.json', json_encode($sections, JSON_PRETTY_PRINT));
+        // ── 1. Export every database table as a separate JSON file ──
+        $dataDir = $tempDir . '/data';
+        @mkdir($dataDir, 0755, true);
 
-        // 3. Export layouts with their sections
-        $layouts = HomepageLayout::with('sections')->get()->toArray();
-        file_put_contents($tempDir . '/homepage_layouts.json', json_encode($layouts, JSON_PRETTY_PRINT));
+        $tables = DB::select('SHOW TABLES');
+        $dbName = DB::getDatabaseName();
+        $tableRows = [];
+        foreach ($tables as $table) {
+            $tableName = reset($table);
+            if ($tableName === 'migrations') continue;
 
-        // 4. Export general settings (full row) + base setup data
-        //    (colors, sizes, districts, shipping charges, roles, permissions)
-        $setting = GeneralSetting::first();
-        file_put_contents(
-            $tempDir . '/general_settings.json',
-            json_encode($setting ? $setting->toArray() : [], JSON_PRETTY_PRINT)
-        );
-        foreach (['colors', 'sizes', 'districts', 'shipping_charges', 'roles', 'permissions'] as $table) {
+            $rows = DB::table($tableName)->get()->toArray();
+            // Convert stdClass → array for clean JSON
+            $rows = array_map(fn($r) => (array) $r, $rows);
             file_put_contents(
-                $tempDir . '/' . $table . '.json',
-                json_encode(DB::table($table)->get()->toArray(), JSON_PRETTY_PRINT)
+                $dataDir . '/' . $tableName . '.json',
+                json_encode($rows, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES)
             );
+            $tableRows[$tableName] = count($rows);
         }
 
-        // 5. Copy theme preview images
-        $imgDir = $tempDir . '/images';
-        mkdir($imgDir, 0755, true);
-        foreach ($themes as $theme) {
-            if (!empty($theme['preview_image']) && file_exists(public_path($theme['preview_image']))) {
-                $name = basename($theme['preview_image']);
-                copy(public_path($theme['preview_image']), $imgDir . '/' . $name);
-            }
-        }
-        // Copy section preview images
-        foreach ($sections as $section) {
-            if (!empty($section['preview_image']) && file_exists(public_path($section['preview_image']))) {
-                $name = basename($section['preview_image']);
-                copy(public_path($section['preview_image']), $imgDir . '/' . $name);
-            }
+        // Write a manifest so restore knows table order & counts
+        file_put_contents(
+            $dataDir . '/_manifest.json',
+            json_encode([
+                'database'   => $dbName,
+                'exported_at' => now()->toDateTimeString(),
+                'tables'     => $tableRows,
+            ], JSON_PRETTY_PRINT)
+        );
+
+        // ── 2. Copy ALL uploads / media files ──
+        $uploadsSource = public_path('uploads');
+        if (is_dir($uploadsSource)) {
+            $this->copyDirRecursive($uploadsSource, $tempDir . '/uploads');
         }
 
-        // 6. Create zip
-        $zipPath = storage_path('app/demo-presets/' . 'demo-export-' . date('Y-m-d-His') . '.zip');
-        $zipDir = dirname($zipPath);
-        if (!is_dir($zipDir)) {
-            mkdir($zipDir, 0755, true);
-        }
+        // ── 3. Create ZIP and stream download ──
+        $zipName = 'full-backup-' . date('Y-m-d_His') . '.zip';
+        $zipPath = storage_path('app/demo-presets/' . $zipName);
+        @mkdir(dirname($zipPath), 0755, true);
 
         $zip = new ZipArchive();
         if ($zip->open($zipPath, ZipArchive::CREATE | ZipArchive::OVERWRITE) === true) {
-            $files = new \RecursiveIteratorIterator(
-                new \RecursiveDirectoryIterator($tempDir),
+            $iterator = new \RecursiveIteratorIterator(
+                new \RecursiveDirectoryIterator($tempDir, \RecursiveDirectoryIterator::SKIP_DOTS),
                 \RecursiveIteratorIterator::LEAVES_ONLY
             );
-            foreach ($files as $file) {
+            foreach ($iterator as $file) {
                 if (!$file->isDir()) {
                     $relativePath = substr($file->getRealPath(), strlen($tempDir) + 1);
                     $zip->addFile($file->getRealPath(), $relativePath);
@@ -141,14 +137,48 @@ class DemoController extends Controller
             $zip->close();
         }
 
-        // Cleanup temp
-        array_map('unlink', glob($tempDir . '/images/*'));
-        rmdir($tempDir . '/images');
-        array_map('unlink', glob($tempDir . '/*.json'));
-        rmdir($tempDir);
+        // ── 4. Cleanup temp directory ──
+        $this->deleteDir($tempDir);
 
-        Toastr::success('Demo exported successfully!', 'Success');
-        return response()->download($zipPath)->deleteFileAfterSend(false);
+        return response()->download($zipPath, $zipName)->deleteFileAfterSend(true);
+    }
+
+    /**
+     * Recursively copy a directory.
+     */
+    private function copyDirRecursive(string $src, string $dst): void
+    {
+        @mkdir($dst, 0755, true);
+        $items = scandir($src);
+        foreach ($items as $item) {
+            if ($item === '.' || $item === '..') continue;
+            $srcPath = $src . '/' . $item;
+            $dstPath = $dst . '/' . $item;
+            if (is_dir($srcPath)) {
+                $this->copyDirRecursive($srcPath, $dstPath);
+            } else {
+                copy($srcPath, $dstPath);
+            }
+        }
+    }
+
+    /**
+     * Recursively delete a directory.
+     */
+    private function deleteDir(string $dir): void
+    {
+        if (!is_dir($dir)) return;
+        $items = scandir($dir);
+        foreach ($items as $item) {
+            if ($item === '.' || $item === '..') continue;
+            $path = $dir . '/' . $item;
+            if (is_dir($path)) {
+                $this->deleteDir($path);
+            } else {
+                @unlink($path);
+            }
+        }
+        @rmdir($dir);
     }
 
     /**

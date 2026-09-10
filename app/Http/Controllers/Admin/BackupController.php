@@ -12,6 +12,8 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use ZipArchive;
 use Toastr;
@@ -158,26 +160,33 @@ class BackupController extends Controller
             $zip->close();
             
             // ── A. Restore database ──
-            $sqlFile = $tempDir . '/database.sql';
-            if (file_exists($sqlFile)) {
-                // Split SQL by semicolons and execute
-                $sql = file_get_contents($sqlFile);
-                $statements = array_filter(
-                    array_map('trim', explode(";\n", $sql)),
-                    fn($s) => !empty($s)
-                );
-                
-                DB::statement('SET FOREIGN_KEY_CHECKS = 0');
-                foreach ($statements as $statement) {
-                    if (!empty($statement) && !str_starts_with($statement, '--')) {
-                        try {
-                            DB::unprepared($statement);
-                        } catch (\Exception $e) {
-                            // Skip individual statement errors
+            // New format: data/*.json (one file per table, exported by DemoController::exportDemo)
+            $dataDir = $tempDir . '/data';
+            if (is_dir($dataDir)) {
+                $this->restoreDatabaseFromJson($dataDir);
+            } else {
+                // Legacy format: database.sql
+                $sqlFile = $tempDir . '/database.sql';
+                if (file_exists($sqlFile)) {
+                    // Split SQL by semicolons and execute
+                    $sql = file_get_contents($sqlFile);
+                    $statements = array_filter(
+                        array_map('trim', explode(";\n", $sql)),
+                        fn($s) => !empty($s)
+                    );
+                    
+                    DB::statement('SET FOREIGN_KEY_CHECKS = 0');
+                    foreach ($statements as $statement) {
+                        if (!empty($statement) && !str_starts_with($statement, '--')) {
+                            try {
+                                DB::unprepared($statement);
+                            } catch (\Exception $e) {
+                                // Skip individual statement errors
+                            }
                         }
                     }
+                    DB::statement('SET FOREIGN_KEY_CHECKS = 1');
                 }
-                DB::statement('SET FOREIGN_KEY_CHECKS = 1');
             }
             
             // ── B. Restore uploads ──
@@ -209,6 +218,66 @@ class BackupController extends Controller
         }
         
         return redirect()->back();
+    }
+    
+    /**
+     * Restore database tables from the JSON export format (data/*.json).
+     * Each file is named {table}.json and contains an array of row objects.
+     */
+    private function restoreDatabaseFromJson(string $dataDir): void
+    {
+        $files = glob($dataDir . '/*.json');
+        if (!$files) return;
+        
+        // Read manifest (if present) to know table order
+        $manifest = null;
+        $manifestPath = $dataDir . '/_manifest.json';
+        if (file_exists($manifestPath)) {
+            $manifest = json_decode(file_get_contents($manifestPath), true);
+        }
+        
+        // Order tables: manifest order first, then any remaining files
+        $ordered = [];
+        if ($manifest && !empty($manifest['tables'])) {
+            foreach (array_keys($manifest['tables']) as $tableName) {
+                $ordered[] = $dataDir . '/' . $tableName . '.json';
+            }
+        }
+        foreach ($files as $file) {
+            if (basename($file) === '_manifest.json') continue;
+            if (!in_array($file, $ordered, true)) {
+                $ordered[] = $file;
+            }
+        }
+        
+        DB::statement('SET FOREIGN_KEY_CHECKS = 0');
+        
+        foreach ($ordered as $file) {
+            $tableName = basename($file, '.json');
+            if ($tableName === '_manifest') continue;
+            
+            $rows = json_decode(file_get_contents($file), true);
+            if (!is_array($rows)) continue;
+            
+            try {
+                // Drop & recreate the table structure via Schema
+                if (Schema::hasTable($tableName)) {
+                    DB::table($tableName)->truncate();
+                }
+                
+                if (!empty($rows)) {
+                    // Insert in chunks to avoid huge single queries
+                    foreach (array_chunk($rows, 500) as $chunk) {
+                        DB::table($tableName)->insert($chunk);
+                    }
+                }
+            } catch (\Exception $e) {
+                // Skip tables that fail (e.g. missing columns on this DB)
+                Log::warning("Restore skipped table {$tableName}: " . $e->getMessage());
+            }
+        }
+        
+        DB::statement('SET FOREIGN_KEY_CHECKS = 1');
     }
     
     // ============================================================

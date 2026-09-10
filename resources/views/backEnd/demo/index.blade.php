@@ -210,16 +210,13 @@
                         </div>
                         <div>
                             <h5 class="fw-bold m-0"> {{ __('Full Site Backup') }} </h5>
-                            <small class="text-muted"> {{ __('Database, uploads, themes, layouts & settings') }} </small>
+                            <small class="text-muted"> {{ __('Database (JSON) + all media files') }} </small>
                         </div>
                     </div>
-                    <p class="small text-muted">Create a complete site backup ZIP. It includes the database and all uploaded media files.</p>
-                    <form action="{{ route('backup.create') }}" method="POST">
-                        @csrf
-                        <button type="submit" class="btn btn-primary rounded-pill px-4">
-                            <i class="mdi mdi-content-save me-1"></i> Create Full Backup
-                        </button>
-                    </form>
+                    <p class="small text-muted">Downloads a ZIP containing every database table as JSON files plus the entire uploads directory (images &amp; media).</p>
+                    <a href="{{ route('demo.export') }}" class="btn btn-primary rounded-pill px-4">
+                        <i class="mdi mdi-download me-1"></i> {{ __('Download Full Backup ZIP') }}
+                    </a>
                 </div>
             </div>
         </div>
