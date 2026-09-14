@@ -1848,6 +1848,22 @@ class OrderController extends Controller
             return redirect()->back();
         }
 
+        if (! warranty_enabled()) {
+            foreach (Cart::instance('pos_shopping')->content() as $item) {
+                $adjustment = (float) ($item->options->warranty_adjustment ?? 0);
+                if ($adjustment == 0 && !($item->options->warranty_tier_id ?? null)) {
+                    continue;
+                }
+                $options = $item->options->toArray();
+                $options['warranty_tier_id'] = null;
+                $options['warranty_adjustment'] = 0;
+                Cart::instance('pos_shopping')->update($item->rowId, [
+                    'price' => max(0, (float) $item->price - $adjustment),
+                    'options' => $options,
+                ]);
+            }
+        }
+
         $subtotalRaw = Cart::instance('pos_shopping')->subtotal();
         $subtotal   = (float) preg_replace('/[^\d.]/', '', (string) $subtotalRaw);
         $discount   = (float) (Session::get('pos_discount') ?? 0);
@@ -1856,7 +1872,9 @@ class OrderController extends Controller
         // 🛡️ Calculate warranty charges from POS cart
         $warrantyCharge = 0;
         foreach (Cart::instance('pos_shopping')->content() as $item) {
-            $warrantyCharge += (float)($item->options->warranty_adjustment ?? 0) * $item->qty;
+            if (warranty_enabled()) {
+                $warrantyCharge += (float)($item->options->warranty_adjustment ?? 0) * $item->qty;
+            }
         }
 
         $exits_customer = Customer::where('phone', $request->phone)
@@ -2003,7 +2021,7 @@ class OrderController extends Controller
             $order_details->product_color    = $savedColor;
 
             // 🛡️ Warranty
-            if ($cart->options->warranty_tier_id ?? null) {
+            if (warranty_enabled() && ($cart->options->warranty_tier_id ?? null)) {
                 $tier = \App\Models\ProductWarrantyTier::find($cart->options->warranty_tier_id);
                 if ($tier && $tier->is_active) {
                     $order_details->warranty_tier_id = $tier->id;

@@ -9,6 +9,10 @@ class WarrantyDisplayService
 {
     public function getDisplayableTiers(Product $product, ?int $variantId = null): array
     {
+        if (! warranty_enabled()) {
+            return [];
+        }
+
         // Respect product-level warranty_method setting
         $method = $product->warranty_method ?? 'active';
         if ($method === 'inactive' || $method === 'hidden') {
@@ -77,6 +81,10 @@ class WarrantyDisplayService
 
     public function hasAnyWarrantyOptions(Product $product, ?int $variantId = null): bool
     {
+        if (! warranty_enabled()) {
+            return false;
+        }
+
         // Respect product-level warranty_method setting
         $method = $product->warranty_method ?? 'active';
         if ($method === 'inactive' || $method === 'hidden') {

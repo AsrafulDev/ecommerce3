@@ -288,6 +288,14 @@
                                 </select>
                             </div>
                         </div>
+                        <div class="mb-2">
+                            <label class="form-label-pro"> {{ __('Warranty System') }} </label>
+                            <select class="form-select custom-input" name="warranty_enabled">
+                                <option value="1" @if(($edit_data->warranty_enabled ?? true) == 1) selected @endif>{{ __('On - Show and use warranty features') }}</option>
+                                <option value="0" @if(($edit_data->warranty_enabled ?? true) == 0) selected @endif>{{ __('Off - Hide and disable warranty features') }}</option>
+                            </select>
+                            <small class="text-muted">{{ __('Controls warranty features across admin, POS, customer panel, cart, checkout and storefront.') }}</small>
+                        </div>
 
                     </div>
                 </div>

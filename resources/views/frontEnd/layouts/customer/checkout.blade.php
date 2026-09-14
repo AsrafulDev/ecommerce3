@@ -504,7 +504,7 @@ if (typeof ttq !== 'undefined') {
         $totalWarrantyCharge = 0;
         foreach (Cart::instance('shopping')->content() as $item) {
             $wd = (float) ($item->options->wholesale_discount ?? 0);
-            $wa = (float) ($item->options->warranty_adjustment ?? 0);
+            $wa = warranty_enabled() ? (float) ($item->options->warranty_adjustment ?? 0) : 0;
             $totalWholesaleDiscount += $wd * $item->qty;
             $totalWarrantyCharge += $wa * $item->qty;
         }

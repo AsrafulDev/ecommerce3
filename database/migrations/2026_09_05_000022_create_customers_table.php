@@ -11,8 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::dropIfExists('customers');
-        DB::statement('CREATE TABLE `customers` (
+        // This squashed migration can run against an existing schema where later
+        // warranty tables already reference customers. Replace the parent safely.
+        DB::statement('SET FOREIGN_KEY_CHECKS=0');
+        try {
+            Schema::dropIfExists('customers');
+            DB::statement('CREATE TABLE `customers` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `name` varchar(155) NOT NULL,
   `slug` varchar(155) NOT NULL,
@@ -33,6 +37,9 @@ return new class extends Migration
   `updated_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci');
+        } finally {
+            DB::statement('SET FOREIGN_KEY_CHECKS=1');
+        }
     }
 
     public function down(): void

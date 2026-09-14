@@ -466,7 +466,7 @@ $brands = Brand::where('status', 1)
             }
 
             // 🛡️ Warranty — surcharge from the active batch
-            if ($request->filled('warranty_tier_id')) {
+            if (warranty_enabled() && $request->filled('warranty_tier_id')) {
                 $warrantyTier = \App\Models\ProductWarrantyTier::find($request->warranty_tier_id);
                 if ($warrantyTier && $warrantyTier->is_active) {
                     $warrantyAdjustment = $pricing->warrantyAdjustment($product, $warrantyTier->id, null, $variantId);
@@ -498,7 +498,7 @@ $brands = Brand::where('status', 1)
             // =========================================================
             $warrantyAdjustment = 0;
             $warrantyTierId = null;
-            if ($request->filled('warranty_tier_id')) {
+            if (warranty_enabled() && $request->filled('warranty_tier_id')) {
                 $warrantyTier = \App\Models\ProductWarrantyTier::find($request->warranty_tier_id);
                 if ($warrantyTier && $warrantyTier->is_active) {
                     $warrantyAdjustment = (float) ($warrantyTier->additional_cost ?? 0);

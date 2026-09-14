@@ -118,6 +118,8 @@ class WarrantyApiController extends Controller
 
     public function fileClaimWeb(Request $request): \Illuminate\Http\RedirectResponse
     {
+        abort_unless(warranty_enabled(), 404);
+
         $request->validate([
             'warranty_sale_id'  => 'required|exists:warranty_sales,id',
             'issue_description' => 'required|string|min:10',
@@ -167,6 +169,8 @@ class WarrantyApiController extends Controller
 
     public function cancelClaimWeb(Request $request): \Illuminate\Http\RedirectResponse
     {
+        abort_unless(warranty_enabled(), 404);
+
         $claim = WarrantyClaim::findOrFail($request->claim_id);
 
         if ($claim->status_enum->isTerminal()) {

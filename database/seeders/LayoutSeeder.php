@@ -110,28 +110,39 @@ class LayoutSeeder extends Seeder
 
             $layoutData['created_by'] = 1;
 
-            // Deactivate previous defaults if this is default
-            if (!empty($layoutData['is_default'])) {
-                HomepageLayout::where('is_default', true)->update(['is_default' => false]);
-                HomepageLayout::where('is_active', true)->update(['is_active' => false]);
-            }
+            $layout = HomepageLayout::firstOrCreate(
+                ['name' => $layoutData['name']],
+                $layoutData
+            );
 
-            $layout = HomepageLayout::create($layoutData);
+            // Only a newly-created default layout should change the active layout.
+            if ($layout->wasRecentlyCreated && !empty($layoutData['is_default'])) {
+                HomepageLayout::where('id', '!=', $layout->id)->update([
+                    'is_default' => false,
+                    'is_active' => false,
+                ]);
+            }
 
             foreach ($sectionList as $item) {
                 $sectionId = $sections[$item['slug']] ?? null;
                 if ($sectionId) {
-                    HomepageLayoutSection::create([
-                        'layout_id' => $layout->id,
-                        'section_id' => $sectionId,
-                        'sort_order' => $item['order'],
-                        'is_visible' => true,
-                        'columns_config' => $item['cols'] ?? 'col-sm-12',
-                    ]);
+                    HomepageLayoutSection::firstOrCreate(
+                        [
+                            'layout_id' => $layout->id,
+                            'section_id' => $sectionId,
+                        ],
+                        [
+                            'sort_order' => $item['order'],
+                            'is_visible' => true,
+                            'columns_config' => $item['cols'] ?? 'col-sm-12',
+                        ]
+                    );
                 }
             }
 
-            $this->command->info("Layout '{$layoutData['name']}' created with " . count($sectionList) . ' sections.');
+            if ($this->command) {
+                $this->command->info("Layout '{$layoutData['name']}' synced with " . count($sectionList) . ' sections.');
+            }
         }
     }
 }

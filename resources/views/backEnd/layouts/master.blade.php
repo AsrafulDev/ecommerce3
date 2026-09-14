@@ -485,6 +485,82 @@
     </style>
     @endif
     <style>.navbar-custom .dropdown-menu .noti-scroll{max-height:230px!important;overflow-y:auto!important}</style>
+    <style>
+      @media (max-width: 991.98px) {
+        .navbar-custom .admin-mobile-search,
+        .navbar-custom .topnav-menu-left > li:nth-child(2) {
+          display: none !important;
+        }
+
+        .navbar-custom .topnav-menu-left {
+          position: relative;
+          z-index: 1002;
+        }
+
+        .navbar-custom .button-menu-mobile {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          width: 56px;
+          height: 70px;
+          padding: 0;
+          line-height: 1;
+        }
+
+        .sidebar-enable .left-side-menu {
+          display: block !important;
+          top: 70px;
+          bottom: 0;
+          height: auto;
+          width: min(280px, 86vw);
+          z-index: 1000 !important;
+          overflow: hidden;
+        }
+
+        .sidebar-enable .left-side-menu > .h-100 {
+          height: 100% !important;
+          overflow-y: auto;
+          -webkit-overflow-scrolling: touch;
+        }
+
+        body.sidebar-enable[data-leftbar-size="condensed"] .left-side-menu {
+          width: min(280px, 86vw) !important;
+          position: fixed;
+          padding-top: 20px;
+        }
+
+        body.sidebar-enable[data-leftbar-size="condensed"] .left-side-menu .user-box {
+          display: block !important;
+        }
+
+        body.sidebar-enable[data-leftbar-size="condensed"] #sidebar-menu .menu-title,
+        body.sidebar-enable[data-leftbar-size="condensed"] #sidebar-menu > ul > li > a > span,
+        body.sidebar-enable[data-leftbar-size="condensed"] #sidebar-menu .menu-arrow {
+          display: inline-block !important;
+        }
+
+        body.sidebar-enable[data-leftbar-size="condensed"] #sidebar-menu > ul > li > a > span {
+          padding-left: 0;
+        }
+
+        body.sidebar-enable[data-leftbar-size="condensed"] #sidebar-menu > ul ul {
+          position: static !important;
+          left: auto !important;
+          width: auto !important;
+          box-shadow: none !important;
+        }
+
+        body.sidebar-enable[data-leftbar-size="condensed"] #sidebar-menu .nav.collapse:not(.show) {
+          display: none !important;
+        }
+
+        body.sidebar-enable[data-leftbar-size="condensed"] #sidebar-menu .nav.collapse.show,
+        body.sidebar-enable[data-leftbar-size="condensed"] #sidebar-menu .nav.collapsing {
+          display: block !important;
+          height: auto !important;
+        }
+      }
+    </style>
     <script src="{{asset('public/backEnd/')}}/assets/js/head.js"></script>
   </head>
 
@@ -502,7 +578,7 @@
       <div class="navbar-custom">
         <div class="container-fluid">
           <ul class="list-unstyled topnav-menu float-end mb-0">
-            <li class="dropdown d-inline-block d-lg-none">
+            <li class="dropdown d-inline-block d-lg-none admin-mobile-search">
               <a class="nav-link dropdown-toggle arrow-none waves-effect waves-light" data-bs-toggle="dropdown" href="#" role="button" aria-haspopup="false" aria-expanded="false">
                 <i class="fe-search noti-icon"></i>
               </a>
@@ -663,7 +739,7 @@
               </button>
             </li>
 
-            <li>
+            <li class="d-none">
               <!-- Mobile menu toggle (Horizontal Layout)-->
               <a class="navbar-toggle nav-link" data-bs-toggle="collapse" data-bs-target="#topnav-menu-content">
                 <div class="lines">
@@ -830,6 +906,7 @@
 @endcanany
 
 {{-- 🛡️ Warranty Management --}}
+@if(warranty_enabled())
 <li class="{{ request()->routeIs('admin.warranty.*') ? 'active menuitem-active' : '' }}">
   <a href="#sidebar-warranty" data-bs-toggle="collapse">
     <i data-feather="shield"></i>
@@ -846,6 +923,7 @@
     </ul>
   </div>
 </li>
+@endif
 
 {{-- ============================================= --}}
 {{--  🆕 SECTION 6: STOCK & PROCUREMENT            --}}

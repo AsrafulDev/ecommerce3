@@ -1,5 +1,17 @@
 <?php
 
+use App\Models\GeneralSetting;
+use Illuminate\Support\Facades\Cache;
+
+if (! function_exists('warranty_enabled')) {
+    function warranty_enabled(): bool
+    {
+        return (bool) Cache::remember('warranty_enabled', 1800, function () {
+            return GeneralSetting::query()->value('warranty_enabled') ?? true;
+        });
+    }
+}
+
 if (!function_exists('color_luminance')) {
     /**
      * Compute relative luminance (0-255) of a hex color.

@@ -151,9 +151,11 @@ $headerSubtitle = $headerSubtitle ?? '';
             <a href="{{route('customer.order_track')}}" class="{{request()->is('customer/order-track*')?'active-menu':'sidebar-item'}} flex items-center px-6 py-3.5 transition-colors">
                 <i class="fas fa-truck w-6"></i> {{ __('Track Order') }}
             </a>
+            @if(warranty_enabled())
             <a href="{{route('customer.warranties')}}" class="{{request()->is('customer/warranties*')||request()->is('customer/warranty-*')?'active-menu':'sidebar-item'}} flex items-center px-6 py-3.5 transition-colors">
                 <i class="fas fa-shield-alt w-6"></i> {{ __('My Warranties') }}
             </a>
+            @endif
             <a href="{{route('customer.refunds')}}" class="{{request()->is('customer/refunds*')?'active-menu':'sidebar-item'}} flex items-center px-6 py-3.5 transition-colors">
                 <i class="fas fa-undo w-6"></i> {{ __('Refund Request') }}
             </a>

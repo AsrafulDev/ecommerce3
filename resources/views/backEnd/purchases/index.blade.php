@@ -281,6 +281,7 @@
                                         </label>
                                     </div>
                                 </div>
+                                @if(warranty_enabled())
                                 {{-- Warranty per product --}}
                                 <div class="row mt-1">
                                     <div class="col-md-3">
@@ -302,12 +303,13 @@
                                         </select>
                                     </div>
                                 </div>
+                                @endif
                                 {{-- ⭐ Batch-wise pricing expanders (after supplier warranty info) --}}
                                 <div class="row mt-2">
                                     <div class="col-12">
                                         <div class="btn-group btn-group-sm" role="group">
                                             <button type="button" class="btn btn-outline-warning toggle-wholesale-pricing"><i class="fe-layers"></i> {{ __('Wholesale Pricing') }}</button>
-                                            <button type="button" class="btn btn-outline-primary toggle-warranty-pricing"><i class="fe-shield"></i> {{ __('Warranty Pricing') }}</button>
+                                            @if(warranty_enabled())<button type="button" class="btn btn-outline-primary toggle-warranty-pricing"><i class="fe-shield"></i> {{ __('Warranty Pricing') }}</button>@endif
                                             <button type="button" class="btn btn-outline-dark toggle-sn-list"><i class="fe-hash"></i> {{ __('SN List') }}</button>
                                         </div>
                                     </div>
@@ -322,6 +324,7 @@
                                     </div>
                                     <button type="button" class="btn btn-xs btn-outline-secondary add-wholesale-pricing-row"><i class="fa fa-plus"></i> {{ __('Add Tier') }}</button>
                                 </div>
+                                @if(warranty_enabled())
                                 {{-- Warranty pricing (per product warranty tier, filled by JS) --}}
                                 <div class="warranty-pricing-block mt-1" style="display:none;">
                                     <div class="table-responsive">
@@ -333,6 +336,7 @@
                                     <button type="button" class="btn btn-xs btn-outline-secondary add-warranty-pricing-row"><i class="fa fa-plus"></i> {{ __('Add Warranty Option') }}</button>
                                     <small class="text-muted d-block mt-1"><i class="fe-info"></i> {{ __('Create warranty options directly here (No Warranty / Supplier / Extended) — no need to pre-create on the product page.') }}</small>
                                 </div>
+                                @endif
                                 {{-- 🔢 Serial Numbers (SN) — one field per Qty at create; read-only list at edit --}}
                                 <div class="sn-block mt-1" style="display:none;">
                                     <div class="small fw-bold text-muted mb-1">🔢 {{ __('Serial Numbers (SN)') }}

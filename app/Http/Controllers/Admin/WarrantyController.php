@@ -33,7 +33,9 @@ class WarrantyController extends Controller
     public function __construct(
         private WarrantyService $warrantyService,
         private WarrantyDisplayService $displayService,
-    ) {}
+    ) {
+        abort_unless(warranty_enabled(), 404);
+    }
 
     // ── Dashboard ──────────────────────────────
 

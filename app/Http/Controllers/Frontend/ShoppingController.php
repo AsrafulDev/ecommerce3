@@ -297,7 +297,7 @@ if ($price <= 0) {
 $warrantyTier = null;
 $warrantyAdjustment = 0;
 $wholesaleDiscount = 0;
-if ($request->filled('warranty_tier_id')) {
+if (warranty_enabled() && $request->filled('warranty_tier_id')) {
     $warrantyTier = \App\Models\ProductWarrantyTier::find($request->warranty_tier_id);
     if ($warrantyTier && $warrantyTier->is_active) {
         $warrantyAdjustment = (float) ($warrantyTier->additional_cost ?? 0);

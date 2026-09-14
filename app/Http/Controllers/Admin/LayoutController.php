@@ -18,7 +18,7 @@ class LayoutController extends Controller
     {
         $this->middleware('permission:layout-list|layout-create|layout-edit|layout-delete', ['only' => ['index', 'store']]);
         $this->middleware('permission:layout-create', ['only' => ['create', 'store']]);
-        $this->middleware('permission:layout-edit', ['only' => ['edit', 'update']]);
+        $this->middleware('permission:layout-edit', ['only' => ['edit', 'update', 'sync']]);
         $this->middleware('permission:layout-delete', ['only' => ['destroy']]);
     }
 
@@ -60,6 +60,16 @@ class LayoutController extends Controller
         Cache::forget('frontend_homepage_v1');
 
         Toastr::success('Layout created successfully!', 'Success');
+        return redirect()->route('layouts.index');
+    }
+
+    public function sync()
+    {
+        app(\Database\Seeders\LayoutSeeder::class)->run();
+
+        Cache::forget('frontend_homepage_v1');
+
+        Toastr::success('Default layouts and missing sections synced successfully!', 'Success');
         return redirect()->route('layouts.index');
     }
 

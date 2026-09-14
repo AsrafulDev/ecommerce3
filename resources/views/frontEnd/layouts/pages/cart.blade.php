@@ -75,7 +75,7 @@
                                             @if($wholesaleDisc > 0)
                                                 <br><small class="text-danger">− ৳{{ number_format($wholesaleDisc, 0) }} (wholesale discount)</small>
                                             @endif
-                                            @if($value->options->warranty_tier_id ?? null)
+                                            @if(warranty_enabled() && ($value->options->warranty_tier_id ?? null))
                                                 @php
                                                     $wt = \App\Models\ProductWarrantyTier::find($value->options->warranty_tier_id);
                                                 @endphp

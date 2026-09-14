@@ -239,6 +239,7 @@ class GeneralSettingController extends Controller
             $input['favicon'] = $update_data->favicon;
         }
         $input['status'] = 1;
+        $input['warranty_enabled'] = $request->boolean('warranty_enabled');
 
         // Handle theme_id and active_layout_id
         $input['theme_id'] = $request->filled('theme_id') ? $request->theme_id : $update_data->theme_id;
@@ -247,6 +248,7 @@ class GeneralSettingController extends Controller
         $update_data->update($input);
 
         Cache::forget('general_setting');
+        Cache::forget('warranty_enabled');
         Cache::forget('frontend_homepage_v1');
         Cache::forget('side_categories');
         Cache::forget('menu_categories');

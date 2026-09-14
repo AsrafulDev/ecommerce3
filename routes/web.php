@@ -452,14 +452,19 @@ Route::group(['prefix'=>'customer','namespace'=>'Frontend','middleware' => ['cus
     Route::get('/complaints', [CustomerController::class, 'complaints'])->name('customer.complaints');
     
     // ── Warranty ──────────────────────────────
-    Route::get('/warranties', fn() => view('frontEnd.layouts.customer.warranties'))->name('customer.warranties');
+    Route::get('/warranties', function () {
+        abort_unless(warranty_enabled(), 404);
+        return view('frontEnd.layouts.customer.warranties');
+    })->name('customer.warranties');
     Route::get('/warranty-claim/{warranty_sale_id}', function ($warranty_sale_id) {
+        abort_unless(warranty_enabled(), 404);
         $warrantySale = \App\Models\WarrantySale::with(['product', 'order', 'claims', 'activeClaim'])->findOrFail($warranty_sale_id);
         return view('frontEnd.layouts.customer.file-warranty-claim', compact('warrantySale'));
     })->name('customer.warranty.claim');
     Route::post('/warranty-claim', [App\Http\Controllers\Api\WarrantyApiController::class, 'fileClaimWeb'])
         ->name('customer.warranty.submit-claim');
     Route::get('/warranty-track/{claim_id}', function ($claim_id) {
+        abort_unless(warranty_enabled(), 404);
         $claim = \App\Models\WarrantyClaim::with(['product', 'warrantySale', 'stages', 'notes.user', 'challans'])->findOrFail($claim_id);
         // Eager-load per-step attachments if the migration has been run (safe otherwise)
         if (\Illuminate\Support\Facades\Schema::hasTable('warranty_claim_stage_attachments')) {
@@ -470,6 +475,7 @@ Route::group(['prefix'=>'customer','namespace'=>'Frontend','middleware' => ['cus
     Route::post('/warranty-cancel', [App\Http\Controllers\Api\WarrantyApiController::class, 'cancelClaimWeb'])
         ->name('customer.warranty.cancel-claim');
     Route::get('/warranty-challan/{challan}', function (\App\Models\WarrantyChallan $challan) {
+        abort_unless(warranty_enabled(), 404);
         $customer = auth('customer')->user();
         if (!$customer || $challan->warrantyClaim->customer_id !== $customer->id) {
             abort(403, 'Unauthorized access to this challan.');
@@ -979,6 +985,7 @@ Route::group(['middleware' => ['auth:admin','admin','lock','check_refer','demo_m
     Route::get('layouts', [LayoutController::class, 'index'])->name('layouts.index');
     Route::get('layout/create', [LayoutController::class, 'create'])->name('layouts.create');
     Route::post('layout/save', [LayoutController::class, 'store'])->name('layouts.store');
+    Route::post('layout/sync', [LayoutController::class, 'sync'])->name('layouts.sync');
     Route::get('layout/{id}/edit', [LayoutController::class, 'edit'])->name('layouts.edit');
     Route::post('layout/update', [LayoutController::class, 'update'])->name('layouts.update');
     Route::get('layout/{id}/builder', [LayoutController::class, 'builder'])->name('layouts.builder');

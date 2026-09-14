@@ -11,6 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
+        // Later squashed migrations may already exist and reference this parent.
+        DB::statement('SET FOREIGN_KEY_CHECKS=0');
         Schema::dropIfExists('expenses');
         DB::statement('CREATE TABLE `expenses` (
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,

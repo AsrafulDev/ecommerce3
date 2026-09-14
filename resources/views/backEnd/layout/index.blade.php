@@ -49,6 +49,12 @@
         <div>
             <a href="{{ route('themes.index') }}" class="btn btn-outline-secondary rounded-pill px-3 me-2">
                 <i class="mdi mdi-palette me-1"></i> {{ __('Themes') }} </a>
+            <form action="{{ route('layouts.sync') }}" method="POST" class="d-inline me-2">
+                @csrf
+                <button type="submit" class="btn btn-outline-primary rounded-pill px-3" onclick="return confirm('{{ __('Sync default layouts and missing sections?') }}')">
+                    <i class="mdi mdi-sync me-1"></i> {{ __('Sync Layouts') }}
+                </button>
+            </form>
             <a href="{{ route('layouts.create') }}" class="btn btn-primary rounded-pill px-4 shadow-sm">
                 <i class="fe-plus me-1"></i> Create Layout
             </a>

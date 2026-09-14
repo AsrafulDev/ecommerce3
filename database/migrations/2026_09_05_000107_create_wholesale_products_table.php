@@ -44,6 +44,7 @@ return new class extends Migration
   PRIMARY KEY (`id`),
   UNIQUE KEY `wholesale_products_slug_unique` (`slug`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci');
+    DB::statement('SET FOREIGN_KEY_CHECKS=1');
     }
 
     public function down(): void

@@ -437,7 +437,7 @@ public function order_save(Request $request)
                 // 🛡️ Warranty tier from campaign order form
                 $warrantyAdjustment = 0;
                 $warrantyTierId = null;
-                if ($request->filled('warranty_tier_id')) {
+                if (warranty_enabled() && $request->filled('warranty_tier_id')) {
                     $warrantyTier = \App\Models\ProductWarrantyTier::find($request->warranty_tier_id);
                     if ($warrantyTier && $warrantyTier->is_active) {
                         $warrantyAdjustment = (float) ($warrantyTier->additional_cost ?? 0);
@@ -478,6 +478,22 @@ public function order_save(Request $request)
                         'warranty_adjustment' => $warrantyAdjustment,
                         'wholesale_discount'  => 0,
                     ],
+                ]);
+            }
+        }
+
+        if (! warranty_enabled()) {
+            foreach (Cart::instance('shopping')->content() as $item) {
+                $adjustment = (float) ($item->options->warranty_adjustment ?? 0);
+                if ($adjustment == 0 && !($item->options->warranty_tier_id ?? null)) {
+                    continue;
+                }
+                $options = $item->options->toArray();
+                $options['warranty_tier_id'] = null;
+                $options['warranty_adjustment'] = 0;
+                Cart::instance('shopping')->update($item->rowId, [
+                    'price' => max(0, (float) $item->price - $adjustment),
+                    'options' => $options,
                 ]);
             }
         }

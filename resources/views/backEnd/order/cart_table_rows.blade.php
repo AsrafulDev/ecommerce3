@@ -6,7 +6,7 @@
         @php
             $pid = $value->options->product_id ?? $value->id;
             $product = \App\Models\Product::find($pid);
-            $warrantyTiers = $product ? \App\Models\ProductWarrantyTier::where('product_id', $product->id)->where('is_active', true)->orderBy('sort_order')->get() : collect();
+            $warrantyTiers = warranty_enabled() && $product ? \App\Models\ProductWarrantyTier::where('product_id', $product->id)->where('is_active', true)->orderBy('sort_order')->get() : collect();
             $currentWarrantyId = $value->options->warranty_tier_id ?? '';
             $sizesList = collect();
             $colorsList = collect();
@@ -58,7 +58,7 @@
         @endif
 
         {{-- 🛡️ Warranty --}}
-        @if($warrantyTiers->isNotEmpty())
+        @if(warranty_enabled() && $warrantyTiers->isNotEmpty())
         <div class="mt-1">
             <label class="form-label small text-muted mb-0" style="font-size:11px">{{ __('Warranty') }}</label>
             <select class="form-select form-select-sm cart-warranty-selector" data-id="{{ $value->rowId }}" data-product-id="{{ $pid }}" style="min-width:130px;font-size:11px;">

@@ -358,6 +358,7 @@
   </div>
 
   {{-- ══════════ 🛡️ WARRANTY OVERVIEW ══════════ --}}
+  @if(warranty_enabled())
   <div class="stat-grid small mt-4">
     <div class="stat-card compact">
       <div class="icon-box icon-purple"><i class="fas fa-shield-alt"></i></div>
@@ -436,6 +437,7 @@
       </div>
     </div>
   </div>
+  @endif
 
   {{-- ══════════ 💥 DAMAGE STOCK ══════════ --}}
   <div class="stat-grid small mt-4">

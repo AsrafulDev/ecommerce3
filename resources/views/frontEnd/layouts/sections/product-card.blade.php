@@ -19,7 +19,10 @@
 --}}
 @php
     $pcDesign      = $generalsetting->product_card_style ?? 'default';
-    $pcImg         = $image_url ?? asset($product->image ? $product->image->image : '');
+    $pcFallback    = asset('public/assets/images/placeholder.webp');
+    $pcImg         = $image_url ?? ($product->image && $product->image->image
+        ? asset($product->image->image)
+        : $pcFallback);
 
     // ⭐ Batch-aware price range (attached by the controller via
     //    PricingService::attachCatalogRanges() when batch-wise is ON).
@@ -73,7 +76,7 @@
             <span class="pc-premium__badge">-{{ $pcDiscount }}%</span>
         @endif
         <a class="pro_img pc-premium__img" href="{{ route('product', $product->slug) }}">
-            <img src="{{ $pcImg }}" alt="{{ $product->name }}" />
+            <img src="{{ $pcImg }}" alt="{{ $product->name }}" onerror="this.onerror=null;this.src='{{ $pcFallback }}';" />
         </a>
         @if ($pcStockOut)
             <div class="stock-out-overlay">STOCK OUT</div>
@@ -114,7 +117,7 @@
 {{-- ============ OVERLAY — full-bleed image, hover quick-actions, info panel ============ --}}
 <div class="product_item wist_item pc-overlay {{ $classes ?? '' }}" {!! $attrs ?? '' !!}>
     <a class="pro_img pc-overlay__media" href="{{ route('product', $product->slug) }}">
-        <img src="{{ $pcImg }}" alt="{{ $product->name }}" />
+        <img src="{{ $pcImg }}" alt="{{ $product->name }}" onerror="this.onerror=null;this.src='{{ $pcFallback }}';" />
     </a>
     @if ($pcStockOut)
         <div class="stock-out-overlay">STOCK OUT</div>
@@ -160,7 +163,7 @@
     @endif
     <div class="pc-ribbon__media">
         <a class="pro_img pc-ribbon__img" href="{{ route('product', $product->slug) }}">
-            <img src="{{ $pcImg }}" alt="{{ $product->name }}" />
+            <img src="{{ $pcImg }}" alt="{{ $product->name }}" onerror="this.onerror=null;this.src='{{ $pcFallback }}';" />
         </a>
         @if ($pcStockOut)
             <div class="stock-out-overlay">STOCK OUT</div>
@@ -186,7 +189,7 @@
 <div class="product_item wist_item pc-glass {{ $classes ?? '' }}" {!! $attrs ?? '' !!}>
     <div class="pc-glass__media">
         <a class="pro_img pc-glass__img" href="{{ route('product', $product->slug) }}">
-            <img src="{{ $pcImg }}" alt="{{ $product->name }}" />
+            <img src="{{ $pcImg }}" alt="{{ $product->name }}" onerror="this.onerror=null;this.src='{{ $pcFallback }}';" />
         </a>
         @if ($pcStockOut)
             <div class="stock-out-overlay">STOCK OUT</div>
@@ -234,7 +237,7 @@
         @endif
         <div class="pro_img">
             <a href="{{ route('product', $product->slug) }}">
-                <img src="{{ $pcImg }}" alt="{{ $product->name }}" />
+                <img src="{{ $pcImg }}" alt="{{ $product->name }}" onerror="this.onerror=null;this.src='{{ $pcFallback }}';" />
             </a>
             @if ($pcStockOut)
                 <div class="stock-out-overlay">STOCK OUT</div>

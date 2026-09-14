@@ -15,6 +15,10 @@ class CartWarrantyService
      */
     public function validateCartWarranties(Collection $cartItems): array
     {
+        if (! warranty_enabled()) {
+            return [];
+        }
+
         $errors = [];
 
         foreach ($cartItems as $item) {
@@ -44,6 +48,10 @@ class CartWarrantyService
      */
     public function getTiersForCartItem($productId): array
     {
+        if (! warranty_enabled()) {
+            return [];
+        }
+
         return ProductWarrantyTier::where('product_id', $productId)
             ->where('is_active', true)
             ->orderBy('sort_order')

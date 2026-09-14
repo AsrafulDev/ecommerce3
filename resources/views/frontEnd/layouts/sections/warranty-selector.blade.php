@@ -2,9 +2,9 @@
   Warranty Selector — Minimal UI for Product Detail Page
   Usage: @include('frontEnd.layouts.sections.warranty-selector', ['product' => $product])
 --}}
+@if(warranty_enabled())
 @php
-    use App\Services\WarrantyDisplayService;
-    $displayService = app(WarrantyDisplayService::class);
+    $displayService = app(\App\Services\WarrantyDisplayService::class);
     $tiers = $displayService->getDisplayableTiers($product);
 @endphp
 
@@ -93,4 +93,5 @@
     }
 })();
 </script>
+@endif
 @endif

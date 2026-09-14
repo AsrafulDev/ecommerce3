@@ -47,7 +47,6 @@
     @endforeach
 @else
     {{-- Fallback: default section order (no layout selected) --}}
-    @include('frontEnd.layouts.sections.fullwidth-slider')
     @include('frontEnd.layouts.sections.main-slider')
     @include('frontEnd.layouts.sections.top-categories')
     @includeIf('frontEnd.layouts.sections.flash-sales')

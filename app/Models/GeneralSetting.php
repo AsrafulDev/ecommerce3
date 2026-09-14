@@ -14,6 +14,7 @@ class GeneralSetting extends Model
         'status' => 'boolean',
         'show_all_products' => 'boolean',
         'show_category_wise_products' => 'boolean',
+        'warranty_enabled' => 'boolean',
         'header_components' => 'array',
         'footer_components' => 'array',
     ];
