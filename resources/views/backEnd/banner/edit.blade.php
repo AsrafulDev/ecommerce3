@@ -167,11 +167,10 @@
                     <div class="image-canvas-wrapper">
                         <img id="realPreview" src="{{asset($edit_data->image)}}" class="real-view-image" alt="Banner Preview">
                         
-                        <label class="upload-overlay-btn" for="imageUpload">
+                        <button type="button" class="upload-overlay-btn" onclick="openMediaPicker('#image_url','#realPreview','path')">
                             <i class="fe-camera"></i> <span> {{ __('Change Image') }} </span>
-                        </label>
-                        <input type="file" name="image" id="imageUpload" class="d-none" accept="image/*" onchange="updateCanvas(this)">
-                        <input type="hidden" name="image_url" id="image_url" value="{{ strpos($edit_data->image, 'uploads/media/') !== false ? $edit_data->image : '' }}">
+                        </button>
+                        <input type="hidden" name="image_url" id="image_url" value="{{ $edit_data->image }}">
 
                         <button type="button" class="upload-overlay-btn" style="bottom:80px; right:20px;" onclick="openMediaPicker('#image_url','#realPreview','path')">
                             <i class="fe-image"></i> <span>{{ __('Media Library') }}</span>

@@ -195,7 +195,9 @@
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label-pro"> {{ __('Preview Image') }} </label>
-                                <input type="file" name="preview_image" class="custom-input">
+                                <button type="button" class="btn btn-outline-secondary" onclick="openMediaPicker('#preview_image_url', '#preview_image', 'path')">{{ __('Choose from Media Library') }}</button>
+                                <input type="hidden" name="preview_image_url" id="preview_image_url" value="{{ old('preview_image_url', $edit_data->preview_image ?? '') }}">
+                                <img id="preview_image" class="mt-2" src="{{ !empty($edit_data->preview_image) ? asset($edit_data->preview_image) : '#' }}" style="max-width:120px; max-height:80px;">
                             </div>
                             <div class="col-md-3">
                                 <label class="form-label-pro"> {{ __('Active?') }} </label>
@@ -442,6 +444,7 @@
         </div>
     </form>
 </div>
+@include('backEnd.media._picker')
 @endsection
 
 @section('script')

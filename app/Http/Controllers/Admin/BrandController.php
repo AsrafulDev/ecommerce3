@@ -27,29 +27,7 @@ class BrandController extends Controller
             'name' => 'required',
             'status' => 'required',
         ]);
-        // image with intervention OR Media Gallery
-        $image = $request->file('image');
-        if($image){
-            $name =  time().'-'.$image->getClientOriginalName();
-            $name = preg_replace('"\.(jpg|jpeg|png|webp)$"', '.webp',$name);
-            $name = strtolower(preg_replace('/\s+/', '-', $name));
-            $uploadpath = 'public/uploads/brand/';
-            $imageUrl = $uploadpath.$name; 
-            $img=Image::make($image->getRealPath());
-            $img->encode('webp', 90);
-            $width = 210;
-            $height = 210;
-            $img->height() > $img->width() ? $width=null : $height=null;
-            $img->resize($width, $height, function ($constraint) {
-                $constraint->aspectRatio();
-            });
-            $img->save($imageUrl); 
-        } elseif ($request->filled('image_url')) {
-            // Media Gallery থেকে বাছাই (path mode) — সরাসরি আপলোড নয়
-            $imageUrl = $request->input('image_url');
-        } else {
-            $imageUrl = NULL;
-        }
+        $imageUrl = $request->input('image_url');
 
         // whitelist — stray fields like 'files' / 'image_url' are ignored
         $input = $request->only(['name', 'name_bn']);
@@ -77,29 +55,7 @@ class BrandController extends Controller
         ]);
         $update_data = Brand::find($request->id);
         $input = $request->only(['name', 'name_bn']);
-        $image = $request->file('image');
-        if($image){
-            // image with intervention 
-            $name =  time().'-'.$image->getClientOriginalName();
-            $name = preg_replace('"\.(jpg|jpeg|png|webp)$"', '.webp',$name);
-            $name = strtolower(preg_replace('/\s+/', '-', $name));
-            $uploadpath = 'public/uploads/brand/';
-            $imageUrl = $uploadpath.$name; 
-            $img=Image::make($image->getRealPath());
-            $img->encode('webp', 90);
-            $width = 210;
-            $height = 210;
-            $img->height() > $img->width() ? $width=null : $height=null;
-            $img->resize($width, $height, function ($constraint) {
-                $constraint->aspectRatio();
-            });
-            $img->save($imageUrl);
-            $input['image'] = $imageUrl;
-            if ($update_data->image && strpos($update_data->image, 'uploads/media/') === false) {
-                File::delete($update_data->image);
-            }
-        } elseif ($request->filled('image_url')) {
-            // Media Gallery থেকে বাছাই (path mode)
+        if ($request->filled('image_url')) {
             $input['image'] = $request->input('image_url');
         } else {
             $input['image'] = $update_data->image;

@@ -125,17 +125,16 @@
                                         <label class="form-label">{{ __('Barcode') }} <small class="text-muted">(Optional)</small></label>
                                         <input type="text" name="variant_price[0][barcode]" class="form-control" placeholder="Scan or enter barcode">
                                     </div>
-                                    <div class="col-md-4 mb-2">
+                                        <div class="col-md-4 mb-2">
                                         <label class="form-label"> {{ __('Variant Image') }} </label>
                                         <div class="variant-img-upload position-relative">
-                                            <input type="hidden" name="variant_image[0][image]" class="variant-media-path" id="variant_image_0_image" value="">
+                                            <input type="hidden" name="variant_image[0][images]" class="variant-media-path" id="variant_image_0_images" value="[]">
                                             <div class="d-flex flex-wrap align-items-center gap-2">
                                                 <button type="button" class="btn btn-sm btn-primary variant-media-pick rounded-pill px-3">
                                                     <i class="fe-image me-1"></i> {{ __('Media Library') }}
                                                 </button>
-                                                <img class="variant-media-preview rounded border" id="variant_image_0_preview" src="" alt=""
-                                                     style="width:52px;height:52px;object-fit:cover;display:none;">
                                             </div>
+                                            <div class="variant-media-previews d-flex flex-wrap gap-2 mt-2"></div>
                                         </div>
                                     </div>
                                     <div class="col-md-1 mb-2">
@@ -374,6 +373,7 @@
                             </div>
                         </div>
 
+                        @if(warranty_enabled())
                         {{-- WARRANTY METHOD --}}
                         <div class="form-group mb-3">
                             <label for="warranty_method" class="form-label">🛡️ {{ __('Warranty Method') }} </label>
@@ -388,6 +388,7 @@
                                 <strong>Hidden:</strong> {{ __('Hide from frontend but keep warranty data') }}
                             </small>
                         </div>
+                        @endif
 
                         {{-- 🏷️ Product Status: Active / Draft / Private --}}
                         <div class="form-group mb-3">
@@ -587,8 +588,8 @@
                 if (oldName) $(this).attr('name', oldName.replace(/\[(\d+)\]/, '[' + variantIndex + ']'));
             });
             // Re-index media picker ids + reset previews for the cloned row
-            firstRow.find('.variant-media-path').attr('id', 'variant_image_' + variantIndex + '_image');
-            firstRow.find('.variant-media-preview').attr('id', 'variant_image_' + variantIndex + '_preview').attr('src', '').hide();
+            firstRow.find('.variant-media-path').attr('id', 'variant_image_' + variantIndex + '_images').val('[]');
+            firstRow.find('.variant-media-previews').empty();
             firstRow.find('.variant-img-preview').hide().find('img').attr('src', '');
 
             firstRow.find('.btn-remove-row').removeClass('d-none');
@@ -617,10 +618,39 @@
         $("body").on("click", ".variant-media-pick", function () {
             var $cell = $(this).closest(".variant-img-upload");
             var $path = $cell.find(".variant-media-path");
-            var $preview = $cell.find(".variant-media-preview");
-            if (window.openMediaPicker && $path.length) {
-                openMediaPicker("#" + $path.attr("id"), $preview.length ? "#" + $preview.attr("id") : null, "path");
+            var $input = $cell.find(".variant-media-path");
+            if (window.openMediaPicker && $input.length) {
+                $input.data('previousPaths', $input.val() || '[]');
+                openMediaPicker("#" + $input.attr("id"), null, "path", true);
             }
+        });
+
+        $(document).on('change', '.variant-media-path', function () {
+            var $input = $(this);
+            var selected = [];
+            var previous = [];
+            try { selected = JSON.parse($input.val() || '[]'); } catch (e) {}
+            try { previous = JSON.parse($input.data('previousPaths') || '[]'); } catch (e) {}
+            var paths = previous.concat(selected).filter(function (path, index, all) {
+                return path && all.indexOf(path) === index;
+            });
+            $input.val(JSON.stringify(paths));
+            var $preview = $input.closest('.variant-img-upload').find('.variant-media-previews').empty();
+            paths.forEach(function (path) {
+                var $item = $('<div class="variant-preview-item position-relative"></div>').attr('data-path', path);
+                $('<img class="rounded border" style="width:52px;height:52px;object-fit:cover;">').attr('src', path.indexOf('public/') === 0 ? window.location.origin + '/' + path : path).appendTo($item);
+                $('<button type="button" class="variant-preview-remove btn btn-xs btn-danger position-absolute top-0 end-0 rounded-circle">&times;</button>').appendTo($item);
+                $preview.append($item);
+            });
+        });
+
+        $(document).on('click', '.variant-preview-remove', function () {
+            var $item = $(this).closest('.variant-preview-item');
+            var $input = $item.closest('.variant-img-upload').find('.variant-media-path');
+            var paths = [];
+            try { paths = JSON.parse($input.val() || '[]'); } catch (e) {}
+            paths = paths.filter(function (path) { return path !== $item.data('path'); });
+            $input.data('previousPaths', '[]').val(JSON.stringify(paths)).trigger('change');
         });
 
 

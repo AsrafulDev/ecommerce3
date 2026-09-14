@@ -262,15 +262,8 @@ class ProductController extends Controller
         $input['meta_description'] = $request->meta_description ?? Str::limit(strip_tags($request->description), 160);
         $input['meta_keywords']    = $request->meta_keywords ?? '';
 
-        // META IMAGE UPLOAD
-        if ($request->hasFile('meta_image')) {
-            $metaImg  = $request->file('meta_image');
-            $metaName = time().'-meta-'.$metaImg->getClientOriginalName();
-            $metaPath = 'public/uploads/product/meta/';
-            $metaImg->move($metaPath, $metaName);
-            $input['meta_image'] = $metaPath.$metaName;
-        } elseif ($request->filled('meta_image_url')) {
-            // Selected from Media Gallery (no upload) — relative path
+        // META IMAGE — Media Manager only
+        if ($request->filled('meta_image_url')) {
             $input['meta_image'] = $request->input('meta_image_url');
         }
 
@@ -316,33 +309,6 @@ class ProductController extends Controller
         }
         if ($request->proColor && is_array($request->proColor) && count($request->proColor) > 0) {
             $product->colors()->attach($request->proColor);
-        }
-
-        // PRODUCT IMAGES (with optional color/size per image)
-        if ($request->hasFile('image')) {
-            $imageColors = $request->image_color ?? [];
-            $imageSizes  = $request->image_size ?? [];
-            foreach ($request->file('image') as $idx => $img) {
-                $name = time().'-'.$img->getClientOriginalName();
-                $name = strtolower(preg_replace('/\s+/', '-', $name));
-                $path = 'public/uploads/product/';
-                $img->move($path, $name);
-
-                $colorId = $imageColors[$idx] ?? null;
-                $sizeId  = $imageSizes[$idx] ?? null;
-
-                Productimage::create([
-                    'product_id' => $product->id,
-                    'image'      => $path.$name,
-                    'color_id'   => $colorId ?: null,
-                    'size_id'    => $sizeId ?: null,
-                ]);
-            }
-
-            // যদি meta_image সেট করা না থাকে, প্রথম ইমেজকে meta_image করো
-            if ($this->hasMetaImageColumn() && empty($product->meta_image) && $product->images()->first()) {
-                $product->update(['meta_image' => $product->images()->first()->image]);
-            }
         }
 
         // Image selected from the Media Gallery (no file upload)
@@ -408,54 +374,8 @@ class ProductController extends Controller
             }
         }
 
-        // VARIANT IMAGES — variant_image[row_index][image] is a Media-Library path string,
-        // variant_image[row_index][image_file] is a direct upload; image_row links to the row.
-        if ($request->variant_price && is_array($request->variant_price)) {
-            $savedFiles = [];
-            $doneKeys = [];
-            foreach ($request->variant_price as $idx => $vp) {
-                $imageRow = $vp['image_row'] ?? $idx;
-                $colorId = $vp['color_id'] ?? null;
-                $sizeId = $vp['size_id'] ?? null;
-                if (is_array($sizeId)) {
-                    $sizeId = !empty($sizeId) ? $sizeId[0] : null;
-                }
-
-                // Skip rows that carry no image at all (no media path AND no file).
-                // ⚠️ An image CAN be attached even when the variant has no color.
-                $mediaPath = $request->input("variant_image.{$imageRow}.image");
-                $file = $request->file("variant_image.{$imageRow}.image_file");
-                $hasImage = (is_string($mediaPath) && trim($mediaPath) !== '') || $file;
-                if (!$hasImage) {
-                    continue;
-                }
-
-                // Dedup identical color+size combos (same variant identity).
-                $key = ($colorId ?: '0') . '_' . ($sizeId ?: '0');
-                if (isset($doneKeys[$key])) continue;
-                $doneKeys[$key] = true;
-
-                // Prefer a Media-Library path; fall back to a direct file upload.
-                if (!isset($savedFiles[$imageRow])) {
-                    if (is_string($mediaPath) && trim($mediaPath) !== '') {
-                        $savedFiles[$imageRow] = trim($mediaPath);
-                    } elseif ($file) {
-                        $name = time().'-'.uniqid().'-'.$file->getClientOriginalName();
-                        $name = strtolower(preg_replace('/\s+/', '-', $name));
-                        $path = 'public/uploads/product/';
-                        $file->move($path, $name);
-                        $savedFiles[$imageRow] = $path.$name;
-                    }
-                }
-                if (!isset($savedFiles[$imageRow])) continue;
-                Productimage::create([
-                    'product_id' => $product->id,
-                    'image'      => $savedFiles[$imageRow],
-                    'color_id'   => $colorId,
-                    'size_id'    => $sizeId ?: null,
-                ]);
-            }
-        }
+        // Save every media-library and direct-upload image attached to each variant.
+        $this->saveVariantImages($request, $product);
 
         // WHOLESALE PRICING TIERS
         if ($input['is_wholesale'] && $request->wholesale_discount && is_array($request->wholesale_discount)) {
@@ -593,6 +513,7 @@ class ProductController extends Controller
             'image_url',
             'meta_image_url',
             'media_image_urls',
+            'media_gallery_synced',
             'image_color',
             'image_size',
             'meta_image',
@@ -673,18 +594,8 @@ class ProductController extends Controller
         $input['meta_description'] = $request->meta_description ?? $request->description;
         $input['meta_keywords']    = $request->meta_keywords ?? '';
 
-        // META IMAGE UPDATE
-        if ($request->hasFile('meta_image')) {
-            if ($product->meta_image && file_exists($product->meta_image)) {
-                @unlink($product->meta_image);
-            }
-            $metaImg  = $request->file('meta_image');
-            $metaName = time().'-meta-'.$metaImg->getClientOriginalName();
-            $metaPath = 'public/uploads/product/meta/';
-            $metaImg->move($metaPath, $metaName);
-            $input['meta_image'] = $metaPath.$metaName;
-        } elseif ($request->filled('meta_image_url')) {
-            // Selected from Media Gallery (no upload)
+        // META IMAGE UPDATE — Media Manager only
+        if ($request->filled('meta_image_url')) {
             $input['meta_image'] = $request->input('meta_image_url');
         }
 
@@ -743,28 +654,6 @@ class ProductController extends Controller
         $product->sizes()->sync($request->proSize ?? []);
         $product->colors()->sync($request->proColor ?? []);
 
-        // NEW IMAGES (with optional color/size per image)
-        if ($request->hasFile('image')) {
-            $imageColors = $request->image_color ?? [];
-            $imageSizes  = $request->image_size ?? [];
-            foreach ($request->file('image') as $idx => $img) {
-                $name = time().'-'.$img->getClientOriginalName();
-                $name = strtolower(preg_replace('/\s+/', '-', $name));
-                $path = 'public/uploads/product/';
-                $img->move($path, $name);
-
-                $colorId = $imageColors[$idx] ?? null;
-                $sizeId  = $imageSizes[$idx] ?? null;
-
-                Productimage::create([
-                    'product_id' => $product->id,
-                    'image'      => $path.$name,
-                    'color_id'   => $colorId ?: null,
-                    'size_id'    => $sizeId ?: null,
-                ]);
-            }
-        }
-
         // Image selected from the Media Gallery (no file upload)
         if ($request->filled('image_url')) {
             Productimage::create([
@@ -775,88 +664,48 @@ class ProductController extends Controller
             ]);
         }
 
-        // Multiple images selected from the Media Gallery
-        if ($request->filled('media_image_urls')) {
-            foreach ((array) $request->input('media_image_urls') as $mediaPath) {
-                if (!is_string($mediaPath) || trim($mediaPath) === '') {
+        // Reconcile the non-variant gallery only after the Media Manager was used.
+        // Variant-linked images are deliberately excluded from this operation.
+        if ($request->boolean('media_gallery_synced')) {
+            $selectedPaths = collect((array) $request->input('media_image_urls', []))
+                ->filter(fn ($path) => is_string($path) && trim($path) !== '')
+                ->map(fn ($path) => trim($path))
+                ->unique()
+                ->values();
+            $identity = static fn (string $path): string => preg_replace(
+                '#^/?(?:public/)?uploads/media/#',
+                '',
+                $path
+            );
+            $selectedIdentities = $selectedPaths->map($identity)->all();
+            $keptIdentities = [];
+
+            foreach ($product->images()->whereNull('color_id')->whereNull('size_id')->get() as $galleryImage) {
+                $imageIdentity = $identity((string) $galleryImage->image);
+                if (!in_array($imageIdentity, $selectedIdentities, true) || in_array($imageIdentity, $keptIdentities, true)) {
+                    $galleryImage->delete();
+                    continue;
+                }
+                $keptIdentities[] = $imageIdentity;
+            }
+
+            foreach ($selectedPaths as $mediaPath) {
+                $mediaIdentity = $identity($mediaPath);
+                if (in_array($mediaIdentity, $keptIdentities, true)) {
                     continue;
                 }
                 Productimage::create([
                     'product_id' => $product->id,
-                    'image'      => trim($mediaPath),
+                    'image'      => $mediaPath,
                     'color_id'   => null,
                     'size_id'    => null,
                 ]);
+                $keptIdentities[] = $mediaIdentity;
             }
         }
 
-        // VARIANT IMAGES — variant_image[row_index][image] is a Media-Library path string,
-        // variant_image[row_index][image_file] is a direct upload; image_row links to the row.
-        if ($request->variant_price && is_array($request->variant_price)) {
-            $savedFiles = [];
-            $doneKeys = [];
-            foreach ($request->variant_price as $idx => $vp) {
-                $imageRow = $vp['image_row'] ?? $idx;
-                $colorId = $vp['color_id'] ?? null;
-                $sizeId = $vp['size_id'] ?? null;
-                if (is_array($sizeId)) {
-                    $sizeId = !empty($sizeId) ? $sizeId[0] : null;
-                }
-
-                // Skip rows that carry no image at all (no media path AND no file).
-                // ⚠️ An image CAN be attached even when the variant has no color.
-                $mediaPath = $request->input("variant_image.{$imageRow}.image");
-                $file = $request->file("variant_image.{$imageRow}.image_file");
-                $hasImage = (is_string($mediaPath) && trim($mediaPath) !== '') || $file;
-                if (!$hasImage) {
-                    continue;
-                }
-
-                // Dedup identical color+size combos (same variant identity).
-                $key = ($colorId ?: '0') . '_' . ($sizeId ?: '0');
-                if (isset($doneKeys[$key])) continue;
-                $doneKeys[$key] = true;
-
-                // Prefer a Media-Library path; fall back to a direct file upload.
-                if (!isset($savedFiles[$imageRow])) {
-                    if (is_string($mediaPath) && trim($mediaPath) !== '') {
-                        $savedFiles[$imageRow] = trim($mediaPath);
-                    } elseif ($file) {
-                        $name = time().'-'.uniqid().'-'.$file->getClientOriginalName();
-                        $name = strtolower(preg_replace('/\s+/', '-', $name));
-                        $path = 'public/uploads/product/';
-                        $file->move($path, $name);
-                        $savedFiles[$imageRow] = $path.$name;
-                    }
-                }
-                if (!isset($savedFiles[$imageRow])) continue;
-
-                // Replace any previously attached image for this exact variant
-                // (color+size), so re-picking an image doesn't leave duplicates.
-                // Only when the variant has a real identity — never touch main images.
-                if ($colorId || $sizeId) {
-                    $existing = Productimage::where('product_id', $product->id)
-                        ->where('color_id', $colorId ?: null)
-                        ->where('size_id', $sizeId ?: null)
-                        ->get();
-
-                    if ($existing->firstWhere('image', $savedFiles[$imageRow])) {
-                        continue; // already attached — nothing to do
-                    }
-
-                    foreach ($existing as $oldImg) {
-                        $oldImg->delete();
-                    }
-                }
-
-                Productimage::create([
-                    'product_id' => $product->id,
-                    'image'      => $savedFiles[$imageRow],
-                    'color_id'   => $colorId,
-                    'size_id'    => $sizeId ?: null,
-                ]);
-            }
-        }
+        // Append new images and retain every existing image for each variant.
+        $this->saveVariantImages($request, $product);
 
         // VARIANTS UPDATE - Single size per variant
         // Preserve existing variant stock + barcode (maintained via purchase batches / stock adjustments)
@@ -1302,6 +1151,62 @@ class ProductController extends Controller
             if ($img) {
                 $vp->update(['image' => $img->image]);
             }
+        }
+    }
+
+    private function saveVariantImages(Request $request, Product $product): void
+    {
+        if (!$request->variant_price || !is_array($request->variant_price)) {
+            return;
+        }
+
+        foreach ($request->variant_price as $idx => $variant) {
+            $imageRow = $variant['image_row'] ?? $idx;
+            $colorId = $variant['color_id'] ?? null;
+            $sizeId = $variant['size_id'] ?? null;
+            if (is_array($sizeId)) {
+                $sizeId = $sizeId[0] ?? null;
+            }
+
+            $paths = [];
+            $jsonPaths = $request->input("variant_image.{$imageRow}.images");
+            if (is_string($jsonPaths) && $jsonPaths !== '') {
+                $decoded = json_decode($jsonPaths, true);
+                $paths = is_array($decoded) ? $decoded : [$jsonPaths];
+            } elseif (is_array($jsonPaths)) {
+                $paths = $jsonPaths;
+            }
+
+            // Keep compatibility with older single-image forms.
+            $legacyPath = $request->input("variant_image.{$imageRow}.image");
+            if (is_string($legacyPath) && trim($legacyPath) !== '') {
+                $paths[] = $legacyPath;
+            }
+
+            foreach ($paths as $path) {
+                if (!is_string($path) || trim($path) === '') {
+                    continue;
+                }
+                $this->createVariantImageIfMissing($product, trim($path), $colorId, $sizeId);
+            }
+        }
+    }
+
+    private function createVariantImageIfMissing(Product $product, string $path, $colorId, $sizeId): void
+    {
+        $exists = Productimage::where('product_id', $product->id)
+            ->where('image', $path)
+            ->where('color_id', $colorId ?: null)
+            ->where('size_id', $sizeId ?: null)
+            ->exists();
+
+        if (!$exists) {
+            Productimage::create([
+                'product_id' => $product->id,
+                'image' => $path,
+                'color_id' => $colorId ?: null,
+                'size_id' => $sizeId ?: null,
+            ]);
         }
     }
 

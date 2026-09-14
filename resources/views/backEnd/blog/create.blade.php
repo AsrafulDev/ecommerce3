@@ -166,6 +166,7 @@
     <form action="{{ route('admin.blog.store') }}" method="POST" enctype="multipart/form-data">
         @csrf
         <div class="row">
+            @include('backEnd.media._picker')
             
             <div class="col-lg-8">
                 
@@ -235,8 +236,8 @@
                         <h5 class="card-title"> {{ __('Featured Image') }} </h5>
                     </div>
                     <div class="card-body">
-                        <div class="image-upload-box" onclick="document.getElementById('image').click()">
-                            <input type="file" name="image" id="image" class="d-none" accept="image/*" onchange="readURL(this)">
+                        <div class="image-upload-box" onclick="openMediaPicker('#image_url', '#preview_image', 'path')">
+                            <input type="hidden" name="image_url" id="image_url" value="">
                             
                             <div id="upload_placeholder" class="upload-placeholder">
                                 <i class="fe-upload-cloud"></i>

@@ -226,20 +226,29 @@
                                         <div class="col-md-6 mb-2">
                                             <label class="form-label"> {{ __('Variant Image') }} </label>
                                             @php
-                                                $firstImg = $edit_data->images->filter(function($img) use ($vp) {
+                                                $variantImages = $edit_data->images->filter(function($img) use ($vp) {
                                                     return ($img->color_id == $vp->color_id || (empty($img->color_id) && empty($vp->color_id)))
                                                         && ($img->size_id == $vp->size_id || (empty($img->size_id) && empty($vp->size_id)));
-                                                })->unique('image')->first();
+                                                })->unique('image')->values();
+                                                if (!empty($vp->image) && !$variantImages->contains('image', $vp->image)) {
+                                                    $variantImages->push((object) ['image' => $vp->image]);
+                                                }
                                             @endphp
                                             <div class="variant-img-upload">
-                                                <input type="hidden" name="variant_image[{{ $variantIndex }}][image]" class="variant-media-path" id="variant_image_{{ $variantIndex }}_image" value="{{ $firstImg ? $firstImg->image : '' }}">
+                                                            <input type="hidden" name="variant_image[{{ $variantIndex }}][images]" class="variant-media-path" id="variant_image_{{ $variantIndex }}_images" value="{{ json_encode($variantImages->pluck('image')->values()) }}">
                                                 <div class="d-flex flex-wrap align-items-center gap-2">
                                                     <button type="button" class="btn btn-sm btn-primary variant-media-pick rounded-pill px-3">
                                                         <i class="fe-image me-1"></i> {{ __('Media Library') }}
                                                     </button>
-                                                    <img class="variant-media-preview rounded border" id="variant_image_{{ $variantIndex }}_preview" src="{{ $firstImg ? asset($firstImg->image) : '' }}" alt=""
-                                                         style="width:52px;height:52px;object-fit:cover;{{ $firstImg ? '' : 'display:none;' }}">
                                                 </div>
+                                                            <div class="variant-media-previews d-flex flex-wrap gap-2 mt-2">
+                                                                @foreach($variantImages as $variantImage)
+                                                                    <div class="variant-preview-item position-relative" data-path="{{ $variantImage->image }}">
+                                                                        <img src="{{ asset($variantImage->image) }}" class="rounded border" style="width:52px;height:52px;object-fit:cover;">
+                                                                        <button type="button" class="variant-preview-remove btn btn-xs btn-danger position-absolute top-0 end-0 rounded-circle">&times;</button>
+                                                                    </div>
+                                                                @endforeach
+                                                            </div>
                                             </div>
                                         </div>
 
@@ -291,14 +300,13 @@
                                         <div class="col-md-2 mb-2">
                                             <label class="form-label"> {{ __('Variant Image') }} </label>
                                             <div class="variant-img-upload">
-                                                <input type="hidden" name="variant_image[0][image]" class="variant-media-path" id="variant_image_0_image" value="">
+                                                <input type="hidden" name="variant_image[0][images]" class="variant-media-path" id="variant_image_0_images" value="[]">
                                                 <div class="d-flex flex-wrap align-items-center gap-2">
                                                     <button type="button" class="btn btn-sm btn-primary variant-media-pick rounded-pill px-3">
                                                         <i class="fe-image me-1"></i> {{ __('Media Library') }}
                                                     </button>
-                                                    <img class="variant-media-preview rounded border" id="variant_image_0_preview" src="" alt=""
-                                                         style="width:52px;height:52px;object-fit:cover;display:none;">
                                                 </div>
+                                                <div class="variant-media-previews d-flex flex-wrap gap-2 mt-2"></div>
                                             </div>
                                         </div>
 
@@ -324,7 +332,7 @@
 
 
 
-                @if(!$batchWise)
+                @if(warranty_enabled() && !$batchWise)
                 {{-- 🛡️ WARRANTY TIERS (legacy — in batch-wise mode tiers are managed on the Purchase page) --}}
                 @php
                     $warrantyTiers = $warrantyTiers ?? collect();
@@ -595,14 +603,21 @@
                                     <small class="text-muted">Select one or more images, then press “Add Selected”.</small>
                                     <small class="text-muted text-truncate ms-auto" id="media_image_urls_json_file" style="max-width:220px;"></small>
                                 </div>
-                                <input type="hidden" id="media_image_urls_json">
-                                <div id="mediaPickedPreviews" class="d-flex flex-wrap gap-2 mt-2"></div>
-                            </div>
-
-                            <div class="product_img d-flex flex-wrap">
-                                @foreach($edit_data->images->filter(fn($img) => !$img->color_id && !$img->size_id) as $image)
-                                    <div class="position-relative me-2 mb-2">
+                                @php
+                                    $existingGalleryPaths = $edit_data->images
+                                        ->filter(fn($img) => !$img->color_id && !$img->size_id)
+                                        ->pluck('image')
+                                        ->values()
+                                        ->all();
+                                @endphp
+                                <input type="hidden" id="media_image_urls_json"
+                                        data-existing-paths="{{ base64_encode(json_encode($existingGalleryPaths)) }}">
+                                <input type="hidden" name="media_gallery_synced" id="media_gallery_synced" value="0">
+                                <div id="mediaPickedPreviews" class="d-flex flex-wrap gap-2 mt-2">
+                                    @foreach($edit_data->images->filter(fn($img) => !$img->color_id && !$img->size_id) as $image)
+                                    <div class="position-relative me-2 mb-2 attached-product-image" data-existing-media-image="{{ $image->id }}" data-image-path="{{ $image->image }}">
                                         <img src="{{asset($image->image)}}" class="edit-image border" alt="">
+                                        <span class="badge bg-success position-absolute bottom-0 start-0">{{ __('Attached') }}</span>
                                         <a href="{{route('products.image.remove',['id'=>$image->id])}}"
                                            class="btn btn-xs btn-warning waves-effect waves-light position-absolute top-0 end-0 rounded-circle"
                                            style="padding: 0px 4px; top: -5px; right: -5px;"
@@ -611,25 +626,9 @@
                                             <i class="mdi mdi-close"></i>
                                         </a>
                                     </div>
-                                @endforeach
-                            </div>
-                            @php $colorSizeImages = $edit_data->images->filter(fn($img) => $img->color_id || $img->size_id); @endphp
-                            @if($colorSizeImages->isNotEmpty())
-                            <div class="mt-3">
-                                <label class="form-label small text-muted"> {{ __('Color/Size Images') }} </label>
-                                <div class="d-flex flex-wrap gap-2">
-                                    @foreach($colorSizeImages as $img)
-                                        <div class="position-relative">
-                                            <img src="{{asset($img->image)}}" class="edit-image border" alt="">
-                                            <span class="badge bg-info position-absolute bottom-0 start-0" style="font-size:9px;">
-                                                {{ $img->color ? ($img->color->colorName ?? $img->color->name) : '-' }} / {{ $img->size ? ($img->size->sizeName ?? $img->size->name) : '-' }}
-                                            </span>
-                                            <a href="{{route('products.image.remove',['id'=>$img->id])}}" class="btn btn-xs btn-warning position-absolute top-0 end-0 rounded-circle" style="padding:0 4px;top:-5px;right:-5px;" title="{{ __('Remove from product (file stays in Media Library)') }}" onclick="return confirm('{{ __("Remove this image from the product? The file will remain in the Media Library.") }}')"><i class="mdi mdi-close"></i></a>
-                                        </div>
                                     @endforeach
                                 </div>
                             </div>
-                            @endif
 
                         </div>
 
@@ -958,20 +957,42 @@
             try { paths = JSON.parse(this.value || '[]'); } catch (e) { return; }
             var wrap = document.getElementById('mediaPickedPreviews');
             if (!wrap) return;
-            // Already-added media paths (so we can accumulate instead of replace)
-            var existing = [];
-            wrap.querySelectorAll('input[name="media_image_urls[]"]').forEach(function (i) { existing.push(i.value); });
-            paths.forEach(function (p) {
-                if (existing.indexOf(p) >= 0) return; // already added
+            document.getElementById('media_gallery_synced').value = '1';
 
+            function identity(path) {
+                return String(path || '').replace(/^\/?(?:public\/)?uploads\/media\//, '');
+            }
+
+            // The picker returns the complete current selection. Rebuild the
+            // hidden inputs and preview so deselected old images disappear.
+            wrap.querySelectorAll('input[name="media_image_urls[]"]').forEach(function (i) { i.remove(); });
+            wrap.querySelectorAll('[data-existing-media-image]').forEach(function (card) {
+                card.style.display = 'none';
+            });
+            wrap.querySelectorAll('[data-new-media-image]').forEach(function (card) {
+                card.remove();
+            });
+
+            var existingCards = {};
+            wrap.querySelectorAll('[data-existing-media-image]').forEach(function (card) {
+                existingCards[identity(card.dataset.imagePath)] = card;
+            });
+            paths.forEach(function (p) {
                 var inp = document.createElement('input');
                 inp.type = 'hidden';
                 inp.name = 'media_image_urls[]';
                 inp.value = p;
                 wrap.appendChild(inp);
 
+                var existingCard = existingCards[identity(p)];
+                if (existingCard) {
+                    existingCard.style.display = '';
+                    return;
+                }
+
                 var div = document.createElement('div');
                 div.className = 'position-relative me-2 mb-2';
+                div.setAttribute('data-new-media-image', '1');
                 var img = document.createElement('img');
                 img.src = (p.indexOf('public/') === 0) ? window.location.origin + '/' + p : p;
                 img.style.cssText = 'width:70px;height:70px;object-fit:cover;border-radius:6px;border:1px solid #e2e8f0;';
@@ -1116,8 +1137,8 @@ $(function() {
         });
         
         // Re-index the media picker ids + reset preview for the cloned row
-        newRow.find('.variant-media-path').attr('id', 'variant_image_' + variantIndex + '_image').val('');
-        newRow.find('.variant-media-preview').attr('id', 'variant_image_' + variantIndex + '_preview').attr('src', '').hide();
+        newRow.find('.variant-media-path').attr('id', 'variant_image_' + variantIndex + '_images').val('[]');
+        newRow.find('.variant-media-previews').empty();
 
         // Change add button to remove button
         newRow.find('.add-variant')
@@ -1143,10 +1164,37 @@ $(function() {
     $(document).on('click', '.variant-media-pick', function () {
         var $cell = $(this).closest('.variant-img-upload');
         var $path = $cell.find('.variant-media-path');
-        var $preview = $cell.find('.variant-media-preview');
-        if (window.openMediaPicker && $path.length) {
-            openMediaPicker('#' + $path.attr('id'), $preview.length ? '#' + $preview.attr('id') : null, 'path');
+        var $input = $cell.find('.variant-media-path');
+        if (window.openMediaPicker && $input.length) {
+            $input.data('previousPaths', $input.val() || '[]');
+            openMediaPicker('#' + $input.attr('id'), null, 'path', true);
         }
+    });
+
+    $(document).on('change', '.variant-media-path', function () {
+        var $input = $(this), selected = [], previous = [];
+        try { selected = JSON.parse($input.val() || '[]'); } catch (e) {}
+        try { previous = JSON.parse($input.data('previousPaths') || '[]'); } catch (e) {}
+        var paths = previous.concat(selected).filter(function (path, index, all) {
+            return path && all.indexOf(path) === index;
+        });
+        $input.val(JSON.stringify(paths));
+        var $preview = $input.closest('.variant-img-upload').find('.variant-media-previews').empty();
+        paths.forEach(function (path) {
+            var $item = $('<div class="variant-preview-item position-relative"></div>').attr('data-path', path);
+            $('<img class="rounded border" style="width:52px;height:52px;object-fit:cover;">').attr('src', path.indexOf('public/') === 0 ? window.location.origin + '/' + path : path).appendTo($item);
+            $('<button type="button" class="variant-preview-remove btn btn-xs btn-danger position-absolute top-0 end-0 rounded-circle">&times;</button>').appendTo($item);
+            $preview.append($item);
+        });
+    });
+
+    $(document).on('click', '.variant-preview-remove', function () {
+        var $item = $(this).closest('.variant-preview-item');
+        var $input = $item.closest('.variant-img-upload').find('.variant-media-path');
+        var paths = [];
+        try { paths = JSON.parse($input.val() || '[]'); } catch (e) {}
+        paths = paths.filter(function (path) { return path !== $item.data('path'); });
+        $input.data('previousPaths', '[]').val(JSON.stringify(paths)).trigger('change');
     });
 });
 </script>

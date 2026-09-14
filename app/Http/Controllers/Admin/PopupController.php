@@ -20,20 +20,13 @@ class PopupController extends Controller
     {
         // শুধু ইমেজ বাধ্যতামূলক - মিডিয়া লাইব্রেরি থেকে বাছাই অথবা সরাসরি আপলোড
         $request->validate([
-            'image'     => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:5000',
-            'image_url' => 'required_without:image|nullable|string',
+            'image_url' => 'required|string',
         ]);
 
         try {
             $popup = new Popup();
 
-            // ইমেজ: সরাসরি আপলোড অথবা মিডিয়া লাইব্রেরি থেকে বাছাই
-            if ($request->hasFile('image')) {
-                $image = $request->file('image');
-                $new_name = time() . '.' . $image->getClientOriginalExtension();
-                $image->move(public_path('uploads/popup'), $new_name);
-                $popup->image = 'uploads/popup/' . $new_name;
-            } elseif ($request->filled('image_url')) {
+            if ($request->filled('image_url')) {
                 // Selected from Media Gallery — popup stores WITHOUT 'public/' prefix
                 $mediaPath = $request->input('image_url');
                 if (str_starts_with($mediaPath, 'public/')) {
@@ -43,9 +36,7 @@ class PopupController extends Controller
             }
 
             // টাইটেল না দিলে ইমেজের নাম বা ডিফল্ট ব্যবহার
-            $defaultTitle = $request->hasFile('image')
-                ? pathinfo($request->file('image')->getClientOriginalName(), PATHINFO_FILENAME)
-                : 'Popup';
+            $defaultTitle = 'Popup';
             $popup->title = $request->title ?: $defaultTitle;
             $popup->description = $request->description;
             $popup->btn_text = $request->btn_text;
@@ -79,18 +70,7 @@ class PopupController extends Controller
 
         $popup = Popup::find($request->hidden_id);
 
-        if ($request->hasFile('image')) {
-            $image = $request->file('image');
-            $new_name = time() . '.' . $image->getClientOriginalExtension();
-            
-            // পুরাতন ছবি ডিলিট (কিন্তু শেয়ার্ড Media Gallery এর ফাইল না)
-            if (strpos($popup->image ?? '', 'uploads/media/') === false && File::exists(public_path($popup->image))) {
-                File::delete(public_path($popup->image));
-            }
-
-            $image->move(public_path('uploads/popup'), $new_name);
-            $popup->image = 'uploads/popup/' . $new_name;
-        } elseif ($request->filled('image_url')) {
+        if ($request->filled('image_url')) {
             // Selected from Media Gallery — popup stores WITHOUT 'public/' prefix
             $mediaPath = $request->input('image_url');
             if (str_starts_with($mediaPath, 'public/')) {

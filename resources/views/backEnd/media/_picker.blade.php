@@ -72,8 +72,12 @@
         position:relative; background:#fff; transition:all .15s;
     }
     #mediaPickerModal .picker-file:hover { border-color:#4e73df; box-shadow:0 4px 12px rgba(0,0,0,.08); }
-    #mediaPickerModal .picker-file.selected { border-color:#4e73df; box-shadow:0 0 0 2px rgba(78,115,223,.25); }
-    #mediaPickerModal .picker-file .pf-thumb { height:90px; display:flex; align-items:center; justify-content:center; background:#f6f8fb; overflow:hidden; }
+    #mediaPickerModal .picker-file.selected {
+        border:3px solid #198754;
+        box-shadow:0 0 0 3px rgba(25,135,84,.22), 0 5px 14px rgba(25,135,84,.18);
+        background:#f0fff7;
+    }
+    #mediaPickerModal .picker-file .pf-thumb { height:90px; display:flex; align-items:center; justify-content:center; background:#f6f8fb; overflow:hidden; position:relative; }
     #mediaPickerModal .picker-file .pf-thumb img { width:100%; height:100%; object-fit:cover; }
     #mediaPickerModal .picker-file .pf-thumb .pf-pdf { color:#dc3545; display:flex; flex-direction:column; align-items:center; font-size:10px; font-weight:700; }
     #mediaPickerModal .picker-file .pf-thumb .pf-pdf svg { width:28px; height:28px; }
@@ -82,11 +86,21 @@
         position:absolute; top:6px; left:6px; width:16px; height:16px; accent-color:#4e73df;
     }
     #mediaPickerModal .picker-tick {
-        position:absolute; top:6px; right:6px; width:18px; height:18px; border-radius:50%;
-        background:#4e73df; color:#fff; display:none; align-items:center; justify-content:center;
+        position:absolute; top:5px; right:5px; z-index:3; width:27px; height:27px; border-radius:50%;
+        background:#198754; color:#fff; display:none; align-items:center; justify-content:center;
+        border:2px solid #fff; box-shadow:0 2px 5px rgba(0,0,0,.25);
     }
     #mediaPickerModal .picker-file.selected .picker-tick { display:flex; }
-    #mediaPickerModal .picker-tick svg { width:12px; height:12px; }
+    #mediaPickerModal .picker-file.selected .pf-thumb::after {
+        content:'Selected'; position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
+        background:rgba(25,135,84,.16); color:#146c43; font-size:11px; font-weight:800;
+        text-transform:uppercase; letter-spacing:.3px; pointer-events:none;
+    }
+    #mediaPickerModal .picker-file.attached::after {
+        content:'Attached'; position:absolute; right:6px; bottom:34px; padding:2px 5px;
+        border-radius:4px; background:#198754; color:#fff; font-size:9px; font-weight:700;
+    }
+    #mediaPickerModal .picker-tick svg { width:16px; height:16px; stroke-width:3; }
 </style>
 
 <script>
@@ -107,7 +121,15 @@
         window._pickerSelected = null; // {path,name,url,rel}
         window._pickerMulti = false;   // multi-select mode (accumulate several files)
         window._pickerMultiItems = []; // [{path,name,url,rel}, ...]
+        window._pickerExistingPaths = [];
+        window._pickerUnselectedExisting = [];
         window._pickerCallback = null; // optional callback (e.g. Summernote image insert)
+
+        function pickerIdentity(path) {
+            return String(path || '')
+                .replace(/^\/?public\/uploads\/media\//, '')
+                .replace(/^\/?uploads\/media\//, '');
+        }
 
         function showModal(el) {
             if (window.bootstrap && bootstrap.Modal) bootstrap.Modal.getOrCreateInstance(el).show();
@@ -124,9 +146,33 @@
             window._pickerMode = valueMode || 'url';
             window._pickerMulti = !!multiSelect;
             window._pickerMultiItems = [];
+            window._pickerExistingPaths = [];
+            window._pickerUnselectedExisting = [];
             window._pickerSelected = null;
             window._pickerPath = '';
             window._pickerCallback = null;
+
+            // Restore paths already attached to the form so multi-select mode
+            // can mark them in the library and avoid accidental repeats.
+            if (window._pickerMulti) {
+                const target = document.querySelector(targetSelector);
+                let existingPaths = [];
+                try {
+                    const encodedPaths = target?.dataset.existingPaths || '';
+                    existingPaths = encodedPaths
+                        ? JSON.parse(atob(encodedPaths))
+                        : [];
+                } catch (e) {}
+                window._pickerExistingPaths = existingPaths.filter(Boolean).map(pickerIdentity);
+                try {
+                    const currentPaths = JSON.parse(target?.value || '[]');
+                    existingPaths = existingPaths.concat(currentPaths);
+                } catch (e) {}
+                [...new Set(existingPaths.filter(Boolean).map(pickerIdentity))].forEach(path => {
+                    const originalPath = existingPaths.find(candidate => pickerIdentity(candidate) === path) || path;
+                    window._pickerMultiItems.push({ path: path, rel: originalPath, name: path.split('/').pop(), url: originalPath });
+                });
+            }
             pickerUpdateMultiUI();
             showModal(document.getElementById('mediaPickerModal'));
             pickerLoad('');
@@ -141,6 +187,8 @@
             window._pickerMode = valueMode || 'url';
             window._pickerMulti = false;
             window._pickerMultiItems = [];
+            window._pickerExistingPaths = [];
+            window._pickerUnselectedExisting = [];
             window._pickerSelected = null;
             window._pickerPath = '';
             pickerUpdateMultiUI();
@@ -176,7 +224,10 @@
             if (!window._pickerMulti) return;
             window._pickerMultiItems = [];
             window._pickerSelected = null;
-            document.querySelectorAll('#mediaPickerModal .picker-file').forEach(f => f.classList.remove('selected'));
+            window._pickerUnselectedExisting = window._pickerExistingPaths.slice();
+            document.querySelectorAll('#mediaPickerModal .picker-file').forEach(f => {
+                f.classList.remove('selected', 'attached');
+            });
             pickerUpdateMultiUI();
         };
 
@@ -192,8 +243,12 @@
                     if (window._pickerMulti && window._pickerMultiItems.length) {
                         document.querySelectorAll('#mediaPickerModal .picker-file').forEach(c => {
                             const p = c.dataset.path;
-                            if (p && window._pickerMultiItems.some(i => i.path === p)) {
+                            if (p && window._pickerMultiItems.some(i => pickerIdentity(i.path) === pickerIdentity(p))) {
                                 c.classList.add('selected');
+                            }
+                            if (p && window._pickerExistingPaths.indexOf(pickerIdentity(p)) >= 0
+                                && window._pickerUnselectedExisting.indexOf(pickerIdentity(p)) < 0) {
+                                c.classList.add('attached');
                             }
                         });
                     }
@@ -218,9 +273,18 @@
                 if (idx >= 0) {
                     window._pickerMultiItems.splice(idx, 1);
                     card.classList.remove('selected');
+                    if (window._pickerExistingPaths.indexOf(pickerIdentity(item.path)) >= 0) {
+                        window._pickerUnselectedExisting.push(pickerIdentity(item.path));
+                        card.classList.remove('attached');
+                    }
                 } else {
                     window._pickerMultiItems.push(item);
                     card.classList.add('selected');
+                    const identity = pickerIdentity(item.path);
+                    window._pickerUnselectedExisting = window._pickerUnselectedExisting.filter(p => p !== identity);
+                    if (window._pickerExistingPaths.indexOf(identity) >= 0) {
+                        card.classList.add('attached');
+                    }
                 }
                 pickerUpdateMultiUI();
             } else {

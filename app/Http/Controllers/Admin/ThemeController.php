@@ -43,14 +43,7 @@ class ThemeController extends Controller
 
         $input = $request->all();
 
-        // Handle preview image
-        if ($request->hasFile('preview_image')) {
-            $file = $request->file('preview_image');
-            $name = time() . '-' . $file->getClientOriginalName();
-            $uploadPath = 'public/uploads/themes/';
-            $file->move($uploadPath, $name);
-            $input['preview_image'] = $uploadPath . $name;
-        }
+        $input['preview_image'] = $request->input('preview_image_url');
 
         // If this is the first theme, make it default
         if (Theme::count() === 0) {
@@ -82,20 +75,9 @@ class ThemeController extends Controller
         $update_data = Theme::findOrFail($request->id);
         $input = $request->all();
 
-        // Handle preview image
-        if ($request->hasFile('preview_image')) {
-            // Delete old image
-            if ($update_data->preview_image && File::exists($update_data->preview_image)) {
-                File::delete($update_data->preview_image);
-            }
-            $file = $request->file('preview_image');
-            $name = time() . '-' . $file->getClientOriginalName();
-            $uploadPath = 'public/uploads/themes/';
-            $file->move($uploadPath, $name);
-            $input['preview_image'] = $uploadPath . $name;
-        } else {
-            $input['preview_image'] = $update_data->preview_image;
-        }
+        $input['preview_image'] = $request->filled('preview_image_url')
+            ? $request->input('preview_image_url')
+            : $update_data->preview_image;
 
         $input['is_active'] = $request->boolean('is_active');
         $input['is_default'] = $request->boolean('is_default');

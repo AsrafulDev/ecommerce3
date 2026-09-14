@@ -210,16 +210,13 @@
                     <div class="card-body">
                         <div class="mb-4">
                             <label class="form-label"> {{ __('Main Image') }} </label>
-                            <div class="image-upload-box" onclick="document.getElementById('image').click()">
-                                <input type="file" name="image" id="image" class="d-none" onchange="readURL(this, 'preview_main', 'placeholder_main')">
-                                
-                                <img id="preview_main" class="preview-img" src="{{ asset($edit_data->image) }}" 
+                            <div class="image-upload-box" onclick="openMediaPicker('#image_url', '#preview_main', 'path')">
+                                <input type="hidden" name="image_url" id="image_url" value="{{ $edit_data->image }}">
+                                <img id="preview_main" class="preview-img" src="{{ $edit_data->image ? asset($edit_data->image) : '#' }}"
                                      style="{{ $edit_data->image ? 'display:block;' : 'display:none;' }}">
-                                
-                                <div id="placeholder_main" class="upload-placeholder" 
-                                     style="{{ $edit_data->image ? 'display:none;' : 'display:flex;' }}">
-                                    <i class="fe-upload-cloud upload-icon"></i>
-                                    <p class="upload-text mb-0"> {{ __('Click to change image') }} </p>
+                                <div id="placeholder_main" class="upload-placeholder" style="{{ $edit_data->image ? 'display:none;' : 'display:flex;' }}">
+                                    <i class="fe-image upload-icon"></i>
+                                    <p class="upload-text mb-0"> {{ __('Choose image from Media Library') }} </p>
                                 </div>
                             </div>
                             @error('image')
@@ -229,16 +226,13 @@
 
                         <div class="mb-0">
                             <label class="form-label"> {{ __('Category Icon') }} </label>
-                            <div class="image-upload-box" onclick="document.getElementById('icon').click()">
-                                <input type="file" name="icon" id="icon" class="d-none" onchange="readURL(this, 'preview_icon', 'placeholder_icon')">
-                                
-                                <img id="preview_icon" class="preview-img" src="{{ asset($edit_data->icon) }}" 
-                                     style="{{ $edit_data->icon ? 'display:block; max-height:60px;' : 'display:none;' }}">
-                                
-                                <div id="placeholder_icon" class="upload-placeholder" 
-                                     style="{{ $edit_data->icon ? 'display:none;' : 'display:flex;' }}">
+                               <div class="image-upload-box" onclick="openMediaPicker('#icon_url', '#preview_icon', 'path')">
+                                  <input type="hidden" name="icon_url" id="icon_url" value="{{ $edit_data->icon }}">
+                                  <img id="preview_icon" class="preview-img" src="{{ $edit_data->icon ? asset($edit_data->icon) : '#' }}"
+                                      style="{{ $edit_data->icon ? 'display:block; max-height:60px;' : 'display:none;' }}">
+                                  <div id="placeholder_icon" class="upload-placeholder" style="{{ $edit_data->icon ? 'display:none;' : 'display:flex;' }}">
                                     <i class="fe-image upload-icon"></i>
-                                    <p class="upload-text mb-0"> {{ __('Click to change icon') }} </p>
+                                     <p class="upload-text mb-0"> {{ __('Choose icon from Media Library') }} </p>
                                 </div>
                             </div>
                             @error('icon')
@@ -256,6 +250,7 @@
         </div>
     </form>
 </div>
+@include('backEnd.media._picker')
 @endsection
 
 @section('script')
@@ -280,16 +275,5 @@
         $(".select2").select2();
     });
 
-    // Smart Image Preview Function
-    function readURL(input, previewId, placeholderId) {
-        if (input.files && input.files[0]) {
-            var reader = new FileReader();
-            reader.onload = function(e) {
-                $('#' + previewId).attr('src', e.target.result).show();
-                $('#' + placeholderId).hide();
-            }
-            reader.readAsDataURL(input.files[0]);
-        }
-    }
 </script>
 @endsection

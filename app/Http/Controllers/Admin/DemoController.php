@@ -369,12 +369,9 @@ class DemoController extends Controller
             self::downloadPresetImages($data, $zipImageDir);
             file_put_contents($jsonPath, json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
 
-            // ── Copy all images flat → public/uploads/images/ ──
-            $publicImagesDir = public_path('uploads/images');
+            // ── Copy all images into the Media Manager storage ──
+            $publicImagesDir = public_path('uploads/media/demo/' . $slug);
             if (!is_dir($publicImagesDir)) mkdir($publicImagesDir, 0755, true);
-
-            // Save data.json alongside images (reference)
-            copy($jsonPath, $publicImagesDir . '/data.json');
 
             $copyCount = 0;
             if (is_dir($zipImageDir)) {
@@ -465,16 +462,10 @@ class DemoController extends Controller
         }
 
         try {
-            // ── Copy all images flat → public/uploads/images/ ──
+            // ── Copy all images into the Media Manager storage ──
             $presetDir = storage_path("app/demo-presets/{$slug}");
-            $publicImagesDir = public_path('uploads/images');
+            $publicImagesDir = public_path('uploads/media/demo/' . $slug);
             if (!is_dir($publicImagesDir)) mkdir($publicImagesDir, 0755, true);
-
-            // Save data.json alongside images (reference)
-            $presetJson = $presetDir . '/data.json';
-            if (file_exists($presetJson)) {
-                copy($presetJson, $publicImagesDir . '/data.json');
-            }
 
             // Flatten-copy all images (no subdirectory nesting)
             $copyCount = 0;
@@ -952,13 +943,12 @@ class DemoController extends Controller
             }
         }
 
-        // ── Image path normaliser ──────────────────────────────────
-        // Preserve local media paths and normalize external/legacy paths.
-        $imgBase = 'public/uploads/images/';
-        $normalizePath = static function (?string &$path) use ($imgBase): void {
+        // ── Image path normalizer ──────────────────────────────────
+        // Preserve Media Manager paths and normalize legacy/imported paths.
+        $normalizePath = static function (?string &$path) use ($slug): void {
             if (empty($path)) return;
-            if (str_starts_with($path, 'public/uploads/media/') || str_starts_with($path, $imgBase)) return;
-            $path = $imgBase . basename($path);
+            if (str_starts_with($path, 'public/uploads/media/')) return;
+            $path = 'public/uploads/media/demo/' . trim($slug, '/') . '/' . basename($path);
         };
 
         // 1. General Settings

@@ -185,7 +185,7 @@
                         <label class="upload-overlay-btn" for="imageUpload">
                             <i class="fe-upload-cloud"></i> <span>{{ __('Upload Image') }}</span>
                         </label>
-                        <input type="file" name="image" id="imageUpload" class="d-none" accept="image/*" onchange="updateCanvas(this)">
+                        <input type="hidden" name="image_url" id="image_url" value="">
                         <input type="hidden" name="image_url" id="image_url" value="{{ old('image_url') }}">
 
                         <button type="button" class="upload-overlay-btn" style="bottom:80px; right:20px;" onclick="openMediaPicker('#image_url','#realPreview','path')">

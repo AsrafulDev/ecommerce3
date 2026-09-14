@@ -170,7 +170,7 @@
                                     <i class="fas fa-camera me-1"></i> {{ __('Change Image') }} </span>
                             </div>
                             
-                            <input type="file" name="image" id="editImageInput" class="d-none" accept="image/*" onchange="previewEditImage(this)">
+                            <input type="hidden" name="image_url" id="image_url" value="{{ $edit->image }}">
                         </div>
                         <div class="text-start mt-2">
                             @include('backEnd.media._picker_button', [
@@ -181,6 +181,7 @@
                         </div>
                         <small class="text-muted d-block mt-3" style="font-size: 11px;">
                             Click the box to upload a new image. Recommended size: 600x400px.
+                                @include('backEnd.media._picker')
                         </small>
                     </div>
                 </div>

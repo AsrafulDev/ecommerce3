@@ -42,62 +42,10 @@ class CategoryController extends Controller
             // 'icon'   => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
         ]);
 
-        /* ========= Main Image (direct upload OR Media Gallery) ========= */
-        $image = $request->file('image');
-        if ($image) {
-            $name = time().'-'.$image->getClientOriginalName();
-            $name = preg_replace('"\.(jpg|jpeg|png|webp)$"', '.webp', $name);
-            $name = strtolower(preg_replace('/\s+/', '-', $name));
+        $imageUrl = $request->input('image_url');
 
-            $uploadpath = 'public/uploads/category/';
-            if (!File::isDirectory($uploadpath)) {
-                File::makeDirectory($uploadpath, 0775, true, true);
-            }
-
-            $imageUrl = $uploadpath.$name;
-
-            $img = Image::make($image->getRealPath());
-            $img->encode('webp', 90);
-            $width  = "";
-            $height = "";
-            $img->height() > $img->width() ? $width = null : $height = null;
-            $img->resize($width, $height, function ($constraint) {
-                $constraint->aspectRatio();
-            });
-            $img->save($imageUrl);
-        } elseif ($request->filled('image_url')) {
-            // Media Gallery থেকে বাছাই (path mode) — সরাসরি আপলোড নয়
-            $imageUrl = $request->input('image_url');
-        } else {
-            $imageUrl = null;
-        }
-
-        /* ========= Icon Image (direct upload OR Media Gallery) ========= */
-        $icon      = $request->file('icon');
-        $iconUrl   = null;
-
-        if ($icon) {
-            $iconName = time().'-icon-'.$icon->getClientOriginalName();
-            $iconName = preg_replace('"\.(jpg|jpeg|png|webp)$"', '.webp', $iconName);
-            $iconName = strtolower(preg_replace('/\s+/', '-', $iconName));
-
-            $uploadpathIcon = 'public/uploads/category/';
-            if (!File::isDirectory($uploadpathIcon)) {
-                File::makeDirectory($uploadpathIcon, 0775, true, true);
-            }
-
-            $iconUrl = $uploadpathIcon.$iconName;
-
-            $iconImg = Image::make($icon->getRealPath());
-            $iconImg->encode('webp', 90);
-
-            // ছোট ও সমান সাইজের আইকন
-            $iconImg->fit(64, 64, function ($constraint) {
-                $constraint->upsize();
-            });
-
-            $iconImg->save($iconUrl);
-        } elseif ($request->filled('icon_url')) {
+        $iconUrl = null;
+        if ($request->filled('icon_url')) {
             // Media Gallery থেকে বাছাই (path mode)
             $iconUrl = $request->input('icon_url');
         }
@@ -144,36 +92,7 @@ class CategoryController extends Controller
         $input       = $request->only(['name', 'meta_title', 'meta_description']);
 
         /* ========= Main Image Update (direct upload OR Media Gallery) ========= */
-        $image = $request->file('image');
-        if ($image) {
-            $name = time().'-'.$image->getClientOriginalName();
-            $name = preg_replace('"\.(jpg|jpeg|png|webp)$"', '.webp', $name);
-            $name = strtolower(preg_replace('/\s+/', '-', $name));
-
-            $uploadpath = 'public/uploads/category/';
-            if (!File::isDirectory($uploadpath)) {
-                File::makeDirectory($uploadpath, 0775, true, true);
-            }
-
-            $imageUrl = $uploadpath.$name;
-
-            $img = Image::make($image->getRealPath());
-            $img->encode('webp', 90);
-            $width  = "";
-            $height = "";
-            $img->height() > $img->width() ? $width = null : $height = null;
-            $img->resize($width, $height, function ($constraint) {
-                $constraint->aspectRatio();
-            });
-            $img->save($imageUrl);
-
-            // পুরনো main image ডিলিট (Media Gallery শেয়ার্ড ফাইল হলে ডিলিট নয়)
-            if ($update_data->image && strpos($update_data->image, 'uploads/media/') === false) {
-                File::delete($update_data->image);
-            }
-
-            $input['image'] = $imageUrl;
-        } elseif ($request->filled('image_url')) {
+        if ($request->filled('image_url')) {
             // Media Gallery থেকে বাছাই (path mode)
             $input['image'] = $request->input('image_url');
         } else {
@@ -181,33 +100,7 @@ class CategoryController extends Controller
         }
 
         /* ========= Icon Update (direct upload OR Media Gallery) ========= */
-        $icon = $request->file('icon');
-        if ($icon) {
-            $iconName = time().'-icon-'.$icon->getClientOriginalName();
-            $iconName = preg_replace('"\.(jpg|jpeg|png|webp)$"', '.webp', $iconName);
-            $iconName = strtolower(preg_replace('/\s+/', '-', $iconName));
-
-            $uploadpathIcon = 'public/uploads/category/';
-            if (!File::isDirectory($uploadpathIcon)) {
-                File::makeDirectory($uploadpathIcon, 0775, true, true);
-            }
-
-            $iconUrl = $uploadpathIcon.$iconName;
-
-            $iconImg = Image::make($icon->getRealPath());
-            $iconImg->encode('webp', 90);
-            $iconImg->fit(64, 64, function ($constraint) {
-                $constraint->upsize();
-            });
-            $iconImg->save($iconUrl);
-
-            // পুরনো icon থাকলে ডিলিট (Media Gallery শেয়ার্ড ফাইল হলে ডিলিট নয়)
-            if ($update_data->icon && strpos($update_data->icon, 'uploads/media/') === false) {
-                File::delete($update_data->icon);
-            }
-
-            $input['icon'] = $iconUrl;
-        } elseif ($request->filled('icon_url')) {
+        if ($request->filled('icon_url')) {
             // Media Gallery থেকে বাছাই (path mode)
             $input['icon'] = $request->input('icon_url');
         } else {

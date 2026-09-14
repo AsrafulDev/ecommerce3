@@ -35,24 +35,10 @@ class BlogController extends Controller
             'title'             => 'required|string|max:255',
             'short_description' => 'nullable|string|max:500',
             'description'       => 'required',
-            'image'             => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
             'status'            => 'nullable|in:0,1',
         ]);
 
-        $imagePath = null;
-
-        if ($request->hasFile('image')) {
-            $image     = $request->file('image');
-            $imageName = time().'.'.$image->getClientOriginalExtension();
-            $uploadDir = public_path('uploads/blogs');
-
-            if (!file_exists($uploadDir)) {
-                mkdir($uploadDir, 0777, true);
-            }
-
-            $image->move($uploadDir, $imageName);
-            $imagePath = 'uploads/blogs/'.$imageName;
-        }
+        $imagePath = $request->input('image_url');
 
         Blog::create([
             'title'             => $request->title,
@@ -88,27 +74,11 @@ class BlogController extends Controller
             'title'             => 'required|string|max:255',
             'short_description' => 'nullable|string|max:500',
             'description'       => 'required',
-            'image'             => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
             'status'            => 'nullable|in:0,1',
         ]);
 
-        if ($request->hasFile('image')) {
-
-            // delete old image
-            if ($blog->image && file_exists(public_path($blog->image))) {
-                unlink(public_path($blog->image));
-            }
-
-            $image     = $request->file('image');
-            $imageName = time().'.'.$image->getClientOriginalExtension();
-            $uploadDir = public_path('uploads/blogs');
-
-            if (!file_exists($uploadDir)) {
-                mkdir($uploadDir, 0777, true);
-            }
-
-            $image->move($uploadDir, $imageName);
-            $blog->image = 'uploads/blogs/'.$imageName;
+        if ($request->filled('image_url')) {
+            $blog->image = $request->input('image_url');
         }
 
         $blog->update([
