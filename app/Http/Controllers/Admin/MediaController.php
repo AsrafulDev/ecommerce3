@@ -42,7 +42,19 @@ class MediaController extends Controller
     /** Absolute path to the media root directory. */
     protected function mediaRoot(): string
     {
-        return public_path('uploads/media');
+        $root = public_path('uploads/media');
+
+        if (!is_dir($root)) {
+            mkdir($root, 0775, true);
+        }
+
+        // Keep the complaint evidence folder available before the first upload.
+        $complaints = $root.'/complaints';
+        if (!is_dir($complaints)) {
+            mkdir($complaints, 0775, true);
+        }
+
+        return $root;
     }
 
     /**

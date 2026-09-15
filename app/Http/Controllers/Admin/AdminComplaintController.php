@@ -50,9 +50,15 @@ class AdminComplaintController extends Controller
     {
         $complaint = Complaint::findOrFail($id);
 
-        // ✅ Image delete (public/complaints folder)
+        // Remove evidence from either the Media Manager or the legacy folder.
         if ($complaint->image) {
-            $imagePath = public_path('complaints/' . $complaint->image);
+            $storedPath = ltrim((string) $complaint->image, '/');
+            if (str_starts_with($storedPath, 'public/')) {
+                $storedPath = substr($storedPath, strlen('public/'));
+            }
+            $imagePath = str_starts_with($storedPath, 'uploads/')
+                ? public_path($storedPath)
+                : public_path('complaints/' . basename($storedPath));
             if (file_exists($imagePath)) {
                 unlink($imagePath);
             }

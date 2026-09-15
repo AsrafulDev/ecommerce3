@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Frontend;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 use App\Models\Complaint;
 
 class ComplaintController extends Controller
@@ -18,15 +19,22 @@ class ComplaintController extends Controller
             'image'       => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
         ]);
 
-        // 🔹 Image upload to public/complaints
+        // Store customer evidence inside the Media Manager library.
         $imagePath = null;
 
         if ($request->hasFile('image')) {
             $image = $request->file('image');
-            $imageName = time().'_'.$image->getClientOriginalName();
-            $image->move(public_path('complaints'), $imageName);
+            $mediaDirectory = public_path('uploads/media/complaints');
+            if (! is_dir($mediaDirectory)) {
+                mkdir($mediaDirectory, 0775, true);
+            }
 
-            $imagePath = 'complaints/'.$imageName;
+            $extension = strtolower($image->getClientOriginalExtension());
+            $baseName = Str::slug(pathinfo($image->getClientOriginalName(), PATHINFO_FILENAME));
+            $imageName = ($baseName ?: 'complaint').'-'.uniqid().'.'.$extension;
+            $image->move($mediaDirectory, $imageName);
+
+            $imagePath = 'uploads/media/complaints/'.$imageName;
         }
 
         // 🔹 Save complaint

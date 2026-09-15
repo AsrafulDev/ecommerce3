@@ -22,6 +22,8 @@ class BuildUpdateRelease extends Command
         {--secret= : License server upload secret (from the WordPress plugin settings)}
         {--changelog= : Release notes (text, or a file path that exists)}
         {--requires-migration : Mark the release as requiring a DB migration (default: true)}
+        {--full : Include the complete deployable source tree, dependencies, language files, and demo presets}
+        {--lts : Build both the regular update ZIP and a separate full LTS ZIP}
         {--include=* : Extra files/directories (relative to project root) to include in the package}';
 
     /**
@@ -35,6 +37,39 @@ class BuildUpdateRelease extends Command
      * Directories copied by the client installer (UpdateController::copyUpdateFiles).
      */
     private const CORE_DIRS = ['app', 'routes', 'resources', 'config', 'database/migrations'];
+
+    private const FULL_DIRS = [
+        'bootstrap',
+        'database/factories',
+        'database/seeders',
+        'docker',
+        'lang',
+        'public',
+        'storage/app/demo-presets',
+        'vendor',
+    ];
+
+    private const FULL_FILES = [
+        '.editorconfig',
+        '.env.example',
+        '.htaccess',
+        'artisan',
+        'composer.json',
+        'composer.lock',
+        'favicon.ico',
+        'index.php',
+        'package-lock.json',
+        'package.json',
+        'phpunit.xml',
+        'robots.txt',
+        'server.php',
+        'sail',
+        'vite.config.js',
+    ];
+
+    private const FULL_EXCLUDED_PATHS = [
+        'public/uploads',
+    ];
 
     /**
      * Execute the console command.
@@ -60,7 +95,13 @@ class BuildUpdateRelease extends Command
         // Update config/app.php before packaging so the installed version inside
         // the update ZIP matches the release version.
         $previousAppConfig = $this->setAppVersion($version);
-        $zipPath = $this->buildPackage($version);
+        if ($this->option('lts') && $this->option('full')) {
+            $this->error('Use either --full or --lts, not both.');
+            $this->restoreAppConfig($previousAppConfig);
+            return self::FAILURE;
+        }
+
+        $zipPath = $this->buildPackage($version, (bool) $this->option('full'));
         if (! $zipPath) {
             $this->restoreAppConfig($previousAppConfig);
             return self::FAILURE;
@@ -75,9 +116,17 @@ class BuildUpdateRelease extends Command
         $this->line('  2. Select product, version ' . $version . ', upload the ZIP, changelog, active ✓');
         $this->line('  --or-- run this command with --upload --secret=YOUR_SECRET to push it automatically.');
 
+        $fullZipPath = null;
+        if ($this->option('lts')) {
+            $fullZipPath = $this->buildPackage($version, true, '-full');
+            if (! $fullZipPath) {
+                return self::FAILURE;
+            }
+        }
+
         // Optional auto-upload.
         if ($this->option('upload')) {
-            $this->upload($zipPath, $version, $changelog, $requiresMigration);
+            $this->upload($zipPath, $version, $changelog, $requiresMigration, $fullZipPath);
         }
 
         return self::SUCCESS;
@@ -88,11 +137,13 @@ class BuildUpdateRelease extends Command
      *
      * @return string|null Absolute path to the built zip.
      */
-    private function buildPackage(string $version): ?string
+    private function buildPackage(string $version, ?bool $full = null, string $suffix = ''): ?string
     {
         $outDir = storage_path('app/updates');
         File::ensureDirectoryExists($outDir);
-        $zipPath = $outDir . '/update-' . $version . '.zip';
+        $zipPath = $outDir . '/update-' . $version . $suffix . '.zip';
+
+        $full = $full ?? (bool) $this->option('full');
 
         $zip = new ZipArchive();
         if ($zip->open($zipPath, ZipArchive::CREATE | ZipArchive::OVERWRITE) !== true) {
@@ -102,6 +153,7 @@ class BuildUpdateRelease extends Command
 
         $base = base_path();
         $fileCount = 0;
+        $extraFiles = [];
 
         // Core directories (the client installer copies these recursively).
         foreach (self::CORE_DIRS as $dir) {
@@ -113,8 +165,32 @@ class BuildUpdateRelease extends Command
             }
         }
 
+        if ($full) {
+            $this->line('Building full release package (vendor included; uploads and runtime data excluded)...');
+
+            foreach (self::FULL_DIRS as $dir) {
+                $abs = $base . '/' . $dir;
+                if (File::isDirectory($abs)) {
+                    $fileCount += $this->addDirToZip($zip, $abs, $dir, self::FULL_EXCLUDED_PATHS);
+                    foreach ($this->listRelativeFiles($abs, $dir, self::FULL_EXCLUDED_PATHS) as $file) {
+                        $extraFiles[] = $file;
+                    }
+                } else {
+                    $this->warn("Missing full-release directory: {$dir}");
+                }
+            }
+
+            foreach (self::FULL_FILES as $rel) {
+                $abs = $base . '/' . $rel;
+                if (File::exists($abs)) {
+                    $zip->addFile($abs, $rel);
+                    $extraFiles[] = $rel;
+                    $fileCount++;
+                }
+            }
+        }
+
         // Extra includes → written into files.txt so the client copies them individually.
-        $extraFiles = [];
         foreach ((array) $this->option('include') as $rel) {
             $rel = ltrim((string) $rel, '/');
             $abs = $base . '/' . $rel;
@@ -163,17 +239,20 @@ class BuildUpdateRelease extends Command
      *
      * @return int Number of files added.
      */
-    private function addDirToZip(ZipArchive $zip, string $absDir, string $zipPrefix): int
+    private function addDirToZip(ZipArchive $zip, string $absDir, string $zipPrefix, array $excludedPaths = []): int
     {
         $count = 0;
         $iterator = new \RecursiveIteratorIterator(
             new \RecursiveDirectoryIterator($absDir, \FilesystemIterator::SKIP_DOTS)
         );
         foreach ($iterator as $file) {
-            if ($file->isDir()) {
+            if ($file->isDir() || ! $file->isFile() || ! is_readable($file->getPathname())) {
                 continue;
             }
             $rel = $zipPrefix . '/' . substr($file->getPathname(), strlen(rtrim($absDir, '/')) + 1);
+            if ($this->isExcludedPath($rel, $excludedPaths)) {
+                continue;
+            }
             $zip->addFile($file->getPathname(), $rel);
             $count++;
         }
@@ -185,19 +264,36 @@ class BuildUpdateRelease extends Command
      *
      * @return string[]
      */
-    private function listRelativeFiles(string $absDir, string $prefix): array
+    private function listRelativeFiles(string $absDir, string $prefix, array $excludedPaths = []): array
     {
         $files = [];
         $iterator = new \RecursiveIteratorIterator(
             new \RecursiveDirectoryIterator($absDir, \FilesystemIterator::SKIP_DOTS)
         );
         foreach ($iterator as $file) {
-            if ($file->isDir()) {
+            if ($file->isDir() || ! $file->isFile() || ! is_readable($file->getPathname())) {
                 continue;
             }
-            $files[] = $prefix . '/' . substr($file->getPathname(), strlen(rtrim($absDir, '/')) + 1);
+            $rel = $prefix . '/' . substr($file->getPathname(), strlen(rtrim($absDir, '/')) + 1);
+            if (! $this->isExcludedPath($rel, $excludedPaths)) {
+                $files[] = $rel;
+            }
         }
         return $files;
+    }
+
+    private function isExcludedPath(string $path, array $excludedPaths): bool
+    {
+        $path = trim(str_replace('\\', '/', $path), '/');
+
+        foreach ($excludedPaths as $excluded) {
+            $excluded = trim(str_replace('\\', '/', $excluded), '/');
+            if ($path === $excluded || str_starts_with($path, $excluded . '/')) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**
@@ -274,7 +370,7 @@ class BuildUpdateRelease extends Command
     /**
      * Upload the built package to the license server (WordPress plugin endpoint).
      */
-    private function upload(string $zipPath, string $version, string $changelog, bool $requiresMigration): void
+    private function upload(string $zipPath, string $version, string $changelog, bool $requiresMigration, ?string $fullZipPath = null): void
     {
         $server = rtrim((string) ($this->option('server') ?: config('updater.api_url')), '/');
         $secret = (string) $this->option('secret');
@@ -288,10 +384,14 @@ class BuildUpdateRelease extends Command
         $this->info("Uploading {$zipPath} → {$url}");
 
         try {
-            $response = Http::withHeaders(['X-Softmit-Secret' => $secret])
+            $request = Http::withHeaders(['X-Softmit-Secret' => $secret])
                 ->timeout(180)
                 ->attach('file', fopen($zipPath, 'r'), basename($zipPath))
-                ->post($url, [
+                ;
+            if ($fullZipPath && file_exists($fullZipPath)) {
+                $request = $request->attach('full_file', fopen($fullZipPath, 'r'), basename($fullZipPath));
+            }
+            $response = $request->post($url, [
                     'product'            => (string) config('updater.script_name'),
                     'version'            => $version,
                     'changelog'          => $changelog,

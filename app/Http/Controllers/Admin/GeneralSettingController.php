@@ -31,23 +31,23 @@ class GeneralSettingController extends Controller
 
         return redirect()->route('settings.create');
     }
+
     public function create()
     {
         return view('backEnd.settings.create');
     }
+
     public function store(Request $request)
     {
         $this->validate($request, [
             'name' => 'required',
-
-			'copyright_color' => 'required',
-			'primary_color' => 'required',
-			'secodery_color' => 'required',
-			'footer_color' => 'required',
-			'facebook_page_username' => 'required',
-			
+            'copyright_color' => 'required',
+            'primary_color' => 'required',
+            'secodery_color' => 'required',
+            'footer_color' => 'required',
+            'facebook_page_username' => 'required',
             'white_logo' => 'required',
-			'og_baner' => 'required',
+            'og_baner' => 'required',
             'favicon' => 'required',
             'status' => 'required',
         ]);
@@ -97,7 +97,6 @@ class GeneralSettingController extends Controller
         $img4->resize($width4, $height4);
         $img4->save($image4Url);
 
-
         // image with intervention 
         $image3 = $request->file('favicon');
         $name3 =  time().'-'.$image3->getClientOriginalName();
@@ -117,8 +116,7 @@ class GeneralSettingController extends Controller
         $input['white_logo'] = 'uploads/settings/'.$name;
         $input['dark_logo'] = 'uploads/settings/'.$name2;
         $input['favicon'] = 'uploads/settings/'.$name3;
-		 $input['og_baner'] = 'uploads/settings/'.$name4;
-        
+        $input['og_baner'] = 'uploads/settings/'.$name4;
         GeneralSetting::create($input);
         Toastr::success('Success','Data insert successfully');
         return redirect()->route('settings.index');
@@ -151,92 +149,21 @@ class GeneralSettingController extends Controller
             return redirect()->route('settings.create');
         }
         $input = $request->all();
-        // new white logo
-        $image = $request->file('white_logo');
-        if($image){
-            // image with intervention 
-            $image = $request->file('white_logo');
-            $name =  time().'-'.$image->getClientOriginalName();
-            $name = preg_replace('"\.(jpg|jpeg|png|webp)$"', '.webp',$name);
-            $name = strtolower(preg_replace('/\s+/', '-', $name));
-            $uploadpath = public_path('uploads/settings/');
-            $imageUrl = $uploadpath.$name; 
-            $img=Image::make($image->getRealPath());
-            $img->encode('webp', 90);
-            $width = '';
-            $height = '';
-            $img->height() > $img->width() ? $width=null : $height=null;
-            $img->resize($width, $height);
-            $img->save($imageUrl);
-            $input['white_logo'] = 'uploads/settings/'.$name;
-        }else{
-            $input['white_logo'] = $update_data->white_logo;
-        }
-        // new dark logo
-        $image2 = $request->file('dark_logo');
-        if($image2){
-            // image with intervention 
-            $image2 = $request->file('dark_logo');
-            $name2 =  time().'-'.$image2->getClientOriginalName();
-            $name2 = preg_replace('"\.(jpg|jpeg|png|webp)$"', '.webp',$name2);
-            $name2 = strtolower(preg_replace('/\s+/', '-', $name2));
-            $uploadpath2 = public_path('uploads/settings/');
-            $image2Url = $uploadpath2.$name2; 
-            $img2=Image::make($image2->getRealPath());
-            $img2->encode('webp', 90);
-            $width2 = '';
-            $height2 = '';
-            $img2->height() > $img2->width() ? $width2=null : $height2=null;
-            $img2->resize($width2, $height2);
-            $img2->save($image2Url);
-            $input['dark_logo'] = 'uploads/settings/'.$name2;
-        }else{
-            $input['dark_logo'] = $update_data->dark_logo;
-        }
 
-			// new OG image
-        $image4 = $request->file('og_baner');
-        if($image4){
-            $image4 = $request->file('og_baner');
-            $name4 =  time().'-'.$image4->getClientOriginalName();
-            $name4 = preg_replace('"\.(jpg|jpeg|png|webp)$"', '.webp',$name4);
-            $name4 = strtolower(preg_replace('/\s+/', '-', $name4));
-            $uploadpath4 = public_path('uploads/settings/');
-            $image4Url = $uploadpath4.$name4; 
-            $img4=Image::make($image4->getRealPath());
-            $img4->encode('webp', 90);
-            $width4 = 1440;
-            $height4 = 793;
-            $img4->height() > $img4->width() ? $width4=null : $height4=null;
-            $img4->resize($width4, $height4);
-            $img4->save($image4Url);
-            $input['og_baner'] = 'uploads/settings/'.$name4;
-        }else{
-            $input['og_baner'] = $update_data->og_baner;
-        }
+        // Identity images are selected from the Media Manager.
+        foreach (['white_logo', 'dark_logo', 'favicon', 'og_baner'] as $imageField) {
+            $pickerValue = trim((string) $request->input($imageField.'_url'));
+            $pickerPath = parse_url($pickerValue, PHP_URL_PATH) ?: $pickerValue;
+            $pickerPath = ltrim(str_replace('\\', '/', $pickerPath), '/');
+            $pickerPath = preg_replace('#^public/#', '', $pickerPath);
 
-
-
-
-        // new favicon image
-        $image3 = $request->file('favicon');
-        if($image3){
-            $image3 = $request->file('favicon');
-            $name3 =  time().'-'.$image3->getClientOriginalName();
-            $name3 = preg_replace('"\.(jpg|jpeg|png|webp)$"', '.webp',$name3);
-            $name3 = strtolower(preg_replace('/\s+/', '-', $name3));
-            $uploadpath3 = public_path('uploads/settings/');
-            $image3Url = $uploadpath3.$name3; 
-            $img3=Image::make($image3->getRealPath());
-            $img3->encode('webp', 90);
-            $width3 = 32;
-            $height3 = 32;
-            //$img3->height() > $img3->width() ? $width3=null : $height3=null;
-            $img3->resize($width3, $height3);
-            $img3->save($image3Url);
-            $input['favicon'] = 'uploads/settings/'.$name3;
-        }else{
-            $input['favicon'] = $update_data->favicon;
+            if ($pickerPath !== '' && str_starts_with($pickerPath, 'uploads/media/')) {
+                // This deployment serves public assets through the /public URL prefix.
+                $input[$imageField] = 'public/'.$pickerPath;
+            } else {
+                $input[$imageField] = $update_data->{$imageField};
+            }
+            unset($input[$imageField.'_url']);
         }
         $input['status'] = 1;
         $input['warranty_enabled'] = $request->boolean('warranty_enabled');

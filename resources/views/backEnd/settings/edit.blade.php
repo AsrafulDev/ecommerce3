@@ -250,9 +250,14 @@
                             @foreach($logos as $slug => $label)
                             <div class="col-md-6">
                                 <label class="form-label-pro">{{ $label }}</label>
-                                <input type="file" name="{{ $slug }}" class="form-control custom-input mb-2">
+                                @include('backEnd.media._picker_button', [
+                                    'field' => $slug,
+                                    'preview' => 'preview_'.$slug,
+                                    'label' => __('Choose from Media Library'),
+                                    'current' => old($slug.'_url', $edit_data->$slug ?? ''),
+                                ])
                                 <div class="logo-preview-box">
-                                    <img src="{{asset($edit_data->$slug)}}" class="edit-image-pro" alt="Preview">
+                                    <img id="preview_{{ $slug }}" src="{{ asset($edit_data->$slug) }}" class="edit-image-pro" alt="Preview">
                                 </div>
                             </div>
                             @endforeach
@@ -327,6 +332,9 @@
         </div>
     </form>
 </div>
+
+{{-- Reusable Media Gallery picker --}}
+@include('backEnd.media._picker')
 @endsection
 
 @section('script')
