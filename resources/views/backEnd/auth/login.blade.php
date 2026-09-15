@@ -19,14 +19,88 @@
 	<link rel="stylesheet" href="{{asset('public/backEnd/')}}/assets_login/css/vendors.css">
     	<link rel="stylesheet" href="{{asset('public/backEnd/')}}/assets_login/css/aiz-core.css">
 
+        @php
+            $loginTheme = $activeTheme ?? null;
+            $loginPrimary = $loginTheme->primary_color ?? '#0d6efd';
+            $loginSecondary = $loginTheme->secondary_color ?? '#198754';
+            $loginAccent = $loginTheme->accent_color ?? '#ff6a00';
+            $loginBodyBg = $loginTheme->body_bg_color ?? '#f8f9fa';
+            $loginCardBg = $loginTheme->admin_card_bg ?? $loginBodyBg;
+            $loginTopbarBg = $loginTheme->topbar_bg_color ?? $loginTheme->header_bg_color ?? $loginPrimary;
+            $loginSidebarBg = $loginTheme->sidebar_bg_color ?? $loginTheme->footer_bg_color ?? $loginPrimary;
+            $loginText = $loginTheme->text_color ?? get_contrast_color($loginBodyBg);
+            $loginHeading = $loginTheme->heading_color ?? get_contrast_color($loginCardBg);
+            $loginButtonText = $loginTheme->button_text_color ?? get_contrast_color($loginPrimary);
+            $loginSidebarText = $loginTheme->sidebar_text_color
+                ? ensure_text_contrast($loginTheme->sidebar_text_color, $loginSidebarBg)
+                : get_contrast_color($loginSidebarBg);
+        @endphp
+
     <style>
+            :root {
+                --login-primary: {{ $loginPrimary }};
+                --login-secondary: {{ $loginSecondary }};
+                --login-accent: {{ $loginAccent }};
+                --login-body-bg: {{ $loginBodyBg }};
+                --login-card-bg: {{ $loginCardBg }};
+                --login-text: {{ $loginText }};
+                --login-heading: {{ $loginHeading }};
+                --login-button-text: {{ $loginButtonText }};
+                --login-sidebar-bg: {{ $loginSidebarBg }};
+                --login-sidebar-text: {{ $loginSidebarText }};
+            }
         body {
             font-size: 12px;
+                background-color: var(--login-body-bg);
+                color: var(--login-text);
+            }
+            .login-page {
+                position: relative;
+                min-height: 100vh;
+                background-color: var(--login-body-bg);
+            }
+            .login-page::before {
+                content: '';
+                position: absolute;
+                inset: 0;
+                background: linear-gradient(135deg, color-mix(in srgb, var(--login-sidebar-bg) 82%, transparent), color-mix(in srgb, var(--login-primary) 35%, transparent));
+                opacity: 0.86;
+            }
+            .login-page > .container {
+                position: relative;
+                z-index: 1;
+            }
+            .login-card {
+                background: var(--login-card-bg) !important;
+                border-color: color-mix(in srgb, var(--login-primary) 20%, transparent) !important;
+                box-shadow: 0 18px 55px color-mix(in srgb, var(--login-sidebar-bg) 28%, transparent);
+            }
+            .login-card h1,
+            .login-card .h3 {
+                color: var(--login-heading) !important;
+            }
+            .login-card .form-control:focus {
+                border-color: var(--login-primary);
+                box-shadow: 0 0 0 0.2rem color-mix(in srgb, var(--login-primary) 22%, transparent);
+            }
+            .login-card .btn-primary {
+                background-color: var(--login-primary) !important;
+                border-color: var(--login-primary) !important;
+                color: var(--login-button-text) !important;
+            }
+            .login-card .btn-primary:hover,
+            .login-card .btn-primary:focus {
+                background-color: {{ $loginTheme->button_hover_bg_color ?? $loginSecondary }} !important;
+                border-color: {{ $loginTheme->button_hover_bg_color ?? $loginSecondary }} !important;
+            }
+            .login-card a,
+            .login-card .text-primary {
+                color: var(--login-primary) !important;
         }
         .toggle-password-btn {
             cursor: pointer;
-            background: #fff;
-            border: 1px solid #ced4da;
+                background: var(--login-card-bg);
+                border: 1px solid var(--login-primary);
             border-left: 0;
             border-radius: 0 0.25rem 0.25rem 0;
             padding: 0 12px;
@@ -36,12 +110,12 @@
             transition: background 0.2s;
         }
         .toggle-password-btn:hover {
-            background: #e9ecef;
+            background: color-mix(in srgb, var(--login-primary) 10%, var(--login-card-bg));
         }
         .toggle-password-btn svg {
             width: 18px;
             height: 18px;
-            fill: #6c757d;
+            fill: var(--login-primary);
         }
     </style>
 
@@ -51,11 +125,11 @@
 	<div class="aiz-main-wrapper d-flex">
         <div class="flex-grow-1">
             
-<div class="h-100 bg-cover bg-center py-5 d-flex align-items-center" style="background-image: url({{asset('public/backEnd/')}}/assets_login/img/background.jpg)">
+<div class="login-page bg-cover bg-center py-5 d-flex align-items-center" style="background-image: url({{asset('public/backEnd/')}}/assets_login/img/background.jpg)">
     <div class="container">
         <div class="row">
             <div class="col-lg-6 col-xl-4 mx-auto">
-                <div class="card text-left">
+                <div class="card login-card text-left">
                     <div class="card-body">
                         <div class="mb-5 text-center">
                                                             <img src="{{asset($generalsetting->dark_logo ?? 'public/assets/images/CurlBazar.svg')}}" class="mw-100 mb-4" height="40">

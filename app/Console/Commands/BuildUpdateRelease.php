@@ -2,9 +2,7 @@
 
 namespace App\Console\Commands;
 
-use App\Models\GeneralSetting;
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Http;
 use ZipArchive;
@@ -59,14 +57,16 @@ class BuildUpdateRelease extends Command
         $changelog = $this->resolveChangelog();
         $requiresMigration = (bool) $this->option('requires-migration') || true;
 
-        // Build the package.
+        // Update config/app.php before packaging so the installed version inside
+        // the update ZIP matches the release version.
+        $previousAppConfig = $this->setAppVersion($version);
         $zipPath = $this->buildPackage($version);
         if (! $zipPath) {
+            $this->restoreAppConfig($previousAppConfig);
             return self::FAILURE;
         }
 
-        // Advance the stored version so the next release bumps correctly.
-        $this->setDbVersion($version);
+        $this->info("✔ Updated config/app.php version = {$version}");
 
         // Print upload instructions.
         $this->line('');
@@ -201,19 +201,11 @@ class BuildUpdateRelease extends Command
     }
 
     /**
-     * Current installed version (DB app_version → config fallback).
+     * Current installed version from config/app.php.
      */
     private function currentVersion(): string
     {
-        try {
-            $s = GeneralSetting::where('status', 1)->first();
-            if ($s && isset($s->app_version) && trim((string) $s->app_version) !== '') {
-                return trim((string) $s->app_version);
-            }
-        } catch (\Exception $e) {
-            // ignore
-        }
-        return (string) config('updater.current_version', '1.0.0');
+        return (string) config('app.version', '1.0.0');
     }
 
     /**
@@ -251,21 +243,32 @@ class BuildUpdateRelease extends Command
     }
 
     /**
-     * Store the new version in the database.
+     * Set the installed version in config/app.php and return its old contents.
      */
-    private function setDbVersion(string $version): void
+    private function setAppVersion(string $version): string
     {
-        try {
-            $s = GeneralSetting::where('status', 1)->first();
-            if ($s) {
-                $s->app_version = $version;
-                $s->save();
-            }
-            Cache::forget('general_setting');
-            $this->info("✔ Stored app_version = {$version} in general_settings");
-        } catch (\Exception $e) {
-            $this->warn('Could not update app_version in the database: ' . $e->getMessage());
+        $path = config_path('app.php');
+        $contents = File::get($path);
+        $updated = preg_replace_callback(
+            '/([\'\"]version[\'\"]\s*=>\s*)([\'\"])([^\'\"]*)(\2\s*,)/',
+            static fn (array $match): string => $match[1] . $match[2] . $version . $match[4],
+            $contents,
+            1,
+            $count
+        );
+
+        if ($count !== 1 || $updated === null) {
+            throw new \RuntimeException('Could not find the version entry in config/app.php.');
         }
+
+        File::put($path, $updated);
+        return $contents;
+    }
+
+    private function restoreAppConfig(string $contents): void
+    {
+        File::put(config_path('app.php'), $contents);
+        $this->warn('Package build failed; restored the previous config/app.php version.');
     }
 
     /**

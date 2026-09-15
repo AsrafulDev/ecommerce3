@@ -31,8 +31,19 @@ class BannerController extends Controller
     }
     public function store(Request $request)
     {
+        if (!$request->filled('image_url')) {
+            Toastr::warning('Please select a banner image from the Media Manager before saving.', 'Image required');
+            return redirect()->back()->withInput()->withErrors(['image_url' => 'Please select a banner image from the Media Manager.']);
+        }
+
+        if (!$request->filled('category_id')) {
+            Toastr::warning('Please select a banner category before saving.', 'Category required');
+            return redirect()->back()->withInput()->withErrors(['category_id' => 'Please select a banner category.']);
+        }
+
         $this->validate($request, [
             'link' => 'required',
+            'category_id' => 'required|integer|exists:banner_categories,id',
             'status' => 'required',
         ]);
         
@@ -55,8 +66,19 @@ class BannerController extends Controller
     
     public function update(Request $request)
     {
+        if (!$request->filled('image_url')) {
+            Toastr::warning('Please select a banner image from the Media Manager before updating.', 'Image required');
+            return redirect()->back()->withInput()->withErrors(['image_url' => 'Please select a banner image from the Media Manager.']);
+        }
+
+        if (!$request->filled('category_id')) {
+            Toastr::warning('Please select a banner category before updating.', 'Category required');
+            return redirect()->back()->withInput()->withErrors(['category_id' => 'Please select a banner category.']);
+        }
+
         $this->validate($request, [
             'link' => 'required',
+            'category_id' => 'required|integer|exists:banner_categories,id',
         ]);
         $update_data = Banner::find($request->id);
         $input = $request->all();

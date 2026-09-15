@@ -323,10 +323,10 @@
                             @php
                                 $adminPrimaryDefault = $edit_data->primary_color ?? '#1e293b';
                                 $adminColors = [
-                                    'sidebar_bg_color' => ['label' => 'Sidebar Background', 'default' => $adminPrimaryDefault],
-                                    'sidebar_text_color' => ['label' => 'Sidebar Text', 'default' => '#ffffff'],
-                                    'topbar_bg_color' => ['label' => 'Topbar Background', 'default' => $adminPrimaryDefault],
-                                    'admin_card_bg' => ['label' => 'Card Background', 'default' => '#ffffff'],
+                                    'sidebar_bg_color' => ['label' => 'Sidebar Background', 'default' => $edit_data->footer_bg_color ?? $adminPrimaryDefault],
+                                    'sidebar_text_color' => ['label' => 'Sidebar Text', 'default' => $edit_data->footer_text_color ?? '#ffffff'],
+                                    'topbar_bg_color' => ['label' => 'Topbar Background', 'default' => $edit_data->header_bg_color ?? $adminPrimaryDefault],
+                                    'admin_card_bg' => ['label' => 'Card Background', 'default' => $edit_data->body_bg_color ?? '#ffffff'],
                                 ];
                             @endphp
                             @foreach($adminColors as $key => $c)

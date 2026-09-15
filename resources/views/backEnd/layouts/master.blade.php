@@ -47,10 +47,10 @@
         // ── Compute safe, contrast-aware colors from theme ──
         // Admin Panel Colors (sidebar_bg_color / topbar_bg_color) win;
         // fall back to the primary brand color when not set.
-        $sidebarBg  = $activeTheme->sidebar_bg_color ?? $activeTheme->primary_color ?? '#1e293b';
-        $topbarBg   = $activeTheme->topbar_bg_color ?? $activeTheme->primary_color ?? '#0f172a';
+        $sidebarBg  = $activeTheme->sidebar_bg_color ?? $activeTheme->footer_bg_color ?? $activeTheme->primary_color ?? '#1e293b';
+        $topbarBg   = $activeTheme->topbar_bg_color ?? $activeTheme->header_bg_color ?? $activeTheme->primary_color ?? '#0f172a';
         $bodyBg     = $activeTheme->body_bg_color ?? '#f8f9fa';
-        $cardBg     = $activeTheme->admin_card_bg ?? '#ffffff';
+        $cardBg     = $activeTheme->admin_card_bg ?? $bodyBg;
         $footerBg   = $activeTheme->footer_bg_color ?? '#f8fafc';
         
         // Text colors — ALWAYS validated against their background for contrast

@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Theme;
 use App\Models\GeneralSetting;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Schema;
 use Toastr;
 use File;
@@ -53,6 +54,7 @@ class ThemeController extends Controller
         $input['is_active'] = $request->boolean('is_active');
 
         Theme::create($input);
+        $this->clearThemeCache();
 
         Toastr::success('Theme created successfully!', 'Success');
         return redirect()->route('themes.index');
@@ -88,6 +90,7 @@ class ThemeController extends Controller
         }
 
         $update_data->update($input);
+        $this->clearThemeCache();
 
         Toastr::success('Theme updated successfully!', 'Success');
         return redirect()->route('themes.index');
@@ -111,6 +114,7 @@ class ThemeController extends Controller
             $setting->theme_id = $theme->id;
             $setting->save();
         }
+        $this->clearThemeCache();
 
         Toastr::success("Theme '{$theme->name}' applied successfully!", 'Success');
         return redirect()->route('themes.index');
@@ -127,6 +131,7 @@ class ThemeController extends Controller
         $copy->slug = $original->slug . '-copy-' . time();
         $copy->is_default = false;
         $copy->save();
+        $this->clearThemeCache();
 
         Toastr::success("Theme '{$original->name}' duplicated successfully!", 'Success');
         return redirect()->route('themes.index');
@@ -151,6 +156,7 @@ class ThemeController extends Controller
         }
 
         $theme->delete();
+        $this->clearThemeCache();
 
         Toastr::success('Theme deleted successfully!', 'Success');
         return redirect()->route('themes.index');
@@ -161,6 +167,7 @@ class ThemeController extends Controller
         $theme = Theme::findOrFail($request->hidden_id);
         $theme->is_active = false;
         $theme->save();
+        $this->clearThemeCache();
         Toastr::success('Theme deactivated successfully!', 'Success');
         return redirect()->back();
     }
@@ -170,7 +177,14 @@ class ThemeController extends Controller
         $theme = Theme::findOrFail($request->hidden_id);
         $theme->is_active = true;
         $theme->save();
+        $this->clearThemeCache();
         Toastr::success('Theme activated successfully!', 'Success');
         return redirect()->back();
+    }
+
+    private function clearThemeCache(): void
+    {
+        Cache::forget('active_theme');
+        Cache::forget('general_setting');
     }
 }

@@ -357,15 +357,24 @@ class ThemeSeeder extends Seeder
         ];
 
         foreach ($themes as $theme) {
-            // Add default admin panel colors if not set
-            $theme['sidebar_bg_color'] = $theme['sidebar_bg_color'] ?? '#1e293b';
-            $theme['sidebar_text_color'] = $theme['sidebar_text_color'] ?? '#ffffff';
-            $theme['topbar_bg_color'] = $theme['topbar_bg_color'] ?? '#0f172a';
-            $theme['admin_card_bg'] = $theme['admin_card_bg'] ?? '#ffffff';
-            Theme::firstOrCreate(
-                ['slug' => $theme['slug']],
-                $theme
-            );
+            // Derive admin panel colors from the theme instead of using one shared palette.
+            $adminColors = [
+                'sidebar_bg_color' => $theme['footer_bg_color'],
+                'sidebar_text_color' => $theme['footer_text_color'],
+                'topbar_bg_color' => $theme['header_bg_color'],
+                'admin_card_bg' => $theme['body_bg_color'],
+            ];
+            $theme = array_merge($theme, $adminColors);
+
+            $existing = Theme::where('slug', $theme['slug'])->first();
+
+            if (!$existing) {
+                Theme::create($theme);
+                continue;
+            }
+
+            // Keep existing theme records aligned with their own admin palette.
+            $existing->update($adminColors);
         }
     }
 }

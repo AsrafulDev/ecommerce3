@@ -155,7 +155,7 @@
         </div>
     </div>
 
-    <form action="{{route('banners.update')}}" method="POST" id="bannerForm" enctype="multipart/form-data">
+    <form action="{{route('banners.update')}}" method="POST" id="bannerForm">
         @csrf
         <input type="hidden" value="{{$edit_data->id}}" name="id">
 
@@ -167,15 +167,17 @@
                     <div class="image-canvas-wrapper">
                         <img id="realPreview" src="{{asset($edit_data->image)}}" class="real-view-image" alt="Banner Preview">
                         
-                        <button type="button" class="upload-overlay-btn" onclick="openMediaPicker('#image_url','#realPreview','path')">
-                            <i class="fe-camera"></i> <span> {{ __('Change Image') }} </span>
-                        </button>
                         <input type="hidden" name="image_url" id="image_url" value="{{ $edit_data->image }}">
 
-                        <button type="button" class="upload-overlay-btn" style="bottom:80px; right:20px;" onclick="openMediaPicker('#image_url','#realPreview','path')">
+                        <button type="button" class="upload-overlay-btn" onclick="openMediaPicker('#image_url','#realPreview','path')">
                             <i class="fe-image"></i> <span>{{ __('Media Library') }}</span>
                         </button>
                     </div>
+                    @error('image_url')
+                        <div class="text-center bg-soft-danger text-danger p-2 small fw-bold">
+                            <i class="fe-alert-triangle me-1"></i> {{ $message }}
+                        </div>
+                    @enderror
 
                     <div class="settings-area">
                         <div class="row g-4">
@@ -237,29 +239,5 @@
 
 @section('script')
 <script>
-    // Real-time Canvas Update
-    function updateCanvas(input) {
-        // A real file upload takes precedence over the media picker
-        if (input.files && input.files[0]) {
-            document.getElementById('image_url').value = '';
-            var reader = new FileReader();
-            reader.onload = function(e) {
-                var img = document.getElementById('realPreview');
-                img.src = e.target.result;
-                // Fade effect
-                img.style.opacity = 0.5;
-                setTimeout(() => { img.style.opacity = 1; }, 200);
-            }
-            reader.readAsDataURL(input.files[0]);
-        }
-    }
-
-    // When an image is chosen from the Media Library, clear the file input
-    // so the media path is submitted (the picker already refreshed the preview).
-    document.getElementById('image_url').addEventListener('change', function () {
-        if (this.value) {
-            document.getElementById('imageUpload').value = '';
-        }
-    });
 </script>
 @endsection

@@ -27,8 +27,8 @@ class LicenseService
     /**
      * Resolve license config.
      *
-     * The mother server URL, script name and version are HARDCODED in
-     * config/updater.php (baked in, cannot be changed/removed at runtime).
+    * The mother server URL and script name are HARDCODED in
+    * config/updater.php. The installed version is hardcoded in config/app.php.
      * The license key is admin-managed: stored ONLY in general_settings.license_key
      * (editable from the admin License page) — no hardcoded key in code.
      *
@@ -45,19 +45,11 @@ class LicenseService
     }
 
     /**
-     * Current installed version: DB (general_settings.app_version) → config.
+     * Current installed version from config/app.php.
      */
     private static function currentVersion(): string
     {
-        try {
-            $setting = GeneralSetting::where('status', 1)->first();
-            if ($setting && isset($setting->app_version) && trim((string) $setting->app_version) !== '') {
-                return trim((string) $setting->app_version);
-            }
-        } catch (\Exception $e) {
-            // fall through to config
-        }
-        return (string) config('updater.current_version', '1.0.0');
+        return (string) config('app.version', '1.0.0');
     }
 
     /**

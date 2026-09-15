@@ -165,7 +165,7 @@
         </div>
     </div>
 
-    <form action="{{route('banners.store')}}" method="POST" id="bannerForm" enctype="multipart/form-data">
+    <form action="{{route('banners.store')}}" method="POST" id="bannerForm">
         @csrf
 
         <div class="row justify-content-center">
@@ -182,17 +182,13 @@
 
                         <img id="realPreview" src="#" class="real-view-image" alt="Banner Preview">
                         
-                        <label class="upload-overlay-btn" for="imageUpload">
-                            <i class="fe-upload-cloud"></i> <span>{{ __('Upload Image') }}</span>
-                        </label>
-                        <input type="hidden" name="image_url" id="image_url" value="">
                         <input type="hidden" name="image_url" id="image_url" value="{{ old('image_url') }}">
 
-                        <button type="button" class="upload-overlay-btn" style="bottom:80px; right:20px;" onclick="openMediaPicker('#image_url','#realPreview','path')">
+                        <button type="button" class="upload-overlay-btn" onclick="openMediaPicker('#image_url','#realPreview','path')">
                             <i class="fe-image"></i> <span>{{ __('Media Library') }}</span>
                         </button>
                     </div>
-                    @error('image') 
+                    @error('image_url')
                         <div class="text-center bg-soft-danger text-danger p-2 small fw-bold">
                             <i class="fe-alert-triangle me-1"></i> {{ $message }}
                         </div> 
@@ -258,38 +254,10 @@
 
 @section('script')
 <script>
-    // Real-time Canvas Update for Create Page
-    function updateCanvas(input) {
-        // If the user uploads a file, it takes precedence over media picker
-        if (input.files && input.files[0]) {
-            document.getElementById('image_url').value = '';
-            var reader = new FileReader();
-            
-            reader.onload = function(e) {
-                var img = document.getElementById('realPreview');
-                var emptyState = document.getElementById('emptyState');
-                
-                // Hide empty state and show image
-                emptyState.style.display = 'none';
-                img.style.display = 'block';
-                
-                img.src = e.target.result;
-                
-                // Fade effect
-                img.style.opacity = 0;
-                setTimeout(() => { img.style.opacity = 1; }, 100);
-            }
-            
-            reader.readAsDataURL(input.files[0]);
-        }
-    }
-
-    // When an image is chosen from the Media Library (picker sets #image_url),
-    // hide the empty state and clear the file input (the media path is submitted).
+    // The media picker updates the hidden path and preview image.
     document.getElementById('image_url').addEventListener('change', function () {
         if (this.value) {
             document.getElementById('emptyState').style.display = 'none';
-            document.getElementById('imageUpload').value = '';
         }
     });
 </script>
