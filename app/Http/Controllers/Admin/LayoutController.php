@@ -423,8 +423,12 @@ class LayoutController extends Controller
         $isHotDealActive = false;
         $isFlashSaleActive = false;
         if ($generalsetting) {
-            $hotDealEndDate = $generalsetting->hot_deal_end_date . 'T23:59:59';
-            $flashSaleEndDate = $generalsetting->flash_sale_end_date . 'T23:59:59';
+            $hotDealEndDate = $generalsetting->hot_deal_end_date
+                ? \Carbon\Carbon::parse($generalsetting->hot_deal_end_date)->format('Y-m-d') . 'T23:59:59'
+                : null;
+            $flashSaleEndDate = $generalsetting->flash_sale_end_date
+                ? \Carbon\Carbon::parse($generalsetting->flash_sale_end_date)->format('Y-m-d') . 'T23:59:59'
+                : null;
             $isHotDealActive = $hotDealEndDate && \Carbon\Carbon::parse($hotDealEndDate)->isFuture();
             $isFlashSaleActive = $flashSaleEndDate && \Carbon\Carbon::parse($flashSaleEndDate)->isFuture();
         }

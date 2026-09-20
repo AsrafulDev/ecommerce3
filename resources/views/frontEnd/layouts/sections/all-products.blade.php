@@ -1,5 +1,5 @@
 {{-- All Products Grid Section --}}
-@if($generalsetting && $generalsetting->show_all_products)
+{{-- Visibility is controlled by the Homepage Layout Builder. --}}
 <section class="homeproduct">
     <div class="container">
         <div class="row">
@@ -24,4 +24,3 @@
         </div>
     </div>
 </section>
-@endif

@@ -63,18 +63,7 @@
         box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
     }
 
-    /* 4. COLOR PICKER WRAPPER */
-    .color-box-pro {
-        background: #fff;
-        border: 1px solid #e2e8f0;
-        border-radius: 10px;
-        padding: 10px;
-        display: flex;
-        align-items: center;
-        gap: 10px;
-    }
-
-    /* 5. ACTION BUTTON */
+    /* 4. ACTION BUTTON */
     .btn-save-pro {
         background: #0f172a;
         color: #fff;
@@ -158,110 +147,33 @@
                             <input type="url" name="app_store_link" class="form-control custom-input" value="{{ $edit_data->app_store_link ?? '' }}" placeholder="https://apps.apple.com/...">
                             <small class="text-muted"> {{ __('Footer - App Store download button') }} </small>
                         </div>
-                    </div>
-                </div>
 
-                <div class="settings-card">
-                    <div class="section-title-pro">
-                        <i class="mdi mdi-palette text-success"></i> Theme Appearance
-                    </div>
-                    <div class="p-4">
-                        {{-- Active Theme Dropdown --}}
-                        <div class="row mb-4 g-3">
-                            <div class="col-md-6">
-                                <label class="form-label-pro"> {{ __('Active Theme') }} </label>
-                                <select name="theme_id" class="form-control custom-input select2">
-                                    <option value="">— Select Theme —</option>
-                                    @foreach($themes as $theme)
-                                    <option value="{{ $theme->id }}" 
-                                        data-primary="{{ $theme->primary_color }}"
-                                        data-secondary="{{ $theme->secondary_color }}"
-                                        data-accent="{{ $theme->accent_color }}"
-                                        data-footer="{{ $theme->footer_bg_color }}"
-                                        {{ $edit_data->theme_id == $theme->id ? 'selected' : '' }}>
-                                        {{ $theme->name }} @if($theme->is_default)(Default)@endif
-                                    </option>
-                                    @endforeach
-                                </select>
-                                <small class="text-muted">
-                                    <a href="{{ route('themes.index') }}">Manage Themes →</a>
-                                </small>
-                                {{-- Live color swatches --}}
-                                @php $activeTheme = $edit_data->activeTheme; @endphp
-                                <div class="theme-swatches mt-2 d-flex gap-1" id="themeSwatches">
-                                    <span class="swatch d-inline-block rounded-circle" style="width:20px;height:20px;background:{{ optional($activeTheme)->primary_color ?? '#0d6efd' }};border:2px solid #fff;box-shadow:0 1px 3px rgba(0,0,0,0.2);"></span>
-                                    <span class="swatch d-inline-block rounded-circle" style="width:20px;height:20px;background:{{ optional($activeTheme)->secondary_color ?? '#198754' }};border:2px solid #fff;box-shadow:0 1px 3px rgba(0,0,0,0.2);"></span>
-                                    <span class="swatch d-inline-block rounded-circle" style="width:20px;height:20px;background:{{ optional($activeTheme)->accent_color ?? '#ff6a00' }};border:2px solid #fff;box-shadow:0 1px 3px rgba(0,0,0,0.2);"></span>
-                                    <span class="swatch d-inline-block rounded-circle" style="width:20px;height:20px;background:{{ optional($activeTheme)->footer_bg_color ?? '#1a1a1a' }};border:2px solid #fff;box-shadow:0 1px 3px rgba(0,0,0,0.2);"></span>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label-pro"> {{ __('Active Layout') }} </label>
-                                <select name="active_layout_id" class="form-control custom-input select2">
-                                    <option value="">— Default Order —</option>
-                                    @foreach($layouts as $layout)
-                                    <option value="{{ $layout->id }}" 
-                                        {{ $edit_data->active_layout_id == $layout->id ? 'selected' : '' }}>
-                                        {{ $layout->name }} @if($layout->is_default)(Default)@endif
-                                    </option>
-                                    @endforeach
-                                </select>
-                                <small class="text-muted">
-                                    <a href="{{ route('layouts.index') }}">Manage Layouts →</a>
-                                </small>
+                        <div class="col-12 mt-4">
+                            <hr class="my-1">
+                            <span class="form-label-pro">{{ __('Logos & Images') }}</span>
+                        </div>
+                        @php
+                            $logos = [
+                                'white_logo' => 'White Logo (For Dark Bg)',
+                                'dark_logo' => 'Dark Logo (For Light Bg)',
+                                'favicon' => 'Favicon Icon',
+                                'og_baner' => 'Social Banner (OG)'
+                            ];
+                        @endphp
+                        @foreach($logos as $slug => $label)
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label-pro">{{ $label }}</label>
+                            @include('backEnd.media._picker_button', [
+                                'field' => $slug,
+                                'preview' => 'preview_'.$slug,
+                                'label' => __('Choose from Media Library'),
+                                'current' => old($slug.'_url', $edit_data->$slug ?? ''),
+                            ])
+                            <div class="logo-preview-box">
+                                <img id="preview_{{ $slug }}" src="{{ asset($edit_data->$slug) }}" class="edit-image-pro" alt="Preview">
                             </div>
                         </div>
-
-                        <div class="row g-3">
-                            @php
-                                $colors = [
-                                    'primary_color' => ['label' => 'Primary Color', 'default' => '#0d6efd'],
-                                    'secodery_color' => ['label' => 'Secondary Color', 'default' => '#198754'],
-                                    'footer_color' => ['label' => 'Footer Color', 'default' => '#222222'],
-                                    'copyright_color' => ['label' => 'Copyright Color', 'default' => '#111111']
-                                ];
-                            @endphp
-                            @foreach($colors as $key => $color)
-                            <div class="col-md-6 col-xl-3">
-                                <label class="form-label-pro">{{ $color['label'] }}</label>
-                                <div class="color-box-pro">
-                                    <input type="color" name="{{ $key }}" id="{{ $key }}_cp" 
-                                           value="{{ old($key, $edit_data->$key ?? $color['default']) }}"
-                                           class="form-control-color border-0 bg-transparent" 
-                                           oninput="document.getElementById('{{ $key }}_txt').value=this.value;">
-                                    <input type="text" id="{{ $key }}_txt" value="{{ old($key, $edit_data->$key ?? $color['default']) }}" 
-                                           class="form-control border-0 p-0 small text-uppercase fw-bold" 
-                                           style="font-size: 11px;"
-                                           oninput="document.getElementById('{{ $key }}_cp').value=this.value;">
-                                </div>
-                            </div>
-                            @endforeach
-                        </div>
-
-                        <div class="row mt-4 g-3">
-                            @php
-                                $logos = [
-                                    'white_logo' => 'White Logo (For Dark Bg)',
-                                    'dark_logo' => 'Dark Logo (For Light Bg)',
-                                    'favicon' => 'Favicon Icon',
-                                    'og_baner' => 'Social Banner (OG)'
-                                ];
-                            @endphp
-                            @foreach($logos as $slug => $label)
-                            <div class="col-md-6">
-                                <label class="form-label-pro">{{ $label }}</label>
-                                @include('backEnd.media._picker_button', [
-                                    'field' => $slug,
-                                    'preview' => 'preview_'.$slug,
-                                    'label' => __('Choose from Media Library'),
-                                    'current' => old($slug.'_url', $edit_data->$slug ?? ''),
-                                ])
-                                <div class="logo-preview-box">
-                                    <img id="preview_{{ $slug }}" src="{{ asset($edit_data->$slug) }}" class="edit-image-pro" alt="Preview">
-                                </div>
-                            </div>
-                            @endforeach
-                        </div>
+                        @endforeach
                     </div>
                 </div>
             </div>
@@ -274,24 +186,13 @@
                     <div class="p-4">
                         <div class="mb-4">
                             <label class="form-label-pro"> {{ __('Hot Deal End Date') }} </label>
-                            <input type="date" name="hot_deal_end_date" class="form-control custom-input" value="{{ $edit_data->hot_deal_end_date }}">
+                            <input type="date" name="hot_deal_end_date" class="form-control custom-input" value="{{ old('hot_deal_end_date', $edit_data->hot_deal_end_date ? \Carbon\Carbon::parse($edit_data->hot_deal_end_date)->format('Y-m-d') : '') }}">
+                            <small class="text-muted">{{ __('Countdown runs until 23:59 on this date. Leave empty to disable.') }}</small>
                         </div>
                         <div class="mb-4">
                             <label class="form-label-pro"> {{ __('Flash Sale End Date') }} </label>
-                            <input type="date" name="flash_sale_end_date" class="form-control custom-input" value="{{ $edit_data->flash_sale_end_date }}">
-                        </div>
-                        <div class="mb-4">
-                            <label class="form-label-pro"> {{ __('Visibility Controls') }} </label>
-                            <div class="d-grid gap-2">
-                                <select class="form-select custom-input" name="show_all_products">
-                                    <option value="1" @if($edit_data->show_all_products==1) selected @endif> {{ __('Home: Show All Products') }} </option>
-                                    <option value="0" @if($edit_data->show_all_products==0) selected @endif> {{ __('Home: Hide All Products') }} </option>
-                                </select>
-                                <select class="form-select custom-input" name="show_category_wise_products">
-                                    <option value="1" @if($edit_data->show_category_wise_products==1) selected @endif> {{ __('Home: Category Wise On') }} </option>
-                                    <option value="0" @if($edit_data->show_category_wise_products==0) selected @endif> {{ __('Home: Category Wise Off') }} </option>
-                                </select>
-                            </div>
+                            <input type="date" name="flash_sale_end_date" class="form-control custom-input" value="{{ old('flash_sale_end_date', $edit_data->flash_sale_end_date ? \Carbon\Carbon::parse($edit_data->flash_sale_end_date)->format('Y-m-d') : '') }}">
+                            <small class="text-muted">{{ __('Countdown runs until 23:59 on this date. Leave empty to disable.') }}</small>
                         </div>
                         <div class="mb-2">
                             <label class="form-label-pro"> {{ __('Warranty System') }} </label>
@@ -357,21 +258,6 @@
                 ['insert', ['link', 'picture']],
                 ['view', ['fullscreen', 'codeview']]
             ]
-        });
-
-        // Theme selection → update swatches
-        $('select[name="theme_id"]').on('change', function() {
-            const selected = $(this).find('option:selected');
-            const swatches = $('#themeSwatches .swatch');
-            const colors = [
-                selected.data('primary') || '#0d6efd',
-                selected.data('secondary') || '#198754',
-                selected.data('accent') || '#ff6a00',
-                selected.data('footer') || '#1a1a1a'
-            ];
-            swatches.each(function(i) {
-                $(this).css('background', colors[i] || '#ccc');
-            });
         });
     });
 </script>

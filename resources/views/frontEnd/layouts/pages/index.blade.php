@@ -297,7 +297,7 @@
 
 <script>
     $("#simple_timer").syotimer({
-        date: new Date("{{$generalsetting->hot_deal_end_date ?? now()}}T23:59:59"),
+        date: new Date("{{ $generalsetting->hot_deal_end_date ? \Carbon\Carbon::parse($generalsetting->hot_deal_end_date)->format('Y-m-d') : now()->format('Y-m-d') }}T23:59:59"),
         layout: "hms",
         doubleNumbers: false,
         effectType: "opacity",
@@ -305,7 +305,7 @@
         periodic: false
     });
    $("#flash_sale_timer").syotimer({
-        date: new Date("{{$generalsetting->flash_sale_end_date ?? now()}}T23:59:59"),
+        date: new Date("{{ $generalsetting->flash_sale_end_date ? \Carbon\Carbon::parse($generalsetting->flash_sale_end_date)->format('Y-m-d') : now()->format('Y-m-d') }}T23:59:59"),
         layout: "hms",
         doubleNumbers: false,
         effectType: "opacity",

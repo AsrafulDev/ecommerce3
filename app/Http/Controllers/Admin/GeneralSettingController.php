@@ -131,9 +131,7 @@ class GeneralSettingController extends Controller
             return redirect()->route('settings.create');
         }
 
-        $themes = \App\Models\Theme::where('is_active', true)->orderBy('name')->get();
-        $layouts = \App\Models\HomepageLayout::orderBy('name')->get();
-        return view('backEnd.settings.edit', compact('edit_data', 'themes', 'layouts'));
+        return view('backEnd.settings.edit', compact('edit_data'));
     }
     
     public function update(Request $request)
@@ -149,6 +147,14 @@ class GeneralSettingController extends Controller
             return redirect()->route('settings.create');
         }
         $input = $request->all();
+
+        // Blank date inputs post '' and these columns are DATETIME — MySQL strict
+        // mode rejects '' with "1292 Incorrect datetime value", which aborts the
+        // whole settings update. Normalise blanks to null so clearing a date
+        // clears it instead of failing the save.
+        foreach (['hot_deal_end_date', 'flash_sale_end_date'] as $dateField) {
+            $input[$dateField] = trim((string) $request->input($dateField)) ?: null;
+        }
 
         // Identity images are selected from the Media Manager.
         foreach (['white_logo', 'dark_logo', 'favicon', 'og_baner'] as $imageField) {

@@ -148,27 +148,24 @@ $brands = Brand::where('status', 1)
             ->get();
 
         // Category wise home products – products এর image + reviews eager load
-        if ($generalsetting && $generalsetting->show_category_wise_products) {
-            $homeproducts = Category::where('status', 1)
-                ->orderBy('id', 'ASC')
-                ->with([
-                    'products' => function ($q) {
-                        $q->select('id', 'name', 'slug', 'new_price', 'old_price', 'category_id', 'stock')
-                            ->where('status', 1)
-                            ->where('approval_status', 'approved')
-                            ->with(['image', 'prosizes', 'procolors', 'reviews'])
-                            ->limit(12);
-                    }
-                ])
-                ->get()
-                ->map(function ($query) {
-                    // প্রতি ক্যাটাগরিতে ১২টা প্রোডাক্ট দেখাবো
-                    $query->setRelation('products', $query->products->take(12));
-                    return $query;
-                });
-        } else {
-            $homeproducts = null;
-        }
+        // (which sections render is decided by the Homepage Layout Builder)
+        $homeproducts = Category::where('status', 1)
+            ->orderBy('id', 'ASC')
+            ->with([
+                'products' => function ($q) {
+                    $q->select('id', 'name', 'slug', 'new_price', 'old_price', 'category_id', 'stock')
+                        ->where('status', 1)
+                        ->where('approval_status', 'approved')
+                        ->with(['image', 'prosizes', 'procolors', 'reviews'])
+                        ->limit(12);
+                }
+            ])
+            ->get()
+            ->map(function ($query) {
+                // প্রতি ক্যাটাগরিতে ১২টা প্রোডাক্ট দেখাবো
+                $query->setRelation('products', $query->products->take(12));
+                return $query;
+            });
 
         $reviews = Banner::where(['status' => 1, 'category_id' => 8])
             ->select('id', 'image', 'link')
@@ -176,16 +173,12 @@ $brands = Brand::where('status', 1)
             ->get();
 
         // All products – image + reviews eager load (যদি হোমে দরকার হয়)
-        if ($generalsetting && $generalsetting->show_all_products) {
-            $all_products = Product::where(['status' => 1, 'approval_status' => 'approved'])
-                ->inRandomOrder()
-                ->select('id', 'name', 'slug', 'new_price', 'old_price', 'stock')
-                ->with(['prosizes', 'procolors', 'image', 'reviews'])
-                ->limit(14)
-                ->get();
-        } else {
-            $all_products = null;
-        }
+        $all_products = Product::where(['status' => 1, 'approval_status' => 'approved'])
+            ->inRandomOrder()
+            ->select('id', 'name', 'slug', 'new_price', 'old_price', 'stock')
+            ->with(['prosizes', 'procolors', 'image', 'reviews'])
+            ->limit(14)
+            ->get();
 
         // Active homepage layout (for drag-drop section builder)
         $activeLayout = HomepageLayout::getActive();
