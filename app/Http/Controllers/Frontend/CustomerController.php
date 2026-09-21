@@ -430,6 +430,14 @@ public function order_save(Request $request)
             'area'=>'required',
         ]);
 
+        // 📵 Blocked phone numbers may not place online orders.
+        //    (The reason stays internal — the customer only sees a refusal.)
+        if (is_phone_blocked($request->phone)) {
+            log_activity('order', 'phone_blocked', 'Blocked checkout attempt from ' . $request->phone);
+            Toastr::error('দুঃখিত, এই মোবাইল নাম্বার থেকে অর্ডার করা যাচ্ছে না। সহায়তার জন্য যোগাযোগ করুন।', 'Failed!');
+            return redirect()->back()->withInput();
+        }
+
         // ⭐ ক্যাম্পেইন পেজ থেকে নির্দিষ্ট প্রোডাক্ট সিলেক্ট করা হলে কার্টে সেই প্রোডাক্ট সেট করি
         if ($request->filled('product')) {
             $campaignProduct = Product::with('image')->find($request->product);

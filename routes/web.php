@@ -1228,6 +1228,11 @@ Route::group(['middleware' => ['auth:admin','admin','lock','check_refer','demo_m
     Route::post('customer/ip-update', [CustomerManageController::class,'ipblock_update'])->name('customers.ipblock.update');
     Route::post('customer/ip-destroy', [CustomerManageController::class,'ipblock_destroy'])->name('customers.ipblock.destroy');
     Route::post('customer/ip-quick-block', [CustomerManageController::class,'ipblock_quick_store'])->name('customers.ipblock.quick');
+    Route::post('customer/phone-store', [CustomerManageController::class,'phoneblock_store'])->name('customers.phoneblock.store');
+    Route::post('customer/phone-update', [CustomerManageController::class,'phoneblock_update'])->name('customers.phoneblock.update');
+    Route::post('customer/phone-destroy', [CustomerManageController::class,'phoneblock_destroy'])->name('customers.phoneblock.destroy');
+    Route::post('customer/phone-quick-block', [CustomerManageController::class,'phoneblock_quick_store'])->name('customers.phoneblock.quick');
+    Route::get('customer/phone-check', [CustomerManageController::class,'phoneblock_check'])->name('customers.phoneblock.check');
 
     // Refund Management Routes
     Route::get('refunds', [\App\Http\Controllers\Admin\RefundController::class, 'index'])->name('admin.refunds.index');

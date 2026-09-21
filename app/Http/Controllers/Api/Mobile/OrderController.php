@@ -103,6 +103,15 @@ class OrderController extends Controller
             ], 422);
         }
 
+        // 📵 Blocked phone numbers may not place online orders.
+        if (is_phone_blocked($request->phone)) {
+            \log_activity('order', 'phone_blocked', 'Blocked mobile-app order attempt from ' . $request->phone);
+            return response()->json([
+                'status'  => 'error',
+                'message' => 'This phone number is not allowed to place orders. Please contact support.',
+            ], 403);
+        }
+
         $customer = $request->user();
 
         // Check cart

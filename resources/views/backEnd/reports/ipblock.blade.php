@@ -1,5 +1,5 @@
 @extends('backEnd.layouts.master')
-@section('title','Manage IP Block')
+@section('title','Manage IP & Phone Block')
 
 @section('css')
 <link href="{{asset('/public/backEnd/')}}/assets/libs/datatables.net-bs5/css/dataTables.bootstrap5.min.css" rel="stylesheet" type="text/css" />
@@ -140,8 +140,8 @@
         <div class="col-12">
             <div class="page-title-box d-flex align-items-center justify-content-between py-4">
                 <div>
-                    <h4 class="page-title mb-1 text-dark fw-bold"> {{ __('IP Block Manager') }} </h4>
-                    <p class="text-muted font-size-13 mb-0"> {{ __('Restrict access for specific IP addresses.') }} </p>
+                    <h4 class="page-title mb-1 text-dark fw-bold"> {{ __('IP & Phone Block Manager') }} </h4>
+                    <p class="text-muted font-size-13 mb-0"> {{ __('Block IP addresses and phone numbers used for fake or duplicate orders.') }} </p>
                 </div>
             </div>
         </div>
@@ -246,6 +246,107 @@
             </div>
         </div>
     </div>
+
+    {{-- ================= PHONE NUMBER BLOCKING ================= --}}
+    <div class="row">
+        <div class="col-lg-4">
+            <div class="card">
+                <div class="card-header">
+                    <div class="header-icon"><i class="fe-phone-off"></i></div>
+                    <h5 class="card-title"> {{ __('Block Phone Number') }} </h5>
+                </div>
+                <div class="card-body">
+                    <form action="{{route('customers.phoneblock.store')}}" method="POST" data-parsley-validate>
+                        @csrf
+                        <div class="form-group mb-3">
+                            <label for="phone" class="form-label"> {{ __('Phone Number') }} <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control @error('phone') is-invalid @enderror"
+                                   name="phone" value="{{ old('phone', $prefillPhone ?? '') }}" id="phone"
+                                   placeholder="e.g. 01712345678" required>
+                            @error('phone')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                            <small class="text-muted"> {{ __('+880 / 880 / 0 prefixes are all matched as the same number.') }} </small>
+                        </div>
+
+                        <div class="form-group mb-4">
+                            <label for="phone_reason" class="form-label"> {{ __('Reason') }} <span class="text-danger">*</span></label>
+                            <textarea class="form-control @error('reason') is-invalid @enderror"
+                                      name="reason" rows="4" id="phone_reason"
+                                      placeholder="Why is this number being blocked?" required>{{ old('reason', $prefillReason ?? '') }}</textarea>
+                            @error('reason')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+
+                        <button type="submit" class="btn-submit">
+                            <i class="fe-slash me-1"></i> {{ __('Block Phone Number') }}
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <div class="card bg-soft-warning border-0">
+                <div class="card-body">
+                    <div class="d-flex align-items-start">
+                        <i class="fe-alert-triangle font-size-18 me-2 text-warning"></i>
+                        <p class="mb-0 font-size-13 text-warning">
+                            {{ __('Blocked numbers cannot place orders on the storefront or the mobile app. POS shows a warning, but staff can still proceed.') }}
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-header">
+                    <div class="header-icon"><i class="fe-list"></i></div>
+                    <h5 class="card-title"> {{ __('Blocked Phone List') }} </h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table id="datatable-phone" class="table table-hover w-100 dt-responsive nowrap">
+                            <thead>
+                                <tr>
+                                    <th style="width: 50px;">{{ __('SL') }}</th>
+                                    <th> {{ __('Phone Number') }} </th>
+                                    <th> {{ __('Reason') }} </th>
+                                    <th class="text-end" style="width: 100px;">{{ __('Action') }}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach($phoneData as $key=>$value)
+                                <tr>
+                                    <td>{{ $loop->iteration }}</td>
+                                    <td>
+                                        <span class="font-weight-bold text-dark">{{ $value->phone }}</span>
+                                    </td>
+                                    <td>{{ $value->reason }}</td>
+                                    <td class="text-end">
+                                        <div class="d-inline-flex gap-2">
+                                            <a href="javascript:void(0);" class="action-btn btn-edit" data-bs-toggle="modal" data-bs-target="#phoneEdit{{ $value->id }}" title="{{ __('Edit') }}">
+                                                <i class="fe-edit"></i>
+                                            </a>
+
+                                            <form method="post" action="{{route('customers.phoneblock.destroy')}}" class="d-inline">
+                                                @csrf
+                                                <input type="hidden" value="{{ $value->id }}" name="id">
+                                                <button type="submit" class="action-btn btn-delete delete-confirm" title="{{ __('Delete') }}">
+                                                    <i class="fe-trash-2"></i>
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </td>
+                                </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
 @foreach($data as $key=>$value)
@@ -283,6 +384,41 @@
 </div>
 @endforeach
 
+@foreach($phoneData as $key=>$value)
+<div class="modal fade" id="phoneEdit{{$value->id}}" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title text-dark fw-bold"> {{ __('Edit Phone Block') }} </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{{ __('Close') }}"></button>
+            </div>
+            <div class="modal-body p-4">
+                <form action="{{route('customers.phoneblock.update')}}" method="POST" data-parsley-validate>
+                    @csrf
+                    <input type="hidden" name="id" value="{{$value->id}}">
+
+                    <div class="form-group mb-3">
+                        <label for="phone" class="form-label"> {{ __('Phone Number') }} <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" name="phone" value="{{$value->phone}}" required>
+                    </div>
+
+                    <div class="form-group mb-4">
+                        <label for="reason" class="form-label"> {{ __('Reason') }} <span class="text-danger">*</span></label>
+                        <textarea class="form-control" name="reason" rows="4" required>{{$value->reason}}</textarea>
+                    </div>
+
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary rounded-pill">
+                            Update Changes
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+@endforeach
+
 @endsection
 
 @section('script')
@@ -300,6 +436,25 @@
 <script src="{{asset('/public/backEnd/')}}/assets/libs/pdfmake/build/pdfmake.min.js"></script>
 <script src="{{asset('/public/backEnd/')}}/assets/libs/pdfmake/build/vfs_fonts.js"></script>
 <script src="{{asset('/public/backEnd/')}}/assets/js/pages/datatables.init.js"></script>
+<script>
+    // Second table on this page — mirror the #datatable-buttons config.
+    $(document).ready(function () {
+        var phoneTable = $("#datatable-phone").DataTable({
+            "pageLength": 100,
+            lengthChange: false,
+            buttons: [
+                { extend: "copy", className: "btn-light" },
+                { extend: "print", className: "btn-light" },
+                { extend: "pdf", className: "btn-light" },
+            ],
+            language: { paginate: { previous: "<i class='mdi mdi-chevron-left'>", next: "<i class='mdi mdi-chevron-right'>" } },
+            drawCallback: function () {
+                $(".dataTables_paginate > .pagination").addClass("pagination-rounded");
+            },
+        });
+        phoneTable.buttons().container().appendTo("#datatable-phone_wrapper .col-md-6:eq(0)");
+    });
+</script>
 <script src="{{asset('public/backEnd/')}}/assets/libs/parsleyjs/parsley.min.js"></script>
 <script src="{{asset('public/backEnd/')}}/assets/js/pages/form-validation.init.js"></script>
 @endsection

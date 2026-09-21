@@ -77,6 +77,79 @@ if (!function_exists('is_color_dark')) {
     }
 }
 
+if (! function_exists('normalize_phone')) {
+    /**
+     * Canonicalise a phone number for block matching.
+     *
+     * Handles the common Bangladeshi spellings so one block entry catches them
+     * all: 01712345678 / +8801712345678 / 8801712345678 → "01712345678".
+     * Returns '' when there are no digits to work with.
+     */
+    function normalize_phone(?string $phone): string
+    {
+        $digits = preg_replace('/\D+/', '', (string) $phone);
+
+        if ($digits === '' || $digits === null) {
+            return '';
+        }
+
+        // Strip the country code ("880" first so it wins over "88").
+        foreach (['880', '88'] as $code) {
+            if (str_starts_with($digits, $code)) {
+                $digits = substr($digits, strlen($code));
+                break;
+            }
+        }
+
+        // Canonical local form: 11 digits beginning with 0.
+        if (strlen($digits) === 10 && str_starts_with($digits, '1')) {
+            $digits = '0'.$digits;
+        }
+
+        return $digits;
+    }
+}
+
+if (! function_exists('is_phone_blocked')) {
+    /**
+     * Return the matching PhoneBlock entry for a number, or null when allowed.
+     * Cached briefly (like the IP check) so every checkout isn't a DB hit —
+     * block/unblock clears the cache immediately.
+     */
+    function is_phone_blocked(?string $phone): ?\App\Models\PhoneBlock
+    {
+        $normalized = normalize_phone($phone);
+
+        if ($normalized === '') {
+            return null;
+        }
+
+        return Cache::remember("phone_block_{$normalized}", 300, function () use ($normalized) {
+            return \App\Models\PhoneBlock::where('phone_normalized', $normalized)->first();
+        });
+    }
+}
+
+if (! function_exists('forget_phone_block_cache')) {
+    /**
+     * Drop the cached verdict for one number (or every number when null) so a
+     * block/unblock takes effect on the very next request.
+     */
+    function forget_phone_block_cache(?string $phone = null): void
+    {
+        if ($phone === null) {
+            Cache::forget('phone_blocks_all');
+            return;
+        }
+
+        $normalized = normalize_phone($phone);
+
+        if ($normalized !== '') {
+            Cache::forget("phone_block_{$normalized}");
+        }
+    }
+}
+
 if (!function_exists('log_activity')) {
     /**
      * Record a security/audit log entry for a user action.

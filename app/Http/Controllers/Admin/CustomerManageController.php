@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Cache;
 use App\Models\CustomerProfit;
 use App\Models\Customer;
 use App\Models\IpBlock;
+use App\Models\PhoneBlock;
 use Toastr;
 use Image;
 use File;
@@ -104,10 +105,12 @@ class CustomerManageController extends Controller
     }
     public function ip_block(Request $request){
         $data = IpBlock::get();
+        $phoneData = PhoneBlock::orderByDesc('id')->get();
         // Query parameter থেকে IP এবং reason নেওয়া
         $prefillIp = $request->query('ip');
         $prefillReason = $request->query('reason', 'ফেইক অর্ডার');
-        return view('backEnd.reports.ipblock',compact('data', 'prefillIp', 'prefillReason'));
+        $prefillPhone = $request->query('phone');
+        return view('backEnd.reports.ipblock',compact('data', 'phoneData', 'prefillIp', 'prefillReason', 'prefillPhone'));
     }
     public function ipblock_store(Request $request){
 
@@ -195,5 +198,137 @@ class CustomerManageController extends Controller
                 'message' => 'Failed to block IP: ' . $e->getMessage()
             ], 500);
         }
+    }
+
+    // ==========================================================
+    // 📵 Phone number block list
+    // ==========================================================
+
+    public function phoneblock_store(Request $request){
+        $request->validate([
+            'phone'  => 'required',
+            'reason' => 'nullable',
+        ]);
+
+        $normalized = normalize_phone($request->phone);
+        if ($normalized === '') {
+            Toastr::error('A valid phone number is required', 'Error');
+            return redirect()->back();
+        }
+
+        if (PhoneBlock::where('phone_normalized', $normalized)->exists()) {
+            Toastr::error('This phone number is already blocked', 'Error');
+            return redirect()->back();
+        }
+
+        $store_data = new PhoneBlock();
+        $store_data->phone  = trim($request->phone);
+        $store_data->reason = $request->reason ?: 'ফেইক অর্ডার';
+        $store_data->save();
+
+        forget_phone_block_cache($store_data->phone);
+        Toastr::success('Success','Phone number blocked successfully');
+        return redirect()->back();
+    }
+
+    public function phoneblock_update(Request $request){
+        $update_data = PhoneBlock::find($request->id);
+        if (!$update_data) {
+            Toastr::error('Error','Record not found');
+            return redirect()->back();
+        }
+
+        $request->validate([
+            'phone'  => 'required',
+            'reason' => 'nullable',
+        ]);
+
+        $normalized = normalize_phone($request->phone);
+        if ($normalized === '') {
+            Toastr::error('A valid phone number is required', 'Error');
+            return redirect()->back();
+        }
+
+        // Reject a change that would collide with a different existing row.
+        $clash = PhoneBlock::where('phone_normalized', $normalized)
+            ->where('id', '!=', $update_data->id)
+            ->exists();
+        if ($clash) {
+            Toastr::error('Another block already uses this phone number', 'Error');
+            return redirect()->back();
+        }
+
+        // Clear the OLD number's cached verdict before it is overwritten.
+        forget_phone_block_cache($update_data->phone);
+
+        $update_data->phone  = trim($request->phone);
+        $update_data->reason = $request->reason ?: 'ফেইক অর্ডার';
+        $update_data->save();
+
+        forget_phone_block_cache($update_data->phone);
+        Toastr::success('Success','Phone number updated successfully');
+        return redirect()->back();
+    }
+
+    public function phoneblock_destroy(Request $request){
+        $delete_data = PhoneBlock::find($request->id);
+        if (!$delete_data) {
+            Toastr::error('Error','Record not found');
+            return redirect()->back();
+        }
+
+        // Unblock must be effective immediately.
+        forget_phone_block_cache($delete_data->phone);
+        $delete_data->delete();
+        Toastr::success('Success','Phone number unblocked successfully');
+        return redirect()->back();
+    }
+
+    // AJAX — quick block from the order page
+    public function phoneblock_quick_store(Request $request){
+        try {
+            $normalized = normalize_phone($request->phone);
+            if ($normalized === '') {
+                return response()->json([
+                    'status'  => 'error',
+                    'message' => 'Phone number is required',
+                ], 400);
+            }
+
+            if (PhoneBlock::where('phone_normalized', $normalized)->exists()) {
+                return response()->json([
+                    'status'  => 'error',
+                    'message' => 'This phone number is already blocked',
+                ], 400);
+            }
+
+            $store_data = new PhoneBlock();
+            $store_data->phone  = trim($request->phone);
+            $store_data->reason = $request->reason ?: 'ফেইক অর্ডার';
+            $store_data->save();
+
+            forget_phone_block_cache($store_data->phone);
+
+            return response()->json([
+                'status'  => 'success',
+                'message' => 'Phone number blocked successfully',
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status'  => 'error',
+                'message' => 'Failed to block phone: ' . $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    // AJAX — used by the POS form to warn (not block) when a phone is banned
+    public function phoneblock_check(Request $request){
+        $blocked = is_phone_blocked($request->phone);
+
+        return response()->json([
+            'blocked' => (bool) $blocked,
+            'phone'   => $request->phone,
+            'reason'  => $blocked->reason ?? null,
+        ]);
     }
 }
