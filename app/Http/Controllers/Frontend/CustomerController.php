@@ -814,8 +814,13 @@ public function order_save(Request $request)
                 \Log::error('Admin SMS send failed: '.$e->getMessage());
             }
 
-            // Incomplete order delete
-            IncompleteOrder::where('phone', $request->phone)->delete();
+            // Incomplete order delete — clear this visitor's lead. Rows are keyed
+            // by session now, so match on that too (the phone alone would leave
+            // the row behind when the successful order used a different number).
+            IncompleteOrder::where(function ($q) use ($request) {
+                $q->where('session_id', session()->getId())
+                    ->orWhere('phone', $request->phone);
+            })->delete();
 
             DB::commit();
 

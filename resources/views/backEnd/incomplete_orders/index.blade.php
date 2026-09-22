@@ -94,10 +94,38 @@
 <div class="container-fluid">
     
     <div class="row mb-3 mt-4">
-        <div class="col-12 d-flex justify-content-between align-items-center">
-            <h4 class="page-title mb-0 fw-bold"> {{ __('Incomplete Orders') }} <span class="badge bg-secondary rounded-pill ms-2">{{ $orders->count() }}</span></h4>
+        <div class="col-12 d-flex justify-content-between align-items-center flex-wrap gap-2">
+            <h4 class="page-title mb-0 fw-bold">
+                {{ __('Incomplete Orders') }}
+                <span class="badge bg-secondary rounded-pill ms-2">{{ $orders->total() }}</span>
+                <small class="text-muted fw-normal font-size-13 ms-1">{{ __('unique clients') }}</small>
+            </h4>
+
+            <form method="GET" action="{{ route('admin.incomplete-orders.index') }}" class="d-flex gap-2 flex-wrap">
+                <input type="text" name="session" class="form-control form-control-sm"
+                       style="min-width:280px;"
+                       value="{{ $session }}"
+                       placeholder="{{ __('Filter by session id') }}">
+                <input type="text" name="keyword" class="form-control form-control-sm"
+                       style="min-width:180px;"
+                       value="{{ $keyword }}"
+                       placeholder="{{ __('Phone or name') }}">
+                <button type="submit" class="btn btn-sm btn-primary">
+                    <i class="fe-search me-1"></i> {{ __('Filter') }}
+                </button>
+                @if($session !== '' || $keyword !== '')
+                    <a href="{{ route('admin.incomplete-orders.index') }}" class="btn btn-sm btn-light border">{{ __('Reset') }}</a>
+                @endif
+            </form>
         </div>
     </div>
+
+    @if($session !== '')
+    <div class="alert alert-info py-2 mb-3">
+        {{ __('Showing a single session:') }} <code>{{ $session }}</code>
+        @if($orders->total() === 0) — {{ __('no incomplete order for this session.') }} @endif
+    </div>
+    @endif
 
     @if($orders->count() > 0)
     <div class="table-responsive">
@@ -113,8 +141,14 @@
                 </tr>
             </thead>
             <tbody>
-                @foreach($orders as $order)
-                
+                @foreach($orders as $client)
+                @php
+                    $order = $client->order;
+                    // Every distinct number this client tried (newest last).
+                    $triedNumbers = collect($order->attempts ?? [])
+                        ->pluck('phone')->filter()->unique()->values();
+                @endphp
+
                 <tr class="parent-row" onclick="toggleDetails({{ $order->id }})" id="row-{{ $order->id }}">
                     <td>
                         <button class="btn btn-icon btn-expand">
@@ -124,8 +158,20 @@
                     <td>
                         <div class="fw-bold">{{ $order->name ?? 'Guest' }}</div>
                         <small class="text-muted">ID: #{{ $order->id }}</small>
+                        @if($client->row_count > 1)
+                            <span class="badge bg-warning text-dark ms-1">{{ $client->row_count }} {{ __('attempts') }}</span>
+                        @endif
                     </td>
-                    <td>{{ $order->phone ?? '—' }}</td>
+                    <td>
+                        {{ $order->phone ?? '—' }}
+                        @if($triedNumbers->count() > 1)
+                            <div class="mt-1 d-flex flex-wrap gap-1">
+                                @foreach($triedNumbers as $num)
+                                    <span class="badge bg-light text-dark border">{{ $num }}</span>
+                                @endforeach
+                            </div>
+                        @endif
+                    </td>
                     <td>
                         <div class="text-dark">{{ optional($order->created_at)->format('d M, Y') }}</div>
                         <div class="date-text">{{ optional($order->created_at)->format('h:i A') }}</div>
@@ -165,6 +211,22 @@
                                         <i class="fe-map-pin me-1 text-primary"></i> 
                                         {{ $order->address ?? 'No address provided' }}
                                     </p>
+
+                                    @if($order->session_id)
+                                    <p class="mb-0 mt-2">
+                                        <small class="text-muted">{{ __('Session') }}:</small>
+                                        <a href="{{ route('admin.incomplete-orders.index', ['session' => $order->session_id]) }}"
+                                           title="{{ __('Show this session only') }}">
+                                            <code>{{ \Illuminate\Support\Str::limit($order->session_id, 18) }}</code>
+                                        </a>
+                                    </p>
+                                    @endif
+
+                                    @if($triedNumbers->count() > 1)
+                                    <p class="mb-0 mt-2 font-size-13 text-muted">
+                                        {{ __('This client tried :n different numbers.', ['n' => $triedNumbers->count()]) }}
+                                    </p>
+                                    @endif
                                 </div>
 
                                 <div class="col-md-8 ps-md-4">

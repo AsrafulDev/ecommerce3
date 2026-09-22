@@ -406,7 +406,7 @@
         body[data-leftbar-color="dark"] .left-side-menu #sidebar-menu > ul > li > a { color: var(--admin-sidebar-text) !important; }
         body[data-leftbar-color="dark"] .left-side-menu #sidebar-menu .menu-title { color: color-mix(in srgb, var(--admin-sidebar-text) 50%, transparent) !important; }
         body[data-leftbar-color="dark"] .left-side-menu #sidebar-menu .menuitem-active > a { color: var(--admin-sidebar-bg) !important; }
-        body[data-leftbar-color="dark"] .left-side-menu #sidebar-menu .menuitem-active .active { color: var(--admin-sidebar-bg) !important; }
+        body[data-leftbar-color="dark"] .left-side-menu #sidebar-menu .menuitem-active .active { color: var(--admin-sidebar-bg) !important;    background: var(--admin-sidebar-text) !important; }
         body[data-leftbar-color="dark"] .left-side-menu .nav-second-level li a,
         body[data-leftbar-color="dark"] .left-side-menu .nav-thrid-level li a { color: var(--admin-sidebar-text) !important; opacity: 0.75; }
         body[data-leftbar-color="dark"] .left-side-menu .nav-second-level li a:hover,

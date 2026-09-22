@@ -27,6 +27,8 @@ class IncompleteOrder extends Model
         'product_image',
         'product_link',
         'total_amount',
+        'session_id',
+        'attempts',
     ];
 
     /**
@@ -37,6 +39,7 @@ class IncompleteOrder extends Model
     {
         return [
             'items' => 'array',
+            'attempts' => 'array',
             'total_amount' => 'float',
         ];
     }

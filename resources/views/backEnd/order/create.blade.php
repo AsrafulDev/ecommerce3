@@ -351,6 +351,14 @@
                             @error('phone')<span class="invalid-feedback"><strong>{{ $message }}</strong></span>@enderror
                         </div>
 
+                        {{-- 📵 Block-list warning — informational, staff can still complete the sale --}}
+                        <div id="pos_phone_block_warning" class="alert alert-danger py-2 px-3 mb-2 small" style="display:none;">
+                            <i class="fas fa-ban me-1"></i>
+                            <strong> {{ __('Blocked number!') }} </strong>
+                            <span id="pos_phone_block_reason"></span>
+                            {{ __('POS can still proceed (staff override).') }}
+                        </div>
+
                         <div class="mb-2">
                             <input type="text"
                                    id="address"
@@ -471,18 +479,25 @@
                             </tr>
                         </table>
 
-                        <div class="text-end mt-1 d-flex gap-2 justify-content-end">
+                        <div class="text-end mt-1 d-flex gap-2 justify-content-end flex-wrap">
                             {{-- 🆕 Hold Cart Button --}}
                             <button type="button" id="btn-hold-cart" class="btn btn-warning rounded-pill btn-sm">
                                 <i class="fas fa-pause me-1"></i> {{ __('Hold Cart') }}
                             </button>
+                            {{-- 🆕 Park the sale without completing it (no payment, no stock move) --}}
+                            <button type="submit" id="pos_pending_btn" class="btn btn-outline-warning rounded-pill btn-sm"
+                                    title="{{ __('Save the order as Pending — nothing is collected or deducted') }}">
+                                <i class="fas fa-clock me-1"></i> {{ __('Save & Pending') }}
+                            </button>
                             <button type="submit" id="pos_submit_btn" class="btn btn-pos-primary">
-                                Complete Sale
+                                {{ __('Complete Sale') }}
                             </button>
                         </div>
 
                         {{-- 🆕 Update mode hidden field --}}
                         <input type="hidden" name="order_id" id="pos_order_id" value="">
+                        {{-- 🆕 "Save & Pending" sets this to 1 (jQuery serialize() drops the clicked button) --}}
+                        <input type="hidden" name="save_as_pending" id="pos_save_as_pending" value="0">
 
                         {{-- 🆕 Update Mode Banner --}}
                         <div id="pos_update_banner" class="alert alert-warning mt-2 mb-0 py-2" style="display:none;">
@@ -493,16 +508,25 @@
 
                 </form>
 
-                {{-- 🆕 Sale Complete Panel (shown after order placed / updated) --}}
+                {{-- 🆕 Post-save panel (shown after order placed / pending / updated) --}}
                 @php
                     $justCreated = Session::get('just_created');
                     $justUpdated = Session::get('just_updated');
+                    $justPending = (bool) Session::get('just_created_pending');
                     $saleInvoice = $justCreated ?? $justUpdated;
                 @endphp
                 @if($saleInvoice)
-                <div class="alert alert-success mt-2 mb-0 py-2 d-flex justify-content-between align-items-center flex-wrap gap-2">
+                <div class="alert mt-2 mb-0 py-2 d-flex justify-content-between align-items-center flex-wrap gap-2 {{ $justPending ? 'alert-warning' : 'alert-success' }}">
                     <div>
-                        <strong>✅ {{ $justUpdated ? 'Order Updated' : 'Sale Complete' }} — Invoice #{{ $saleInvoice }}</strong>
+                        <strong>
+                            @if($justUpdated)
+                                ✏️ {{ __('Order Updated') }} — {{ __('Invoice') }} #{{ $saleInvoice }}
+                            @elseif($justPending)
+                                ⏳ {{ __('Saved as Pending') }} — {{ __('Invoice') }} #{{ $saleInvoice }}
+                            @else
+                                ✅ {{ __('Sale Complete') }} — {{ __('Invoice') }} #{{ $saleInvoice }}
+                            @endif
+                        </strong>
                     </div>
                     <div class="d-flex gap-1">
                         <button type="button" class="btn btn-sm btn-success sale-print-pos" data-invoice="{{ $saleInvoice }}">🖨 POS</button>
@@ -955,6 +979,44 @@
         }
     });
 
+    // -------- Save & Pending flag --------
+    // $(form).serialize() omits the clicked submit button, so record which one
+    // was pressed in a hidden field that the controller reads.
+    $("#pos_submit_btn").on("click", function () {
+        $("#pos_save_as_pending").val("0");
+    });
+    $("#pos_pending_btn").on("click", function () {
+        $("#pos_save_as_pending").val("1");
+    });
+
+    // -------- 📵 Phone block-list warning (POS override allowed) --------
+    var phoneCheckTimer = null;
+    $(document).on("blur change", "#phone", function () {
+        var phone = $.trim($(this).val());
+        var $warn = $("#pos_phone_block_warning");
+
+        if (!phone) { $warn.hide(); return; }
+
+        clearTimeout(phoneCheckTimer);
+        phoneCheckTimer = setTimeout(function () {
+            $.ajax({
+                type: "GET",
+                url: "{{ route('customers.phoneblock.check') }}",
+                data: { phone: phone },
+                dataType: "json",
+                success: function (res) {
+                    if (res && res.blocked) {
+                        $("#pos_phone_block_reason").text(res.reason ? "(" + res.reason + ")" : "");
+                        $warn.show();
+                    } else {
+                        $warn.hide();
+                    }
+                },
+                error: function () { $warn.hide(); }
+            });
+        }, 200);
+    });
+
     // -------- PRODUCT SEARCH (Right side) ----------
     $("#product_search").on("keyup", function () {
         var q = $(this).val().toLowerCase();
@@ -1084,6 +1146,8 @@
                     $("#pos_update_invoice").text(res.invoice_id);
                     $("#pos_update_banner").show();
                     $("#pos_submit_btn").html('<i class="fas fa-sync me-1"></i> Update Order');
+                    // Update mode always writes the order's own status — no pending shortcut.
+                    $("#pos_pending_btn").hide();
                     $("#pos_payment_type").val(res.payment_status === "paid" ? "paid" : (res.payment_status === "pending" ? "cod" : "partial"));
                     $("#pos_paid_amount").val(res.paid_amount);
                     cart_refresh();
@@ -1346,6 +1410,8 @@
                     $("#pos_update_invoice").text(res.invoice_id);
                     $("#pos_update_banner").show();
                     $("#pos_submit_btn").html('<i class="fas fa-sync me-1"></i> Update Order');
+                    // Update mode always writes the order's own status — no pending shortcut.
+                    $("#pos_pending_btn").hide();
 
                     // Set payment info
                     $("#pos_payment_type").val(res.payment_status === "paid" ? "paid" : (res.payment_status === "pending" ? "cod" : "partial"));
@@ -1440,13 +1506,16 @@
                 data: data,
                 dataType: "json",
                 beforeSend: function () {
-                    $("#pos_submit_btn").prop("disabled", true).html('<i class="fas fa-spinner fa-spin me-1"></i> Saving...');
+                    $("#pos_submit_btn, #pos_pending_btn").prop("disabled", true);
+                    $("#pos_submit_btn").html('<i class="fas fa-spinner fa-spin me-1"></i> Saving...');
                 },
                 success: function (res) {
                     location.reload();
                 },
                 error: function (xhr) {
-                    $("#pos_submit_btn").prop("disabled", false).html(isUpdate ? "Update Order" : "Complete Sale");
+                    $("#pos_submit_btn, #pos_pending_btn").prop("disabled", false);
+                    $("#pos_submit_btn").html(isUpdate ? "Update Order" : "Complete Sale");
+                    $("#pos_save_as_pending").val("0");
                     var msg = "Error saving order";
                     if (xhr.responseJSON && xhr.responseJSON.errors) {
                         msg = Object.values(xhr.responseJSON.errors).flat().join(", ");

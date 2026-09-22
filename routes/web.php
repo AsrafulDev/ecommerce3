@@ -1081,6 +1081,7 @@ Route::group(['middleware' => ['auth:admin','admin','lock','check_refer','demo_m
     Route::get('banner-category/manage', [BannerCategoryController::class,'index'])->name('banner_category.index');
     Route::get('banner-category/create', [BannerCategoryController::class,'create'])->name('banner_category.create');
     Route::post('banner-category/save', [BannerCategoryController::class,'store'])->name('banner_category.store');
+    Route::post('banner-category/sync', [BannerCategoryController::class,'sync'])->name('banner_category.sync');
     Route::get('banner-category/{id}/edit', [BannerCategoryController::class,'edit'])->name('banner_category.edit');
     Route::post('banner-category/update', [BannerCategoryController::class,'update'])->name('banner_category.update');
     Route::post('banner-category/inactive', [BannerCategoryController::class,'inactive'])->name('banner_category.inactive');

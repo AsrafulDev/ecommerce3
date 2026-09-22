@@ -71,8 +71,17 @@
     <div class="row mb-3 mt-3">
         <div class="col-12 d-flex justify-content-between align-items-center">
             <h4 class="page-title mb-0" style="font-weight: 700; color: #333;"> {{ __('Banner Management') }} </h4>
-            <a href="{{route('banners.create')}}" class="btn btn-primary rounded-pill px-4 shadow-sm">
-                <i class="fe-plus me-1"></i>{{ __('Create New') }}</a>
+            <div class="d-flex gap-2 flex-wrap">
+                <form action="{{ route('banner_category.sync') }}" method="POST" class="d-inline"
+                      onsubmit="return confirm('Create any missing banner & slider categories? Existing ones are left untouched.');">
+                    @csrf
+                    <button type="submit" class="btn btn-outline-primary rounded-pill px-4 shadow-sm">
+                        <i class="fe-refresh-cw me-1"></i>{{ __('Auto Sync Category') }}
+                    </button>
+                </form>
+                <a href="{{route('banners.create')}}" class="btn btn-primary rounded-pill px-4 shadow-sm">
+                    <i class="fe-plus me-1"></i>{{ __('Create New') }}</a>
+            </div>
         </div>
     </div>
     

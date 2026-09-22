@@ -1909,9 +1909,14 @@ class OrderController extends Controller
         $paymentSubMethod       = trim((string) $request->input('payment_method', 'Cash'));
         $paymentNote            = trim((string) $request->input('payment_note', ''));
 
+        // 🆕 "Save & Pending" — park the sale without completing it. Nothing is
+        //    settled (no payment collected) and no stock moves, matching the
+        //    COD-pending semantics.
+        $saveAsPending = $request->boolean('save_as_pending');
+
         // 💰 Compute paid / due
         $total = (float) $order->amount;
-        $paid  = min((float) ($request->paid_amount ?? $total), $total);
+        $paid  = $saveAsPending ? 0.0 : min((float) ($request->paid_amount ?? $total), $total);
         $due   = max(0, $total - $paid);
 
         $order->paid_amount   = $paid;
@@ -1920,7 +1925,8 @@ class OrderController extends Controller
         // POS fully paid → completed immediately (skip fulfillment)
         // POS partial → completed (goods given) but still has due
         // POS COD → pending (will complete on delivery/payment)
-        $order->order_status  = $paymentType === 'cod'
+        // Save & Pending → pending, nothing collected
+        $order->order_status  = ($paymentType === 'cod' || $saveAsPending)
             ? OrderStatusEnum::PENDING->value
             : OrderStatusEnum::COMPLETED->value;
         $order->payment_status = $paid >= $total ? 'paid' : ($paid > 0 ? 'partial' : 'pending');
@@ -1938,7 +1944,8 @@ class OrderController extends Controller
 
         // Record order note with payment info
         $order->addNote(
-            content: 'POS order created | Payment: ' . strtoupper($paymentType)
+            content: 'POS order created' . ($saveAsPending ? ' as PENDING (nothing collected)' : '')
+                . ' | Payment: ' . ($saveAsPending ? 'PENDING' : strtoupper($paymentType))
                 . ' | Paid: ৳' . number_format($paid, 2)
                 . ($due > 0 ? ' | Due: ৳' . number_format($due, 2) : '')
                 . ' | Method: ' . $paymentSubMethod
@@ -2126,13 +2133,17 @@ class OrderController extends Controller
         Cart::instance('pos_shopping')->destroy();
         Session::forget(['pos_shipping', 'pos_discount', 'product_discount']);
 
-        Toastr::success('Thanks, Your order place successfully', 'Success!');
-        // 🆕 Stay on the POS page — show the Sale Complete panel (no page move)
+        Toastr::success($saveAsPending
+            ? 'Order saved as Pending'
+            : 'Thanks, Your order place successfully', 'Success!');
+        // 🆕 Stay on the POS page — show the post-save panel (no page move)
         Session::flash('just_created', $order->invoice_id);
+        Session::flash('just_created_pending', $saveAsPending);
         if ($request->expectsJson()) {
             return response()->json([
                 'status'     => 'success',
-                'message'    => 'Order placed successfully',
+                'message'    => $saveAsPending ? 'Order saved as Pending' : 'Order placed successfully',
+                'pending'    => $saveAsPending,
                 'invoice_id' => $order->invoice_id,
             ]);
         }

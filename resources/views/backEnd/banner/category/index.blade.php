@@ -102,9 +102,18 @@
             <h4 class="fw-bold m-0 text-dark"> {{ __('Category Manager') }} </h4>
             <span class="text-muted small"> {{ __('Organize and manage banner categories') }} </span>
         </div>
-        <a href="{{ route('banner_category.create') }}" class="btn btn-primary rounded-pill px-4 shadow-sm fw-bold">
-            <i class="fe-plus me-1"></i> Add New Category
-        </a>
+        <div class="d-flex gap-2 flex-wrap">
+            <form action="{{ route('banner_category.sync') }}" method="POST" class="d-inline"
+                  onsubmit="return confirm('Create any missing banner & slider categories? Existing ones are left untouched.');">
+                @csrf
+                <button type="submit" class="btn btn-outline-primary rounded-pill px-4 shadow-sm fw-bold">
+                    <i class="fe-refresh-cw me-1"></i> {{ __('Auto Sync Missing') }}
+                </button>
+            </form>
+            <a href="{{ route('banner_category.create') }}" class="btn btn-primary rounded-pill px-4 shadow-sm fw-bold">
+                <i class="fe-plus me-1"></i> Add New Category
+            </a>
+        </div>
     </div>
 
     <div class="row">

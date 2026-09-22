@@ -730,21 +730,48 @@ $brands = Brand::where('status', 1)
                 'total_amount'  => 'nullable|numeric',
             ]);
 
-            $total = isset($validated['total_amount']) ? floatval($validated['total_amount']) : 0;
+            $total     = isset($validated['total_amount']) ? floatval($validated['total_amount']) : 0;
+            $sessionId = $request->hasSession() ? $request->session()->getId() : null;
 
-            $incomplete = IncompleteOrder::updateOrCreate(
-                [
+            // 🧍 One row per visitor session — the same person retrying from the
+            // same browser with a different number used to create a separate lead
+            // each time (phone+address was the key). Every distinct number they
+            // try is appended to `attempts` instead, so the list stays unique
+            // without losing the "tried 3 numbers" signal.
+            $incomplete = $sessionId
+                ? IncompleteOrder::firstOrNew(['session_id' => $sessionId])
+                : IncompleteOrder::firstOrNew([
                     'phone'   => $validated['phone'] ?? null,
                     'address' => $validated['address'] ?? null,
-                ],
-                [
-                    'name'          => $validated['name'] ?? null,
-                    'items'         => $validated['items'] ?? [],
-                    'product_image' => $validated['product_image'] ?? null,
-                    'product_link'  => $validated['product_link'] ?? null,
-                    'total_amount'  => $total,
-                ]
-            );
+                ]);
+
+            $attempt = [
+                'phone'        => $validated['phone'] ?? null,
+                'name'         => $validated['name'] ?? null,
+                'address'      => $validated['address'] ?? null,
+                'total_amount' => $total,
+                'at'           => now()->toDateTimeString(),
+            ];
+
+            // Keep one entry per distinct phone+address; re-trying the same pair
+            // only refreshes it (and moves it to the end = most recent).
+            $attempts = collect($incomplete->attempts ?? [])
+                ->reject(fn ($a) => ($a['phone'] ?? null) === $attempt['phone']
+                    && ($a['address'] ?? null) === $attempt['address'])
+                ->push($attempt)
+                ->values()
+                ->all();
+
+            $incomplete->fill([
+                'name'          => $validated['name'] ?? null,
+                'phone'         => $validated['phone'] ?? null,
+                'address'       => $validated['address'] ?? null,
+                'items'         => $validated['items'] ?? [],
+                'product_image' => $validated['product_image'] ?? null,
+                'product_link'  => $validated['product_link'] ?? null,
+                'total_amount'  => $total,
+                'attempts'      => $attempts,
+            ])->save();
 
             return response()->json([
                 'status'  => 'success',

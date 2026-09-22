@@ -11,7 +11,7 @@ class BannerCategoryController extends Controller
     function __construct()
     {
          $this->middleware('permission:banner-category-list|banner-category-create|banner-category-edit|banner-category-delete', ['only' => ['index','store']]);
-         $this->middleware('permission:banner-category-create', ['only' => ['create','store']]);
+         $this->middleware('permission:banner-category-create', ['only' => ['create','store','sync']]);
          $this->middleware('permission:banner-category-edit', ['only' => ['edit','update']]);
          $this->middleware('permission:banner-category-delete', ['only' => ['destroy']]);
     }
@@ -25,6 +25,29 @@ class BannerCategoryController extends Controller
     {
         $categories = BannerCategory::orderBy('id','DESC')->select('id','name')->get();
         return view('backEnd.banner.category.create',compact('categories'));
+    }
+
+    /**
+     * Create any canonical banner/slider category that is missing.
+     *
+     * The storefront resolves banner sections by fixed category ids, so a
+     * deleted row silently kills that section. This puts it back without
+     * touching categories that already exist.
+     */
+    public function sync()
+    {
+        $created = BannerCategory::syncCanonical();
+
+        if (empty($created)) {
+            Toastr::info('All banner & slider categories are already set up.', 'Nothing to sync');
+        } else {
+            Toastr::success(
+                count($created) . ' missing category(ies) created: ' . implode(', ', $created),
+                'Synced successfully'
+            );
+        }
+
+        return redirect()->back();
     }
     public function store(Request $request)
     {

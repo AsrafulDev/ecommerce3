@@ -31,10 +31,42 @@ class AppServiceProvider extends ServiceProvider
             }
         }
 
-        // 🔗 Auto-create public/storage symlink if missing
+        // 🔗 Ensure public/storage points at the CURRENT storage/app/public.
+        //
+        // Two failure modes this has to survive:
+        //  • A *dangling* link (project moved/renamed). is_link() still returns
+        //    true for it, so the old `!is_dir() && !is_link()` guard never
+        //    repaired anything — the stale link was kept forever.
+        //  • symlink() disabled by the host. The unqualified call used to fatal
+        //    the entire boot with "Call to undefined function
+        //    App\Providers\symlink()", so nothing rendered at all.
         $publicStorage = public_path('storage');
-        if (!is_dir($publicStorage) && !is_link($publicStorage)) {
-            @symlink(storage_path('app/public'), $publicStorage);
+        $storageTarget = storage_path('app/public');
+
+        if (is_link($publicStorage) && !file_exists($publicStorage)) {
+            @unlink($publicStorage); // drop the broken link so it can be rebuilt
+        }
+
+        if (!file_exists($publicStorage) && is_dir($storageTarget)) {
+            $linked = false;
+
+            if (function_exists('symlink')) {
+                try {
+                    $linked = @symlink($storageTarget, $publicStorage);
+                } catch (\Throwable $e) {
+                    $linked = false;
+                }
+            }
+
+            // Hosts that block symlink() from PHP — try the OS tooling instead.
+            // (Junctions need no elevation on Windows; `ln -s` everywhere else.)
+            if (!$linked && function_exists('exec')) {
+                if (PHP_OS_FAMILY === 'Windows') {
+                    @exec('cmd /c mklink /J ' . escapeshellarg($publicStorage) . ' ' . escapeshellarg($storageTarget) . ' 2>&1');
+                } else {
+                    @exec('ln -s ' . escapeshellarg($storageTarget) . ' ' . escapeshellarg($publicStorage) . ' 2>&1');
+                }
+            }
         }
 
         // 📁 Auto-create public upload directories (all file upload targets)

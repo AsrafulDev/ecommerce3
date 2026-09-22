@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\IncompleteOrder;
+use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Pagination\Paginator;
 
 // নতুন যেগুলো লাগবে
 use App\Models\Customer;
@@ -22,11 +24,66 @@ class IncompleteOrderController extends Controller
 {
     /**
      * ইনকমপ্লিট অর্ডার লিস্ট
+     *
+     * One row per CLIENT, not per attempt: rows are grouped by session (falling
+     * back to the phone number for legacy rows saved before session tracking),
+     * so the same visitor who tried three different numbers shows up once.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $orders = IncompleteOrder::latest()->paginate(25);
-        return view('backEnd.incomplete_orders.index', compact('orders'));
+        $session = trim((string) $request->query('session', ''));
+        $keyword = trim((string) $request->query('keyword', ''));
+
+        // Client identity: the session when present, else the phone number.
+        $clientKey = "COALESCE(NULLIF(session_id, ''), CONCAT('phone:', COALESCE(phone, '')))";
+
+        $grouped = IncompleteOrder::query()
+            ->selectRaw('MAX(id) as latest_id')
+            ->selectRaw("{$clientKey} as client_key")
+            ->selectRaw('COUNT(*) as row_count')
+            ->selectRaw('MAX(created_at) as last_seen_at');
+
+        if ($session !== '') {
+            $grouped->where('session_id', $session);
+        }
+
+        if ($keyword !== '') {
+            $grouped->where(function ($q) use ($keyword) {
+                $q->where('phone', 'like', "%{$keyword}%")
+                    ->orWhere('name', 'like', "%{$keyword}%")
+                    ->orWhere('session_id', 'like', "%{$keyword}%");
+            });
+        }
+
+        $paginator = $grouped->groupBy('client_key')
+            ->orderByRaw('MAX(created_at) DESC')
+            ->paginate(25)
+            ->withQueryString();
+
+        // Hydrate the newest row of each group for display.
+        $latest = IncompleteOrder::whereIn('id', collect($paginator->items())->pluck('latest_id'))
+            ->get()
+            ->keyBy('id');
+
+        $clients = collect($paginator->items())
+            ->map(fn ($row) => (object) [
+                'order'        => $latest[$row->latest_id] ?? null,
+                'client_key'   => $row->client_key,
+                'row_count'    => (int) $row->row_count,
+                'last_seen_at' => $row->last_seen_at,
+            ])
+            ->filter(fn ($c) => $c->order !== null)
+            ->values();
+
+        $orders = new LengthAwarePaginator(
+            $clients,
+            $paginator->total(),
+            $paginator->perPage(),
+            $paginator->currentPage(),
+            ['path' => Paginator::resolveCurrentPath(), 'query' => $request->query()]
+        );
+
+        return view('backEnd.incomplete_orders.index', compact('orders', 'session', 'keyword'));
     }
 
     /**

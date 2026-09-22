@@ -1120,12 +1120,8 @@ class DemoController extends Controller
 
         // 6. Banners
         if (DB::table('banner_categories')->count() == 0) {
-            $bcNames = [
-                1 => 'Sliders', 5 => 'Slider Bottom Ads', 6 => 'Footer Top Ads',
-                7 => 'Campaign Ads', 8 => 'Customer Reviews',
-                9 => 'Hot Deal Banners', 10 => 'Homepage Ads', 11 => 'Homepage Ads 2',
-            ];
-            foreach ($bcNames as $id => $name) {
+            // Single source of truth for the fixed ids the storefront relies on.
+            foreach (BannerCategory::CANONICAL as $id => $name) {
                 DB::table('banner_categories')->insert([
                     'id' => $id, 'name' => $name, 'status' => 1,
                     'created_at' => now(), 'updated_at' => now(),
