@@ -51,6 +51,8 @@ Laravel 12 e-commerce platform ("Ecommerce Pro") with a full admin panel, storef
 3. **Never touch `config/updater.php`.** The license server address is hardcoded and base64-encoded; `LicenseService::assertConfigIntegrity()` makes the app refuse to boot if it's altered.
 4. **`DEMO_MODE=true`** in `.env` makes the admin panel read-only via the `demo_mode` middleware.
 5. **No `docker-compose.yml`** → Sail won't run, and MySQL is often unreachable in sandboxed environments. To validate a Blade view edit without a DB connection, use `php artisan view:clear` plus Blade's `compileString` via `php artisan tinker`.
+6. **`bootstrap/app.php` calls `App\Support\AppKey::ensure()`** — it auto-generates a missing APP_KEY into `.env` at boot (before any route runs). It never rotates an existing key. Do not remove this call or "fix" it into a controller.
+7. **Never drop `force="true"` on `APP_ENV` in `phpunit.xml`** — without it, a shell that exports `APP_ENV` makes Laravel skip `.env.testing` and run `RefreshDatabase` against the **live** MySQL database.
 
 ## Docs
 

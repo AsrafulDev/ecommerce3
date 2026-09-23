@@ -904,6 +904,15 @@ class UpdateController extends Controller
             // Step 5: Copy update files to application directory
             $this->copyUpdateFiles($extractPath, base_path());
 
+            // Step 5.1: Make sure APP_KEY survived the update. Packages never
+            // ship .env (only .env.example), but a site can still be key-less —
+            // and without a key Laravel dies with MissingAppKeyException before
+            // any route runs, including this updater. An existing key is never
+            // rotated.
+            if (\App\Support\AppKey::ensure()) {
+                Log::info('APP_KEY was missing — a new key was generated during the update.');
+            }
+
             // Step 6: Run database migrations - any new migration in the update ZIP will run
             Artisan::call('migrate', ['--force' => true]);
             Log::info('Database migrations executed for update version: ' . $version);

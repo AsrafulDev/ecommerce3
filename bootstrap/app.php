@@ -6,6 +6,13 @@ use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 
+// 🔑 Make sure APP_KEY exists before anything resolves the encrypter.
+// A missing key throws MissingAppKeyException ("Your app key is missing") while
+// the session/cookie middleware boots — which blocks every route, including the
+// installer and the updater. Repairing it here is the only place that works; an
+// existing key is never touched.
+\App\Support\AppKey::ensure();
+
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
         web: __DIR__.'/../routes/web.php',
