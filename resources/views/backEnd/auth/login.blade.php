@@ -226,6 +226,7 @@
     
 
     <script src="{{asset('public/backEnd/')}}/assets_login/js/vendors.js" ></script>
+    <script>window.AIZ = window.AIZ || { local: {} };</script>
     <script src="{{asset('public/backEnd/')}}/assets_login/js/aiz-core.js" ></script>
     <script>
     function togglePassword(fieldId, btn) {

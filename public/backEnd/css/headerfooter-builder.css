@@ -53,16 +53,22 @@ input:checked + .toggle-slider:before { transform: translateX(20px); }
 .hf-save-state.dirty { color: #d97706; font-weight: 600; }
 
 /* ── 3-pane grid ── */
+/* The admin wrapper (.content-page) is overflow:hidden, which turns it into a
+   scrollport that never scrolls — that kills position:sticky on the panes, so
+   they used to scroll away while the drop zones sat ~1400px further down and
+   dragging became impossible. The builder therefore owns its scroll areas:
+   the grid is one viewport tall and each pane scrolls on its own. */
 .hf-grid {
     display: grid;
     grid-template-columns: 250px minmax(0, 1fr) 290px;
     gap: 16px;
-    align-items: start;
+    align-items: stretch;
+    height: calc(100vh - 320px);
+    min-height: 460px;
 }
 .hf-pane {
     background: #fff; border: 1px solid #e2e8f0; border-radius: 14px;
-    padding: 14px; position: sticky; top: 90px;
-    max-height: calc(100vh - 110px); overflow-y: auto;
+    padding: 14px; overflow-y: auto; min-height: 0;
 }
 .hf-pane-title {
     font-weight: 700; font-size: 13px; color: #0f172a;
@@ -98,7 +104,12 @@ input:checked + .toggle-slider:before { transform: translateX(20px); }
 .hf-widget-add { border: none; }
 
 /* ── Canvas (center) ── */
-.hf-canvas { min-width: 0; display: flex; flex-direction: column; gap: 16px; }
+.hf-canvas {
+    min-width: 0; display: flex; flex-direction: column; gap: 16px;
+    overflow-y: auto; min-height: 0;
+}
+/* Never let the preview or a row card be squashed by the scroll area. */
+.hf-canvas > * { flex: 0 0 auto; }
 
 .hf-preview-card { background: #fff; border: 1px solid #e2e8f0; border-radius: 14px; overflow: hidden; }
 .hf-preview-head {
@@ -268,10 +279,12 @@ input:checked + .toggle-slider:before { transform: translateX(20px); }
     .hf-settings.hf-open { transform: none; }
 }
 @media (max-width: 991px) {
-    .hf-grid { grid-template-columns: 1fr; }
+    /* Stacked layout: give the page back its own scrolling. */
+    .hf-grid { grid-template-columns: 1fr; height: auto; min-height: 0; }
+    .hf-canvas { overflow: visible; }
     .hf-widgets {
         position: static; max-height: none; display: flex; gap: 10px;
-        overflow-x: auto; padding-bottom: 8px;
+        overflow-x: auto; overflow-y: visible; height: auto; padding-bottom: 8px;
     }
     .hf-widget-group { display: flex; gap: 8px; margin-bottom: 0; flex-shrink: 0; }
     .hf-widget-group-title { width: 100%; }

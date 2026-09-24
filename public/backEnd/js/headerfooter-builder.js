@@ -308,7 +308,11 @@
                         handle: '.drag-handle',
                         animation: 200,
                         ghostClass: 'sortable-ghost',
-                        onEnd: function () {
+                        onAdd: function (evt) { adoptFromPool(type, evt); },
+                        onEnd: function (evt) {
+                            // A clone pulled out of the library is handled by
+                            // onAdd; only genuine canvas rows are re-synced here.
+                            if (!isCanvasRow(evt.item)) { return; }
                             syncFromDom(type);
                             markDirty(); render(); schedulePreview();
                         }
@@ -351,6 +355,93 @@
     }
 
     /* ── actions ───────────────────────────────────────────── */
+
+    /** A real widget row on the canvas (as opposed to a library clone). */
+    function isCanvasRow(el) {
+        return !!(el && el.classList && el.classList.contains('section-row'));
+    }
+
+    /**
+     * A component was dragged out of the library.
+     *
+     * SortableJS `pull: 'clone'` copies the SOURCE node — the library card
+     * (`.hf-widget`) — which is not the markup a canvas row uses, so
+     * `syncFromDom()` would ignore it and `render()` would wipe it. Discard the
+     * clone and place the widget in state instead, remembering the row, column
+     * and drop position it was released on.
+     */
+    function adoptFromPool(type, evt) {
+        var el = evt.item;
+        if (!el || !el.classList || !el.classList.contains('hf-widget')) { return; }
+
+        var id = el.getAttribute('data-comp');
+        var to = evt.to;
+
+        var zoneEl = to.closest ? to.closest('.hf-zone') : null;
+        var zone   = (zoneEl && zoneEl.dataset) ? zoneEl.dataset.zone : null;
+
+        var card  = to.closest ? to.closest('.hf-col-card') : null;
+        var colId = card ? card.dataset.colId : null;
+
+        // Drop position among the real rows already in the column (the
+        // empty-state placeholder is skipped).
+        var index = 0;
+        var kids = Array.prototype.slice.call(to.children);
+        for (var i = 0; i < kids.length; i++) {
+            if (kids[i] === el) { break; }
+            if (isCanvasRow(kids[i])) { index++; }
+        }
+
+        if (el.parentNode) { el.parentNode.removeChild(el); }
+
+        // Defer: never rebuild the canvas from inside a live Sortable callback.
+        setTimeout(function () {
+            if (!addWidget(type, id, { zone: zone, colId: colId, index: index })) {
+                render(); // already-used (or unknown) widget — just clean up
+            }
+        }, 0);
+    }
+
+    /**
+     * Add a widget to the layout.
+     * opts = { zone, colId, index } — omit it to append to the last column of
+     * the `main` row (the click-to-add behaviour).
+     */
+    function addWidget(type, id, opts) {
+        opts = opts || {};
+        if (widgetUsed(type, id) || !pool(type, id)) { return false; }
+
+        // Target row: the requested zone, else `main`, else the first row.
+        var row = (opts.zone ? rowOf(type, opts.zone) : null) || rowOf(type, 'main') || state[type].rows[0];
+        if (!row) { return false; }
+
+        var col = null;
+        if (opts.colId) {
+            row.columns.forEach(function (c) { if (c.colId === opts.colId) { col = c; } });
+        }
+
+        if (!col) {
+            // Reuse the last column, or open one if the row is still empty.
+            if (row.columns.length === 0) {
+                col = { colId: newColId(), widths: fullWidths(), widgets: [] };
+                row.columns.push(col);
+            } else {
+                col = row.columns[row.columns.length - 1];
+            }
+        }
+
+        var at = (typeof opts.index === 'number' && opts.index >= 0 && opts.index <= col.widgets.length)
+            ? opts.index
+            : col.widgets.length;
+
+        col.widgets.splice(at, 0, {
+            id: id,
+            visibility: visOf(null),
+        });
+
+        markDirty(); render(); schedulePreview();
+        return true;
+    }
 
     function addColumn(type, zone) {
         var row = rowOf(type, zone);
@@ -398,27 +489,6 @@
         if (to < 0 || to >= loc.row.columns.length) { return; }
 
         loc.row.columns.splice(to, 0, loc.row.columns.splice(loc.index, 1)[0]);
-        markDirty(); render(); schedulePreview();
-    }
-
-    function addWidget(type, id, zone) {
-        if (widgetUsed(type, id) || !pool(type, id)) { return; }
-
-        // Target row: the clicked zone, else `main`, else the first row with room.
-        var row = rowOf(type, zone || 'main') || rowOf(type, 'main') || state[type].rows[0];
-        if (!row) { return; }
-
-        // Reuse the last column, or open one if the row is still empty.
-        if (row.columns.length === 0) {
-            if (row.columns.length >= MAX_COLS) { return; }
-            row.columns.push({ colId: newColId(), widths: fullWidths(), widgets: [] });
-        }
-
-        row.columns[row.columns.length - 1].widgets.push({
-            id: id,
-            visibility: visOf(null),
-        });
-
         markDirty(); render(); schedulePreview();
     }
 
@@ -625,6 +695,7 @@
             poolSortables.push(new Sortable(group, {
                 group: { name: 'hf-widgets-' + type, pull: 'clone', put: false },
                 sort: false,
+                draggable: '.hf-widget',
                 animation: 200,
             }));
         });

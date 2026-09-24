@@ -2,7 +2,7 @@
 @section('title', 'Header & Footer Builder')
 
 @section('css')
-<link rel="stylesheet" href="{{ asset('public/backEnd/css/headerfooter-builder.css') }}">
+<link rel="stylesheet" href="{{ asset('public/backEnd/css/headerfooter-builder.css') }}?v={{ filemtime(public_path('backEnd/css/headerfooter-builder.css')) }}">
 @endsection
 
 @section('content')
@@ -251,6 +251,6 @@
 <script>
 window.HF_BUILDER = @json($hfConfig);
 </script>
-<script src="{{ asset('public/backEnd/js/headerfooter-builder.js') }}"></script>
+<script src="{{ asset('public/backEnd/js/headerfooter-builder.js') }}?v={{ filemtime(public_path('backEnd/js/headerfooter-builder.js')) }}"></script>
 @endsection
 @endsection
