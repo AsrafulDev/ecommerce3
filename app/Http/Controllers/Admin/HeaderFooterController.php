@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Support\HeaderFooterComponents;
 use Illuminate\Http\Request;
 use App\Models\GeneralSetting;
 use Illuminate\Support\Facades\Cache;
@@ -10,50 +11,44 @@ use Toastr;
 
 class HeaderFooterController extends Controller
 {
-    // Component definitions
+    // Component definitions live in the shared support class (storefront uses them too).
     public static function headerComponents() {
-        return [
-            'topbar' => ['name' => 'Top Bar', 'icon' => 'mdi-page-layout-header'],
-            'logo'   => ['name' => 'Logo Area', 'icon' => 'mdi-image'],
-            'search' => ['name' => 'Search Bar', 'icon' => 'mdi-magnify'],
-            'nav'    => ['name' => 'Navigation Menu', 'icon' => 'mdi-menu'],
-            'cart'   => ['name' => 'Cart & Icons', 'icon' => 'mdi-cart'],
-        ];
+        return HeaderFooterComponents::headerComponents();
     }
     public static function footerComponents() {
-        return [
-            'about'      => ['name' => 'About Section', 'icon' => 'mdi-information'],
-            'links'      => ['name' => 'Quick Links', 'icon' => 'mdi-link-variant'],
-            'support'    => ['name' => 'Support Links', 'icon' => 'mdi-headset'],
-            'newsletter' => ['name' => 'Newsletter', 'icon' => 'mdi-email'],
-            'social'     => ['name' => 'Social Icons', 'icon' => 'mdi-share-variant'],
-            'copyright'  => ['name' => 'Copyright Bar', 'icon' => 'mdi-copyright'],
-        ];
+        return HeaderFooterComponents::footerComponents();
     }
+
+    /** Read one component column (JSON cast) as a normalized row structure. */
+    private static function stored(GeneralSetting $setting, string $type): array
+    {
+        $col = $type . '_components';
+        $normalized = HeaderFooterComponents::normalize($setting->$col, $type);
+
+        return HeaderFooterComponents::hasWidgets($normalized)
+            ? $normalized
+            : HeaderFooterComponents::defaults($type);
+    }
+
     public function index()
     {
         $setting = GeneralSetting::first();
-        
+
         // Set defaults if not configured
         if (!$setting->header_style) $setting->header_style = 'custom';
         if (!$setting->footer_style) $setting->footer_style = 'custom';
-        if (empty($setting->header_components)) $setting->header_components = array_keys(self::headerComponents());
-        if (empty($setting->footer_components)) $setting->footer_components = array_keys(self::footerComponents());
         if (!in_array((int)$setting->header_all_category_button, [0,1], true)) $setting->header_all_category_button = 1;
         if (!in_array($setting->header_all_category_type, ['dropdown','mega','icon','shop'], true)) $setting->header_all_category_type = 'mega';
         $setting->save();
-        
+
         $hComps = self::headerComponents();
         $fComps = self::footerComponents();
-        
-        $defaultH = ['topbar','logo','search','nav','cart'];
-        $defaultF = ['about','links','support','newsletter','social','copyright'];
-        
-        $activeHeader = $setting->header_components ?: $defaultH;
-        $activeFooter = $setting->footer_components ?: $defaultF;
-        
-        $availableHeader = array_values(array_diff(array_keys($hComps), $activeHeader));
-        $availableFooter = array_values(array_diff(array_keys($fComps), $activeFooter));
+
+        $activeHeader = self::stored($setting, 'header');
+        $activeFooter = self::stored($setting, 'footer');
+
+        $availableHeader = array_values(array_diff(array_keys($hComps), HeaderFooterComponents::ids($activeHeader)));
+        $availableFooter = array_values(array_diff(array_keys($fComps), HeaderFooterComponents::ids($activeFooter)));
 
         $headerStyles = ['default'=>'Default','classic'=>'Classic','modern'=>'Modern','minimal'=>'Minimal','centered'=>'Centered','mega'=>'Mega Menu','custom'=>'Custom'];
         $footerStyles = ['default'=>'Default','classic'=>'Classic','modern'=>'Modern','dark'=>'Dark','minimal'=>'Minimal','columns'=>'Columns','custom'=>'Custom'];
@@ -83,12 +78,35 @@ class HeaderFooterController extends Controller
             ? $request->header_all_category_type
             : 'mega';
 
-        // If switching to custom, set default components if not already set
-        if ($setting->header_style === 'custom' && empty($setting->header_components)) {
-            $setting->header_components = array_keys(self::headerComponents());
+        // Builder canvas (draft) arrives as JSON hidden inputs; normalize + validate ids.
+        $provided = [];
+        foreach (['header', 'footer'] as $type) {
+            $input = $request->input($type . '_components');
+            if ($input === null) {
+                continue;
+            }
+            if (is_string($input)) {
+                $input = json_decode($input, true);
+            }
+            if (is_array($input)) {
+                $provided[$type] = true;
+                $setting->{$type . '_components'} = HeaderFooterComponents::normalize($input, $type);
+            }
         }
-        if ($setting->footer_style === 'custom' && empty($setting->footer_components)) {
-            $setting->footer_components = array_keys(self::footerComponents());
+
+        // If switching to custom, set default components if not already set
+        // (an explicitly emptied canvas from the builder must stay empty — note
+        // the normalizer ALWAYS returns 3 row keys, so hasWidgets() is the check,
+        // not empty()).
+        if ($setting->header_style === 'custom'
+            && ! HeaderFooterComponents::hasWidgets($setting->header_components)
+            && ! isset($provided['header'])) {
+            $setting->header_components = HeaderFooterComponents::defaults('header');
+        }
+        if ($setting->footer_style === 'custom'
+            && ! HeaderFooterComponents::hasWidgets($setting->footer_components)
+            && ! isset($provided['footer'])) {
+            $setting->footer_components = HeaderFooterComponents::defaults('footer');
         }
 
         $setting->save();
@@ -101,66 +119,13 @@ class HeaderFooterController extends Controller
         return redirect()->back();
     }
 
-    /**
-    public function update(Request $request)
-    {
-        $setting = GeneralSetting::first();
-        if (!$setting) {
-            Toastr::error('Settings not found!', 'Error');
-            return redirect()->back();
-        }
-        $setting->header_style = $request->header_style ?? 'custom';
-        $setting->footer_style = $request->footer_style ?? 'custom';
-        $setting->header_top_bar = $request->boolean('header_top_bar');
-        $setting->header_sticky = $request->boolean('header_sticky');
-        $setting->header_components = $request->header_components;
-        $setting->footer_components = $request->footer_components;
-        $setting->save();
-        Cache::forget('frontend_homepage_v1');
-        Toastr::success('Header & Footer saved!', 'Success');
-        return redirect()->back();
-    }
-
-    /** AJAX: Add component */
-    public function addComponent(Request $request)
-    {
-        $type = $request->type; $comp = $request->component;
-        $all = $type === 'header' ? self::headerComponents() : self::footerComponents();
-        if (!isset($all[$comp])) return response()->json(['error'=>'Invalid'],400);
-        $setting = GeneralSetting::first();
-        $col = $type . '_components';
-        $current = $setting->$col ?: [];
-        if (!in_array($comp, $current)) { $current[] = $comp; }
-        $setting->$col = $current; $setting->save();
-        return response()->json(['success'=>true, 'components'=>$current]);
-    }
-
-    /** AJAX: Remove component */
-    public function removeComponent(Request $request)
-    {
-        $type = $request->type; $comp = $request->component;
-        $setting = GeneralSetting::first();
-        $col = $type . '_components';
-        $current = $setting->$col ?: [];
-        $current = array_values(array_diff($current, [$comp]));
-        $setting->$col = $current; $setting->save();
-        return response()->json(['success'=>true, 'components'=>$current]);
-    }
-
-    /** AJAX: Reorder components */
-    public function reorderComponents(Request $request)
-    {
-        $type = $request->type; $order = $request->order;
-        $setting = GeneralSetting::first();
-        $col = $type . '_components';
-        $setting->$col = $order; $setting->save();
-        return response()->json(['success'=>true]);
-    }
-
-    /** AJAX: Preview header/footer */
+    /** AJAX: Preview header/footer (style preset or unsaved builder draft) */
     public function preview(Request $request)
     {
         $type = $request->type; $style = $request->style ?? null;
+        if (!in_array($type, ['header', 'footer'], true)) {
+            return response()->json(['error' => 'Invalid preview type.'], 422);
+        }
         $setting = GeneralSetting::first();
         $contact = \App\Models\Contact::first();
         $menucategories = \App\Models\Category::where('status',1)->where('parent_id',0)
@@ -179,37 +144,53 @@ class HeaderFooterController extends Controller
         } else {
             $view = null;
         }
-        
+
         if ($view && view()->exists($view)) {
             $bodyHtml = view($view, compact('setting','contact','menucategories','socials','brands','activeTheme'))->render();
-            return response()->json(['html' => $this->wrapPreviewHtml($bodyHtml, $activeTheme)]);
+            return response()->json(['html' => $this->wrapPreviewHtml($bodyHtml, $activeTheme, $this->pullPushedScripts())]);
         }
 
-        // Custom components — render individually for live builder
-        $col = $type . '_components';
-        $components = $setting->$col ?: [];
-        $allComponents = $type === 'header' ? self::headerComponents() : self::footerComponents();
-        $html = '';
-        foreach ($components as $comp) {
-            if (isset($allComponents[$comp])) {
-                $view = 'frontEnd.layouts.' . $type . 's.parts.' . $comp;
-                if (view()->exists($view)) {
-                    $html .= view($view, compact('setting','contact','menucategories','socials','brands'))->render();
-                } else {
-                    $html .= '<div style="padding:8px;border:1px dashed #ccc;margin:4px;border-radius:4px;">'
-                          . '<strong>' . $allComponents[$comp]['name'] . '</strong>'
-                          . '<br><small class="text-muted">Create: resources/views/frontEnd/layouts/' . $type . 's/parts/' . $comp . '.blade.php</small>'
-                          . '</div>';
-                }
-            }
+        // Custom components — render the unsaved draft when provided, else the stored layout.
+        // Uses the SAME partial as the storefront so the preview can't drift.
+        $draft = $request->input('components');
+        if (is_string($draft)) {
+            $draft = json_decode($draft, true);
         }
-        return response()->json(['html' => $this->wrapPreviewHtml($html, $activeTheme)]);
+
+        if (is_array($draft)) {
+            // An explicitly emptied canvas must preview as empty, not as defaults.
+            $normalized = HeaderFooterComponents::normalize($draft, $type);
+            $rows = HeaderFooterComponents::hasWidgets($normalized) ? $normalized['rows'] : [];
+        } else {
+            $rows = self::stored($setting, $type)['rows'];
+        }
+
+        $bodyHtml = view('frontEnd.layouts.partials.hf-builder', compact('type', 'rows'))
+            ->render();
+
+        return response()->json([
+            'html' => $this->wrapPreviewHtml($bodyHtml, $activeTheme, $this->pullPushedScripts()),
+        ]);
+    }
+
+    /**
+     * Collect Blade @push('script') output produced while rendering the preview
+     * body, so widgets that ship behaviour in a push (e.g. all_categories'
+     * dropdown toggle) actually work inside the preview iframe.
+     */
+    private function pullPushedScripts(): string
+    {
+        try {
+            return app('view')->yieldPushContent('script');
+        } catch (\Throwable $e) {
+            return '';
+        }
     }
 
     /**
      * Wrap preview HTML in a complete document with all frontend CSS
      */
-    private function wrapPreviewHtml(string $bodyHtml, $activeTheme = null): string
+    private function wrapPreviewHtml(string $bodyHtml, $activeTheme = null, string $pushedScripts = ''): string
     {
         $themeVars = '';
         if ($activeTheme) {
@@ -240,7 +221,7 @@ class HeaderFooterController extends Controller
         }
 
         $assetBase = asset('public/frontEnd/css');
-        
+
         return '<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -270,8 +251,9 @@ class HeaderFooterController extends Controller
         img { max-width: 100%; height: auto; }
         .container { max-width: 100% !important; padding-left: 10px !important; padding-right: 10px !important; }
     </style>
+    <script src="' . asset('public/frontEnd/js/jquery-3.6.3.min.js') . '"></script>
 </head>
-<body>' . $bodyHtml . '</body>
+<body>' . $bodyHtml . ($pushedScripts !== '' ? "\n" . $pushedScripts : '') . '</body>
 </html>';
     }
 }

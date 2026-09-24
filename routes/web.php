@@ -1036,9 +1036,6 @@ Route::group(['middleware' => ['auth:admin','admin','lock','check_refer','demo_m
     Route::get('headerfooter', [HeaderFooterController::class, 'index'])->name('headerfooter.index');
     Route::post('headerfooter/update', [HeaderFooterController::class, 'update'])->name('headerfooter.update');
     Route::post('headerfooter/preview', [HeaderFooterController::class, 'preview'])->name('headerfooter.preview');
-    Route::post('headerfooter/add-component', [HeaderFooterController::class, 'addComponent'])->name('headerfooter.add-component');
-    Route::post('headerfooter/remove-component', [HeaderFooterController::class, 'removeComponent'])->name('headerfooter.remove-component');
-    Route::post('headerfooter/reorder-components', [HeaderFooterController::class, 'reorderComponents'])->name('headerfooter.reorder-components');
 
     // Error Log (Laravel log viewer)
     Route::get('error-log', [ErrorLogController::class,'index'])->name('error-log.index');
