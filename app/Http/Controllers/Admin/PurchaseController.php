@@ -579,36 +579,42 @@ class PurchaseController extends Controller
             return back()->with('error','Pay amount cannot be greater than due.');
         }
 
-        $fund = FundTransaction::create([
-            'direction'  => 'out',
-            'source'     => 'supplier_payment',
-            'source_id'  => null,
-            'amount'     => $request->amount,
-            'note'       => 'Due payment: '.$purchase->invoice_no,
-            'created_by' => Auth::id(),
-        ]);
+        if ($request->amount > \App\Helpers\FundHelper::balance()) {
+            return back()->with('error', 'Not enough balance in fund!');
+        }
 
-        $payment = SupplierPayment::create([
-            'supplier_id'        => $purchase->supplier_id,
-            'purchase_id'        => $purchase->id,
-            'amount'             => $request->amount,
-            'payment_date'       => $request->payment_date,
-            'method'             => 'fund',
-            'note'               => $request->note,
-            'fund_transaction_id'=> $fund->id,
-            'created_by'         => Auth::id(),
-        ]);
+        DB::transaction(function () use ($purchase, $request) {
+            $fund = FundTransaction::create([
+                'direction'  => 'out',
+                'source'     => 'supplier_payment',
+                'source_id'  => null,
+                'amount'     => $request->amount,
+                'note'       => 'Due payment: '.$purchase->invoice_no,
+                'created_by' => Auth::id(),
+            ]);
 
-        $fund->source_id = $payment->id;
-        $fund->save();
+            $payment = SupplierPayment::create([
+                'supplier_id'        => $purchase->supplier_id,
+                'purchase_id'        => $purchase->id,
+                'amount'             => $request->amount,
+                'payment_date'       => $request->payment_date,
+                'method'             => 'fund',
+                'note'               => $request->note,
+                'fund_transaction_id'=> $fund->id,
+                'created_by'         => Auth::id(),
+            ]);
 
-        $purchase->paid_amount += $request->amount;
-        $purchase->due_amount  -= $request->amount;
-        $purchase->save();
+            $fund->source_id = $payment->id;
+            $fund->save();
 
-        $supplier = $purchase->supplier;
-        $supplier->current_due = max(0, $supplier->current_due - $request->amount);
-        $supplier->save();
+            $purchase->paid_amount += $request->amount;
+            $purchase->due_amount  -= $request->amount;
+            $purchase->save();
+
+            $supplier = $purchase->supplier;
+            $supplier->current_due = max(0, $supplier->current_due - $request->amount);
+            $supplier->save();
+        });
 
         return back()->with('success','Due payment successful!');
     }

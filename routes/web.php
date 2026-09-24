@@ -58,6 +58,7 @@ use App\Http\Controllers\Admin\CouponController;
 use App\Http\Controllers\Admin\FraudSettingController;
 use App\Http\Controllers\Admin\FundController;
 use App\Http\Controllers\Admin\ExpenseController;
+use App\Http\Controllers\Admin\AccountsController;
 use App\Http\Controllers\Admin\PurchaseController;
 use App\Http\Controllers\Admin\SupplierController;
 use App\Http\Controllers\Admin\ReportController;
@@ -251,6 +252,9 @@ Route::delete('/admin/complaints/{id}', [AdminComplaintController::class, 'destr
 Route::post('cart/apply-coupon', [ShoppingController::class, 'applyCoupon'])->name('coupon.apply');
 Route::get('cart/remove-coupon', [ShoppingController::class, 'removeCoupon'])->name('coupon.remove');
 Route::prefix('admin')->middleware(['auth:admin', 'admin', 'demo_mode'])->group(function () {
+    // Accounts Dashboard
+    Route::get('/accounts', [AccountsController::class, 'dashboard'])->name('admin.accounts.dashboard');
+
     // Fund Routes
     Route::get('/fund', [FundController::class, 'index'])->name('admin.fund.index');
     Route::post('/fund/add', [FundController::class, 'add'])->name('admin.fund.add');

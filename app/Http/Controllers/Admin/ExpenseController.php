@@ -105,30 +105,32 @@ class ExpenseController extends Controller
                          ->withInput();
         }
 
-        // আগে expense এন্ট্রি
-        $expense = Expense::create([
-            'title'        => $validated['title'],
-            'amount'       => $validated['amount'],
-            'expense_date' => $validated['expense_date'],
-            'category'     => $validated['category'] ?? null,
-            'note'         => $validated['note'] ?? null,
-            'created_by'   => Auth::id(),
-        ]);
+        // আগে expense এন্ট্রি — expense + fund out একসাথে, যাতে অর্ধেক করে ফেইল না করে
+        DB::transaction(function () use ($validated, &$expense) {
+            $expense = Expense::create([
+                'title'        => $validated['title'],
+                'amount'       => $validated['amount'],
+                'expense_date' => $validated['expense_date'],
+                'category'     => $validated['category'] ?? null,
+                'note'         => $validated['note'] ?? null,
+                'created_by'   => Auth::id(),
+            ]);
 
-        // তারপর ফান্ড থেকে out ট্রানজ্যাকশন
-        $fund = FundTransaction::create([
-            'direction' => 'out',
-            'source'    => 'expense',
-            'source_id' => $expense->id,
-            'amount'    => $expense->amount,
-            'note'      => 'Expense: ' . $expense->title . ($expense->note ? ' - ' . $expense->note : ''),
-            'created_by'=> Auth::id(),
-        ]);
+            // তারপর ফান্ড থেকে out ট্রানজ্যাকশন
+            $fund = FundTransaction::create([
+                'direction' => 'out',
+                'source'    => 'expense',
+                'source_id' => $expense->id,
+                'amount'    => $expense->amount,
+                'note'      => 'Expense: ' . $expense->title . ($expense->note ? ' - ' . $expense->note : ''),
+                'created_by'=> Auth::id(),
+            ]);
 
-        // লিঙ্ক আপডেট
-        $expense->update([
-            'fund_transaction_id' => $fund->id,
-        ]);
+            // লিঙ্ক আপডেট
+            $expense->update([
+                'fund_transaction_id' => $fund->id,
+            ]);
+        });
 
         return redirect()->route('admin.expenses.index')
                          ->with('success', 'Expense saved successfully!');

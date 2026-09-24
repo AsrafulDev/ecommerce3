@@ -104,15 +104,13 @@ class RefundController extends Controller
             $refund->include_shipping = $includeShipping;
             $refund->save();
 
-            // Deduct from admin fund
-            FundTransaction::create([
-                'direction'  => 'out',
-                'source'     => 'refund',
-                'source_id'  => $refund->id,
-                'amount'     => $totalRefundAmount,
-                'note'       => 'Refund approved for Order #' . $refund->order->invoice_id . ' - Refund ID: ' . $refund->refund_id . ($customAmount !== null ? ' (Partial: ৳' . number_format($customAmount, 2) . ')' : ''),
-                'created_by' => Auth::id(),
-            ]);
+            // Deduct from admin fund (idempotent, with balance snapshot)
+            \App\Helpers\FundHelper::debitRefund(
+                (int) $refund->id,
+                $totalRefundAmount,
+                'Refund approved for Order #' . $refund->order->invoice_id . ' - Refund ID: ' . $refund->refund_id . ($customAmount !== null ? ' (Partial: ৳' . number_format($customAmount, 2) . ')' : ''),
+                Auth::id()
+            );
         });
 
         $msg = $customAmount !== null

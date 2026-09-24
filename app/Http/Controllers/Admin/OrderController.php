@@ -967,19 +967,9 @@ class OrderController extends Controller
         $order->save();
 
         // Handle fund transaction if status changed to completed
-        // Only if no fund transaction already exists for this order (avoid double-crediting POS)
+        // Delta-based: tops up any partial payment credits to the full order amount, never double-credits
         if ($newStatus === OrderStatusEnum::COMPLETED->value && $oldStatus !== OrderStatusEnum::COMPLETED->value) {
-            $existingTx = FundTransaction::where('source', 'sale')->where('source_id', $order->id)->exists();
-            if (!$existingTx) {
-                FundTransaction::create([
-                    'direction'  => 'in',
-                    'source'     => 'sale',
-                    'source_id'  => $order->id,
-                    'amount'     => $order->amount,
-                    'note'       => 'Order complete (#' . $order->invoice_id . ') - Manual update',
-                    'created_by' => auth()->id(),
-                ]);
-            }
+            FundHelper::creditSale($order, 'Order complete (#' . $order->invoice_id . ') - Manual update');
 
             $payment = Payment::where('order_id', $order->id)->first();
             if ($payment && strtolower(trim((string) $payment->payment_status)) !== 'paid') {
@@ -1259,17 +1249,7 @@ class OrderController extends Controller
 
             // Fund transaction if completing
             if ($targetEnum === OrderStatusEnum::COMPLETED && $oldStatus !== OrderStatusEnum::COMPLETED->value) {
-                $exists = FundTransaction::where('source', 'sale')->where('source_id', $order->id)->exists();
-                if (!$exists) {
-                    FundTransaction::create([
-                        'direction'  => 'in',
-                        'source'     => 'sale',
-                        'source_id'  => $order->id,
-                        'amount'     => $order->amount,
-                        'note'       => 'Order complete (#' . $order->invoice_id . ') - Bulk update',
-                        'created_by' => auth()->id(),
-                    ]);
-                }
+                FundHelper::creditSale($order, 'Order complete (#' . $order->invoice_id . ') - Bulk update');
             }
 
             // Stock handling (pass string values, OrderStatusService converts internally)
@@ -2114,20 +2094,9 @@ class OrderController extends Controller
         app(OrderStatusService::class)->handleStatusChange($order, 0, $order->order_status);
 
         // 💰 Payment received হলে ফান্ডে টাকা যোগ করুন (only the paid amount).
-        //    Phase 4 — guarded per (order, amount) so a re-run can't double-credit.
+        //    Capped at order.amount so repeat/duplicate credits can't overstate the fund.
         if ($paid > 0) {
-            $exists = FundTransaction::where('source', 'sale')->where('source_id', $order->id)
-                ->where('amount', $paid)->exists();
-            if (!$exists) {
-                FundTransaction::create([
-                    'direction' => 'in',
-                    'source'    => 'sale',
-                    'source_id' => $order->id,
-                    'amount'    => $paid,
-                    'note'      => 'POS Order #' . $order->invoice_id,
-                    'created_by'=> auth()->id(),
-                ]);
-            }
+            FundHelper::creditPayment($order, (float) $paid, 'POS Order #' . $order->invoice_id);
         }
 
         Cart::instance('pos_shopping')->destroy();
@@ -2936,18 +2905,7 @@ class OrderController extends Controller
         $payment->save();
 
         if ($newPaid > 0) {
-            $exists = FundTransaction::where('source', 'sale')->where('source_id', $order->id)
-                ->where('amount', $newPaid)->exists();
-            if (!$exists) {
-                FundTransaction::create([
-                    'direction'  => 'in',
-                    'source'     => 'sale',
-                    'source_id'  => $order->id,
-                    'amount'     => $newPaid,
-                    'note'       => 'Payment received — Order #' . $order->invoice_id,
-                    'created_by' => auth()->id(),
-                ]);
-            }
+            FundHelper::creditPayment($order, (float) $newPaid, 'Payment received — Order #' . $order->invoice_id);
         }
 
         $existingDetails = OrderDetails::where('order_id', $order->id)->pluck('id')->toArray();
@@ -3301,29 +3259,9 @@ class OrderController extends Controller
         $refundStatuses = ['refunded', 'refund', 'returned'];
         
         if (in_array(strtolower($request->payment_status), $paidStatuses)) {
-            $exists = FundTransaction::where('source', 'sale')->where('source_id', $order->id)->exists();
-            if (!$exists) {
-                FundTransaction::create([
-                    'direction'  => 'in',
-                    'source'     => 'sale',
-                    'source_id'  => $order->id,
-                    'amount'     => $order->amount,
-                    'note'       => 'Payment received — Order #' . $order->invoice_id,
-                    'created_by' => auth()->id(),
-                ]);
-            }
+            FundHelper::creditSale($order, 'Payment received — Order #' . $order->invoice_id);
         } elseif (in_array(strtolower($request->payment_status), $refundStatuses)) {
-            $exists = FundTransaction::where('source', 'refund')->where('source_id', $order->id)->exists();
-            if (!$exists) {
-                FundTransaction::create([
-                    'direction'  => 'out',
-                    'source'     => 'refund',
-                    'source_id'  => $order->id,
-                    'amount'     => $order->amount,
-                    'note'       => 'Refund processed — Order #' . $order->invoice_id,
-                    'created_by' => auth()->id(),
-                ]);
-            }
+            FundHelper::debitOrderRefund($order, 'Refund processed — Order #' . $order->invoice_id);
         }
 
         // ==============================================================
@@ -3602,17 +3540,7 @@ class OrderController extends Controller
             }
 
             // Fund transaction
-            $exists = FundTransaction::where('source', 'sale')->where('source_id', $order->id)->exists();
-            if (!$exists) {
-                FundTransaction::create([
-                    'direction'  => 'in',
-                    'source'     => 'sale',
-                    'source_id'  => $order->id,
-                    'amount'     => $order->amount,
-                    'note'       => 'COD payment received — Order #' . $order->invoice_id,
-                    'created_by' => auth()->id(),
-                ]);
-            }
+            FundHelper::creditSale($order, 'COD payment received — Order #' . $order->invoice_id);
         }
 
         return $this->actionSuccessResponse($order, 'Order delivered');
@@ -3639,17 +3567,7 @@ class OrderController extends Controller
         }
 
         // Fund transaction on completion
-        $exists = FundTransaction::where('source', 'sale')->where('source_id', $order->id)->exists();
-        if (!$exists) {
-            FundTransaction::create([
-                'direction'  => 'in',
-                'source'     => 'sale',
-                'source_id'  => $order->id,
-                'amount'     => $order->amount,
-                'note'       => 'Order complete (#' . $order->invoice_id . ')',
-                'created_by' => auth()->id(),
-            ]);
-        }
+        FundHelper::creditSale($order, 'Order complete (#' . $order->invoice_id . ')');
 
         return $this->actionSuccessResponse($order, 'Order completed');
     }
@@ -4143,20 +4061,9 @@ class OrderController extends Controller
             $payment->save();
         }
 
-        // 4) Fund credit — Phase 4: guarded per (order, amount) so repeat calls
-        //    (e.g. duplicate gateway callbacks for the same amount) can't double-credit.
-        $exists = FundTransaction::where('source', 'sale')->where('source_id', $order->id)
-            ->where('amount', $amount)->exists();
-        if (!$exists) {
-            FundTransaction::create([
-                'direction'  => 'in',
-                'source'     => 'sale',
-                'source_id'  => $order->id,
-                'amount'     => $amount,
-                'note'       => 'Payment received — Order #' . $order->invoice_id,
-                'created_by' => auth()->id(),
-            ]);
-        }
+        // 4) Fund credit — capped at order.amount minus already-credited sales,
+        //    so duplicate callbacks / repeat posts can never over-credit.
+        FundHelper::creditPayment($order, (float) $amount, 'Payment received — Order #' . $order->invoice_id);
 
         // 5) Note
         $order->addNote(

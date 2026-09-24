@@ -24,6 +24,7 @@ use App\Services\WarrantyDisplayService;
 use App\Services\WarrantyService;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Brian2694\Toastr\Facades\Toastr;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -1033,6 +1034,8 @@ class WarrantyController extends Controller
             $damageProduct->resell_price = (float) $request->resell_price;
         }
 
+        // All stock/expense/fund mutations below must succeed or roll back together
+        DB::transaction(function () use ($damageProduct, $oldStatus) {
         // ── RESELLABLE: stockIn + earning fund ──
         if ($newStatus === 'resellable') {
             if ($oldStatus !== 'resellable') {
@@ -1114,12 +1117,19 @@ class WarrantyController extends Controller
         }
 
         // 💰 Service cost → warranty repair expense (on ANY status change, not just resellable)
+        // Repaired-expense lookup is by category+note, NOT via expense_id — that pointer
+        // belongs to the write-off (warranty_loss) expense; sharing it caused a brand-new
+        // repair expense + fund-out on every status save.
         if ((float) $damageProduct->service_cost > 0) {
-            $existingExpense = $damageProduct->expense_id ? Expense::find($damageProduct->expense_id) : null;
-            if ($existingExpense && $existingExpense->category === 'warranty_repair') {
-                $existingExpense->update(['amount' => (float) $damageProduct->service_cost]);
-                if ($existingExpense->fund_transaction_id) {
-                    FundTransaction::where('id', $existingExpense->fund_transaction_id)
+            $repairExpense = Expense::where('category', 'warranty_repair')
+                ->where('note', 'like', "%Damage #{$damageProduct->id}%")
+                ->orderBy('id', 'desc')
+                ->first();
+
+            if ($repairExpense) {
+                $repairExpense->update(['amount' => (float) $damageProduct->service_cost]);
+                if ($repairExpense->fund_transaction_id) {
+                    FundTransaction::where('id', $repairExpense->fund_transaction_id)
                         ->update(['amount' => (float) $damageProduct->service_cost]);
                 }
             } else {
@@ -1128,7 +1138,7 @@ class WarrantyController extends Controller
                     'amount'       => (float) $damageProduct->service_cost,
                     'expense_date' => now()->toDateString(),
                     'category'     => 'warranty_repair',
-                    'note'         => 'Repair cost for damage product (Claim #' . ($damageProduct->warranty_claim_id ?? 'N/A') . ')',
+                    'note'         => 'Repair cost for damage product (Claim #' . ($damageProduct->warranty_claim_id ?? 'N/A') . ') — Damage #' . $damageProduct->id,
                     'created_by'   => auth()->id(),
                 ]);
                 $repairFund = FundTransaction::create([
@@ -1140,13 +1150,13 @@ class WarrantyController extends Controller
                     'created_by'=> auth()->id(),
                 ]);
                 $repairExpense->update(['fund_transaction_id' => $repairFund->id]);
-                $damageProduct->expense_id = $repairExpense->id;
             }
         }
 
-        // ── Save ──
+        // ── Save ─
         $damageProduct->status = $newStatus;
         $damageProduct->save();
+        });
 
         // 📋 Activity log — who updated, what changed, when (any change)
         $changes = [];

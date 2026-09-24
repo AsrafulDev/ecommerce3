@@ -97,20 +97,14 @@ class FundController extends Controller
             'note'   => 'nullable|string|max:1000'
         ]);
 
-        // calculate balance inside transaction and lock rows if concurrent operations possible
-        // simple approach: compute current balance, then create out tx
-        return DB::transaction(function () use ($validated) {
-            $total_in  = FundTransaction::where('direction', 'in')->sum('amount');
-            $total_out = FundTransaction::where('direction', 'out')->sum('amount');
-            $balance   = $total_in - $total_out;
+        $amount  = round((float) $validated['amount'], 2);
+        $balance = \App\Helpers\FundHelper::balance();
 
-            $amount = round((float)$validated['amount'], 2);
+        if ($amount > $balance) {
+            return redirect()->back()->with('error', 'Not enough balance!');
+        }
 
-            if ($amount > $balance) {
-                // throw ValidationException to redirect back with error
-                return redirect()->back()->with('error', 'Not enough balance!');
-            }
-
+        DB::transaction(function () use ($amount, $validated) {
             $tx = FundTransaction::create([
                 'direction'  => 'out',
                 'source'     => 'withdraw',
@@ -121,9 +115,9 @@ class FundController extends Controller
             ]);
 
             log_activity('fund', 'create', 'Fund withdrawn (out) ৳' . number_format($amount, 2), $tx);
-
-            return redirect()->back()->with('success', 'Withdraw successful!');
         });
+
+        return redirect()->back()->with('success', 'Withdraw successful!');
     }
 
     /**

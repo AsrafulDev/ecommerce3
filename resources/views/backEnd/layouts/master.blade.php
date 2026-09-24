@@ -949,21 +949,25 @@
   </div>
 </li>
 
-@canany(['fund-list', 'fund-create', 'fund-edit'])
-<li>
-  <a href="{{ route('admin.fund.index') }}">
-    <i data-feather="briefcase"></i>
-    <span> {{ __('Fund / Account') }} </span>
+{{-- Accounts (Fund + Expenses) --}}
+@canany(['fund-list', 'fund-create', 'fund-edit', 'expense-list', 'expense-create', 'expense-edit'])
+<li class="{{ request()->routeIs('admin.accounts.*', 'admin.fund.*', 'admin.expenses.*') ? 'active' : '' }}">
+  <a href="#sidebar-accounts" data-bs-toggle="collapse">
+    <i data-feather="dollar-sign"></i>
+    <span> {{ __('Accounts') }} </span>
+    <span class="menu-arrow"></span>
   </a>
-</li>
-@endcanany
-
-@canany(['expense-list', 'expense-create', 'expense-edit'])
-<li class="{{ request()->routeIs('admin.expenses.*') ? 'active' : '' }}">
-  <a href="{{ route('admin.expenses.index') }}">
-    <i data-feather="credit-card"></i>
-    <span> {{ __('Expenses') }} </span>
-  </a>
+  <div class="collapse {{ request()->routeIs('admin.accounts.*', 'admin.fund.*', 'admin.expenses.*') ? 'show' : '' }}" id="sidebar-accounts">
+    <ul class="nav-second-level">
+      <li><a href="{{ route('admin.accounts.dashboard') }}"><i data-feather="pie-chart"></i> {{ __('Accounts Dashboard') }} </a></li>
+      @canany(['fund-list', 'fund-create', 'fund-edit'])
+      <li><a href="{{ route('admin.fund.index') }}"><i data-feather="briefcase"></i> {{ __('Fund / Account') }} </a></li>
+      @endcanany
+      @canany(['expense-list', 'expense-create', 'expense-edit'])
+      <li><a href="{{ route('admin.expenses.index') }}"><i data-feather="credit-card"></i> {{ __('Expenses') }} </a></li>
+      @endcanany
+    </ul>
+  </div>
 </li>
 @endcanany
 

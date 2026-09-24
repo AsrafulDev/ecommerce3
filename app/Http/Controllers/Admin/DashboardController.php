@@ -113,9 +113,14 @@ class DashboardController extends Controller
         $today_cogs = 0;
 
         foreach ($todayDetails as $row) {
-            // OrderDetails এ purchase_price থাকলে সেটাই use করা ভাল
-            $purchase_price = $row->purchase_price ?? ($row->product->purchase_price ?? 0);
-            $today_cogs += ($purchase_price * $row->qty);
+            // Prefer the batch-realized COGS written at stock-out time (row total);
+            // fall back to purchase_price snapshot / current product cost only if absent.
+            if ($row->cogs !== null && (float) $row->cogs > 0) {
+                $today_cogs += (float) $row->cogs;
+            } else {
+                $purchase_price = $row->purchase_price ?? ($row->product->purchase_price ?? 0);
+                $today_cogs += ($purchase_price * $row->qty);
+            }
         }
 
         // আজকের প্রফিট = আজকের সেল - আজকের COGS
