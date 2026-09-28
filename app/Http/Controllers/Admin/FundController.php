@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\FundTransaction;
 use App\Models\FundTransactionLog;
+use App\Services\Accounting\ManualEntryService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
@@ -13,6 +14,10 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class FundController extends Controller
 {
+    public function __construct(protected ManualEntryService $accounting)
+    {
+    }
+
     /**
      * ফান্ড ড্যাশবোর্ড + হিস্টরি লিস্ট
      */
@@ -28,6 +33,13 @@ class FundController extends Controller
         }
 
         $transactions = $query->with('logs')->paginate(20)->withQueryString();
+
+        // Money-in rows are either the owner's capital or income, and which one
+        // lives in the journal, not on the legacy row — so read a page of them
+        // back in one query rather than one per row.
+        $natures = $this->accounting->naturesFor(
+            $transactions->getCollection()->where('direction', 'in')->pluck('id')->map(fn ($id) => (int) $id)->all()
+        );
 
         // Compute totals more efficiently with a single query each (or you can combine into one)
         $total_in  = FundTransaction::where('direction', 'in')->sum('amount');
@@ -50,6 +62,7 @@ class FundController extends Controller
         return view('backEnd.fund.index', compact(
             'balance',
             'transactions',
+            'natures',
             'total_in',
             'total_out',
             'yearlyAdded',
@@ -66,12 +79,16 @@ class FundController extends Controller
     {
         $validated = $request->validate([
             'amount' => 'required|numeric|min:0.01',
-            'note'   => 'nullable|string|max:1000'
+            'note'   => 'nullable|string|max:1000',
+            // Money coming in is either the owner's own capital (equity) or
+            // income. Guessing wrong here either inflates profit or hides money
+            // the owner put in, so the screen has to say which.
+            'nature' => ['required', 'in:owner_capital,other_income'],
         ]);
 
         // Use DB transaction for safety (in case more ops are added later)
-        $tx = DB::transaction(function () use ($validated) {
-            return FundTransaction::create([
+        [$tx, $accounting] = DB::transaction(function () use ($validated) {
+            $tx = FundTransaction::create([
                 'direction'  => 'in',
                 'source'     => 'manual_add',
                 'source_id'  => null,
@@ -80,11 +97,14 @@ class FundController extends Controller
                 'note'       => $validated['note'] ?? null,
                 'created_by' => Auth::id(),
             ]);
+
+            return [$tx, $this->accounting->moneyIn($tx, $validated['nature'])];
         });
 
         log_activity('fund', 'create', 'Fund added (in) ৳' . number_format($validated['amount'], 2), $tx);
 
-        return back()->with('success', 'Fund added successfully!');
+        return back()->with('success', 'Fund added successfully!')
+                    ->with($accounting->flashKey(), $accounting->flashMessage());
     }
 
     /**
@@ -104,7 +124,7 @@ class FundController extends Controller
             return redirect()->back()->with('error', 'Not enough balance!');
         }
 
-        DB::transaction(function () use ($amount, $validated) {
+        $accounting = DB::transaction(function () use ($amount, $validated) {
             $tx = FundTransaction::create([
                 'direction'  => 'out',
                 'source'     => 'withdraw',
@@ -115,9 +135,13 @@ class FundController extends Controller
             ]);
 
             log_activity('fund', 'create', 'Fund withdrawn (out) ৳' . number_format($amount, 2), $tx);
+
+            return $this->accounting->withdrawal($tx);
         });
 
-        return redirect()->back()->with('success', 'Withdraw successful!');
+        return redirect()->back()
+                         ->with('success', 'Withdraw successful!')
+                         ->with($accounting->flashKey(), $accounting->flashMessage());
     }
 
     /**
@@ -231,7 +255,15 @@ class FundController extends Controller
                 ->with('error', 'This transaction is linked to a system record (' . $transaction->source . ') and cannot be edited.');
         }
 
-        return view('backEnd.fund.edit', compact('transaction'));
+        if ($journal = $this->accounting->blockingJournalForFund($transaction)) {
+            return redirect()->route('admin.fund.index')
+                ->with('error', ManualEntryService::refusalReason($journal, 'This fund record'));
+        }
+
+        return view('backEnd.fund.edit', [
+            'transaction' => $transaction,
+            'nature'      => $this->accounting->fundNature($transaction) ?? '',
+        ]);
     }
 
     /**
@@ -256,7 +288,8 @@ class FundController extends Controller
         $validated = $request->validate([
             'amount' => 'required|numeric|min:0.01',
             'note'   => 'nullable|string|max:1000',
-            'direction' => 'required|in:in,out'
+            'direction' => 'required|in:in,out',
+            'nature' => ['required_if:direction,in', 'in:owner_capital,other_income'],
         ]);
 
         return DB::transaction(function () use ($validated, $id) {
@@ -265,6 +298,19 @@ class FundController extends Controller
             if (!$transaction->isEditable()) {
                 return redirect()->route('admin.fund.index')
                     ->with('error', 'This transaction is linked to a system record (' . $transaction->source . ') and cannot be edited.');
+            }
+
+            if ($journal = $this->accounting->blockingJournalForFund($transaction)) {
+                return redirect()->route('admin.fund.index')
+                    ->with('error', ManualEntryService::refusalReason($journal, 'This fund record'));
+            }
+
+            // A record that turns money-in into money-out is a different
+            // transaction, not a correction of this one: its journals would have
+            // to disagree with the row they point at.
+            if ($transaction->direction !== $validated['direction']) {
+                return redirect()->route('admin.fund.index')
+                    ->with('error', 'A fund record cannot change direction once entered. Delete it and record it again on the correct side of the till.');
             }
 
             // Save old values for logging
@@ -317,8 +363,20 @@ class FundController extends Controller
                 'new' => ['direction' => $new_direction, 'amount' => $new_amount, 'note' => $new_note],
             ]);
 
-            return redirect()->route('admin.fund.index')
-                            ->with('success', 'Fund transaction updated successfully! Balance adjusted automatically.');
+            $redirect = redirect()->route('admin.fund.index')
+                              ->with('success', 'Fund transaction updated successfully! Balance adjusted automatically.');
+
+            // Reached only when the books hold no standing journal for this row
+            // (pre-cutover, or reversed and owed a corrected entry).
+            if ($this->accounting->fundNeedsEntry($transaction)) {
+                $accounting = $transaction->direction === 'in'
+                    ? $this->accounting->moneyIn($transaction, $validated['nature'])
+                    : $this->accounting->withdrawal($transaction);
+
+                $redirect->with($accounting->flashKey(), $accounting->flashMessage());
+            }
+
+            return $redirect;
         });
     }
 
@@ -361,6 +419,17 @@ class FundController extends Controller
             if (!$transaction->isEditable()) {
                 return redirect()->route('admin.fund.index')
                     ->with('error', 'This transaction is linked to a system record (' . $transaction->source . ') and cannot be deleted.');
+            }
+
+            if ($journal = $this->accounting->blockingJournalForFund($transaction)) {
+                return redirect()->route('admin.fund.index')
+                    ->with('error', ManualEntryService::refusalReason($journal, 'This fund record'));
+            }
+
+            // A REVERSED journal still stands as history pointing at this row, so
+            // the row cannot go away even though nothing is live in the books.
+            if ($this->accounting->hasJournal($this->accounting->fundSourceTypes($transaction), (int) $transaction->id)) {
+                return redirect()->route('admin.fund.index')->with('error', 'This fund record has been journalled, so it cannot be deleted — the books would keep pointing at a missing record. Reverse its journal in Accounting → Journals instead.');
             }
 
             // Save transaction data for logging

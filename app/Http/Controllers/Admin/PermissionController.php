@@ -16,6 +16,9 @@ class PermissionController extends Controller
      * These are the canonical set — keep sorted/groups for readability.
      */
     const ALL_PERMISSIONS = [
+        // Accounting (double-entry books)
+        'accounting-list', 'accounting-create', 'accounting-edit', 'accounting-delete',
+        'accounting-reverse', 'accounting-export',
         // Banner
         'banner-list', 'banner-create', 'banner-edit', 'banner-delete',
         // Banner Category

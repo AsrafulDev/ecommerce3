@@ -19,6 +19,7 @@
         "picqer/php-barcode-generator": "^3.2",
         "spatie/laravel-permission": "^6.4",
         "spatie/laravel-sitemap": "^7.0",
+        "softmit/bd-double-entry": "@dev",
         "uddoktapay/laravel-sdk": "^2.1"
     },
     "require-dev": {
@@ -31,6 +32,15 @@
         "phpunit/phpunit": "^11.0",
         "spatie/laravel-ignition": "^2.0"
     },
+    "repositories": [
+        {
+            "type": "path",
+            "url": "../bd-double-entry",
+            "options": {
+                "symlink": true
+            }
+        }
+    ],
     "autoload": {
         "psr-4": {
             "App\\": "app/",

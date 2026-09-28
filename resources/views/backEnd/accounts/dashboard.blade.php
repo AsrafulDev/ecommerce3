@@ -39,7 +39,7 @@
         <div class="col-md-3 mb-3">
             <div class="card text-white acct-card" style="background:#0d6efd !important;">
                 <div class="card-body">
-                    <h5 class="mb-1">{{ __('Income This Month') }}</h5>
+                    <h5 class="mb-1">{{ __('Cash In This Month') }}</h5>
                     <h3 class="mb-0">{{ $fmt($in_month) }} ৳</h3>
                     <small>{{ __('Today') }}: +{{ $fmt($in_today) }} ৳ · {{ __('This Year') }}: {{ $fmt($in_year) }} ৳</small>
                 </div>
@@ -48,7 +48,7 @@
         <div class="col-md-3 mb-3">
             <div class="card text-white acct-card" style="background:#dc3545 !important;">
                 <div class="card-body">
-                    <h5 class="mb-1">{{ __('Expense This Month') }}</h5>
+                    <h5 class="mb-1">{{ __('Cash Out This Month') }}</h5>
                     <h3 class="mb-0">{{ $fmt($out_month) }} ৳</h3>
                     <small>{{ __('Today') }}: −{{ $fmt($out_today) }} ৳ · {{ __('This Year') }}: {{ $fmt($out_year) }} ৳</small>
                 </div>
@@ -97,7 +97,7 @@
         {{-- 12-month trend --}}
         <div class="col-lg-8 mb-3">
             <div class="card h-100">
-                <div class="card-header bg-light"><strong>📈 {{ __('Income vs Expense (last 12 months)') }}</strong></div>
+                <div class="card-header bg-light"><strong>📈 {{ __('Cash In vs Cash Out (last 12 months)') }}</strong></div>
                 <div class="card-body">
                     <div id="accountsTrendChart" style="min-height:300px;"></div>
                 </div>
@@ -110,7 +110,7 @@
                 <div class="card-header bg-light"><strong>🧾 {{ __('This Month by Source') }}</strong></div>
                 <div class="card-body p-0">
                     <table class="table table-sm mb-0">
-                        <thead><tr><th>{{ __('Income') }}</th><th class="text-end">৳</th><th class="text-end">{{ __('Expense') }}</th><th class="text-end">৳</th></tr></thead>
+                        <thead><tr><th>{{ __('Cash In') }}</th><th class="text-end">৳</th><th class="text-end">{{ __('Cash Out') }}</th><th class="text-end">৳</th></tr></thead>
                         <tbody>
                         @forelse($sourceRows as $row)
                             <tr>
@@ -183,8 +183,8 @@
     new ApexCharts(document.querySelector('#accountsTrendChart'), {
         chart: { type: 'bar', height: 320, stacked: false, toolbar: { show: false }, fontFamily: 'inherit' },
         series: [
-            { name: @json(__('Income')),   data: trend.map(t => t.in) },
-            { name: @json(__('Expense')), data: trend.map(t => t.out) },
+            { name: @json(__('Cash In')),   data: trend.map(t => t.in) },
+            { name: @json(__('Cash Out')), data: trend.map(t => t.out) },
         ],
         colors: ['#198754', '#dc3545'],
         xaxis: { categories: trend.map(t => t.label) },

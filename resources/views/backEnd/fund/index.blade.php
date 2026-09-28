@@ -72,6 +72,18 @@
                             @enderror
                         </div>
                         <div class="mb-2">
+                            <label class="form-label">{{ __('Nature') }} *</label>
+                            <select name="nature" class="form-select @error('nature') is-invalid @enderror" required>
+                                <option value=""> {{ __('Choose…') }} </option>
+                                <option value="owner_capital" {{ old('nature') == 'owner_capital' ? 'selected' : '' }}> {{ __('Owner capital (নিজের টাকা)') }} </option>
+                                <option value="other_income" {{ old('nature') == 'other_income' ? 'selected' : '' }}> {{ __('Other income (আয়)') }} </option>
+                            </select>
+                            @error('nature')
+                                <small class="text-danger">{{ $message }}</small>
+                            @enderror
+                            <small class="text-muted">Owner capital is equity and never shows as profit. Income does.</small>
+                        </div>
+                        <div class="mb-2">
                             <label class="form-label">{{ __('Note') }}</label>
                             <input type="text" name="note" class="form-control" placeholder="Note (optional)">
                         </div>
@@ -212,6 +224,16 @@
                             </td>
                             <td>
                                 {{ $t->source ?? '-' }}
+                                @if($t->direction == 'in')
+                                    @php $nature = $natures[$t->id] ?? null; @endphp
+                                    @if($nature === 'owner_capital')
+                                        <br><span class="badge bg-info" title="Owner's own money entering the fund — equity, not profit">Owner capital</span>
+                                    @elseif($nature === 'other_income')
+                                        <br><span class="badge bg-primary" title="Income received into the fund">Income</span>
+                                    @elseif($t->source == 'manual_add')
+                                        <br><span class="badge bg-secondary" title="No journal stands for this row">Not booked</span>
+                                    @endif
+                                @endif
                                 @if($t->hasBeenEdited())
                                     <span class="badge bg-warning ms-1" title="This transaction has been edited">
                                         <i class="fe-edit" style="width:12px;height:12px;"></i> Edited

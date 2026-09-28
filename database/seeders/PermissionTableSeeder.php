@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
 use Spatie\Permission\Models\Permission;
+use Spatie\Permission\Models\Role;
 
 class PermissionTableSeeder extends Seeder
 {
@@ -12,6 +13,9 @@ class PermissionTableSeeder extends Seeder
      * Keep this in sync with PermissionController::ALL_PERMISSIONS.
      */
     const ALL_PERMISSIONS = [
+        // Accounting (double-entry books)
+        'accounting-list', 'accounting-create', 'accounting-edit', 'accounting-delete',
+        'accounting-reverse', 'accounting-export',
         // Banner
         'banner-list', 'banner-create', 'banner-edit', 'banner-delete',
         // Banner Category
@@ -63,6 +67,14 @@ class PermissionTableSeeder extends Seeder
                 'guard_name' => 'admin',
             ]);
         }
+
+        // Give the super-admin role every permission, so an existing install that
+        // only re-runs this seeder is not left with permissions that belong to
+        // nobody. New permission strings become effective without a manual pass.
+        Role::where('guard_name', 'admin')
+            ->whereRaw('LOWER(name) = ?', ['admin'])
+            ->get()
+            ->each(fn (Role $role) => $role->syncPermissions(Permission::pluck('name')->all()));
 
         $this->command->info('Seeded ' . count(self::ALL_PERMISSIONS) . ' permissions.');
     }

@@ -59,6 +59,12 @@ use App\Http\Controllers\Admin\FraudSettingController;
 use App\Http\Controllers\Admin\FundController;
 use App\Http\Controllers\Admin\ExpenseController;
 use App\Http\Controllers\Admin\AccountsController;
+use App\Http\Controllers\Admin\Accounting\AccountingAccountController;
+use App\Http\Controllers\Admin\Accounting\AccountingJournalController;
+use App\Http\Controllers\Admin\Accounting\AccountingLedgerController;
+use App\Http\Controllers\Admin\Accounting\AccountingOpeningController;
+use App\Http\Controllers\Admin\Accounting\AccountingReportController;
+use App\Http\Controllers\Admin\Accounting\AccountingSyncController;
 use App\Http\Controllers\Admin\PurchaseController;
 use App\Http\Controllers\Admin\SupplierController;
 use App\Http\Controllers\Admin\ReportController;
@@ -264,6 +270,40 @@ Route::prefix('admin')->middleware(['auth:admin', 'admin', 'demo_mode'])->group(
     Route::get('/fund/{id}/edit', [FundController::class, 'edit'])->name('admin.fund.edit');
     Route::post('/fund/{id}/update', [FundController::class, 'update'])->name('admin.fund.update');
     Route::delete('/fund/{id}', [FundController::class, 'destroy'])->name('admin.fund.destroy');
+
+    // Double-entry accounting (softmit/bd-double-entry)
+    Route::prefix('accounting')->name('admin.accounting.')->group(function () {
+        Route::get('journals', [AccountingJournalController::class, 'index'])->name('journals.index');
+        Route::get('journals/{journal}', [AccountingJournalController::class, 'show'])->name('journals.show');
+        Route::post('journals/{journal}/reverse', [AccountingJournalController::class, 'reverse'])->name('journals.reverse');
+
+        Route::get('accounts', [AccountingAccountController::class, 'index'])->name('accounts.index');
+        Route::post('accounts/sync-defaults', [AccountingAccountController::class, 'syncDefaults'])->name('accounts.sync-defaults');
+        Route::get('accounts/{account}/edit', [AccountingAccountController::class, 'edit'])->name('accounts.edit');
+        Route::post('accounts/{account}/update', [AccountingAccountController::class, 'update'])->name('accounts.update');
+
+        // Lite → double-entry bridge: bulk-send the money rows, and re-open them.
+        Route::get('sync', [AccountingSyncController::class, 'index'])->name('sync.index');
+        Route::post('sync', [AccountingSyncController::class, 'sync'])->name('sync.run');
+        Route::post('sync/reset', [AccountingSyncController::class, 'reset'])->name('sync.reset');
+
+        Route::get('ledger/accounts/{account}', [AccountingLedgerController::class, 'account'])->name('ledger.account');
+        Route::get('ledger/parties/{partyType}/{partyId}', [AccountingLedgerController::class, 'party'])->name('ledger.party');
+        Route::get('ledger/balances', [AccountingLedgerController::class, 'balances'])->name('ledger.balances');
+
+        // Opening balances: worksheet -> draft -> one-time posting
+        Route::get('opening', [AccountingOpeningController::class, 'index'])->name('opening.index');
+        Route::post('opening/save', [AccountingOpeningController::class, 'save'])->name('opening.save');
+        Route::post('opening/balance', [AccountingOpeningController::class, 'balance'])->name('opening.balance');
+        Route::post('opening/post', [AccountingOpeningController::class, 'post'])->name('opening.post');
+        Route::post('opening/discard', [AccountingOpeningController::class, 'discard'])->name('opening.discard');
+
+        Route::get('reports/trial-balance', [AccountingReportController::class, 'trialBalance'])->name('reports.trial-balance');
+        Route::get('reports/profit-loss', [AccountingReportController::class, 'profitLoss'])->name('reports.profit-loss');
+        Route::get('reports/cash', [AccountingReportController::class, 'cash'])->name('reports.cash');
+        Route::get('reports/print', [AccountingReportController::class, 'print'])->name('reports.print');
+        Route::get('reports/export', [AccountingReportController::class, 'export'])->name('reports.export');
+    });
 
     // Expense Routes
     Route::get('/expenses', [ExpenseController::class,'index'])->name('admin.expenses.index');

@@ -219,6 +219,14 @@ class AamarPayController extends Controller
                 $payment->save();
             }
 
+            // 💰 Ledger + fund cash-in for this online payment (capped, trx-deduped).
+            app(\App\Services\PaymentCollectionService::class)->collect(
+                $order,
+                (float) ($payment?->amount ?: $order->amount),
+                'aamarpay',
+                (string) ($request->pg_txnid ?? $request->mer_txnid ?? '') ?: null
+            );
+
             // Create digital downloads if applicable
             $this->createDigitalDownloads($order);
 

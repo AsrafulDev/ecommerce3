@@ -65,6 +65,14 @@ class ShurjopayControllers extends Controller
             $payment->save();
         }
 
+        // 💰 Ledger + fund cash-in for this online payment (capped, trx-deduped).
+        app(\App\Services\PaymentCollectionService::class)->collect(
+            $order,
+            (float) ($payment?->amount ?: $order->amount),
+            'shurjopay',
+            (string) ($data[0]->bank_trx_id ?? '') ?: null
+        );
+
         // ⭐ সফল পেমেন্টের পর ডিজিটাল ডাউনলোড তৈরি
         $this->createDigitalDownloads($order);
 

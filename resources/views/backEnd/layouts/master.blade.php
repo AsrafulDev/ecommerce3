@@ -949,27 +949,67 @@
   </div>
 </li>
 
-{{-- Accounts (Fund + Expenses) --}}
-@canany(['fund-list', 'fund-create', 'fund-edit', 'expense-list', 'expense-create', 'expense-edit'])
-<li class="{{ request()->routeIs('admin.accounts.*', 'admin.fund.*', 'admin.expenses.*') ? 'active' : '' }}">
-  <a href="#sidebar-accounts" data-bs-toggle="collapse">
-    <i data-feather="dollar-sign"></i>
-    <span> {{ __('Accounts') }} </span>
+{{-- Transactions (Lite Accounting — fund, expenses, operational reports) --}}
+@canany(['fund-list', 'fund-create', 'fund-edit', 'expense-list', 'expense-create', 'expense-edit', 'report-view', 'order-report', 'purchase-report', 'expense-report', 'stock-report', 'profit-loss-report'])
+<li class="{{ request()->routeIs('admin.accounts.*', 'admin.fund.*', 'admin.expenses.*', 'admin.reports.*') ? 'active' : '' }}">
+  <a href="#sidebar-transactions" data-bs-toggle="collapse">
+    <i data-feather="activity"></i>
+    <span> {{ __('Transactions') }} </span>
     <span class="menu-arrow"></span>
   </a>
-  <div class="collapse {{ request()->routeIs('admin.accounts.*', 'admin.fund.*', 'admin.expenses.*') ? 'show' : '' }}" id="sidebar-accounts">
+  <div class="collapse {{ request()->routeIs('admin.accounts.*', 'admin.fund.*', 'admin.expenses.*', 'admin.reports.*') ? 'show' : '' }}" id="sidebar-transactions">
     <ul class="nav-second-level">
-      <li><a href="{{ route('admin.accounts.dashboard') }}"><i data-feather="pie-chart"></i> {{ __('Accounts Dashboard') }} </a></li>
+      <li><a href="{{ route('admin.accounts.dashboard') }}"><i data-feather="pie-chart"></i> {{ __('Dashboard') }} </a></li>
       @canany(['fund-list', 'fund-create', 'fund-edit'])
-      <li><a href="{{ route('admin.fund.index') }}"><i data-feather="briefcase"></i> {{ __('Fund / Account') }} </a></li>
+      <li><a href="{{ route('admin.fund.index') }}"><i data-feather="briefcase"></i> {{ __('Fund / Cash Book') }} </a></li>
       @endcanany
       @canany(['expense-list', 'expense-create', 'expense-edit'])
       <li><a href="{{ route('admin.expenses.index') }}"><i data-feather="credit-card"></i> {{ __('Expenses') }} </a></li>
+      @endcanany
+      @canany(['report-view', 'order-report', 'purchase-report', 'expense-report', 'stock-report', 'profit-loss-report'])
+      @endcanany
+      @canany(['order-report', 'report-view'])
+      <li><a href="{{ route('admin.reports.orders') }}"><i data-feather="file-text"></i> {{ __('Order Report') }} </a></li>
+      @endcanany
+      @canany(['purchase-report', 'report-view'])
+      <li><a href="{{ route('admin.reports.purchases') }}"><i data-feather="shopping-bag"></i> {{ __('Purchase Report') }} </a></li>
+      @endcanany
+      @canany(['expense-report', 'report-view'])
+      <li><a href="{{ route('admin.reports.expenses') }}"><i data-feather="trending-down"></i> {{ __('Expense Report') }} </a></li>
+      @endcanany
+      @canany(['stock-report', 'report-view'])
+      <li><a href="{{ route('admin.reports.stock') }}"><i data-feather="archive"></i> {{ __('Stock Report') }} </a></li>
+      @endcanany
+      @canany(['profit-loss-report', 'report-view'])
+      <li><a href="{{ route('admin.reports.profit_loss') }}"><i data-feather="activity"></i> {{ __('Basic Profit Summary') }} </a></li>
       @endcanany
     </ul>
   </div>
 </li>
 @endcanany
+
+{{-- Accounts (Full double-entry books — softmit/bd-double-entry) --}}
+@can('accounting-list')
+<li class="{{ request()->routeIs('admin.accounting.*') ? 'active' : '' }}">
+  <a href="#sidebar-accounting" data-bs-toggle="collapse">
+    <i data-feather="book"></i>
+    <span> {{ __('Accounts') }} </span>
+    <span class="menu-arrow"></span>
+  </a>
+  <div class="collapse {{ request()->routeIs('admin.accounting.*') ? 'show' : '' }}" id="sidebar-accounting">
+    <ul class="nav-second-level">
+      <li><a href="{{ route('admin.accounting.accounts.index') }}"><i data-feather="list"></i> {{ __('Chart of Accounts') }} </a></li>
+      <li><a href="{{ route('admin.accounting.journals.index') }}"><i data-feather="book-open"></i> {{ __('Journals') }} </a></li>
+      <li><a href="{{ route('admin.accounting.sync.index') }}"><i data-feather="upload-cloud"></i> {{ __('Lite Data Sync') }} </a></li>
+      <li><a href="{{ route('admin.accounting.opening.index') }}"><i data-feather="log-in"></i> {{ __('Opening Balances') }} </a></li>
+      <li><a href="{{ route('admin.accounting.ledger.balances') }}"><i data-feather="users"></i> {{ __('Party Balances') }} </a></li>
+      <li><a href="{{ route('admin.accounting.reports.trial-balance') }}"><i data-feather="grid"></i> {{ __('Trial Balance') }} </a></li>
+      <li><a href="{{ route('admin.accounting.reports.profit-loss') }}"><i data-feather="trending-up"></i> {{ __('Income Statement') }} </a></li>
+      <li><a href="{{ route('admin.accounting.reports.cash') }}"><i data-feather="dollar-sign"></i> {{ __('Cash & Bank Ledger') }} </a></li>
+    </ul>
+  </div>
+</li>
+@endcan
 
 {{-- Refunds --}}
 @canany(['order-list', 'order-edit'])
@@ -1227,38 +1267,6 @@
     <i data-feather="share-2"></i>
     <span> {{ __('Facebook Page Post') }} </span>
   </a>
-</li>
-@endcanany
-
-{{-- ============================================= --}}
-{{--  SECTION 9: REPORTS                           --}}
-{{-- ============================================= --}}
-@canany(['report-view','order-report','purchase-report','expense-report','stock-report','profit-loss-report'])
-<li>
-  <a href="#sidebar-report" data-bs-toggle="collapse">
-    <i data-feather="pie-chart"></i>
-    <span>{{ __('Reports') }}</span>
-    <span class="menu-arrow"></span>
-  </a>
-  <div class="collapse" id="sidebar-report">
-    <ul class="nav-second-level">
-      @canany(['order-report','report-view'])
-      <li><a href="{{ route('admin.reports.orders') }}"><i data-feather="file-text"></i> {{ __('Order Report') }} </a></li>
-      @endcanany
-      @canany(['purchase-report','report-view'])
-      <li><a href="{{ route('admin.reports.purchases') }}"><i data-feather="shopping-bag"></i> {{ __('Purchase Report') }} </a></li>
-      @endcanany
-      @canany(['expense-report','report-view'])
-      <li><a href="{{ route('admin.reports.expenses') }}"><i data-feather="trending-down"></i> {{ __('Expense Report') }} </a></li>
-      @endcanany
-      @canany(['stock-report','report-view'])
-      <li><a href="{{ route('admin.reports.stock') }}"><i data-feather="archive"></i> {{ __('Stock Report') }} </a></li>
-      @endcanany
-      @canany(['profit-loss-report','report-view'])
-      <li><a href="{{ route('admin.reports.profit_loss') }}"><i data-feather="activity"></i> {{ __('Profit & Loss') }} </a></li>
-      @endcanany
-    </ul>
-  </div>
 </li>
 @endcanany
 

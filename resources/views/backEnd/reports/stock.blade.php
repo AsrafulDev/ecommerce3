@@ -101,8 +101,9 @@
         <div class="col-md-4">
             <div class="stat-card">
                 <div>
-                    <div class="stat-title"> {{ __('Inventory Value') }} </div>
-                    <h3 class="stat-value">৳{{ number_format($totalStockValue, 2) }}</h3>
+                    <div class="stat-title"> {{ __('Inventory Value (batch cost)') }} </div>
+                    <h3 class="stat-value">৳{{ number_format($batchValue ?? 0, 2) }}</h3>
+                    <small class="text-muted">{{ __('Product-price basis') }}: ৳{{ number_format($totalStockValue ?? 0, 2) }}</small>
                 </div>
                 <div class="stat-icon-box bg-light-success">
                     <span class="fw-bold">৳</span>

@@ -195,23 +195,6 @@
             </table>
         </div>
     @endif
-
-    @if(!$isValid && !$isMaster && !$isLocal)
-        <div class="lic-card">
-            <h3>🔑 {{ __('How to Activate') }}</h3>
-            <ol class="lic-steps">
-                <li>{{ __('Open your license server (WordPress) and go to') }} <strong>License Manager → Licenses</strong> {{ __('and create a license for this product with the key below, or generate a new key.') }}</li>
-                <li>{{ __('Copy the key into your') }} <code>.env</code> {{ __('file:') }} <code>LICENSE_KEY=XXXX-XXXX-XXXX-XXXX-XXXX</code></li>
-                <li>{{ __('Make sure') }} <code>UPDATE_API_URL</code> {{ __('points to your license server (e.g.') }} <code>https://softmit.xyz</code>{{ __('). You can also set it in Admin → General Settings → update_api_url.') }}</li>
-                <li>{{ __('Register the current domain') }} <strong>{{ $domain }}</strong> {{ __('on that license (the plugin auto-registers it on first check if enabled).') }}</li>
-                <li>{{ __('Click') }} <strong>{{ __('Re-check License') }}</strong> {{ __('above.') }}</li>
-            </ol>
-            <p class="text-muted mt-2" style="margin-top:12px;">
-                {{ __('Current key in .env:') }} <code>{{ $licenseKey ? $maskedKey : '(not set)' }}</code>
-            </p>
-        </div>
-    @endif
-
 </div>
 
 <script>

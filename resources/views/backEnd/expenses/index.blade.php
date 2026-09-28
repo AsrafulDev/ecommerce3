@@ -142,6 +142,9 @@
                                    name="category"
                                    class="form-control"
                                    value="{{ old('category') }}">
+                            <small class="text-muted">
+                                Books this against: rent, salary, utility, delivery, discount, refund. Anything else lands on General Expense.
+                            </small>
                         </div>
 
                         <div class="mb-3">

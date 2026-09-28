@@ -6,15 +6,40 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\DB;
 use App\Models\Order;
 use App\Models\OrderDetails;   // ✅ এইটাই এখন ইউজ হবে
 use App\Models\Product;
 use App\Models\Purchase;
 use App\Models\PurchaseItem;
 use App\Models\Expense;
+use App\Models\FundTransaction;
+use App\Models\StockBatch;
 
 class ReportController extends Controller
 {
+    /**
+     * Whole-period SUM over the first columns that actually exist in the table.
+     * Fixes totals previously computed from the paginated (current-page) rows.
+     */
+    protected function sumExistingColumns($query, array $candidates): float
+    {
+        $existing = array_values(array_filter(
+            $candidates,
+            fn ($col) => Schema::hasColumn($query->getModel()->getTable(), $col)
+        ));
+
+        if (!$existing) {
+            return 0.0;
+        }
+
+        // A single per-row COALESCE fallback chain: COALESCE(col1, col2, …, 0),
+        // so each row contributes its first existing/non-null column — never a
+        // sum of two arguments (sum(a, b) is invalid SQL on MariaDB/MySQL).
+        $expr = 'COALESCE(' . implode(', ', $existing) . ', 0)';
+
+        return (float) (clone $query)->sum(DB::raw($expr));
+    }
     /**
      * Common date range helper
      * type = today / month / year / range
@@ -172,31 +197,22 @@ class ReportController extends Controller
 $query = Order::whereBetween('created_at', [$from, $to])
     ->orderBy('created_at', 'desc');
 
-$orders = $query->paginate(20)->withQueryString();
+$orders = $query->clone()->paginate(20)->withQueryString();
 
-        $totalOrders = $orders->count();
+        // Whole-period totals (not just the current page)
+        $totalOrders = (clone $query)->count();
 
-        // Total / Discount / Shipping summary
-        $totalAmount = $orders->sum(function ($order) {
-            return $this->resolveOrderTotal($order);
-        });
+        $totalAmount = $this->sumExistingColumns($query, [
+            'amount', 'total', 'total_amount', 'grand_total', 'subtotal',
+        ]);
 
-        $totalDiscount = $orders->sum(function ($order) {
-            if (isset($order->discount) && is_numeric($order->discount)) {
-                return (float) $order->discount;
-            }
-            if (isset($order->discount_amount) && is_numeric($order->discount_amount)) {
-                return (float) $order->discount_amount;
-            }
-            if (isset($order->coupon_discount) && is_numeric($order->coupon_discount)) {
-                return (float) $order->coupon_discount;
-            }
-            return 0.0;
-        });
+        $totalDiscount = $this->sumExistingColumns($query, [
+            'discount', 'discount_amount', 'coupon_discount',
+        ]);
 
-        $totalShipping = $orders->sum(function ($order) {
-            return $this->resolveOrderShipping($order);
-        });
+        $totalShipping = $this->sumExistingColumns($query, [
+            'shipping_amount', 'shipping_charge', 'shipping_cost', 'shipping',
+        ]);
 
         // CSV Export
         if ($request->get('export') === 'csv') {
@@ -274,21 +290,22 @@ $orders = $query->paginate(20)->withQueryString();
             $query->whereBetween('created_at', [$from, $to]);
         }
 
- $purchases = $query->orderBy('id', 'desc')
+ $purchases = $query->clone()
+                   ->orderBy('id', 'desc')
                    ->paginate(20)
                    ->withQueryString();
-        // summary
-        $totalPurchaseAmount = $purchases->sum(function ($p) {
-            return $this->resolvePurchaseTotal($p);
-        });
+        // Whole-period summary (not just the current page)
+        $totalPurchaseAmount = $this->sumExistingColumns($query, [
+            'total', 'grand_total', 'total_amount', 'amount',
+        ]);
 
-        $totalPaid = $purchases->sum(function ($p) {
-            return $this->resolvePurchasePaid($p);
-        });
+        $totalPaid = $this->sumExistingColumns($query, [
+            'paid', 'paid_amount', 'payment',
+        ]);
 
-        $totalDue = $purchases->sum(function ($p) {
-            return $this->resolvePurchaseDue($p);
-        });
+        $totalDue = $this->sumExistingColumns($query, [
+            'due', 'due_amount', 'balance',
+        ]);
 
         // Blade-এ দেখানোর জন্য ইন-মেমরি ভ্যালু সেট করে দিচ্ছি
         foreach ($purchases as $p) {
@@ -359,11 +376,12 @@ $orders = $query->paginate(20)->withQueryString();
             $query->whereBetween('created_at', [$from, $to]);
         }
 
-$expenses = $query->orderBy('id', 'desc')
+$expenses = $query->clone()
+                  ->orderBy('id', 'desc')
                   ->paginate(20)
                   ->withQueryString();
 
-$totalExpense = $expenses->sum('amount');
+$totalExpense = $this->sumExistingColumns($query, ['amount']);
 
 
         if ($request->get('export') === 'csv') {
@@ -418,11 +436,15 @@ $totalExpense = $expenses->sum('amount');
                    ->paginate(20)
                    ->withQueryString();
 
-        $totalStockQty   = $products->sum('stock');
-        $totalStockValue = $products->sum(function ($p) {
-            $purchasePrice = $p->purchase_price ?? 0;
-            return $purchasePrice * ($p->stock ?? 0);
-        });
+        // Whole-period totals, plus the authoritative batch-based valuation
+        // (source of truth = stock_batches.remaining_qty * unit_cost, per AGENTS.md;
+        //  products.stock is a denormalized copy that can drift).
+        $totalStockQty   = (float) Product::sum('stock');
+        $totalStockValue = (float) Product::sum(DB::raw('COALESCE(purchase_price, 0) * COALESCE(stock, 0)'));
+
+        $batchStockQuery = StockBatch::where('type', 'in')->where('remaining_qty', '>', 0);
+        $batchQty   = (float) (clone $batchStockQuery)->sum('remaining_qty');
+        $batchValue = (float) (clone $batchStockQuery)->sum(DB::raw('remaining_qty * unit_cost'));
 
         if ($request->get('export') === 'csv') {
             $fileName = 'stock-report-' . now()->format('Ymd_His') . '.csv';
@@ -463,50 +485,65 @@ $totalExpense = $expenses->sum('amount');
         return view('backEnd.reports.stock', compact(
             'products',
             'totalStockQty',
-            'totalStockValue'
+            'totalStockValue',
+            'batchQty',
+            'batchValue'
         ));
     }
 
     /* =======================
-     *  PROFIT & LOSS REPORT
+     *  BASIC PROFIT SUMMARY (Lite / operational P&L)
+     *
+     *  Sale recognition: delivered/completed orders (order_status).
+     *  COGS: batch-realized order_details.cogs, snapshot price only as fallback
+     *  (same rule as the Accounts dashboard — one operational truth).
+     *  Cash movement (collections, supplier payments, owner capital/withdrawal)
+     *  is deliberately NOT part of profit.
      * ======================= */
     public function profitLoss(Request $request)
     {
         [$from, $to, $label, $type] = $this->getDateRange($request);
 
-        // 1) SALES (Orders)
-        $ordersQuery = Order::whereBetween('created_at', [$from, $to]);
-
-        // orders টেবিলে যদি status কলাম থাকে তখনই ফিল্টার করব
-        if (Schema::hasColumn('orders', 'status')) {
-            $ordersQuery->where('status', '!=', 'canceled');
-        }
-
-        $orders = $ordersQuery->get();
+        // 1) SALES — only recognized orders; cancelled/pending/returned are not sales
+        $orders = Order::whereBetween('created_at', [$from, $to])
+            ->whereIn('order_status', ['delivered', 'completed'])
+            ->get();
 
         $salesAmount = $orders->sum(function ($order) {
             return $this->resolveOrderTotal($order);
         });
 
-        // 2) COGS (Cost of Goods Sold)
+        // 2) REFUNDS (contra revenue) — money paid back for refunded orders
+        $refunds = (float) FundTransaction::where('direction', 'out')
+            ->whereIn('source', ['refund', 'order_refund'])
+            ->whereBetween('created_at', [$from, $to])
+            ->sum('amount');
+
+        // 3) COGS — prefer batch-realized cogs stored on order_details
         $orderDetails = OrderDetails::whereIn('order_id', $orders->pluck('id'))
             ->with('product:id,purchase_price') // ✅ Eager load to avoid N+1
             ->get(); // ✅ এখানে plural মডেল
 
         $cogs = 0;
         foreach ($orderDetails as $od) {
-            // order_details টেবিলে purchase_price থাকলে সেটাই use করা ভালো
-            $purchasePrice = $od->purchase_price ?? null;
-
-            if ($purchasePrice === null) {
-                // fallback – eager loaded product থেকে নিন
-                $purchasePrice = $od->product->purchase_price ?? 0;
+            if ($od->cogs !== null && (float) $od->cogs > 0) {
+                $cogs += (float) $od->cogs;
+                continue;
             }
 
+            $purchasePrice = $od->purchase_price ?? ($od->product->purchase_price ?? 0);
             $cogs += $purchasePrice * ($od->qty ?? 0);
         }
 
-        // 3) EXPENSES
+        // 4) OTHER INCOME — operational income rows (warranty charges/resale).
+        //    Owner capital ('manual_add') is Cash In, NOT income → excluded.
+        $otherIncome = (float) FundTransaction::where('direction', 'in')
+            ->whereIn('source', ['warranty', 'warranty_resell'])
+            ->whereBetween('created_at', [$from, $to])
+            ->sum('amount');
+
+        // 5) EXPENSES — Expense table + salaries/bonuses (which live in fund rows,
+        //    not the Expense table, and are genuine operating expenses)
         $expQuery = Expense::query();
         if (Schema::hasColumn('expenses', 'expense_date')) {
             $expQuery->whereBetween('expense_date', [$from->toDateString(), $to->toDateString()]);
@@ -514,12 +551,19 @@ $totalExpense = $expenses->sum('amount');
             $expQuery->whereBetween('created_at', [$from, $to]);
         }
 
-        $expenses     = $expQuery->get();
-        $totalExpense = $expenses->sum('amount');
+        $operatingExpense = (float) $expQuery->sum('amount');
 
-        // 4) GROSS & NET
-        $grossProfit = $salesAmount - $cogs;
-        $netProfit   = $grossProfit - $totalExpense;
+        $salaryBonus = (float) FundTransaction::where('direction', 'out')
+            ->whereIn('source', ['employee_salary', 'employee_bonus'])
+            ->whereBetween('created_at', [$from, $to])
+            ->sum('amount');
+
+        $totalExpense = $operatingExpense + $salaryBonus;
+
+        // 6) GROSS & NET
+        $netSales    = $salesAmount - $refunds;
+        $grossProfit = $netSales - $cogs;
+        $netProfit   = $grossProfit + $otherIncome - $totalExpense;
 
         if ($request->get('export') === 'csv') {
             $fileName = 'profit-loss-' . now()->format('Ymd_His') . '.csv';
@@ -529,14 +573,19 @@ $totalExpense = $expenses->sum('amount');
                 'Content-Disposition' => "attachment; filename=\"$fileName\"",
             ];
 
-            $callback = function () use ($label, $salesAmount, $cogs, $totalExpense, $grossProfit, $netProfit) {
+            $callback = function () use ($label, $salesAmount, $refunds, $netSales, $cogs, $grossProfit, $otherIncome, $operatingExpense, $salaryBonus, $totalExpense, $netProfit) {
                 $handle = fopen('php://output', 'w');
-                fputcsv($handle, ['Profit & Loss Report', $label]);
+                fputcsv($handle, ['Basic Profit Summary', $label]);
                 fputcsv($handle, []);
-                fputcsv($handle, ['Sales', $salesAmount]);
-                fputcsv($handle, ['COGS', $cogs]);
+                fputcsv($handle, ['Sales (delivered/completed)', $salesAmount]);
+                fputcsv($handle, ['Refunds', -$refunds]);
+                fputcsv($handle, ['Net Sales', $netSales]);
+                fputcsv($handle, ['COGS (batch-realized)', $cogs]);
                 fputcsv($handle, ['Gross Profit', $grossProfit]);
-                fputcsv($handle, ['Expenses', $totalExpense]);
+                fputcsv($handle, ['Other Income', $otherIncome]);
+                fputcsv($handle, ['Expenses', $operatingExpense]);
+                fputcsv($handle, ['Salaries & Bonuses', $salaryBonus]);
+                fputcsv($handle, ['Total Expenses', $totalExpense]);
                 fputcsv($handle, ['Net Profit', $netProfit]);
                 fclose($handle);
             };
@@ -550,7 +599,12 @@ $totalExpense = $expenses->sum('amount');
             'label',
             'type',
             'salesAmount',
+            'refunds',
+            'netSales',
             'cogs',
+            'otherIncome',
+            'operatingExpense',
+            'salaryBonus',
             'totalExpense',
             'grossProfit',
             'netProfit'

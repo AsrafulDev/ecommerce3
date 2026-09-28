@@ -40,14 +40,28 @@
 
                         <div class="mb-3">
                             <label class="form-label fw-semibold">Direction / ধরণ *</label>
-                            <select name="direction" class="form-select @error('direction') is-invalid @enderror" required>
-                                <option value="in" {{ old('direction', $transaction->direction) == 'in' ? 'selected' : '' }}> {{ __('IN (+)') }} </option>
-                                <option value="out" {{ old('direction', $transaction->direction) == 'out' ? 'selected' : '' }}> {{ __('OUT (-)') }} </option>
+                            {{-- Direction is locked once the record exists: flipping
+                                 money-in to money-out is a different transaction, and
+                                 the books would end up disagreeing with the row. --}}
+                            <input type="text" class="form-control" value="{{ $transaction->direction == 'in' ? __('IN (+)') : __('OUT (-)') }}" readonly>
+                            <input type="hidden" name="direction" value="{{ $transaction->direction }}">
+                            <small class="text-muted">Direction cannot be changed. Delete this record and enter it again on the correct side.</small>
+                        </div>
+
+                        @if($transaction->direction == 'in')
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Nature / প্রকৃতি *</label>
+                            <select name="nature" class="form-select @error('nature') is-invalid @enderror" required>
+                                <option value=""> {{ __('Choose…') }} </option>
+                                <option value="owner_capital" {{ old('nature', $nature) == 'owner_capital' ? 'selected' : '' }}> {{ __('Owner capital (নিজের টাকা)') }} </option>
+                                <option value="other_income" {{ old('nature', $nature) == 'other_income' ? 'selected' : '' }}> {{ __('Other income (আয়)') }} </option>
                             </select>
-                            @error('direction')
+                            @error('nature')
                             <span class="invalid-feedback">{{ $message }}</span>
                             @enderror
+                            <small class="text-muted">Owner capital is equity and never shows as profit. Income does.</small>
                         </div>
+                        @endif
 
                         <div class="mb-3">
                             <label class="form-label fw-semibold"> {{ __('Source') }} </label>

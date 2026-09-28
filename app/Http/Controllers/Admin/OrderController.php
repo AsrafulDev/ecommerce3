@@ -1944,24 +1944,35 @@ class OrderController extends Controller
         $shipping->area        = isset($shippingfee->name) ? $shippingfee->name : ($request->area == '0' ? 'Store Pickup' : '');
         $shipping->save();
 
-        // 🆕 Payment history ledger (one row per collection)
+        // 🆕 Single collection primitive: writes the order_payments row, derives
+        // paid/due/status from that ledger, syncs the flat Payment row and books
+        // the Lite fund cash-in. Replaces the previous hand-rolled duplicate.
+        // Dedup is intentionally OFF here — $paymentNote is free text, not a
+        // gateway transaction id, so it must never silently skip a real payment.
         if ($paid > 0) {
-            OrderPayment::create([
-                'order_id'       => $order->id,
-                'customer_id'    => $customer_id,
-                'amount'         => $paid,
-                'payment_method' => $paymentSubMethod,
-                'trx_note'       => $paymentNote ?: null,
-                'created_by'     => auth()->id(),
-            ]);
-        }
+            \app(\App\Services\PaymentCollectionService::class)->collect(
+                $order,
+                (float) $paid,
+                $paymentSubMethod,
+                null,
+                auth()->id(),
+                $paymentNote ?: null
+            );
 
-        $payment                 = Payment::where('order_id', $order->id)->firstOrNew(['order_id' => $order->id]);
-        $payment->customer_id    = $customer_id;
-        $payment->payment_method = $this->resolvePaymentMethodLabel($paymentSubMethod);
-        $payment->amount         = $paid;
-        $payment->payment_status = $order->payment_status;
-        $payment->save();
+            // collect() fills payment_method only when empty; keep the POS label.
+            $flat = Payment::where('order_id', $order->id)->first();
+            if ($flat) {
+                $flat->payment_method = $this->resolvePaymentMethodLabel($paymentSubMethod);
+                $flat->save();
+            }
+        } else {
+            $payment                 = Payment::where('order_id', $order->id)->firstOrNew(['order_id' => $order->id]);
+            $payment->customer_id    = $customer_id;
+            $payment->payment_method = $this->resolvePaymentMethodLabel($paymentSubMethod);
+            $payment->amount         = $paid;
+            $payment->payment_status = $order->payment_status;
+            $payment->save();
+        }
 
         foreach (Cart::instance('pos_shopping')->content() as $cart) {
             $sizeId   = $cart->options->size_id ?? null;
@@ -2861,15 +2872,34 @@ class OrderController extends Controller
         $order->note            = $request->note;
 
         // 💰 Recompute paid / due on the new total (keep existing paid unless new payment given)
-        $total = (float) $order->amount;
-        $alreadyPaid = (float) ($order->paid_amount ?? 0);
-        $newPaid = min((float) ($request->paid_amount ?? 0), max(0, $total - $alreadyPaid));
-        $order->paid_amount = $alreadyPaid + $newPaid;
-        $order->due_amount  = max(0, $total - $order->paid_amount);
-        $order->payment_status = $order->due_amount <= 0
-            ? ($order->paid_amount > 0 ? 'paid' : 'pending')
-            : ($order->paid_amount > 0 ? 'partial' : 'pending');
-        $order->save();
+        // Record any newly-collected money through the single collection primitive.
+        // Dedup is OFF (a payment_note is free text, not a gateway transaction id);
+        // collect() caps to the outstanding due derived from the order_payments
+        // ledger, so an edit can never over-collect and never loses an online payment
+        // whose paid_amount column was set without a matching ledger row.
+        $requestedPaid = (float) ($request->paid_amount ?? 0);
+        if ($requestedPaid > 0) {
+            $collected = \app(\App\Services\PaymentCollectionService::class)->collect(
+                $order,
+                $requestedPaid,
+                $paymentGatewayInput,
+                null,
+                auth()->id(),
+                $request->payment_note ?: null
+            );
+
+            if ($collected) {
+                $flat = Payment::where('order_id', $order->id)->first();
+                if ($flat) {
+                    $flat->payment_method = $this->resolvePaymentMethodLabel($paymentGatewayInput);
+                    $flat->save();
+                }
+            }
+        }
+
+        // One source of truth for paid/due/status, even when no new money arrived
+        // (e.g. the order amount itself was edited).
+        $order->recalculatePaymentTotals();
 
         log_activity('order', 'update', 'Updated order #' . $order->invoice_id . ' — status ' . $oldOrderStatus . ' → ' . $order->order_status, $order, [
             'old_status'     => $oldOrderStatus,
@@ -2884,29 +2914,6 @@ class OrderController extends Controller
         $shipping->address  = $request->address;
         $shipping->area     = isset($shippingfee->name) ? $shippingfee->name : ($request->area == '0' ? 'Store Pickup' : $shipping->area);
         $shipping->save();
-
-        // 🆕 Record new partial payment in history ledger
-        if ($newPaid > 0) {
-            OrderPayment::create([
-                'order_id'       => $order->id,
-                'customer_id'    => $customer->id,
-                'amount'         => $newPaid,
-                'payment_method' => $this->resolvePaymentMethodLabel($paymentGatewayInput),
-                'trx_note'       => $request->payment_note ?: null,
-                'created_by'     => auth()->id(),
-            ]);
-        }
-
-        $payment                 = Payment::where('order_id', $order->id)->firstOrNew(['order_id' => $order->id]);
-        $payment->customer_id    = $customer->id;
-        $payment->payment_method = $this->resolvePaymentMethodLabel($paymentGatewayInput);
-        $payment->amount         = $order->paid_amount;
-        $payment->payment_status = $order->payment_status;
-        $payment->save();
-
-        if ($newPaid > 0) {
-            FundHelper::creditPayment($order, (float) $newPaid, 'Payment received — Order #' . $order->invoice_id);
-        }
 
         $existingDetails = OrderDetails::where('order_id', $order->id)->pluck('id')->toArray();
         $updatedIds      = [];
@@ -4036,34 +4043,15 @@ class OrderController extends Controller
 
         $method = trim((string) $request->input('payment_method', 'Cash'));
 
-        // 1) History ledger
-        OrderPayment::create([
-            'order_id'       => $order->id,
-            'customer_id'    => $order->customer_id,
-            'amount'         => $amount,
-            'payment_method' => $method,
-            'trx_note'       => $request->trx_note ?: null,
-            'created_by'     => auth()->id(),
-        ]);
-
-        // 2) Recalc + status
-        $order->paid_amount += $amount;
-        $order->due_amount   = max(0, (float) $order->amount - $order->paid_amount);
-        $order->payment_status = $order->due_amount > 0 ? 'partial' : 'paid';
-        $order->save();
-
-        // 3) Sync payments current-state row
-        $payment = Payment::where('order_id', $order->id)->first();
-        if ($payment) {
-            $payment->amount         = $order->paid_amount;
-            $payment->payment_status = $order->payment_status;
-            $payment->payment_method = $this->resolvePaymentMethodLabel($method);
-            $payment->save();
-        }
-
-        // 4) Fund credit — capped at order.amount minus already-credited sales,
-        //    so duplicate callbacks / repeat posts can never over-credit.
-        FundHelper::creditPayment($order, (float) $amount, 'Payment received — Order #' . $order->invoice_id);
+        // One collection primitive: ledger row + derived paid/due/status + fund
+        // credit + (optional) journal. See App\Services\PaymentCollectionService.
+        \app(\App\Services\PaymentCollectionService::class)->collect(
+            $order,
+            $amount,
+            $method,
+            $request->trx_note ?: null,
+            auth()->id()
+        );
 
         // 5) Note
         $order->addNote(

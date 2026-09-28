@@ -6,13 +6,19 @@ use App\Http\Controllers\Controller;
 use App\Models\Expense;
 use App\Models\ExpenseLog;
 use App\Models\FundTransaction;
+use App\Services\Accounting\ManualEntryService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
+use Softmit\DoubleEntry\Enums\SourceType;
 
 class ExpenseController extends Controller
 {
+    public function __construct(protected ManualEntryService $accounting)
+    {
+    }
+
     /**
      * Check if current user is Admin (Super Admin or has Admin role)
      */
@@ -106,7 +112,10 @@ class ExpenseController extends Controller
         }
 
         // আগে expense এন্ট্রি — expense + fund out একসাথে, যাতে অর্ধেক করে ফেইল না করে
-        DB::transaction(function () use ($validated, &$expense) {
+        // The double entry is posted inside the same transaction: a committed
+        // expense and a missing journal is exactly the drift the books exist to
+        // prevent. A posting that fails is recorded and reported, never hidden.
+        $accounting = DB::transaction(function () use ($validated, &$expense) {
             $expense = Expense::create([
                 'title'        => $validated['title'],
                 'amount'       => $validated['amount'],
@@ -130,10 +139,13 @@ class ExpenseController extends Controller
             $expense->update([
                 'fund_transaction_id' => $fund->id,
             ]);
+
+            return $this->accounting->expense($expense);
         });
 
         return redirect()->route('admin.expenses.index')
-                         ->with('success', 'Expense saved successfully!');
+                         ->with('success', 'Expense saved successfully!')
+                         ->with($accounting->flashKey(), $accounting->flashMessage());
     }
 
     // ✅ Edit ফর্ম
@@ -144,6 +156,11 @@ class ExpenseController extends Controller
         if ($expense->isSystemGenerated()) {
             return redirect()->route('admin.expenses.index')
                 ->with('error', 'This expense is system-generated (' . $expense->category . ') and cannot be edited.');
+        }
+
+        if ($journal = $this->accounting->blockingJournalForExpense($expense)) {
+            return redirect()->route('admin.expenses.index')
+                ->with('error', ManualEntryService::refusalReason($journal, 'This expense'));
         }
 
         // উপরে summary একই থাকবে
@@ -200,6 +217,13 @@ class ExpenseController extends Controller
                     ->with('error', 'This expense is system-generated (' . $expense->category . ') and cannot be edited.');
             }
 
+            // Books first: once this expense has a posted journal, changing the
+            // amount here would make the ledger and the screen disagree.
+            if ($journal = $this->accounting->blockingJournalForExpense($expense)) {
+                return redirect()->route('admin.expenses.index')
+                    ->with('error', ManualEntryService::refusalReason($journal, 'This expense'));
+            }
+
             // Save old values for logging
             $old_title = $expense->title;
             $old_amount = $expense->amount;
@@ -220,14 +244,11 @@ class ExpenseController extends Controller
                 'updated_by'   => Auth::id(),
             ]);
 
-            // Update linked fund transaction
+            // Update the linked fund transaction
             if ($expense->fund_transaction_id) {
                 $fund = FundTransaction::find($expense->fund_transaction_id);
 
                 if ($fund) {
-                    // Calculate balance difference
-                    $amount_diff = $expense->amount - $old_amount;
-                    
                     // Update fund transaction
                     $fund->amount = $expense->amount;
                     $fund->note   = 'Expense: ' . $expense->title . ($expense->note ? ' - ' . $expense->note : '');
@@ -275,8 +296,21 @@ class ExpenseController extends Controller
                 'new' => ['title' => $validated['title'], 'amount' => $validated['amount'], 'category' => $validated['category'] ?? null],
             ]);
 
-            return redirect()->route('admin.expenses.index')
-                             ->with('success', 'Expense updated successfully! Fund balance adjusted automatically.');
+            // Only ever reached when the books were silent about this row (never
+            // posted, or posted and then reversed), so this is the entry — not a
+            // second copy of one that already stands.
+            $accounting = $this->accounting->expenseNeedsEntry($expense)
+                ? $this->accounting->expense($expense)
+                : null;
+
+            $redirect = redirect()->route('admin.expenses.index')
+                                 ->with('success', 'Expense updated successfully! Fund balance adjusted automatically.');
+
+            if ($accounting) {
+                $redirect->with($accounting->flashKey(), $accounting->flashMessage());
+            }
+
+            return $redirect;
         });
     }
 
@@ -325,6 +359,19 @@ class ExpenseController extends Controller
             if ($expense->isSystemGenerated()) {
                 return redirect()->route('admin.expenses.index')
                     ->with('error', 'This expense is system-generated (' . $expense->category . ') and cannot be deleted.');
+            }
+
+            // Deleting the row while its journal stands would leave a journal with
+            // no source — the books would still be spending the money.
+            if ($journal = $this->accounting->blockingJournalForExpense($expense)) {
+                return redirect()->route('admin.expenses.index')
+                    ->with('error', ManualEntryService::refusalReason($journal, 'This expense'));
+            }
+
+            // A REVERSED journal still stands as history pointing at this row, so
+            // the row cannot go away even though nothing is live in the books.
+            if ($this->accounting->hasJournal([SourceType::EXPENSE], (int) $expense->id)) {
+                return redirect()->route('admin.expenses.index')->with('error', 'This expense has been journalled, so it cannot be deleted — the books would keep pointing at a missing record. Reverse its journal in Accounting → Journals instead.');
             }
 
             // Save expense data for logging

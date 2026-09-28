@@ -4,14 +4,83 @@ namespace App\Helpers;
 
 use App\Models\FundTransaction;
 use App\Models\Order;
+use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
 
 class FundHelper
 {
-    public static function balance()
+    /**
+     * Realizable fund balance: cash the business actually holds.
+     *
+     * Derived from the SAME income() rule the dashboard uses, so the headline
+     * balance and the income figures can never drift apart. 'sale' rows are
+     * booked when an order is delivered (COD is credited in full even before the
+     * courier remits), so their un-collected part is not cash and is removed.
+     */
+    public static function balance(): float
     {
-        $in  = FundTransaction::where('direction', 'in')->sum('amount');
-        $out = FundTransaction::where('direction', 'out')->sum('amount');
-        return $in - $out;
+        return round(self::income() - self::spend(), 2);
+    }
+
+    /**
+     * Realizable cash-in. Optional [since, until) window bounds the rows and,
+     * with them, the uncollected 'sale' portion removed — so income() over all
+     * time is exactly the money that has actually been received.
+     */
+    public static function income(?Carbon $since = null, ?Carbon $until = null): float
+    {
+        $in = (float) self::bounded(
+            FundTransaction::where('direction', 'in'), $since, $until
+        )->sum('amount');
+
+        return round($in - self::uncollectedSaleCredits($since, $until), 2);
+    }
+
+    /**
+     * Cash paid out. Optional [since, until) window. There is no accrual
+     * subtlety here: an 'out' row is money that left.
+     */
+    public static function spend(?Carbon $since = null, ?Carbon $until = null): float
+    {
+        return round((float) self::bounded(
+            FundTransaction::where('direction', 'out'), $since, $until
+        )->sum('amount'), 2);
+    }
+
+    /**
+     * Sum over unpaid orders of LEAST(sale credits, remaining due) — the portion
+     * of credited sale money that has not actually been received. Scoped to the
+     * same optional window as income() so a figure and its exclusion always
+     * cover the same rows.
+     */
+    public static function uncollectedSaleCredits(?Carbon $since = null, ?Carbon $until = null): float
+    {
+        $credits = self::bounded(
+            DB::table('fund_transactions')
+                ->selectRaw('source_id, SUM(amount) as credited')
+                ->where('source', 'sale')
+                ->where('direction', 'in')
+                ->whereNotNull('source_id'),
+            $since,
+            $until
+        )->groupBy('source_id');
+
+        return (float) DB::query()
+            ->fromSub($credits, 'x')
+            ->join('orders as o', 'o.id', '=', 'x.source_id')
+            ->where('o.payment_status', '!=', 'paid')
+            ->sum(DB::raw('LEAST(x.credited, GREATEST(0, o.due_amount))'));
+    }
+
+    /**
+     * Apply a [since, until) window to any query whose rows carry created_at.
+     * One definition of "in a period" shared by every figure above.
+     */
+    private static function bounded($query, ?Carbon $since, ?Carbon $until)
+    {
+        return $query
+            ->when($since, fn ($q) => $q->where('created_at', '>=', $since))
+            ->when($until, fn ($q) => $q->where('created_at', '<', $until));
     }
 
     /**

@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "878c0b3d1efdff3edd331545d64a65ba",
+    "content-hash": "949b4fba69232571d1419db2868bafb7",
     "packages": [
         {
             "name": "barryvdh/laravel-dompdf",
@@ -4194,6 +4194,42 @@
                 "source": "https://github.com/MyIntervals/PHP-CSS-Parser/tree/v9.4.0"
             },
             "time": "2026-06-18T15:10:53+00:00"
+        },
+        {
+            "name": "softmit/bd-double-entry",
+            "version": "dev-main",
+            "dist": {
+                "type": "path",
+                "url": "../bd-double-entry",
+                "reference": "e1f7e5cfa67f8650c54e17d07e5d0ff528cd58bd"
+            },
+            "require": {
+                "ext-bcmath": "*",
+                "illuminate/database": "^12.0",
+                "illuminate/support": "^12.0",
+                "php": "^8.2"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "Softmit\\DoubleEntry\\DoubleEntryServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Softmit\\DoubleEntry\\": "src/"
+                }
+            },
+            "license": [
+                "MIT"
+            ],
+            "description": "Basic, traceable double-entry accounting engine (Phase 1) for SoftMit Commerce.",
+            "transport-options": {
+                "symlink": true,
+                "relative": true
+            }
         },
         {
             "name": "spatie/browsershot",
@@ -10374,7 +10410,9 @@
     ],
     "aliases": [],
     "minimum-stability": "dev",
-    "stability-flags": [],
+    "stability-flags": {
+        "softmit/bd-double-entry": 20
+    },
     "prefer-stable": true,
     "prefer-lowest": false,
     "platform": {

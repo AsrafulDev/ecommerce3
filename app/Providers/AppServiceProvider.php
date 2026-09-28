@@ -99,6 +99,17 @@ class AppServiceProvider extends ServiceProvider
                 @mkdir($path, 0755, true);
             }
         }
+
+        // 🧾 Full-accounting seam. Host code depends on this interface, never on
+        // the optional double-entry package. For now it always resolves to the
+        // no-op gateway, so commerce is structurally independent of LEVEL 2. When
+        // the accrual bridge (CommerceLedgerService) lands it is bound here behind
+        // AccountingAvailability::enabled(), so a disabled/absent package keeps
+        // using the Null gateway unchanged.
+        $this->app->singleton(
+            \App\Services\Accounting\FullAccountingGateway::class,
+            \App\Services\Accounting\NullFullAccountingGateway::class
+        );
     }
 
     /**

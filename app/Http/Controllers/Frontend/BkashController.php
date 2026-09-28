@@ -236,6 +236,16 @@ if($order) {
                 $payment->save();
             }
 
+            // 💰 Record the online collection in the payment ledger + fund cash
+            //    book (previously bKash money never reached either). Capped and
+            //    de-duplicated on the gateway trx id inside the service.
+            app(\App\Services\PaymentCollectionService::class)->collect(
+                $order,
+                (float) ($payment?->amount ?: $order->amount),
+                'bkash',
+                (string) ($payment?->trx_id ?: ($allRequest['paymentID'] ?? '')) ?: null
+            );
+
             // Digital Download Create
             $this->createDigitalDownloads($order);
             

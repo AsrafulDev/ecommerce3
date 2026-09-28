@@ -133,6 +133,14 @@ class UddoktaPayController extends Controller
                     $payment->save();
                 }
 
+                // 💰 Ledger + fund cash-in for this online payment (capped, trx-deduped).
+                app(\App\Services\PaymentCollectionService::class)->collect(
+                    $order,
+                    (float) ($payment?->amount ?: $order->amount),
+                    'uddoktapay',
+                    $response->transactionId() ?: null
+                );
+
                 // ⭐ সফল পেমেন্টের পরে ডিজিটাল ডাউনলোড তৈরি
                 $this->createDigitalDownloads($order);
 
@@ -246,6 +254,14 @@ class UddoktaPayController extends Controller
                     // $payment->amount = $request->amount; // (Check IPN payload structure)
                     $payment->save();
                 }
+
+                // 💰 Ledger + fund cash-in for this online payment (capped, trx-deduped).
+                app(\App\Services\PaymentCollectionService::class)->collect(
+                    $order,
+                    (float) ($payment?->amount ?: $order->amount),
+                    'uddoktapay',
+                    (string) ($request->input('transaction_id') ?? '') ?: null
+                );
 
                 // ⭐ IPN দিয়েও যদি প্রথমবার paid হয় → তখনও ডিজিটাল ডাউনলোড তৈরি
                 $this->createDigitalDownloads($order);

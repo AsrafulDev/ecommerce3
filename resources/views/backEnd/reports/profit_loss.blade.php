@@ -1,5 +1,5 @@
 @extends('backEnd.layouts.master')
-@section('title', 'Profit & Loss Report')
+@section('title', 'Basic Profit Summary')
 
 @section('css')
 <style>
@@ -166,18 +166,27 @@
         {{-- Detailed Summary Table --}}
         <div class="card card-modern">
             <div class="card-header border-bottom bg-white py-3">
-                <h5 class="mb-0 fw-bold text-dark"> {{ __('Financial Statement') }} </h5>
+                <h5 class="mb-0 fw-bold text-dark"> {{ __('Basic Profit Summary (Operational)') }} </h5>
+                <small class="text-muted">{{ __('Cash movements are excluded: customer due collections, supplier payments, owner capital and drawings do not affect profit.') }}</small>
             </div>
             <div class="card-body p-0">
                 <div class="table-responsive">
                     <table class="table table-bordered mb-0 summary-table">
                         <tbody>
                             <tr>
-                                <th width="40%"> {{ __('Total Revenue (Sales)') }} </th>
+                                <th width="40%"> {{ __('Sales (delivered/completed orders)') }} </th>
                                 <td class="text-end text-primary">৳{{ number_format($salesAmount ?? 0, 2) }}</td>
                             </tr>
                             <tr>
-                                <th> {{ __('Cost of Goods Sold (COGS)') }} </th>
+                                <th> {{ __('Refunds') }} </th>
+                                <td class="text-end text-danger">- ৳{{ number_format($refunds ?? 0, 2) }}</td>
+                            </tr>
+                            <tr>
+                                <th> {{ __('Net Sales') }} </th>
+                                <td class="text-end">৳{{ number_format($netSales ?? 0, 2) }}</td>
+                            </tr>
+                            <tr>
+                                <th> {{ __('Cost of Goods Sold (COGS, batch-realized)') }} </th>
                                 <td class="text-end text-danger">- ৳{{ number_format($cogs ?? 0, 2) }}</td>
                             </tr>
                             <tr class="bg-light">
@@ -185,8 +194,16 @@
                                 <td class="text-end fw-bold">৳{{ number_format($grossProfit ?? 0, 2) }}</td>
                             </tr>
                             <tr>
+                                <th> {{ __('Other Income (warranty etc.)') }} </th>
+                                <td class="text-end text-success">+ ৳{{ number_format($otherIncome ?? 0, 2) }}</td>
+                            </tr>
+                            <tr>
                                 <th> {{ __('Operating Expenses') }} </th>
-                                <td class="text-end text-danger">- ৳{{ number_format($totalExpense ?? 0, 2) }}</td>
+                                <td class="text-end text-danger">- ৳{{ number_format($operatingExpense ?? 0, 2) }}</td>
+                            </tr>
+                            <tr>
+                                <th> {{ __('Salaries & Bonuses') }} </th>
+                                <td class="text-end text-danger">- ৳{{ number_format($salaryBonus ?? 0, 2) }}</td>
                             </tr>
                             <tr class="{{ ($netProfit ?? 0) >= 0 ? 'net-profit-row' : 'net-loss-row' }}">
                                 <th class="fs-5"><strong> {{ __('Net Profit / (Loss)') }} </strong></th>

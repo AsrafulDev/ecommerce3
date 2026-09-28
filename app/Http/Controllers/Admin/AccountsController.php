@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Helpers\FundHelper;
 use App\Http\Controllers\Controller;
+use App\Helpers\FundHelper;
 use App\Models\FundTransaction;
 use App\Models\Order;
 use App\Models\OrderDetails;
@@ -19,41 +19,43 @@ class AccountsController extends Controller
         $today      = Carbon::today();
         $monthStart = $today->copy()->startOfMonth();
         $yearStart  = $today->copy()->startOfYear();
+        $todayEnd   = $today->copy()->addDay();
 
-        $fund_balance = FundHelper::balance();
-        $total_in     = FundTransaction::where('direction', 'in')->sum('amount');
-        $total_out    = FundTransaction::where('direction', 'out')->sum('amount');
+        // Every money figure below comes from ONE rule — App\Helpers\FundHelper.
+        // A 'sale' fund credit is booked when an order is delivered even while
+        // payment is still pending (e.g. uncollected COD), so income counts a
+        // sale only up to what has actually been collected (the partial rule),
+        // never dropping a whole partially-paid order the way the old
+        // all-or-nothing filter did. fund_balance therefore equals total_in -
+        // total_out exactly, and equals FundHelper::balance().
+        $total_in     = FundHelper::income();
+        $total_out    = FundHelper::spend();
+        $fund_balance = $total_in - $total_out;
 
-        $in_today  = (float) FundTransaction::where('direction', 'in')->whereDate('created_at', $today)->sum('amount');
-        $out_today = (float) FundTransaction::where('direction', 'out')->whereDate('created_at', $today)->sum('amount');
-        $in_month  = (float) FundTransaction::where('direction', 'in')->where('created_at', '>=', $monthStart)->sum('amount');
-        $out_month = (float) FundTransaction::where('direction', 'out')->where('created_at', '>=', $monthStart)->sum('amount');
-        $in_year   = (float) FundTransaction::where('direction', 'in')->where('created_at', '>=', $yearStart)->sum('amount');
-        $out_year  = (float) FundTransaction::where('direction', 'out')->where('created_at', '>=', $yearStart)->sum('amount');
+        $in_today  = FundHelper::income($today, $todayEnd);
+        $out_today = FundHelper::spend($today, $todayEnd);
+        $in_month  = FundHelper::income($monthStart);
+        $out_month = FundHelper::spend($monthStart);
+        $in_year   = FundHelper::income($yearStart);
+        $out_year  = FundHelper::spend($yearStart);
 
-        // ── 12-month income vs expense trend (one grouped query) ──
+        // ── 12-month income vs expense trend (one rule, per month) ──
         $trendStart = $today->copy()->startOfMonth()->subMonths(11);
-        $rows = FundTransaction::where('created_at', '>=', $trendStart)
-            ->select('direction', DB::raw("DATE_FORMAT(created_at, '%Y-%m') as ym"), DB::raw('SUM(amount) as total'))
-            ->groupBy('direction', 'ym')
-            ->get();
-
-        $months = [];
+        $trend = [];
         for ($i = 0; $i < 12; $i++) {
-            $m = $trendStart->copy()->addMonths($i);
-            $months[$m->format('Y-m')] = ['label' => $m->format('M y'), 'in' => 0.0, 'out' => 0.0];
+            $mStart = $trendStart->copy()->addMonths($i);
+            $mEnd   = $mStart->copy()->addMonth();
+            $trend[] = [
+                'label' => $mStart->format('M y'),
+                'in'    => FundHelper::income($mStart, $mEnd),
+                'out'   => FundHelper::spend($mStart, $mEnd),
+            ];
         }
-        foreach ($rows as $r) {
-            if (isset($months[$r->ym])) {
-                $months[$r->ym][$r->direction] = round((float) $r->total, 2);
-            }
-        }
-        $trend = array_values($months);
 
         // ── This-month income/expense breakdown by source ──
         $sourceLabels = [
             'sale'             => 'Sales',
-            'manual_add'       => 'Manual Add',
+            'manual_add'       => 'Owner Capital / Deposit',
             'warranty'         => 'Warranty Charge',
             'warranty_resell'  => 'Warranty Resale',
             'refund_reversal'  => 'Refund Reversal',
@@ -63,7 +65,7 @@ class AccountsController extends Controller
             'supplier_payment' => 'Supplier Payments',
             'employee_salary'  => 'Salaries',
             'employee_bonus'   => 'Bonuses',
-            'withdraw'         => 'Withdrawals',
+            'withdraw'         => 'Owner Withdrawal (Drawings)',
         ];
         $sourceRows = $this->sourceRows(
             $this->sourceBreakdown('in', $monthStart),
@@ -92,7 +94,11 @@ class AccountsController extends Controller
         $stock_value  = (float) StockBatch::where('type', 'in')->where('remaining_qty', '>', 0)
             ->sum(DB::raw('remaining_qty * unit_cost'));
         $supplier_due = (float) Supplier::sum('current_due');
-        $customer_due = (float) Order::whereIn('payment_status', ['pending', 'partial'])->sum('due_amount');
+        // Receivable = money earned (order delivered/completed) but not collected.
+        // Pending/processing orders are not yet receivables — stock not handed over.
+        $customer_due = (float) Order::whereIn('order_status', ['delivered', 'completed'])
+            ->whereIn('payment_status', ['pending', 'partial'])
+            ->sum('due_amount');
 
         $recent = FundTransaction::orderByDesc('created_at')->orderByDesc('id')->limit(15)->get();
 
@@ -105,14 +111,31 @@ class AccountsController extends Controller
         ));
     }
 
+    /**
+     * Per-source movement since $since, using the SAME realizable rule as the
+     * headline: the 'sale' line is reduced by this window's uncollected COD, so
+     * the income sources add back up to FundHelper::income($since).
+     */
     private function sourceBreakdown(string $direction, Carbon $since)
     {
-        return FundTransaction::where('direction', $direction)
+        $rows = FundTransaction::where('direction', $direction)
             ->where('created_at', '>=', $since)
             ->select('source', DB::raw('SUM(amount) as total'), DB::raw('COUNT(*) as count'))
             ->groupBy('source')
             ->orderByDesc('total')
             ->get();
+
+        if ($direction === 'in') {
+            $uncollected = FundHelper::uncollectedSaleCredits($since);
+            foreach ($rows as $row) {
+                if ($row->source === 'sale') {
+                    $row->total = max(0, round((float) $row->total - $uncollected, 2));
+                    break;
+                }
+            }
+        }
+
+        return $rows;
     }
 
     /**
