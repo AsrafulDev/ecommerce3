@@ -6,7 +6,7 @@ use App\Helpers\FundHelper;
 use App\Models\Order;
 use App\Models\OrderPayment;
 use App\Models\Payment;
-use App\Services\Accounting\FullAccountingGateway;
+use App\Services\Accounting\AdvancedAccountingGateway;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Throwable;
@@ -35,7 +35,7 @@ use Throwable;
  */
 class PaymentCollectionService
 {
-    public function __construct(protected FullAccountingGateway $ledger) {}
+    public function __construct(protected AdvancedAccountingGateway $ledger) {}
 
     /**
      * Record a collection of $amount against $order.

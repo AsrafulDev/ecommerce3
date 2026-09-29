@@ -2,31 +2,45 @@
 
 namespace App\Support\Accounting;
 
+use Softmit\DoubleEntry\Services\JournalPoster;
+
 /**
- * The single place that decides whether LEVEL 2 (double-entry) is live.
+ * The single place that decides whether Advanced Accounting (double-entry) is
+ * live. Two independent questions, deliberately kept separate:
  *
- * This is deliberately the ONLY code allowed to ask "is the package here?", and
- * it does so BEFORE reading any package-referencing config. config/double-entry.php
- * resolves Softmit\DoubleEntry\Support\AccountRole constants while it is being
- * loaded, so touching that config with the package absent is a fatal — the
- * class_exists() check short-circuits ahead of config() precisely to avoid it.
+ *   available() — is the softmit/bd-double-entry package actually installed?
+ *   enabled()   — available() AND the operator switched it on?
  *
- * Everything downstream depends on the FullAccountingGateway interface, not on
- * this class directly, so a disabled install behaves byte-for-byte like one that
- * never had the package.
+ * Advanced Accounting is active only when BOTH are true. No other code may
+ * scatter class_exists() or config('double-entry.enabled') checks; everything
+ * downstream asks the AdvancedAccountingGateway, which delegates here.
+ *
+ * The class_exists() check runs BEFORE reading any package config so a
+ * disabled/absent package short-circuits without touching package-referencing
+ * state of any kind. (config/double-entry.php is package-free by rule now, but
+ * the ordering stays as defence in depth.)
  */
 final class AccountingAvailability
 {
+    private static ?bool $available = null;
+
     /**
-     * True only when the operator switched Full accounting on AND the package is
-     * actually installed. Never throws when the package is missing.
+     * True when the double-entry package is installed (its engine class can
+     * actually load). Never throws when the package is missing. Memoised: the
+     * answer cannot change within a process.
+     */
+    public static function available(): bool
+    {
+        return self::$available ??= class_exists(JournalPoster::class);
+    }
+
+    /**
+     * True only when the operator switched Advanced Accounting on AND the
+     * package is actually installed. Not memoised — the flag is configuration
+     * and screens/tests may change it mid-request.
      */
     public static function enabled(): bool
     {
-        if (!class_exists(\Softmit\DoubleEntry\Services\JournalPoster::class)) {
-            return false;
-        }
-
-        return (bool) config('double-entry.enabled');
+        return self::available() && (bool) config('double-entry.enabled');
     }
 }

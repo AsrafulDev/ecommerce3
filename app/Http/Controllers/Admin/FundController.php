@@ -6,7 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\FundTransaction;
 use App\Models\FundTransactionLog;
-use App\Services\Accounting\ManualEntryService;
+use App\Services\Accounting\AdvancedAccountingGateway;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
@@ -14,7 +14,7 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class FundController extends Controller
 {
-    public function __construct(protected ManualEntryService $accounting)
+    public function __construct(protected AdvancedAccountingGateway $accounting)
     {
     }
 
@@ -37,7 +37,7 @@ class FundController extends Controller
         // Money-in rows are either the owner's capital or income, and which one
         // lives in the journal, not on the legacy row — so read a page of them
         // back in one query rather than one per row.
-        $natures = $this->accounting->naturesFor(
+        $natures = $this->accounting->fundNaturesFor(
             $transactions->getCollection()->where('direction', 'in')->pluck('id')->map(fn ($id) => (int) $id)->all()
         );
 
@@ -98,13 +98,18 @@ class FundController extends Controller
                 'created_by' => Auth::id(),
             ]);
 
-            return [$tx, $this->accounting->moneyIn($tx, $validated['nature'])];
+            return [$tx, $this->accounting->recordMoneyIn($tx, $validated['nature'])];
         });
 
         log_activity('fund', 'create', 'Fund added (in) ৳' . number_format($validated['amount'], 2), $tx);
 
-        return back()->with('success', 'Fund added successfully!')
-                    ->with($accounting->flashKey(), $accounting->flashMessage());
+        $redirect = back()->with('success', 'Fund added successfully!');
+
+        if ($accounting) {
+            $redirect->with($accounting->flashKey(), $accounting->flashMessage());
+        }
+
+        return $redirect;
     }
 
     /**
@@ -136,12 +141,16 @@ class FundController extends Controller
 
             log_activity('fund', 'create', 'Fund withdrawn (out) ৳' . number_format($amount, 2), $tx);
 
-            return $this->accounting->withdrawal($tx);
+            return $this->accounting->recordWithdrawal($tx);
         });
 
-        return redirect()->back()
-                         ->with('success', 'Withdraw successful!')
-                         ->with($accounting->flashKey(), $accounting->flashMessage());
+        $redirect = redirect()->back()->with('success', 'Withdraw successful!');
+
+        if ($accounting) {
+            $redirect->with($accounting->flashKey(), $accounting->flashMessage());
+        }
+
+        return $redirect;
     }
 
     /**
@@ -255,9 +264,8 @@ class FundController extends Controller
                 ->with('error', 'This transaction is linked to a system record (' . $transaction->source . ') and cannot be edited.');
         }
 
-        if ($journal = $this->accounting->blockingJournalForFund($transaction)) {
-            return redirect()->route('admin.fund.index')
-                ->with('error', ManualEntryService::refusalReason($journal, 'This fund record'));
+        if ($reason = $this->accounting->fundEditBlockReason($transaction)) {
+            return redirect()->route('admin.fund.index')->with('error', $reason);
         }
 
         return view('backEnd.fund.edit', [
@@ -300,9 +308,8 @@ class FundController extends Controller
                     ->with('error', 'This transaction is linked to a system record (' . $transaction->source . ') and cannot be edited.');
             }
 
-            if ($journal = $this->accounting->blockingJournalForFund($transaction)) {
-                return redirect()->route('admin.fund.index')
-                    ->with('error', ManualEntryService::refusalReason($journal, 'This fund record'));
+            if ($reason = $this->accounting->fundEditBlockReason($transaction)) {
+                return redirect()->route('admin.fund.index')->with('error', $reason);
             }
 
             // A record that turns money-in into money-out is a different
@@ -370,10 +377,12 @@ class FundController extends Controller
             // (pre-cutover, or reversed and owed a corrected entry).
             if ($this->accounting->fundNeedsEntry($transaction)) {
                 $accounting = $transaction->direction === 'in'
-                    ? $this->accounting->moneyIn($transaction, $validated['nature'])
-                    : $this->accounting->withdrawal($transaction);
+                    ? $this->accounting->recordMoneyIn($transaction, $validated['nature'])
+                    : $this->accounting->recordWithdrawal($transaction);
 
-                $redirect->with($accounting->flashKey(), $accounting->flashMessage());
+                if ($accounting) {
+                    $redirect->with($accounting->flashKey(), $accounting->flashMessage());
+                }
             }
 
             return $redirect;
@@ -421,14 +430,13 @@ class FundController extends Controller
                     ->with('error', 'This transaction is linked to a system record (' . $transaction->source . ') and cannot be deleted.');
             }
 
-            if ($journal = $this->accounting->blockingJournalForFund($transaction)) {
-                return redirect()->route('admin.fund.index')
-                    ->with('error', ManualEntryService::refusalReason($journal, 'This fund record'));
+            if ($reason = $this->accounting->fundEditBlockReason($transaction)) {
+                return redirect()->route('admin.fund.index')->with('error', $reason);
             }
 
             // A REVERSED journal still stands as history pointing at this row, so
             // the row cannot go away even though nothing is live in the books.
-            if ($this->accounting->hasJournal($this->accounting->fundSourceTypes($transaction), (int) $transaction->id)) {
+            if ($this->accounting->fundHasJournal($transaction)) {
                 return redirect()->route('admin.fund.index')->with('error', 'This fund record has been journalled, so it cannot be deleted — the books would keep pointing at a missing record. Reverse its journal in Accounting → Journals instead.');
             }
 

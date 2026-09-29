@@ -95,6 +95,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'check_refer' => \App\Http\Middleware\CheckReffer::class,
             'demo_mode' => \App\Http\Middleware\DemoModeMiddleware::class,
             'redirect.if.installed' => \App\Http\Middleware\RedirectIfInstalled::class,
+            'advanced-accounting' => \App\Http\Middleware\EnsureAdvancedAccountingEnabled::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {

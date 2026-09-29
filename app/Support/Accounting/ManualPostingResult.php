@@ -2,15 +2,18 @@
 
 namespace App\Support\Accounting;
 
-use Softmit\DoubleEntry\Models\JournalEntry;
-
 /**
  * Outcome of asking the books to record a manually entered money movement.
  *
- * The distinction matters: "this date is before the accounting start" is a rule
- * the operator should be told about, while "posting failed" is a defect that is
- * already written to the posting-failure table. Both are reported; neither is
- * allowed to look like success.
+ * The distinction matters: "this date is before the accounting start" is a
+ * rule the operator should be told about, while "posting failed" is a defect
+ * that is already written to the posting-failure table. Both are reported;
+ * neither is allowed to look like success.
+ *
+ * This class is host-owned and holds no package object — commerce code may
+ * read the outcome (journal number, notice text) without the optional
+ * double-entry package being loadable. That is what lets the
+ * AdvancedAccountingGateway return it from either implementation.
  */
 final class ManualPostingResult
 {
@@ -20,13 +23,13 @@ final class ManualPostingResult
 
     private function __construct(
         public readonly string $status,
-        public readonly ?JournalEntry $journal = null,
+        public readonly ?string $journalNo = null,
     ) {
     }
 
-    public static function posted(JournalEntry $journal): self
+    public static function posted(string $journalNo): self
     {
-        return new self(self::POSTED, $journal);
+        return new self(self::POSTED, $journalNo);
     }
 
     public static function preCutover(): self
@@ -55,7 +58,7 @@ final class ManualPostingResult
 
     public function flashMessage(): string
     {
-        return $this->notice() ?? 'Posted to the books as ' . $this->journal->journal_no . '.';
+        return $this->notice() ?? 'Posted to the books as ' . $this->journalNo . '.';
     }
 
     /**

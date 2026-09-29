@@ -24,6 +24,10 @@ abstract class AccountingTestCase extends TestCase
     {
         parent::setUp();
 
+        // These suites test the Advanced module itself: switch it on exactly as
+        // an operator would, so the container binds the live gateway.
+        config(['double-entry.enabled' => true]);
+
         $this->seed(ChartOfAccountsSeeder::class);
 
         config(['double-entry.cutover_date' => '2000-01-01']);

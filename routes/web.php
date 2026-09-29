@@ -271,8 +271,10 @@ Route::prefix('admin')->middleware(['auth:admin', 'admin', 'demo_mode'])->group(
     Route::post('/fund/{id}/update', [FundController::class, 'update'])->name('admin.fund.update');
     Route::delete('/fund/{id}', [FundController::class, 'destroy'])->name('admin.fund.destroy');
 
-    // Double-entry accounting (softmit/bd-double-entry)
-    Route::prefix('accounting')->name('admin.accounting.')->group(function () {
+    // Double-entry accounting (softmit/bd-double-entry) — optional module.
+    // The whole screen group is dead to a disabled/absent install; the gateway
+    // behind this middleware is the only place the module's presence is probed.
+    Route::prefix('accounting')->name('admin.accounting.')->middleware('advanced-accounting')->group(function () {
         Route::get('journals', [AccountingJournalController::class, 'index'])->name('journals.index');
         Route::get('journals/{journal}', [AccountingJournalController::class, 'show'])->name('journals.show');
         Route::post('journals/{journal}/reverse', [AccountingJournalController::class, 'reverse'])->name('journals.reverse');

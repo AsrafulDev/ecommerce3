@@ -452,7 +452,7 @@ class ManualEntryService
     {
         $journal = $this->failures->attempt($draft);
 
-        return $journal ? ManualPostingResult::posted($journal) : ManualPostingResult::failed();
+        return $journal ? ManualPostingResult::posted($journal->journal_no) : ManualPostingResult::failed();
     }
 
     /**

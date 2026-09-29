@@ -100,15 +100,19 @@ class AppServiceProvider extends ServiceProvider
             }
         }
 
-        // 🧾 Full-accounting seam. Host code depends on this interface, never on
-        // the optional double-entry package. For now it always resolves to the
-        // no-op gateway, so commerce is structurally independent of LEVEL 2. When
-        // the accrual bridge (CommerceLedgerService) lands it is bound here behind
-        // AccountingAvailability::enabled(), so a disabled/absent package keeps
-        // using the Null gateway unchanged.
+        // 🧾 Advanced-accounting seam. Host code depends on this interface,
+        // never on the optional double-entry package. The container picks the
+        // implementation from the single centralised detector
+        // (AccountingAvailability: package installed AND feature switched on).
+        // Disabled/absent → the Null gateway: inert, package-class-free, and no
+        // package service is ever constructed on a Lite request.
         $this->app->singleton(
-            \App\Services\Accounting\FullAccountingGateway::class,
-            \App\Services\Accounting\NullFullAccountingGateway::class
+            \App\Services\Accounting\AdvancedAccountingGateway::class,
+            function ($app) {
+                return \App\Support\Accounting\AccountingAvailability::enabled()
+                    ? $app->make(\App\Services\Accounting\DoubleEntryAdvancedAccountingGateway::class)
+                    : $app->make(\App\Services\Accounting\NullAdvancedAccountingGateway::class);
+            }
         );
     }
 

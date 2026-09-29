@@ -6,16 +6,15 @@ use App\Http\Controllers\Controller;
 use App\Models\Expense;
 use App\Models\ExpenseLog;
 use App\Models\FundTransaction;
-use App\Services\Accounting\ManualEntryService;
+use App\Services\Accounting\AdvancedAccountingGateway;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
-use Softmit\DoubleEntry\Enums\SourceType;
 
 class ExpenseController extends Controller
 {
-    public function __construct(protected ManualEntryService $accounting)
+    public function __construct(protected AdvancedAccountingGateway $accounting)
     {
     }
 
@@ -140,12 +139,17 @@ class ExpenseController extends Controller
                 'fund_transaction_id' => $fund->id,
             ]);
 
-            return $this->accounting->expense($expense);
+            return $this->accounting->recordExpense($expense);
         });
 
-        return redirect()->route('admin.expenses.index')
-                         ->with('success', 'Expense saved successfully!')
-                         ->with($accounting->flashKey(), $accounting->flashMessage());
+        $redirect = redirect()->route('admin.expenses.index')
+                              ->with('success', 'Expense saved successfully!');
+
+        if ($accounting) {
+            $redirect->with($accounting->flashKey(), $accounting->flashMessage());
+        }
+
+        return $redirect;
     }
 
     // ✅ Edit ফর্ম
@@ -158,9 +162,9 @@ class ExpenseController extends Controller
                 ->with('error', 'This expense is system-generated (' . $expense->category . ') and cannot be edited.');
         }
 
-        if ($journal = $this->accounting->blockingJournalForExpense($expense)) {
+        if ($reason = $this->accounting->expenseEditBlockReason($expense)) {
             return redirect()->route('admin.expenses.index')
-                ->with('error', ManualEntryService::refusalReason($journal, 'This expense'));
+                ->with('error', $reason);
         }
 
         // উপরে summary একই থাকবে
@@ -219,9 +223,9 @@ class ExpenseController extends Controller
 
             // Books first: once this expense has a posted journal, changing the
             // amount here would make the ledger and the screen disagree.
-            if ($journal = $this->accounting->blockingJournalForExpense($expense)) {
+            if ($reason = $this->accounting->expenseEditBlockReason($expense)) {
                 return redirect()->route('admin.expenses.index')
-                    ->with('error', ManualEntryService::refusalReason($journal, 'This expense'));
+                    ->with('error', $reason);
             }
 
             // Save old values for logging
@@ -300,7 +304,7 @@ class ExpenseController extends Controller
             // posted, or posted and then reversed), so this is the entry — not a
             // second copy of one that already stands.
             $accounting = $this->accounting->expenseNeedsEntry($expense)
-                ? $this->accounting->expense($expense)
+                ? $this->accounting->recordExpense($expense)
                 : null;
 
             $redirect = redirect()->route('admin.expenses.index')
@@ -363,14 +367,14 @@ class ExpenseController extends Controller
 
             // Deleting the row while its journal stands would leave a journal with
             // no source — the books would still be spending the money.
-            if ($journal = $this->accounting->blockingJournalForExpense($expense)) {
+            if ($reason = $this->accounting->expenseEditBlockReason($expense)) {
                 return redirect()->route('admin.expenses.index')
-                    ->with('error', ManualEntryService::refusalReason($journal, 'This expense'));
+                    ->with('error', $reason);
             }
 
             // A REVERSED journal still stands as history pointing at this row, so
             // the row cannot go away even though nothing is live in the books.
-            if ($this->accounting->hasJournal([SourceType::EXPENSE], (int) $expense->id)) {
+            if ($this->accounting->expenseHasJournal($expense)) {
                 return redirect()->route('admin.expenses.index')->with('error', 'This expense has been journalled, so it cannot be deleted — the books would keep pointing at a missing record. Reverse its journal in Accounting → Journals instead.');
             }
 

@@ -988,7 +988,10 @@
 </li>
 @endcanany
 
-{{-- Accounts (Full double-entry books — softmit/bd-double-entry) --}}
+{{-- Accounts (Advanced double-entry books — optional module; visible only when
+     the package is installed AND Advanced Accounting is enabled. The gateway is
+     the single place that decides; see App\Support\Accounting\AccountingAvailability) --}}
+@if(app(\App\Services\Accounting\AdvancedAccountingGateway::class)->enabled())
 @can('accounting-list')
 <li class="{{ request()->routeIs('admin.accounting.*') ? 'active' : '' }}">
   <a href="#sidebar-accounting" data-bs-toggle="collapse">
@@ -1010,6 +1013,7 @@
   </div>
 </li>
 @endcan
+@endif
 
 {{-- Refunds --}}
 @canany(['order-list', 'order-edit'])

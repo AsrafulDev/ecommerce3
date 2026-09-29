@@ -1,0 +1,131 @@
+# Accounting Progress — Source of Truth
+
+Legend: `[x]` COMPLETE · `[~]` IN PROGRESS · `[ ]` NOT STARTED · `[!]` BLOCKED · `[?]` NEEDS REVIEW
+
+"COMPLETE" means implemented + tested + verified + regression passed. Files existing ≠ complete.
+
+---
+
+# Current Development Status
+
+_Reviewed: 2026-09-29 — full two-repo audit (no code changes made during this audit)._
+
+## Repository Status
+
+### Lara
+
+- Branch: `premium` (ahead of `origin/premium` by 1 commit — not yet pushed)
+- Latest commit: `2bca487` "Add Lite/Advance accounting: availability seam, cash rule unification, gateway cash-in"
+- Working tree: clean except `.phpunit.cache/test-results` (cache noise) and untracked `.commandcode/`, `.qoder/` (tool dirs — not project work)
+- Uncommitted work: none meaningful
+- Package link: `composer.json` requires `softmit/bd-double-entry: @dev` via path repo `../bd-double-entry` (symlinked into `vendor/softmit/bd-double-entry`). All 6 `accounting_*` migrations are **Ran** per `migrate:status`.
+
+### bd-double-entry
+
+- Branch: `master` — **BASELINE COMMITTED 2026-09-29: `884685e` "Initial double-entry accounting engine baseline"** (43 files, 3791 insertions; `.gitignore` added; no secrets/vendor/env present at commit time)
+- Verified before commit: host accounting suites green against this exact state — `tests/Feature/Accounting` + `tests/Unit/Accounting` + Fund tests = **134 passed, 0 failed**
+- Latest commit: `884685e`
+- Working tree: whole package untracked (`composer.json`, `config/`, `database/migrations/` ×6, `docs/integration-laravel.md`, `src/` ×28 PHP files)
+- Uncommitted work: the entire Phase-1 engine
+- No `tests/`, no `phpunit.xml`, no README inside the package — its test suite lives in lara (`tests/Feature/Accounting/**`, `tests/Unit/Accounting/MoneyTest.php`)
+
+---
+
+## Ecommerce Financial Features (Lite Accounting — owned by lara)
+
+| Feature | Status | Current Implementation | Problem | Next Action |
+| --- | --- | --- | --- | --- |
+| Fund | [x] | Virtual single till over `fund_transactions` (no Fund model in Lite); Accounts dashboard shows balance/trend/sources | `balance_before/after` write-only, never read; no `category`/`nature` column on rows | Leave as-is until reconciliation needs per-fund; do not resurrect dead columns |
+| Fund Transaction | [x] | `FundHelper` credit/debit (idempotent, capped realizable rule), `PaymentCollectionService` single collect-money primitive; sources: sale, manual_add, warranty(_resell), refund_reversal / expense, refund, order_refund, supplier_payment, employee_salary/bonus, withdraw | Free-form varchar `source`, no PHP enum/constants for most values | Introduce source constants + classification without breaking existing rows |
+| Income | [x] | Lite: realizable-cash rule `FundHelper::income()` (excludes uncollected COD via `uncollectedSaleCredits()`); Full: `ManualEntryService::moneyIn()` with mandatory `nature` (owner_capital \| other_income) | Lite counts capital as cash-in (correct for cash statement, but dashboard must never call it "income" — verify wording) | Rename dashboard labels to "Cash In" if they say "Income" |
+| Expense | [x] | `Expense` model + `expense_logs`; ExpenseController writes expenses-table row + fund OUT row; Full side posts Dr Expense / Cr Cash | `ExpenseController` directly imports `Softmit\DoubleEntry\Enums\SourceType` → fatals if package removed (seam violation) | Wrap package touchpoints behind the availability check |
+| Customer Due | [x] | `Order::due_amount` derived by `recalculatePaymentTotals()` from `order_payments` ledger | No customer-level receivables aggregate (computed on demand only) | Acceptable for Lite; add aggregate view via ledger screen |
+| Supplier Due | [~] | `Supplier::current_due` stored column, maintained by PurchaseController; `supplier_payments` table exists | Fund OUT rows for `supplier_payment` have `source_id = null` → untraceable payments | Backfill/fix linkage to `supplier_payments.id` |
+| Customer Ledger | [ ] | **No Lite ledger screen exists** (customer views: index/edit/profile/search only). Party ledger exists only in Full (`AccountingLedgerController::party`) | Gap acknowledged in docs/architecture.md #3 | Build Lite customer ledger (Date/Type/Ref/Debit/Credit/Balance from orders + payments) |
+| Supplier Ledger | [ ] | Same as Customer Ledger — not started | Gap | Build Lite supplier ledger from purchases + supplier_payments |
+| Purchase | [x] | PurchaseController store in transaction, batches via StockManagementService, `purchases`/`purchase_items` | No auto journal (gateway `purchaseReceived` never called — Null bound anyway) | Wire via events later (Step 10 order) |
+| Sale | [x] | Orders + `order_details.cogs`; fund credit on delivery/COD | `creditSale` called directly from ~8 OrderController sites + RedXWebhook, bypassing PaymentCollectionService | Route through single primitive |
+| Payment | [x] | `order_payments` ledger + `payments` synced by `PaymentCollectionService`; all 5 gateway controllers hook `paymentReceived` | Only gateway method ever called; on Null impl (no-op) | Real gateway impl in Step 9/10 |
+| Refund | [~] | `refunds` table, FundHelper debitRefund + `refund_reversal`; idempotent guards | Three separate FundHelper guards interplay; refund/out dates vs sale created_at can split across months | Unify reversal path through PaymentCollectionService |
+| Return | [~] | Purchase/supplier returns go through StockManagementService (tests pass) | No financial ledger screen for return value yet | Verify customer return ↔ refund linkage during Step 5 |
+| COGS | [~] | Same formula in AccountsController (l.83–90) and ReportController (l.527–536): `order_details.cogs` preferred, `purchase_price × qty` fallback | **Physical duplication**: two copies, different period basis (`updated_at` vs `created_at`) → same rule, possibly different numbers | Extract shared `CogsCalculator` (single source, Part U) |
+| Profit/Loss | [x] | `ReportController::profitLoss` (Basic Profit Summary): Sales − Refunds − COGS + OtherIncome − Expenses − Salaries/Bonuses; capital explicitly excluded; + CSV export | Other Income uses warranty gross, not margin | Review margin basis in Step 5 |
+| Stock Valuation | [x] | `AccountsController`: `StockBatch.remaining_qty × unit_cost` | Lite-only; Advanced Inventory GL reconciliation pending | Reconcile vs Inventory GL when Advanced ON |
+
+### Advanced Accounting seam (lara side)
+
+| Item | Status | Evidence |
+| --- | --- | --- |
+| `AccountingAvailability` | [x] LIVE (2026-09-29) | `available()` = package installed (the ONLY class_exists probe in app code), `enabled()` = available + `double-entry.enabled`; consulted by container binding, `advanced-accounting` route middleware, sidebar menu |
+| `AdvancedAccountingGateway` (official name; was FullAccountingGateway) | [x] | Host-owned interface: available/enabled + manual-money ops the Lite screens genuinely need (recordExpense/recordMoneyIn/recordWithdrawal + lock/nature queries) + paymentReceived. Dead commerce-event methods dropped until those integrations land (P7 order) |
+| `NullAdvancedAccountingGateway` | [x] | Bound when disabled/absent; inert, package-class-free. Proven by `AdvancedAccountingDisabledTest` (8 tests): Lite flows work, zero journals, `ManualEntryService`/live gateway never resolved, accounting routes 404 |
+| `DoubleEntryAdvancedAccountingGateway` (real adapter) | [x] | Delegates manual ops to ManualEntryService; paymentReceived posts when the customer-payment phase lands |
+| `ManualEntryService` | [x] integration layer | Posting rules unchanged (keys, cutover refusal, failure reporting); `ManualPostingResult` now carries `journalNo` string instead of a package model |
+| `config/double-entry.php` | [x] package-free | AccountRole constants replaced by plain string values — boot no longer fatals when package is absent |
+| Commerce controllers | [x] clean | Expense/Fund depend only on the gateway interface. Softmit imports remain ONLY in: Accounting/* (6, middleware-gated), ManualEntryService, OpeningBalanceService, DoubleEntry gateway, AccountingAvailability probe |
+| Accounting UI screens | [x] | routes `admin.accounting.*` + menu now gated by gateway `enabled()` underneath the `accounting-*` permissions |
+| Events/listeners posting journals | [ ] NOT STARTED | No `app/Events`/`app/Listeners` dirs; 100% synchronous controller calls — P7 introduces the flow |
+| Lite money-route permissions | [~] PARTIAL | Fund/expense routes still auth:admin+admin only (no per-action `permission:` middleware) |
+
+### Purchase UX (ecommerce requirement — recorded, not implemented)
+
+| Item | Status | Notes |
+| --- | --- | --- |
+| Quick-create Supplier/Product/Category/Brand from Purchase page | [ ] NOT STARTED | `resources/views/backEnd/purchases/index.blade.php` (doubles as create form) has no modals/quick-create affordances. Must stay in lara — never in bd-double-entry |
+
+---
+
+## Advanced Accounting Package (softmit/bd-double-entry)
+
+| Feature | Status | Existing Code | Missing Work |
+| --- | --- | --- | --- |
+| Account Types | [x] | `Enums/AccountType.php` — 6 types, normalBalance map, P&L types | — |
+| Accounts | [x] | `Models/Account.php`, derived balances (no stored balance), `role` unique, code unique | hierarchy (`parent_id`) wired but consumed by nothing (needed for Balance Sheet rollup) |
+| Chart of Accounts | [x] | `ChartOfAccountsSeeder` (30 role accounts + ~28 manual, conflict rollback), `AccountRegistry` (role-key/id resolution), `AccountRole` (30 semantic constants incl. cash/bank/AR/AP/inventory/cogs/sales_revenue/owner_capital/owner_drawings) | none semantic-wise; never hardcode IDs — role mapping already correct |
+| Journal Entry | [x] | `Models/JournalEntry.php` + migration: journal_no unique, posting_key unique, 3-trace fields, reversal_of_id, immutability guards | — |
+| Journal Lines | [x] | `Models/JournalLine.php`, per-line party trace, indexes | gap: inserts of NEW lines onto a POSTED journal aren't blocked at model level (update/delete only) |
+| Posting Engine | [x] | `JournalPoster`: bcmath-exact balance validation, atomic DB::transaction, idempotency (pre-check + race-loser recovery), per-year locked sequences, cutover-date refusal | gap: `post()` idempotency short-circuit can return an existing **DRAFT** without posting it (JournalPoster.php:103–108) |
+| Debit/Credit validation | [x] | `UnbalancedJournalException`, `JournalLineDraft::validityError()` (one-side rule), all-zero rejection | — |
+| General Ledger | [x] | `LedgerService::forAccount()` running-balance paginated, shared `LedgerLines` query (POSTED+REVERSED) | — |
+| Party Ledger | [x] | `LedgerService::forParty()` AR/AP/employee sub-ledgers, excludes cash leg correctly | — |
+| Cash/Bank positions | [x] | `cashPositions()`, `totalCash()`, `FundAccount` fund_key→account_id mapping | — |
+| Trial Balance | [x] | `TrialBalanceReport` opening/period/closing, contra-aware columns, independent balanced flags | — |
+| Income Statement | [x] | `ProfitAndLossReport` from **posted journal lines only** (Part W satisfied) | — |
+| Balance Sheet | [ ] NOT STARTED | nothing (docs admit it) | build from AccountType rollup + hierarchy |
+| Opening Balance | [~] | package: `SourceType::OPENING`, cutover exemption, contract doc; host: `OpeningBalanceService` + tests | deliberately host-side; fine |
+| Reversal | [x] | `ReversalService`: mirror journal, own idempotency key `reversal:{id}`, transactional both ways, double-reversal reject, immutability two-layer | — |
+| Fiscal Period | [ ] NOT STARTED | only cutover_date + per-year numbering exist | table/service/status enforcement + retained-earnings closing |
+| Source Trace | [x] | `SourceType` closed enum (17 events), composite index, `sourceLabel()`, `source_routes` config hook | `source_routes` empty skeleton in host config |
+| Party Trace | [x] | `PartyType` (9 cases), whitelist resolution via `config('double-entry.parties')` (anti injection) | — |
+| Actor Trace | [x] | `JournalDraft::make()` auto-capture via `actor_guards`, `ActorResolver` names/deleted-user handling | — |
+| Idempotency | [x] | deterministic keys `{type}:{id}`, DB unique, race-safe retry, `PostingFailureLogger::attempt()` | G-2 draft-return gap above |
+| Money | [x] | `Money` bcmath scale-2 end-to-end | nit: `format()` float roundtrip |
+| Reconciliation | [ ] NOT STARTED | no Lite↔Advanced reconciliation screen | Step 12: due↔AR, fund↔Cash GL, batches↔Inventory, basic profit↔IS |
+| Package tests | [!] | **none in package** — 11 suites live in lara host (`tests/Feature/Accounting/**`) | acceptable short-term; add testbench if package ships standalone |
+| Known runtime bug | [!] | `SyncDefaultsCommand.php:21` reads `$result['updated']`; `AccountingDefaults::sync()` returns key `verified` → PHP 8 undefined-key warning on every `accounting:sync-defaults` | one-line fix |
+| Date validation gap | [!] | `transactionDate` never normalized: `'01-10-2026'` passes lexicographic cutover compare and yields wrong JV year | validate/normalize to Y-m-d in draft or poster |
+
+---
+
+## Current Coupling Assessment (Part D compliance)
+
+**COMPLIANT since the 2026-09-29 seam enforcement** (was: NOT compliant — see phase log). Verified by `tests/Feature/Accounting/AdvancedAccountingDisabledTest`: with `double-entry.enabled=false` expense/fund/payment flows work, zero journals, accounting routes 404, and no package-backed service is constructed. Package-ABSENCE safety: host config is package-free, the single `class_exists` probe short-circuits before any package state, all remaining package imports live behind the `advanced-accounting` middleware or inside the integration layer (ManualEntryService / OpeningBalanceService / DoubleEntry gateway / Accounting controllers).
+
+Commerce core (Product/Purchase/Sale/POS/Stock/Batch/Customer/Supplier/Payment/Return/Refund) has no package dependency. Lite profit/COGS/dashboards are package-free.
+
+---
+
+## Test Baseline (recorded BEFORE new changes — 2026-09-29)
+
+`php artisan test` → **271 passed, 1070 assertions, 0 failed, 0 skipped** (28.1s). MySQL reachable.
+Note: stale `.phpunit.cache/test-results` previously recorded 230 defects; current run supersedes it — the suite is green now. Do not attribute this green state to any future work.
+
+---
+
+## Phase Log
+
+| Date | Phase | Files changed | Migrations | Tests | Result | Next step |
+| --- | --- | --- | --- | --- | --- | --- |
+| 2026-09-29 | Audit (Steps 1–4): two-repo status audit, baseline tests | docs only | none | full suite | 271 pass / 0 fail | Step 5: stabilize Lite (ledgers, supplier_payment linkage, COGS single source, seam enforcement) |
+| 2026-09-29 | P1 — baseline protection: bd-double-entry committed as `884685e` (43 files, .gitignore added, no secrets; 134 accounting tests green against it) | bd-double-entry repo | none | accounting suites | 134 pass / 0 fail | P2 seam |
+| 2026-09-29 | P2+P3 — optional-module seam enforced: `AdvancedAccountingGateway` (renamed/reshaped from FullAccountingGateway, dead event methods dropped) + `NullAdvancedAccountingGateway` + `DoubleEntryAdvancedAccountingGateway`; `AccountingAvailability.available()/enabled()` made the single centralized decision; container binds by availability; `advanced-accounting` middleware gates all `admin.accounting.*` routes (404 when off); sidebar menu gated by `enabled()`; Expense/Fund controllers stripped of ALL package references (`ManualEntryService`→gateway, `SourceType::EXPENSE`→`expenseHasJournal`, `ManualPostingResult` holds `journalNo` string not a JournalEntry); `config/double-entry.php` made package-free (AccountRole constants → plain strings) so a package-absent boot cannot fatal; old `FullAccountingGateway`/`NullFullAccountingGateway` deleted; `PaymentCollectionService` repointed | app/Services/Accounting, app/Support/Accounting, app/Providers, app/Http/Middleware(new), app/Http/Controllers/Admin/{Expense,Fund}Controller, config/double-entry.php, bootstrap/app.php, routes/web.php, master.blade.php, tests | none | new `AdvancedAccountingDisabledTest` (8) + full suite | **279 pass / 0 fail** (1099 assertions) | P4 — Lite stabilization: CogsCalculator, supplier_payment trace, Lite ledgers |

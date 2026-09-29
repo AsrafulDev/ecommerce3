@@ -145,7 +145,7 @@ class ManualFlowsTest extends AccountingTestCase
         $again = app(ManualEntryService::class)->expense($expense->fresh());
 
         $this->assertTrue($first->isPosted());
-        $this->assertSame($first->journal->id, $again->journal->id);
+        $this->assertSame($first->journalNo, $again->journalNo);
         $this->assertSame(
             1,
             JournalEntry::where('source_type', SourceType::EXPENSE->value)

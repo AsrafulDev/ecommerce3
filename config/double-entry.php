@@ -1,11 +1,24 @@
 <?php
 
+/*
+|--------------------------------------------------------------------------
+| Host accounting configuration — MUST stay package-free
+|--------------------------------------------------------------------------
+| This file is loaded at boot whether or not softmit/bd-double-entry is
+| installed, so it must not reference any Softmit\DoubleEntry class (not even
+| class constants): a missing class while a config file is being evaluated is
+| a boot-time fatal that would make the optional module mandatory. Role values
+| below are the plain strings of Softmit\DoubleEntry\Support\AccountRole —
+| they are resolved to real accounts by App\Services\Accounting\ManualEntryService
+| only when Advanced Accounting is enabled.
+*/
+
 return [
     /*
     |--------------------------------------------------------------------------
-    | Full accounting switch
+    | Advanced accounting switch
     |--------------------------------------------------------------------------
-    | LEVEL 2 (double-entry) is optional; LEVEL 1 (the Lite fund ledger) always
+    | Advanced Accounting (double-entry) is optional; Lite Accounting always
     | runs. When this is false the whole application behaves exactly as it did
     | before the package existed: no business event is journalled, no package
     | class is touched. See App\Support\Accounting\AccountingAvailability, which
@@ -112,33 +125,33 @@ return [
         'fund_key' => env('ACCOUNTING_FUND_KEY', 'default'),
 
         'expense_roles' => [
-            'rent'         => \Softmit\DoubleEntry\Support\AccountRole::RENT_EXPENSE,
-            'office_rent'  => \Softmit\DoubleEntry\Support\AccountRole::RENT_EXPENSE,
-            'house_rent'   => \Softmit\DoubleEntry\Support\AccountRole::RENT_EXPENSE,
-            'salary'       => \Softmit\DoubleEntry\Support\AccountRole::SALARY_EXPENSE,
-            'payroll'      => \Softmit\DoubleEntry\Support\AccountRole::SALARY_EXPENSE,
-            'staff_salary' => \Softmit\DoubleEntry\Support\AccountRole::SALARY_EXPENSE,
-            'utility'      => \Softmit\DoubleEntry\Support\AccountRole::UTILITY_EXPENSE,
-            'utilities'    => \Softmit\DoubleEntry\Support\AccountRole::UTILITY_EXPENSE,
-            'electricity'  => \Softmit\DoubleEntry\Support\AccountRole::UTILITY_EXPENSE,
-            'bill'         => \Softmit\DoubleEntry\Support\AccountRole::UTILITY_EXPENSE,
-            'internet'     => \Softmit\DoubleEntry\Support\AccountRole::UTILITY_EXPENSE,
-            'delivery'     => \Softmit\DoubleEntry\Support\AccountRole::DELIVERY_EXPENSE,
-            'shipping'     => \Softmit\DoubleEntry\Support\AccountRole::DELIVERY_EXPENSE,
-            'courier'      => \Softmit\DoubleEntry\Support\AccountRole::DELIVERY_EXPENSE,
-            'discount'     => \Softmit\DoubleEntry\Support\AccountRole::DISCOUNT_EXPENSE,
-            'refund'       => \Softmit\DoubleEntry\Support\AccountRole::REFUND_EXPENSE,
+            'rent'         => 'rent_expense',
+            'office_rent'  => 'rent_expense',
+            'house_rent'   => 'rent_expense',
+            'salary'       => 'salary_expense',
+            'payroll'      => 'salary_expense',
+            'staff_salary' => 'salary_expense',
+            'utility'      => 'utility_expense',
+            'utilities'    => 'utility_expense',
+            'electricity'  => 'utility_expense',
+            'bill'         => 'utility_expense',
+            'internet'     => 'utility_expense',
+            'delivery'     => 'delivery_expense',
+            'shipping'     => 'delivery_expense',
+            'courier'      => 'delivery_expense',
+            'discount'     => 'discount_expense',
+            'refund'       => 'refund_expense',
         ],
 
-        'expense_default_role' => \Softmit\DoubleEntry\Support\AccountRole::GENERAL_EXPENSE,
+        'expense_default_role' => 'general_expense',
 
         // Money in is either the owner's own capital (equity — never profit) or
         // genuine other income. The screen has to say which.
-        'capital_role' => \Softmit\DoubleEntry\Support\AccountRole::OWNER_CAPITAL,
-        'income_role'  => \Softmit\DoubleEntry\Support\AccountRole::OTHER_INCOME,
+        'capital_role' => 'owner_capital',
+        'income_role'  => 'other_income',
 
         // Money out to the owner is a drawing, not an expense.
-        'drawings_role' => \Softmit\DoubleEntry\Support\AccountRole::OWNER_DRAWINGS,
+        'drawings_role' => 'owner_drawings',
     ],
 
     /*
@@ -152,6 +165,6 @@ return [
     | that made it necessary.
     */
     'opening' => [
-        'balancing_role' => \Softmit\DoubleEntry\Support\AccountRole::RETAINED_EARNINGS,
+        'balancing_role' => 'retained_earnings',
     ],
 ];
