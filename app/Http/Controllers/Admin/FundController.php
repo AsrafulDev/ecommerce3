@@ -12,11 +12,99 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 use Symfony\Component\HttpFoundation\StreamedResponse;
+use App\Models\Expense;
+use App\Models\User;
 
 class FundController extends Controller
 {
     public function __construct(protected AdvancedAccountingGateway $accounting)
     {
+    }
+
+    public function transactionForm()
+    {
+        $user = Auth::guard('admin')->user();
+        $isAdmin = $this->isAdmin();
+        $users = $isAdmin ? User::orderBy('name')->get(['id', 'name', 'email']) : collect([$user]);
+        $expenseCategories = array_keys((array) config('double-entry.manual.expense_roles', []));
+
+        return view('backEnd.transactions.create', compact('users', 'expenseCategories', 'isAdmin'));
+    }
+
+    public function storeTransaction(Request $request)
+    {
+        $categories = array_keys((array) config('double-entry.manual.expense_roles', []));
+        $categories = array_merge(['owner_capital', 'other_income', 'owner_withdrawal'], $categories);
+        $validated = $request->validate([
+            'date' => 'required|date',
+            'amount' => 'required|numeric|min:0.01',
+            'category' => ['required', 'in:'.implode(',', array_unique($categories))],
+            'person_id' => 'nullable|integer|exists:users,id',
+            'related_type' => 'nullable|string|max:50',
+            'related_id' => 'nullable|integer',
+            'note' => 'nullable|string|max:1000',
+        ]);
+
+        $actor = $this->isAdmin() && $request->filled('person_id')
+            ? (int) $request->person_id
+            : (int) Auth::guard('admin')->id();
+        $category = $validated['category'];
+        $amount = round((float) $validated['amount'], 2);
+
+        if (in_array($category, ['owner_capital', 'other_income', 'owner_withdrawal'], true)) {
+            $direction = $category === 'owner_capital' || $category === 'other_income' ? 'in' : 'out';
+            if ($direction === 'out' && $amount > \App\Helpers\FundHelper::balance()) {
+                return back()->withInput()->with('error', 'Not enough balance in fund.');
+            }
+
+            $tx = DB::transaction(function () use ($validated, $actor, $category, $direction, $amount) {
+                $tx = FundTransaction::create([
+                    'direction' => $direction,
+                    'source' => $category === 'owner_withdrawal' ? 'withdraw' : 'manual_add',
+                    'source_id' => $validated['related_id'] ?? null,
+                    'transaction_category' => $category === 'owner_withdrawal'
+                        ? TransactionCategory::OWNER_WITHDRAWAL
+                        : ($category === 'owner_capital' ? TransactionCategory::OWNER_CAPITAL : TransactionCategory::OTHER_INCOME),
+                    'amount' => $amount,
+                    'note' => $validated['note'] ?? null,
+                    'created_by' => $actor,
+                    'created_at' => $validated['date'],
+                    'updated_at' => $validated['date'],
+                ]);
+                $result = $category === 'owner_withdrawal'
+                    ? $this->accounting->recordWithdrawal($tx)
+                    : $this->accounting->recordMoneyIn($tx, $category);
+                return [$tx, $result];
+            });
+        } else {
+            if ($amount > \App\Helpers\FundHelper::balance()) {
+                return back()->withInput()->with('error', 'Not enough balance in fund.');
+            }
+            $result = DB::transaction(function () use ($validated, $actor, $category, $amount) {
+                $expense = Expense::create([
+                    'title' => $validated['note'] ?: ucwords(str_replace('_', ' ', $category)),
+                    'amount' => $amount,
+                    'expense_date' => $validated['date'],
+                    'category' => $category,
+                    'note' => $validated['note'] ?? null,
+                    'created_by' => $actor,
+                ]);
+                $fund = FundTransaction::create([
+                    'direction' => 'out',
+                    'source' => 'expense',
+                    'source_id' => $expense->id,
+                    'amount' => $amount,
+                    'note' => $validated['note'] ?? $expense->title,
+                    'created_by' => $actor,
+                    'created_at' => $validated['date'],
+                    'updated_at' => $validated['date'],
+                ]);
+                $expense->update(['fund_transaction_id' => $fund->id]);
+                return $this->accounting->recordExpense($expense);
+            });
+        }
+
+        return redirect()->route('admin.transactions.create')->with('success', 'Transaction saved successfully.');
     }
 
     /**

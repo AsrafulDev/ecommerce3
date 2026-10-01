@@ -951,17 +951,17 @@
 
 {{-- Transactions (Lite Accounting — fund, expenses, operational reports) --}}
 @canany(['fund-list', 'fund-create', 'fund-edit', 'expense-list', 'expense-create', 'expense-edit', 'report-view', 'order-report', 'purchase-report', 'expense-report', 'stock-report', 'profit-loss-report'])
-<li class="{{ request()->routeIs('admin.accounts.*', 'admin.fund.*', 'admin.expenses.*', 'admin.reports.*') ? 'active' : '' }}">
+<li class="{{ request()->routeIs('admin.accounts.*', 'admin.fund.*', 'admin.expenses.*', 'admin.transactions.*', 'admin.reports.*') ? 'active' : '' }}">
   <a href="#sidebar-transactions" data-bs-toggle="collapse">
     <i data-feather="activity"></i>
     <span> {{ __('Transactions') }} </span>
     <span class="menu-arrow"></span>
   </a>
-  <div class="collapse {{ request()->routeIs('admin.accounts.*', 'admin.fund.*', 'admin.expenses.*', 'admin.reports.*') ? 'show' : '' }}" id="sidebar-transactions">
+  <div class="collapse {{ request()->routeIs('admin.accounts.*', 'admin.fund.*', 'admin.expenses.*', 'admin.transactions.*', 'admin.reports.*') ? 'show' : '' }}" id="sidebar-transactions">
     <ul class="nav-second-level">
       <li><a href="{{ route('admin.accounts.dashboard') }}"><i data-feather="pie-chart"></i> {{ __('Overview') }} </a></li>
       @canany(['fund-list', 'fund-create', 'fund-edit'])
-      <li><a href="{{ route('admin.fund.index') }}"><i data-feather="briefcase"></i> {{ __('Funds & Money Movement') }} </a></li>
+      <li><a href="{{ route('admin.transactions.create') }}"><i data-feather="briefcase"></i> {{ __('New Transaction') }} </a></li>
       <li><a href="{{ route('admin.accounts.customers') }}"><i data-feather="user"></i> {{ __('Customer Accounts') }} </a></li>
       <li><a href="{{ route('admin.accounts.suppliers') }}"><i data-feather="truck"></i> {{ __('Supplier Accounts') }} </a></li>
       @endcanany

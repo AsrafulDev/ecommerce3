@@ -267,6 +267,8 @@ Route::prefix('admin')->middleware(['auth:admin', 'admin', 'demo_mode'])->group(
 
     // Fund Routes
     Route::get('/fund', [FundController::class, 'index'])->name('admin.fund.index');
+    Route::get('/transactions', [FundController::class, 'transactionForm'])->name('admin.transactions.create');
+    Route::post('/transactions', [FundController::class, 'storeTransaction'])->name('admin.transactions.store');
     Route::post('/fund/add', [FundController::class, 'add'])->name('admin.fund.add');
     Route::post('/fund/withdraw', [FundController::class, 'withdraw'])->name('admin.fund.withdraw');
     Route::get('/fund/export', [FundController::class, 'export'])->name('admin.fund.export');
