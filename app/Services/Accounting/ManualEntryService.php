@@ -4,10 +4,13 @@ namespace App\Services\Accounting;
 
 use App\Models\Expense;
 use App\Models\FundTransaction;
+use App\Models\Order;
+use App\Models\Purchase;
 use App\Support\Accounting\ManualPostingResult;
 use Carbon\Carbon;
 use Softmit\DoubleEntry\Enums\JournalStatus;
 use Softmit\DoubleEntry\Enums\SourceType;
+use Softmit\DoubleEntry\Enums\PartyType;
 use Softmit\DoubleEntry\Models\Account;
 use Softmit\DoubleEntry\Models\FundAccount;
 use Softmit\DoubleEntry\Models\JournalEntry;
@@ -41,6 +44,42 @@ class ManualEntryService
         protected PostingFailureLogger $failures,
         protected ReversalService $reversals,
     ) {
+    }
+
+    public function sale(Order $order): ManualPostingResult
+    {
+        $date = $order->created_at?->format('Y-m-d') ?? now()->format('Y-m-d');
+        if ($this->refuses($date)) return ManualPostingResult::preCutover();
+
+        $draft = JournalDraft::make($date)
+            ->from(SourceType::SALE, (int) $order->id, $order->invoice_id ?: ('Order #'.$order->id))
+            ->key($this->nextKey(SourceType::SALE, (int) $order->id))
+            ->about('Sale: '.($order->invoice_id ?: ('Order #'.$order->id)))
+            ->actor($order->created_by ?? null)
+            ->meta(['legacy' => 'orders', 'recognition' => 'sale'])
+            ->debit(AccountRole::ACCOUNTS_RECEIVABLE, Money::of($order->amount), 'Customer receivable')
+            ->credit(AccountRole::SALES_REVENUE, Money::of($order->amount), 'Sales revenue');
+
+        if ((int) $order->customer_id > 0) $draft->party(PartyType::CUSTOMER, (int) $order->customer_id);
+        return $this->post($draft);
+    }
+
+    public function purchase(Purchase $purchase): ManualPostingResult
+    {
+        $date = $purchase->purchase_date?->format('Y-m-d') ?? now()->format('Y-m-d');
+        if ($this->refuses($date)) return ManualPostingResult::preCutover();
+
+        $draft = JournalDraft::make($date)
+            ->from(SourceType::PURCHASE, (int) $purchase->id, $purchase->invoice_no ?: ('Purchase #'.$purchase->id))
+            ->key($this->nextKey(SourceType::PURCHASE, (int) $purchase->id))
+            ->about('Purchase: '.($purchase->invoice_no ?: ('Purchase #'.$purchase->id)))
+            ->actor($purchase->created_by ?? null)
+            ->meta(['legacy' => 'purchases', 'recognition' => 'purchase'])
+            ->debit(AccountRole::INVENTORY, Money::of($purchase->grand_total), 'Inventory received')
+            ->credit(AccountRole::ACCOUNTS_PAYABLE, Money::of($purchase->grand_total), 'Supplier payable');
+
+        if ((int) $purchase->supplier_id > 0) $draft->party(PartyType::SUPPLIER, (int) $purchase->supplier_id);
+        return $this->post($draft);
     }
 
     /**

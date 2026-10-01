@@ -217,6 +217,19 @@ Note: stale `.phpunit.cache/test-results` previously recorded 230 defects; curre
 
 ---
 
+## Phase 3 — sale and purchase recognition (2026-10-01)
+
+The shared order-status service now requests sale recognition when a sale first
+enters a stock-consuming status. Committed purchases request purchase
+recognition after their operational transaction commits. Both use source,
+party, actor, business date, cutover, and idempotent posting keys.
+
+Current Lite workflows create immediate customer and supplier payment rows,
+but the Advanced payment adapter is still intentionally empty. This phase
+therefore does not claim settlement reconciliation for paid or partially paid
+documents; existing Lite fund semantics remain unchanged. Payment settlement,
+COGS, returns, refunds, and tax remain separate integrations.
+
 ## Phase Log
 
 | Date | Phase | Files changed | Migrations | Tests | Result | Next step |

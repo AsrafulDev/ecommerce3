@@ -20,6 +20,7 @@ final class ManualPostingResult
     public const POSTED = 'posted';
     public const PRE_CUTOVER = 'pre_cutover';
     public const FAILED = 'failed';
+    public const NOT_READY = 'not_ready';
 
     private function __construct(
         public readonly string $status,
@@ -40,6 +41,11 @@ final class ManualPostingResult
     public static function failed(): self
     {
         return new self(self::FAILED);
+    }
+
+    public static function notReady(): self
+    {
+        return new self(self::NOT_READY);
     }
 
     public function isPosted(): bool
@@ -69,6 +75,7 @@ final class ManualPostingResult
         return match ($this->status) {
             self::PRE_CUTOVER => 'This record is dated before the accounting start (' . config('double-entry.cutover_date') . '), so no journal was posted — it is already inside the opening balances.',
             self::FAILED => 'The money record was saved, but its journal could not be posted. It is listed in Accounting → Posting failures and must be fixed before the books can be trusted.',
+            self::NOT_READY => 'Advanced Accounting is enabled but not ready for live postings. Post the opening balances first; no automatic journal was created.',
             default => null,
         };
     }

@@ -5,6 +5,8 @@ namespace App\Services\Accounting;
 use App\Models\Expense;
 use App\Models\FundTransaction;
 use App\Models\OrderPayment;
+use App\Models\Order;
+use App\Models\Purchase;
 use App\Support\Accounting\ManualPostingResult;
 
 /**
@@ -112,4 +114,8 @@ interface AdvancedAccountingGateway
      * with the customer-payment integration phase.
      */
     public function paymentReceived(OrderPayment $payment): void;
+
+    public function recordSale(Order $order): ?ManualPostingResult;
+
+    public function recordPurchase(Purchase $purchase): ?ManualPostingResult;
 }

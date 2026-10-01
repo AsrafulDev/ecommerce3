@@ -16,6 +16,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Barryvdh\DomPDF\Facade\Pdf;
+use App\Services\Accounting\AdvancedAccountingGateway;
 
 class PurchaseController extends Controller
 {
@@ -474,6 +475,8 @@ class PurchaseController extends Controller
                 ->withErrors(['error' => 'Purchase could not be saved — no records were written. '.$e->getMessage()])
                 ->withInput();
         }
+
+        app(AdvancedAccountingGateway::class)->recordPurchase($purchase);
 
         if ($request->filled('draft_id')) {
             Purchase::where('id', $request->draft_id)

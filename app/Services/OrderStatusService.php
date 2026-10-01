@@ -6,6 +6,7 @@ use App\Enums\OrderStatus;
 use App\Models\Order;
 use App\Models\OrderDetails;
 use Illuminate\Support\Facades\Log;
+use App\Services\Accounting\AdvancedAccountingGateway;
 
 /**
  * ⭐ SINGLE shared order-status → stock engine (UPDATE-PLAN 3.2).
@@ -31,6 +32,10 @@ class OrderStatusService
 
         $wasActive = $oldEnum->consumesStock();
         $isActive  = $newEnum->consumesStock();
+
+        if (!$wasActive && $isActive) {
+            app(AdvancedAccountingGateway::class)->recordSale($order);
+        }
 
         /** @var StockManagementService $stockService */
         $stockService = app(StockManagementService::class);

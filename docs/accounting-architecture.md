@@ -135,6 +135,15 @@ Inventory engine (StockManagementService FIFO/LIFO/AVG + batch allocation) is th
 - Advanced party ledger: AR/AP sub-ledgers via `LedgerService::forParty()` — built.
 - Reconciliation targets: Customer Due ↔ AR, Supplier Due ↔ AP, Fund ↔ Cash/Bank GL (`FundAccount` mapping — Lite funds map to Advanced accounts only when Advanced is enabled), Inventory ↔ Inventory GL, Basic Profit ↔ Income Statement.
 
+## Phase 3 recognition boundary
+
+Posted sales use SourceType::SALE and the full order amount:
+Dr ACCOUNTS_RECEIVABLE / Cr SALES_REVENUE. Posted purchases use
+SourceType::PURCHASE and the full committed purchase amount:
+Dr INVENTORY / Cr ACCOUNTS_PAYABLE. Recognition is gated until the opening
+journal is posted. Payment settlement, COGS, returns, refunds, and tax remain
+separate integrations.
+
 ## Invariants
 
 1. Every posted journal: Σ Debit = Σ Credit (bcmath exact). No exception.
