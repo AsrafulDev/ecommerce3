@@ -169,6 +169,12 @@ operational refund fund debit. They do not reverse historical payment journals
 and do not affect P&L. Partial sale returns are intentionally unsupported
 until returned quantities can be tied to historical batch-cost allocations.
 
+SupplierReturn records carry a potentially authoritative line_total, but the
+current operational controller calls stockIn for returned goods and does not
+reduce supplier payable. No Advanced PURCHASE_RETURN journal is posted until
+that source workflow is corrected. Supplier refund remains blocked because no
+authoritative supplier-money-received event exists.
+
 ## Invariants
 
 1. Every posted journal: Σ Debit = Σ Credit (bcmath exact). No exception.

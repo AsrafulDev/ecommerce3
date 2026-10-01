@@ -245,6 +245,12 @@ return path does not preserve an authoritative returned-batch allocation.
 Supplier returns are operationally present, but supplier refund accounting is
 not implemented in this phase.
 
+Phase 6.1 audit confirms SupplierReturnItem stores batch, quantity, unit cost,
+and line total, but the current controller treats a supplier return as
+stock-in, increasing inventory rather than removing returned inventory. It
+also does not adjust AP. Advanced purchase-return posting is therefore
+blocked until that operational workflow is corrected and validated.
+
 ## Phase Log
 
 | Date | Phase | Files changed | Migrations | Tests | Result | Next step |
