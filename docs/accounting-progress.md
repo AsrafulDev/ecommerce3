@@ -61,6 +61,22 @@ _Reviewed: 2026-09-29 — full two-repo audit (no code changes made during this 
 - Phase 2 targeted verification: 22 passed, 113 assertions. Full regression
   from the preceding phase remains 293 passed, 1,144 assertions.
 
+### Lite Ledger hardening (2026-10-01)
+
+- Added dedicated regression coverage for customer full/partial/multiple and
+  decimal payments, supplier purchase/payment reconciliation, supplier fund
+  traceability, and payment category semantics.
+- Return audit: customer returns/refunds and supplier returns are separate
+  operational flows. Existing return/restock records do not provide one
+  universal ledger event that can safely represent charge reduction versus
+  cash refund, so no speculative ledger rows were added.
+- Opening-balance audit: customer has no authoritative opening-balance field;
+  supplier has `opening_balance`, but it is a resulting/master-data value in
+  the current flow rather than a persisted dated opening transaction. It is
+  therefore not fabricated into ledger history.
+- New dedicated tests: 3 passed, 13 assertions. Historical nullable categories
+  remain allowed; only supported new writes are required to classify.
+
 - Branch: `premium` (ahead of `origin/premium` by 1 commit — not yet pushed)
 - Latest commit: `2bca487` "Add Lite/Advance accounting: availability seam, cash rule unification, gateway cash-in"
 - Working tree: clean except `.phpunit.cache/test-results` (cache noise) and untracked `.commandcode/`, `.qoder/` (tool dirs — not project work)
