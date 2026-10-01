@@ -34,6 +34,11 @@ final class NullAdvancedAccountingGateway implements AdvancedAccountingGateway
         return false;
     }
 
+    public function readyForLivePosting(): bool
+    {
+        return false;
+    }
+
     public function recordExpense(Expense $expense): ?ManualPostingResult
     {
         return null;

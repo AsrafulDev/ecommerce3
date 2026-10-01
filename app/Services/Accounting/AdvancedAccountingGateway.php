@@ -42,6 +42,9 @@ interface AdvancedAccountingGateway
     /** Available AND switched on — Advanced Accounting actually posts. */
     public function enabled(): bool;
 
+    /** True only when Advanced is enabled and the opening journal is POSTED. */
+    public function readyForLivePosting(): bool;
+
     /*
     |--------------------------------------------------------------------------
     | Manual money screens (the first real integration: expense, income,

@@ -31,6 +31,12 @@ host-owned; the adapter selects package account roles while the package owns
 journal mechanics, posting, idempotency, and reports. Payment, purchase, sale,
 COGS, return, and refund postings remain intentionally deferred.
 
+Advanced live posting has an explicit readiness boundary: package availability
+and the feature flag are insufficient. `readyForLivePosting()` is true only
+after the configured cutover date exists and the deterministic
+`opening:balances` journal is POSTED and balanced. Opening covers records before
+the cutover date; live events are eligible from the cutover date at midnight.
+
 ## The core rule (Parts D–E)
 
 ```

@@ -8,6 +8,8 @@ use App\Models\OrderPayment;
 use App\Support\Accounting\AccountingAvailability;
 use App\Support\Accounting\ManualPostingResult;
 use Softmit\DoubleEntry\Enums\SourceType;
+use Softmit\DoubleEntry\Enums\JournalStatus;
+use Softmit\DoubleEntry\Models\JournalEntry;
 
 /**
  * The live adapter: turns business operations into double-entry postings by
@@ -39,6 +41,22 @@ final class DoubleEntryAdvancedAccountingGateway implements AdvancedAccountingGa
     public function enabled(): bool
     {
         return AccountingAvailability::enabled();
+    }
+
+    public function readyForLivePosting(): bool
+    {
+        if (!$this->enabled() || !config('double-entry.cutover_date')) {
+            return false;
+        }
+
+        $opening = JournalEntry::query()
+            ->where('posting_key', \App\Services\Accounting\OpeningBalanceService::POSTING_KEY)
+            ->where('status', JournalStatus::POSTED)
+            ->latest('id')
+            ->first();
+
+        return $opening !== null
+            && (string) $opening->total_debit === (string) $opening->total_credit;
     }
 
     public function recordExpense(Expense $expense): ?ManualPostingResult

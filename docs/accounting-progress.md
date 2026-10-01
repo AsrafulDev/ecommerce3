@@ -183,6 +183,25 @@ _Reviewed: 2026-09-29 — full two-repo audit (no code changes made during this 
 - Customer payment, supplier payment, purchase, sale, COGS, returns, refunds,
   and VAT/Mushak remain intentionally deferred.
 
+### Advanced Accounting Phase 2A — cutover readiness (2026-10-01)
+
+- Added `AdvancedAccountingGateway::readyForLivePosting()` as the single host
+  seam for live-posting readiness. Disabled/unavailable Advanced is never ready;
+  an opening DRAFT is never ready; readiness requires the configured cutover
+  date and one balanced POSTED journal with posting key `opening:balances`.
+- Existing `OpeningBalanceService` remains authoritative and already derives
+  party-level customer AR and supplier AP lines, plus supported cash, inventory,
+  and balancing equity lines. It does not fabricate zero-balance parties.
+- Boundary rule: the opening snapshot represents activity before the configured
+  cutover date; live event eligibility begins at `00:00:00` on the cutover date.
+  The package's date guard enforces this at journal posting.
+- No customer/supplier payment journals were added. Future payment integration
+  must call the readiness seam first, preventing settlement against unmigrated
+  AR/AP.
+- Added readiness tests: 3 passed, 7 assertions. Opening AR/AP party-level,
+  trial-balance, and P&L behavior remain covered by the existing opening/report
+  suites.
+
 ## Current Coupling Assessment (Part D compliance)
 
 **COMPLIANT since the 2026-09-29 seam enforcement** (was: NOT compliant — see phase log). Verified by `tests/Feature/Accounting/AdvancedAccountingDisabledTest`: with `double-entry.enabled=false` expense/fund/payment flows work, zero journals, accounting routes 404, and no package-backed service is constructed. Package-ABSENCE safety: host config is package-free, the single `class_exists` probe short-circuits before any package state, all remaining package imports live behind the `advanced-accounting` middleware or inside the integration layer (ManualEntryService / OpeningBalanceService / DoubleEntry gateway / Accounting controllers).
