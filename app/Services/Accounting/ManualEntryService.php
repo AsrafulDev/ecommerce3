@@ -8,6 +8,7 @@ use App\Models\Order;
 use App\Models\Purchase;
 use App\Models\OrderPayment;
 use App\Models\SupplierPayment;
+use App\Models\Refund;
 use App\Support\Accounting\ManualPostingResult;
 use Carbon\Carbon;
 use Softmit\DoubleEntry\Enums\JournalStatus;
@@ -136,6 +137,35 @@ class ManualEntryService
             ->credit($this->cashAccount(), Money::of($payment->amount), 'Funds paid');
         if ((int) $payment->supplier_id > 0) $draft->party(PartyType::SUPPLIER, (int) $payment->supplier_id);
         return $this->post($draft);
+    }
+
+    public function reverseSale(Order $order, string $reason, ?int $actorId = null): ?ManualPostingResult
+    {
+        $posted = $this->latestJournal([SourceType::SALE], (int) $order->id);
+        $cogs = $this->latestJournal([SourceType::SALE_COGS], (int) $order->id);
+        $result = null;
+        foreach ([$posted, $cogs] as $journal) {
+            if (!$journal || $journal->isReversed()) continue;
+            $result = $this->reversals->reverse($journal, $reason, $actorId, now()->format('Y-m-d'));
+        }
+        return $result ? ManualPostingResult::posted($result->journal_no) : null;
+    }
+
+    public function customerRefund(Refund $refund): ManualPostingResult
+    {
+        $date = $refund->updated_at?->format('Y-m-d') ?? now()->format('Y-m-d');
+        if ($this->refuses($date)) return ManualPostingResult::preCutover();
+        $amount = Money::of($refund->totalRefundAmount());
+        return $this->post(
+            JournalDraft::make($date)
+                ->from(SourceType::REFUND, (int) $refund->id, $refund->refund_id)
+                ->key($this->nextKey(SourceType::REFUND, (int) $refund->id))
+                ->about('Customer refund: '.$refund->refund_id)
+                ->actor($refund->processed_by)
+                ->meta(['legacy' => 'refunds', 'order_id' => $refund->order_id, 'refund_method' => $refund->refund_method])
+                ->debit(AccountRole::ACCOUNTS_RECEIVABLE, $amount, 'Customer credit settled')
+                ->credit($this->cashAccount(), $amount, 'Refund paid')
+        );
     }
 
     /**

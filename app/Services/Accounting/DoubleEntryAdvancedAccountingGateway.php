@@ -5,9 +5,10 @@ namespace App\Services\Accounting;
 use App\Models\Expense;
 use App\Models\FundTransaction;
 use App\Models\OrderPayment;
-use App\Models\Order;
 use App\Models\Purchase;
 use App\Models\SupplierPayment;
+use App\Models\Refund;
+use App\Models\Order;
 use App\Support\Accounting\AccountingAvailability;
 use App\Support\Accounting\ManualPostingResult;
 use Softmit\DoubleEntry\Enums\SourceType;
@@ -154,5 +155,17 @@ final class DoubleEntryAdvancedAccountingGateway implements AdvancedAccountingGa
     {
         if (!$this->readyForLivePosting()) return ManualPostingResult::notReady();
         return $this->manual->supplierPayment($payment);
+    }
+
+    public function reverseSale(Order $order, string $reason, ?int $actorId = null): ?ManualPostingResult
+    {
+        if (!$this->readyForLivePosting()) return ManualPostingResult::notReady();
+        return $this->manual->reverseSale($order, $reason, $actorId);
+    }
+
+    public function recordCustomerRefund(Refund $refund): ?ManualPostingResult
+    {
+        if (!$this->readyForLivePosting()) return ManualPostingResult::notReady();
+        return $this->manual->customerRefund($refund);
     }
 }

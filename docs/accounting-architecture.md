@@ -161,6 +161,14 @@ clear operational COGS without reversing posted Advanced sale/COGS journals;
 the next return/reversal phase must address that before those workflows are
 Advanced-integrated.
 
+Cancellation and full sale return use immutable reversal journals for both
+SALE and SALE_COGS. The original posted journals are never edited or deleted.
+Customer refunds are separate REFUND events that debit the customer
+receivable/credit position and credit the configured default fund after the
+operational refund fund debit. They do not reverse historical payment journals
+and do not affect P&L. Partial sale returns are intentionally unsupported
+until returned quantities can be tied to historical batch-cost allocations.
+
 ## Invariants
 
 1. Every posted journal: Σ Debit = Σ Credit (bcmath exact). No exception.

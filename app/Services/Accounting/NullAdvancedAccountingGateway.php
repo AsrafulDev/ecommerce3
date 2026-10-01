@@ -5,9 +5,10 @@ namespace App\Services\Accounting;
 use App\Models\Expense;
 use App\Models\FundTransaction;
 use App\Models\OrderPayment;
-use App\Models\Order;
 use App\Models\Purchase;
 use App\Models\SupplierPayment;
+use App\Models\Refund;
+use App\Models\Order;
 use App\Support\Accounting\AccountingAvailability;
 use App\Support\Accounting\ManualPostingResult;
 
@@ -108,4 +109,8 @@ final class NullAdvancedAccountingGateway implements AdvancedAccountingGateway
     public function recordPurchase(Purchase $purchase): ?ManualPostingResult { return null; }
 
     public function supplierPaymentMade(SupplierPayment $payment): ?ManualPostingResult { return null; }
+
+    public function reverseSale(Order $order, string $reason, ?int $actorId = null): ?ManualPostingResult { return null; }
+
+    public function recordCustomerRefund(Refund $refund): ?ManualPostingResult { return null; }
 }

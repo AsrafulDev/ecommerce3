@@ -111,6 +111,12 @@ class OrderStatusService
                     'batch_ids'  => null,
                 ]);
             }
+
+            app(AdvancedAccountingGateway::class)->reverseSale(
+                $order,
+                'Sale '.$newEnum->value.': '.($order->note ?? 'operational reversal'),
+                $order->updated_by ?? auth()->id()
+            );
         }
     }
 

@@ -12,6 +12,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Brian2694\Toastr\Facades\Toastr;
+use App\Services\Accounting\AdvancedAccountingGateway;
 
 class RefundController extends Controller
 {
@@ -112,6 +113,8 @@ class RefundController extends Controller
                 Auth::id()
             );
         });
+
+        app(AdvancedAccountingGateway::class)->recordCustomerRefund($refund->fresh());
 
         $msg = $customAmount !== null
             ? 'Partial refund of ৳' . number_format($totalRefundAmount, 2) . ' approved successfully.'

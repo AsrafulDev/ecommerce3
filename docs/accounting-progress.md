@@ -238,6 +238,13 @@ from sale recognition and customer payment, with source SALE_COGS and an
 independent idempotency key. If stock allocation falls back without an
 authoritative persisted cost, Advanced COGS is not fabricated.
 
+Phase 6 audit/implementation supports full sale cancellation/return reversal
+through the package ReversalService and separates customer refund settlement
+from the return. Partial sale returns remain blocked because the operational
+return path does not preserve an authoritative returned-batch allocation.
+Supplier returns are operationally present, but supplier refund accounting is
+not implemented in this phase.
+
 ## Phase Log
 
 | Date | Phase | Files changed | Migrations | Tests | Result | Next step |

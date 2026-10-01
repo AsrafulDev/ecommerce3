@@ -5,9 +5,10 @@ namespace App\Services\Accounting;
 use App\Models\Expense;
 use App\Models\FundTransaction;
 use App\Models\OrderPayment;
-use App\Models\Order;
 use App\Models\Purchase;
 use App\Models\SupplierPayment;
+use App\Models\Refund;
+use App\Models\Order;
 use App\Support\Accounting\ManualPostingResult;
 
 /**
@@ -123,4 +124,8 @@ interface AdvancedAccountingGateway
     public function recordPurchase(Purchase $purchase): ?ManualPostingResult;
 
     public function supplierPaymentMade(SupplierPayment $payment): ?ManualPostingResult;
+
+    public function reverseSale(Order $order, string $reason, ?int $actorId = null): ?ManualPostingResult;
+
+    public function recordCustomerRefund(Refund $refund): ?ManualPostingResult;
 }
