@@ -67,6 +67,26 @@ class LiteLedgerHardeningTest extends TestCase
         $this->assertNotSame(TransactionCategory::EXPENSE, $out->transaction_category);
     }
 
+    public function test_customer_accounts_excludes_cancelled_and_returned_orders_from_due(): void
+    {
+        $customer = Customer::create(['name' => 'Status Customer', 'slug' => uniqid(), 'phone' => uniqid(), 'password' => bcrypt('x'), 'status' => '1']);
+        $this->order($customer, '1000.00', '0.00');
+        Order::create([
+            'invoice_id' => uniqid('CANCEL-'), 'amount' => 500, 'paid_amount' => 0, 'due_amount' => 500,
+            'discount' => 0, 'shipping_charge' => 0, 'customer_id' => $customer->id,
+            'order_status' => 'cancelled', 'payment_status' => 'pending',
+        ]);
+
+        $this->get(route('admin.accounts.customers'))
+            ->assertOk()
+            ->assertSee('1,000.00')
+            ->assertDontSee('1,500.00');
+        $this->get(route('admin.accounts.customer', $customer->id))
+            ->assertOk()
+            ->assertSee('1,000.00')
+            ->assertDontSee('500.00');
+    }
+
     private function order(Customer $customer, string $amount, string $paid): Order
     {
         $order = Order::create(['invoice_id' => uniqid('INV-'), 'amount' => $amount, 'paid_amount' => $paid, 'due_amount' => bcsub($amount, $paid, 2), 'discount' => 0, 'shipping_charge' => 0, 'customer_id' => $customer->id, 'order_status' => 'delivered', 'payment_status' => ((float) $paid >= (float) $amount ? 'paid' : 'partial'), 'created_at' => now(), 'updated_at' => now()]);

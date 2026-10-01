@@ -11,17 +11,27 @@ use Illuminate\Support\Collection;
 
 class LiteLedgerController extends Controller
 {
+    private const NON_RECEIVABLE_STATUSES = ['cancelled', 'returned', 'return_approved', 'closed'];
+
     public function customers()
     {
-        $customers = Customer::query()->withSum('orders', 'amount')->withSum('orders', 'paid_amount')
-            ->withSum('orders', 'due_amount')->withMax('orders', 'created_at')->orderBy('name')->paginate(25);
+        $activeOrders = fn ($query) => $query->whereNotIn('order_status', self::NON_RECEIVABLE_STATUSES);
+        $customers = Customer::query()
+            ->withSum(['orders' => $activeOrders], 'amount')
+            ->withSum(['orders' => $activeOrders], 'paid_amount')
+            ->withSum(['orders' => $activeOrders], 'due_amount')
+            ->withMax(['orders' => $activeOrders], 'created_at')
+            ->orderBy('name')->paginate(25);
         return view('backEnd.accounts.customer-ledger-index', compact('customers'));
     }
 
     public function customer(int $id)
     {
         $customer = Customer::findOrFail($id);
-        $orders = $customer->orders()->with('paymentHistory')->orderBy('created_at')->get();
+        $orders = $customer->orders()
+            ->whereNotIn('order_status', self::NON_RECEIVABLE_STATUSES)
+            ->with('paymentHistory')
+            ->orderBy('created_at')->get();
         $rows = collect();
         foreach ($orders as $order) {
             $rows->push(['date' => $order->created_at, 'label' => 'Sale', 'reference' => $order->invoice_id ?: '#'.$order->id, 'charge' => (float) $order->amount, 'payment' => 0]);
