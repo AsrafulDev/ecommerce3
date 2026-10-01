@@ -6,14 +6,18 @@ use App\Http\Controllers\Controller;
 use App\Helpers\FundHelper;
 use App\Models\FundTransaction;
 use App\Models\Order;
-use App\Models\OrderDetails;
 use App\Models\StockBatch;
 use App\Models\Supplier;
+use App\Services\CogsCalculator;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 
 class AccountsController extends Controller
 {
+    public function __construct(protected CogsCalculator $cogs)
+    {
+    }
+
     public function dashboard()
     {
         $today      = Carbon::today();
@@ -73,22 +77,12 @@ class AccountsController extends Controller
             $sourceLabels
         );
 
-        // ── Gross profit this month (delivered/completed orders, batch-realized COGS) ──
-        $monthOrders = Order::whereIn('order_status', ['delivered', 'completed'])
-            ->whereBetween('updated_at', [$monthStart, now()])
-            ->get();
-        $month_sales = (float) $monthOrders->sum('amount');
+        // ── Gross profit this month — the ONE shared rule (CogsCalculator):
+        //    recognized orders by created_at, stored realized COGS per line.──
+        $month = $this->cogs->periodProfit($monthStart, now());
 
-        $monthCogs = 0.0;
-        $details = OrderDetails::whereIn('order_id', $monthOrders->pluck('id'))->get();
-        foreach ($details as $row) {
-            if ($row->cogs !== null && (float) $row->cogs > 0) {
-                $monthCogs += (float) $row->cogs;
-            } else {
-                $monthCogs += (($row->purchase_price ?? 0) * $row->qty);
-            }
-        }
-        $month_profit = $month_sales - $monthCogs;
+        $month_sales  = $month['sales'];
+        $month_profit = $month['gross_profit'];
 
         // ── Position ──
         $stock_value  = (float) StockBatch::where('type', 'in')->where('remaining_qty', '>', 0)

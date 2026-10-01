@@ -92,7 +92,7 @@ Lite: FundTransaction direction + source encode cash movement; `nature` (owner_c
 
 ## COGS — one source (Part U)
 
-Inventory engine (StockManagementService FIFO/LIFO/AVG + batch allocation) is the ONLY COGS calculator. Recognized COGS is consumed by Lite Basic Profit Summary and (when enabled) posted by Advanced. `order_details.cogs` is that single recognized value; the duplicate Accounts/Report COGS loops must collapse into one shared service. Advanced NEVER recomputes FIFO/LIFO/AVG.
+Inventory engine (StockManagementService FIFO/LIFO/AVG + batch allocation) is the ONLY cost producer: it persists the realized line total into `order_details.cogs` at stock-out. Reading that cost into profit is the job of the single shared rule **`App\Services\CogsCalculator`** (`lineCogs` / `cogsForOrders` / `recognizedOrders` / `periodProfit`) — Accounts dashboard, ReportController P&L and Dashboard today-profit all consume it; no controller may re-implement a competing loop. `cogs` (a LINE TOTAL, not a unit cost) is authoritative; the line's own `purchase_price × qty` snapshot is the only fallback; the live `Product.purchase_price` is never consulted. Recognition is `order_status ∈ {delivered, completed}` + a `created_at` window (no delivery timestamp exists yet — see CURRENT LIMITATION in `CogsCalculator`); `updated_at` must never be a recognition date. Advanced consumes recognized COGS and NEVER recomputes FIFO/LIFO/AVG.
 
 ## Profit (Parts V–W)
 

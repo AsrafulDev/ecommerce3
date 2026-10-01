@@ -63,7 +63,7 @@
             <p class="text-muted small mb-0"> {{ __('Live inventory status and valuation.') }} </p>
         </div>
         <div>
-            <a href="{{ route('admin.reports.stock',['export'=>'csv']) }}" class="btn btn-custom-outline shadow-sm">
+            <a href="{{ route('admin.reports.stock', array_filter(['export' => 'csv', 'supplier_id' => $supplierId ?? null])) }}" class="btn btn-custom-outline shadow-sm">
                 <i data-feather="download" class="me-1" style="width:16px;"></i> Export CSV
             </a>
         </div>
@@ -114,6 +114,29 @@
 
     {{-- STOCK TABLE --}}
     <div id="stock-table-wrapper">
+        {{-- SUPPLIER FILTER --}}
+        <form method="GET" action="{{ route('admin.reports.stock') }}" class="card card-modern p-3 mb-0" style="margin-bottom: 16px !important;">
+            <div class="row g-2 align-items-end">
+                <div class="col-auto">
+                    <label class="form-label small text-muted mb-1 fw-bold text-uppercase">{{ __('Supplier') }}</label>
+                    <select name="supplier_id" class="form-select form-select-sm" style="min-width:220px;" onchange="this.form.submit()">
+                        <option value="">{{ __('All Suppliers') }}</option>
+                        @foreach($suppliers as $s)
+                            <option value="{{ $s->id }}" @selected(!empty($supplierId) && $supplierId == $s->id)>{{ $s->name }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="col-auto">
+                    <button type="submit" class="btn btn-sm btn-primary">{{ __('Filter') }}</button>
+                </div>
+                @if(!empty($supplierId))
+                    <div class="col-auto">
+                        <a href="{{ route('admin.reports.stock') }}" class="btn btn-sm btn-outline-secondary">{{ __('Clear') }}</a>
+                    </div>
+                @endif
+            </div>
+        </form>
+
         <div class="card card-modern">
             <div class="card-header border-bottom bg-white py-3">
                 <h5 class="mb-0 fw-bold text-dark"> {{ __('Current Inventory List') }} </h5>
@@ -123,12 +146,13 @@
                 <table class="table table-modern mb-0">
                     <thead>
                         <tr>
-                            <th width="5%">#</th>
-                            <th width="35%"> {{ __('Product Name') }} </th>
-                            <th width="15%" class="text-end">{{ __('In Stock') }}</th>
-                            <th width="15%" class="text-end"> {{ __('Purchase Cost') }} </th>
-                            <th width="15%" class="text-end"> {{ __('Selling Price') }} </th>
-                            <th width="15%" class="text-end"> {{ __('Total Value') }} </th>
+                            <th width="4%">#</th>
+                            <th width="30%"> {{ __('Product Name') }} </th>
+                            <th width="20%"> {{ __('Supplier') }} </th>
+                            <th width="13%" class="text-end">{{ __('In Stock') }}</th>
+                            <th width="11%" class="text-end"> {{ __('Purchase Cost') }} </th>
+                            <th width="11%" class="text-end"> {{ __('Selling Price') }} </th>
+                            <th width="11%" class="text-end"> {{ __('Total Value') }} </th>
                         </tr>
                     </thead>
                     <tbody>
@@ -144,6 +168,13 @@
                             <td>
                                 <span class="fw-bold text-dark">{{ $p->name }}</span>
                             </td>
+                            <td>
+                                @if(!empty($supplierNames[$p->id]))
+                                    <span class="text-dark">{{ $supplierNames[$p->id] }}</span>
+                                @else
+                                    <span class="text-muted small">{{ __('—') }}</span>
+                                @endif
+                            </td>
                             <td class="text-end">
                                 <span class="badge {{ $stock > 10 ? 'bg-success' : ($stock > 0 ? 'bg-warning' : 'bg-danger') }} bg-opacity-10 text-dark border px-2">
                                     {{ $stock }}
@@ -155,7 +186,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="6" class="text-center py-5">
+                            <td colspan="7" class="text-center py-5">
                                 <div class="d-flex flex-column align-items-center">
                                     <img src="https://cdn-icons-png.flaticon.com/512/7486/7486744.png" width="50" class="opacity-25 mb-2">
                                     <p class="text-muted fw-bold mb-0"> {{ __('No products found') }} </p>

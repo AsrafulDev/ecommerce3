@@ -8,13 +8,13 @@ use Carbon\Carbon;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\DB;
 use App\Models\Order;
-use App\Models\OrderDetails;   // ✅ এইটাই এখন ইউজ হবে
 use App\Models\Product;
 use App\Models\Purchase;
 use App\Models\PurchaseItem;
 use App\Models\Expense;
 use App\Models\FundTransaction;
 use App\Models\StockBatch;
+use App\Models\Supplier;
 
 class ReportController extends Controller
 {
@@ -432,17 +432,44 @@ $totalExpense = $this->sumExistingColumns($query, ['amount']);
      * ======================= */
     public function stock(Request $request)
     {
-        $products = Product::orderBy('name')
+        $supplierId = (int) $request->get('supplier_id') ?: null;
+        $suppliers  = Supplier::orderBy('name')->get();
+
+        // A product belongs to a supplier through the batches it was received in —
+        // stock_batches.supplier_id is the persisted source of truth (written at
+        // purchase stock-in), not any denormalized field on the product.
+        $supplierProductIds = $supplierId
+            ? StockBatch::where('supplier_id', $supplierId)->where('type', 'in')->distinct()->pluck('product_id')
+            : null;
+
+        $productQuery = Product::query();
+        if ($supplierProductIds) {
+            $productQuery->whereIn('id', $supplierProductIds);
+        }
+
+        $products = $productQuery->orderBy('name')
                    ->paginate(20)
                    ->withQueryString();
+
+        // Supplier name per listed product (latest in-stock batch wins)
+        $supplierNames = $this->stockBatchSuppliers($products->pluck('id'));
 
         // Whole-period totals, plus the authoritative batch-based valuation
         // (source of truth = stock_batches.remaining_qty * unit_cost, per AGENTS.md;
         //  products.stock is a denormalized copy that can drift).
-        $totalStockQty   = (float) Product::sum('stock');
-        $totalStockValue = (float) Product::sum(DB::raw('COALESCE(purchase_price, 0) * COALESCE(stock, 0)'));
+        // When a supplier filter is active every figure on the page scopes to it,
+        // so the stats can never contradict the table.
+        $statsQuery = Product::query();
+        if ($supplierProductIds) {
+            $statsQuery->whereIn('id', $supplierProductIds);
+        }
+        $totalStockQty   = (float) (clone $statsQuery)->sum('stock');
+        $totalStockValue = (float) (clone $statsQuery)->sum(DB::raw('COALESCE(purchase_price, 0) * COALESCE(stock, 0)'));
 
         $batchStockQuery = StockBatch::where('type', 'in')->where('remaining_qty', '>', 0);
+        if ($supplierId) {
+            $batchStockQuery->where('supplier_id', $supplierId);
+        }
         $batchQty   = (float) (clone $batchStockQuery)->sum('remaining_qty');
         $batchValue = (float) (clone $batchStockQuery)->sum(DB::raw('remaining_qty * unit_cost'));
 
@@ -454,11 +481,11 @@ $totalExpense = $this->sumExistingColumns($query, ['amount']);
                 'Content-Disposition' => "attachment; filename=\"$fileName\"",
             ];
 
-            $callback = function () use ($products) {
+            $callback = function () use ($products, $supplierNames) {
                 $handle = fopen('php://output', 'w');
                 fputcsv($handle, ['Stock Report - Live']);
                 fputcsv($handle, []);
-                fputcsv($handle, ['Product', 'SKU', 'Stock', 'Purchase Price', 'Sale Price', 'Stock Value']);
+                fputcsv($handle, ['Product', 'SKU', 'Supplier', 'Stock', 'Purchase Price', 'Sale Price', 'Stock Value']);
 
                 foreach ($products as $p) {
                     $purchasePrice = $p->purchase_price ?? 0;
@@ -469,6 +496,7 @@ $totalExpense = $this->sumExistingColumns($query, ['amount']);
                     fputcsv($handle, [
                         $p->name,
                         $p->sku ?? '',
+                        $supplierNames[$p->id] ?? '',
                         $stock,
                         $purchasePrice,
                         $salePrice,
@@ -487,16 +515,62 @@ $totalExpense = $this->sumExistingColumns($query, ['amount']);
             'totalStockQty',
             'totalStockValue',
             'batchQty',
-            'batchValue'
+            'batchValue',
+            'suppliers',
+            'supplierId',
+            'supplierNames'
         ));
+    }
+
+    /**
+     * Resolve the supplier behind each product's current stock: the newest
+     * in-stock batch per product; batches older than the supplier_id column
+     * fall back to their purchase's supplier.
+     */
+    protected function stockBatchSuppliers($productIds): array
+    {
+        if (empty($productIds) || (is_countable($productIds) && count($productIds) === 0)) {
+            return [];
+        }
+
+        $latest = StockBatch::query()
+            ->where('type', 'in')
+            ->where('remaining_qty', '>', 0)
+            ->whereIn('product_id', $productIds)
+            ->orderByDesc('id')
+            ->get(['product_id', 'supplier_id', 'purchase_id'])
+            ->unique('product_id');
+
+        $purchaseIds = $latest->whereNull('supplier_id')->whereNotNull('purchase_id')->pluck('purchase_id');
+        $purchaseSuppliers = $purchaseIds->isEmpty()
+            ? collect()
+            : Purchase::whereIn('id', $purchaseIds)->pluck('supplier_id', 'id');
+
+        $supplierIds = $latest->pluck('supplier_id')
+            ->merge($purchaseSuppliers->values())
+            ->filter()
+            ->unique();
+
+        $names = $supplierIds->isEmpty() ? [] : Supplier::whereIn('id', $supplierIds)->pluck('name', 'id')->all();
+
+        $out = [];
+        foreach ($latest as $batch) {
+            $sid = $batch->supplier_id ?? ($purchaseSuppliers[$batch->purchase_id] ?? null);
+            if ($sid && isset($names[$sid])) {
+                $out[$batch->product_id] = $names[$sid];
+            }
+        }
+
+        return $out;
     }
 
     /* =======================
      *  BASIC PROFIT SUMMARY (Lite / operational P&L)
      *
-     *  Sale recognition: delivered/completed orders (order_status).
-     *  COGS: batch-realized order_details.cogs, snapshot price only as fallback
-     *  (same rule as the Accounts dashboard — one operational truth).
+     *  Sale + COGS recognition: the ONE shared rule (App\Services\CogsCalculator)
+     *  — delivered/completed orders by created_at, stored realized COGS with the
+     *  line's own snapshot as fallback. Sales and COGS always come from the same
+     *  recognized order set, so they share one reporting period.
      *  Cash movement (collections, supplier payments, owner capital/withdrawal)
      *  is deliberately NOT part of profit.
      * ======================= */
@@ -505,9 +579,7 @@ $totalExpense = $this->sumExistingColumns($query, ['amount']);
         [$from, $to, $label, $type] = $this->getDateRange($request);
 
         // 1) SALES — only recognized orders; cancelled/pending/returned are not sales
-        $orders = Order::whereBetween('created_at', [$from, $to])
-            ->whereIn('order_status', ['delivered', 'completed'])
-            ->get();
+        $orders = app(\App\Services\CogsCalculator::class)->recognizedOrders($from, $to);
 
         $salesAmount = $orders->sum(function ($order) {
             return $this->resolveOrderTotal($order);
@@ -519,21 +591,8 @@ $totalExpense = $this->sumExistingColumns($query, ['amount']);
             ->whereBetween('created_at', [$from, $to])
             ->sum('amount');
 
-        // 3) COGS — prefer batch-realized cogs stored on order_details
-        $orderDetails = OrderDetails::whereIn('order_id', $orders->pluck('id'))
-            ->with('product:id,purchase_price') // ✅ Eager load to avoid N+1
-            ->get(); // ✅ এখানে plural মডেল
-
-        $cogs = 0;
-        foreach ($orderDetails as $od) {
-            if ($od->cogs !== null && (float) $od->cogs > 0) {
-                $cogs += (float) $od->cogs;
-                continue;
-            }
-
-            $purchasePrice = $od->purchase_price ?? ($od->product->purchase_price ?? 0);
-            $cogs += $purchasePrice * ($od->qty ?? 0);
-        }
+        // 3) COGS — the shared line rule over the SAME orders as the sales above
+        $cogs = app(\App\Services\CogsCalculator::class)->cogsForOrders($orders);
 
         // 4) OTHER INCOME — operational income rows (warranty charges/resale).
         //    Owner capital ('manual_add') is Cash In, NOT income → excluded.

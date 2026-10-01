@@ -21,7 +21,7 @@ use DB;
 
 class DashboardController extends Controller
 {
-    public function __construct()
+    public function __construct(protected \App\Services\CogsCalculator $cogs)
     {
         // চাইলে এখানে auth middleware চালু করতে পারো
         // $this->middleware('auth')->except(['locked','unlocked']);
@@ -93,38 +93,16 @@ class DashboardController extends Controller
         // =========================
         // ⭐ TODAY PROFIT হিসাব
         // =========================
-        // আজকে যেসব অর্ডার ডেলিভার্ড/কমপ্লিট হয়েছে (status = delivered/completed & updated_at = আজ)
-        $todayDeliveredOrders = Order::whereIn('order_status', ['delivered', 'completed'])
-            ->whereDate('updated_at', Carbon::today())
-            ->get();
+        // একটাই shared নিয়ম (CogsCalculator): status = delivered/completed এবং
+        // created_at = আজ। updated_at কখনো recognition date হিসেবে ব্যবহৃত হয় না,
+        // তাই পরে কোনো সাধারণ এডিট পুরনো অর্ডারকে আজকের প্রফিটে টেনে আনবে না।
+        $today = $this->cogs->periodProfit(Carbon::today(), Carbon::today()->endOfDay());
 
         // আজকের সেল (amount এর sum)
-        $today_sales = $todayDeliveredOrders->sum('amount');
-
-        // আজকের অর্ডারগুলোর id
-        $todayOrderIds = $todayDeliveredOrders->pluck('id');
-
-        // সেই অর্ডারগুলোর ডিটেইলস (with product to avoid N+1)
-        $todayDetails = OrderDetails::whereIn('order_id', $todayOrderIds)
-            ->with('product:id,purchase_price')
-            ->get();
-
-        // আজকের COGS (Cost of Goods Sold)
-        $today_cogs = 0;
-
-        foreach ($todayDetails as $row) {
-            // Prefer the batch-realized COGS written at stock-out time (row total);
-            // fall back to purchase_price snapshot / current product cost only if absent.
-            if ($row->cogs !== null && (float) $row->cogs > 0) {
-                $today_cogs += (float) $row->cogs;
-            } else {
-                $purchase_price = $row->purchase_price ?? ($row->product->purchase_price ?? 0);
-                $today_cogs += ($purchase_price * $row->qty);
-            }
-        }
+        $today_sales = $today['sales'];
 
         // আজকের প্রফিট = আজকের সেল - আজকের COGS
-        $today_profit = $today_sales - $today_cogs;
+        $today_profit = $today['gross_profit'];
 
         // =========================
         // ⭐ FUND BALANCE (তহবিল)
