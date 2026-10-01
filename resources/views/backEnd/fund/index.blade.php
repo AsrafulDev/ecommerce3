@@ -1,12 +1,12 @@
 @extends('backEnd.layouts.master')
 
-@section('title', 'Fund Management')
+@section('title', 'Funds & Money Movement')
 
 @section('content')
 <div class="container-fluid">
 
     <div class="d-flex justify-content-between align-items-center mb-3">
-        <h3 class="mb-0">💰 Fund Management</h3>
+        <h3 class="mb-0">💰 Funds & Money Movement</h3>
         <a href="{{ route('admin.fund.logs') }}" class="btn btn-info btn-sm">
             <i data-feather="file-text" class="me-1" style="width:14px;height:14px;"></i> 
             View Edit/Delete Logs & Reports
@@ -173,7 +173,7 @@
     {{-- Fund History --}}
     <div class="card">
         <div class="card-header bg-light d-flex justify-content-between align-items-center">
-            <strong>🧾 Fund History</strong>
+            <strong>🧾 Money Movement History</strong>
             <div>
                 <a href="{{ route('admin.fund.logs') }}" class="btn btn-sm btn-outline-info">
                     <i data-feather="file-text" class="me-1" style="width:14px;height:14px;"></i> View Logs / Reports

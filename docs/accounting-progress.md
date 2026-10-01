@@ -8,6 +8,30 @@ Legend: `[x]` COMPLETE · `[~]` IN PROGRESS · `[ ]` NOT STARTED · `[!]` BLOCKE
 
 # Current Development Status
 
+### 2026-10-01 Lite Accounting pre-implementation audit
+
+- Lite menu: `Transactions` contains the dashboard, fund/cash book, expenses,
+  and operational reports. Advanced `Accounts` is separately gated.
+- Routes/pages: `/accounts`, `/fund`, `/expenses`, and existing reports are
+  reused. Lite customer/supplier ledger pages do not yet exist.
+- `fund_transactions` stores direction, legacy source/source_id, amount, notes,
+  actors, and write-only balance snapshots; it has no fund_id and remains a
+  virtual single till.
+- Observed sources are sale, refund, order_refund, refund_reversal, expense,
+  supplier_payment, employee_salary, employee_bonus, withdraw, manual_add,
+  warranty, and warranty_resell. Manual money-in nature is chosen explicitly
+  at the controller/accounting boundary and is not stored on legacy rows.
+- Creation paths are FundHelper, PaymentCollectionService, and the Fund,
+  Expense, Purchase, Refund, Salary, Bonus, and Warranty controllers. Reads
+  are in FundHelper, AccountsController, FundController, reports, accounting
+  sync/manual-entry integration, and views.
+- COGS/profit already uses the shared `CogsCalculator`; no second formula is
+  introduced.
+- Safe change: additive nullable `transaction_category`; deterministic source
+  mappings only. Ambiguous historical manual money-in rows remain null.
+- Baseline: `php artisan test` — 293 passed, 1,144 assertions, 0 failures,
+  0 skipped.
+
 _Reviewed: 2026-09-29 — full two-repo audit (no code changes made during this audit)._
 
 ## Repository Status

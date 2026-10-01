@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\FundTransaction;
+use App\Enums\TransactionCategory;
 use App\Models\FundTransactionLog;
 use App\Services\Accounting\AdvancedAccountingGateway;
 use Illuminate\Support\Facades\Auth;
@@ -92,6 +93,9 @@ class FundController extends Controller
                 'direction'  => 'in',
                 'source'     => 'manual_add',
                 'source_id'  => null,
+                'transaction_category' => $validated['nature'] === 'owner_capital'
+                    ? TransactionCategory::OWNER_CAPITAL
+                    : TransactionCategory::OTHER_INCOME,
                 // ensure decimal precision: cast to float or string decimal to avoid integer issues
                 'amount'     => round((float)$validated['amount'], 2),
                 'note'       => $validated['note'] ?? null,
@@ -134,6 +138,7 @@ class FundController extends Controller
                 'direction'  => 'out',
                 'source'     => 'withdraw',
                 'source_id'  => null,
+                'transaction_category' => TransactionCategory::OWNER_WITHDRAWAL,
                 'amount'     => $amount,
                 'note'       => $validated['note'] ?? null,
                 'created_by' => Auth::id(),

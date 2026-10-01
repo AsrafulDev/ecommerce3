@@ -8,6 +8,15 @@ Companion to `docs/architecture.md` (ownership boundaries + gap list) and `docs/
 - **Advanced Accounting** — optional professional double-entry module. Engine: `softmit/bd-double-entry`.
 - Advanced Accounting does **not replace** Lite Accounting; it is additive.
 
+### Lite transaction semantics
+
+`TransactionCategory` is Lite-owned and describes **what business event
+happened**. It is separate from `direction` (how money moved), `source` and
+`source_id` (the legacy originating record), `nature`, party, and fund. It
+supplements legacy fields and never encodes debit/credit rules. The category
+column is nullable so historical rows that cannot be classified without
+guessing remain truthful.
+
 ## The core rule (Parts D–E)
 
 ```

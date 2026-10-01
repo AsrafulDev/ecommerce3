@@ -2,14 +2,34 @@
 
 namespace App\Models;
 
+use App\Enums\TransactionCategory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class FundTransaction extends Model
 {
     protected $fillable = [
-        'direction', 'source', 'source_id', 'amount', 'note', 'created_by', 'updated_by',
+        'direction', 'source', 'source_id', 'transaction_category', 'amount', 'note', 'created_by', 'updated_by',
     ];
+
+    protected function casts(): array
+    {
+        return ['transaction_category' => TransactionCategory::class];
+    }
+
+    protected static function booted(): void
+    {
+        static::creating(function (self $transaction): void {
+            if ($transaction->transaction_category === null) {
+                $transaction->transaction_category = TransactionCategory::fromSource($transaction->source);
+            }
+        });
+    }
+
+    public function categoryLabel(): ?string
+    {
+        return $this->transaction_category?->label();
+    }
 
     /**
      * Sources that are manually entered (safe to edit/delete).

@@ -959,9 +959,9 @@
   </a>
   <div class="collapse {{ request()->routeIs('admin.accounts.*', 'admin.fund.*', 'admin.expenses.*', 'admin.reports.*') ? 'show' : '' }}" id="sidebar-transactions">
     <ul class="nav-second-level">
-      <li><a href="{{ route('admin.accounts.dashboard') }}"><i data-feather="pie-chart"></i> {{ __('Dashboard') }} </a></li>
+      <li><a href="{{ route('admin.accounts.dashboard') }}"><i data-feather="pie-chart"></i> {{ __('Overview') }} </a></li>
       @canany(['fund-list', 'fund-create', 'fund-edit'])
-      <li><a href="{{ route('admin.fund.index') }}"><i data-feather="briefcase"></i> {{ __('Fund / Cash Book') }} </a></li>
+      <li><a href="{{ route('admin.fund.index') }}"><i data-feather="briefcase"></i> {{ __('Funds & Money Movement') }} </a></li>
       @endcanany
       @canany(['expense-list', 'expense-create', 'expense-edit'])
       <li><a href="{{ route('admin.expenses.index') }}"><i data-feather="credit-card"></i> {{ __('Expenses') }} </a></li>

@@ -17,9 +17,9 @@
 <div class="container-fluid">
 
     <div class="d-flex justify-content-between align-items-center mb-3">
-        <h3 class="mb-0">📒 {{ __('Accounts Dashboard') }}</h3>
+        <h3 class="mb-0">📒 {{ __('Transactions Overview') }}</h3>
         <div>
-            <a href="{{ route('admin.fund.index') }}" class="btn btn-sm btn-outline-primary"><i class="mdi mdi-briefcase me-1"></i>{{ __('Fund') }}</a>
+            <a href="{{ route('admin.fund.index') }}" class="btn btn-sm btn-outline-primary"><i class="mdi mdi-briefcase me-1"></i>{{ __('Funds') }}</a>
             <a href="{{ route('admin.expenses.index') }}" class="btn btn-sm btn-outline-secondary"><i class="mdi mdi-credit-card me-1"></i>{{ __('Expenses') }}</a>
             <a href="{{ route('admin.fund.export') }}" class="btn btn-sm btn-outline-success"><i class="mdi mdi-file-delimited me-1"></i>{{ __('Export CSV') }}</a>
         </div>
@@ -134,7 +134,7 @@
         <div class="col-12">
             <div class="card">
                 <div class="card-header bg-light d-flex justify-content-between align-items-center">
-                    <strong>🕘 {{ __('Recent Fund Transactions') }}</strong>
+                    <strong>🕘 {{ __('Recent Money Movement') }}</strong>
                     <a href="{{ route('admin.fund.index') }}" class="btn btn-sm btn-link">{{ __('View all') }}</a>
                 </div>
                 <div class="card-body p-0">
