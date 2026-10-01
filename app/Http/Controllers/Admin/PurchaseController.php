@@ -477,6 +477,11 @@ class PurchaseController extends Controller
         }
 
         app(AdvancedAccountingGateway::class)->recordPurchase($purchase);
+        if ($paid > 0) {
+            app(AdvancedAccountingGateway::class)->supplierPaymentMade(
+                $purchase->payments()->latest('id')->first()
+            );
+        }
 
         if ($request->filled('draft_id')) {
             Purchase::where('id', $request->draft_id)
@@ -586,7 +591,7 @@ class PurchaseController extends Controller
             return back()->with('error', 'Not enough balance in fund!');
         }
 
-        DB::transaction(function () use ($purchase, $request) {
+        $payment = DB::transaction(function () use ($purchase, $request) {
             $fund = FundTransaction::create([
                 'direction'  => 'out',
                 'source'     => 'supplier_payment',
@@ -617,7 +622,11 @@ class PurchaseController extends Controller
             $supplier = $purchase->supplier;
             $supplier->current_due = max(0, $supplier->current_due - $request->amount);
             $supplier->save();
+
+            return $payment;
         });
+
+        app(AdvancedAccountingGateway::class)->supplierPaymentMade($payment);
 
         return back()->with('success','Due payment successful!');
     }

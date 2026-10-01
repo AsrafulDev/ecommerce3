@@ -135,7 +135,7 @@ Inventory engine (StockManagementService FIFO/LIFO/AVG + batch allocation) is th
 - Advanced party ledger: AR/AP sub-ledgers via `LedgerService::forParty()` — built.
 - Reconciliation targets: Customer Due ↔ AR, Supplier Due ↔ AP, Fund ↔ Cash/Bank GL (`FundAccount` mapping — Lite funds map to Advanced accounts only when Advanced is enabled), Inventory ↔ Inventory GL, Basic Profit ↔ Income Statement.
 
-## Phase 3 recognition boundary
+## Phase 3–4 recognition and settlement boundary
 
 Posted sales use SourceType::SALE and the full order amount:
 Dr ACCOUNTS_RECEIVABLE / Cr SALES_REVENUE. Posted purchases use
@@ -143,6 +143,14 @@ SourceType::PURCHASE and the full committed purchase amount:
 Dr INVENTORY / Cr ACCOUNTS_PAYABLE. Recognition is gated until the opening
 journal is posted. Payment settlement, COGS, returns, refunds, and tax remain
 separate integrations.
+
+Each committed OrderPayment posts one customer settlement:
+Dr default Fund / Cr Accounts Receivable. Each committed SupplierPayment posts
+Dr Accounts Payable / Cr default Fund. Payment rows, not order/purchase IDs,
+are the settlement source IDs, so multiple payments remain independently
+traceable and idempotent. Credit is never a Fund; it remains AR/AP. The
+current Lara Fund model is a single virtual till, so per-Cash/Bank/MFS GL
+mapping is intentionally deferred.
 
 ## Invariants
 

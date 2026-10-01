@@ -7,6 +7,7 @@ use App\Models\FundTransaction;
 use App\Models\OrderPayment;
 use App\Models\Order;
 use App\Models\Purchase;
+use App\Models\SupplierPayment;
 use App\Support\Accounting\AccountingAvailability;
 use App\Support\Accounting\ManualPostingResult;
 use Softmit\DoubleEntry\Enums\SourceType;
@@ -125,8 +126,10 @@ final class DoubleEntryAdvancedAccountingGateway implements AdvancedAccountingGa
      * customer-payment integration phase; until then the Lite fund ledger
      * already holds the money, which is the operational truth.
      */
-    public function paymentReceived(OrderPayment $payment): void
+    public function paymentReceived(OrderPayment $payment): ?ManualPostingResult
     {
+        if (!$this->readyForLivePosting()) return ManualPostingResult::notReady();
+        return $this->manual->customerPayment($payment);
     }
 
     public function recordSale(Order $order): ?ManualPostingResult
@@ -139,5 +142,11 @@ final class DoubleEntryAdvancedAccountingGateway implements AdvancedAccountingGa
     {
         if (!$this->readyForLivePosting()) return ManualPostingResult::notReady();
         return $this->manual->purchase($purchase);
+    }
+
+    public function supplierPaymentMade(SupplierPayment $payment): ?ManualPostingResult
+    {
+        if (!$this->readyForLivePosting()) return ManualPostingResult::notReady();
+        return $this->manual->supplierPayment($payment);
     }
 }

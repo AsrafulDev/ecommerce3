@@ -7,6 +7,7 @@ use App\Models\FundTransaction;
 use App\Models\OrderPayment;
 use App\Models\Order;
 use App\Models\Purchase;
+use App\Models\SupplierPayment;
 use App\Support\Accounting\ManualPostingResult;
 
 /**
@@ -113,9 +114,11 @@ interface AdvancedAccountingGateway
      * Wired since the gateway seam landed; the accrual posting itself joins
      * with the customer-payment integration phase.
      */
-    public function paymentReceived(OrderPayment $payment): void;
+    public function paymentReceived(OrderPayment $payment): ?ManualPostingResult;
 
     public function recordSale(Order $order): ?ManualPostingResult;
 
     public function recordPurchase(Purchase $purchase): ?ManualPostingResult;
+
+    public function supplierPaymentMade(SupplierPayment $payment): ?ManualPostingResult;
 }

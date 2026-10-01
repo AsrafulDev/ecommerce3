@@ -7,6 +7,7 @@ use App\Models\FundTransaction;
 use App\Models\OrderPayment;
 use App\Models\Order;
 use App\Models\Purchase;
+use App\Models\SupplierPayment;
 use App\Support\Accounting\AccountingAvailability;
 use App\Support\Accounting\ManualPostingResult;
 
@@ -96,11 +97,13 @@ final class NullAdvancedAccountingGateway implements AdvancedAccountingGateway
         return [];
     }
 
-    public function paymentReceived(OrderPayment $payment): void
+    public function paymentReceived(OrderPayment $payment): ?ManualPostingResult
     {
     }
 
     public function recordSale(Order $order): ?ManualPostingResult { return null; }
 
     public function recordPurchase(Purchase $purchase): ?ManualPostingResult { return null; }
+
+    public function supplierPaymentMade(SupplierPayment $payment): ?ManualPostingResult { return null; }
 }

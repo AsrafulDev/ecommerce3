@@ -6,6 +6,8 @@ use App\Models\Expense;
 use App\Models\FundTransaction;
 use App\Models\Order;
 use App\Models\Purchase;
+use App\Models\OrderPayment;
+use App\Models\SupplierPayment;
 use App\Support\Accounting\ManualPostingResult;
 use Carbon\Carbon;
 use Softmit\DoubleEntry\Enums\JournalStatus;
@@ -79,6 +81,40 @@ class ManualEntryService
             ->credit(AccountRole::ACCOUNTS_PAYABLE, Money::of($purchase->grand_total), 'Supplier payable');
 
         if ((int) $purchase->supplier_id > 0) $draft->party(PartyType::SUPPLIER, (int) $purchase->supplier_id);
+        return $this->post($draft);
+    }
+
+    public function customerPayment(OrderPayment $payment): ManualPostingResult
+    {
+        $date = $payment->created_at?->format('Y-m-d') ?? now()->format('Y-m-d');
+        if ($this->refuses($date)) return ManualPostingResult::preCutover();
+        $order = $payment->order;
+        $draft = JournalDraft::make($date)
+            ->from(SourceType::CUSTOMER_PAYMENT, (int) $payment->id, $order?->invoice_id ?: ('Order #'.$payment->order_id))
+            ->key($this->nextKey(SourceType::CUSTOMER_PAYMENT, (int) $payment->id))
+            ->about('Customer payment: '.($order?->invoice_id ?: ('Order #'.$payment->order_id)))
+            ->actor($payment->created_by)
+            ->meta(['legacy' => 'order_payments', 'order_id' => $payment->order_id, 'fund_method' => $payment->payment_method])
+            ->debit($this->cashAccount(), Money::of($payment->amount), 'Funds received')
+            ->credit(AccountRole::ACCOUNTS_RECEIVABLE, Money::of($payment->amount), 'Customer settlement');
+        if ((int) $payment->customer_id > 0) $draft->party(PartyType::CUSTOMER, (int) $payment->customer_id);
+        return $this->post($draft);
+    }
+
+    public function supplierPayment(SupplierPayment $payment): ManualPostingResult
+    {
+        $date = $payment->payment_date?->format('Y-m-d') ?? $payment->created_at?->format('Y-m-d') ?? now()->format('Y-m-d');
+        if ($this->refuses($date)) return ManualPostingResult::preCutover();
+        $purchase = $payment->purchase;
+        $draft = JournalDraft::make($date)
+            ->from(SourceType::SUPPLIER_PAYMENT, (int) $payment->id, $purchase?->invoice_no ?: ('Supplier payment #'.$payment->id))
+            ->key($this->nextKey(SourceType::SUPPLIER_PAYMENT, (int) $payment->id))
+            ->about('Supplier payment: '.($purchase?->invoice_no ?: ('Payment #'.$payment->id)))
+            ->actor($payment->created_by)
+            ->meta(['legacy' => 'supplier_payments', 'purchase_id' => $payment->purchase_id, 'fund_transaction_id' => $payment->fund_transaction_id, 'fund_method' => $payment->method])
+            ->debit(AccountRole::ACCOUNTS_PAYABLE, Money::of($payment->amount), 'Supplier settlement')
+            ->credit($this->cashAccount(), Money::of($payment->amount), 'Funds paid');
+        if ((int) $payment->supplier_id > 0) $draft->party(PartyType::SUPPLIER, (int) $payment->supplier_id);
         return $this->post($draft);
     }
 

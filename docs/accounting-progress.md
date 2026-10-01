@@ -225,10 +225,12 @@ recognition after their operational transaction commits. Both use source,
 party, actor, business date, cutover, and idempotent posting keys.
 
 Current Lite workflows create immediate customer and supplier payment rows,
-but the Advanced payment adapter is still intentionally empty. This phase
-therefore does not claim settlement reconciliation for paid or partially paid
-documents; existing Lite fund semantics remain unchanged. Payment settlement,
-COGS, returns, refunds, and tax remain separate integrations.
+and Phase 4 now posts each committed payment as its own source-traced
+settlement journal. Customer payments use Dr Fund / Cr AR; supplier payments
+use Dr AP / Cr Fund. Existing Lite fund semantics remain unchanged. The
+current single virtual fund resolves to the configured default Advanced fund
+account; payment method and supplier fund-transaction linkage are retained as
+metadata for future per-Fund mapping.
 
 ## Phase Log
 
