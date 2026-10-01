@@ -152,6 +152,15 @@ traceable and idempotent. Credit is never a Fund; it remains AR/AP. The
 current Lara Fund model is a single virtual till, so per-Cash/Bank/MFS GL
 mapping is intentionally deferred.
 
+COGS is sourced exclusively from the stock engine's persisted order-detail
+COGS line totals and batch IDs. Advanced COGS is requested only after stockOut
+succeeds, and uses SALE_COGS/order ID independently of the SALE journal.
+Fallback stock decrement can preserve Lite operation but does not provide an
+authoritative Advanced COGS amount. Cancellation and return flows currently
+clear operational COGS without reversing posted Advanced sale/COGS journals;
+the next return/reversal phase must address that before those workflows are
+Advanced-integrated.
+
 ## Invariants
 
 1. Every posted journal: Σ Debit = Σ Credit (bcmath exact). No exception.

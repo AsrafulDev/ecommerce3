@@ -118,6 +118,8 @@ interface AdvancedAccountingGateway
 
     public function recordSale(Order $order): ?ManualPostingResult;
 
+    public function recordCogs(Order $order): ?ManualPostingResult;
+
     public function recordPurchase(Purchase $purchase): ?ManualPostingResult;
 
     public function supplierPaymentMade(SupplierPayment $payment): ?ManualPostingResult;

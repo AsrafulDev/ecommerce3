@@ -33,14 +33,11 @@ class OrderStatusService
         $wasActive = $oldEnum->consumesStock();
         $isActive  = $newEnum->consumesStock();
 
-        if (!$wasActive && $isActive) {
-            app(AdvancedAccountingGateway::class)->recordSale($order);
-        }
-
         /** @var StockManagementService $stockService */
         $stockService = app(StockManagementService::class);
 
         // 1) Entering active status → decrease stock (with batch tracking)
+        $authoritativeCogs = true;
         if ($isActive && !$wasActive) {
             $details = OrderDetails::where('order_id', $order->id)
                 ->with('product', 'warrantySale')
@@ -68,6 +65,7 @@ class OrderStatusService
                     // Phase 5.1 — move this line's sold serials sn_stock → sn_sold
                     $this->moveRowSerialsToSold($row);
                 } catch (\RuntimeException $e) {
+                    $authoritativeCogs = false;
                     // Fallback: simple stock decrement if batch tracking fails
                     $row->product->decrement('stock', (int) $row->qty);
                     Log::warning('Stock batch deduction failed, used fallback', [
@@ -76,6 +74,12 @@ class OrderStatusService
                         'error'   => $e->getMessage(),
                     ]);
                 }
+            }
+
+            $ledger = app(AdvancedAccountingGateway::class);
+            $ledger->recordSale($order);
+            if ($authoritativeCogs && $details->contains(fn ($row) => $row->cogs !== null && (float) $row->cogs > 0)) {
+                $ledger->recordCogs($order->fresh());
             }
         }
 

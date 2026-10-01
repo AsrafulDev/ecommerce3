@@ -232,6 +232,12 @@ current single virtual fund resolves to the configured default Advanced fund
 account; payment method and supplier fund-transaction linkage are retained as
 metadata for future per-Fund mapping.
 
+Phase 5 COGS recognition consumes persisted order-detail COGS only, after
+successful batch allocation. It posts Dr COGS / Cr Inventory independently
+from sale recognition and customer payment, with source SALE_COGS and an
+independent idempotency key. If stock allocation falls back without an
+authoritative persisted cost, Advanced COGS is not fabricated.
+
 ## Phase Log
 
 | Date | Phase | Files changed | Migrations | Tests | Result | Next step |

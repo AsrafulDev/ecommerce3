@@ -84,6 +84,26 @@ class ManualEntryService
         return $this->post($draft);
     }
 
+    public function cogs(Order $order): ManualPostingResult
+    {
+        $date = $order->created_at?->format('Y-m-d') ?? now()->format('Y-m-d');
+        if ($this->refuses($date)) return ManualPostingResult::preCutover();
+
+        $amount = $order->orderdetails()->sum('cogs');
+        if ((float) $amount <= 0) return ManualPostingResult::failed();
+
+        return $this->post(
+            JournalDraft::make($date)
+                ->from(SourceType::SALE_COGS, (int) $order->id, $order->invoice_id ?: ('Order #'.$order->id))
+                ->key($this->nextKey(SourceType::SALE_COGS, (int) $order->id))
+                ->about('COGS: '.($order->invoice_id ?: ('Order #'.$order->id)))
+                ->actor($order->updated_by ?? $order->created_by ?? null)
+                ->meta(['legacy' => 'order_details', 'order_id' => $order->id, 'source' => 'persisted_order_details_cogs'])
+                ->debit(AccountRole::COGS, Money::of($amount), 'Cost of goods sold')
+                ->credit(AccountRole::INVENTORY, Money::of($amount), 'Inventory cost released')
+        );
+    }
+
     public function customerPayment(OrderPayment $payment): ManualPostingResult
     {
         $date = $payment->created_at?->format('Y-m-d') ?? now()->format('Y-m-d');

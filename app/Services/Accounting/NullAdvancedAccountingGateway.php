@@ -103,6 +103,8 @@ final class NullAdvancedAccountingGateway implements AdvancedAccountingGateway
 
     public function recordSale(Order $order): ?ManualPostingResult { return null; }
 
+    public function recordCogs(Order $order): ?ManualPostingResult { return null; }
+
     public function recordPurchase(Purchase $purchase): ?ManualPostingResult { return null; }
 
     public function supplierPaymentMade(SupplierPayment $payment): ?ManualPostingResult { return null; }

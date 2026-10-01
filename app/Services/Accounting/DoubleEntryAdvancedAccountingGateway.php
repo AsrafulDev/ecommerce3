@@ -138,6 +138,12 @@ final class DoubleEntryAdvancedAccountingGateway implements AdvancedAccountingGa
         return $this->manual->sale($order);
     }
 
+    public function recordCogs(Order $order): ?ManualPostingResult
+    {
+        if (!$this->readyForLivePosting()) return ManualPostingResult::notReady();
+        return $this->manual->cogs($order);
+    }
+
     public function recordPurchase(Purchase $purchase): ?ManualPostingResult
     {
         if (!$this->readyForLivePosting()) return ManualPostingResult::notReady();
