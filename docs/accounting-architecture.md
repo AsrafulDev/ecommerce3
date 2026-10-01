@@ -23,6 +23,14 @@ supplier-payment history. They deliberately do not read Advanced journal or
 subledger tables. Their closing balances must reconcile to the existing
 operational due fields; the due fields remain authoritative.
 
+### Advanced integration boundary
+
+The first supported Advanced event slice is Expense, Other Income, Owner
+Capital, and Owner Withdrawal. Lite categories and business rows remain
+host-owned; the adapter selects package account roles while the package owns
+journal mechanics, posting, idempotency, and reports. Payment, purchase, sale,
+COGS, return, and refund postings remain intentionally deferred.
+
 ## The core rule (Parts D–E)
 
 ```

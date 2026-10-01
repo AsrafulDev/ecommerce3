@@ -170,6 +170,19 @@ _Reviewed: 2026-09-29 — full two-repo audit (no code changes made during this 
 
 ---
 
+### Advanced Accounting Integration Phase 1 (2026-10-01)
+
+- Re-audit confirmed the first slice is live: Expense, Other Income, Owner
+  Capital, and Owner Withdrawal flow through the gateway and live adapter when
+  enabled, and the inert Null gateway when disabled.
+- Existing role mappings, deterministic posting keys, source/actor traces,
+  balanced journals, idempotency, P&L exclusions, trial balance, GL, reversals,
+  and disabled-mode safety are covered by host tests.
+- The package defaults sync command was fixed separately to read its returned
+  `verified` count instead of the nonexistent `updated` key.
+- Customer payment, supplier payment, purchase, sale, COGS, returns, refunds,
+  and VAT/Mushak remain intentionally deferred.
+
 ## Current Coupling Assessment (Part D compliance)
 
 **COMPLIANT since the 2026-09-29 seam enforcement** (was: NOT compliant — see phase log). Verified by `tests/Feature/Accounting/AdvancedAccountingDisabledTest`: with `double-entry.enabled=false` expense/fund/payment flows work, zero journals, accounting routes 404, and no package-backed service is constructed. Package-ABSENCE safety: host config is package-free, the single `class_exists` probe short-circuits before any package state, all remaining package imports live behind the `advanced-accounting` middleware or inside the integration layer (ManualEntryService / OpeningBalanceService / DoubleEntry gateway / Accounting controllers).
