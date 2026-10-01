@@ -17,6 +17,12 @@ supplements legacy fields and never encodes debit/credit rules. The category
 column is nullable so historical rows that cannot be classified without
 guessing remain truthful.
 
+Lite party ledgers are operational views: customer balances come from orders
+and order-payment history, while supplier balances come from purchases and
+supplier-payment history. They deliberately do not read Advanced journal or
+subledger tables. Their closing balances must reconcile to the existing
+operational due fields; the due fields remain authoritative.
+
 ## The core rule (Parts D–E)
 
 ```

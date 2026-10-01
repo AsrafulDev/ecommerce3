@@ -962,6 +962,8 @@
       <li><a href="{{ route('admin.accounts.dashboard') }}"><i data-feather="pie-chart"></i> {{ __('Overview') }} </a></li>
       @canany(['fund-list', 'fund-create', 'fund-edit'])
       <li><a href="{{ route('admin.fund.index') }}"><i data-feather="briefcase"></i> {{ __('Funds & Money Movement') }} </a></li>
+      <li><a href="{{ route('admin.accounts.customers') }}"><i data-feather="user"></i> {{ __('Customer Accounts') }} </a></li>
+      <li><a href="{{ route('admin.accounts.suppliers') }}"><i data-feather="truck"></i> {{ __('Supplier Accounts') }} </a></li>
       @endcanany
       @canany(['expense-list', 'expense-create', 'expense-edit'])
       <li><a href="{{ route('admin.expenses.index') }}"><i data-feather="credit-card"></i> {{ __('Expenses') }} </a></li>

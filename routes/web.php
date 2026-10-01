@@ -260,6 +260,10 @@ Route::get('cart/remove-coupon', [ShoppingController::class, 'removeCoupon'])->n
 Route::prefix('admin')->middleware(['auth:admin', 'admin', 'demo_mode'])->group(function () {
     // Accounts Dashboard
     Route::get('/accounts', [AccountsController::class, 'dashboard'])->name('admin.accounts.dashboard');
+    Route::get('/accounts/customers', [\App\Http\Controllers\Admin\LiteLedgerController::class, 'customers'])->name('admin.accounts.customers');
+    Route::get('/accounts/customers/{id}', [\App\Http\Controllers\Admin\LiteLedgerController::class, 'customer'])->name('admin.accounts.customer');
+    Route::get('/accounts/suppliers', [\App\Http\Controllers\Admin\LiteLedgerController::class, 'suppliers'])->name('admin.accounts.suppliers');
+    Route::get('/accounts/suppliers/{id}', [\App\Http\Controllers\Admin\LiteLedgerController::class, 'supplier'])->name('admin.accounts.supplier');
 
     // Fund Routes
     Route::get('/fund', [FundController::class, 'index'])->name('admin.fund.index');

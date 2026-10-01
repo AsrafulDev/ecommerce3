@@ -38,6 +38,29 @@ _Reviewed: 2026-09-29 — full two-repo audit (no code changes made during this 
 
 ### Lara
 
+### Lite Accounting Phase 2 (2026-10-01)
+
+- Customer Ledger: implemented under Transactions → Customer Accounts. It is
+  derived from `orders` and `order_payments`; charge rows are order totals and
+  payment rows are the order-payment ledger. Closing balance is checked against
+  the sum of operational `orders.due_amount`.
+- Supplier Ledger: implemented under Transactions → Supplier Accounts. It is
+  derived from `purchases` and `supplier_payments`; closing balance is checked
+  against the sum of operational `purchases.due_amount`.
+- Supplier payment trace: new purchase payments already persist a
+  `SupplierPayment`, link it through `fund_transaction_id`, and set the fund
+  row's `source_id` to that payment ID. No fake IDs or historical rewrite was
+  added.
+- Category coverage: deterministic source categories are assigned by the
+  `FundTransaction` model; manual money-in is assigned from explicit nature.
+  Historical ambiguous `manual_add` rows remain nullable.
+- Lite P&L remains unchanged and continues to use `CogsCalculator`; customer
+  payments, supplier payments, capital, and withdrawals are cash movements,
+  not profit events. Returns/refunds remain governed by existing operational
+  behavior and were not reclassified speculatively.
+- Phase 2 targeted verification: 22 passed, 113 assertions. Full regression
+  from the preceding phase remains 293 passed, 1,144 assertions.
+
 - Branch: `premium` (ahead of `origin/premium` by 1 commit — not yet pushed)
 - Latest commit: `2bca487` "Add Lite/Advance accounting: availability seam, cash rule unification, gateway cash-in"
 - Working tree: clean except `.phpunit.cache/test-results` (cache noise) and untracked `.commandcode/`, `.qoder/` (tool dirs — not project work)
