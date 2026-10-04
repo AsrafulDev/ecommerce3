@@ -4,6 +4,7 @@ namespace App\Helpers;
 
 use App\Models\FundTransaction;
 use App\Models\Order;
+use App\Models\OrderPayment;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 
@@ -33,7 +34,19 @@ class FundHelper
             FundTransaction::where('direction', 'in'), $since, $until
         )->sum('amount');
 
-        return round($in - self::uncollectedSaleCredits($since, $until), 2);
+        // A legacy delivered-order sale row and a canonical payment row may
+        // coexist while old orders are being collected. Once a canonical
+        // payment exists, the payment rows are the cash source; hide the old
+        // aggregate sale row from realizable income to prevent double-counting.
+        $legacySaleReplaced = (float) self::bounded(
+            FundTransaction::where('direction', 'in')
+                ->where('source', 'sale')
+                ->whereIn('source_id', OrderPayment::whereNotNull('fund_transaction_id')->select('order_id')),
+            $since,
+            $until
+        )->sum('amount');
+
+        return round($in - $legacySaleReplaced - self::uncollectedSaleCredits($since, $until), 2);
     }
 
     /**
@@ -63,7 +76,8 @@ class FundHelper
                 ->whereNotNull('source_id'),
             $since,
             $until
-        )->groupBy('source_id');
+        )->whereNotIn('source_id', OrderPayment::whereNotNull('fund_transaction_id')->select('order_id'))
+            ->groupBy('source_id');
 
         return (float) DB::query()
             ->fromSub($credits, 'x')
@@ -88,6 +102,10 @@ class FundHelper
      */
     public static function creditedFor(int $orderId): float
     {
+        if (OrderPayment::where('order_id', $orderId)->whereNotNull('fund_transaction_id')->exists()) {
+            return (float) (Order::find($orderId)?->amount ?? 0);
+        }
+
         return (float) FundTransaction::where('source', 'sale')
             ->where('source_id', $orderId)
             ->sum('amount');

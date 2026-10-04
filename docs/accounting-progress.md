@@ -77,6 +77,18 @@ _Reviewed: 2026-09-29 — full two-repo audit (no code changes made during this 
 - New dedicated tests: 3 passed, 13 assertions. Historical nullable categories
   remain allowed; only supported new writes are required to classify.
 
+### Payment Accounting Foundation — Phase 2B-1 (2026-10-04)
+
+- New customer payments now have an atomic `customer_payment` fund trace with
+  exact `OrderPayment.id` source and a bidirectional nullable link; historical
+  order-aggregate sale rows were not backfilled.
+- Supplier payment creation uses a shared trace/reconciliation service, with
+  exact source links and purchase/supplier due recomputation from history.
+- Legacy-safe cash reporting excludes replaced order-level sale rows when a
+  canonical customer payment exists, preventing double counting.
+- Payment purge remains globally blocked; no destructive payment endpoint was
+  added. Full regression: 312 passed, 1,214 assertions.
+
 - Branch: `premium` (ahead of `origin/premium` by 1 commit — not yet pushed)
 - Latest commit: `2bca487` "Add Lite/Advance accounting: availability seam, cash rule unification, gateway cash-in"
 - Working tree: clean except `.phpunit.cache/test-results` (cache noise) and untracked `.commandcode/`, `.qoder/` (tool dirs — not project work)

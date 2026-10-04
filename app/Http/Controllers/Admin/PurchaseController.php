@@ -414,28 +414,9 @@ class PurchaseController extends Controller
 
             // FUND PAYMENT
             if ($paid > 0) {
-                $fund = FundTransaction::create([
-                    'direction'  => 'out',
-                    'source'     => 'supplier_payment',
-                    'source_id'  => null,
-                    'amount'     => $paid,
-                    'note'       => 'Purchase payment: '.$purchase->invoice_no,
-                    'created_by' => Auth::id(),
-                ]);
-
-                $payment = SupplierPayment::create([
-                    'supplier_id'        => $supplier->id,
-                    'purchase_id'        => $purchase->id,
-                    'amount'             => $paid,
-                    'payment_date'       => $request->purchase_date,
-                    'method'             => 'fund',
-                    'note'               => 'Initial payment',
-                    'fund_transaction_id'=> $fund->id,
-                    'created_by'         => Auth::id(),
-                ]);
-
-                $fund->source_id = $payment->id;
-                $fund->save();
+                $initialPayment = app(\App\Services\SupplierPaymentReconciliationService::class)
+                    ->recordTrace($purchase, $paid, $request->purchase_date, 'Initial payment', Auth::id());
+                app(\App\Services\SupplierPaymentReconciliationService::class)->reconcilePayment($initialPayment);
             }
 
             // 📝 Audit: purchase created (inside the tx — vanishes on rollback too)
@@ -592,36 +573,9 @@ class PurchaseController extends Controller
         }
 
         $payment = DB::transaction(function () use ($purchase, $request) {
-            $fund = FundTransaction::create([
-                'direction'  => 'out',
-                'source'     => 'supplier_payment',
-                'source_id'  => null,
-                'amount'     => $request->amount,
-                'note'       => 'Due payment: '.$purchase->invoice_no,
-                'created_by' => Auth::id(),
-            ]);
-
-            $payment = SupplierPayment::create([
-                'supplier_id'        => $purchase->supplier_id,
-                'purchase_id'        => $purchase->id,
-                'amount'             => $request->amount,
-                'payment_date'       => $request->payment_date,
-                'method'             => 'fund',
-                'note'               => $request->note,
-                'fund_transaction_id'=> $fund->id,
-                'created_by'         => Auth::id(),
-            ]);
-
-            $fund->source_id = $payment->id;
-            $fund->save();
-
-            $purchase->paid_amount += $request->amount;
-            $purchase->due_amount  -= $request->amount;
-            $purchase->save();
-
-            $supplier = $purchase->supplier;
-            $supplier->current_due = max(0, $supplier->current_due - $request->amount);
-            $supplier->save();
+            $payment = app(\App\Services\SupplierPaymentReconciliationService::class)
+                ->recordTrace($purchase, (float) $request->amount, $request->payment_date, $request->note, Auth::id());
+            app(\App\Services\SupplierPaymentReconciliationService::class)->reconcilePayment($payment);
 
             return $payment;
         });

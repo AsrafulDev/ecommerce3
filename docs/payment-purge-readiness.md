@@ -1,10 +1,11 @@
-# Payment Purge Readiness — Phase 2B-0
+# Payment Purge Readiness — Phase 2B-1 foundation state
 
 Date: 2026-10-04
 Decision: **NOT SAFE FOR PHASE 2B IMPLEMENTATION**
 
-This is a read-only audit. No customer-payment or supplier-payment purge handler
-or executable route was added.
+This remains a read-only audit. No customer-payment or supplier-payment purge
+handler or executable route was added. Phase 2B-1 hardens new payment tracing
+and reconciliation only; it does not authorize purge.
 
 ## Customer Payment
 
@@ -39,19 +40,20 @@ service and would need to be rebuilt from the remaining payment history.
 This proves the order-side due calculation, but does not prove a complete payment
 purge because the Lite fund representation is not payment-specific.
 
-### Critical fund blocker
+### Fund state after Phase 2B-1
 
-`PaymentCollectionService` calls `FundHelper::creditPayment()`. The Lite fund
-credit is stored as:
+Historical Lite fund credits are stored as:
 
 - `source = sale`
 - `source_id = order_id`
 - `direction = in`
 - amount capped to the order's aggregate credited amount
 
-It is not stored as one FundTransaction per OrderPayment. With payments of
-3,000 and 2,000 against a 10,000 order, the fund has order-level sale credit,
-not independently addressable payment credits.
+New payments are now stored as one `customer_payment` FundTransaction per
+OrderPayment, with `OrderPayment.fund_transaction_id` pointing back to it.
+Historical rows remain order-level sale aggregates. With legacy payments of
+3,000 and 2,000 against a 10,000 order, the fund still has order-level sale
+credit, not independently addressable payment credits.
 
 Consequences:
 
@@ -60,7 +62,9 @@ Consequences:
 - Deleting the aggregate sale fund row would incorrectly remove Payment #2's cash.
 - Historical rows cannot be repaired by amount/date inference.
 
-This is the primary hard blocker: `FUND_TRANSACTION_IS_ORDER_AGGREGATE`.
+This remains the primary hard blocker for historical payments. New exact links
+remove only this ambiguity for newly collected payments; the global purge gate
+and downstream dependency blockers remain.
 
 ### Advanced journal
 
@@ -278,4 +282,3 @@ Exact prerequisites:
 7. Add atomic payment handlers only after the above proofs pass.
 
 No payment purge handler was implemented.
-

@@ -84,10 +84,12 @@ class PaymentCollectionServiceTest extends TestCase
 
         // the Lite cash book finally sees the money
         $this->assertDatabasehas('fund_transactions', [
-            'source'    => 'sale',
-            'source_id' => $order->id,
+            'source'    => 'customer_payment',
+            'source_id' => $payment->id,
             'direction' => 'in',
+            'transaction_category' => 'customer_payment',
         ]);
+        $this->assertNotNull($payment->fund_transaction_id);
         $this->assertEquals(1000.0, FundHelper::creditedFor($order->id));
     }
 
@@ -140,8 +142,8 @@ class PaymentCollectionServiceTest extends TestCase
 
         $this->service()->collect($order, 600, 'aamarpay', 'TRX-AMT');
 
-        $credited = (float) FundTransaction::where('source', 'sale')
-            ->where('source_id', $order->id)
+        $credited = (float) FundTransaction::where('source', 'customer_payment')
+            ->whereIn('source_id', OrderPayment::where('order_id', $order->id)->select('id'))
             ->where('direction', 'in')
             ->sum('amount');
 

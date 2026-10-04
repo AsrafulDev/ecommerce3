@@ -16,14 +16,18 @@ class PaymentPurgeReadinessService
 
     public function customer(OrderPayment $payment): array
     {
-        $payment->loadMissing(['order.refunds', 'customer']);
+        $payment->loadMissing(['order.refunds', 'customer', 'fundTransaction']);
         $order = $payment->order;
         $blockers = ['PAYMENT_PURGE_NOT_ENABLED_PHASE_2B'];
         $funds = $order ? \App\Models\FundTransaction::where('source', 'sale')->where('source_id', $order->id)->get() : collect();
         $journal = $this->accounting->financialJournalState('customer_payment', (int) $payment->id);
 
-        if (!$funds->count()) $blockers[] = 'MISSING_FUND_TRANSACTION';
-        else $blockers[] = 'FUND_TRANSACTION_IS_ORDER_AGGREGATE';
+        if (!$payment->fund_transaction_id || !$payment->fundTransaction) {
+            $blockers[] = 'MISSING_FUND_TRANSACTION';
+        } elseif ($payment->fundTransaction->source !== 'customer_payment' || (int) $payment->fundTransaction->source_id !== (int) $payment->id) {
+            $blockers[] = 'FUND_TRANSACTION_LINK_MISMATCH';
+        }
+        if ($funds->count()) $blockers[] = 'LEGACY_ORDER_AGGREGATE_FUND_EXISTS';
         if (!$order) $blockers[] = 'MISSING_ORDER';
         if ($order && in_array((string) $order->order_status, ['cancelled', 'returned', 'return_approved', 'closed'], true)) $blockers[] = 'ORDER_CANCELLED_OR_RETURNED';
         if ($order && $order->refunds->isNotEmpty()) $blockers[] = 'DEPENDENT_REFUND_EXISTS';
@@ -40,12 +44,13 @@ class PaymentPurgeReadinessService
                 'order' => $order ? ['id' => $order->id, 'status' => $order->order_status, 'amount' => $order->amount, 'paid_amount' => $order->paid_amount, 'due_amount' => $order->due_amount, 'payment_status' => $order->payment_status] : null,
                 'customer' => $payment->customer ? ['id' => $payment->customer->id, 'name' => $payment->customer->name] : null,
                 'fund_transactions' => $funds->map(fn ($fund) => ['id' => $fund->id, 'source' => $fund->source, 'source_id' => $fund->source_id, 'amount' => $fund->amount, 'direction' => $fund->direction])->all(),
+                'payment_fund_transaction' => $payment->fundTransaction?->only(['id', 'source', 'source_id', 'amount', 'direction', 'transaction_category']),
                 'advanced_journal' => $journalDependency,
                 'refund_count' => $order?->refunds->count() ?? 0,
             ],
             'reconciliation' => [
-                'due' => 'Order::recalculatePaymentTotals() can derive due/status from remaining OrderPayment rows.',
-                'fund' => 'Not independently reversible because current Lite fund credit is order-aggregate, not payment-specific.',
+                'due' => 'CustomerDueReconciliationService derives due/status from remaining OrderPayment rows.',
+                'fund' => $payment->fundTransaction ? 'New payment has an exact payment-to-fund link; legacy sale rows remain separately identified.' : 'Payment has no deterministic fund trace.',
                 'ar' => 'Advanced CUSTOMER_PAYMENT journal is payment-specific when present; opening-AR settlement still needs explicit cutover proof.',
             ],
         ];

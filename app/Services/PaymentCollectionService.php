@@ -2,10 +2,10 @@
 
 namespace App\Services;
 
-use App\Helpers\FundHelper;
+use App\Enums\TransactionCategory;
+use App\Models\FundTransaction;
 use App\Models\Order;
 use App\Models\OrderPayment;
-use App\Models\Payment;
 use App\Services\Accounting\AdvancedAccountingGateway;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -22,8 +22,7 @@ use Throwable;
  *
  *   - paid_amount / due_amount / payment_status stay consistent, because they are
  *     derived from the order_payments ledger (Order::recalculatePaymentTotals),
- *   - the Lite fund gets its 'sale' cash credit (FundHelper, capped at order total
- *     so a replayed webhook can never over-credit),
+ *   - the Lite fund gets one exact customer_payment trace linked to this payment,
  *   - and, when full accounting is on, one journal per collection is attempted.
  *
  * The amount is capped to the outstanding due, so collect() is safe to call more
@@ -95,23 +94,17 @@ class PaymentCollectionService
             $order->refresh();
             $order->recalculatePaymentTotals();
 
-            // Keep the flat payments row (current state) in step.
-            $row               = Payment::where('order_id', $order->id)->firstOrNew(['order_id' => $order->id]);
-            $row->customer_id  = $order->customer_id;
-            $row->amount       = $order->paid_amount;
-            $row->payment_status = $order->payment_status;
-            if (!$row->payment_method) {
-                $row->payment_method = $method;
-            }
-            $row->save();
-
-            // Lite cash book: capped at order total minus what is already credited,
-            // so this and the delivery-time creditSale can never combine to over-credit.
-            FundHelper::creditPayment(
-                $order,
-                $actual,
-                $note ?: 'Payment received — Order #' . ($order->invoice_id ?? $order->id)
-            );
+            $fund = FundTransaction::create([
+                'direction' => 'in',
+                'source' => 'customer_payment',
+                'source_id' => $payment->id,
+                'transaction_category' => TransactionCategory::CUSTOMER_PAYMENT,
+                'amount' => $actual,
+                'note' => $note ?: 'Payment received — Order #' . ($order->invoice_id ?? $order->id),
+                'created_by' => $userId ?? ($order->updated_by ?? 1),
+            ]);
+            $payment->fund_transaction_id = $fund->id;
+            $payment->save();
 
             return $payment;
         });

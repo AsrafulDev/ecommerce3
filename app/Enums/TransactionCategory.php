@@ -39,6 +39,7 @@ enum TransactionCategory: string
     {
         return match ($source) {
             'sale' => self::SALE,
+            'customer_payment' => self::CUSTOMER_PAYMENT,
             'refund', 'order_refund' => self::CUSTOMER_REFUND,
             'refund_reversal' => self::REFUND_REVERSAL,
             'expense' => self::EXPENSE,

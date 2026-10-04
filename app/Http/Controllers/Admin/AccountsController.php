@@ -120,10 +120,16 @@ class AccountsController extends Controller
             ->get();
 
         if ($direction === 'in') {
+            $canonicalOrderIds = \App\Models\OrderPayment::whereNotNull('fund_transaction_id')->select('order_id');
+            $legacySale = (float) FundTransaction::where('direction', 'in')
+                ->where('source', 'sale')
+                ->whereIn('source_id', $canonicalOrderIds)
+                ->where('created_at', '>=', $since)
+                ->sum('amount');
             $uncollected = FundHelper::uncollectedSaleCredits($since);
             foreach ($rows as $row) {
                 if ($row->source === 'sale') {
-                    $row->total = max(0, round((float) $row->total - $uncollected, 2));
+                    $row->total = max(0, round((float) $row->total - $legacySale - $uncollected, 2));
                     break;
                 }
             }

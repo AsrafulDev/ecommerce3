@@ -122,11 +122,7 @@ class Order extends Model
 
     public function recalculatePaymentTotals(): void
     {
-        $paid = (float) $this->paymentHistory()->sum('amount');
-        $this->paid_amount = $paid;
-        $this->due_amount  = max(0, (float) $this->amount - $paid);
-        $this->payment_status = $this->due_amount > 0 ? ($paid > 0 ? 'partial' : 'pending') : 'paid';
-        $this->save();
+        app(\App\Services\CustomerDueReconciliationService::class)->reconcile($this);
     }
 
     // কাস্টমার (frontend user)

@@ -16,6 +16,7 @@ class OrderPayment extends Model
         'payment_method',
         'trx_note',
         'created_by',
+        'fund_transaction_id',
     ];
 
     protected function casts(): array
@@ -38,5 +39,10 @@ class OrderPayment extends Model
     public function creator()
     {
         return $this->belongsTo(User::class, 'created_by');
+    }
+
+    public function fundTransaction()
+    {
+        return $this->belongsTo(FundTransaction::class);
     }
 }

@@ -13,7 +13,7 @@ use App\Services\Accounting\PaymentPurgeReadinessService;
 
 class PaymentPurgeReadinessTest extends AccountingTestCase
 {
-    public function test_customer_multiple_payments_are_blocked_by_aggregate_fund_and_preserve_due_evidence(): void
+    public function test_customer_legacy_aggregate_fund_remains_blocked_and_preserves_due_evidence(): void
     {
         $order = $this->order(['amount' => 10000, 'paid_amount' => 5000, 'due_amount' => 5000, 'payment_status' => 'partial']);
         $first = OrderPayment::create(['order_id' => $order->id, 'amount' => 3000, 'payment_method' => 'Cash', 'created_by' => 1]);
@@ -23,7 +23,8 @@ class PaymentPurgeReadinessTest extends AccountingTestCase
         $result = app(PaymentPurgeReadinessService::class)->customer($first);
 
         $this->assertSame('BLOCKED', $result['status']);
-        $this->assertContains('FUND_TRANSACTION_IS_ORDER_AGGREGATE', $result['blockers']);
+        $this->assertContains('MISSING_FUND_TRANSACTION', $result['blockers']);
+        $this->assertContains('LEGACY_ORDER_AGGREGATE_FUND_EXISTS', $result['blockers']);
         $this->assertSame(2, $order->paymentHistory()->count());
         $this->assertSame('5000.00', (string) $order->fresh()->due_amount);
     }
