@@ -128,4 +128,8 @@ interface AdvancedAccountingGateway
     public function reverseSale(Order $order, string $reason, ?int $actorId = null): ?ManualPostingResult;
 
     public function recordCustomerRefund(Refund $refund): ?ManualPostingResult;
+
+    public function financialJournalState(string $type, int $sourceId): ?array;
+    public function purgeFinancialJournal(string $type, int $sourceId): ?array;
+    public function financialJournalExists(string $type, int $sourceId): bool;
 }

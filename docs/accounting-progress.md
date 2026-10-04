@@ -251,6 +251,16 @@ stock-in, increasing inventory rather than removing returned inventory. It
 also does not adjust AP. Advanced purchase-return posting is therefore
 blocked until that operational workflow is corrected and validated.
 
+### Transaction Integrity Phase 2A (2026-10-04)
+
+Executable protected purge is enabled only for Expense, Other Income, Owner
+Capital, and Owner Withdrawal. It requires permission, current-password
+re-authentication, reason and exact confirmation, rate limiting, row locking,
+dependency re-checks, atomic execution, and immutable audit snapshots. The
+Advanced journal bridge is isolated and Advanced OFF remains package-safe.
+Customer/supplier payments, sales, purchases, refunds, returns, COGS, opening
+balances, stock-linked records, and reversal chains remain blocked.
+
 ## Phase Log
 
 | Date | Phase | Files changed | Migrations | Tests | Result | Next step |

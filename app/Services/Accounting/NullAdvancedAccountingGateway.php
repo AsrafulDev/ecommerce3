@@ -98,6 +98,10 @@ final class NullAdvancedAccountingGateway implements AdvancedAccountingGateway
         return [];
     }
 
+    public function financialJournalState(string $type, int $sourceId): ?array { return null; }
+    public function purgeFinancialJournal(string $type, int $sourceId): ?array { return null; }
+    public function financialJournalExists(string $type, int $sourceId): bool { return false; }
+
     public function paymentReceived(OrderPayment $payment): ?ManualPostingResult
     {
     }

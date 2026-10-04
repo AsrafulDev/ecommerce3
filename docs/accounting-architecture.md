@@ -184,6 +184,20 @@ authoritative supplier-money-received event exists.
 5. Traceability chain: Amount → JournalLine → Journal → Source → Party → Actor.
 6. Cutover: no historical backfill; pre-cutover summarized into one Opening Balance journal; automatic journals only after `double-entry.cutover_date`.
 
+## Protected transaction purge (Phase 2A)
+
+The only executable hard-purge sources are standalone Expense, Other Income,
+Owner Capital, and Owner Withdrawal records within the configured window. The
+Transaction Control Center requires permission, current-password
+re-authentication, a reason, and an exact confirmation phrase. Execution locks
+and re-resolves the source and dependencies inside one database transaction,
+captures immutable audit evidence, removes the eligible Lite representation and
+matching Advanced journal through the administrative bridge, and verifies the
+source/journal are gone before commit. Advanced OFF remains package-free.
+
+Sales, purchases, payments, refunds, returns, COGS, opening balances, stock-linked
+records, manual journals, and reversal chains remain fail-closed.
+
 ## Required two-mode testing (every accounting phase)
 
 - **Mode A** `Advanced OFF`: Commerce ✓ Lite ✓ no package dependency ✓

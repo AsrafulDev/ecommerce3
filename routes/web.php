@@ -262,6 +262,8 @@ Route::prefix('admin')->middleware(['auth:admin', 'admin', 'demo_mode'])->group(
     Route::get('/accounts', [AccountsController::class, 'dashboard'])->name('admin.accounts.dashboard');
     Route::get('/accounts/customers', [\App\Http\Controllers\Admin\LiteLedgerController::class, 'customers'])->name('admin.accounts.customers');
     Route::get('/accounts/customers/{id}', [\App\Http\Controllers\Admin\LiteLedgerController::class, 'customer'])->name('admin.accounts.customer');
+    Route::get('/accounts/customers/{id}/due', [\App\Http\Controllers\Admin\LiteLedgerController::class, 'customerDue'])->name('admin.accounts.customer.due');
+    Route::post('/accounts/customers/{id}/due', [\App\Http\Controllers\Admin\LiteLedgerController::class, 'collectCustomerDue'])->name('admin.accounts.customer.collect_due');
     Route::get('/accounts/suppliers', [\App\Http\Controllers\Admin\LiteLedgerController::class, 'suppliers'])->name('admin.accounts.suppliers');
     Route::get('/accounts/suppliers/{id}', [\App\Http\Controllers\Admin\LiteLedgerController::class, 'supplier'])->name('admin.accounts.supplier');
 
@@ -312,6 +314,15 @@ Route::prefix('admin')->middleware(['auth:admin', 'admin', 'demo_mode'])->group(
         Route::get('reports/print', [AccountingReportController::class, 'print'])->name('reports.print');
         Route::get('reports/export', [AccountingReportController::class, 'export'])->name('reports.export');
     });
+
+    // Protected financial correction center. This remains available in Lite
+    // mode for inspection, while purge eligibility fails closed.
+    Route::get('/transaction-control', [\App\Http\Controllers\Admin\TransactionControlController::class, 'index'])
+        ->name('admin.transaction-control.index');
+    Route::post('/transaction-control/{type}/{id}/purge', [\App\Http\Controllers\Admin\TransactionControlController::class, 'purge'])
+        ->where('type', 'expense|other_income|owner_capital|owner_withdrawal')
+        ->middleware('throttle:5,1')
+        ->name('admin.transaction-control.purge');
 
     // Expense Routes
     Route::get('/expenses', [ExpenseController::class,'index'])->name('admin.expenses.index');

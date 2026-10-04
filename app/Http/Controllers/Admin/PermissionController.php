@@ -19,6 +19,7 @@ class PermissionController extends Controller
         // Accounting (double-entry books)
         'accounting-list', 'accounting-create', 'accounting-edit', 'accounting-delete',
         'accounting-reverse', 'accounting-export',
+        'purge-financial-transactions',
         // Banner
         'banner-list', 'banner-create', 'banner-edit', 'banner-delete',
         // Banner Category

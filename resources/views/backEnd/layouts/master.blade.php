@@ -959,31 +959,31 @@
   </a>
   <div class="collapse {{ request()->routeIs('admin.accounts.*', 'admin.fund.*', 'admin.expenses.*', 'admin.transactions.*', 'admin.reports.*') ? 'show' : '' }}" id="sidebar-transactions">
     <ul class="nav-second-level">
-      <li><a href="{{ route('admin.accounts.dashboard') }}"><i data-feather="pie-chart"></i> {{ __('Overview') }} </a></li>
+      <li class="menu-title px-3 pt-2 pb-1 text-uppercase small text-muted">{{ __('Manage money') }}</li>
+      <li class="{{ request()->routeIs('admin.accounts.dashboard') ? 'active' : '' }}"><a href="{{ route('admin.accounts.dashboard') }}"><i data-feather="pie-chart"></i> {{ __('Overview & balances') }} </a></li>
       @canany(['fund-list', 'fund-create', 'fund-edit'])
-      <li><a href="{{ route('admin.transactions.create') }}"><i data-feather="briefcase"></i> {{ __('New Transaction') }} </a></li>
-      <li><a href="{{ route('admin.accounts.customers') }}"><i data-feather="user"></i> {{ __('Customer Accounts') }} </a></li>
-      <li><a href="{{ route('admin.accounts.suppliers') }}"><i data-feather="truck"></i> {{ __('Supplier Accounts') }} </a></li>
+      <li class="{{ request()->routeIs('admin.transactions.*') ? 'active' : '' }}"><a href="{{ route('admin.transactions.create') }}"><i data-feather="briefcase"></i> {{ __('Record a transaction') }} </a></li>
+      <li class="{{ request()->routeIs('admin.fund.*') ? 'active' : '' }}"><a href="{{ route('admin.fund.index') }}"><i data-feather="credit-card"></i> {{ __('Funds & cash flow') }} </a></li>
+      <li class="{{ request()->routeIs('admin.accounts.customers', 'admin.accounts.customer*') ? 'active' : '' }}"><a href="{{ route('admin.accounts.customers') }}"><i data-feather="user"></i> {{ __('Customer balances & dues') }} </a></li>
+      <li class="{{ request()->routeIs('admin.accounts.suppliers', 'admin.accounts.supplier*') ? 'active' : '' }}"><a href="{{ route('admin.accounts.suppliers') }}"><i data-feather="truck"></i> {{ __('Supplier balances & dues') }} </a></li>
       @endcanany
-      @canany(['expense-list', 'expense-create', 'expense-edit'])
-      <li><a href="{{ route('admin.expenses.index') }}"><i data-feather="credit-card"></i> {{ __('Expenses') }} </a></li>
-      @endcanany
-      @canany(['report-view', 'order-report', 'purchase-report', 'expense-report', 'stock-report', 'profit-loss-report'])
+      @canany(['order-report', 'report-view', 'purchase-report', 'expense-report', 'stock-report', 'profit-loss-report'])
+      <li class="menu-title px-3 pt-3 pb-1 text-uppercase small text-muted">{{ __('Reports') }}</li>
       @endcanany
       @canany(['order-report', 'report-view'])
-      <li><a href="{{ route('admin.reports.orders') }}"><i data-feather="file-text"></i> {{ __('Order Report') }} </a></li>
+      <li class="{{ request()->routeIs('admin.reports.orders') ? 'active' : '' }}"><a href="{{ route('admin.reports.orders') }}"><i data-feather="file-text"></i> {{ __('Sales & order report') }} </a></li>
       @endcanany
       @canany(['purchase-report', 'report-view'])
-      <li><a href="{{ route('admin.reports.purchases') }}"><i data-feather="shopping-bag"></i> {{ __('Purchase Report') }} </a></li>
+      <li class="{{ request()->routeIs('admin.reports.purchases') ? 'active' : '' }}"><a href="{{ route('admin.reports.purchases') }}"><i data-feather="shopping-bag"></i> {{ __('Purchase report') }} </a></li>
       @endcanany
       @canany(['expense-report', 'report-view'])
-      <li><a href="{{ route('admin.reports.expenses') }}"><i data-feather="trending-down"></i> {{ __('Expense Report') }} </a></li>
+      <li class="{{ request()->routeIs('admin.reports.expenses') ? 'active' : '' }}"><a href="{{ route('admin.reports.expenses') }}"><i data-feather="trending-down"></i> {{ __('Expense Report') }} </a></li>
       @endcanany
       @canany(['stock-report', 'report-view'])
-      <li><a href="{{ route('admin.reports.stock') }}"><i data-feather="archive"></i> {{ __('Stock Report') }} </a></li>
+      <li class="{{ request()->routeIs('admin.reports.stock') ? 'active' : '' }}"><a href="{{ route('admin.reports.stock') }}"><i data-feather="archive"></i> {{ __('Inventory value report') }} </a></li>
       @endcanany
       @canany(['profit-loss-report', 'report-view'])
-      <li><a href="{{ route('admin.reports.profit_loss') }}"><i data-feather="activity"></i> {{ __('Basic Profit Summary') }} </a></li>
+      <li class="{{ request()->routeIs('admin.reports.profit_loss') ? 'active' : '' }}"><a href="{{ route('admin.reports.profit_loss') }}"><i data-feather="activity"></i> {{ __('Basic Profit Summary') }} </a></li>
       @endcanany
     </ul>
   </div>
@@ -1005,12 +1005,15 @@
     <ul class="nav-second-level">
       <li><a href="{{ route('admin.accounting.accounts.index') }}"><i data-feather="list"></i> {{ __('Chart of Accounts') }} </a></li>
       <li><a href="{{ route('admin.accounting.journals.index') }}"><i data-feather="book-open"></i> {{ __('Journals') }} </a></li>
-      <li><a href="{{ route('admin.accounting.sync.index') }}"><i data-feather="upload-cloud"></i> {{ __('Lite Data Sync') }} </a></li>
       <li><a href="{{ route('admin.accounting.opening.index') }}"><i data-feather="log-in"></i> {{ __('Opening Balances') }} </a></li>
       <li><a href="{{ route('admin.accounting.ledger.balances') }}"><i data-feather="users"></i> {{ __('Party Balances') }} </a></li>
       <li><a href="{{ route('admin.accounting.reports.trial-balance') }}"><i data-feather="grid"></i> {{ __('Trial Balance') }} </a></li>
       <li><a href="{{ route('admin.accounting.reports.profit-loss') }}"><i data-feather="trending-up"></i> {{ __('Income Statement') }} </a></li>
       <li><a href="{{ route('admin.accounting.reports.cash') }}"><i data-feather="dollar-sign"></i> {{ __('Cash & Bank Ledger') }} </a></li>
+      <li><a href="{{ route('admin.accounting.sync.index') }}"><i data-feather="upload-cloud"></i> {{ __('Lite Data Sync') }} </a></li>
+      @can('purge-financial-transactions')
+      <li><a href="{{ route('admin.transaction-control.index') }}"><i data-feather="shield"></i> {{ __('Transaction Control') }} </a></li>
+      @endcan
     </ul>
   </div>
 </li>

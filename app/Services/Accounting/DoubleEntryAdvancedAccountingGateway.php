@@ -14,6 +14,7 @@ use App\Support\Accounting\ManualPostingResult;
 use Softmit\DoubleEntry\Enums\SourceType;
 use Softmit\DoubleEntry\Enums\JournalStatus;
 use Softmit\DoubleEntry\Models\JournalEntry;
+use Softmit\DoubleEntry\Services\AdministrativeJournalPurgeService;
 
 /**
  * The live adapter: turns business operations into double-entry postings by
@@ -33,7 +34,7 @@ use Softmit\DoubleEntry\Models\JournalEntry;
  */
 final class DoubleEntryAdvancedAccountingGateway implements AdvancedAccountingGateway
 {
-    public function __construct(protected ManualEntryService $manual)
+    public function __construct(protected ManualEntryService $manual, protected AdministrativeJournalPurgeService $administrativePurge)
     {
     }
 
@@ -167,5 +168,31 @@ final class DoubleEntryAdvancedAccountingGateway implements AdvancedAccountingGa
     {
         if (!$this->readyForLivePosting()) return ManualPostingResult::notReady();
         return $this->manual->customerRefund($refund);
+    }
+
+    public function financialJournalState(string $type, int $sourceId): ?array
+    {
+        return $this->administrativePurge->inspect($this->sourceTypes($type), $sourceId);
+    }
+
+    public function purgeFinancialJournal(string $type, int $sourceId): ?array
+    {
+        return $this->administrativePurge->purge($this->sourceTypes($type), $sourceId);
+    }
+
+    public function financialJournalExists(string $type, int $sourceId): bool
+    {
+        return $this->administrativePurge->inspect($this->sourceTypes($type), $sourceId) !== null;
+    }
+
+    private function sourceTypes(string $type): array
+    {
+        return match ($type) {
+            'expense' => [SourceType::EXPENSE->value],
+            'income' => [SourceType::INCOME->value],
+            'owner_capital' => [SourceType::OWNER_CAPITAL->value],
+            'owner_withdrawal' => [SourceType::OWNER_WITHDRAWAL->value],
+            default => [],
+        };
     }
 }
