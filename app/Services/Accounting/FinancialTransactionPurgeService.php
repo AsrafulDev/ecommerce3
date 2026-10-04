@@ -39,6 +39,9 @@ class FinancialTransactionPurgeService
             if (!$inspection['eligible']) throw new \DomainException('Purge blocked: '.implode(', ', $inspection['blockers']));
 
             $before = $this->snapshot($record);
+            $fundBefore = $record instanceof Expense && $record->fund_transaction_id
+                ? $this->snapshot(FundTransaction::whereKey($record->fund_transaction_id)->lockForUpdate()->first())
+                : null;
             $journal = $this->accounting->purgeFinancialJournal($this->journalType($type), $id);
 
             if ($record instanceof Expense) {
@@ -51,6 +54,9 @@ class FinancialTransactionPurgeService
             }
 
             if ($this->sourceExists($type, $id)) throw new \RuntimeException('Source transaction still exists after purge.');
+            if ($record instanceof Expense && $record->fund_transaction_id && FundTransaction::whereKey($record->fund_transaction_id)->exists()) {
+                throw new \RuntimeException('Linked fund transaction still exists after purge.');
+            }
             if ($journal && $this->accounting->financialJournalExists($this->journalType($type), $id)) {
                 throw new \RuntimeException('Accounting journal still exists after purge.');
             }
@@ -68,7 +74,7 @@ class FinancialTransactionPurgeService
                 'ip_address' => request()->ip(),
                 'user_agent' => request()->userAgent(),
                 'dependency_snapshot' => $inspection['dependencies'],
-                'before_snapshot' => ['source' => $before, 'journal' => $journal],
+                'before_snapshot' => ['source' => $before, 'fund_transaction' => $fundBefore, 'journal' => $journal],
                 'metadata' => ['window_days' => $inspection['window_days']],
             ]);
         });
@@ -102,8 +108,8 @@ class FinancialTransactionPurgeService
 
     private function reference(object $record, int $id): string { return $record instanceof Expense ? $record->title : strtoupper((string) $record->source).' #'.$id; }
 
-    private function snapshot(object $record): array
+    private function snapshot(?object $record): ?array
     {
-        return $record->getAttributes();
+        return $record?->getAttributes();
     }
 }

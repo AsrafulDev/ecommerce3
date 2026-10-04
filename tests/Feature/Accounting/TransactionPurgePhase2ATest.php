@@ -78,4 +78,34 @@ class TransactionPurgePhase2ATest extends AccountingTestCase
         $this->assertDatabaseMissing('expenses', ['id' => $expense->id]);
         $this->assertDatabaseMissing('fund_transactions', ['id' => $fund->id]);
     }
+
+    public function test_other_income_capital_and_withdrawal_are_each_executable(): void
+    {
+        $cases = [
+            ['type' => 'other_income', 'category' => 'other_income', 'source' => 'manual_add', 'direction' => 'in'],
+            ['type' => 'owner_capital', 'category' => 'owner_capital', 'source' => 'manual_add', 'direction' => 'in'],
+            ['type' => 'owner_withdrawal', 'category' => 'owner_withdrawal', 'source' => 'withdraw', 'direction' => 'out'],
+        ];
+
+        foreach ($cases as $case) {
+            $fund = FundTransaction::create([
+                'direction' => $case['direction'], 'source' => $case['source'],
+                'transaction_category' => $case['category'], 'amount' => 25,
+                'created_by' => $this->admin->id,
+            ]);
+            $service = app(AdvancedAccountingGateway::class);
+            $case['type'] === 'owner_withdrawal'
+                ? $service->recordWithdrawal($fund)
+                : $service->recordMoneyIn($fund, $case['category']);
+
+            $this->post(route('admin.transaction-control.purge', [$case['type'], $fund->id]), [
+                'reason' => 'Remove duplicate manual money event',
+                'password' => 'secret-password',
+                'confirmation' => 'DELETE '.strtoupper(str_replace('_', '-', $case['type'])).'-'.$fund->id,
+            ])->assertRedirect()->assertSessionHas('success');
+
+            $this->assertDatabaseMissing('fund_transactions', ['id' => $fund->id]);
+            $this->assertDatabaseMissing('accounting_journal_entries', ['source_id' => $fund->id]);
+        }
+    }
 }
