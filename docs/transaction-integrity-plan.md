@@ -328,3 +328,14 @@ retain journal immutability. Lite-only mode purges supported operational rows
 without resolving package classes. Payments, sales, purchases, refunds,
 returns, COGS, opening balances, manual journals, stock-linked rows, and
 reversal chains remain blocked.
+
+## Phase 2B-0 payment readiness audit (2026-10-04)
+
+Customer and supplier payment purge remain read-only and blocked. The audit is
+documented in `docs/payment-purge-readiness.md`. A read-only
+`PaymentPurgeReadinessService` now reports payment dependencies and blockers;
+it does not authorize or delete payments. The principal customer blocker is
+that Lite fund credits are order-level `sale` rows rather than
+`OrderPayment`-specific rows. Supplier payments have current-path fund links,
+but persisted due reconciliation and supplier-return/AP behavior are not yet
+proven safe. No payment purge handler was added.
