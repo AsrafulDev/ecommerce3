@@ -392,4 +392,3 @@
         setTimeout(() => { win.print(); win.close(); }, 500);
     }
 </script>
-@endsection

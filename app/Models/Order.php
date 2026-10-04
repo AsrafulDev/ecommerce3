@@ -21,6 +21,18 @@ class Order extends Model
         'updated_at' => 'datetime',
     ];
 
+    /** Human label only; invoice_id remains the raw searchable/barcode value. */
+    public function getInvoiceDisplayAttribute(): string
+    {
+        $prefix = match ($this->order_type) {
+            'pos' => 'POS',
+            'cod', 'online' => 'WEB',
+            default => 'ORD',
+        };
+
+        return $prefix . '-' . $this->invoice_id;
+    }
+
     public function getPaymentGatewayAttribute(): ?string
     {
         return $this->payment?->payment_method;

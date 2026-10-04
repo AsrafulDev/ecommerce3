@@ -1,6 +1,6 @@
 @forelse($orders as $order)
 <tr>
-    <td><code>{{ $order->invoice_id }}</code></td>
+    <td><code>{{ $order->invoice_display }}</code></td>
     <td>{{ $order->shipping->name ?? $order->customer->name ?? 'N/A' }}</td>
     <td>{{ $order->orderdetails->sum('qty') }} items</td>
     <td>৳{{ number_format($order->amount, 2) }}</td>
@@ -23,10 +23,13 @@
     <td>
         <div class="d-flex gap-1 flex-wrap">
             <button type="button" class="btn btn-sm btn-outline-success recent-print-pos" data-invoice="{{ $order->invoice_id }}" title="Print POS">
-                <i class="fa fa-print"></i>
+                <i class="fa fa-print"></i> POS
             </button>
             <button type="button" class="btn btn-sm btn-outline-primary recent-print-a4" data-invoice="{{ $order->invoice_id }}" title="Print A4">
-                <i class="fa fa-print"></i>
+                <i class="fa fa-print"></i> A4
+            </button>
+            <button type="button" class="btn btn-sm btn-outline-secondary recent-print-a5" data-invoice="{{ $order->invoice_id }}" title="Print A5">
+                <i class="fa fa-print"></i> A5
             </button>
             <button type="button" class="btn btn-sm btn-outline-warning recent-edit" data-invoice="{{ $order->invoice_id }}" title="Edit / Update">
                 <i class="fa fa-edit"></i>

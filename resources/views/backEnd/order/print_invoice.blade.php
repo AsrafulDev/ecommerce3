@@ -1,250 +1,41 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Invoice #{{ $order->invoice_id }}</title>
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        .no-print { text-align: center; padding: 10px; background: #222; position: sticky; top: 0; z-index: 99; }
-        .no-print button { padding: 7px 24px; background: #28a745; color: #fff; border: none; cursor: pointer; font-size: 14px; border-radius: 4px; margin: 0 4px; }
-
-        /* ═══ POS RECEIPT (80mm) ═══ */
-        .pos-receipt { display: none; background: #fff; width: 302px; margin: 18px auto; padding: 8px 10px 12px; border: 1px solid #999; font-family: 'Courier New', Courier, monospace; font-size: 12px; color: #000; }
-        @page { size: 80mm auto; margin: 3mm 4mm; }
-        .pos-receipt .rh { text-align: center; border-bottom: 1px solid #000; padding-bottom: 5px; margin-bottom: 5px; }
-        .pos-receipt .rh .shop { font-size: 14px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; }
-        .pos-receipt .rh p { font-size: 10px; margin-top: 2px; }
-        .pos-receipt .rt { text-align: center; font-size: 12px; font-weight: 700; border-top: 1px solid #000; border-bottom: 1px solid #000; padding: 3px 0; margin: 4px 0; letter-spacing: 3px; }
-        .pos-receipt .rm { font-size: 11px; margin-bottom: 3px; }
-        .pos-receipt .rm .fl { display: flex; justify-content: space-between; margin-bottom: 2px; }
-        .pos-receipt table { width: 100%; border-collapse: collapse; font-size: 10px; margin: 4px 0; }
-        .pos-receipt table thead th { border-top: 1px solid #000; border-bottom: 1px solid #000; padding: 2px; font-weight: 700; text-align: left; }
-        .pos-receipt table thead th.r { text-align: right; }
-        .pos-receipt table tbody td { padding: 3px 2px; vertical-align: top; }
-        .pos-receipt table tbody tr:last-child td { border-bottom: 1px solid #000; }
-        .pos-receipt table .pname { font-weight: 700; }
-        .pos-receipt .rs { display: flex; justify-content: space-between; font-size: 11px; padding: 2px 0; }
-        .pos-receipt .rtotal { display: flex; justify-content: space-between; font-size: 13px; font-weight: 700; border-top: 1px solid #000; border-bottom: 1px solid #000; padding: 4px 0; margin: 3px 0; }
-        .pos-receipt .rp { font-size: 11px; margin-top: 3px; }
-        .pos-receipt .rp .fl { display: flex; justify-content: space-between; padding: 2px 0; }
-        .pos-receipt .ptotal { display: flex; justify-content: space-between; font-size: 13px; font-weight: 700; border-top: 1px solid #000; padding-top: 4px; margin-top: 3px; }
-        .pos-receipt .dash { border: none; border-top: 1px dashed #666; margin: 5px 0; }
-        .pos-receipt .rf { text-align: center; border-top: 1px dashed #666; margin-top: 10px; padding-top: 7px; }
-        .pos-receipt .rf .ty { font-size: 14px; font-weight: 700; }
-        .pos-receipt .rf small { font-size: 9px; color: #666; font-style: italic; margin-top: 3px; display: block; }
-
-        /* ═══ A4 INVOICE ═══ */
-        .customer-invoice { display: none; margin: 25px auto; width: 760px; background: #fff; padding: 30px; }
-        .customer-invoice p { margin: 0; }
-        .customer-invoice td { font-size: 16px; }
-        .a4-bar { background: #4DBC60; transform: skew(38deg); width: 100%; margin-left: 65px; padding: 20px 60px; }
-        .a4-bar p { font-size: 30px; color: #fff; transform: skew(-38deg); text-transform: uppercase; text-align: right; font-weight: bold; }
-        .a4-bar2 { background: #fff; transform: skew(36deg); width: 72%; margin-left: 182px; padding: 12px 32px; margin-top: 6px; }
-        .a4-bar2 p { font-size: 15px; color: #222; font-weight: bold; transform: skew(-36deg); text-align: right; padding-right: 18px; }
-
-        @media print {
-            body { background: #fff !important; }
-            .no-print { display: none !important; }
-            body.print-pos .customer-invoice { display: none !important; }
-            body.print-pos .pos-receipt { display: block !important; }
-            body.print-a4 .pos-receipt { display: none !important; }
-            body.print-a4 .customer-invoice { display: block !important; }
-            .pos-receipt { width: 100% !important; margin: 0 !important; border: none !important; padding: 2mm 1mm !important; }
-            .customer-invoice { width: 100% !important; margin: 0 auto !important; padding: 0 !important; }
-        }
-    </style>
-</head>
-<body class="print-{{ $type === 'a4' ? 'a4' : 'pos' }}">
-
-<div class="no-print">
-    <button onclick="printPOS()">🖨 Print POS (80mm)</button>
-    <button onclick="printA4()">🖨 Print A4</button>
-    <button onclick="window.close()">✖ Close</button>
-</div>
-
-{{-- ══════════ POS RECEIPT ══════════ --}}
 @php
-    $payStatus = $order->payment_status;
-    $payMethod = $order->payment->payment_method ?? 'N/A';
-    $paid      = (float) $order->paid_amount;
-    $due       = (float) $order->due_amount;
-    $subtotal  = $order->orderdetails->sum(fn($od) => $od->sale_price * $od->qty);
+    $mode = in_array($type ?? 'pos', ['pos', 'a4', 'a5'], true) ? ($type ?? 'pos') : 'pos';
+    $shipping = $order->shipping;
+    $paid = (float) ($order->paid_amount ?? 0);
+    $due = max(0, (float) ($order->due_amount ?? ((float) $order->amount - $paid)));
+    $subtotal = $order->orderdetails->sum(fn ($i) => (float) $i->sale_price * (int) $i->qty);
+    $discount = $order->orderdetails->sum(fn ($i) => (float) ($i->product_discount ?? 0) * (int) $i->qty);
+    $payments = $order->paymentHistory ?? collect();
 @endphp
-<div class="pos-receipt">
-    <div class="rh">
-        <div class="shop">{{ $generalsetting->name ?? config('app.name') }}</div>
-        @if($contact && $contact->address) <p>{{ $contact->address }}</p> @endif
-        @if($contact && $contact->phone) <p>Phone: {{ $contact->phone }}</p> @endif
-    </div>
-    <div class="rt">POS INVOICE</div>
-    <div class="rm">
-        <div class="fl"><span>Bill No. : <strong>{{ $order->invoice_id }}</strong></span><span>{{ $order->created_at->format('H:i') }} hrs</span></div>
-        <div class="fl"><span>Date : <strong>{{ $order->created_at->format('d-m-Y') }}</strong></span></div>
-        @if($order->shipping && $order->shipping->name)
-        <div class="fl"><span>Buyer : <strong>{{ $order->shipping->name }}</strong></span></div>
-        @endif
-        @if($order->shipping && $order->shipping->phone)
-        <div class="fl"><span>Phone : {{ $order->shipping->phone }}</span></div>
-        @endif
-        @if($order->shipping && $order->shipping->address)
-        <div class="fl"><span>Address : {{ $order->shipping->address }}</span></div>
-        @endif
-        @if($order->shipping && $order->shipping->area)
-        <div class="fl"><span>Area : {{ $order->shipping->area }}</span></div>
-        @endif
-    </div>
-    <table>
-        <thead>
-            <tr>
-                <th>Item</th>
-                <th class="r">Qty</th>
-                <th class="r">Price</th>
-                <th class="r">Total</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach($order->orderdetails as $od)
-            <tr>
-                <td class="pname">{{ $od->product_name }}
-                    @if($od->product_size) <br><small>({{ $od->product_size }})</small> @endif
-                    @if($od->product_color) <small>/{{ $od->product_color }}</small> @endif
-                </td>
-                <td class="r">{{ $od->qty }}</td>
-                <td class="r">{{ number_format($od->sale_price, 0) }}</td>
-                <td class="r">{{ number_format($od->sale_price * $od->qty, 0) }}</td>
-            </tr>
-            @endforeach
-        </tbody>
-    </table>
-    <div class="rs"><span>Sub Total</span><span>৳{{ number_format($subtotal, 0) }}</span></div>
-    @if($order->discount > 0)
-    <div class="rs"><span>Discount</span><span>- ৳{{ number_format($order->discount, 0) }}</span></div>
-    @endif
-    <div class="rs"><span>Shipping</span><span>৳{{ number_format($order->shipping_charge, 0) }}</span></div>
-    <div class="rtotal"><span>Grand Total</span><span>৳{{ number_format($order->amount, 0) }}</span></div>
-    <div class="rp">
-        <div class="fl"><span>Payment Method</span><span>{{ strtoupper($payMethod) }}</span></div>
-        <div class="fl"><span>Status</span><span>{{ strtoupper($payStatus) }}</span></div>
-        @if($paid > 0)
-        <div class="fl"><span>Paid</span><span>৳{{ number_format($paid, 0) }}</span></div>
-        @endif
-        @if($due > 0)
-        <div class="ptotal"><span>Due</span><span>৳{{ number_format($due, 0) }}</span></div>
-        @endif
-    </div>
-    <hr class="dash">
-    <div class="rf">
-        <div class="ty">Thank You!</div>
-        <small>Goods sold are not returnable / exchangeable</small>
-    </div>
-</div>
-
-{{-- ══════════ A4 INVOICE ══════════ --}}
-<div class="customer-invoice">
-    <table style="width:100%">
-        <tr>
-            <td style="width:40%; float:left; padding-top:15px;">
-                @if($generalsetting && $generalsetting->white_logo)
-                <img src="{{ asset($generalsetting->white_logo) }}" width="190px" alt="">
-                @endif
-                <p style="font-size:14px; color:#222; margin:20px 0;">
-                    <strong>Payment Method:</strong>
-                    <span style="text-transform:uppercase;">{{ $payMethod }}</span>
-                </p>
-                <p style="font-size:14px; color:#222;"><strong>Payment Status:</strong> {{ strtoupper($payStatus) }}</p>
-                @if($paid > 0)<p style="font-size:14px; color:#222;"><strong>Paid:</strong> ৳{{ number_format($paid, 2) }}</p>@endif
-                @if($due > 0)<p style="font-size:14px; color:#d00;"><strong>Due:</strong> ৳{{ number_format($due, 2) }}</p>@endif
-                <div class="invoice_form" style="margin-top:30px;">
-                    <p style="font-size:16px; line-height:1.8; color:#222;"><strong>Invoice From:</strong></p>
-                    <p style="font-size:16px; line-height:1.8; color:#222;">{{ $generalsetting->name ?? '' }}</p>
-                    <p style="font-size:16px; line-height:1.8; color:#222;">{{ $contact->phone ?? '' }}</p>
-                    <p style="font-size:16px; line-height:1.8; color:#222;">{{ $contact->email ?? '' }}</p>
-                </div>
-            </td>
-            <td style="width:60%; float:left;">
-                <div class="a4-bar"><p>Invoice</p></div>
-                <div class="a4-bar2">
-                    <p>Invoice ID : <strong>#{{ $order->invoice_id }}</strong></p>
-                    <p>Invoice Date: <strong>{{ $order->created_at->format('d-m-y') }}</strong></p>
-                </div>
-
-                {{-- 📦 Invoice number barcode (A4) --}}
-                @php
-                    $bcGen = new \Picqer\Barcode\BarcodeGeneratorHTML();
-                    $barcodeHtml = $bcGen->getBarcode((string) $order->invoice_id, $bcGen::TYPE_CODE_128, 2, 42);
-                @endphp
-                <div class="invoice-barcode" style="text-align:right; margin-top:10px; padding-right:18px;">
-                    <div style="display:inline-block; text-align:center; background:#fff; padding:4px 8px; border:1px solid #dcdcdc; border-radius:4px;">
-                        <div style="line-height:0;">{!! $barcodeHtml !!}</div>
-                        <div style="font-size:14px; color:#222; font-weight:bold; letter-spacing:3px; margin-top:3px;">#{{ $order->invoice_id }}</div>
-                    </div>
-                </div>
-
-                <div style="padding-top:20px; text-align:right;">
-                    <p style="font-size:16px; line-height:1.8; color:#222;"><strong>Invoice To:</strong></p>
-                    <p style="font-size:16px; line-height:1.8; color:#222;">{{ $order->shipping->name ?? '' }}</p>
-                    <p style="font-size:16px; line-height:1.8; color:#222;">{{ $order->shipping->phone ?? '' }}</p>
-                    <p style="font-size:16px; line-height:1.8; color:#222;">{{ $order->shipping->address ?? '' }}</p>
-                    <p style="font-size:16px; line-height:1.8; color:#222;">{{ $order->shipping->area ?? '' }}</p>
-                </div>
-            </td>
-        </tr>
-    </table>
-    <table class="table" style="width:100%; margin-top:30px; border-collapse:collapse;">
-        <thead style="background:#4DBC60; color:#fff;">
-            <tr>
-                <th style="padding:8px; text-align:left;">SL</th>
-                <th style="padding:8px; text-align:left;">Product</th>
-                <th style="padding:8px; text-align:right;">Unit Price</th>
-                <th style="padding:8px; text-align:right;">Qty</th>
-                <th style="padding:8px; text-align:right;">Subtotal</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach($order->orderdetails as $i => $od)
-            <tr>
-                <td style="padding:8px; border-bottom:1px solid #eee;">{{ $i + 1 }}</td>
-                <td style="padding:8px; border-bottom:1px solid #eee;">{{ $od->product_name }}
-                    @if($od->product_size) <small>({{ $od->product_size }})</small> @endif
-                </td>
-                <td style="padding:8px; border-bottom:1px solid #eee; text-align:right;">৳{{ number_format($od->sale_price, 2) }}</td>
-                <td style="padding:8px; border-bottom:1px solid #eee; text-align:right;">{{ $od->qty }}</td>
-                <td style="padding:8px; border-bottom:1px solid #eee; text-align:right;">৳{{ number_format($od->sale_price * $od->qty, 2) }}</td>
-            </tr>
-            @endforeach
-        </tbody>
-    </table>
-    <div style="margin-top:20px; margin-left:auto; width:50%; text-align:right;">
-        <p style="display:flex; justify-content:space-between; padding:4px 0;"><span>Sub Total</span><span>৳{{ number_format($subtotal, 2) }}</span></p>
-        @if($order->discount > 0)
-        <p style="display:flex; justify-content:space-between; padding:4px 0;"><span>Discount</span><span>- ৳{{ number_format($order->discount, 2) }}</span></p>
-        @endif
-        <p style="display:flex; justify-content:space-between; padding:4px 0;"><span>Shipping</span><span>৳{{ number_format($order->shipping_charge, 2) }}</span></p>
-        <p style="display:flex; justify-content:space-between; padding:8px 0; border-top:2px solid #4DBC60; font-size:18px; font-weight:bold;"><span>Grand Total</span><span>৳{{ number_format($order->amount, 2) }}</span></p>
-        @if($due > 0)
-        <p style="display:flex; justify-content:space-between; padding:4px 0; color:#d00; font-weight:bold;"><span>Due</span><span>৳{{ number_format($due, 2) }}</span></p>
-        @endif
-    </div>
-</div>
-
-<script>
-    function printPOS() {
-        document.body.classList.remove('print-a4');
-        document.body.classList.add('print-pos');
-        window.print();
-    }
-    function printA4() {
-        document.body.classList.remove('print-pos');
-        document.body.classList.add('print-a4');
-        window.print();
-    }
-    window.onload = function () {
-        // Auto-print once when opened with ?autoprint=1
-        if (new URLSearchParams(window.location.search).get('autoprint') === '1') {
-            setTimeout(function () { window.print(); }, 300);
-        }
-    };
-</script>
-</body>
-</html>
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Invoice {{ $order->invoice_display ?? $order->invoice_id }}</title>
+<style>
+*{box-sizing:border-box}html,body{margin:0;padding:0;background:#fff;color:#111827}body{font-family:'Courier New',Courier,monospace;line-height:1.35}.no-print{text-align:center;padding:10px;background:#222}.no-print button{margin:0 3px;padding:7px 15px;border:0;background:#fff;color:#000;cursor:pointer;font:12px 'Courier New',monospace}
+.a4-document{width:100%;max-width:800px;margin:20px auto;padding:0 4px;font-size:14px}.a4-header{width:100%;border-collapse:collapse;margin-bottom:18px;border-bottom:1.5px solid #9CA3AF}.a4-header td{width:50%;padding:5px 0 10px;vertical-align:top}.a4-header td:last-child{text-align:right}.a4-title{font-size:22px;font-weight:700}.a4-meta{font-size:12px;line-height:1.45;color:#4B5563}.bill-to{margin-bottom:16px;border-bottom:1px solid #E5E7EB;padding-bottom:10px}.bill-to table{width:100%;border-collapse:collapse}.bill-to td{padding:2px 0;vertical-align:top}.bill-to td:first-child{width:130px}
+.items-table{width:100%;border-collapse:collapse;margin-bottom:18px}.items-table th{border-top:1px solid #9CA3AF;border-bottom:1px solid #9CA3AF;background:#F3F4F6;color:#111827;text-align:left;padding:6px 4px}.items-table th:nth-child(1){width:50%}.items-table th:nth-child(2){width:10%;text-align:center}.items-table th:nth-child(3){width:15%;text-align:right}.items-table th:nth-child(4){width:10%;text-align:right}.items-table th:nth-child(5){width:15%;text-align:right}.items-table td{padding:4px;vertical-align:top}.items-table td.num{text-align:right;white-space:nowrap}.items-table td.qty{text-align:center}.product-name{font-weight:700}.product-details{padding-top:0!important;padding-bottom:7px!important;color:#4B5563;font-size:11px}
+.financial-section{width:100%;display:flex;gap:5%;justify-content:space-between;margin-bottom:28px;page-break-inside:avoid;break-inside:avoid}.payment-history{width:55%;font-size:11px}.payment-history-title{font-weight:700;margin-bottom:4px}.payment-row{display:grid;grid-template-columns:22% 22% 36% 20%;gap:2px;border-bottom:1px solid #E5E7EB;padding:2px 0}.payment-row span:last-child{text-align:right;white-space:nowrap}.totals-table{width:40%;border-collapse:collapse;margin-left:auto;text-align:right}.totals-table td{padding:3px 4px}.totals-table td:first-child{text-align:left}.totals-table .rule td{border-top:1px solid #9CA3AF}.totals-table .grand td{border-top:1.5px solid #6B7280;font-weight:700}.terms{width:55%;font-size:11px;margin-bottom:42px;border-top:1px solid #9CA3AF;padding-top:5px}.terms strong{display:block;margin-bottom:3px}.signatures{display:flex;justify-content:space-between;page-break-inside:avoid;break-inside:avoid}.signature{width:200px;border-top:1px solid #6B7280;text-align:center;padding-top:5px;font-size:11px}
+.pos-document{display:none;width:72mm;margin:0 auto;padding:5px;font:12px/1.35 'Courier New',Courier,monospace}.pos-center{text-align:center}.pos-bold{font-weight:700}.pos-line{border-top:1px solid #9CA3AF;margin:5px 0}.pos-double-line{border-top:1.5px solid #6B7280;margin:5px 0}.pos-flex{display:flex;justify-content:space-between;gap:4px}.pos-items{width:100%;border-collapse:collapse}.pos-items th{border-bottom:1px solid #9CA3AF;padding:2px 0;text-align:left}.pos-items th:nth-child(1){width:60%}.pos-items th:nth-child(2){width:15%;text-align:center}.pos-items th:nth-child(3){width:25%;text-align:right}.pos-items td{padding:3px 0 0;vertical-align:top}.pos-items td:nth-child(2){text-align:center}.pos-items td:nth-child(3){text-align:right;white-space:nowrap}.pos-details{padding:0 0 5px 10px!important;font-size:10px;color:#4B5563}.pos-total{font-weight:700;font-size:13px}.pos-terms{font-size:10px}
+@media screen{body.print-pos .a4-document{display:none}body.print-a4 .pos-document,body.print-a5 .pos-document{display:none}body.print-a4 .a4-document,body.print-a5 .a4-document{display:block}body.customer-page .a4-document{display:block}}
+@media print{.no-print{display:none!important}.a4-document,.pos-document{margin:0}.items-table thead{display:table-header-group}.items-table tr,.financial-section,.signatures{page-break-inside:avoid;break-inside:avoid}body.print-a4 .a4-document,body.print-a5 .a4-document{display:block}body.print-a4 .pos-document,body.print-a5 .pos-document{display:none}body.print-pos .a4-document{display:none}body.print-pos .pos-document{display:block}@page{size:A4 portrait;margin:10mm}}
+@media print{body.print-a5 .a4-document{font-size:11px;margin:0;padding:0}body.print-a5 .a4-title{font-size:18px}body.print-a5 .a4-header{margin-bottom:10px}body.print-a5 .a4-header td{padding-bottom:5px}body.print-a5 .a4-meta,body.print-a5 .payment-history,body.print-a5 .terms,body.print-a5 .signature{font-size:9px}body.print-a5 .bill-to{margin-bottom:9px}body.print-a5 .items-table th,body.print-a5 .items-table td{padding:3px 2px}body.print-a5 .product-details{font-size:9px;padding-bottom:5px!important}body.print-a5 .financial-section{margin-bottom:16px}body.print-a5 .terms{margin-bottom:25px}body.print-a5 .signature{width:130px}}
+@media print{body.print-pos{width:80mm;margin:0;padding:0}body.print-pos .a4-document{display:none!important}body.print-pos .pos-document{display:block!important;width:72mm;margin:0;padding:5px}}
+@media print and (max-width:155mm){.a4-document{font-size:11px;margin:0;padding:0}.a4-title{font-size:18px}.a4-header{margin-bottom:10px}.a4-header td{padding-bottom:5px}.a4-meta,.payment-history,.terms,.signature{font-size:9px}.bill-to{margin-bottom:9px}.items-table th,.items-table td{padding:3px 2px}.product-details{font-size:9px;padding-bottom:5px!important}.financial-section{margin-bottom:16px}.terms{margin-bottom:25px}.signature{width:130px}@page{size:A5 portrait;margin:6mm}}
+@media print and (max-width:90mm){html,body{width:80mm;margin:0;padding:0}.a4-document{display:none!important}.pos-document{display:block!important;width:72mm;margin:0;padding:5px}@page{size:80mm auto;margin:0}}
+</style></head>
+<body class="print-{{ $mode }}{{ !empty($customerPage) ? ' customer-page' : '' }}">
+<div class="no-print"><button onclick="setMode('pos')">Print POS</button><button onclick="setMode('a4')">Print A4</button><button onclick="setMode('a5')">Print A5</button><button onclick="window.close()">Close</button></div>
+<main class="a4-document">
+<table class="a4-header"><tr><td><span class="a4-title">{{ $generalsetting->name ?? config('app.name') }}</span><br>@if($contact?->address){{ $contact->address }}<br>@endif @if($contact?->phone)Phone: {{ $contact->phone }}<br>@endif @if($contact?->email)Email: {{ $contact->email }}@endif</td><td><span class="a4-title">SALES INVOICE</span><br><span class="a4-meta"><strong>Invoice No:</strong> {{ $order->invoice_display ?? $order->invoice_id }}<br><strong>Date:</strong> {{ optional($order->created_at)->format('d M Y') }}@if($order->user?->name)<br><strong>Sales Rep:</strong> {{ $order->user->name }}@endif</span></td></tr></table>
+<section class="bill-to"><strong>BILL TO:</strong><table><tr><td>Customer Name:</td><td>{{ $shipping->name ?? $order->customer?->name ?? '—' }}</td></tr><tr><td>Phone Number:</td><td>{{ $shipping->phone ?? $order->customer?->phone ?? '—' }}</td></tr><tr><td>Address:</td><td>{{ trim(($shipping->address ?? '').(($shipping->area ?? '') ? ', '.$shipping->area : '')) ?: '—' }}</td></tr></table></section>
+<table class="items-table"><thead><tr><th>ITEM DESCRIPTION &amp; DETAILS</th><th>QTY</th><th>PRICE</th><th>DISC</th><th>TOTAL</th></tr></thead><tbody>
+@foreach($order->orderdetails as $item)
+@php $salePrice=(float)$item->sale_price;$lineTotal=$salePrice*(int)$item->qty;$itemDiscount=(float)($item->product_discount??0);$warranty=$item->warrantySale;$meta=[];if($item->product_size&&!is_numeric($item->product_size))$meta[]='Size: '.$item->product_size;if($item->size?->sizeName)$meta[]='Size: '.$item->size->sizeName;if($item->color?->colorName)$meta[]='Color: '.$item->color->colorName; @endphp
+<tr><td><span class="product-name">{{ $loop->iteration }}. {{ $item->product_name }}</span></td><td class="qty">{{ $item->qty }}</td><td class="num">৳{{ number_format($salePrice,2) }}</td><td class="num">{{ $itemDiscount>0?'৳'.number_format($itemDiscount,2):'—' }}</td><td class="num">৳{{ number_format($lineTotal,2) }}</td></tr>
+@if($meta||$warranty?->serial_numbers||($warranty&&$warranty->warranty_days>0)||(($item->supplier_warranty_days??0)>0))<tr class="product-details"><td colspan="5">@if($meta)* {{ implode(' | ',$meta) }}@endif @if($warranty?->serial_numbers){{ $meta?' | ':'' }}* SL: {{ implode(', ',$warranty->serial_numbers) }}@endif @if($warranty&&$warranty->warranty_days>0){{ ($meta||$warranty->serial_numbers)?' | ':'' }}* Warranty: {{ $warranty->warranty_days }}D @if($warranty->warranty_end_date)| Exp: {{ $warranty->warranty_end_date->format('d M Y') }}@endif @endif @if(!$warranty&&($item->supplier_warranty_days??0)>0)* Warranty: {{ $item->supplier_warranty_days }}D@endif</td></tr>@endif
+@endforeach</tbody></table>
+<section class="financial-section"><div class="payment-history"><div class="payment-history-title">PAYMENT HISTORY / GATEWAY LOG</div>@forelse($payments as $paymentRecord)<div class="payment-row"><span>{{ optional($paymentRecord->created_at)->format('d M Y') }}</span><span>{{ $paymentRecord->payment_method??'Payment' }}</span><span>{{ $paymentRecord->trx_note?:'—' }}</span><span>৳{{ number_format((float)$paymentRecord->amount,2) }}</span></div>@empty<div>No payments recorded</div>@endforelse</div><table class="totals-table"><tr><td>Gross Subtotal</td><td>৳{{ number_format($subtotal,2) }}</td></tr>@if($discount>0)<tr><td>Total Discount</td><td>-৳{{ number_format($discount,2) }}</td></tr>@endif @if((float)$order->shipping_charge>0)<tr><td>Shipping</td><td>+৳{{ number_format($order->shipping_charge,2) }}</td></tr>@endif <tr class="grand"><td>Total Invoice Value</td><td>৳{{ number_format((float)$order->amount,2) }}</td></tr><tr class="rule"><td>Total Paid (To Date)</td><td>৳{{ number_format($paid,2) }}</td></tr><tr class="grand"><td>Net Balance Due</td><td>৳{{ number_format($due,2) }}</td></tr></table></section>
+<div class="terms"><strong>TERMS &amp; CONDITIONS:</strong>Goods sold are not returnable / exchangeable. Keep this invoice for warranty claims.</div><div class="signatures"><div class="signature">Customer Signature</div><div class="signature">Authorized Store Signature</div></div>
+</main>
+<main class="pos-document"><div class="pos-center pos-bold" style="font-size:15px">{{ $generalsetting->name??config('app.name') }}</div><div class="pos-center">{{ $contact?->address }}{{ $contact?->phone?' | '.$contact->phone:'' }}</div><div class="pos-double-line"></div><div class="pos-flex"><span>Inv: {{ $order->invoice_display??'#'.$order->invoice_id }}</span><span>{{ optional($order->created_at)->format('d-m-Y') }}</span></div><div class="pos-line"></div><table class="pos-items"><thead><tr><th>ITEM / DETAILS</th><th>QTY</th><th>PRICE</th></tr></thead><tbody>
+@foreach($order->orderdetails as $item)@php $w=$item->warrantySale;$m=[];if($item->product_size&&!is_numeric($item->product_size))$m[]='Size: '.$item->product_size;if($item->size?->sizeName)$m[]='Size: '.$item->size->sizeName;if($item->color?->colorName)$m[]='Color: '.$item->color->colorName;@endphp<tr><td>{{ $item->product_name }}</td><td>{{ $item->qty }}</td><td>{{ number_format((float)$item->sale_price*(int)$item->qty,0) }}</td></tr>@if($m||$w?->serial_numbers||($w&&$w->warranty_days>0)||(float)($item->product_discount??0)>0)<tr><td colspan="3" class="pos-details">@if($m)* {{ implode(' | ',$m) }}<br>@endif @if($w?->serial_numbers)* SL: {{ implode(', ',$w->serial_numbers) }}<br>@endif @if($w&&$w->warranty_days>0)* Wnty: {{ $w->warranty_days }}D<br>@endif @if((float)($item->product_discount??0)>0)* Disc: ৳{{ number_format((float)$item->product_discount,0) }}@endif</td></tr>@endif @endforeach
+</tbody></table><div class="pos-line"></div><div class="pos-flex pos-total"><span>TOTAL BDT:</span><span>{{ number_format((float)$order->amount,0) }}</span></div><div class="pos-flex"><span>PAID:</span><span>{{ number_format($paid,0) }}</span></div>@if($payments->isNotEmpty())<div class="pos-line"></div><div class="pos-bold">PAYMENTS:</div>@foreach($payments as $p)<div class="pos-flex"><span>{{ optional($p->created_at)->format('d/m') }} {{ $p->payment_method??'PAY' }}</span><span>{{ number_format((float)$p->amount,0) }}</span></div>@endforeach @endif<div class="pos-line"></div><div class="pos-flex pos-bold"><span>DUE BALANCE:</span><span>{{ number_format($due,0) }}</span></div><div class="pos-line"></div><div class="pos-terms">Terms: Warranty claims require this slip and valid serial number.</div><div class="pos-double-line"></div><div class="pos-center pos-bold">THANK YOU!</div></main>
+<style id="invoice-page-rule" media="print"></style><script>function setMode(mode){document.body.classList.remove('print-pos','print-a4','print-a5');document.body.classList.add('print-'+mode);setPageRule(mode);window.print()}function setPageRule(mode){var size=mode==='pos'?'80mm auto':(mode==='a5'?'A5 portrait':'A4 portrait');var margin=mode==='pos'?'0':(mode==='a5'?'6mm':'10mm');document.getElementById('invoice-page-rule').textContent='@page{size:'+size+';margin:'+margin+'}'}setPageRule(@json($mode));window.addEventListener('load',function(){if(new URLSearchParams(location.search).get('autoprint')==='1')setTimeout(function(){window.print()},250)})</script></body></html>

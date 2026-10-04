@@ -1716,7 +1716,7 @@ $brands = Brand::where('status', 1)
     public function orderInvoice($id)
     {
         $order = \App\Models\Order::where('id', $id)
-            ->with(['orderdetails.size', 'orderdetails.color', 'payment', 'shipping'])
+            ->with(['orderdetails.size', 'orderdetails.color', 'orderdetails.warrantySale', 'payment', 'paymentHistory', 'shipping', 'customer'])
             ->firstOrFail();
 
         $generalsetting = \App\Models\GeneralSetting::where('status', 1)->first();

@@ -168,7 +168,7 @@ class OrderController extends Controller
         try {
             // Create order
             $order = Order::create([
-                'invoice_id' => rand(11111, 99999),
+                'invoice_id' => \App\Helpers\InvoiceHelper::generateInvoiceId(),
                 'amount' => $grandTotal,
                 'shipping_charge' => $shippingfee,
                 'customer_id' => $customer->id,

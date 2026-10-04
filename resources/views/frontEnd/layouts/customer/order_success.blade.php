@@ -136,6 +136,10 @@
                <i class="fa fa-arrow-left me-1"></i>{{ __('Back') }}</a>
             <a href="{{ route('customer.order_invoice_pdf', $order->id) }}" class="btn btn-primary btn-sm rounded-pill px-4 shadow-sm">
                 <i class="fa fa-download me-1"></i>{{ __('Download Invoice') }}</a>
+            @if(auth('customer')->check())
+            <a href="{{ route('customer.invoice', ['id' => $order->id]) }}" class="btn btn-outline-primary btn-sm rounded-pill px-4">
+                <i class="fa fa-print me-1"></i>{{ __('View / Print Invoice') }}</a>
+            @endif
         </div>
     </div>
 

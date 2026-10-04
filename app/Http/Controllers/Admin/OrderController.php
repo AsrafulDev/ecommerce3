@@ -902,7 +902,7 @@ class OrderController extends Controller
     public function invoice($invoice_id)
     {
         $order = Order::where(['invoice_id' => $invoice_id])
-            ->with(['orderdetails', 'orderdetails.size', 'orderdetails.color', 'payment', 'shipping', 'customer', 'status', 'notes', 'notes.user'])
+            ->with(['orderdetails', 'orderdetails.size', 'orderdetails.color', 'orderdetails.warrantySale', 'payment', 'shipping', 'customer', 'status', 'notes', 'notes.user'])
             ->firstOrFail();
 
         $orderstatus = OrderStatus::all();
@@ -1169,6 +1169,15 @@ class OrderController extends Controller
 
     public function order_assign(Request $request)
     {
+        // Some installations do not have the optional orders.user_id column.
+        // Do not issue an update against a column that is absent.
+        if (!Schema::hasColumn('orders', 'user_id')) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Order assignment is unavailable because orders.user_id is not installed.',
+            ], 422);
+        }
+
         Order::whereIn('id', $request->input('order_ids', []))
             ->update(['user_id' => $request->user_id]);
 
@@ -1876,7 +1885,7 @@ class OrderController extends Controller
         }
 
         $order                  = new Order();
-        $order->invoice_id      = rand(11111, 99999);
+        $order->invoice_id      = \App\Helpers\InvoiceHelper::generateInvoiceId();
         // ✅ Cart::subtotal() already includes warranty_adjustment in price, so don't add $warrantyCharge again
         $order->amount          = ($subtotal + (isset($shippingfee->amount) ? $shippingfee->amount : 0)) - $discount;
         $order->discount        = $discount ? $discount : 0;
@@ -3933,15 +3942,23 @@ class OrderController extends Controller
     public function printInvoice($invoice_id, Request $request)
     {
         $order = Order::where('invoice_id', $invoice_id)
-            ->with(['orderdetails', 'orderdetails.size', 'orderdetails.color', 'payment', 'shipping', 'customer'])
+            ->with(['orderdetails', 'orderdetails.size', 'orderdetails.color', 'orderdetails.warrantySale', 'payment', 'paymentHistory', 'shipping', 'customer'])
             ->firstOrFail();
 
-        $type = $request->get('type', 'pos'); // 'pos' | 'a4'
+        $type = in_array($request->get('type'), ['pos', 'a4', 'a5'], true)
+            ? $request->get('type')
+            : 'pos';
 
         $generalsetting = \App\Models\GeneralSetting::first();
         $contact        = \App\Models\Contact::first();
 
-        return view('backEnd.order.print_invoice', compact('order', 'type', 'generalsetting', 'contact'));
+        $printView = match ($type) {
+            'a4' => 'backEnd.order.invoice.a4',
+            'a5' => 'backEnd.order.invoice.a5',
+            default => 'backEnd.order.invoice.thermal',
+        };
+
+        return view($printView, compact('order', 'type', 'generalsetting', 'contact'));
     }
 
     /**

@@ -196,7 +196,7 @@ class IncompleteOrderController extends Controller
              * ORDER CREATE
              */
             $order                  = new Order();
-            $order->invoice_id      = rand(11111, 99999);
+            $order->invoice_id      = \App\Helpers\InvoiceHelper::generateInvoiceId();
             $order->amount          = $grandTotal;
             $order->discount        = $discount;
             $order->shipping_charge = $shippingAmount;

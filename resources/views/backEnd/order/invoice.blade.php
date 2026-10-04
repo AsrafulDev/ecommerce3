@@ -86,7 +86,7 @@
             <div class="col-sm-6 text-end">
                 <button onclick="printPOS()" class="no-print btn btn-xs btn-success waves-effect waves-light" title="POS Thermal Print"><i class="fa fa-print"></i> POS</button>
                 <button onclick="printA4()" class="no-print btn btn-xs btn-primary waves-effect waves-light ms-1" title="A4 Customer Invoice"><i class="fa fa-file-text"></i> A4 Invoice</button>
-                <button onclick="printA4Detail()" class="no-print btn btn-xs btn-info waves-effect waves-light ms-1" title="A4 Detailed Invoice with Warranty"><i class="fa fa-file-text-o"></i> A4 Detail</button>
+                <button onclick="printA5()" class="no-print btn btn-xs btn-secondary waves-effect waves-light ms-1" title="A5 Customer Invoice"><i class="fa fa-file-text"></i> A5 Invoice</button>
             </div>
 
             <div class="col-sm-12 mt-3">
@@ -642,31 +642,21 @@ function setPageStyle(mode) {
 }
 
 function printPOS() {
-    // POS thermal print
-    setPageStyle('pos');
-    document.body.classList.remove('print-a4');
-    window.print();
+    openCentralPrint('pos');
 }
 
 function printA4() {
-    // A4 customer invoice (hide POS receipt, show invoice)
-    setPageStyle('a4');
-    document.body.classList.add('print-a4');
-    window.print();
-    document.body.classList.remove('print-a4');
-    setPageStyle('pos');
+    openCentralPrint('a4');
 }
 
-function printA4Detail() {
-    // A4 detailed — shows both invoice + POS
-    setPageStyle('a4');
-    document.body.classList.add('print-a4');
-    var pos = document.querySelector('.pos-receipt');
-    if (pos) pos.style.display = 'block';
-    window.print();
-    document.body.classList.remove('print-a4');
-    if (pos) pos.style.display = 'none';
-    setPageStyle('pos');
+function printA5() {
+    openCentralPrint('a5');
+}
+
+function openCentralPrint(type) {
+    const url = @json(route('admin.order.print', ['invoice_id' => $order->invoice_id]))
+        + '?type=' + encodeURIComponent(type) + '&autoprint=1';
+    window.open(url, '_blank', 'width=900,height=700');
 }
 
 function printFunction() {

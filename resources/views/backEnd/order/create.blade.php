@@ -531,6 +531,7 @@
                     <div class="d-flex gap-1">
                         <button type="button" class="btn btn-sm btn-success sale-print-pos" data-invoice="{{ $saleInvoice }}">🖨 POS</button>
                         <button type="button" class="btn btn-sm btn-primary sale-print-a4" data-invoice="{{ $saleInvoice }}">🖨 A4</button>
+                        <button type="button" class="btn btn-sm btn-secondary sale-print-a5" data-invoice="{{ $saleInvoice }}">🖨 A5</button>
                         <button type="button" class="btn btn-sm btn-outline-secondary" id="pos_dismiss_sale">✖</button>
                     </div>
                 </div>
@@ -1357,8 +1358,10 @@
     }
     $(document).on("click", ".sale-print-pos", function () { openPrint($(this).data("invoice"), "pos"); });
     $(document).on("click", ".sale-print-a4", function () { openPrint($(this).data("invoice"), "a4"); });
+    $(document).on("click", ".sale-print-a5", function () { openPrint($(this).data("invoice"), "a5"); });
     $(document).on("click", ".recent-print-pos", function () { openPrint($(this).data("invoice"), "pos"); });
     $(document).on("click", ".recent-print-a4", function () { openPrint($(this).data("invoice"), "a4"); });
+    $(document).on("click", ".recent-print-a5", function () { openPrint($(this).data("invoice"), "a5"); });
 
     // Dismiss sale complete panel
     $("#pos_dismiss_sale").on("click", function () {

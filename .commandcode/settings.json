@@ -1,0 +1,35 @@
+{
+  "permissions": {
+    "allow": [
+      "Shell(find:*)",
+      "Shell(echo:*)",
+      "Shell(timeout 30 php -r  $j = json_decode(file_get_contents('storage/tmp/fine-shaj/data.json'), true); if (!$j) { echo 'unparseable' . PHP_EOL; exit; } echo 'top-level tables: ' . count($j) . PHP_EOL; foreach (['general_settings','themes','homepage_layouts','categories','products','product_variants','orders','order_details','users','brands','stock_batches','supplier_warranties'] as $t) { if (isset($j[$t])) printf(\" %-22s %s rows\\n\", $t, is_array($j[$t]) ? count($j[$t]) : 'n/a'); }  echo)",
+      "Shell(cd /home/asraful/Downloads/software/lara && f=storage/app/updates/backups/manual-2026-09-10-175313-database.sql && echo \"=== Sep 10 dump: row counts per key table ===\" && timeout 60 php -r ' $f = $argv[1]; $fh = fopen($f, \"r\"); $tables = []; $cur = null; while (($line = fgets($fh)) !== false) { if (preg_match(\"/^INSERT INTO `([^`]+)`/\", $line, $m)) { $cur = $m[1]; $vals = substr_count($line, \"),(\") + 1; $tables[$cur] = ($tables[$cur] ?? 0) + $vals; } } fclose($fh); foreach ([\"general_settings\",\"themes\",\"homepage_layouts\",\"categories\",\"products\",\"product_variants\",\"brands\",\"orders\",\"order_details\",\"users\",\"employees\",\"banners\",\"districts\",\"stock_batches\"] as $t) { printf(\" %-20s %s rows\\n\", $t, $tables[$t] ?? 0); } echo \" ---\\n total tables with data: \" . count($tables) . PHP_EOL; ' \"$f\")",
+      "Shell(cd /home/asraful/Downloads/software/lara && timeout 240 php artisan test 2>&1 | tail -12; git checkout -- .phpunit.cache/test-results 2>/dev/null; echo; echo \"=== git status ===\" && git status --short)",
+      "Shell(cd /home/asraful/Downloads/software/lara && echo \"=== leftover probe/temp files? ===\" && ls tests/Feature/Zz*.php tests/Feature/Tmp*.php storage/tmp/*probe* 2>/dev/null || echo \" none\" echo; echo \"=== final diff stat ===\" && git diff --stat && echo \"untracked: $(git status --short | grep '^??' | wc -l) (.commandcode, tests/bootstrap.php, tests/Feature/PosPendingOrderTest.php)\")",
+      "Shell(grep:*)",
+      "Shell(for:*)",
+      "Shell(do:*)",
+      "Shell(done:*)",
+      "Shell(timeout 40 php -r  require 'vendor/autoload.php'; $app = require 'bootstrap/app.php'; $app->make(Illuminate\\Contracts\\Console\\Kernel::class)->bootstrap(); foreach (['resources/views/backEnd/reports/ipblock.blade.php','resources/views/backEnd/order/create.blade.php'] as $f) { try { Illuminate\\Support\\Facades\\Blade::compileString(file_get_contents($f), false); echo \"OK $f\" . PHP_EOL; } catch (\\Throwable $e) { echo \"FAIL $f: \" . $e->getMessage() . PHP_EOL; } } echo)",
+      "Shell(timeout 30 php -r  require 'vendor/autoload.php'; $app = require 'bootstrap/app.php'; $app->make(Illuminate\\Contracts\\Console\\Kernel::class)->bootstrap(); foreach (['01712345678','+8801712345678','8801712345678','880 1712-345678','1712345678','01712 345 678','','abc'] as $p) { printf(\"%-20s => '%s'%s\", var_export($p,true), normalize_phone($p), PHP_EOL); })",
+      "Shell(timeout 220 php artisan test --filter=PhoneBlockTest 2 >& 1)",
+      "Shell(cd /home/asraful/Downloads/software/lara && wc -l storage/logs/laravel.log 2>/dev/null; timeout 150 php artisan test --filter=test_storefront_checkout_allows_a_clean_phone 2>&1 | tail -12; echo \"=== log tail ===\"; tail -40 storage/logs/laravel.log 2>/dev/null | grep -iE 'ERROR|Exception|SQLSTATE|order_save|Undefined|Call to' | head -20)",
+      "Shell(timeout 60 php artisan migrate:status 2 >& 1)",
+      "Shell(mysql:*)",
+      "Shell(awk:*)",
+      "Shell(cd /home/asraful/Downloads/software/lara && rm -f storage/tmp/checkout-probe.txt && timeout 150 php artisan test --filter=ZzCheckoutProbeTest 2>&1 | tail -6; echo \"=== probe ===\"; cat storage/tmp/checkout-probe.txt 2>/dev/null; rm -f tests/Feature/ZzCheckoutProbeTest.php storage/tmp/checkout-probe.txt)",
+      "Shell(timeout 40 php artisan route:list --path=order-save 2 >& 1)",
+      "Shell(timeout 40 php artisan route:list --path=mobile/orders 2 >& 1)",
+      "Shell(timeout 40 php artisan route:list --path=phone 2 >& 1)",
+      "Shell(timeout 40 php -r  require 'vendor/autoload.php'; $app = require 'bootstrap/app.php'; $app->make(Illuminate\\Contracts\\Console\\Kernel::class)->bootstrap(); try { Illuminate\\Support\\Facades\\Blade::compileString(file_get_contents('resources/views/backEnd/incomplete_orders/index.blade.php'), false); echo 'OK compiled' . PHP_EOL; } catch (\\Throwable $e) { echo 'FAIL: ' . $e->getMessage() . PHP_EOL; })",
+      "Shell(timeout 240 php artisan test --filter=IncompleteOrderSessionTest 2 >& 1)",
+      "Shell(timeout 40 php -r  require 'vendor/autoload.php'; $app = require 'bootstrap/app.php'; $app->make(Illuminate\\Contracts\\Console\\Kernel::class)->bootstrap(); echo 'cookie: ' . config('session.cookie') . PHP_EOL; echo 'driver: ' . config('session.driver') . PHP_EOL; echo)",
+      "Shell(cd /home/asraful/Downloads/software/lara && rm -f storage/tmp/post-probe.txt && timeout 150 php artisan test --filter=ZzPostProbeTest 2>&1 | tail -5; echo \"=== probe ===\"; cat storage/tmp/post-probe.txt 2>/dev/null; rm -f tests/Feature/ZzPostProbeTest.php storage/tmp/post-probe.txt)",
+      "Shell(timeout 120 php artisan migrate --force 2 >& 1)",
+      "Shell(ls:*)"
+    ],
+    "deny": [],
+    "defaultMode": "default"
+  }
+}

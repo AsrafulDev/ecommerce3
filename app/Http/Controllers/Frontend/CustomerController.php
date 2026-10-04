@@ -967,10 +967,10 @@ public function order_save(Request $request)
                 'id'=>$request->id,
                 'customer_id'=>Auth::guard('customer')->user()->id
             ])
-            ->with(['orderdetails.size', 'orderdetails.color', 'payment', 'shipping', 'customer'])
+            ->with(['orderdetails.size', 'orderdetails.color', 'orderdetails.warrantySale', 'payment', 'paymentHistory', 'shipping', 'customer'])
             ->firstOrFail();
 
-        return view('frontEnd.layouts.customer.invoice',compact('order'));
+        return view('frontEnd.layouts.customer.invoice', compact('order'));
     }
 
     /**
@@ -979,7 +979,7 @@ public function order_save(Request $request)
     public function downloadInvoicePdf($id)
     {
         $order = Order::where('id', $id)
-            ->with(['orderdetails.size', 'orderdetails.color', 'payment', 'shipping', 'customer'])
+            ->with(['orderdetails.size', 'orderdetails.color', 'orderdetails.warrantySale', 'payment', 'paymentHistory', 'shipping', 'customer'])
             ->firstOrFail();
 
         // No authorization — direct download (public invoice link, same as order tracking)
