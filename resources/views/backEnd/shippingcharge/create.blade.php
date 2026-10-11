@@ -129,7 +129,7 @@
                                     </optgroup>
                                 @endforeach
                             </select>
-                            <small class="text-muted"> {{ __('This shipping fee will apply to the selected districts/areas at checkout.') }} </small>
+                            <small class="text-muted"> {{ __('This shipping fee will apply to the selected districts/areas at checkout.') }} {{ __('Press Ctrl + A (or Command + A on Mac) in the selector to select all.') }}</small>
                         </div>
 
                         <div class="col-12">
@@ -170,6 +170,21 @@
                 allowClear: true,
                 closeOnSelect: false,
                 width: '100%'
+            });
+
+            // Select all district/area options with Ctrl+A (Windows/Linux) or
+            // Command+A (macOS) while the Select2 search box is focused.
+            $('#district_ids').on('select2:open', function () {
+                $('.select2-container--open .select2-search__field')
+                    .off('keydown.shippingChargeSelectAll')
+                    .on('keydown.shippingChargeSelectAll', function (event) {
+                        if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'a') {
+                            event.preventDefault();
+                            $('#district_ids').val($('#district_ids option').map(function () {
+                                return this.value;
+                            }).get()).trigger('change');
+                        }
+                    });
             });
         }
     });
