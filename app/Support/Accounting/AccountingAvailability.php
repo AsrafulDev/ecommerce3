@@ -2,6 +2,7 @@
 
 namespace App\Support\Accounting;
 
+use App\Services\LicenseService;
 use Softmit\DoubleEntry\Services\JournalPoster;
 
 /**
@@ -41,6 +42,8 @@ final class AccountingAvailability
      */
     public static function enabled(): bool
     {
-        return self::available() && (bool) config('double-entry.enabled');
+        return self::available()
+            && (bool) config('double-entry.enabled')
+            && LicenseService::hasCapability('full_accounting');
     }
 }

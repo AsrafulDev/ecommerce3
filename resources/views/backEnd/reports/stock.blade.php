@@ -60,7 +60,7 @@
         <div>
             <h4 class="mb-1 fw-bold text-dark">
                 <i data-feather="box" class="text-primary me-2"></i> {{ __('Stock Report') }} </h4>
-            <p class="text-muted small mb-0"> {{ __('Live inventory status and valuation.') }} </p>
+            <p class="text-muted small mb-0">{{ __('Live inventory quantities and estimated stock value. Filter by supplier or export the current list.') }}</p>
         </div>
         <div>
             <a href="{{ route('admin.reports.stock', array_filter(['export' => 'csv', 'supplier_id' => $supplierId ?? null])) }}" class="btn btn-custom-outline shadow-sm">

@@ -353,8 +353,12 @@ class ExpenseController extends Controller
      */
     public function destroy($id)
     {
-        if (!$this->isAdmin()) {
-            abort(403, 'Only Admin can delete expenses.');
+        // In Advanced mode all financial history is protected. Lite-only
+        // installs retain the existing pre-journal cleanup behavior until the
+        // dependency-aware purge handler is implemented for that mode too.
+        if ($this->accounting->enabled()) {
+            return redirect()->route('admin.expenses.index')
+                ->with('error', 'Financial expenses cannot be hard-deleted here. Use Transaction Control or reverse the entry.');
         }
 
         return DB::transaction(function () use ($id) {

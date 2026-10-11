@@ -206,6 +206,32 @@ class LicenseService
     }
 
     /**
+     * Return the capabilities granted by the current license.
+     *
+     * Older license servers may not return capabilities; in that case the
+     * result is an empty list so optional modules remain closed by default.
+     */
+    public static function capabilities(bool $fresh = false): array
+    {
+        if (self::isMaster() || self::isLocal()) {
+            return ['basic_accounting', 'full_accounting', 'vat_mushak'];
+        }
+
+        $result = self::verify($fresh);
+        $capabilities = $result['data']['capabilities'] ?? [];
+
+        return is_array($capabilities) ? array_values(array_unique(array_map('strval', $capabilities))) : [];
+    }
+
+    /**
+     * Check whether the current license has a named feature capability.
+     */
+    public static function hasCapability(string $capability, bool $fresh = false): bool
+    {
+        return in_array($capability, self::capabilities($fresh), true);
+    }
+
+    /**
      * Mask a license key for display (XXXX••••••••••••••••WXYZ).
      */
     public static function maskKey(string $key): string

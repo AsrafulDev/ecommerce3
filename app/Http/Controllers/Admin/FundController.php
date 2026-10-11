@@ -511,8 +511,9 @@ class FundController extends Controller
      */
     public function destroy($id)
     {
-        if (!$this->isAdmin()) {
-            abort(403, 'Only Admin can delete fund transactions.');
+        if ($this->accounting->enabled()) {
+            return redirect()->route('admin.fund.index')
+                ->with('error', 'Financial transactions cannot be hard-deleted here. Use Transaction Control or reverse the entry.');
         }
 
         return DB::transaction(function () use ($id) {

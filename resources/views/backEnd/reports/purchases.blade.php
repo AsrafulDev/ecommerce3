@@ -78,7 +78,7 @@
             <h4 class="mb-1 fw-bold text-dark">
                 <i data-feather="shopping-cart" class="text-primary me-2"></i> Purchase Reports
             </h4>
-            <p class="text-muted small mb-0">Analysis for: <strong>{{ $label ?? 'Today' }}</strong></p>
+            <p class="text-muted small mb-0">Supplier purchases and payment activity for <strong>{{ $label ?? 'Today' }}</strong>.</p>
         </div>
     </div>
 

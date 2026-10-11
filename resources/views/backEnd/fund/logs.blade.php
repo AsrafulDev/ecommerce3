@@ -12,12 +12,11 @@
                 <i data-feather="file-text" class="me-1"></i>
                 Fund Transaction Logs / Reports
             </h4>
-            <small class="text-muted">
-                সম্পাদিত এবং মুছে ফেলা ফান্ড ট্রানজ্যাকশনের বিস্তারিত রিপোর্ট
-            </small>
+            <small class="text-muted">Review changes and deletions made to fund transactions.</small>
         </div>
 
         <div>
+            <a href="{{ route('admin.accounts.dashboard') }}" class="btn btn-sm btn-outline-secondary me-1">Transactions overview</a>
             <a href="{{ route('admin.fund.index') }}" class="btn btn-sm btn-outline-secondary">
                 <i data-feather="arrow-left" class="me-1"></i> Back to Fund Management
             </a>

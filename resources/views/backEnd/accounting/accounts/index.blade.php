@@ -96,10 +96,14 @@
                 </tbody>
                 <tfoot class="table-light">
                     <tr>
-                        <th colspan="6">{{ __('Balances by normal side') }}</th>
-                        <th class="text-end">{{ Money::format($totals['debit']) }} {{ __('Dr') }}</th>
-                        <th class="text-end">{{ Money::format($totals['credit']) }} {{ __('Cr') }}</th>
-                        <th></th>
+                        <th colspan="4" class="text-end">{{ __('Totals') }}</th>
+                        <th class="text-end">{{ Money::format($totals['total_debit']) }} <span class="text-muted small">{{ __('Dr') }}</span></th>
+                        <th class="text-end">{{ Money::format($totals['total_credit']) }} <span class="text-muted small">{{ __('Cr') }}</span></th>
+                        <th class="text-end">
+                            <span class="text-nowrap">{{ Money::format($totals['debit']) }} {{ __('Dr') }}</span><br>
+                            <span class="text-nowrap">{{ Money::format($totals['credit']) }} {{ __('Cr') }}</span>
+                        </th>
+                        <th colspan="2"></th>
                     </tr>
                 </tfoot>
             </table>

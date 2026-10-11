@@ -80,7 +80,7 @@
             <h4 class="mb-1 fw-bold text-dark">
                 <i data-feather="bar-chart-2" class="text-primary me-2"></i> Order Reports
             </h4>
-            <p class="text-muted small mb-0">Analysis for: <strong>{{ $label }}</strong></p>
+            <p class="text-muted small mb-0">Sales and order activity for <strong>{{ $label }}</strong>. Use the filters below to narrow the reporting period.</p>
         </div>
     </div>
 

@@ -148,6 +148,15 @@
     </div>
 
     <div class="lic-card">
+        <h3>🔐 {{ __('Enabled Features') }}</h3>
+        @forelse($capabilities as $capability)
+            <span class="lic-status-pill lic-status-valid" style="margin:0 6px 6px 0;">{{ str_replace('_', ' ', ucwords($capability)) }}</span>
+        @empty
+            <span class="lic-status-pill lic-status-invalid">{{ __('No optional capabilities') }}</span>
+        @endforelse
+    </div>
+
+    <div class="lic-card">
         <h3>🔑 {{ __('Update License Key') }}</h3>
         <form method="POST" action="{{ route('admin.license.save') }}">
             @csrf

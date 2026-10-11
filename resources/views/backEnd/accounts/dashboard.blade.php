@@ -16,13 +16,18 @@
 @endphp
 <div class="container-fluid">
 
-    <div class="d-flex justify-content-between align-items-center mb-3">
-        <h3 class="mb-0">📒 {{ __('Transactions Overview') }}</h3>
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+        <div><h3 class="mb-1">📒 {{ __('Transactions Overview') }}</h3><div class="text-muted">{{ __('A quick view of cash movement, outstanding balances, and current business position.') }}</div></div>
         <div>
-            <a href="{{ route('admin.fund.index') }}" class="btn btn-sm btn-outline-primary"><i class="mdi mdi-briefcase me-1"></i>{{ __('Funds') }}</a>
-            <a href="{{ route('admin.expenses.index') }}" class="btn btn-sm btn-outline-secondary"><i class="mdi mdi-credit-card me-1"></i>{{ __('Expenses') }}</a>
+            <a href="{{ route('admin.fund.index') }}" class="btn btn-sm btn-outline-primary"><i class="mdi mdi-briefcase me-1"></i>{{ __('Funds & cash flow') }}</a>
             <a href="{{ route('admin.fund.export') }}" class="btn btn-sm btn-outline-success"><i class="mdi mdi-file-delimited me-1"></i>{{ __('Export CSV') }}</a>
         </div>
+    </div>
+
+    <div class="row g-3 mb-4">
+        <div class="col-md-4"><a href="{{ route('admin.transactions.create') }}" class="card h-100 text-decoration-none"><div class="card-body d-flex align-items-center gap-3"><span class="rounded-circle bg-primary-subtle text-primary p-3"><i data-feather="plus-circle"></i></span><div><strong class="d-block text-dark">{{ __('Record a transaction') }}</strong><small class="text-muted">{{ __('Add income, owner capital, withdrawal, or an expense.') }}</small></div></div></a></div>
+        <div class="col-md-4"><a href="{{ route('admin.accounts.customers') }}" class="card h-100 text-decoration-none"><div class="card-body d-flex align-items-center gap-3"><span class="rounded-circle bg-success-subtle text-success p-3"><i data-feather="users"></i></span><div><strong class="d-block text-dark">{{ __('Customer balances') }}</strong><small class="text-muted">{{ __('Review receivables, collect dues, and open customer ledgers.') }}</small></div></div></a></div>
+        <div class="col-md-4"><a href="{{ route('admin.accounts.suppliers') }}" class="card h-100 text-decoration-none"><div class="card-body d-flex align-items-center gap-3"><span class="rounded-circle bg-warning-subtle text-warning p-3"><i data-feather="truck"></i></span><div><strong class="d-block text-dark">{{ __('Supplier balances') }}</strong><small class="text-muted">{{ __('Review payables and supplier payment history.') }}</small></div></div></a></div>
     </div>
 
     {{-- Balance cards --}}

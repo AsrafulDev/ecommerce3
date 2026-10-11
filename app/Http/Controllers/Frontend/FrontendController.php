@@ -468,9 +468,8 @@ $brands = Brand::where('status', 1)
                 }
             }
 
-            // 💰 Wholesale — discount from the active batch. In batch-wise mode the
-            //    wholesale tiers BELONG to the batch, so a matching tier always applies
-            //    (independent of the legacy products.is_wholesale flag). No tier → 0.
+            // 💰 Wholesale — only apply batch tiers when wholesale is enabled
+            //    for this product. PricingService also enforces this rule.
             $cartQty = max(1, (int) ($request->qty ?? 1));
             $wholesaleDiscount = $pricing->wholesale($product, $cartQty, null, $variantId);
             $finalPrice = max(0, $finalPrice - $wholesaleDiscount);
@@ -1233,25 +1232,24 @@ $brands = Brand::where('status', 1)
                 $details->setAttribute('old_price', round($defaultMrp, 2));
             }
 
-            // 💰 Batch-wise wholesale: surface the ACTIVE batch's own quantity-discount
-            //    tiers on the details page (Spec §9 — wholesale belongs to the batch).
-            $wholesaleRows = $activeBatch ? $activeBatch->wholesalePrices()->get() : collect();
-            if ($wholesaleRows->isEmpty() && $details->is_wholesale && $details->wholesalePrices->count()) {
-                $wholesaleRows = $details->wholesalePrices; // legacy product-level fallback
-            }
-            if ($wholesaleRows->isNotEmpty()) {
-                // Normalize batch rows to the shape the details blade/JS expect.
-                $wholesaleRows = $wholesaleRows
-                    ->map(function ($w) {
-                        $w->setAttribute('variant_id', $w->variant_price_id ?? null);
-                        $w->setAttribute('stock', null);
-                        return $w;
-                    })
-                    ->sortBy('min_quantity')
-                    ->values();
-                $details->setRelation('wholesalePrices', $wholesaleRows);
-                if (!$details->is_wholesale) {
-                    $details->setAttribute('is_wholesale', true); // view-only, matches batch tier
+            // 💰 Batch-wise wholesale: only surface tiers when wholesale is
+            // explicitly enabled for the product.
+            if ($details->is_wholesale) {
+                $wholesaleRows = $activeBatch ? $activeBatch->wholesalePrices()->get() : collect();
+                if ($wholesaleRows->isEmpty() && $details->wholesalePrices->count()) {
+                    $wholesaleRows = $details->wholesalePrices; // legacy product-level fallback
+                }
+                if ($wholesaleRows->isNotEmpty()) {
+                    // Normalize batch rows to the shape the details blade/JS expect.
+                    $wholesaleRows = $wholesaleRows
+                        ->map(function ($w) {
+                            $w->setAttribute('variant_id', $w->variant_price_id ?? null);
+                            $w->setAttribute('stock', null);
+                            return $w;
+                        })
+                        ->sortBy('min_quantity')
+                        ->values();
+                    $details->setRelation('wholesalePrices', $wholesaleRows);
                 }
             }
 

@@ -358,6 +358,20 @@
                             </div>
                         </div>
 
+                        {{-- WHOLESALE TOGGLE --}}
+                        <div class="form-group mb-3" id="wholesale_toggle_card">
+                            <input type="hidden" name="is_wholesale" value="0">
+                            <label class="form-label d-flex align-items-center gap-2">
+                                <input type="checkbox" id="is_wholesale" name="is_wholesale" value="1"
+                                       {{ old('is_wholesale') ? 'checked' : '' }}
+                                       style="width:18px;height:18px;">
+                                <span>{{ __('Enable Wholesale Pricing') }}</span>
+                            </label>
+                            <small class="text-muted d-block">
+                                {{ __('Wholesale batch discounts will apply only when this option is enabled.') }}
+                            </small>
+                        </div>
+
                         <div id="digital_area" style="display:none;" class="p-2 border rounded mb-3 bg-light">
                             <label class="form-label"> {{ __('Digital File') }} </label>
                             <input type="file" class="form-control mb-2" name="digital_file">

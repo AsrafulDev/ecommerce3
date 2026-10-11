@@ -771,6 +771,20 @@
                             </div>
                         </div>
 
+                        {{-- WHOLESALE TOGGLE --}}
+                        <div class="form-group mb-3" id="wholesale_toggle_card">
+                            <input type="hidden" name="is_wholesale" value="0">
+                            <label class="form-label d-flex align-items-center gap-2">
+                                <input type="checkbox" id="is_wholesale" name="is_wholesale" value="1"
+                                       {{ old('is_wholesale', $edit_data->is_wholesale) ? 'checked' : '' }}
+                                       style="width:18px;height:18px;">
+                                <span>{{ __('Enable Wholesale Pricing') }}</span>
+                            </label>
+                            <small class="text-muted d-block">
+                                {{ __('Wholesale batch discounts will apply only when this option is enabled.') }}
+                            </small>
+                        </div>
+
                         {{-- DIGITAL FIELDS --}}
                         <div id="digital_area" style="{{ $isDigital ? 'display:block;' : 'display:none;' }}" class="p-2 border rounded mb-3 bg-light">
                             <div class="mb-3">
@@ -1351,15 +1365,19 @@ document.addEventListener('DOMContentLoaded', function () {
         wholesaleCheck.addEventListener('change', function() {
             var wholesaleArea = document.getElementById('wholesale_area');
             if (this.checked) {
-                wholesaleArea.style.display = 'block';
-                wholesaleArea.querySelectorAll('input').forEach(function(input) {
-                    input.setAttribute('required', 'required');
-                });
+                if (wholesaleArea) {
+                    wholesaleArea.style.display = 'block';
+                    wholesaleArea.querySelectorAll('input').forEach(function(input) {
+                        input.setAttribute('required', 'required');
+                    });
+                }
             } else {
-                wholesaleArea.style.display = 'none';
-                wholesaleArea.querySelectorAll('input').forEach(function(input) {
-                    input.removeAttribute('required');
-                });
+                if (wholesaleArea) {
+                    wholesaleArea.style.display = 'none';
+                    wholesaleArea.querySelectorAll('input').forEach(function(input) {
+                        input.removeAttribute('required');
+                    });
+                }
             }
         });
     }

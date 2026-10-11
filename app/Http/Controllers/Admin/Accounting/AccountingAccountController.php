@@ -73,11 +73,19 @@ class AccountingAccountController extends Controller
             ->orderBy('code')
             ->get();
 
-        $totals = ['debit' => Money::zero(), 'credit' => Money::zero()];
+        $totals = [
+            'debit' => Money::zero(),
+            'credit' => Money::zero(),
+            'total_debit' => Money::zero(),
+            'total_credit' => Money::zero(),
+        ];
 
         $rows = $accounts->map(function (Account $account) use ($asAt, &$totals) {
             $lineTotals = $account->lineTotals($asAt);
             $balance = $account->normal_balance->signedMovement($lineTotals['debit'], $lineTotals['credit']);
+
+            $totals['total_debit'] = Money::add($totals['total_debit'], $lineTotals['debit']);
+            $totals['total_credit'] = Money::add($totals['total_credit'], $lineTotals['credit']);
 
             if ($account->normal_balance->value === 'debit') {
                 $totals['debit'] = Money::add($totals['debit'], $balance);

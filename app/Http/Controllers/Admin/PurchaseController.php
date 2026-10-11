@@ -721,9 +721,8 @@ class PurchaseController extends Controller
      */
     public function destroy($id)
     {
-        if (!$this->isAdmin()) {
-            abort(403, 'Only Admin can delete purchases.');
-        }
+        return redirect()->route('purchases.index')
+            ->with('error', 'Posted purchases cannot be hard-deleted here. Use reversal/correction workflow.');
 
         return DB::transaction(function () use ($id) {
             $purchase = Purchase::with(['items', 'payments'])->findOrFail($id);

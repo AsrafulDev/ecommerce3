@@ -7,6 +7,8 @@ use App\Models\Customer;
 use App\Models\Order;
 use App\Models\Purchase;
 use App\Models\Supplier;
+use App\Models\CustomerAdvance;
+use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 
 class LiteLedgerController extends Controller
@@ -40,6 +42,32 @@ class LiteLedgerController extends Controller
             }
         }
         return view('backEnd.accounts.customer-ledger', ['customer' => $customer, 'rows' => $this->running($rows), 'due' => (float) $orders->sum('due_amount')]);
+    }
+
+    public function customerDue(int $id)
+    {
+        $customer = Customer::findOrFail($id);
+        $orders = $customer->orders()->where('due_amount', '>', 0)->whereNotIn('order_status', self::NON_RECEIVABLE_STATUSES)->orderBy('created_at')->get();
+        $advance = (float) CustomerAdvance::where('customer_id', $id)->sum('amount');
+        return view('backEnd.accounts.customer-due', compact('customer', 'orders', 'advance'));
+    }
+
+    public function collectCustomerDue(Request $request, int $id)
+    {
+        $request->validate(['amount' => 'required|numeric|min:0.01', 'payment_method' => 'nullable|string|max:55', 'trx_note' => 'nullable|string|max:255', 'order_ids' => 'nullable|array', 'order_ids.*' => 'integer|exists:orders,id']);
+        $customer = Customer::findOrFail($id);
+        $remaining = round((float) $request->amount, 2);
+        $ids = collect($request->input('order_ids', []))->map(fn ($v) => (int) $v)->values();
+        $orders = $customer->orders()->where('due_amount', '>', 0)->whereNotIn('order_status', self::NON_RECEIVABLE_STATUSES)
+            ->when($ids->isNotEmpty(), fn ($q) => $q->orderByRaw('FIELD(id, '.$ids->implode(',').')'), fn ($q) => $q->orderBy('created_at'))->get();
+        $service = app(\App\Services\PaymentCollectionService::class);
+        foreach ($orders as $order) {
+            if ($remaining <= 0) break;
+            $payment = $service->collect($order, min($remaining, (float) $order->due_amount), $request->input('payment_method', 'Cash'), $request->input('trx_note'), auth()->id());
+            if ($payment) $remaining = round($remaining - (float) $payment->amount, 2);
+        }
+        if ($remaining > 0) CustomerAdvance::create(['customer_id' => $customer->id, 'amount' => $remaining, 'payment_method' => $request->input('payment_method', 'Cash'), 'trx_note' => $request->input('trx_note'), 'created_by' => auth()->id()]);
+        return back()->with('success', 'Payment allocated across bills successfully.'.($remaining > 0 ? ' Extra amount saved as customer advance.' : ''));
     }
 
     public function suppliers()

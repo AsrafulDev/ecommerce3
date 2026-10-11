@@ -71,7 +71,7 @@
             <h4 class="mb-1 fw-bold text-dark">
                 <i data-feather="pie-chart" class="text-primary me-2"></i> Profit & Loss Report
             </h4>
-            <p class="text-muted small mb-0">Financial overview for: <strong>{{ $label ?? 'Today' }}</strong></p>
+            <p class="text-muted small mb-0">Sales, cost, and expense summary for <strong>{{ $label ?? 'Today' }}</strong>. Select a period below to update the view.</p>
         </div>
     </div>
 

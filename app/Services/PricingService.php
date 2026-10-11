@@ -476,6 +476,13 @@ class PricingService
      */
     public function wholesale(Product $product, int $qty, ?int $batchId = null, ?int $variantId = null): float
     {
+        // Batch wholesale tiers are only active when wholesale is explicitly
+        // enabled for the product. Keep the batch tiers intact so they can be
+        // reused if wholesale is enabled again later.
+        if (!$product->is_wholesale) {
+            return 0.0;
+        }
+
         if (!$this->isBatchWise()) {
             return $this->legacyWholesale($product, $qty, $variantId);
         }

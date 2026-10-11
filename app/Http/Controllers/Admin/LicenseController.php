@@ -34,6 +34,7 @@ class LicenseController extends Controller
             'isLocal'        => LicenseService::isLocal(),
             'isMaster'       => LicenseService::isMaster(),
             'refreshed'      => $request->has('refresh'),
+            'capabilities'   => LicenseService::capabilities($request->has('refresh')),
         ]);
     }
 

@@ -5,12 +5,12 @@
 @section('content')
 <div class="container-fluid">
 
-    <div class="d-flex justify-content-between align-items-center mb-3">
-        <h3 class="mb-0">💰 Funds & Money Movement</h3>
-        <a href="{{ route('admin.fund.logs') }}" class="btn btn-info btn-sm">
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+        <div><h3 class="mb-1">Funds & Money Movement</h3><p class="text-muted mb-0">Review available cash, add or withdraw funds, and export transaction history.</p></div>
+        <div class="d-flex gap-2"><a href="{{ route('admin.accounts.dashboard') }}" class="btn btn-outline-secondary btn-sm">Transactions overview</a><a href="{{ route('admin.fund.logs') }}" class="btn btn-info btn-sm">
             <i data-feather="file-text" class="me-1" style="width:14px;height:14px;"></i> 
             View Edit/Delete Logs & Reports
-        </a>
+        </a></div>
     </div>
 
     {{-- Top summary cards --}}

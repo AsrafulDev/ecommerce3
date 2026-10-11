@@ -1140,25 +1140,13 @@ class OrderController extends Controller
 
     public function destroy(Request $request)
     {
-        Order::where('id', $request->id)->delete();
-        OrderDetails::where('order_id', $request->id)->delete();
-        Shipping::where('order_id', $request->id)->delete();
-        Payment::where('order_id', $request->id)->delete();
-
-        Toastr::success('Success', 'Order delete success successfully');
-        return redirect()->back();
+        return redirect()->back()
+            ->with('error', 'Sales cannot be hard-deleted here. Use cancellation, return, or reversal workflow.');
     }
 
     public function bulk_destroy(Request $request)
     {
-        $orders_id = isset($request->order_ids) ? $request->order_ids : [];
-        foreach ($orders_id as $order_id) {
-            Order::where('id', $order_id)->delete();
-            OrderDetails::where('order_id', $order_id)->delete();
-            Shipping::where('order_id', $order_id)->delete();
-            Payment::where('order_id', $order_id)->delete();
-        }
-        return response()->json(['status' => 'success', 'message' => 'Order delete successfully']);
+        return response()->json(['status' => 'error', 'message' => 'Sales cannot be bulk deleted. Use cancellation, return, or reversal workflow.'], 422);
     }
 
     /*
