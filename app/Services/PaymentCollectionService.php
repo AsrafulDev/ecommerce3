@@ -48,7 +48,8 @@ class PaymentCollectionService
         string $method = 'Cash',
         ?string $trxRef = null,
         ?int $userId = null,
-        ?string $note = null
+        ?string $note = null,
+        ?string $paidOn = null
     ): ?OrderPayment {
         $amount = round($amount, 2);
 
@@ -68,7 +69,10 @@ class PaymentCollectionService
         // (not the due_amount column, which an order may not have initialised
         // yet at gateway time). This is what keeps a replay or an over-payment
         // from booking more than the order is worth.
-        $collected = round((float) OrderPayment::where('order_id', $order->id)->sum('amount'), 2);
+        // Discount, VAT and AIT count against the order too, so cash cannot be taken
+        // on top of an adjustment that already settled the same money.
+        $collected = round((float) OrderPayment::where('order_id', $order->id)
+            ->selectRaw('COALESCE(SUM(amount + adjustment_amount), 0) as total')->value('total'), 2);
         $remaining = round((float) $order->amount - $collected, 2);
         $actual    = min($amount, $remaining);
 
@@ -79,7 +83,7 @@ class PaymentCollectionService
             return null;
         }
 
-        $payment = DB::transaction(function () use ($order, $actual, $method, $trxRef, $userId, $note) {
+        $payment = DB::transaction(function () use ($order, $actual, $method, $trxRef, $userId, $note, $paidOn) {
             $payment = OrderPayment::create([
                 'order_id'       => $order->id,
                 'customer_id'    => $order->customer_id,
@@ -88,6 +92,7 @@ class PaymentCollectionService
                 'trx_note'       => $trxRef ?: ($note ?: null),
                 'created_by'     => $userId ?? ($order->updated_by ?? 1),
             ]);
+            $this->backdate($payment, $paidOn);
 
             // Derive the order's totals from the ledger — the one source of truth
             // for paid/due/status, so no caller sets them by hand again.
@@ -103,6 +108,7 @@ class PaymentCollectionService
                 'note' => $note ?: 'Payment received — Order #' . ($order->invoice_id ?? $order->id),
                 'created_by' => $userId ?? ($order->updated_by ?? 1),
             ]);
+            $this->backdate($fund, $paidOn);
             $payment->fund_transaction_id = $fund->id;
             $payment->save();
 
@@ -121,5 +127,53 @@ class PaymentCollectionService
         }
 
         return $payment;
+    }
+
+    /**
+     * Record a discount, VAT or AIT against an order's due. Moves no cash: the row
+     * carries amount 0 and the reduction in adjustment_amount, and no fund row is
+     * written. Refuses anything above what the order still owes.
+     */
+    public function adjust(Order $order, float $amount, string $type, ?int $userId = null, ?string $note = null, ?string $onDate = null): ?OrderPayment
+    {
+        $amount = round($amount, 2);
+        $remaining = round((float) $order->amount - (float) OrderPayment::where('order_id', $order->id)
+            ->selectRaw('COALESCE(SUM(amount + adjustment_amount), 0) as total')->value('total'), 2);
+
+        if ($amount <= 0 || $remaining <= 0) {
+            return null;
+        }
+
+        $actual = min($amount, $remaining);
+
+        return DB::transaction(function () use ($order, $actual, $type, $userId, $note, $onDate) {
+            $row = OrderPayment::create([
+                'order_id'          => $order->id,
+                'customer_id'       => $order->customer_id,
+                'amount'            => 0,
+                'adjustment_amount' => $actual,
+                'adjustment_type'   => $type,
+                'payment_method'    => strtoupper($type),
+                'trx_note'          => $note,
+                'created_by'        => $userId ?? ($order->updated_by ?? 1),
+            ]);
+            $this->backdate($row, $onDate);
+
+            $order->refresh();
+            $order->recalculatePaymentTotals();
+
+            return $row;
+        });
+    }
+
+    /** Keep the chosen day on a row, at the current time of day. */
+    protected function backdate(\Illuminate\Database\Eloquent\Model $row, ?string $day): void
+    {
+        if ($day === null || $day === '') {
+            return;
+        }
+
+        $when = \Illuminate\Support\Carbon::parse($day)->setTimeFrom(now());
+        $row->forceFill(['created_at' => $when, 'updated_at' => $when])->saveQuietly();
     }
 }

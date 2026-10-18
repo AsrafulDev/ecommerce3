@@ -16,6 +16,12 @@ enum TransactionCategory: string
     case OWNER_CAPITAL = 'owner_capital';
     case OTHER_INCOME = 'other_income';
     case WARRANTY_INCOME = 'warranty_income';
+    case LOAN_TAKEN = 'loan_taken';
+    case LOAN_GIVEN = 'loan_given';
+    case LOAN_REPAID = 'loan_repaid';
+    case LOAN_COLLECTED = 'loan_collected';
+    case ASSET_PURCHASE = 'asset_purchase';
+    case ASSET_DISPOSAL = 'asset_disposal';
 
     public function label(): string
     {
@@ -32,6 +38,12 @@ enum TransactionCategory: string
             self::OWNER_CAPITAL => 'Owner Capital',
             self::OTHER_INCOME => 'Other Income',
             self::WARRANTY_INCOME => 'Warranty Income',
+            self::LOAN_TAKEN => 'Loan Taken',
+            self::LOAN_GIVEN => 'Loan Given',
+            self::LOAN_REPAID => 'Loan Repaid',
+            self::LOAN_COLLECTED => 'Loan Collected',
+            self::ASSET_PURCHASE => 'Fixed Asset Purchase',
+            self::ASSET_DISPOSAL => 'Fixed Asset Disposal',
         };
     }
 

@@ -15,7 +15,8 @@ class AdminMiddleware
     {
         // Check if user is authenticated with admin guard
         if (!Auth::guard('admin')->check()) {
-            return redirect()->route('login')->with('error', 'Please login to access admin panel.');
+            // Not a hint about the login address: the admin area is simply not open to guests.
+            return redirect()->route('home')->with('error', 'You do not have access to that page.');
         }
 
         $user = Auth::guard('admin')->user();

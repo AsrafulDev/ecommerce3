@@ -949,26 +949,37 @@
   </div>
 </li>
 
-{{-- Transactions (Lite Accounting — fund, expenses, operational reports) --}}
-@canany(['fund-list', 'fund-create', 'fund-edit', 'expense-list', 'expense-create', 'expense-edit', 'report-view', 'order-report', 'purchase-report', 'expense-report', 'stock-report', 'profit-loss-report'])
-<li class="{{ request()->routeIs('admin.accounts.*', 'admin.fund.*', 'admin.expenses.*', 'admin.transactions.*', 'admin.reports.*') ? 'active' : '' }}">
+{{-- Transactions — Core (Lite) accounting. Always available: nothing in this menu depends on Advanced Accounting.
+     Each item uses the same permission as its route (see LiteRouteAuthorizationTest). --}}
+@canany(['fund-list', 'fund-create', 'fund-edit', 'expense-list', 'expense-create', 'expense-edit', 'report-view', 'order-report', 'purchase-report', 'expense-report', 'stock-report', 'profit-loss-report', 'purge-financial-transactions'])
+<li class="{{ request()->routeIs('admin.accounts.*', 'admin.fund.*', 'admin.expenses.*', 'admin.transactions.*', 'admin.reports.*', 'admin.transaction-control.*') ? 'active' : '' }}">
   <a href="#sidebar-transactions" data-bs-toggle="collapse">
     <i data-feather="activity"></i>
     <span> {{ __('Transactions') }} </span>
     <span class="menu-arrow"></span>
   </a>
-  <div class="collapse {{ request()->routeIs('admin.accounts.*', 'admin.fund.*', 'admin.expenses.*', 'admin.transactions.*', 'admin.reports.*') ? 'show' : '' }}" id="sidebar-transactions">
+  <div class="collapse {{ request()->routeIs('admin.accounts.*', 'admin.fund.*', 'admin.expenses.*', 'admin.transactions.*', 'admin.reports.*', 'admin.transaction-control.*') ? 'show' : '' }}" id="sidebar-transactions">
     <ul class="nav-second-level">
-      <li class="menu-title px-3 pt-2 pb-1 text-uppercase small text-muted">{{ __('Manage money') }}</li>
-      <li class="{{ request()->routeIs('admin.accounts.dashboard') ? 'active' : '' }}"><a href="{{ route('admin.accounts.dashboard') }}"><i data-feather="pie-chart"></i> {{ __('Overview & balances') }} </a></li>
-      @canany(['fund-list', 'fund-create', 'fund-edit'])
-      <li class="{{ request()->routeIs('admin.transactions.*') ? 'active' : '' }}"><a href="{{ route('admin.transactions.create') }}"><i data-feather="briefcase"></i> {{ __('Record a transaction') }} </a></li>
-      <li class="{{ request()->routeIs('admin.fund.*') ? 'active' : '' }}"><a href="{{ route('admin.fund.index') }}"><i data-feather="credit-card"></i> {{ __('Funds & cash flow') }} </a></li>
-      <li class="{{ request()->routeIs('admin.accounts.customers', 'admin.accounts.customer*') ? 'active' : '' }}"><a href="{{ route('admin.accounts.customers') }}"><i data-feather="user"></i> {{ __('Customer balances & dues') }} </a></li>
-      <li class="{{ request()->routeIs('admin.accounts.suppliers', 'admin.accounts.supplier*') ? 'active' : '' }}"><a href="{{ route('admin.accounts.suppliers') }}"><i data-feather="truck"></i> {{ __('Supplier balances & dues') }} </a></li>
+      @canany(['fund-list', 'fund-create', 'fund-edit', 'expense-list', 'expense-create', 'expense-edit', 'report-view', 'order-report', 'purchase-report', 'expense-report', 'stock-report', 'profit-loss-report'])
+      <li class="menu-title px-3 pt-2 pb-1 text-uppercase small text-muted">{{ __('Money') }}</li>
       @endcanany
+      @canany(['fund-list', 'fund-create', 'fund-edit', 'expense-list', 'expense-create', 'expense-edit', 'report-view', 'order-report', 'purchase-report', 'expense-report', 'stock-report', 'profit-loss-report'])
+      <li class="{{ request()->routeIs('admin.accounts.dashboard') ? 'active' : '' }}"><a href="{{ route('admin.accounts.dashboard') }}"><i data-feather="pie-chart"></i> {{ __('Overview') }} </a></li>
+      @endcanany
+      @can('fund-create')
+      <li class="{{ request()->routeIs('admin.transactions.*') ? 'active' : '' }}"><a href="{{ route('admin.transactions.create') }}"><i data-feather="briefcase"></i> {{ __('Money In / Money Out') }} </a></li>
+      @endcan
+      @can('fund-list')
+      <li class="{{ request()->routeIs('admin.fund.index', 'admin.fund.edit') ? 'active' : '' }}"><a href="{{ route('admin.fund.index') }}"><i data-feather="credit-card"></i> {{ __('Funds') }} </a></li>
+      <li class="{{ request()->routeIs('admin.accounts.customers', 'admin.accounts.customer*') ? 'active' : '' }}"><a href="{{ route('admin.accounts.customers') }}"><i data-feather="user"></i> {{ __('Customer Accounts') }} </a></li>
+      <li class="{{ request()->routeIs('admin.accounts.suppliers', 'admin.accounts.supplier*') ? 'active' : '' }}"><a href="{{ route('admin.accounts.suppliers') }}"><i data-feather="truck"></i> {{ __('Supplier Accounts') }} </a></li>
+      <li class="{{ request()->routeIs('admin.fund.logs') ? 'active' : '' }}"><a href="{{ route('admin.fund.logs') }}"><i data-feather="list"></i> {{ __('Transaction History') }} </a></li>
+      @endcan
+      @can('expense-list')
+      <li class="{{ request()->routeIs('admin.expenses.*') ? 'active' : '' }}"><a href="{{ route('admin.expenses.index') }}"><i data-feather="trending-down"></i> {{ __('Expenses') }} </a></li>
+      @endcan
       @canany(['order-report', 'report-view', 'purchase-report', 'expense-report', 'stock-report', 'profit-loss-report'])
-      <li class="menu-title px-3 pt-3 pb-1 text-uppercase small text-muted">{{ __('Reports') }}</li>
+      <li class="menu-title px-3 pt-3 pb-1 text-uppercase small text-muted">{{ __('Operational reports (Core)') }}</li>
       @endcanany
       @canany(['order-report', 'report-view'])
       <li class="{{ request()->routeIs('admin.reports.orders') ? 'active' : '' }}"><a href="{{ route('admin.reports.orders') }}"><i data-feather="file-text"></i> {{ __('Sales & order report') }} </a></li>
@@ -977,43 +988,45 @@
       <li class="{{ request()->routeIs('admin.reports.purchases') ? 'active' : '' }}"><a href="{{ route('admin.reports.purchases') }}"><i data-feather="shopping-bag"></i> {{ __('Purchase report') }} </a></li>
       @endcanany
       @canany(['expense-report', 'report-view'])
-      <li class="{{ request()->routeIs('admin.reports.expenses') ? 'active' : '' }}"><a href="{{ route('admin.reports.expenses') }}"><i data-feather="trending-down"></i> {{ __('Expense Report') }} </a></li>
+      <li class="{{ request()->routeIs('admin.reports.expenses') ? 'active' : '' }}"><a href="{{ route('admin.reports.expenses') }}"><i data-feather="trending-down"></i> {{ __('Expense report') }} </a></li>
       @endcanany
       @canany(['stock-report', 'report-view'])
       <li class="{{ request()->routeIs('admin.reports.stock') ? 'active' : '' }}"><a href="{{ route('admin.reports.stock') }}"><i data-feather="archive"></i> {{ __('Inventory value report') }} </a></li>
       @endcanany
       @canany(['profit-loss-report', 'report-view'])
-      <li class="{{ request()->routeIs('admin.reports.profit_loss') ? 'active' : '' }}"><a href="{{ route('admin.reports.profit_loss') }}"><i data-feather="activity"></i> {{ __('Basic Profit Summary') }} </a></li>
+      <li class="{{ request()->routeIs('admin.reports.profit_loss') ? 'active' : '' }}"><a href="{{ route('admin.reports.profit_loss') }}"><i data-feather="activity"></i> {{ __('Operational Profit & Loss') }} </a></li>
       @endcanany
+      @can('purge-financial-transactions')
+      <li class="menu-title px-3 pt-3 pb-1 text-uppercase small text-muted">{{ __('Control') }}</li>
+      <li class="{{ request()->routeIs('admin.transaction-control.*') ? 'active' : '' }}"><a href="{{ route('admin.transaction-control.index') }}"><i data-feather="shield"></i> {{ __('Transaction Control') }} </a></li>
+      @endcan
     </ul>
   </div>
 </li>
 @endcanany
 
-{{-- Accounts (Advanced double-entry books — optional module; visible only when
-     the package is installed AND Advanced Accounting is enabled. The gateway is
-     the single place that decides; see App\Support\Accounting\AccountingAvailability) --}}
+{{-- Accounting (Advanced double-entry books) — optional module. Visible only when the package is installed
+     AND Advanced Accounting is enabled; the gateway decides. Every item here is an implemented route. --}}
 @if(app(\App\Services\Accounting\AdvancedAccountingGateway::class)->enabled())
 @can('accounting-list')
 <li class="{{ request()->routeIs('admin.accounting.*') ? 'active' : '' }}">
   <a href="#sidebar-accounting" data-bs-toggle="collapse">
     <i data-feather="book"></i>
-    <span> {{ __('Accounts') }} </span>
+    <span> {{ __('Accounting (Advanced)') }} </span>
     <span class="menu-arrow"></span>
   </a>
   <div class="collapse {{ request()->routeIs('admin.accounting.*') ? 'show' : '' }}" id="sidebar-accounting">
     <ul class="nav-second-level">
+      <li class="menu-title px-3 pt-2 pb-1 text-uppercase small text-muted">{{ __('Books') }}</li>
       <li><a href="{{ route('admin.accounting.accounts.index') }}"><i data-feather="list"></i> {{ __('Chart of Accounts') }} </a></li>
-      <li><a href="{{ route('admin.accounting.journals.index') }}"><i data-feather="book-open"></i> {{ __('Journals') }} </a></li>
-      <li><a href="{{ route('admin.accounting.opening.index') }}"><i data-feather="log-in"></i> {{ __('Opening Balances') }} </a></li>
-      <li><a href="{{ route('admin.accounting.ledger.balances') }}"><i data-feather="users"></i> {{ __('Party Balances') }} </a></li>
-      <li><a href="{{ route('admin.accounting.reports.trial-balance') }}"><i data-feather="grid"></i> {{ __('Trial Balance') }} </a></li>
-      <li><a href="{{ route('admin.accounting.reports.profit-loss') }}"><i data-feather="trending-up"></i> {{ __('Income Statement') }} </a></li>
-      <li><a href="{{ route('admin.accounting.reports.cash') }}"><i data-feather="dollar-sign"></i> {{ __('Cash & Bank Ledger') }} </a></li>
-      <li><a href="{{ route('admin.accounting.sync.index') }}"><i data-feather="upload-cloud"></i> {{ __('Lite Data Sync') }} </a></li>
-      @can('purge-financial-transactions')
-      <li><a href="{{ route('admin.transaction-control.index') }}"><i data-feather="shield"></i> {{ __('Transaction Control') }} </a></li>
-      @endcan
+      <li><a href="{{ route('admin.accounting.journals.index') }}"><i data-feather="book-open"></i> {{ __('Journal Entries') }} </a></li>
+      <li><a href="{{ route('admin.accounting.ledger.balances') }}"><i data-feather="users"></i> {{ __('Receivable & Payable') }} </a></li>
+      <li><a href="{{ route('admin.accounting.reports.trial-balance') }}"><i data-feather="grid"></i> {{ __('Trial Balance (Books)') }} </a></li>
+      <li><a href="{{ route('admin.accounting.reports.profit-loss') }}"><i data-feather="trending-up"></i> {{ __('Income Statement (Books)') }} </a></li>
+      <li><a href="{{ route('admin.accounting.reports.cash') }}"><i data-feather="dollar-sign"></i> {{ __('Cash & Bank Ledger (Books)') }} </a></li>
+      <li class="menu-title px-3 pt-3 pb-1 text-uppercase small text-muted">{{ __('Setup & audit') }}</li>
+      <li><a href="{{ route('admin.accounting.opening.index') }}"><i data-feather="log-in"></i> {{ __('Accounting Setup') }} </a></li>
+      <li><a href="{{ route('admin.accounting.sync.index') }}"><i data-feather="upload-cloud"></i> {{ __('Audit & Reconciliation') }} </a></li>
     </ul>
   </div>
 </li>
@@ -1372,6 +1385,10 @@
       <li><a href="{{ route('courierapi.manage') }}"><i data-feather="file-plus"></i> {{ __('Courier API') }} </a></li>
       <li><a href="{{ route('admin.facebook_capi.edit') }}"><i data-feather="facebook"></i> {{ __('Facebook CAPI') }} </a></li>
       <li><a href="{{ route('admin.google_analytics.edit') }}"><i data-feather="bar-chart-2"></i> {{ __('Google Analytics 4') }} </a></li>
+      @can('setting-edit')
+      <li><a href="{{ route('admin.vat.edit') }}"><i data-feather="percent"></i> {{ __('VAT Settings') }} </a></li>
+      <li><a href="{{ route('admin.vat.reports') }}"><i data-feather="file-text"></i> {{ __('VAT Reports') }} </a></li>
+      @endcan
       @can('fraud-setting-list')
       <li><a href="{{ route('admin.fraud.index') }}"><i data-feather="shield"></i> {{ __('Fraud API') }} </a></li>
       @endcan
@@ -1981,7 +1998,3 @@
     @stack('scripts')
   </body>
 </html>
-      @can('setting-edit')
-      <li><a href="{{ route('admin.vat.edit') }}"><i data-feather="percent"></i> {{ __('VAT Settings') }} </a></li>
-      <li><a href="{{ route('admin.vat.reports') }}"><i data-feather="file-text"></i> {{ __('VAT Reports') }} </a></li>
-      @endcan

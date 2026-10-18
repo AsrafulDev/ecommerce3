@@ -3,7 +3,9 @@
 namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\GeneralSetting;
+use App\Support\AdminLoginPath;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Http\Request;
 use Toastr;
@@ -146,7 +148,25 @@ class GeneralSettingController extends Controller
             Toastr::error('No settings record found. Create one first.', 'Error');
             return redirect()->route('settings.create');
         }
+        // Admin login address: blank keeps the current one. Changing it needs the admin's
+        // current password, so a hijacked session alone cannot move the login page.
+        $loginPath = AdminLoginPath::normalize($request->input('admin_login_path'));
+        $changeLoginPath = $loginPath !== null && $loginPath !== AdminLoginPath::current();
+        if ($changeLoginPath) {
+            $currentPassword = (string) $request->input('admin_login_current_password');
+            if ($currentPassword === '' || ! Hash::check($currentPassword, auth('admin')->user()->password)) {
+                Toastr::error('Current password is incorrect. The admin login address was not changed.', 'Error');
+                return back()->withInput($request->except('admin_login_current_password', 'admin_login_path'));
+            }
+            if ($error = AdminLoginPath::validationError($loginPath)) {
+                Toastr::error($error, 'Error');
+                return back()->withInput($request->except('admin_login_current_password'));
+            }
+        }
+
         $input = $request->all();
+        // Never mass-assign the login address or the password field.
+        unset($input['admin_login_path'], $input['admin_login_current_password']);
 
         // Blank date inputs post '' and these columns are DATETIME — MySQL strict
         // mode rejects '' with "1292 Incorrect datetime value", which aborts the
@@ -180,6 +200,12 @@ class GeneralSettingController extends Controller
         
         $update_data->update($input);
 
+        if ($changeLoginPath) {
+            $update_data->forceFill(['admin_login_path' => $loginPath])->save();
+            AdminLoginPath::forget();
+            log_activity('Settings', 'admin_login_path', 'Admin login address changed', $update_data, ['login_path' => $loginPath]);
+        }
+
         Cache::forget('general_setting');
         Cache::forget('warranty_enabled');
         Cache::forget('frontend_homepage_v1');
@@ -190,7 +216,16 @@ class GeneralSettingController extends Controller
         Cache::forget('pages_right');
         Cache::forget('common_menu');
 
-        Toastr::success('Settings updated successfully!', 'Success');
+        if ($changeLoginPath) {
+            $message = 'Admin login address changed to '.url('/'.$loginPath).'. Bookmark it before you log out.';
+            if (app()->routesAreCached()) {
+                $message .= ' Routes are cached: run php artisan route:cache on the server to apply it.';
+            }
+            Toastr::success($message, 'Success');
+        } else {
+            Toastr::success('Settings updated successfully!', 'Success');
+        }
+
         return redirect()->route('settings.edit');
     }
  

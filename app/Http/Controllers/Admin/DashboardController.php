@@ -289,7 +289,7 @@ class DashboardController extends Controller
     public function unlocked(Request $request)
     {
         if (!Auth::check()) {
-            return redirect()->route('login');
+            return redirect()->route('home');
         }
 
         $password = $request->password;

@@ -145,7 +145,7 @@
                 @if ($plug)
                 <div class="small text-danger mb-2">
                     <strong>Does not balance.</strong>
-                    The difference is {{ number_format(abs((float) $plug['credit'] !== '0.00' ? (float) $plug['credit'] : (float) $plug['debit']), 2) }},
+                    The difference is {{ number_format((float) ($plug['debit'] !== '0.00' ? $plug['debit'] : $plug['credit']), 2) }},
                     which would go to <em>{{ $plug['description'] }}</em>. Add it only if you agree that amount is what the owner has in
                     the business — a plug is where a missing line hides.
                 </div>

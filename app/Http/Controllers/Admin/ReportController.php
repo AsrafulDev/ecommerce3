@@ -18,6 +18,16 @@ use App\Models\Supplier;
 
 class ReportController extends Controller
 {
+    public function __construct()
+    {
+        // Each report uses the same permission its sidebar item checks.
+        $this->middleware('permission:order-report|report-view', ['only' => ['orders']]);
+        $this->middleware('permission:purchase-report|report-view', ['only' => ['purchases']]);
+        $this->middleware('permission:expense-report|report-view', ['only' => ['expenses']]);
+        $this->middleware('permission:stock-report|report-view', ['only' => ['stock']]);
+        $this->middleware('permission:profit-loss-report|report-view', ['only' => ['profitLoss']]);
+    }
+
     /**
      * Whole-period SUM over the first columns that actually exist in the table.
      * Fixes totals previously computed from the paginated (current-page) rows.

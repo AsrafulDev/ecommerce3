@@ -16,6 +16,10 @@ class ExpenseController extends Controller
 {
     public function __construct(protected AdvancedAccountingGateway $accounting)
     {
+        // Same permission names the Transactions sidebar already checks; no new ones.
+        $this->middleware('permission:expense-list', ['only' => ['index', 'logs', 'export']]);
+        $this->middleware('permission:expense-create', ['only' => ['store']]);
+        $this->middleware('permission:expense-edit', ['only' => ['edit', 'update', 'destroy']]);
     }
 
     /**

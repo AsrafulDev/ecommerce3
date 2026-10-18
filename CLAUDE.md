@@ -20,6 +20,9 @@ Laravel 12 e-commerce platform ("Ecommerce Pro") with a full admin panel, storef
   - `warranty:expire`, `warranty:update-tiers`
   - `courier:check-status {--limit=50} {--force}` — poll Pathao/Steadfast/RedX for status updates
   - `update:release {version} {--upload} {--secret=}` — build/upload an update zip to the license server
+  - `pricing:backfill {--dry-run} {--product=}` — backfill batch-wise pricing
+  - `logs:archive-activity {--days=90} {--dry-run}` — prune old activity logs
+  - `model:backfill` — backfill model fields (see its signature for options)
   - `migrate:fresh:default` — fresh migrate + default seeder only (see `DefaultDatabaseSeeder`)
 
 ## Architecture
@@ -31,6 +34,10 @@ Laravel 12 e-commerce platform ("Ecommerce Pro") with a full admin panel, storef
   - `WarrantyService`, `WarrantyPriceCalculator`, `WarrantyDisplayService`, `WarrantyChallanService`, `CartWarrantyService` — warranty pipeline
   - `LicenseService` — license/update-server integration (see pitfall #3 below)
   - `RedXService`, courier integrations; `FacebookCapiService`, `FacebookPagePostService`, `Ads/` (Facebook/Google/TikTok ads services)
+- **Accounting** (two levels, defined in `docs/accounting-architecture.md`; status in `docs/accounting-progress.md`):
+  - *Lite* (always on): `fund_transactions` is a virtual single till (no fund_id) written via `FundHelper`, `PaymentCollectionService` (the only primitive for new customer payments — creates `OrderPayment` + linked fund row in one DB transaction), and `SupplierPaymentReconciliationService`. Due fields are derived from payment history by `CustomerDueReconciliationService`. `TransactionCategory` (nullable enum column) says *what happened*; it is separate from `direction`/`source`. Never backfill or guess historical rows.
+  - *Advanced* (optional double-entry): engine is the sibling path package `softmit/bd-double-entry` (`../bd-double-entry`, symlinked via composer `repositories`). Ask `AdvancedAccountingGateway` / `App\Support\Accounting\AccountingAvailability` — never scatter `class_exists()` or `config('double-entry.enabled')` checks. The app must work with the package absent (`NullAdvancedAccountingGateway`).
+  - Deleting/purging financial transactions goes through `app/Services/Accounting/*Purge*` (window set by `config/accounting.php`); see `docs/payment-purge-readiness.md` and `docs/transaction-integrity-plan.md` before touching it.
 - **Enums** (`app/Enums/`): `OrderStatus`, `PaymentStatus`, `Warranty*`, `Damage*`. Order status is enum-driven — `OrderStatus::fromLegacyId()` bridges old integer status columns.
 - **Helpers**: `app/helpers.php` (autoloaded via composer `files`) provides `log_activity()`, color helpers, etc. `app/Helpers/`: `FundHelper`, `OrderHelper`, `PresetData`.
 - **Routes**: `routes/web.php` (admin routes under `prefix('admin')`, middleware `['auth:admin','admin','lock','check_refer','demo_mode']`); `routes/api.php` (`v1` public, `v1/mobile` Sanctum-protected for the Flutter app, `updates` license-protected). Middleware aliases are registered in `bootstrap/app.php`, not a Kernel class (Laravel 12 style).
@@ -55,6 +62,8 @@ Laravel 12 e-commerce platform ("Ecommerce Pro") with a full admin panel, storef
 7. **Never drop `force="true"` on `APP_ENV` in `phpunit.xml`** — without it, a shell that exports `APP_ENV` makes Laravel skip `.env.testing` and run `RefreshDatabase` against the **live** MySQL database.
 
 ## Docs
+
+`docs/` holds the accounting/architecture docs (`accounting-*.md`, `payment-*.md`, `architecture.md`, `transaction-integrity-plan.md`). Tests are in `tests/Feature` (incl. `tests/Feature/Accounting`) and are the main safety net (~290 passing); run `php artisan test` after touching money/stock paths.
 
 Root-level docs worth reading before touching related areas (not duplicated here):
 - `plan.md` — stock-sync plan (read before touching stock code)

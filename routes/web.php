@@ -98,10 +98,14 @@ Route::get('admin', function () {
     if (Auth::guard('admin')->check()) {
         return redirect()->route('admin.dashboard');
     }
-    return redirect()->route('login');
+    return redirect()->route('home');
 })->name('admin');
 
-Auth::routes();
+// Admin login address is configurable in General Settings (default "/login").
+// Auth::routes() still registers logout; the login pair uses the configured path.
+Auth::routes(['login' => false]);
+Route::get(\App\Support\AdminLoginPath::current(), [\App\Http\Controllers\Auth\LoginController::class, 'showLoginForm'])->name('login');
+Route::post(\App\Support\AdminLoginPath::current(), [\App\Http\Controllers\Auth\LoginController::class, 'login']);
 // Admin Forgot Password Routes
 Route::get('admin/forgot-password', [App\Http\Controllers\Admin\Auth\ForgotPasswordController::class, 'showLinkRequestForm'])->name('admin.password.request');
 Route::post('admin/forgot-password', [App\Http\Controllers\Admin\Auth\ForgotPasswordController::class, 'sendResetLinkEmail'])->name('admin.password.email');
@@ -267,6 +271,36 @@ Route::prefix('admin')->middleware(['auth:admin', 'admin', 'demo_mode'])->group(
     Route::get('/accounts/suppliers', [\App\Http\Controllers\Admin\LiteLedgerController::class, 'suppliers'])->name('admin.accounts.suppliers');
     Route::get('/accounts/suppliers/{id}', [\App\Http\Controllers\Admin\LiteLedgerController::class, 'supplier'])->name('admin.accounts.supplier');
 
+    // Finance & Reports: Balance and Ledger pages (read-only)
+    Route::get('/accounts/reports', [\App\Http\Controllers\Admin\AccountsReportController::class, 'index'])->name('admin.accounts.reports.index');
+    Route::get('/accounts/reports/{report}', [\App\Http\Controllers\Admin\AccountsReportController::class, 'show'])->name('admin.accounts.reports.show');
+
+    // Receipt and payment entry: one party, many invoices, one save (see AccountsEntryController)
+    Route::get('/accounts/entry/receipt', [\App\Http\Controllers\Admin\AccountsEntryController::class, 'receiptCreate'])->name('admin.accounts.entry.receipt');
+    Route::post('/accounts/entry/receipt', [\App\Http\Controllers\Admin\AccountsEntryController::class, 'receiptStore'])->name('admin.accounts.entry.receipt.store');
+    Route::get('/accounts/entry/payment', [\App\Http\Controllers\Admin\AccountsEntryController::class, 'paymentCreate'])->name('admin.accounts.entry.payment');
+    Route::post('/accounts/entry/payment', [\App\Http\Controllers\Admin\AccountsEntryController::class, 'paymentStore'])->name('admin.accounts.entry.payment.store');
+
+    // Loan and fixed asset registers (see RegistersController)
+    Route::get('/accounts/loans', [\App\Http\Controllers\Admin\RegistersController::class, 'loans'])->name('admin.accounts.loans.index');
+    Route::post('/accounts/loans', [\App\Http\Controllers\Admin\RegistersController::class, 'storeLoan'])->name('admin.accounts.loans.store');
+    Route::post('/accounts/loans/{loan}/repay', [\App\Http\Controllers\Admin\RegistersController::class, 'repayLoan'])->name('admin.accounts.loans.repay');
+    Route::get('/accounts/assets', [\App\Http\Controllers\Admin\RegistersController::class, 'assets'])->name('admin.accounts.assets.index');
+    Route::post('/accounts/assets', [\App\Http\Controllers\Admin\RegistersController::class, 'storeAsset'])->name('admin.accounts.assets.store');
+    Route::post('/accounts/assets/{asset}/depreciate', [\App\Http\Controllers\Admin\RegistersController::class, 'depreciateAsset'])->name('admin.accounts.assets.depreciate');
+    Route::post('/accounts/assets/{asset}/revalue', [\App\Http\Controllers\Admin\RegistersController::class, 'revalueAsset'])->name('admin.accounts.assets.revalue');
+    Route::post('/accounts/assets/{asset}/dispose', [\App\Http\Controllers\Admin\RegistersController::class, 'disposeAsset'])->name('admin.accounts.assets.dispose');
+
+    // Finance setup lists (name-only masters; see FinanceMasterController::TYPES)
+    Route::prefix('finance/masters/{type}')
+        ->where(['type' => 'account-category|account-group|expense-category|expense-head|balance-adjustment-head|area'])
+        ->group(function () {
+            Route::get('/', [\App\Http\Controllers\Admin\FinanceMasterController::class, 'index'])->name('admin.finance.masters.index');
+            Route::post('/', [\App\Http\Controllers\Admin\FinanceMasterController::class, 'store'])->name('admin.finance.masters.store');
+            Route::post('/{id}/update', [\App\Http\Controllers\Admin\FinanceMasterController::class, 'update'])->name('admin.finance.masters.update');
+            Route::post('/{id}/delete', [\App\Http\Controllers\Admin\FinanceMasterController::class, 'destroy'])->name('admin.finance.masters.destroy');
+        });
+
     // Fund Routes
     Route::get('/fund', [FundController::class, 'index'])->name('admin.fund.index');
     Route::get('/transactions', [FundController::class, 'transactionForm'])->name('admin.transactions.create');
@@ -284,10 +318,14 @@ Route::prefix('admin')->middleware(['auth:admin', 'admin', 'demo_mode'])->group(
     // behind this middleware is the only place the module's presence is probed.
     Route::prefix('accounting')->name('admin.accounting.')->middleware('advanced-accounting')->group(function () {
         Route::get('journals', [AccountingJournalController::class, 'index'])->name('journals.index');
+        Route::get('journals/entry', [\App\Http\Controllers\Admin\Accounting\AccountingJournalEntryController::class, 'create'])->name('journals.entry');
+        Route::post('journals/entry', [\App\Http\Controllers\Admin\Accounting\AccountingJournalEntryController::class, 'store'])->name('journals.entry.store');
         Route::get('journals/{journal}', [AccountingJournalController::class, 'show'])->name('journals.show');
         Route::post('journals/{journal}/reverse', [AccountingJournalController::class, 'reverse'])->name('journals.reverse');
 
         Route::get('accounts', [AccountingAccountController::class, 'index'])->name('accounts.index');
+        Route::get('chart', [\App\Http\Controllers\Admin\Accounting\AccountingChartController::class, 'index'])->name('chart.index');
+        Route::post('chart', [\App\Http\Controllers\Admin\Accounting\AccountingChartController::class, 'store'])->name('chart.store');
         Route::post('accounts/sync-defaults', [AccountingAccountController::class, 'syncDefaults'])->name('accounts.sync-defaults');
         Route::get('accounts/{account}/edit', [AccountingAccountController::class, 'edit'])->name('accounts.edit');
         Route::post('accounts/{account}/update', [AccountingAccountController::class, 'update'])->name('accounts.update');
@@ -902,6 +940,10 @@ Route::group(['middleware' => ['auth:admin','admin','lock','check_refer','demo_m
     Route::post('facebook-capi/settings', [FacebookCapiSettingController::class, 'update'])->name('admin.facebook_capi.update');
 
     // Google Analytics 4 settings
+    Route::get('vat/settings', [App\Http\Controllers\Admin\VatSettingController::class, 'edit'])->name('admin.vat.edit');
+    Route::post('vat/settings', [App\Http\Controllers\Admin\VatSettingController::class, 'update'])->name('admin.vat.update');
+    Route::get('vat/reports', [App\Http\Controllers\Admin\VatReportController::class, 'index'])->name('admin.vat.reports');
+    Route::get('vat/reports/export/{type}', [App\Http\Controllers\Admin\VatReportController::class, 'export'])->name('admin.vat.export');
     Route::get('google-analytics/settings', [GoogleAnalyticSettingController::class, 'edit'])->name('admin.google_analytics.edit');
     Route::post('google-analytics/settings', [GoogleAnalyticSettingController::class, 'update'])->name('admin.google_analytics.update');
 
@@ -1368,7 +1410,3 @@ Route::group(['middleware' => ['auth:admin','admin','lock','check_refer','demo_m
     });
 
 });
-    Route::get('vat/settings', [App\Http\Controllers\Admin\VatSettingController::class, 'edit'])->name('admin.vat.edit');
-    Route::post('vat/settings', [App\Http\Controllers\Admin\VatSettingController::class, 'update'])->name('admin.vat.update');
-    Route::get('vat/reports', [App\Http\Controllers\Admin\VatReportController::class, 'index'])->name('admin.vat.reports');
-    Route::get('vat/reports/export/{type}', [App\Http\Controllers\Admin\VatReportController::class, 'export'])->name('admin.vat.export');

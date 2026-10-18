@@ -132,6 +132,19 @@
                             <label class="form-label-pro"> {{ __('Top Headline / Scrolling News') }} </label>
                             <textarea name="top_headline" class="form-control custom-input" rows="2">{{ $edit_data->top_headline }}</textarea>
                         </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label-pro"> {{ __('Admin login address') }} </label>
+                            <div class="input-group">
+                                <span class="input-group-text">{{ url('/') }}/</span>
+                                <input type="text" name="admin_login_path" class="form-control custom-input" placeholder="{{ \App\Support\AdminLoginPath::current() }}" autocomplete="off" maxlength="64">
+                            </div>
+                            <small class="text-muted"> {{ __('Current admin login') }}: {{ url('/'.\App\Support\AdminLoginPath::current()) }} — {{ __('leave blank to keep it. 5–64 letters, numbers or dashes.') }} </small>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label-pro"> {{ __('Your current admin password') }} </label>
+                            <input type="password" name="admin_login_current_password" class="form-control custom-input" autocomplete="current-password">
+                            <small class="text-muted"> {{ __('Required only when changing the admin login address') }} </small>
+                        </div>
                         <div class="col-12 mb-3">
                             <label class="form-label-pro"> {{ __('Footer About Text') }} </label>
                             <textarea name="footer_about_text" class="form-control custom-input" rows="3" placeholder="আপনার ব্যবসার ডিজিটাল পার্টনার। আমরা বিশ্বাস করি গুণগত মান এবং গ্রাহক সন্তুষ্টিতে। প্রযুক্তির সাথে এগিয়ে চলুন আমাদের সাথে।">{{ $edit_data->footer_about_text ?? '' }}</textarea>

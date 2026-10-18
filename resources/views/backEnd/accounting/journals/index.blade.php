@@ -8,7 +8,10 @@
 
     <div class="d-flex justify-content-between align-items-center mb-3">
         <h3 class="mb-0">{{ __('Accounting Journals') }}</h3>
-        <span class="text-muted small">{{ number_format($journals->total(), 0) }} {{ __('journals') }}</span>
+        <div class="d-flex align-items-center gap-2">
+            <a class="btn btn-sm btn-primary" href="{{ route('admin.accounting.journals.entry') }}">{{ __('New journal entry') }}</a>
+            <span class="text-muted small">{{ number_format($journals->total(), 0) }} {{ __('journals') }}</span>
+        </div>
     </div>
 
     <form method="GET" class="row g-2 align-items-end mb-3">

@@ -66,7 +66,7 @@ class InstallerController extends Controller
         // Never allow a second install or a direct POST to bypass the route
         // middleware once setup data/user data already exists.
         if (self::isInstalled()) {
-            return redirect()->route('login')->with('error', 'Application is already installed.');
+            return redirect()->route('home')->with('error', 'Application is already installed.');
         }
 
         $request->validate([

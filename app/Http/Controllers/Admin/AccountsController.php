@@ -16,6 +16,8 @@ class AccountsController extends Controller
 {
     public function __construct(protected CogsCalculator $cogs)
     {
+        // Overview shows money and profit figures: any Transactions Lite permission (not purge alone).
+        $this->middleware('permission:fund-list|fund-create|fund-edit|expense-list|expense-create|expense-edit|report-view|order-report|purchase-report|expense-report|stock-report|profit-loss-report', ['only' => ['dashboard']]);
     }
 
     public function dashboard()

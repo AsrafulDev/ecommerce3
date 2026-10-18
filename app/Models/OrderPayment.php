@@ -13,6 +13,8 @@ class OrderPayment extends Model
         'order_id',
         'customer_id',
         'amount',
+        'adjustment_amount',
+        'adjustment_type',
         'payment_method',
         'trx_note',
         'created_by',
@@ -23,6 +25,7 @@ class OrderPayment extends Model
     {
         return [
             'amount' => 'decimal:2',
+            'adjustment_amount' => 'decimal:2',
         ];
     }
 

@@ -11,10 +11,12 @@ class CustomerDueReconciliationService
     public function reconcile(Order $order): Order
     {
         $paid = round((float) $order->paymentHistory()->sum('amount'), 2);
+        // Discount, VAT and AIT reduce the due but are not cash, so paid_amount excludes them.
+        $adjusted = round((float) $order->paymentHistory()->sum('adjustment_amount'), 2);
         $order->paid_amount = $paid;
-        $order->due_amount = max(0, round((float) $order->amount - $paid, 2));
+        $order->due_amount = max(0, round((float) $order->amount - $paid - $adjusted, 2));
         $order->payment_status = $order->due_amount > 0
-            ? ($paid > 0 ? 'partial' : 'pending')
+            ? ($paid + $adjusted > 0 ? 'partial' : 'pending')
             : 'paid';
         $order->save();
 

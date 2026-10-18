@@ -16,7 +16,7 @@
                 @auth
                     <a href="{{ route('customer.account') }}" class="text-dark"><i class="fa-solid fa-user fs-5"></i></a>
                 @else
-                    <a href="{{ route('login') }}" class="text-dark"><i class="fa-solid fa-right-to-bracket fs-5"></i></a>
+                    <a href="{{ route('customer.login') }}" class="text-dark"><i class="fa-solid fa-right-to-bracket fs-5"></i></a>
                 @endauth
             </div>
         </div>

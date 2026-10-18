@@ -31,6 +31,9 @@ use Illuminate\View\View;
 
 class WarrantyController extends Controller
 {
+    /** Owner approval needed before resellable damage re-enters stock and creates a fund-in. */
+    public const RESELLABLE_POSTING_APPROVED = false;
+
     public function __construct(
         private WarrantyService $warrantyService,
         private WarrantyDisplayService $displayService,
@@ -1017,6 +1020,22 @@ class WarrantyController extends Controller
 
     // ── 🔄 Damage Product status updates ──────
 
+    /**
+     * Value of a write-off for one unit: the damage cost entered, else the original cost of
+     * the batch the unit was sold from. Never the current product purchase price.
+     */
+    protected function writeOffValue(DamageProduct $damage): float
+    {
+        if ((float) $damage->damage_cost > 0) {
+            return round((float) $damage->damage_cost, 2);
+        }
+
+        $batchId = \App\Models\WarrantySale::whereKey($damage->warranty_sale_id)->value('stock_batch_id');
+        $unitCost = $batchId ? \App\Models\StockBatch::whereKey($batchId)->value('unit_cost') : null;
+
+        return $unitCost !== null ? round((float) $unitCost, 2) : 0.0;
+    }
+
     public function updateDamageStatus(DamageProduct $damageProduct, Request $request)
     {
         $request->validate([
@@ -1044,9 +1063,16 @@ class WarrantyController extends Controller
         }
 
         // All stock/expense/fund mutations below must succeed or roll back together
-        DB::transaction(function () use ($damageProduct, $oldStatus) {
+        // $newStatus must be passed in: without it every status branch below read null and never ran.
+        DB::transaction(function () use ($damageProduct, &$oldStatus, $newStatus) {
+            // Re-read the status under a row lock, so two concurrent saves of the same
+            // write-off cannot both see "not yet written off" and record it twice.
+            $oldStatus = DamageProduct::whereKey($damageProduct->id)->lockForUpdate()->value('status') ?? $oldStatus;
+
         // ── RESELLABLE: stockIn + earning fund ──
-        if ($newStatus === 'resellable') {
+        // Inactive until the owner approves the cost basis: stock would re-enter at the repair
+        // cost, not the original batch cost, and a fund-in would be created. See REVIEW-PACKET.md.
+        if (self::RESELLABLE_POSTING_APPROVED && $newStatus === 'resellable') {
             if ($oldStatus !== 'resellable') {
                 // First transition → stockIn + create earning
                 app(StockManagementService::class)->stockIn($damageProduct->product, [
@@ -1079,47 +1105,35 @@ class WarrantyController extends Controller
             }
         }
 
-        // ── UNSELLABLE: write-off expense ──
+        // ── UNSELLABLE: write-off (a loss, not a payment) ──
+        // A write-off is non-cash: no FundTransaction is created, so the till does not move.
+        // The value is the damage cost entered, else the original cost of the batch the unit
+        // was sold from. No journal is posted here: the Advanced account for it is not yet approved.
         if ($newStatus === 'unsellable') {
             if ($oldStatus !== 'unsellable') {
-                // First transition → create expense
                 $damageProduct->disposed_at = now();
-                if ((float) $damageProduct->damage_cost > 0) {
+                $writeOff = $this->writeOffValue($damageProduct);
+                if ($writeOff > 0) {
                     $expense = Expense::create([
                         'title'        => "Warranty write-off — Damage #{$damageProduct->id}",
-                        'amount'       => (float) $damageProduct->damage_cost,
+                        'amount'       => $writeOff,
                         'expense_date' => now()->toDateString(),
                         'category'     => 'warranty_loss',
-                        'note'         => 'Damaged product written off (Claim #' . ($damageProduct->warranty_claim_id ?? 'N/A') . ')',
+                        'note'         => 'Damaged product written off, no cash paid (Claim #' . ($damageProduct->warranty_claim_id ?? 'N/A') . ')',
                         'created_by'   => auth()->id(),
                     ]);
-
-                    $fund = FundTransaction::create([
-                        'direction' => 'out',
-                        'source'    => 'expense',
-                        'source_id' => $expense->id,
-                        'amount'    => (float) $damageProduct->damage_cost,
-                        'note'      => 'Warranty write-off — Damage #' . $damageProduct->id,
-                        'created_by'=> auth()->id(),
-                    ]);
-
-                    $expense->update(['fund_transaction_id' => $fund->id]);
                     $damageProduct->expense_id = $expense->id;
                 }
             } else {
-                // Already unsellable → update the linked expense if damage_cost changed
+                // Already written off: keep the loss record in step with the value, if it changed.
                 if ($damageProduct->expense_id) {
                     $e = Expense::find($damageProduct->expense_id);
                     if ($e && $e->category === 'warranty_loss') {
-                        $e->update(['amount' => (float) $damageProduct->damage_cost]);
-                        FundTransaction::where('id', $e->fund_transaction_id)->update([
-                            'amount' => (float) $damageProduct->damage_cost,
-                        ]);
+                        $e->update(['amount' => $this->writeOffValue($damageProduct)]);
                     }
                 }
             }
         }
-
         // ── DISCARDED ──
         if ($newStatus === 'discarded' && $oldStatus !== 'discarded') {
             $damageProduct->disposed_at = now();

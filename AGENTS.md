@@ -46,3 +46,5 @@ Laravel 12 e-commerce platform ("Ecommerce Pro") with a full admin panel, storef
 
 - `plan.md` — stock-sync plan (Steps 1–2 done, 3–4 pending). **Read before touching stock code.**
 - `resources/views/backEnd/media/README.md`
+- **Accounting:** Lite (fund_transactions via `FundHelper`/`PaymentCollectionService`, due fields via `CustomerDueReconciliationService`) is always on; Advanced double-entry comes from the sibling path package `softmit/bd-double-entry` and must be reached only through `AdvancedAccountingGateway`/`AccountingAvailability`. Read `docs/accounting-architecture.md` and `docs/accounting-progress.md` before touching money flows.
+- **Extra commands:** `pricing:backfill`, `logs:archive-activity`, `model:backfill`.

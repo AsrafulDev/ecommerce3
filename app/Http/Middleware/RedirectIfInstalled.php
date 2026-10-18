@@ -15,7 +15,7 @@ class RedirectIfInstalled
     public function handle(Request $request, Closure $next)
     {
         if (InstallerController::isInstalled()) {
-            return redirect()->route('login')->with('error', 'Application is already installed.');
+            return redirect()->route('home')->with('error', 'Application is already installed.');
         }
 
         return $next($request);

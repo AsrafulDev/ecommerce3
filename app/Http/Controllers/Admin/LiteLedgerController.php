@@ -15,6 +15,13 @@ class LiteLedgerController extends Controller
 {
     private const NON_RECEIVABLE_STATUSES = ['cancelled', 'returned', 'return_approved', 'closed'];
 
+    public function __construct()
+    {
+        // Balance pages are read-only views of the funds ledger; collecting money is a write.
+        $this->middleware('permission:fund-list|fund-create|fund-edit', ['only' => ['customers', 'customer', 'customerDue', 'suppliers', 'supplier']]);
+        $this->middleware('permission:fund-create', ['only' => ['collectCustomerDue']]);
+    }
+
     public function customers()
     {
         $activeOrders = fn ($query) => $query->whereNotIn('order_status', self::NON_RECEIVABLE_STATUSES);
@@ -38,6 +45,11 @@ class LiteLedgerController extends Controller
         foreach ($orders as $order) {
             $rows->push(['date' => $order->created_at, 'label' => 'Sale', 'reference' => $order->invoice_id ?: '#'.$order->id, 'charge' => (float) $order->amount, 'payment' => 0]);
             foreach ($order->paymentHistory as $payment) {
+                if ((float) $payment->adjustment_amount > 0) {
+                    // Discount, VAT or AIT: reduces what is owed, no cash moved.
+                    $rows->push(['date' => $payment->created_at, 'label' => ucfirst((string) $payment->adjustment_type).' adjustment', 'reference' => $payment->trx_note ?: '#'.$payment->id, 'charge' => 0, 'payment' => (float) $payment->adjustment_amount]);
+                    continue;
+                }
                 $rows->push(['date' => $payment->created_at, 'label' => 'Customer Payment', 'reference' => $payment->trx_note ?: '#'.$payment->id, 'charge' => 0, 'payment' => (float) $payment->amount]);
             }
         }

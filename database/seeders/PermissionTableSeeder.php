@@ -17,6 +17,10 @@ class PermissionTableSeeder extends Seeder
         'accounting-list', 'accounting-create', 'accounting-edit', 'accounting-delete',
         'accounting-reverse', 'accounting-export',
         'purge-financial-transactions',
+        // Core Transactions (funds, expenses, operational reports)
+        'fund-list', 'fund-create', 'fund-edit',
+        'expense-list', 'expense-create', 'expense-edit',
+        'report-view', 'order-report', 'purchase-report', 'expense-report', 'stock-report', 'profit-loss-report',
         // Banner
         'banner-list', 'banner-create', 'banner-edit', 'banner-delete',
         // Banner Category
