@@ -85,14 +85,9 @@ class RefundController extends Controller
             }
         }
 
-        // Check admin fund balance
-        $adminFundBalance = \App\Helpers\FundHelper::balance();
-        if ($adminFundBalance < $totalRefundAmount) {
-            Toastr::error('Insufficient fund balance. Current balance: ৳' . number_format($adminFundBalance, 2), 'Error');
-            return back();
-        }
-
-        DB::transaction(function () use ($refund, $request, $totalRefundAmount, $customAmount, $includeShipping) {
+        // Balance check, status save and fund debit run under the till lock and in one
+        // DB transaction. The check happens before anything is written.
+        $approved = \App\Helpers\FundHelper::debitIfCovered($totalRefundAmount, fn () => DB::transaction(function () use ($refund, $request, $totalRefundAmount, $customAmount, $includeShipping) {
             $refund->status = 'approved';
             $refund->admin_note = $request->admin_note;
             $refund->customer_note = $request->customer_note;
@@ -112,7 +107,14 @@ class RefundController extends Controller
                 'Refund approved for Order #' . $refund->order->invoice_id . ' - Refund ID: ' . $refund->refund_id . ($customAmount !== null ? ' (Partial: ৳' . number_format($customAmount, 2) . ')' : ''),
                 Auth::id()
             );
-        });
+
+            return true;
+        }));
+
+        if ($approved === null) {
+            Toastr::error('Insufficient fund balance. Current balance: ৳' . number_format(\App\Helpers\FundHelper::balance(), 2), 'Error');
+            return back();
+        }
 
         app(AdvancedAccountingGateway::class)->recordCustomerRefund($refund->fresh());
 

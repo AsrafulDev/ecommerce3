@@ -9,6 +9,8 @@ use App\Models\Purchase;
 use App\Models\SupplierPayment;
 use App\Models\Refund;
 use App\Models\Order;
+use App\Models\PurchaseItem;
+use App\Models\StockAdjustment;
 use App\Support\Accounting\AccountingAvailability;
 use App\Support\Accounting\ManualPostingResult;
 
@@ -104,6 +106,7 @@ final class NullAdvancedAccountingGateway implements AdvancedAccountingGateway
 
     public function paymentReceived(OrderPayment $payment): ?ManualPostingResult
     {
+        return null;
     }
 
     public function recordSale(Order $order): ?ManualPostingResult { return null; }
@@ -115,6 +118,24 @@ final class NullAdvancedAccountingGateway implements AdvancedAccountingGateway
     public function supplierPaymentMade(SupplierPayment $payment): ?ManualPostingResult { return null; }
 
     public function reverseSale(Order $order, string $reason, ?int $actorId = null): ?ManualPostingResult { return null; }
+
+    public function recordLoan(\App\Models\Loan $loan): ?ManualPostingResult { return null; }
+
+    public function recordLoanRepayment(\App\Models\LoanRepayment $repayment, \App\Models\Loan $loan): ?ManualPostingResult { return null; }
+
+    public function recordFixedAsset(\App\Models\FixedAsset $asset): ?ManualPostingResult { return null; }
+
+    public function recordDepreciation(\App\Models\FixedAssetEvent $event): ?ManualPostingResult { return null; }
+
+    public function recordSalaryPayment(\App\Models\EmployeeSalaryPayment $payment): ?ManualPostingResult { return null; }
+
+    public function recordBonusPayment(\App\Models\EmployeeBonus $bonus): ?ManualPostingResult { return null; }
+
+    public function recordWarrantyIncome(\App\Models\WarrantyClaim $claim, float $amount): ?ManualPostingResult { return null; }
+
+    public function recordPurchaseReturn(PurchaseItem $item, float $amount, int $returnedQty): ?ManualPostingResult { return null; }
+
+    public function recordStockAdjustment(StockAdjustment $adjustment, float $amount): ?ManualPostingResult { return null; }
 
     public function recordCustomerRefund(Refund $refund): ?ManualPostingResult { return null; }
 }

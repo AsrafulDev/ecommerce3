@@ -9,6 +9,7 @@ use App\Models\EmployeeSalaryPayment;
 use App\Models\FundTransaction;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Toastr;
 
 class SalaryPaymentController extends Controller
@@ -81,49 +82,54 @@ class SalaryPaymentController extends Controller
 
         $employee = Employee::findOrFail($request->employee_id);
 
-        // Check fund balance
-        $fundBalance = \App\Helpers\FundHelper::balance();
-        if ($fundBalance < $request->amount) {
-            Toastr::error('Insufficient fund balance! Current balance: ৳' . number_format($fundBalance, 2));
+        // Balance check, payment record, fund debit and status updates run under the
+        // till lock and in one DB transaction: no half-paid salary on a failure.
+        $payment = \App\Helpers\FundHelper::debitIfCovered((float) $request->amount, fn () => DB::transaction(function () use ($request, $employee) {
+            $payment = EmployeeSalaryPayment::create([
+                'employee_id' => $request->employee_id,
+                'salary_id' => $request->salary_id,
+                'payment_month' => $request->payment_month,
+                'amount' => $request->amount,
+                'payment_method' => $request->payment_method,
+                'transaction_id' => $request->transaction_id,
+                'bank_name' => $request->bank_name,
+                'account_number' => $request->account_number,
+                'payment_date' => $request->payment_date,
+                'notes' => $request->notes,
+                'status' => 'pending',
+            ]);
+
+            // Deduct from fund
+            FundTransaction::create([
+                'direction' => 'out',
+                'source' => 'employee_salary',
+                'source_id' => $payment->id,
+                'amount' => $request->amount,
+                'note' => 'Salary payment for ' . $employee->name . ' (' . $employee->employee_id . ') - Month: ' . $request->payment_month . ' - Amount: ৳' . number_format($request->amount, 2),
+                'created_by' => Auth::id(),
+            ]);
+
+            // Update payment status
+            $payment->update([
+                'status' => 'paid',
+                'paid_by' => Auth::id(),
+                'paid_at' => now(),
+            ]);
+
+            // Update salary status if linked
+            if ($request->salary_id) {
+                EmployeeSalary::where('id', $request->salary_id)->update(['status' => 'paid']);
+            }
+
+            return $payment;
+        }));
+
+        if ($payment === null) {
+            Toastr::error('Insufficient fund balance! Current balance: ৳' . number_format(\App\Helpers\FundHelper::balance(), 2));
             return back();
         }
 
-        // Create payment record
-        $payment = EmployeeSalaryPayment::create([
-            'employee_id' => $request->employee_id,
-            'salary_id' => $request->salary_id,
-            'payment_month' => $request->payment_month,
-            'amount' => $request->amount,
-            'payment_method' => $request->payment_method,
-            'transaction_id' => $request->transaction_id,
-            'bank_name' => $request->bank_name,
-            'account_number' => $request->account_number,
-            'payment_date' => $request->payment_date,
-            'notes' => $request->notes,
-            'status' => 'pending',
-        ]);
-
-        // Deduct from fund
-        FundTransaction::create([
-            'direction' => 'out',
-            'source' => 'employee_salary',
-            'source_id' => $payment->id,
-            'amount' => $request->amount,
-            'note' => 'Salary payment for ' . $employee->name . ' (' . $employee->employee_id . ') - Month: ' . $request->payment_month . ' - Amount: ৳' . number_format($request->amount, 2),
-            'created_by' => Auth::id(),
-        ]);
-
-        // Update payment status
-        $payment->update([
-            'status' => 'paid',
-            'paid_by' => Auth::id(),
-            'paid_at' => now(),
-        ]);
-
-        // Update salary status if linked
-        if ($request->salary_id) {
-            EmployeeSalary::where('id', $request->salary_id)->update(['status' => 'paid']);
-        }
+        app(\App\Services\Accounting\AdvancedAccountingGateway::class)->recordSalaryPayment($payment);
 
         Toastr::success('Salary paid successfully! Amount deducted from fund.');
         return redirect()->route('admin.salary_payments.index');
@@ -148,42 +154,46 @@ class SalaryPaymentController extends Controller
             return back();
         }
 
-        // Check fund balance
-        $fundBalance = \App\Helpers\FundHelper::balance();
-        if ($fundBalance < $salary->net_salary) {
-            Toastr::error('Insufficient fund balance! Current balance: ৳' . number_format($fundBalance, 2));
+        // Balance check and writes run under the till lock, in one DB transaction.
+        $payment = \App\Helpers\FundHelper::debitIfCovered((float) $salary->net_salary, fn () => DB::transaction(function () use ($salary) {
+            $payment = EmployeeSalaryPayment::create([
+                'employee_id' => $salary->employee_id,
+                'salary_id' => $salary->id,
+                'payment_month' => $salary->salary_month,
+                'amount' => $salary->net_salary,
+                'payment_method' => 'bank_transfer',
+                'payment_date' => now(),
+                'status' => 'pending',
+            ]);
+
+            // Deduct from fund
+            FundTransaction::create([
+                'direction' => 'out',
+                'source' => 'employee_salary',
+                'source_id' => $payment->id,
+                'amount' => $salary->net_salary,
+                'note' => 'Salary payment for ' . $salary->employee->name . ' (' . $salary->employee->employee_id . ') - Month: ' . $salary->salary_month . ' - Amount: ৳' . number_format($salary->net_salary, 2),
+                'created_by' => Auth::id(),
+            ]);
+
+            // Update payment and salary status
+            $payment->update([
+                'status' => 'paid',
+                'paid_by' => Auth::id(),
+                'paid_at' => now(),
+            ]);
+
+            $salary->update(['status' => 'paid']);
+
+            return $payment;
+        }));
+
+        if ($payment === null) {
+            Toastr::error('Insufficient fund balance! Current balance: ৳' . number_format(\App\Helpers\FundHelper::balance(), 2));
             return back();
         }
 
-        // Create payment record
-        $payment = EmployeeSalaryPayment::create([
-            'employee_id' => $salary->employee_id,
-            'salary_id' => $salary->id,
-            'payment_month' => $salary->salary_month,
-            'amount' => $salary->net_salary,
-            'payment_method' => 'bank_transfer',
-            'payment_date' => now(),
-            'status' => 'pending',
-        ]);
-
-        // Deduct from fund
-        FundTransaction::create([
-            'direction' => 'out',
-            'source' => 'employee_salary',
-            'source_id' => $payment->id,
-            'amount' => $salary->net_salary,
-            'note' => 'Salary payment for ' . $salary->employee->name . ' (' . $salary->employee->employee_id . ') - Month: ' . $salary->salary_month . ' - Amount: ৳' . number_format($salary->net_salary, 2),
-            'created_by' => Auth::id(),
-        ]);
-
-        // Update payment and salary status
-        $payment->update([
-            'status' => 'paid',
-            'paid_by' => Auth::id(),
-            'paid_at' => now(),
-        ]);
-
-        $salary->update(['status' => 'paid']);
+        app(\App\Services\Accounting\AdvancedAccountingGateway::class)->recordSalaryPayment($payment);
 
         Toastr::success('Salary paid successfully! Amount deducted from fund.');
         return back();

@@ -189,7 +189,16 @@ class StockController extends Controller
                     $variant->save();
                 }
             } else {
-                $this->stockService->adjustStock($product, $newStock, $item['type'], $reason, auth('admin')->id(), $sellingPrice, $mrp);
+                // adjustStock() reads the quantity by type: addition/reduction are the amount
+                // to move, correction is the exact figure. Passing $newStock here moved the
+                // stock twice for addition and reduction (+2 became +10, -2 became -6).
+                $valueBefore = (float) $this->stockService->getCurrentValuation($product);
+                $adjustment = $this->stockService->adjustStock($product, (int) $qty, $item['type'], $reason, null, $sellingPrice, $mrp);
+
+                // Books: the change in stock value at cost moves inventory.
+                $valueAfter = (float) $this->stockService->getCurrentValuation($product->fresh());
+                app(\App\Services\Accounting\AdvancedAccountingGateway::class)
+                    ->recordStockAdjustment($adjustment, round($valueAfter - $valueBefore, 2));
             }
 
             // Batch-specific adjustment

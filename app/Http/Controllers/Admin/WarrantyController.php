@@ -416,6 +416,13 @@ class WarrantyController extends Controller
             return back()->with('error', 'Invalid action.');
         }
 
+        // Refuse an illegal move with a message. transitionTo() throws on one, which
+        // surfaced as a 500 (e.g. approving a claim that was never reviewed).
+        $current = WarrantyClaimStatus::from($warrantyClaim->status);
+        if (!$current->canTransitionTo($actions[$action])) {
+            return back()->with('error', "Cannot move this claim from {$current->label()} to {$actions[$action]->label()}. Review it first.");
+        }
+
         $warrantyClaim->transitionTo($actions[$action], $request->note);
         $this->warrantyService->advanceClaimStage($warrantyClaim, $request->note);
 
@@ -655,6 +662,7 @@ class WarrantyController extends Controller
 
             $expense->update(['fund_transaction_id' => $fund->id]);
             $warrantyClaim->update(['supplier_expense_id' => $expense->id]);
+            app(\App\Services\Accounting\AdvancedAccountingGateway::class)->recordExpense($expense);
 
             $warrantyClaim->notes()->create([
                 'user_id' => auth()->id(),
@@ -729,6 +737,7 @@ class WarrantyController extends Controller
                 'customer_charge'          => $customerCharge,
                 'customer_earning_fund_id' => $fund->id,
             ]);
+            app(\App\Services\Accounting\AdvancedAccountingGateway::class)->recordWarrantyIncome($warrantyClaim, $customerCharge);
 
             $warrantyClaim->notes()->create([
                 'user_id' => auth()->id(),

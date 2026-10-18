@@ -11,6 +11,38 @@ use Illuminate\Support\Facades\DB;
 class FundHelper
 {
     /**
+     * Serialises every balance-check-then-debit on the single till. The till is
+     * virtual (no row to lock), so a MySQL named lock is used. Run the balance
+     * check and the write inside $callback so two concurrent debits cannot both
+     * pass the same balance.
+     *
+     * @throws \RuntimeException when the till is busy for longer than the wait
+     */
+    public static function withTillLock(callable $callback): mixed
+    {
+        $got = (int) DB::selectOne('SELECT GET_LOCK(?, 10) AS got', ['fund_till'])->got;
+
+        if ($got !== 1) {
+            throw new \RuntimeException('Fund is busy, please try again.');
+        }
+
+        try {
+            return $callback();
+        } finally {
+            DB::select('SELECT RELEASE_LOCK(?)', ['fund_till']);
+        }
+    }
+
+    /**
+     * Runs $write under the till lock only when the fund can cover $amount.
+     * Returns null, without writing, when the fund is short.
+     */
+    public static function debitIfCovered(float $amount, callable $write): mixed
+    {
+        return self::withTillLock(fn () => $amount > self::balance() ? null : $write());
+    }
+
+    /**
      * Realizable fund balance: cash the business actually holds.
      *
      * Derived from the SAME income() rule the dashboard uses, so the headline

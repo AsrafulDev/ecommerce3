@@ -568,17 +568,18 @@ class PurchaseController extends Controller
             return back()->with('error','Pay amount cannot be greater than due.');
         }
 
-        if ($request->amount > \App\Helpers\FundHelper::balance()) {
-            return back()->with('error', 'Not enough balance in fund!');
-        }
-
-        $payment = DB::transaction(function () use ($purchase, $request) {
+        // Balance check and the payment write run under the till lock.
+        $payment = \App\Helpers\FundHelper::debitIfCovered((float) $request->amount, fn () => DB::transaction(function () use ($purchase, $request) {
             $payment = app(\App\Services\SupplierPaymentReconciliationService::class)
                 ->recordTrace($purchase, (float) $request->amount, $request->payment_date, $request->note, Auth::id());
             app(\App\Services\SupplierPaymentReconciliationService::class)->reconcilePayment($payment);
 
             return $payment;
-        });
+        }));
+
+        if ($payment === null) {
+            return back()->with('error', 'Not enough balance in fund!');
+        }
 
         app(AdvancedAccountingGateway::class)->supplierPaymentMade($payment);
 
@@ -612,10 +613,14 @@ class PurchaseController extends Controller
         // ⭐ Phase 2.6 — route the return through StockManagementService::stockOut
         //    (batch FIFO/LIFO deduction + COGS + a `purchase_return` trace row).
         //    NO manual remaining_qty / products.stock decrements.
-        app(StockManagementService::class)->stockOut($product, $qty, [
+        $out = app(StockManagementService::class)->stockOut($product, $qty, [
             'type' => 'purchase_return',
             'id'   => $item->purchase_id,
         ]);
+
+        // Books: the goods leave inventory at the cost the batches gave them.
+        app(\App\Services\Accounting\AdvancedAccountingGateway::class)
+            ->recordPurchaseReturn($item, (float) $out['cogs'], (int) $item->returned_qty);
 
         // Reverse the purchase-time variant stock-in increment (denormalized copy).
         if ($item->variant) {

@@ -42,6 +42,15 @@ class ManualFlowsTest extends AccountingTestCase
         $this->admin->unsetRelation('roles');
 
         $this->actingAs($this->admin, 'admin');
+
+        // Money events only reach the books once the opening is posted (see
+        // DoubleEntryAdvancedAccountingGateway). Go live with a minimal balanced opening.
+        $opening = app(\App\Services\Accounting\OpeningBalanceService::class);
+        $opening->saveDraft([
+            ['account_id' => $this->accountId(\Softmit\DoubleEntry\Support\AccountRole::CASH), 'debit' => '1.00', 'credit' => '0.00', 'description' => 'Cash'],
+            ['account_id' => $this->accountId(\Softmit\DoubleEntry\Support\AccountRole::OWNER_CAPITAL), 'debit' => '0.00', 'credit' => '1.00', 'description' => 'Capital'],
+        ], '1999-12-31', $this->admin->id);
+        $opening->post($opening->draft());
     }
 
     public function test_money_in_recorded_as_owner_capital_debits_cash_and_credits_equity(): void
@@ -80,7 +89,7 @@ class ManualFlowsTest extends AccountingTestCase
             ->assertSessionHasErrors('nature');
 
         $this->assertDatabaseCount('fund_transactions', 0);
-        $this->assertDatabaseCount('accounting_journal_entries', 0);
+        $this->assertSame(0, \Softmit\DoubleEntry\Models\JournalEntry::where('posting_key', '!=', 'opening:balances')->count(), 'no journal besides the opening');
     }
 
     public function test_withdrawal_is_the_owner_taking_money_out_and_not_an_expense(): void
@@ -189,7 +198,7 @@ class ManualFlowsTest extends AccountingTestCase
             ->assertSessionHas('warning');
 
         $this->assertDatabaseCount('fund_transactions', 1);
-        $this->assertDatabaseCount('accounting_journal_entries', 0);
+        $this->assertSame(0, \Softmit\DoubleEntry\Models\JournalEntry::where('posting_key', '!=', 'opening:balances')->count(), 'no journal besides the opening');
         // Not a defect, so it must not pollute the failure queue the audit reads.
         $this->assertDatabaseCount('accounting_posting_failures', 0);
     }
@@ -203,7 +212,7 @@ class ManualFlowsTest extends AccountingTestCase
             ->assertSessionHas('warning');
 
         $this->assertDatabaseCount('fund_transactions', 1);
-        $this->assertDatabaseCount('accounting_journal_entries', 0);
+        $this->assertSame(0, \Softmit\DoubleEntry\Models\JournalEntry::where('posting_key', '!=', 'opening:balances')->count(), 'no journal besides the opening');
 
         $failure = DB::table('accounting_posting_failures')->first();
         $this->assertNotNull($failure, 'the books must record that they failed');

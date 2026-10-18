@@ -19,6 +19,10 @@ class FundController extends Controller
 {
     public function __construct(protected AdvancedAccountingGateway $accounting)
     {
+        // Same permission names the Transactions sidebar already checks; no new ones.
+        $this->middleware('permission:fund-list|fund-create|fund-edit', ['only' => ['index', 'export', 'logs']]);
+        $this->middleware('permission:fund-create', ['only' => ['transactionForm', 'storeTransaction', 'add', 'withdraw']]);
+        $this->middleware('permission:fund-edit', ['only' => ['edit', 'update', 'destroy']]);
     }
 
     public function transactionForm()
@@ -51,13 +55,32 @@ class FundController extends Controller
         $category = $validated['category'];
         $amount = round((float) $validated['amount'], 2);
 
+        // ⭐ The balance check and the write run under one till lock, so two
+        // concurrent debits cannot both pass the same balance check.
+        $error = \App\Helpers\FundHelper::withTillLock(
+            fn () => $this->recordManualEntry($validated, $actor, $category, $amount)
+        );
+
+        if ($error !== null) {
+            return back()->withInput()->with('error', $error);
+        }
+
+        return redirect()->route('admin.transactions.create')->with('success', 'Transaction saved successfully.');
+    }
+
+    /**
+     * Writes one manual fund entry. Returns an error message when the fund
+     * cannot cover an outflow, otherwise null. Callers must hold the till lock.
+     */
+    private function recordManualEntry(array $validated, int $actor, string $category, float $amount): ?string
+    {
         if (in_array($category, ['owner_capital', 'other_income', 'owner_withdrawal'], true)) {
             $direction = $category === 'owner_capital' || $category === 'other_income' ? 'in' : 'out';
             if ($direction === 'out' && $amount > \App\Helpers\FundHelper::balance()) {
-                return back()->withInput()->with('error', 'Not enough balance in fund.');
+                return 'Not enough balance in fund.';
             }
 
-            $tx = DB::transaction(function () use ($validated, $actor, $category, $direction, $amount) {
+            DB::transaction(function () use ($validated, $actor, $category, $direction, $amount) {
                 $tx = FundTransaction::create([
                     'direction' => $direction,
                     'source' => $category === 'owner_withdrawal' ? 'withdraw' : 'manual_add',
@@ -71,16 +94,15 @@ class FundController extends Controller
                     'created_at' => $validated['date'],
                     'updated_at' => $validated['date'],
                 ]);
-                $result = $category === 'owner_withdrawal'
+                $category === 'owner_withdrawal'
                     ? $this->accounting->recordWithdrawal($tx)
                     : $this->accounting->recordMoneyIn($tx, $category);
-                return [$tx, $result];
             });
         } else {
             if ($amount > \App\Helpers\FundHelper::balance()) {
-                return back()->withInput()->with('error', 'Not enough balance in fund.');
+                return 'Not enough balance in fund.';
             }
-            $result = DB::transaction(function () use ($validated, $actor, $category, $amount) {
+            DB::transaction(function () use ($validated, $actor, $category, $amount) {
                 $expense = Expense::create([
                     'title' => $validated['note'] ?: ucwords(str_replace('_', ' ', $category)),
                     'amount' => $amount,
@@ -100,11 +122,11 @@ class FundController extends Controller
                     'updated_at' => $validated['date'],
                 ]);
                 $expense->update(['fund_transaction_id' => $fund->id]);
-                return $this->accounting->recordExpense($expense);
+                $this->accounting->recordExpense($expense);
             });
         }
 
-        return redirect()->route('admin.transactions.create')->with('success', 'Transaction saved successfully.');
+        return null;
     }
 
     /**
@@ -214,14 +236,10 @@ class FundController extends Controller
             'note'   => 'nullable|string|max:1000'
         ]);
 
-        $amount  = round((float) $validated['amount'], 2);
-        $balance = \App\Helpers\FundHelper::balance();
+        $amount = round((float) $validated['amount'], 2);
 
-        if ($amount > $balance) {
-            return redirect()->back()->with('error', 'Not enough balance!');
-        }
-
-        $accounting = DB::transaction(function () use ($amount, $validated) {
+        // Balance check and write run under the till lock.
+        $written = \App\Helpers\FundHelper::debitIfCovered($amount, fn () => DB::transaction(function () use ($amount, $validated) {
             $tx = FundTransaction::create([
                 'direction'  => 'out',
                 'source'     => 'withdraw',
@@ -234,8 +252,15 @@ class FundController extends Controller
 
             log_activity('fund', 'create', 'Fund withdrawn (out) ৳' . number_format($amount, 2), $tx);
 
-            return $this->accounting->recordWithdrawal($tx);
-        });
+            // Wrapped in an array: the gateway may return null, and null here means "refused".
+            return [$this->accounting->recordWithdrawal($tx)];
+        }));
+
+        if ($written === null) {
+            return redirect()->back()->with('error', 'Not enough balance!');
+        }
+
+        $accounting = $written[0];
 
         $redirect = redirect()->back()->with('success', 'Withdraw successful!');
 

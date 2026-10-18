@@ -157,6 +157,9 @@ enum OrderStatus: string
 
     public function consumesStock(): bool
     {
+        // Return states still hold stock: the goods are with the customer until
+        // they come back. Leaving them out meant a returned sale never restocked,
+        // because the stock is released only when the previous status was active.
         return in_array($this, [
             self::CONFIRMED,
             self::PICKING,
@@ -166,6 +169,8 @@ enum OrderStatus: string
             self::OUT_FOR_DELIVERY,
             self::DELIVERED,
             self::COMPLETED,
+            self::RETURN_REQUESTED,
+            self::RETURN_APPROVED,
         ], true);
     }
 

@@ -62,6 +62,10 @@ class OrderStatusService
                         'batch_ids' => $result['batch_details'],
                     ]);
 
+                    // POS and web sales create the warranty sale without a batch. Link it to
+                    // the batch the stock was drawn from, before serials move.
+                    $this->linkWarrantySaleToBatch($row, $result['batch_details']);
+
                     // Phase 5.1 — move this line's sold serials sn_stock → sn_sold
                     $this->moveRowSerialsToSold($row);
                 } catch (\RuntimeException $e) {
@@ -89,6 +93,14 @@ class OrderStatusService
                 ->with('product', 'warrantySale')
                 ->get();
 
+            // Ledger first: the restock below clears each line's COGS, and a sale carried by
+            // the opening reverses its cost from that figure.
+            app(AdvancedAccountingGateway::class)->reverseSale(
+                $order,
+                'Sale '.$newEnum->value.': '.($order->note ?? 'operational reversal'),
+                $order->updated_by ?? auth()->id()
+            );
+
             foreach ($details as $row) {
                 if (!$row->product) {
                     continue;
@@ -111,12 +123,23 @@ class OrderStatusService
                     'batch_ids'  => null,
                 ]);
             }
+        }
+    }
 
-            app(AdvancedAccountingGateway::class)->reverseSale(
-                $order,
-                'Sale '.$newEnum->value.': '.($order->note ?? 'operational reversal'),
-                $order->updated_by ?? auth()->id()
-            );
+    /**
+     * Sets the warranty sale's batch from the first batch the line drew stock from,
+     * when it has none. A line split across batches is linked to its first batch.
+     */
+    private function linkWarrantySaleToBatch(OrderDetails $row, array $batchDetails): void
+    {
+        $ws = $row->warrantySale;
+        if (!$ws || $ws->stock_batch_id || empty($batchDetails)) {
+            return;
+        }
+
+        $batchId = $batchDetails[0]['batch_id'] ?? null;
+        if ($batchId) {
+            $ws->update(['stock_batch_id' => (int) $batchId]);
         }
     }
 

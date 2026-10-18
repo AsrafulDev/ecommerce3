@@ -122,6 +122,8 @@ class BonusController extends Controller
             'created_by' => Auth::id(),
         ]);
 
+        app(\App\Services\Accounting\AdvancedAccountingGateway::class)->recordBonusPayment($bonus);
+
         $bonus->update([
             'status' => 'paid',
         ]);

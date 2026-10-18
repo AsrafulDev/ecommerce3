@@ -9,6 +9,8 @@ use App\Models\Purchase;
 use App\Models\SupplierPayment;
 use App\Models\Refund;
 use App\Models\Order;
+use App\Models\PurchaseItem;
+use App\Models\StockAdjustment;
 use App\Support\Accounting\AccountingAvailability;
 use App\Support\Accounting\ManualPostingResult;
 use Softmit\DoubleEntry\Enums\SourceType;
@@ -66,16 +68,19 @@ final class DoubleEntryAdvancedAccountingGateway implements AdvancedAccountingGa
 
     public function recordExpense(Expense $expense): ?ManualPostingResult
     {
+        if (!$this->readyForLivePosting()) return ManualPostingResult::notReady();
         return $this->manual->expense($expense);
     }
 
     public function recordMoneyIn(FundTransaction $tx, string $nature): ?ManualPostingResult
     {
+        if (!$this->readyForLivePosting()) return ManualPostingResult::notReady();
         return $this->manual->moneyIn($tx, $nature);
     }
 
     public function recordWithdrawal(FundTransaction $tx): ?ManualPostingResult
     {
+        if (!$this->readyForLivePosting()) return ManualPostingResult::notReady();
         return $this->manual->withdrawal($tx);
     }
 
@@ -162,6 +167,60 @@ final class DoubleEntryAdvancedAccountingGateway implements AdvancedAccountingGa
     {
         if (!$this->readyForLivePosting()) return ManualPostingResult::notReady();
         return $this->manual->reverseSale($order, $reason, $actorId);
+    }
+
+    public function recordLoan(\App\Models\Loan $loan): ?ManualPostingResult
+    {
+        if (!$this->readyForLivePosting()) return ManualPostingResult::notReady();
+        return $this->manual->loan($loan);
+    }
+
+    public function recordLoanRepayment(\App\Models\LoanRepayment $repayment, \App\Models\Loan $loan): ?ManualPostingResult
+    {
+        if (!$this->readyForLivePosting()) return ManualPostingResult::notReady();
+        return $this->manual->loanRepayment($repayment, $loan);
+    }
+
+    public function recordFixedAsset(\App\Models\FixedAsset $asset): ?ManualPostingResult
+    {
+        if (!$this->readyForLivePosting()) return ManualPostingResult::notReady();
+        return $this->manual->fixedAsset($asset);
+    }
+
+    public function recordDepreciation(\App\Models\FixedAssetEvent $event): ?ManualPostingResult
+    {
+        if (!$this->readyForLivePosting()) return ManualPostingResult::notReady();
+        return $this->manual->depreciation($event);
+    }
+
+    public function recordSalaryPayment(\App\Models\EmployeeSalaryPayment $payment): ?ManualPostingResult
+    {
+        if (!$this->readyForLivePosting()) return ManualPostingResult::notReady();
+        return $this->manual->salaryPayment($payment);
+    }
+
+    public function recordBonusPayment(\App\Models\EmployeeBonus $bonus): ?ManualPostingResult
+    {
+        if (!$this->readyForLivePosting()) return ManualPostingResult::notReady();
+        return $this->manual->bonusPayment($bonus);
+    }
+
+    public function recordWarrantyIncome(\App\Models\WarrantyClaim $claim, float $amount): ?ManualPostingResult
+    {
+        if (!$this->readyForLivePosting()) return ManualPostingResult::notReady();
+        return $this->manual->warrantyIncome($claim, $amount);
+    }
+
+    public function recordPurchaseReturn(PurchaseItem $item, float $amount, int $returnedQty): ?ManualPostingResult
+    {
+        if (!$this->readyForLivePosting()) return ManualPostingResult::notReady();
+        return $this->manual->purchaseReturn($item, $amount, $returnedQty);
+    }
+
+    public function recordStockAdjustment(StockAdjustment $adjustment, float $amount): ?ManualPostingResult
+    {
+        if (!$this->readyForLivePosting()) return ManualPostingResult::notReady();
+        return $this->manual->stockAdjustment($adjustment, $amount);
     }
 
     public function recordCustomerRefund(Refund $refund): ?ManualPostingResult

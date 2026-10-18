@@ -58,7 +58,11 @@ class CategoryController extends Controller
 
         $input['parent_id']  = $request->parent_id ? $request->parent_id : 0;
         $input['front_view'] = $request->has('front_view') ? 1 : 0;
-        $input['image']      = $imageUrl;
+        // image is NOT NULL with a column default: omit it when no image is chosen,
+        // so the default applies instead of an explicit NULL (a 500 on create).
+        if ($imageUrl !== null && $imageUrl !== '') {
+            $input['image'] = $imageUrl;
+        }
         $input['icon']       = $iconUrl; // নতুন icon কলাম
 
         Category::create($input);

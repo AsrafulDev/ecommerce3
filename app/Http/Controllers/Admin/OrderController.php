@@ -3587,7 +3587,7 @@ class OrderController extends Controller
         ]);
 
         $order = Order::findOrFail($request->order_id);
-        $success = $order->requestReturn($request->note, auth()->id());
+        $success = $this->applyReturnTransition($order, fn () => $order->requestReturn($request->note, auth()->id()));
 
         if (!$success) {
             return response()->json([
@@ -3610,7 +3610,7 @@ class OrderController extends Controller
         ]);
 
         $order = Order::findOrFail($request->order_id);
-        $success = $order->approveReturn($request->note, auth()->id());
+        $success = $this->applyReturnTransition($order, fn () => $order->approveReturn($request->note, auth()->id()));
 
         if (!$success) {
             return response()->json([
@@ -3633,7 +3633,7 @@ class OrderController extends Controller
         ]);
 
         $order = Order::findOrFail($request->order_id);
-        $success = $order->markReturned($request->note, auth()->id());
+        $success = $this->applyReturnTransition($order, fn () => $order->markReturned($request->note, auth()->id()));
 
         if (!$success) {
             return response()->json([
@@ -3643,6 +3643,24 @@ class OrderController extends Controller
         }
 
         return $this->actionSuccessResponse($order, 'Item returned');
+    }
+
+    /**
+     * Runs a return transition, then the shared status→stock engine. Without the
+     * second step a returned sale never restocks: Order::transitionTo() only saves
+     * the status, while the stock side effects live in OrderStatusService.
+     */
+    private function applyReturnTransition(Order $order, callable $transition): bool
+    {
+        $oldStatus = $order->order_status;
+
+        if (!$transition()) {
+            return false;
+        }
+
+        app(OrderStatusService::class)->handleStatusChange($order, $oldStatus, $order->fresh()->order_status);
+
+        return true;
     }
 
     /**

@@ -9,6 +9,15 @@ use App\Models\Purchase;
 use App\Models\OrderPayment;
 use App\Models\SupplierPayment;
 use App\Models\Refund;
+use App\Models\PurchaseItem;
+use App\Models\StockAdjustment;
+use App\Models\FixedAsset;
+use App\Models\FixedAssetEvent;
+use App\Models\Loan;
+use App\Models\LoanRepayment;
+use App\Models\EmployeeBonus;
+use App\Models\EmployeeSalaryPayment;
+use App\Models\WarrantyClaim;
 use App\Support\Accounting\ManualPostingResult;
 use Carbon\Carbon;
 use Softmit\DoubleEntry\Enums\JournalStatus;
@@ -143,12 +152,269 @@ class ManualEntryService
     {
         $posted = $this->latestJournal([SourceType::SALE], (int) $order->id);
         $cogs = $this->latestJournal([SourceType::SALE_COGS], (int) $order->id);
-        $result = null;
-        foreach ([$posted, $cogs] as $journal) {
-            if (!$journal || $journal->isReversed()) continue;
-            $result = $this->reversals->reverse($journal, $reason, $actorId, now()->format('Y-m-d'));
+
+        // Sale journaled live: reverse exactly what was posted.
+        if ($posted || $cogs) {
+            $result = null;
+            foreach ([$posted, $cogs] as $journal) {
+                if (!$journal || $journal->isReversed()) continue;
+                $result = $this->reversals->reverse($journal, $reason, $actorId, now()->format('Y-m-d'));
+            }
+            return $result ? ManualPostingResult::posted($result->journal_no) : null;
         }
-        return $result ? ManualPostingResult::posted($result->journal_no) : null;
+
+        // Sale carried by the opening: its revenue and cost sit in the opening balances,
+        // so reverse them here in one journal. The cost is read before the order detail
+        // COGS is cleared by the restock.
+        // Only a return is reversed here. A cancelled order that was never recognised at
+        // cutover has no revenue in the opening, so it must not reverse one.
+        if ((string) $order->order_status !== 'returned') return null;
+        if ($this->revenueReversed((int) $order->id)) return null;
+
+        $date = now()->format('Y-m-d');
+        if ($this->refuses($date)) return ManualPostingResult::preCutover();
+
+        $amount = Money::of($order->amount);
+        $cost = Money::of((string) $order->orderdetails()->sum('cogs'));
+
+        $draft = JournalDraft::make($date)
+            ->from(SourceType::SALES_RETURN, (int) $order->id, $order->invoice_id ?: ('Order #'.$order->id))
+            ->key($this->nextKey(SourceType::SALES_RETURN, (int) $order->id))
+            ->about('Return of sale carried by opening: '.($order->invoice_id ?: ('Order #'.$order->id)).' — '.$reason)
+            ->actor($actorId)
+            ->meta(['legacy' => 'orders', 'recognition' => 'sales_return', 'opening_carried' => true])
+            ->debit(AccountRole::SALES_RETURNS, $amount, 'Sales returned')
+            ->credit(AccountRole::ACCOUNTS_RECEIVABLE, $amount, 'Customer credit owed back');
+
+        if (Money::isPositive($cost)) {
+            $draft->debit(AccountRole::INVENTORY, $cost, 'Goods back on shelf at cost')
+                ->credit(AccountRole::COGS, $cost, 'Cost of goods reversed');
+        }
+
+        if ((int) $order->customer_id > 0) $draft->party(PartyType::CUSTOMER, (int) $order->customer_id);
+        return $this->post($draft);
+    }
+
+    /** True once the revenue of this order has been reversed in the books, live or carried. */
+    protected function revenueReversed(int $orderId): bool
+    {
+        $live = $this->latestJournal([SourceType::SALE], $orderId);
+        if ($live && $live->isReversed()) return true;
+
+        return JournalEntry::query()
+            ->where('source_type', SourceType::SALES_RETURN->value)
+            ->where('source_id', $orderId)
+            ->where('status', JournalStatus::POSTED->value)
+            ->exists();
+    }
+
+    /** Salary paid to an employee: an expense paid from the till. */
+    public function salaryPayment(EmployeeSalaryPayment $payment): ManualPostingResult
+    {
+        $date = $payment->payment_date?->format('Y-m-d') ?? now()->format('Y-m-d');
+        if ($this->refuses($date)) return ManualPostingResult::preCutover();
+
+        $amount = Money::of($payment->amount);
+
+        return $this->post(
+            JournalDraft::make($date)
+                ->from(SourceType::SALARY, (int) $payment->id, 'Salary #'.$payment->id)
+                ->key($this->nextKey(SourceType::SALARY, (int) $payment->id))
+                ->about('Salary paid: '.($payment->payment_month ?? ''))
+                ->actor($payment->paid_by ?? null)
+                ->meta(['legacy' => 'employee_salary_payments', 'employee_id' => $payment->employee_id])
+                ->debit(AccountRole::SALARY_EXPENSE, $amount, 'Salary expense')
+                ->credit($this->cashAccount(), $amount, 'Salary paid')
+        );
+    }
+
+    /** Bonus paid to an employee: an expense paid from the till. */
+    public function bonusPayment(EmployeeBonus $bonus): ManualPostingResult
+    {
+        $date = now()->format('Y-m-d');
+        if ($this->refuses($date)) return ManualPostingResult::preCutover();
+
+        $amount = Money::of($bonus->amount);
+
+        return $this->post(
+            JournalDraft::make($date)
+                ->from(SourceType::BONUS, (int) $bonus->id, 'Bonus #'.$bonus->id)
+                ->key($this->nextKey(SourceType::BONUS, (int) $bonus->id))
+                ->about('Bonus paid: '.($bonus->bonus_type ?? ''))
+                ->meta(['legacy' => 'employee_bonuses', 'employee_id' => $bonus->employee_id])
+                ->debit(AccountRole::SALARY_EXPENSE, $amount, 'Bonus expense')
+                ->credit($this->cashAccount(), $amount, 'Bonus paid')
+        );
+    }
+
+    /** Warranty customer charge: cash in, earned as warranty income. */
+    public function warrantyIncome(WarrantyClaim $claim, float $amount): ManualPostingResult
+    {
+        $date = now()->format('Y-m-d');
+        if ($this->refuses($date)) return ManualPostingResult::preCutover();
+
+        $value = Money::of($amount);
+
+        return $this->post(
+            JournalDraft::make($date)
+                ->from(SourceType::WARRANTY_INCOME, (int) $claim->id, $claim->claim_number)
+                ->key($this->nextKey(SourceType::WARRANTY_INCOME, (int) $claim->id))
+                ->about('Warranty charge collected: '.$claim->claim_number)
+                ->meta(['legacy' => 'warranty_claims'])
+                ->debit($this->cashAccount(), $value, 'Warranty charge received')
+                ->credit(AccountRole::WARRANTY_INCOME, $value, 'Warranty income')
+        );
+    }
+
+    /**
+     * Money borrowed (cash in, owed back) or lent (cash out, owed to us).
+     * Loans are carried on the other payable / other receivable roles.
+     */
+    public function loan(Loan $loan): ManualPostingResult
+    {
+        $date = $loan->loan_date?->format('Y-m-d') ?? now()->format('Y-m-d');
+        if ($this->refuses($date)) return ManualPostingResult::preCutover();
+
+        $amount = Money::of($loan->amount);
+        $taken = $loan->direction === Loan::TAKEN;
+
+        $draft = JournalDraft::make($date)
+            ->from(SourceType::LOAN, (int) $loan->id, $loan->code ?: ('Loan #'.$loan->id))
+            ->key($this->nextKey(SourceType::LOAN, (int) $loan->id))
+            ->about(($taken ? 'Loan taken: ' : 'Loan given: ').($loan->party_name ?? ''))
+            ->actor($loan->created_by ?? null)
+            ->meta(['legacy' => 'loans', 'direction' => $loan->direction]);
+
+        if ($taken) {
+            $draft->debit($this->cashAccount(), $amount, 'Loan received')
+                ->credit(AccountRole::OTHER_PAYABLE, $amount, 'Loan owed');
+        } else {
+            $draft->debit(AccountRole::OTHER_RECEIVABLE, $amount, 'Loan receivable')
+                ->credit($this->cashAccount(), $amount, 'Loan paid out');
+        }
+
+        return $this->post($draft);
+    }
+
+    public function loanRepayment(LoanRepayment $repayment, Loan $loan): ManualPostingResult
+    {
+        $date = $repayment->paid_on?->format('Y-m-d') ?? now()->format('Y-m-d');
+        if ($this->refuses($date)) return ManualPostingResult::preCutover();
+
+        $amount = Money::of($repayment->amount);
+        $taken = $loan->direction === Loan::TAKEN;
+
+        $draft = JournalDraft::make($date)
+            ->from(SourceType::LOAN_REPAYMENT, (int) $repayment->id, $loan->code ?: ('Loan #'.$loan->id))
+            ->key($this->nextKey(SourceType::LOAN_REPAYMENT, (int) $repayment->id))
+            ->about('Loan repayment: '.($loan->party_name ?? ''))
+            ->actor($repayment->created_by ?? null)
+            ->meta(['legacy' => 'loan_repayments', 'loan_id' => $loan->id]);
+
+        if ($taken) {
+            $draft->debit(AccountRole::OTHER_PAYABLE, $amount, 'Loan repaid')
+                ->credit($this->cashAccount(), $amount, 'Repayment paid');
+        } else {
+            $draft->debit($this->cashAccount(), $amount, 'Repayment received')
+                ->credit(AccountRole::OTHER_RECEIVABLE, $amount, 'Loan collected');
+        }
+
+        return $this->post($draft);
+    }
+
+    /** Buying a fixed asset: cash out, the asset carried at cost. */
+    public function fixedAsset(FixedAsset $asset): ManualPostingResult
+    {
+        $date = $asset->purchase_date?->format('Y-m-d') ?? now()->format('Y-m-d');
+        if ($this->refuses($date)) return ManualPostingResult::preCutover();
+
+        $cost = Money::of($asset->cost);
+
+        return $this->post(
+            JournalDraft::make($date)
+                ->from(SourceType::FIXED_ASSET, (int) $asset->id, $asset->name)
+                ->key($this->nextKey(SourceType::FIXED_ASSET, (int) $asset->id))
+                ->about('Fixed asset bought: '.$asset->name)
+                ->actor($asset->created_by ?? null)
+                ->meta(['legacy' => 'fixed_assets'])
+                ->debit(AccountRole::FIXED_ASSETS, $cost, 'Asset at cost')
+                ->credit($this->cashAccount(), $cost, 'Asset paid')
+        );
+    }
+
+    /** Depreciation is an expense that reduces the asset's book value without cash. */
+    public function depreciation(FixedAssetEvent $event): ManualPostingResult
+    {
+        $date = $event->event_date?->format('Y-m-d') ?? now()->format('Y-m-d');
+        if ($this->refuses($date)) return ManualPostingResult::preCutover();
+
+        $amount = Money::of($event->amount);
+
+        return $this->post(
+            JournalDraft::make($date)
+                ->from(SourceType::DEPRECIATION, (int) $event->id, 'Depreciation #'.$event->id)
+                ->key($this->nextKey(SourceType::DEPRECIATION, (int) $event->id))
+                ->about('Depreciation: '.($event->note ?? 'fixed asset'))
+                ->actor($event->created_by ?? null)
+                ->meta(['legacy' => 'fixed_asset_events', 'fixed_asset_id' => $event->fixed_asset_id])
+                ->debit(AccountRole::DEPRECIATION_EXPENSE, $amount, 'Depreciation expense')
+                ->credit(AccountRole::ACCUMULATED_DEPRECIATION, $amount, 'Accumulated depreciation')
+        );
+    }
+
+    /**
+     * Goods sent back to the supplier leave inventory at cost. The supplier owes that
+     * value back, held as a receivable: the operational supplier due is not reduced
+     * by a return until the owner decides that rule, so the books mirror the records.
+     */
+    public function purchaseReturn(PurchaseItem $item, float $amount, int $returnedQty): ManualPostingResult
+    {
+        $date = now()->format('Y-m-d');
+        if ($this->refuses($date)) return ManualPostingResult::preCutover();
+
+        $purchase = $item->purchase;
+        $draft = JournalDraft::make($date)
+            ->from(SourceType::PURCHASE_RETURN, (int) $item->id, $purchase?->invoice_no ?: ('Purchase item #'.$item->id))
+            // One journal per cumulative return on the line, so a second partial return posts too.
+            ->key("purchase_return:{$item->id}:{$returnedQty}")
+            ->about('Purchase return: '.($purchase?->invoice_no ?: ('Purchase item #'.$item->id)))
+            ->meta(['legacy' => 'purchase_items', 'purchase_id' => $item->purchase_id, 'returned_qty' => $returnedQty])
+            ->debit(AccountRole::OTHER_RECEIVABLE, Money::of($amount), 'Supplier owes goods returned')
+            ->credit(AccountRole::INVENTORY, Money::of($amount), 'Goods returned to supplier');
+
+        if ((int) ($purchase?->supplier_id ?? 0) > 0) $draft->party(PartyType::SUPPLIER, (int) $purchase->supplier_id);
+        return $this->post($draft);
+    }
+
+    /**
+     * A stock count correction. The value change moves inventory against the
+     * inventory-adjustment account: a gain debits inventory, a loss credits it.
+     */
+    public function stockAdjustment(StockAdjustment $adjustment, float $amount): ManualPostingResult
+    {
+        $date = $adjustment->created_at?->format('Y-m-d') ?? now()->format('Y-m-d');
+        if ($this->refuses($date)) return ManualPostingResult::preCutover();
+        if (abs($amount) < 0.005) return ManualPostingResult::posted('');
+
+        $value = Money::of(abs($amount));
+        $gain = $amount > 0;
+
+        $draft = JournalDraft::make($date)
+            ->from(SourceType::STOCK_ADJUSTMENT, (int) $adjustment->id, 'Stock count #'.$adjustment->id)
+            ->key($this->nextKey(SourceType::STOCK_ADJUSTMENT, (int) $adjustment->id))
+            ->about('Stock adjustment: '.($adjustment->reason ?? 'count'))
+            ->actor($adjustment->created_by ?? null)
+            ->meta(['legacy' => 'stock_adjustments', 'product_id' => $adjustment->product_id]);
+
+        if ($gain) {
+            $draft->debit(AccountRole::INVENTORY, $value, 'Stock found')
+                ->credit(AccountRole::INVENTORY_ADJUSTMENT, $value, 'Stock count gain');
+        } else {
+            $draft->debit(AccountRole::INVENTORY_ADJUSTMENT, $value, 'Stock count loss')
+                ->credit(AccountRole::INVENTORY, $value, 'Stock written off');
+        }
+
+        return $this->post($draft);
     }
 
     public function customerRefund(Refund $refund): ManualPostingResult
@@ -156,14 +422,18 @@ class ManualEntryService
         $date = $refund->updated_at?->format('Y-m-d') ?? now()->format('Y-m-d');
         if ($this->refuses($date)) return ManualPostingResult::preCutover();
         $amount = Money::of($refund->totalRefundAmount());
+        // The reversal of a returned sale leaves a credit owed to the customer, which the
+        // refund settles. A refund on a sale that was never reversed is a sales return.
+        $settles = $this->revenueReversed((int) $refund->order_id);
+
         return $this->post(
             JournalDraft::make($date)
                 ->from(SourceType::REFUND, (int) $refund->id, $refund->refund_id)
                 ->key($this->nextKey(SourceType::REFUND, (int) $refund->id))
                 ->about('Customer refund: '.$refund->refund_id)
                 ->actor($refund->processed_by)
-                ->meta(['legacy' => 'refunds', 'order_id' => $refund->order_id, 'refund_method' => $refund->refund_method])
-                ->debit(AccountRole::ACCOUNTS_RECEIVABLE, $amount, 'Customer credit settled')
+                ->meta(['legacy' => 'refunds', 'order_id' => $refund->order_id, 'refund_method' => $refund->refund_method, 'settles_credit' => $settles])
+                ->debit($settles ? AccountRole::ACCOUNTS_RECEIVABLE : AccountRole::SALES_RETURNS, $amount, $settles ? 'Customer credit settled' : 'Sales returned (refund)')
                 ->credit($this->cashAccount(), $amount, 'Refund paid')
         );
     }

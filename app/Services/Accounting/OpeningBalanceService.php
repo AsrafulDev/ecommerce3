@@ -3,6 +3,11 @@
 namespace App\Services\Accounting;
 
 use App\Models\FundTransaction;
+use App\Models\Order;
+use App\Models\OrderPayment;
+use App\Models\Purchase;
+use App\Models\StockBatch;
+use App\Models\SupplierPayment;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
@@ -303,6 +308,7 @@ class OpeningBalanceService
 
         $clean = $this->clean($lines);
         $this->assertLinesAreUsable($clean);
+        $this->assertNoTradingSince($asAt ?: $this->asAtDate());
         if ($existing = $this->draft()) {
             $existing->delete();
         }
@@ -322,7 +328,13 @@ class OpeningBalanceService
             throw new AccountingException('Opening balances have already been posted once.');
         }
 
+        $this->assertNoTradingSince(Carbon::parse($draft->transaction_date)->toDateString());
+
         $posted = $this->poster->postDraft($draft);
+
+        // The books are live from here. Expenses and money-in dated since the cutover that
+        // the gate held back are journaled now, once each.
+        app(\App\Services\Accounting\ManualEntryService::class)->syncAll();
 
         log_activity(
             'accounting',
@@ -438,6 +450,32 @@ class OpeningBalanceService
     /**
      * @param array<int, array<string, mixed>> $lines
      */
+    /**
+     * The opening describes the business as at its date. Receivables, payables and
+     * stock are read as they stand now, so trading after that date would be counted
+     * twice once the journals for it are posted. Refuse until the opening is posted.
+     */
+    protected function assertNoTradingSince(string $asAt): void
+    {
+        $since = $asAt.' 23:59:59';
+
+        $moved = array_filter([
+            'sales'       => Order::where('created_at', '>', $since)->count(),
+            'purchases'   => Purchase::where('purchase_date', '>', $asAt)->count(),
+            'payments'    => OrderPayment::where('created_at', '>', $since)->count()
+                + SupplierPayment::where('payment_date', '>', $asAt)->count(),
+            'stock moves' => StockBatch::where('created_at', '>', $since)->count(),
+        ]);
+
+        if ($moved) {
+            $counts = collect($moved)->map(fn ($n, $kind) => "{$n} {$kind}")->implode(', ');
+
+            throw new AccountingException(
+                "Trading has moved on since {$asAt} ({$counts}). Post the opening before recording more sales, purchases or payments, or date it to the day before the first of them."
+            );
+        }
+    }
+
     protected function assertLinesAreUsable(array $lines): void
     {
         if (!$lines) {

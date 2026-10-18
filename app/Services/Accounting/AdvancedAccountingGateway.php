@@ -9,6 +9,8 @@ use App\Models\Purchase;
 use App\Models\SupplierPayment;
 use App\Models\Refund;
 use App\Models\Order;
+use App\Models\PurchaseItem;
+use App\Models\StockAdjustment;
 use App\Support\Accounting\ManualPostingResult;
 
 /**
@@ -126,6 +128,26 @@ interface AdvancedAccountingGateway
     public function supplierPaymentMade(SupplierPayment $payment): ?ManualPostingResult;
 
     public function reverseSale(Order $order, string $reason, ?int $actorId = null): ?ManualPostingResult;
+
+    public function recordLoan(\App\Models\Loan $loan): ?ManualPostingResult;
+
+    public function recordLoanRepayment(\App\Models\LoanRepayment $repayment, \App\Models\Loan $loan): ?ManualPostingResult;
+
+    public function recordFixedAsset(\App\Models\FixedAsset $asset): ?ManualPostingResult;
+
+    public function recordDepreciation(\App\Models\FixedAssetEvent $event): ?ManualPostingResult;
+
+    public function recordSalaryPayment(\App\Models\EmployeeSalaryPayment $payment): ?ManualPostingResult;
+
+    public function recordBonusPayment(\App\Models\EmployeeBonus $bonus): ?ManualPostingResult;
+
+    public function recordWarrantyIncome(\App\Models\WarrantyClaim $claim, float $amount): ?ManualPostingResult;
+
+    /** Goods sent back to a supplier: stock leaves at cost, the supplier owes it back. */
+    public function recordPurchaseReturn(PurchaseItem $item, float $amount, int $returnedQty): ?ManualPostingResult;
+
+    /** Signed value change from a stock count: positive is a gain, negative a loss. */
+    public function recordStockAdjustment(StockAdjustment $adjustment, float $amount): ?ManualPostingResult;
 
     public function recordCustomerRefund(Refund $refund): ?ManualPostingResult;
 
