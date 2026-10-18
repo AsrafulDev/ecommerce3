@@ -559,6 +559,26 @@
                             </div>
                         </div>
                         <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label"> {{ __('VAT Rate (%)') }} </label>
+                                <input type="number" name="vat_rate" class="form-control" step="0.01" min="0" max="100" value="{{ old('vat_rate', $edit_data->vat_rate) }}" placeholder="Empty = no VAT">
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label"> {{ __('VAT Category') }} </label>
+                                <select name="vat_category" class="form-control form-select">
+                                    <option value="">— not set —</option>
+                                    <option value="standard" {{ (old('vat_category') ?: $edit_data->vat_category) === 'standard' ? 'selected' : '' }}>Standard</option>
+                                    <option value="reduced" {{ (old('vat_category') ?: $edit_data->vat_category) === 'reduced' ? 'selected' : '' }}>Reduced</option>
+                                    <option value="zero" {{ (old('vat_category') ?: $edit_data->vat_category) === 'zero' ? 'selected' : '' }}>Zero-rated</option>
+                                    <option value="exempt" {{ (old('vat_category') ?: $edit_data->vat_category) === 'exempt' ? 'selected' : '' }}>Exempt</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label"> {{ __('HS Code') }} </label>
+                                <input type="text" name="hs_code" class="form-control" maxlength="20" value="{{ old('hs_code', $edit_data->hs_code) }}">
+                            </div>
+                        </div>
+                        <div class="row">
                             <div class="col-md-6 mb-3">
                                 <label class="form-label"> {{ __('Costing Method') }} </label>
                                 <select name="costing_method" class="form-control form-select">

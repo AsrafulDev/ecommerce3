@@ -622,6 +622,9 @@ class PurchaseController extends Controller
         app(\App\Services\Accounting\AdvancedAccountingGateway::class)
             ->recordPurchaseReturn($item, (float) $out['cogs'], (int) $item->returned_qty);
 
+        // VAT: the returned units reverse their share of the input VAT.
+        app(\App\Services\Vat\VatCreditNoteService::class)->forPurchaseReturn($item, (int) $qty, auth('admin')->id());
+
         // Reverse the purchase-time variant stock-in increment (denormalized copy).
         if ($item->variant) {
             $item->variant->decrement('stock', $qty);

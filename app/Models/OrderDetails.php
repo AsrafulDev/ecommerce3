@@ -11,7 +11,29 @@ class OrderDetails extends Model
 
     protected $table = 'order_details';
 
+    protected static function booted(): void
+    {
+        // Every creation path (cart, POS, mobile API, incomplete orders) gets the VAT
+        // snapshot here, once. An explicit value set by the caller wins.
+        static::creating(function (self $detail) {
+            if ($detail->vat_amount !== null) {
+                return;
+            }
+
+            $rate = \App\Models\Product::whereKey($detail->product_id)->value('vat_rate');
+            $amount = (float) $detail->sale_price * (int) $detail->qty;
+
+            $snapshot = app(\App\Services\Vat\VatCalculator::class)
+                ->snapshot($amount, $rate === null ? null : (float) $rate);
+
+            if ($snapshot) {
+                $detail->fill($snapshot);
+            }
+        });
+    }
+
     protected $fillable = [
+        'vat_rate', 'taxable_value', 'vat_amount',
         'order_id',
         'product_id',
         'product_name',

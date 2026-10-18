@@ -171,6 +171,10 @@ abstract class LiveBooksTestCase extends AccountingTestCase
 
     protected function checkControls(string $when): void
     {
+        $trial = app(\Softmit\DoubleEntry\Services\TrialBalanceReport::class)->build();
+        $this->assertTrue($trial['balanced'], "{$when}: the trial balance must balance");
+        $this->assertSame('0.00', $trial['difference'], "{$when}: no difference between debits and credits");
+
         $e = $this->equation();
 
         $this->assertEqualsWithDelta($e['debits'], $e['credits'], 0.01, "{$when}: journals must balance");

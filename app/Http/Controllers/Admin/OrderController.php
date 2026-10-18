@@ -2113,6 +2113,19 @@ class OrderController extends Controller
         Toastr::success($saveAsPending
             ? 'Order saved as Pending'
             : 'Thanks, Your order place successfully', 'Success!');
+        // VAT: when VAT is on, a line without a rate is sold with no VAT. The sale still
+        // goes through; the owner is told which products to fix.
+        if (app(\App\Services\Vat\VatCalculator::class)->enabled()) {
+            $unrated = \App\Models\OrderDetails::where('order_id', $order->id)
+                ->whereNull('vat_amount')
+                ->pluck('product_name')
+                ->unique()
+                ->values();
+            if ($unrated->isNotEmpty()) {
+                Toastr::warning('No VAT rate on: '.$unrated->implode(', ').'. These lines carry no VAT. Set the product VAT rate and recheck.', 'VAT');
+            }
+        }
+
         // 🆕 Stay on the POS page — show the post-save panel (no page move)
         Session::flash('just_created', $order->invoice_id);
         Session::flash('just_created_pending', $saveAsPending);

@@ -123,6 +123,13 @@ class OrderStatusService
                     'batch_ids'  => null,
                 ]);
             }
+
+            // VAT: the sale is reversed, so its declared VAT is reversed by a credit note.
+            app(\App\Services\Vat\VatCreditNoteService::class)->forOrder(
+                $order,
+                'Sale '.$newEnum->value.': '.($order->invoice_id ?: 'Order #'.$order->id),
+                $order->updated_by ?? auth()->id()
+            );
         }
     }
 

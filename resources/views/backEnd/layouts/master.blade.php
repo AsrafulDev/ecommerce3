@@ -1981,3 +1981,7 @@
     @stack('scripts')
   </body>
 </html>
+      @can('setting-edit')
+      <li><a href="{{ route('admin.vat.edit') }}"><i data-feather="percent"></i> {{ __('VAT Settings') }} </a></li>
+      <li><a href="{{ route('admin.vat.reports') }}"><i data-feather="file-text"></i> {{ __('VAT Reports') }} </a></li>
+      @endcan

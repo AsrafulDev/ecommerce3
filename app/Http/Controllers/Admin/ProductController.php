@@ -167,6 +167,9 @@ class ProductController extends Controller
             'barcode'              => 'nullable|string|max:255|unique:products,barcode',
             'barcode_type'         => 'nullable|string|max:10',
             'costing_method'       => 'nullable|in:fifo,lifo,average',
+            'vat_rate'             => 'nullable|numeric|min:0|max:100',
+            'vat_category'         => 'nullable|in:standard,reduced,zero,exempt',
+            'hs_code'              => 'nullable|string|max:20',
             'low_stock_threshold'  => 'nullable|integer|min:0',
             'allow_negative_stock' => 'nullable',
             'weight'               => 'nullable|string|max:50',
@@ -233,6 +236,12 @@ class ProductController extends Controller
         $input['barcode']              = $request->barcode ?: $this->generateUniqueBarcode();
         $input['barcode_type']         = $request->barcode_type ?? 'C128';
         $input['costing_method']       = $request->costing_method ?: 'fifo';
+        // VAT: blank means no rate, so no VAT is calculated for this product.
+        if ($request->has('vat_rate')) {
+            $input['vat_rate'] = $request->filled('vat_rate') ? (float) $request->vat_rate : null;
+            $input['vat_category'] = $request->vat_category ?: null;
+            $input['hs_code'] = $request->filled('hs_code') ? trim($request->hs_code) : null;
+        }
         $input['low_stock_threshold']  = $request->filled('low_stock_threshold') ? (int) $request->low_stock_threshold : 0;
         $input['allow_negative_stock'] = $request->allow_negative_stock ? 1 : 0;
         $input['weight']               = $this->sanitizeWeight($request->weight);
@@ -501,6 +510,9 @@ class ProductController extends Controller
             'barcode'              => 'nullable|string|max:255|unique:products,barcode,' . $request->id,
             'barcode_type'         => 'nullable|string|max:10',
             'costing_method'       => 'nullable|in:fifo,lifo,average',
+            'vat_rate'             => 'nullable|numeric|min:0|max:100',
+            'vat_category'         => 'nullable|in:standard,reduced,zero,exempt',
+            'hs_code'              => 'nullable|string|max:20',
             'low_stock_threshold'  => 'nullable|integer|min:0',
             'allow_negative_stock' => 'nullable',
             'weight'               => 'nullable|string|max:50',
@@ -562,6 +574,12 @@ class ProductController extends Controller
         $input['barcode']              = $request->barcode ?: $this->generateUniqueBarcode();
         $input['barcode_type']         = $request->barcode_type ?? 'C128';
         $input['costing_method']       = $request->costing_method ?: 'fifo';
+        // VAT: blank means no rate, so no VAT is calculated for this product.
+        if ($request->has('vat_rate')) {
+            $input['vat_rate'] = $request->filled('vat_rate') ? (float) $request->vat_rate : null;
+            $input['vat_category'] = $request->vat_category ?: null;
+            $input['hs_code'] = $request->filled('hs_code') ? trim($request->hs_code) : null;
+        }
         $input['low_stock_threshold']  = $request->filled('low_stock_threshold') ? (int) $request->low_stock_threshold : 0;
         $input['allow_negative_stock'] = $request->allow_negative_stock ? 1 : 0;
         $input['weight']               = $this->sanitizeWeight($request->weight);

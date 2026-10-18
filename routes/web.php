@@ -1368,3 +1368,7 @@ Route::group(['middleware' => ['auth:admin','admin','lock','check_refer','demo_m
     });
 
 });
+    Route::get('vat/settings', [App\Http\Controllers\Admin\VatSettingController::class, 'edit'])->name('admin.vat.edit');
+    Route::post('vat/settings', [App\Http\Controllers\Admin\VatSettingController::class, 'update'])->name('admin.vat.update');
+    Route::get('vat/reports', [App\Http\Controllers\Admin\VatReportController::class, 'index'])->name('admin.vat.reports');
+    Route::get('vat/reports/export/{type}', [App\Http\Controllers\Admin\VatReportController::class, 'export'])->name('admin.vat.export');

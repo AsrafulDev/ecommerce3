@@ -9,7 +9,7 @@ class Supplier extends Model
     protected $fillable = [
         'name','phone','email','address',
         'opening_balance','current_due',
-        'company','contact_person','tax_id','payment_terms',
+        'company','contact_person','tax_id','bin','payment_terms',
         'lead_time','notes','is_active',
     ];
 
