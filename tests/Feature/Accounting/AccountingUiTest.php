@@ -313,10 +313,10 @@ class AccountingUiTest extends AccountingTestCase
         $this->get(route('admin.accounting.reports.trial-balance'))->assertForbidden();
     }
 
-    public function test_guests_are_sent_to_login(): void
+    public function test_guests_are_sent_home_without_revealing_the_login_address(): void
     {
         Auth::guard('admin')->logout();
 
-        $this->get(route('admin.accounting.journals.index'))->assertRedirect(route('login'));
+        $this->get(route('admin.accounting.journals.index'))->assertRedirect(route('home'));
     }
 }

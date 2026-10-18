@@ -48,6 +48,8 @@ class CartQuantityRepriceTest extends TestCase
             'new_price'      => 100,
             'stock'          => 0,
             'status'         => 1,
+            // Batch wholesale tiers only apply when wholesale is enabled on the product.
+            'is_wholesale'   => 1,
         ]);
     }
 
