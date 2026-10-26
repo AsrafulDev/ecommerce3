@@ -33,10 +33,40 @@
                 <button class="primary-btn fix-gr-bg" type="submit">Show</button>
             </div>
             <div class="col-md-4 text-end">
-                <a class="btn btn-sm btn-outline-secondary" href="{{ route('admin.vat.export', ['type' => 'sales', 'from' => $from->toDateString(), 'to' => $to->toDateString()]) }}">Sales CSV</a>
-                <a class="btn btn-sm btn-outline-secondary" href="{{ route('admin.vat.export', ['type' => 'purchase', 'from' => $from->toDateString(), 'to' => $to->toDateString()]) }}">Purchase CSV</a>
+                <a class="btn btn-sm btn-outline-secondary" href="{{ route('admin.vat.export', ['type' => 'sales', 'mode' => 'range', 'from' => $from->toDateString(), 'to' => $to->toDateString()]) }}">Sales CSV</a>
+                <a class="btn btn-sm btn-outline-secondary" href="{{ route('admin.vat.export', ['type' => 'purchase', 'mode' => 'range', 'from' => $from->toDateString(), 'to' => $to->toDateString()]) }}">Purchase CSV</a>
             </div>
         </form>
+    </div>
+
+    <div class="white-box mb-3">
+        <h4>Download a register (working draft, not the official Mushak layout)</h4>
+        <p class="small text-muted mb-2">Choose one invoice, one day, or a date range. Sales are by invoice date; purchases by purchase date.</p>
+        <div class="row g-2">
+            @foreach(['sales' => 'Sales', 'purchase' => 'Purchase'] as $kind => $kindLabel)
+            <div class="col-md-6">
+                <form method="GET" action="{{ route('admin.vat.export', ['type' => $kind]) }}" class="border rounded p-2 mb-2">
+                    <strong>{{ $kindLabel }}</strong>
+                    <div class="mt-2 small">
+                        <label class="me-2"><input type="radio" name="mode" value="invoice" checked onchange="this.form.querySelectorAll('[data-mode-field]').forEach(e=>e.style.display='none');this.form.querySelector('[data-mode=invoice]').style.display='block';"> One invoice</label>
+                        <label class="me-2"><input type="radio" name="mode" value="date" onchange="this.form.querySelectorAll('[data-mode-field]').forEach(e=>e.style.display='none');this.form.querySelector('[data-mode=date]').style.display='block';"> One day</label>
+                        <label><input type="radio" name="mode" value="range" onchange="this.form.querySelectorAll('[data-mode-field]').forEach(e=>e.style.display='none');this.form.querySelector('[data-mode=range]').style.display='block';"> Date range</label>
+                    </div>
+                    <div class="mt-2" data-mode-field data-mode="invoice">
+                        <input type="text" name="invoice" class="form-control form-control-sm" placeholder="Invoice number, e.g. INV-000123">
+                    </div>
+                    <div class="mt-2" data-mode-field data-mode="date" style="display:none">
+                        <input type="date" name="date" class="form-control form-control-sm" value="{{ now()->toDateString() }}">
+                    </div>
+                    <div class="mt-2 row g-1" data-mode-field data-mode="range" style="display:none">
+                        <div class="col-6"><input type="date" name="from" class="form-control form-control-sm" value="{{ $from->toDateString() }}"></div>
+                        <div class="col-6"><input type="date" name="to" class="form-control form-control-sm" value="{{ $to->toDateString() }}"></div>
+                    </div>
+                    <button type="submit" class="btn btn-sm btn-primary mt-2">Download CSV</button>
+                </form>
+            </div>
+            @endforeach
+        </div>
     </div>
 
     <div class="white-box mb-3">

@@ -51,12 +51,13 @@ class VatReportService
      *
      * @return array<int, array{invoice: string, date: string, buyer_bin: ?string, taxable: float, vat: float}>
      */
-    public function salesRegister(Carbon $from, Carbon $to): array
+    public function salesRegister(Carbon $from, Carbon $to, ?string $invoice = null): array
     {
         return DB::table('order_details as d')
             ->join('orders as o', 'o.id', '=', 'd.order_id')
             ->where(fn ($q) => $this->invoicedSale($q, 'o'))
             ->whereBetween('o.created_at', [$from->copy()->startOfDay(), $to->copy()->endOfDay()])
+            ->when($invoice !== null, fn ($q) => $q->where('o.invoice_id', $invoice))
             ->whereNotNull('d.vat_amount')
             ->groupBy('o.id', 'o.invoice_id', 'o.created_at', 'o.buyer_bin')
             ->orderBy('o.created_at')->orderBy('o.id')
@@ -77,12 +78,13 @@ class VatReportService
      *
      * @return array<int, array{invoice: string, date: string, supplier_bin: ?string, taxable: float, vat: float}>
      */
-    public function purchaseRegister(Carbon $from, Carbon $to): array
+    public function purchaseRegister(Carbon $from, Carbon $to, ?string $invoice = null): array
     {
         return DB::table('purchase_items as i')
             ->join('purchases as p', 'p.id', '=', 'i.purchase_id')
             ->leftJoin('suppliers as s', 's.id', '=', 'p.supplier_id')
             ->whereBetween('p.purchase_date', [$from->toDateString(), $to->toDateString()])
+            ->when($invoice !== null, fn ($q) => $q->where('p.invoice_no', $invoice))
             ->whereNotNull('i.vat_amount')
             ->groupBy('p.id', 'p.invoice_no', 'p.purchase_date', 's.name', 's.bin')
             ->orderBy('p.purchase_date')->orderBy('p.id')

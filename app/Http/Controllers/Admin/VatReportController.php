@@ -38,17 +38,48 @@ class VatReportController extends Controller
         ]);
     }
 
+    /**
+     * Download a register as CSV, for one invoice, one day, or a date range.
+     * These are working registers, not the official Mushak layout.
+     */
     public function export(Request $request, string $type): Response
     {
-        [$from, $to] = $this->period($request);
+        abort_unless(in_array($type, ['sales', 'purchase'], true), 404);
 
-        $rows = match ($type) {
-            'sales'    => $this->reports->salesRegister($from, $to),
-            'purchase' => $this->reports->purchaseRegister($from, $to),
-            default    => abort(404),
-        };
+        // Links made before the mode existed meant a date range.
+        $request->merge(['mode' => $request->input('mode', 'range')]);
 
-        $name = sprintf('vat-%s-%s-to-%s.csv', $type, $from->toDateString(), $to->toDateString());
+        $request->validate([
+            'mode'    => 'required|in:invoice,date,range',
+            'invoice' => 'required_if:mode,invoice|nullable|string|max:60',
+            'date'    => 'required_if:mode,date|nullable|date',
+            // Range dates are optional: a missing range means the current month, as before.
+            'from'    => 'nullable|date',
+            'to'      => 'nullable|date',
+        ]);
+
+        $invoice = null;
+        switch ($request->input('mode')) {
+            case 'invoice':
+                $invoice = trim((string) $request->input('invoice'));
+                $from = Carbon::create(2000, 1, 1);
+                $to = Carbon::create(2100, 12, 31);
+                $label = 'invoice-'.preg_replace('/[^A-Za-z0-9_-]/', '_', $invoice);
+                break;
+            case 'date':
+                $from = $to = Carbon::parse($request->input('date'));
+                $label = 'date-'.$from->toDateString();
+                break;
+            default:
+                [$from, $to] = $this->period($request);
+                $label = 'range-'.$from->toDateString().'-to-'.$to->toDateString();
+        }
+
+        $rows = $type === 'sales'
+            ? $this->reports->salesRegister($from, $to, $invoice)
+            : $this->reports->purchaseRegister($from, $to, $invoice);
+
+        $name = sprintf('vat-%s-%s.csv', $type, $label);
 
         return response($this->exporter->toCsv($type, $rows), 200, [
             'Content-Type'        => 'text/csv; charset=UTF-8',
