@@ -4,7 +4,7 @@ Status key: `[ ]` not started · `[~]` in progress · `[x]` done · `[!]` blocke
 
 ## A. Decisions (you)
 
-- [!] A1. Is the business VAT-registered? (blocks all VAT rules)
+- [x] A1. Is the business VAT-registered? **Yes.** BIN still to be entered in VAT/Tax settings.
 - [!] A2. Rate per product category (standard / reduced / zero / exempt)
 - [!] A3. Do selling prices include VAT?
 - [!] A4. Do you sell to VAT-registered buyers? (decides whether 6.3 challans are needed)

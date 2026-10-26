@@ -1316,6 +1316,10 @@
       @can('setting-list')
       <li><a href="{{ route('settings.index') }}" class="{{ request()->routeIs('settings.*') ? 'active' : '' }}"><i data-feather="file-plus"></i> {{ __('General Setting') }} </a></li>
       @endcan
+      @can('setting-edit')
+      <li><a href="{{ route('admin.vat.edit') }}" class="{{ request()->routeIs('admin.vat.edit') ? 'active' : '' }}"><i data-feather="percent"></i> {{ __('VAT/Tax Settings') }} </a></li>
+      <li><a href="{{ route('admin.vat.reports') }}" class="{{ request()->routeIs('admin.vat.reports') ? 'active' : '' }}"><i data-feather="file-text"></i> {{ __('VAT/Tax Reports') }} </a></li>
+      @endcan
       @can('social-list')
       <li><a href="{{ route('socialmedias.index') }}" class="{{ request()->routeIs('socialmedias.*') ? 'active' : '' }}"><i data-feather="file-plus"></i> {{ __('Social Media') }} </a></li>
       @endcan
@@ -1385,10 +1389,6 @@
       <li><a href="{{ route('courierapi.manage') }}"><i data-feather="file-plus"></i> {{ __('Courier API') }} </a></li>
       <li><a href="{{ route('admin.facebook_capi.edit') }}"><i data-feather="facebook"></i> {{ __('Facebook CAPI') }} </a></li>
       <li><a href="{{ route('admin.google_analytics.edit') }}"><i data-feather="bar-chart-2"></i> {{ __('Google Analytics 4') }} </a></li>
-      @can('setting-edit')
-      <li><a href="{{ route('admin.vat.edit') }}"><i data-feather="percent"></i> {{ __('VAT Settings') }} </a></li>
-      <li><a href="{{ route('admin.vat.reports') }}"><i data-feather="file-text"></i> {{ __('VAT Reports') }} </a></li>
-      @endcan
       @can('fraud-setting-list')
       <li><a href="{{ route('admin.fraud.index') }}"><i data-feather="shield"></i> {{ __('Fraud API') }} </a></li>
       @endcan

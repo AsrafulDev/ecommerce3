@@ -23,13 +23,13 @@ class VatFilingGate
         $settings = GeneralSetting::orderBy('id', 'desc')->first();
 
         if (!$settings || !$settings->vat_enabled) {
-            $blockers[] = 'VAT is switched off in settings (A1: registration not confirmed).';
+            $blockers[] = 'VAT is switched off in VAT/Tax settings.';
         }
         if ($settings && $settings->vat_prices_include_vat === null) {
             $blockers[] = 'The price basis is not chosen: VAT-inclusive or exclusive (A3).';
         }
         if (!$settings || blank($settings->vat_bin)) {
-            $blockers[] = 'The VAT registration number (BIN) is missing (A1).';
+            $blockers[] = 'The VAT registration number (BIN) is missing. The business is registered (A1: yes), so enter the BIN in VAT/Tax settings.';
         }
         if (config('vat.filing_frequency') === null) {
             $blockers[] = 'The filing frequency is not set: monthly or quarterly (A5).';
