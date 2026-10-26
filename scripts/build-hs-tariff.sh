@@ -3,9 +3,10 @@
 #
 # Usage:
 #   ./scripts/build-hs-tariff.sh "/path/to/HS code.md"          # the saved HTML table (preferred)
-#   ./scripts/build-hs-tariff.sh /path/to/Tariff-2025-2026.pdf  # the official PDF (layout-dependent)
+#   ./scripts/build-hs-tariff.sh /path/to/Tariff-2025-2026.pdf  # the official PDF: the authoritative source
 #
-# Output: storage/app/vat/hs-tariff.json, an array of {code, description, cd, sd, vat, ait, rd, at}.
+# Output: storage/app/vat/hs-tariff.json, an array of {code, description, cd, sd, vat, ait, at, rd, tti}.
+# The PDF is authoritative. The saved HTML table is NOT the same tariff: it disagrees on most codes.
 # Rows are accepted only when the code is 8 digits and the table has the expected nine cells.
 # Anything else is skipped and counted. Nothing is guessed.
 set -euo pipefail
@@ -34,8 +35,9 @@ for line in open(src, encoding='utf-8', errors='replace'):
     if len(code) != 8 or len(nums) < 6:
         skipped += 1
         continue
+    # Column order is the official PDF header: HSCODE, TARRIFF_DESCRIPTION, CD, SD, VAT, AIT, AT, RD, TTI.
     rec = {'code': code, 'description': m.group(2).strip()}
-    for k, v in zip(['cd', 'sd', 'vat', 'ait', 'rd', 'at'], nums[:6]):
+    for k, v in zip(['cd', 'sd', 'vat', 'ait', 'at', 'rd', 'tti'], nums[:7]):
         rec[k] = None if v == '-' else float(v)
     rows.append(rec)
 json.dump(rows, open(out, 'w', encoding='utf-8'), ensure_ascii=False)
@@ -76,7 +78,7 @@ for cells in parser.rows:
         skipped += 1
         continue
     rec = {'code': cells[0], 'description': cells[1]}
-    for key, value in zip(['cd', 'sd', 'vat', 'ait', 'rd', 'at'], cells[2:8]):
+    for key, value in zip(['cd', 'sd', 'vat', 'ait', 'rd', 'at'], cells[2:8]):  # HTML header order
         cleaned = value.replace('%', '').strip()
         rec[key] = None if cleaned in ('', '-') else float(cleaned)
     rows.append(rec)
