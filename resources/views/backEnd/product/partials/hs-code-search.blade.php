@@ -29,8 +29,13 @@
                 a.textContent = item.code + ' — ' + item.description;
                 a.addEventListener('click', function () {
                     input.value = item.code;
-                    note.textContent = item.description + (item.vat !== null && item.vat !== undefined
-                        ? ' · tariff VAT ' + item.vat + '% (suggestion; set the product VAT rate separately)' : '');
+                    var extra = '';
+                    if (item.specific_duty) {
+                        extra = ' · a fixed Taka duty applies to this code (unit not stated), not a percentage';
+                    } else if (item.vat !== null && item.vat !== undefined) {
+                        extra = ' · tariff VAT ' + item.vat + '% (suggestion; set the product VAT rate separately)';
+                    }
+                    note.textContent = item.description + extra;
                     list.style.display = 'none';
                 });
                 list.appendChild(a);

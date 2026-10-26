@@ -24,24 +24,36 @@ case "${SRC,,}" in
     python3 - "$TXT" "$OUT" <<'PY'
 import json, re, sys
 src, out = sys.argv[1], sys.argv[2]
-row = re.compile(r'^\s*(\d{4}\.?\d{2}\.?\d{2}|\d{8})\s+(.+?)\s{2,}((?:[\d.]+%?\s*|-\s*)+)$')
-rows, skipped = [], 0
+# code, description, then six duty columns and TTI. Numbers may carry thousands separators.
+num = r'(?:[\d,]+(?:\.\d+)?%?|-)'
+row = re.compile(r'^\s*(\d{8})\s+(.+?)\s{2,}((?:' + num + r'\s+){5}' + num + r')(?:\s+(' + num + r'))?\s*$')
+rows, unmatched = [], []
 for line in open(src, encoding='utf-8', errors='replace'):
+    if not re.match(r'^\s*\d{8}\s', line):
+        continue
     m = row.match(line.rstrip('\n'))
     if not m:
+        unmatched.append(line.strip()[:120])
         continue
-    code = re.sub(r'\D', '', m.group(1))
-    nums = re.findall(r'[\d.]+|-', m.group(3))
-    if len(code) != 8 or len(nums) < 6:
-        skipped += 1
-        continue
-    # Column order is the official PDF header: HSCODE, TARRIFF_DESCRIPTION, CD, SD, VAT, AIT, AT, RD, TTI.
-    rec = {'code': code, 'description': m.group(2).strip()}
-    for k, v in zip(['cd', 'sd', 'vat', 'ait', 'at', 'rd', 'tti'], nums[:7]):
-        rec[k] = None if v == '-' else float(v)
+    values = re.findall(num, m.group(3))
+    if m.group(4):
+        values.append(m.group(4))
+    def val(v):
+        if v is None or v == '-':
+            return None
+        return float(v.replace(',', '').replace('%', ''))
+    keys = ['cd', 'sd', 'vat', 'ait', 'at', 'rd']  # official PDF header order
+    rec = {'code': m.group(1), 'description': m.group(2).strip()}
+    for k, v in zip(keys, values[:6]):
+        rec[k] = val(v)
+    rec['tti'] = val(values[6]) if len(values) > 6 else None
+    # Fixed Taka amounts appear in the duty columns. Their unit is not stated in the table.
+    rec['specific_duty'] = any((rec[k] or 0) > 100 for k in keys)
     rows.append(rec)
 json.dump(rows, open(out, 'w', encoding='utf-8'), ensure_ascii=False)
-print(f"wrote {len(rows)} codes to {out}; skipped {skipped} lines that did not match")
+print(f"wrote {len(rows)} codes to {out}; {len(unmatched)} 8-digit lines did not parse")
+for line in unmatched[:20]:
+    print("  not parsed:", line, file=sys.stderr)
 PY
     ;;
   *)

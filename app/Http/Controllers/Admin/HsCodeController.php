@@ -27,7 +27,9 @@ class HsCodeController extends Controller
             'results' => array_map(fn ($row) => [
                 'code'        => $row['code'],
                 'description' => $row['description'],
-                'vat'         => $row['vat'] ?? null,
+                // A fixed Taka amount is not a percentage, so no VAT percentage is offered for it.
+                'vat'           => ($row['specific_duty'] ?? false) ? null : ($row['vat'] ?? null),
+                'specific_duty' => (bool) ($row['specific_duty'] ?? false),
             ], $this->lookup->search(mb_substr($query, 0, 100))),
         ]);
     }
