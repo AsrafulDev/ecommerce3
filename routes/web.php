@@ -944,6 +944,7 @@ Route::group(['middleware' => ['auth:admin','admin','lock','check_refer','demo_m
     Route::post('vat/settings', [App\Http\Controllers\Admin\VatSettingController::class, 'update'])->name('admin.vat.update');
     Route::get('vat/reports', [App\Http\Controllers\Admin\VatReportController::class, 'index'])->name('admin.vat.reports');
     Route::get('vat/reports/export/{type}', [App\Http\Controllers\Admin\VatReportController::class, 'export'])->name('admin.vat.export');
+    Route::get('vat/hs-codes', [App\Http\Controllers\Admin\HsCodeController::class, 'search'])->name('admin.vat.hs_codes');
     Route::get('google-analytics/settings', [GoogleAnalyticSettingController::class, 'edit'])->name('admin.google_analytics.edit');
     Route::post('google-analytics/settings', [GoogleAnalyticSettingController::class, 'update'])->name('admin.google_analytics.update');
 

@@ -575,7 +575,7 @@
                             </div>
                             <div class="col-md-4 mb-3">
                                 <label class="form-label"> {{ __('HS Code') }} </label>
-                                <input type="text" name="hs_code" class="form-control" maxlength="20" value="{{ old('hs_code', $edit_data->hs_code) }}">
+                                @include('backEnd.product.partials.hs-code-search', ['value' => old('hs_code', $edit_data->hs_code)])
                             </div>
                         </div>
                         <div class="row">

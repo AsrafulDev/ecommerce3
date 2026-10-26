@@ -19,6 +19,14 @@ return [
     | A5 — filing frequency for the 9.1 return: 'monthly' or 'quarterly'.
     | Null = not decided. Sources disagree; confirm with NBR or a practitioner.
     */
+    /*
+    | Customs tariff used for HS code search on products. JSON array of
+    | {code, description, cd, sd, vat, ait, rd, at}. Built from the official
+    | Bangladesh National Board of Revenue tariff PDF by scripts/build-hs-tariff.sh.
+    | Missing file = search returns nothing; nothing is guessed.
+    */
+    'hs_tariff_path' => storage_path('app/vat/hs-tariff.json'),
+
     'filing_frequency' => null,
 
     /*
