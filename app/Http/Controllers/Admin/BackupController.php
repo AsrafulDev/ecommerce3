@@ -260,26 +260,69 @@ class BackupController extends Controller
             if (!is_array($rows)) continue;
             
             try {
-                // Drop & recreate the table structure via Schema
-                if (Schema::hasTable($tableName)) {
-                    DB::table($tableName)->truncate();
+                if (!Schema::hasTable($tableName)) {
+                    Log::warning("Restore skipped table {$tableName}: table does not exist on this database");
+                    continue;
                 }
-                
-                if (!empty($rows)) {
-                    // Insert in chunks to avoid huge single queries
-                    foreach (array_chunk($rows, 500) as $chunk) {
+                $clean = $this->rowsForTable($tableName, $rows);
+                // Replace the rows inside one transaction, so a failing table keeps its existing rows.
+                DB::transaction(function () use ($tableName, $clean) {
+                    DB::table($tableName)->delete();
+                    foreach (array_chunk($clean, 500) as $chunk) {
                         DB::table($tableName)->insert($chunk);
                     }
-                }
-            } catch (\Exception $e) {
-                // Skip tables that fail (e.g. missing columns on this DB)
-                Log::warning("Restore skipped table {$tableName}: " . $e->getMessage());
+                });
+            } catch (\Throwable $e) {
+                Log::warning("Restore kept existing rows of {$tableName}: " . $e->getMessage());
             }
         }
         
         DB::statement('SET FOREIGN_KEY_CHECKS = 1');
     }
     
+    /** Column names written by older versions of the app, mapped to the current name. */
+    private const COLUMN_ALIASES = [
+        'meta_decription' => 'meta_description',
+    ];
+
+    /**
+     * Keeps only the columns this database has, mapping known old names first. Columns the database
+     * does not have are dropped and logged, instead of failing the whole table.
+     *
+     * @param  array<int, array<string, mixed>>  $rows
+     * @return array<int, array<string, mixed>>
+     */
+    private function rowsForTable(string $table, array $rows): array
+    {
+        $columns = array_flip(Schema::getColumnListing($table));
+        $dropped = [];
+        $clean = [];
+
+        foreach ($rows as $row) {
+            if (!is_array($row)) {
+                continue;
+            }
+            $out = [];
+            foreach ($row as $column => $value) {
+                $target = self::COLUMN_ALIASES[$column] ?? $column;
+                if (!isset($columns[$target])) {
+                    $dropped[$column] = true;
+                    continue;
+                }
+                if (!array_key_exists($target, $out)) {
+                    $out[$target] = $value;
+                }
+            }
+            $clean[] = $out;
+        }
+
+        if ($dropped) {
+            Log::info("Restore of {$table}: columns not on this database were skipped: " . implode(', ', array_keys($dropped)));
+        }
+
+        return $clean;
+    }
+
     // ============================================================
     // 3. THEME EXPORT / IMPORT (JSON)
     // ============================================================
