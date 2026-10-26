@@ -89,4 +89,38 @@ class HsCodeSearchTest extends TestCase
             ->assertSee('hs-code-search', false)
             ->assertSee(route('admin.vat.hs_codes'), false);
     }
+
+    public function test_the_popup_can_browse_the_whole_tariff_in_pages(): void
+    {
+        $lookup = new HsCodeLookup($this->fixture);
+
+        $first = $lookup->page('', 0, 2);
+        $second = $lookup->page('', 2, 2);
+
+        $this->assertSame(3, $first['total']);
+        $this->assertCount(2, $first['items']);
+        $this->assertCount(1, $second['items']);
+        $this->assertSame('85171300', $second['items'][0]['code']);
+    }
+
+    public function test_the_endpoint_returns_paging_and_every_duty_column(): void
+    {
+        $response = $this->get(route('admin.vat.hs_codes', ['q' => '', 'offset' => 0, 'limit' => 2]))->assertOk();
+
+        $response->assertJson(['loaded' => true, 'total' => 3, 'offset' => 0, 'limit' => 2]);
+        $this->assertCount(2, $response->json('results'));
+        foreach (['code', 'description', 'cd', 'sd', 'vat', 'ait', 'rd', 'at', 'specific_duty'] as $key) {
+            $this->assertArrayHasKey($key, $response->json('results.0'));
+        }
+    }
+
+    public function test_the_product_form_has_the_hs_code_button_popup_and_bangla_switch(): void
+    {
+        $this->get(route('products.create'))
+            ->assertOk()
+            ->assertSee('HS code')
+            ->assertSee('id="hsCodeModal"', false)
+            ->assertSee('id="hsLangSwitch"', false)
+            ->assertSee('এইচএস কোড তালিকা');
+    }
 }

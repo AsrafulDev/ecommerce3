@@ -12,12 +12,14 @@
 set -euo pipefail
 
 SRC="${1:?Give the path to the HS table (.md/.html) or the tariff PDF}"
-OUT="$(dirname "$0")/../storage/app/vat/hs-tariff.json"
+DIR="$(dirname "$0")/../storage/app/vat"
 [[ -f "$SRC" ]] || { echo "No such file: $SRC" >&2; exit 1; }
-mkdir -p "$(dirname "$OUT")"
+mkdir -p "$DIR"
 
 case "${SRC,,}" in
   *.pdf)
+    # Reference copy. The system reads the HTML build (hs-tariff.json), not this file.
+    OUT="$DIR/hs-tariff-pdf.json"
     command -v pdftotext >/dev/null || { echo "pdftotext (poppler-utils) is required for PDFs" >&2; exit 1; }
     TXT="$(mktemp)"; trap 'rm -f "$TXT"' EXIT
     pdftotext -layout "$SRC" "$TXT"
@@ -57,6 +59,8 @@ for line in unmatched[:20]:
 PY
     ;;
   *)
+    # The saved HTML table is the system's source: it writes hs-tariff.json.
+    OUT="$DIR/hs-tariff.json"
     python3 - "$SRC" "$OUT" <<'PY'
 import json, re, sys
 from html.parser import HTMLParser
@@ -91,8 +95,11 @@ for cells in parser.rows:
         continue
     rec = {'code': cells[0], 'description': cells[1]}
     for key, value in zip(['cd', 'sd', 'vat', 'ait', 'rd', 'at'], cells[2:8]):  # HTML header order
-        cleaned = value.replace('%', '').strip()
+        cleaned = value.replace('%', '').replace(',', '').strip()
         rec[key] = None if cleaned in ('', '-') else float(cleaned)
+    rec['tti'] = None
+    # Fixed Taka amounts appear in the duty columns. Their unit is not stated in the table.
+    rec['specific_duty'] = any((rec[k] or 0) > 100 for k in ['cd', 'sd', 'vat', 'ait', 'rd', 'at'])
     rows.append(rec)
 
 json.dump(rows, open(out, 'w', encoding='utf-8'), ensure_ascii=False)

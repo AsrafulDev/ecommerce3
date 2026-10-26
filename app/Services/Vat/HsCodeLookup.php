@@ -36,9 +36,37 @@ class HsCodeLookup
     }
 
     /**
+     * One page of matches for the popup. An empty query browses the whole tariff in order.
+     *
+     * @return array{total: int, offset: int, limit: int, items: array<int, array<string, mixed>>}
+     */
+    public function page(string $query, int $offset = 0, int $limit = 50): array
+    {
+        $limit = max(1, min($limit, 100));
+        $offset = max(0, $offset);
+
+        $matches = trim($query) === '' ? $this->rows() : $this->matches($query, PHP_INT_MAX);
+
+        return [
+            'total'  => count($matches),
+            'offset' => $offset,
+            'limit'  => $limit,
+            'items'  => array_slice($matches, $offset, $limit),
+        ];
+    }
+
+    /**
      * @return array<int, array<string, mixed>>
      */
     public function search(string $query, int $limit = 30): array
+    {
+        return $this->matches($query, $limit);
+    }
+
+    /**
+     * @return array<int, array<string, mixed>>
+     */
+    private function matches(string $query, int $limit): array
     {
         $query = trim($query);
         if ($query === '' || !$this->loaded()) {
