@@ -62,7 +62,11 @@
                         <div class="col-6"><input type="date" name="from" class="form-control form-control-sm" value="{{ $from->toDateString() }}"></div>
                         <div class="col-6"><input type="date" name="to" class="form-control form-control-sm" value="{{ $to->toDateString() }}"></div>
                     </div>
-                    <button type="submit" class="btn btn-sm btn-primary mt-2">Download CSV</button>
+                    <div class="mt-2 small">
+                        <label class="me-2"><input type="radio" name="format" value="csv" checked> CSV</label>
+                        <label><input type="radio" name="format" value="pdf"> PDF (working draft)</label>
+                    </div>
+                    <button type="submit" class="btn btn-sm btn-primary mt-2">Download</button>
                 </form>
             </div>
             @endforeach

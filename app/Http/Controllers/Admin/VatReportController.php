@@ -56,6 +56,7 @@ class VatReportController extends Controller
             // Range dates are optional: a missing range means the current month, as before.
             'from'    => 'nullable|date',
             'to'      => 'nullable|date',
+            'format'  => 'nullable|in:csv,pdf',
         ]);
 
         $invoice = null;
@@ -79,12 +80,42 @@ class VatReportController extends Controller
             ? $this->reports->salesRegister($from, $to, $invoice)
             : $this->reports->purchaseRegister($from, $to, $invoice);
 
+        if ($request->input('format') === 'pdf') {
+            $columns = VatCsvExporter::COLUMNS[$type];
+            $settings = \App\Models\GeneralSetting::orderBy('id', 'desc')->first();
+            $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('backEnd.vat.register-pdf', [
+                'kind'         => $type === 'sales' ? 'sales (Mushak 6.2)' : 'purchase (Mushak 6.1)',
+                'columns'      => $columns,
+                'rows'         => $rows,
+                'business'     => $settings?->vat_business_name,
+                'bin'          => $settings?->vat_bin,
+                'selection'    => $this->describeSelection($request, $type, $from, $to, $invoice),
+                'generated'    => now()->format('d M Y H:i'),
+                'totalTaxable' => round(array_sum(array_column($rows, 'taxable')), 2),
+                'totalVat'     => round(array_sum(array_column($rows, 'vat')), 2),
+            ])->setPaper('a4', 'landscape');
+
+            return $pdf->download(sprintf('vat-%s-%s.pdf', $type, $label));
+        }
+
         $name = sprintf('vat-%s-%s.csv', $type, $label);
 
         return response($this->exporter->toCsv($type, $rows), 200, [
             'Content-Type'        => 'text/csv; charset=UTF-8',
             'Content-Disposition' => 'attachment; filename="'.$name.'"',
         ]);
+    }
+
+    private function describeSelection(Request $request, string $type, Carbon $from, Carbon $to, ?string $invoice): string
+    {
+        if ($invoice !== null) {
+            return 'Invoice '.$invoice;
+        }
+        if ($from->isSameDay($to)) {
+            return 'Date '.$from->toDateString();
+        }
+
+        return 'Date range '.$from->toDateString().' to '.$to->toDateString();
     }
 
     /** Defaults to the current month. An inverted range is swapped rather than refused. */
