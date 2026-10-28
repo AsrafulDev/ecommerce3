@@ -170,6 +170,23 @@ class Order extends Model
         return $this->hasMany(WarrantySale::class, 'order_id');
     }
 
+    /**
+     * The staff member(s) who sold this order's products, from the sale rows.
+     * Orders made before sellers were recorded show a dash rather than a guess.
+     */
+    public function soldByLabel(): string
+    {
+        $names = $this->warrantySales()
+            ->with('soldBy:id,name')
+            ->get()
+            ->map(fn (WarrantySale $sale) => $sale->soldBy?->name)
+            ->filter()
+            ->unique()
+            ->values();
+
+        return $names->isEmpty() ? '—' : $names->implode(', ');
+    }
+
     // ═══════════════════════════════════════════════════════
     // 🌟 ORDER NOTES (History / Audit Trail)
     // ═══════════════════════════════════════════════════════

@@ -77,7 +77,8 @@
                 <td style="text-align: right;">
                     <span class="title">SALES INVOICE</span><br>
                     <strong>Invoice No:</strong> {{ $order->invoice_display ?? $order->invoice_id }}<br>
-                    <strong>Date:</strong> {{ optional($order->created_at)->format('d M Y') }}
+                    <strong>Date:</strong> {{ optional($order->created_at)->format('d M Y') }}<br>
+                    <strong>Sold By:</strong> {{ $order->soldByLabel() }}
                 </td>
             </tr>
         </table>
