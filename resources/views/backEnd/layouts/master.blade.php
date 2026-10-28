@@ -978,24 +978,6 @@
       @can('expense-list')
       <li class="{{ request()->routeIs('admin.expenses.*') ? 'active' : '' }}"><a href="{{ route('admin.expenses.index') }}"><i data-feather="trending-down"></i> {{ __('Expenses') }} </a></li>
       @endcan
-      @canany(['order-report', 'report-view', 'purchase-report', 'expense-report', 'stock-report', 'profit-loss-report'])
-      <li class="menu-title px-3 pt-3 pb-1 text-uppercase small text-muted">{{ __('Operational reports (Core)') }}</li>
-      @endcanany
-      @canany(['order-report', 'report-view'])
-      <li class="{{ request()->routeIs('admin.reports.orders') ? 'active' : '' }}"><a href="{{ route('admin.reports.orders') }}"><i data-feather="file-text"></i> {{ __('Sales & order report') }} </a></li>
-      @endcanany
-      @canany(['purchase-report', 'report-view'])
-      <li class="{{ request()->routeIs('admin.reports.purchases') ? 'active' : '' }}"><a href="{{ route('admin.reports.purchases') }}"><i data-feather="shopping-bag"></i> {{ __('Purchase report') }} </a></li>
-      @endcanany
-      @canany(['expense-report', 'report-view'])
-      <li class="{{ request()->routeIs('admin.reports.expenses') ? 'active' : '' }}"><a href="{{ route('admin.reports.expenses') }}"><i data-feather="trending-down"></i> {{ __('Expense report') }} </a></li>
-      @endcanany
-      @canany(['stock-report', 'report-view'])
-      <li class="{{ request()->routeIs('admin.reports.stock') ? 'active' : '' }}"><a href="{{ route('admin.reports.stock') }}"><i data-feather="archive"></i> {{ __('Inventory value report') }} </a></li>
-      @endcanany
-      @canany(['profit-loss-report', 'report-view'])
-      <li class="{{ request()->routeIs('admin.reports.profit_loss') ? 'active' : '' }}"><a href="{{ route('admin.reports.profit_loss') }}"><i data-feather="activity"></i> {{ __('Operational Profit & Loss') }} </a></li>
-      @endcanany
       @can('purge-financial-transactions')
       <li class="menu-title px-3 pt-3 pb-1 text-uppercase small text-muted">{{ __('Control') }}</li>
       <li class="{{ request()->routeIs('admin.transaction-control.*') ? 'active' : '' }}"><a href="{{ route('admin.transaction-control.index') }}"><i data-feather="shield"></i> {{ __('Transaction Control') }} </a></li>
@@ -1012,7 +994,7 @@
 <li class="{{ request()->routeIs('admin.accounting.*') ? 'active' : '' }}">
   <a href="#sidebar-accounting" data-bs-toggle="collapse">
     <i data-feather="book"></i>
-    <span> {{ __('Accounting (Advanced)') }} </span>
+    <span> {{ __('Accounting') }} </span>
     <span class="menu-arrow"></span>
   </a>
   <div class="collapse {{ request()->routeIs('admin.accounting.*') ? 'show' : '' }}" id="sidebar-accounting">
@@ -1021,9 +1003,6 @@
       <li><a href="{{ route('admin.accounting.accounts.index') }}"><i data-feather="list"></i> {{ __('Chart of Accounts') }} </a></li>
       <li><a href="{{ route('admin.accounting.journals.index') }}"><i data-feather="book-open"></i> {{ __('Journal Entries') }} </a></li>
       <li><a href="{{ route('admin.accounting.ledger.balances') }}"><i data-feather="users"></i> {{ __('Receivable & Payable') }} </a></li>
-      <li><a href="{{ route('admin.accounting.reports.trial-balance') }}"><i data-feather="grid"></i> {{ __('Trial Balance (Books)') }} </a></li>
-      <li><a href="{{ route('admin.accounting.reports.profit-loss') }}"><i data-feather="trending-up"></i> {{ __('Income Statement (Books)') }} </a></li>
-      <li><a href="{{ route('admin.accounting.reports.cash') }}"><i data-feather="dollar-sign"></i> {{ __('Cash & Bank Ledger (Books)') }} </a></li>
       <li class="menu-title px-3 pt-3 pb-1 text-uppercase small text-muted">{{ __('Setup & audit') }}</li>
       <li><a href="{{ route('admin.accounting.opening.index') }}"><i data-feather="log-in"></i> {{ __('Accounting Setup') }} </a></li>
       <li><a href="{{ route('admin.accounting.sync.index') }}"><i data-feather="upload-cloud"></i> {{ __('Audit & Reconciliation') }} </a></li>
@@ -1031,6 +1010,53 @@
   </div>
 </li>
 @endcan
+@endif
+
+{{-- Reports — every report in one place. Core reports always show (each by its own permission).
+     The Books reports are added only when Advanced Accounting is enabled, the same condition as the Accounting menu. --}}
+@php
+  $showCoreReports = \Illuminate\Support\Facades\Gate::any(['order-report', 'purchase-report', 'expense-report', 'stock-report', 'profit-loss-report', 'report-view']);
+  $showBookReports = app(\App\Services\Accounting\AdvancedAccountingGateway::class)->enabled() && \Illuminate\Support\Facades\Gate::allows('accounting-list');
+@endphp
+@if($showCoreReports || $showBookReports)
+<li class="{{ request()->routeIs('admin.reports.*', 'admin.accounting.reports.*') ? 'active' : '' }}">
+  <a href="#sidebar-reports" data-bs-toggle="collapse">
+    <i data-feather="bar-chart-2"></i>
+    <span> {{ __('Reports') }} </span>
+    <span class="menu-arrow"></span>
+  </a>
+  <div class="collapse {{ request()->routeIs('admin.reports.*', 'admin.accounting.reports.*') ? 'show' : '' }}" id="sidebar-reports">
+    <ul class="nav-second-level">
+      @if($showCoreReports)
+      <li class="menu-title px-3 pt-2 pb-1 text-uppercase small text-muted">{{ __('Operational') }}</li>
+      @canany(['order-report', 'report-view'])
+      <li class="{{ request()->routeIs('admin.reports.orders') ? 'active' : '' }}"><a href="{{ route('admin.reports.orders') }}"><i data-feather="file-text"></i> {{ __('Sales & order report') }} </a></li>
+      @endcanany
+      @canany(['purchase-report', 'report-view'])
+      <li class="{{ request()->routeIs('admin.reports.purchases') ? 'active' : '' }}"><a href="{{ route('admin.reports.purchases') }}"><i data-feather="shopping-bag"></i> {{ __('Purchase report') }} </a></li>
+      @endcanany
+      @canany(['order-report', 'purchase-report', 'report-view'])
+      <li class="{{ request()->routeIs('admin.reports.challans') ? 'active' : '' }}"><a href="{{ route('admin.reports.challans') }}"><i data-feather="truck"></i> {{ __('Challan register') }} </a></li>
+      @endcanany
+      @canany(['expense-report', 'report-view'])
+      <li class="{{ request()->routeIs('admin.reports.expenses') ? 'active' : '' }}"><a href="{{ route('admin.reports.expenses') }}"><i data-feather="trending-down"></i> {{ __('Expense report') }} </a></li>
+      @endcanany
+      @canany(['stock-report', 'report-view'])
+      <li class="{{ request()->routeIs('admin.reports.stock') ? 'active' : '' }}"><a href="{{ route('admin.reports.stock') }}"><i data-feather="archive"></i> {{ __('Inventory value report') }} </a></li>
+      @endcanany
+      @canany(['profit-loss-report', 'report-view'])
+      <li class="{{ request()->routeIs('admin.reports.profit_loss') ? 'active' : '' }}"><a href="{{ route('admin.reports.profit_loss') }}"><i data-feather="activity"></i> {{ __('Operational Profit & Loss') }} </a></li>
+      @endcanany
+      @endif
+      @if($showBookReports)
+      <li class="menu-title px-3 pt-3 pb-1 text-uppercase small text-muted">{{ __('Books') }}</li>
+      <li class="{{ request()->routeIs('admin.accounting.reports.trial-balance') ? 'active' : '' }}"><a href="{{ route('admin.accounting.reports.trial-balance') }}"><i data-feather="grid"></i> {{ __('Trial Balance') }} </a></li>
+      <li class="{{ request()->routeIs('admin.accounting.reports.profit-loss') ? 'active' : '' }}"><a href="{{ route('admin.accounting.reports.profit-loss') }}"><i data-feather="trending-up"></i> {{ __('Income Statement') }} </a></li>
+      <li class="{{ request()->routeIs('admin.accounting.reports.cash') ? 'active' : '' }}"><a href="{{ route('admin.accounting.reports.cash') }}"><i data-feather="dollar-sign"></i> {{ __('Cash & Bank Ledger') }} </a></li>
+      @endif
+    </ul>
+  </div>
+</li>
 @endif
 
 {{-- Refunds --}}

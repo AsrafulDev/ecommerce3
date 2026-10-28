@@ -78,7 +78,7 @@ class LiteMenuRestructureTest extends TestCase
         $html = $this->transactionsSection($this->sidebarFor($this->userWith([], 'admin'), 'admin.accounts.dashboard'));
 
         foreach (['admin.accounts.dashboard', 'admin.transactions.create', 'admin.fund.index', 'admin.accounts.customers',
-                  'admin.accounts.suppliers', 'admin.fund.logs', 'admin.expenses.index', 'admin.reports.profit_loss',
+                  'admin.accounts.suppliers', 'admin.fund.logs', 'admin.expenses.index',
                   'admin.transaction-control.index'] as $route) {
             $url = route($route);
             $this->assertSame(1, substr_count($html, 'href="'.$url.'"'), "{$route} must appear exactly once in Transactions");
@@ -103,12 +103,26 @@ class LiteMenuRestructureTest extends TestCase
 
         $this->assertNotSame('', $section, 'Accounting menu should be visible to an admin with books enabled');
         foreach (['admin.accounting.accounts.index', 'admin.accounting.journals.index', 'admin.accounting.ledger.balances',
-                  'admin.accounting.reports.trial-balance', 'admin.accounting.reports.profit-loss',
-                  'admin.accounting.reports.cash', 'admin.accounting.opening.index', 'admin.accounting.sync.index'] as $route) {
+                  'admin.accounting.opening.index', 'admin.accounting.sync.index'] as $route) {
             $this->assertSame(1, substr_count($section, 'href="'.route($route).'"'), "{$route} must appear once in Accounting");
         }
         // No dashboard exists for the books, so none is listed.
         $this->assertStringNotContainsString('Dashboard', $section);
+    }
+
+    public function test_reports_menu_lists_books_reports_once_when_enabled_and_permitted(): void
+    {
+        config(['double-entry.enabled' => true]);
+
+        $html = $this->sidebarFor($this->userWith([], 'admin'), 'admin.accounts.dashboard');
+        $start = strpos($html, 'id="sidebar-reports"');
+        $this->assertNotFalse($start, 'Reports menu should be visible to an admin with books enabled');
+        $section = substr($html, $start, strpos($html, '</ul>', $start) - $start);
+
+        foreach (['admin.accounting.reports.trial-balance', 'admin.accounting.reports.profit-loss',
+                  'admin.accounting.reports.cash', 'admin.reports.profit_loss'] as $route) {
+            $this->assertSame(1, substr_count($section, 'href="'.route($route).'"'), "{$route} must appear once in Reports");
+        }
     }
 
     public function test_accounting_menu_needs_accounting_permission_even_when_enabled(): void
