@@ -41,6 +41,7 @@ class VatSettingController extends Controller
         $validated = $request->validate([
             'vat_enabled'            => 'nullable|boolean',
             'vat_prices_include_vat' => 'nullable|in:0,1',
+            'vat_filing_frequency'   => 'nullable|in:monthly,quarterly',
             'vat_bin'                => 'nullable|digits:12',
             'vat_business_name'      => 'nullable|string|max:191',
             'vat_business_address'   => 'nullable|string|max:500',
@@ -66,6 +67,7 @@ class VatSettingController extends Controller
         $settings->update([
             'vat_enabled'            => $enabled,
             'vat_prices_include_vat' => $inclusive === null || $inclusive === '' ? null : (bool) (int) $inclusive,
+            'vat_filing_frequency'   => $request->input('vat_filing_frequency') ?: null,
             'vat_bin'                => $request->input('vat_bin') ?: null,
             'vat_business_name'      => $request->input('vat_business_name') ?: null,
             'vat_business_address'   => $request->input('vat_business_address') ?: null,

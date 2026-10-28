@@ -31,7 +31,7 @@ class VatFilingGate
         if (!$settings || blank($settings->vat_bin)) {
             $blockers[] = 'The VAT registration number (BIN) is missing. The business is registered (A1: yes), so enter the BIN in VAT/Tax settings.';
         }
-        if (config('vat.filing_frequency') === null) {
+        if (blank($settings?->vat_filing_frequency ?? config('vat.filing_frequency'))) {
             $blockers[] = 'The filing frequency is not set: monthly or quarterly (A5).';
         }
         if (!config('vat.mapping_approved')) {

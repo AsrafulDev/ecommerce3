@@ -43,7 +43,7 @@ class VatReportPageTest extends TestCase
     {
         $this->get(route('admin.vat.reports'))
             ->assertOk()
-            ->assertSee('Return summary (9.1 working)')
+            ->assertSee('Return summary (Mushak 9.1)')
             ->assertSee('VAT is switched off');
     }
 

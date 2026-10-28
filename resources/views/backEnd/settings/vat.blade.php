@@ -49,6 +49,22 @@
                     </div>
 
                     <div class="mb-3">
+                        <label class="form-label"><strong>How often do you file the VAT return?</strong></label>
+                        @php $frequency = old('vat_filing_frequency', $settings->vat_filing_frequency); @endphp
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="vat_filing_frequency" id="freq_monthly" value="monthly"
+                                   @checked($frequency === 'monthly')>
+                            <label class="form-check-label" for="freq_monthly">Monthly</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="vat_filing_frequency" id="freq_quarterly" value="quarterly"
+                                   @checked($frequency === 'quarterly')>
+                            <label class="form-check-label" for="freq_quarterly">Quarterly</label>
+                        </div>
+                        <small class="text-muted">Not decided yet? Leave both unticked. The return stays not final until you choose.</small>
+                    </div>
+
+                    <div class="mb-3">
                         <label class="form-label" for="vat_bin"><strong>VAT registration number (BIN)</strong></label>
                         <input type="text" id="vat_bin" name="vat_bin" class="form-control @error('vat_bin') is-invalid @enderror"
                                value="{{ old('vat_bin', $settings->vat_bin) }}" maxlength="12" placeholder="12 digits">

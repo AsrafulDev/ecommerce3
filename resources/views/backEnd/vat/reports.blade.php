@@ -7,7 +7,7 @@
         <div class="row">
             <div class="col-lg-12">
                 <div class="breadcrumb-banner d-flex flex-wrap justify-content-between align-items-center">
-                    <h1>VAT Reports (working draft)</h1>
+                    <h1>VAT Reports</h1>
                 </div>
             </div>
         </div>
@@ -74,7 +74,7 @@
     </div>
 
     <div class="white-box mb-3">
-        <h4>Return summary (9.1 working)</h4>
+        <h4>Return summary (Mushak 9.1)</h4>
         <table class="table table-sm mb-2">
             <tr><th>Output VAT (sales)</th><td class="text-end">{{ number_format($summary['sales_vat'], 2) }}</td></tr>
             <tr><th>Less credit notes on sales</th><td class="text-end">{{ number_format($summary['sales_credit_vat'], 2) }}</td></tr>
@@ -92,8 +92,19 @@
     </div>
 
     <div class="white-box mb-3">
-        <h4>Mushak 9.1 draft by line</h4>
-        <div class="alert alert-danger">DRAFT, NOT FOR FILING. Line numbers come from the official form. The mapping from product category to line is an assumption that a practitioner must confirm.</div>
+        <h4>Mushak 9.1 by line</h4>
+        @if($draft91['status'] === 'final')
+            <div class="alert alert-success">Final: no open items for this period. Line numbers follow the official Mushak 9.1 form.</div>
+        @else
+            <div class="alert alert-warning">
+                <strong>Not final.</strong> These items must be closed before this return can be filed:
+                <ul class="mb-0">
+                    @foreach($draft91['blockers'] as $blocker)
+                        <li>{{ $blocker }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
         @if(!empty($draft91['unmapped']))
             <div class="alert alert-warning">
                 Some products have no VAT category, so their figures are left out: {{ collect($draft91['unmapped'])->flatten(1)->count() }} group(s). Set a category on those products and recheck.
