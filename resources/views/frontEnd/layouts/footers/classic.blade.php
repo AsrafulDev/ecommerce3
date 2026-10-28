@@ -72,7 +72,7 @@
         </div>
         <hr class="border-secondary mt-4">
         <div class="text-center small text-white-50 py-2">
-            {{ $generalsetting->copyright ?? '© 2026 All rights reserved.' }}
+            {{ $generalsetting->copyright_text }}
         </div>
     </div>
 </footer>

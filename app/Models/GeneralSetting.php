@@ -26,4 +26,18 @@ class GeneralSetting extends Model
     {
         return $this->belongsTo(HomepageLayout::class, 'active_layout_id');
     }
+
+    /**
+     * The copyright line every footer shows. The admin types it in General Settings;
+     * {year} becomes the current year and {name} the site name. A blank field uses the default line.
+     */
+    public function getCopyrightTextAttribute(): string
+    {
+        $text = trim((string) $this->copyright) ?: '© {year} {name}. All rights reserved.';
+
+        return strtr($text, [
+            '{year}' => date('Y'),
+            '{name}' => (string) $this->name,
+        ]);
+    }
 }

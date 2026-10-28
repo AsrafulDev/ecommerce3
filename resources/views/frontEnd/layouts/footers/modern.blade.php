@@ -22,7 +22,7 @@
         </div>
         <hr>
         <div class="d-flex justify-content-between align-items-center small text-muted">
-            <span>{{ $generalsetting->copyright ?? '© 2026' }}</span>
+            <span>{{ $generalsetting->copyright_text }}</span>
             <span>Powered by Ecommerce3</span>
         </div>
     </div>

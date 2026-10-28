@@ -112,6 +112,11 @@
                             <label class="form-label-pro"> {{ __('FB Page Username') }} </label>
                             <input type="text" name="facebook_page_username" class="form-control custom-input" value="{{ $edit_data->facebook_page_username }}" required>
                         </div>
+                        <div class="col-12 mb-3">
+                            <label class="form-label-pro"> {{ __('Copyright Text') }} </label>
+                            <input type="text" name="copyright" maxlength="155" class="form-control custom-input" value="{{ $edit_data->copyright }}" placeholder="© {year} {name}. All rights reserved.">
+                            <small class="text-muted"> {{ __('Shown in every footer. {year} becomes the current year and {name} the site name. Leave blank for the default line.') }} </small>
+                        </div>
                         <div class="col-md-6 mb-3">
                             <label class="form-label-pro">{{ __('Default Language') }}</label>
                             <select name="default_language" class="form-control custom-input">

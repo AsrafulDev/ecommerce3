@@ -37,6 +37,6 @@
             </div>
         </div>
         <hr>
-        <div class="text-center small text-muted">{{ $generalsetting->copyright ?? '© 2026' }}</div>
+        <div class="text-center small text-muted">{{ $generalsetting->copyright_text }}</div>
     </div>
 </footer>
