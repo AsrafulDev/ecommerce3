@@ -36,6 +36,17 @@
     <div class="double-line"></div>
     
     <div class="flex-row"><span>Inv: {{ $order->invoice_display ?? '#'.$order->invoice_id }}</span><span>{{ optional($order->created_at)->format('d-m-Y') }}</span></div>
+    @php
+        $customerName = $shipping?->name ?? $order->customer?->name;
+        $customerPhone = $shipping?->phone ?? $order->customer?->phone;
+        $customerAddress = trim(($shipping?->address ?? '').(($shipping?->area ?? '') ? ', '.$shipping->area : ''));
+    @endphp
+    @if($customerName || $customerPhone || $customerAddress)
+    <div class="line"></div>
+    <div>Customer: {{ $customerName ?: '—' }}</div>
+    @if($customerPhone)<div>Phone: {{ $customerPhone }}</div>@endif
+    @if($customerAddress)<div>Address: {{ $customerAddress }}</div>@endif
+    @endif
     <div class="line"></div>
     
     <div class="flex-row bold">
