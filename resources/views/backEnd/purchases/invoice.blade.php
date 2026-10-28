@@ -19,6 +19,9 @@
                 <a href="{{ route('purchases.invoice.download', $purchase->id) }}" class="btn btn-sm btn-outline-secondary" title="{{ __('Download PDF') }}">
                     <i class="fe-download me-1"></i> {{ __('Download PDF') }}
                 </a>
+                <a href="{{ route('purchases.challan', $purchase->id) }}" target="_blank" class="btn btn-sm btn-outline-info" title="Stock-in challan (no prices)">
+                    <i class="fe-truck me-1"></i> Stock-in challan
+                </a>
                 <a href="javascript:window.print()" class="btn btn-sm btn-primary" title="{{ __('Print') }}">
                     <i class="fe-printer me-1"></i> {{ __('Print') }}
                 </a>

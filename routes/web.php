@@ -701,6 +701,7 @@ Route::group(['middleware' => ['auth:admin','admin','lock','check_refer','demo_m
     Route::post('purchase-item/{id}/return', [PurchaseController::class, 'returnItem'])->name('purchases.item_return');
     Route::get('purchases/{id}/invoice', [PurchaseController::class, 'invoice'])->name('purchases.invoice');
     Route::get('purchases/{id}/invoice/download', [PurchaseController::class, 'downloadInvoice'])->name('purchases.invoice.download');
+    Route::get('purchases/{id}/challan', [\App\Http\Controllers\Admin\ChallanController::class, 'stockIn'])->name('purchases.challan');
     Route::get('purchases/{id}/edit-data', [PurchaseController::class, 'editData'])->name('purchases.edit.data');
     Route::get('purchases/export', [PurchaseController::class, 'export'])->name('purchases.export');
     // ✅ Purchases AJAX Pagination
@@ -729,6 +730,7 @@ Route::group(['middleware' => ['auth:admin','admin','lock','check_refer','demo_m
     // ==== REPORT ROUTES ==== //
     Route::get('reports/orders',        [ReportController::class, 'orders'])->name('admin.reports.orders');
     Route::get('reports/purchases',     [ReportController::class, 'purchases'])->name('admin.reports.purchases');
+    Route::get('reports/challans',      [\App\Http\Controllers\Admin\ChallanRegisterController::class, 'index'])->name('admin.reports.challans');
     Route::get('reports/expenses',      [ReportController::class, 'expenses'])->name('admin.reports.expenses');
     Route::get('reports/stock',         [ReportController::class, 'stock'])->name('admin.reports.stock');
     Route::get('reports/profit-loss',   [ReportController::class, 'profitLoss'])->name('admin.reports.profit_loss');
@@ -1256,6 +1258,7 @@ Route::group(['middleware' => ['auth:admin','admin','lock','check_refer','demo_m
     Route::get('order/recent', [OrderController::class, 'recentOrders'])->name('admin.order.recent');
     Route::get('order/load/{invoice_id}', [OrderController::class, 'loadOrderIntoCart'])->name('admin.order.load');
     Route::get('order/print/{invoice_id}', [OrderController::class, 'printInvoice'])->name('admin.order.print');
+    Route::get('order/challan/{invoice_id}', [\App\Http\Controllers\Admin\ChallanController::class, 'delivery'])->name('admin.order.challan');
     Route::post('order/receive-payment', [OrderController::class, 'receivePayment'])->name('admin.order.receive_payment');
 
     // Order route 

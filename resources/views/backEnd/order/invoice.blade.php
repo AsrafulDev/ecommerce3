@@ -87,6 +87,7 @@
                 <button onclick="printPOS()" class="no-print btn btn-xs btn-success waves-effect waves-light" title="POS Thermal Print"><i class="fa fa-print"></i> POS</button>
                 <button onclick="printA4()" class="no-print btn btn-xs btn-primary waves-effect waves-light ms-1" title="A4 Customer Invoice"><i class="fa fa-file-text"></i> A4 Invoice</button>
                 <button onclick="printA5()" class="no-print btn btn-xs btn-secondary waves-effect waves-light ms-1" title="A5 Customer Invoice"><i class="fa fa-file-text"></i> A5 Invoice</button>
+                <a href="{{ route('admin.order.challan', ['invoice_id' => $order->invoice_id]) }}" target="_blank" class="no-print btn btn-xs btn-info waves-effect waves-light ms-1" title="Delivery challan (no prices)"><i class="fa fa-truck"></i> Challan</a>
             </div>
 
             <div class="col-sm-12 mt-3">
