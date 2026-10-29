@@ -53,6 +53,42 @@
                 <div class="col-sm-3 filter_sidebar">
                     <div class="filter_close"><i class="fa fa-long-arrow-left"></i>{{ __('Filter') }}</div>
                     <form action="" class="attribute-submit">
+                        <!-- Price Filter -->
+                        @if(isset($min_price, $max_price))
+                        <div class="sidebar_item wraper__item">
+                            <div class="accordion" id="price_sidebar">
+                                <div class="accordion-item">
+                                    <h2 class="accordion-header">
+                                        <button class="accordion-button" type="button" data-bs-toggle="collapse"
+                                            data-bs-target="#collapsePrice" aria-expanded="true" aria-controls="collapseOne">{{ __('Price') }}</button>
+                                    </h2>
+                                    <div id="collapsePrice" class="accordion-collapse collapse show"
+                                        data-bs-parent="#price_sidebar">
+                                        <div class="accordion-body cust_according_body">
+                                            <div class="category-filter-box category__wraper" id="categoryFilterBox">
+                                                <div class="category-filter-item">
+                                                    <div class="filter-body">
+                                                        <div class="slider-box">
+                                                            <div class="filter-price-inputs">
+                                                                <p class="min-price">৳<input type="text"
+                                                                        name="min_price" id="min_price" readonly="" />
+                                                                </p>
+                                                                <p class="max-price">৳<input type="text"
+                                                                        name="max_price" id="max_price" readonly="" />
+                                                                </p>
+                                                            </div>
+                                                            <div id="price-range" class="slider form-attribute"></div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!--sidebar item end-->
+                        @endif
                         <!-- Category Filter -->
                         @if(isset($categories) && $categories->count() > 0)
                         <div class="sidebar_item wraper__item">
@@ -119,40 +155,6 @@
                         @endif
                         <!--sidebar item end-->
 
-                        <!-- Price Filter -->
-                        <div class="sidebar_item wraper__item">
-                            <div class="accordion" id="price_sidebar">
-                                <div class="accordion-item">
-                                    <h2 class="accordion-header">
-                                        <button class="accordion-button" type="button" data-bs-toggle="collapse"
-                                            data-bs-target="#collapsePrice" aria-expanded="true" aria-controls="collapseOne">{{ __('Price') }}</button>
-                                    </h2>
-                                    <div id="collapsePrice" class="accordion-collapse collapse show"
-                                        data-bs-parent="#price_sidebar">
-                                        <div class="accordion-body cust_according_body">
-                                            <div class="category-filter-box category__wraper" id="categoryFilterBox">
-                                                <div class="category-filter-item">
-                                                    <div class="filter-body">
-                                                        <div class="slider-box">
-                                                            <div class="filter-price-inputs">
-                                                                <p class="min-price">৳<input type="text"
-                                                                        name="min_price" id="min_price" readonly="" />
-                                                                </p>
-                                                                <p class="max-price">৳<input type="text"
-                                                                        name="max_price" id="max_price" readonly="" />
-                                                                </p>
-                                                            </div>
-                                                            <div id="price-range" class="slider form-attribute"></div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <!--sidebar item end-->
 
                         <!-- Size Filter -->
                         @if(isset($sizes) && $sizes->count() > 0)

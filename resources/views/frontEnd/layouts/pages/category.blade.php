@@ -77,32 +77,7 @@
                 <div class="col-sm-3 filter_sidebar">
                     <div class="filter_close"><i class="fa fa-long-arrow-left"></i>{{ __('Filter') }}</div>
                     <form action="" class="attribute-submit">
-                        <div class="sidebar_item wraper__item">
-                            <div class="accordion" id="category_sidebar">
-                                <div class="accordion-item">
-                                    <h2 class="accordion-header">
-                                        <button class="accordion-button" type="button" data-bs-toggle="collapse"
-                                            data-bs-target="#collapseCat" aria-expanded="true" aria-controls="collapseOne">
-                                            {{ $category->name }}
-                                        </button>
-                                    </h2>
-                                    <div id="collapseCat" class="accordion-collapse collapse show"
-                                        data-bs-parent="#category_sidebar">
-                                        <div class="accordion-body cust_according_body">
-                                            <ul>
-                                                @foreach ($category->subcategories as $key => $subcat)
-                                                    <li>
-                                                        <a
-                                                            href="{{ url('subcategory/' . $subcat->slug) }}">{{ $subcat->subcategoryName }}</a>
-                                                    </li>
-                                                @endforeach
-                                            </ul>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <!--sidebar item end-->
+                        @if(isset($min_price, $max_price))
                         <div class="sidebar_item wraper__item">
                             <div class="accordion" id="price_sidebar">
                                 <div class="accordion-item">
@@ -136,6 +111,34 @@
                             </div>
                         </div>
                         <!--sidebar item end-->
+                        @endif
+                        <div class="sidebar_item wraper__item">
+                            <div class="accordion" id="category_sidebar">
+                                <div class="accordion-item">
+                                    <h2 class="accordion-header">
+                                        <button class="accordion-button" type="button" data-bs-toggle="collapse"
+                                            data-bs-target="#collapseCat" aria-expanded="true" aria-controls="collapseOne">
+                                            {{ $category->name }}
+                                        </button>
+                                    </h2>
+                                    <div id="collapseCat" class="accordion-collapse collapse show"
+                                        data-bs-parent="#category_sidebar">
+                                        <div class="accordion-body cust_according_body">
+                                            <ul>
+                                                @foreach ($category->subcategories as $key => $subcat)
+                                                    <li>
+                                                        <a
+                                                            href="{{ url('subcategory/' . $subcat->slug) }}">{{ $subcat->subcategoryName }}</a>
+                                                    </li>
+                                                @endforeach
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!--sidebar item end-->
+                        @if(isset($subcategories) && $subcategories->count() > 0)
                         <div class="sidebar_item wraper__item">
                             <div class="accordion" id="filter_sidebar">
                                 <div class="accordion-item">
@@ -173,6 +176,7 @@
                             </div>
                         </div>
                         <!--sidebar item end-->
+                        @endif
 
                         <!-- Brand Filter -->
                         @if(isset($brands) && $brands->count() > 0)
