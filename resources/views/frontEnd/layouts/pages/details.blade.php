@@ -222,10 +222,12 @@ if (typeof ttq !== 'undefined') {
                                     <div class="breadcrumb">
                                         <ul>
                                             <li><a href="{{ url('/') }}">{{ __('Home') }}</a></li>
-                                            <li><span>/</span></li>
-                                            <li><a
-                                                    href="{{ url('/category/' . $details->category->slug) }}">{{ $details->category->name }}</a>
-                                            </li>
+                                            @if ($details->category)
+                                                <li><span>/</span></li>
+                                                <li><a
+                                                        href="{{ url('/category/' . $details->category->slug) }}">{{ $details->category->name }}</a>
+                                                </li>
+                                            @endif
                                             @if ($details->subcategory)
                                                 <li><span>/</span></li>
                                                 <li><a
@@ -957,7 +959,7 @@ if (typeof ttq !== 'undefined') {
                 item_id: "{{ $details->id }}",
                 price: "{{ $details->new_price }}",
                 item_brand: "{{ $details->brand?$details->brand->name:'' }}",
-                item_category: "{{ $details->category->name }}",
+                item_category: "{{ $details->category?->name ?? '' }}",
                 item_variant: "{{ $details->pro_unit }}",
                 currency: "BDT",
                 quantity: {{ $details->stock ?? 0 }}
