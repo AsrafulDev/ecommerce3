@@ -11,6 +11,7 @@ use Intervention\Image\Facades\Image;
 use App\Models\Customer;
 use App\Models\District;
 use App\Models\Order;
+use App\Models\Coupon;
 use App\Models\ShippingCharge;
 use App\Models\OrderDetails;
 use App\Models\Payment;
@@ -453,7 +454,26 @@ public function order_save(Request $request)
                     }
                 }
 
-                $campaignPrice = (float) ($campaignProduct->new_price ?? $campaignProduct->old_price ?? 1) + $warrantyAdjustment;
+                // 🎨 Variant chosen on the landing page: its own price and stock.
+                $variant = null;
+                $variantRequired = \App\Models\ProductVariantPrice::where('product_id', $campaignProduct->id)->exists();
+                if ($request->filled('variant')) {
+                    $variant = \App\Models\ProductVariantPrice::with(['color', 'size'])
+                        ->where('product_id', $campaignProduct->id)
+                        ->find($request->variant);
+                    if (! $variant || (int) $variant->stock < 1) {
+                        Toastr::error('This option is out of stock. Please choose another.', 'Error');
+                        return redirect()->back()->withInput();
+                    }
+                } elseif ($variantRequired) {
+                    Toastr::error('Please choose an option before ordering.', 'Error');
+                    return redirect()->back()->withInput();
+                }
+
+                $basePrice = $variant
+                    ? (float) ($variant->price ?: $campaignProduct->new_price)
+                    : (float) ($campaignProduct->new_price ?? $campaignProduct->old_price ?? 1);
+                $campaignPrice = $basePrice + $warrantyAdjustment;
 
                 Cart::instance('shopping')->destroy();
                 Cart::instance('shopping')->add([
@@ -463,6 +483,9 @@ public function order_save(Request $request)
                     'price'=> $campaignPrice,
                     'options' => [
                         'slug'           => $campaignProduct->slug,
+                        'variant_price_id' => $variant->id ?? null,
+                        'product_color'    => optional(optional($variant)->color)->colorName,
+                        'product_size'     => optional(optional($variant)->size)->sizeName,
                         'image'          => $campaignProduct->image->image ?? 'public/uploads/default.webp',
                         'old_price'      => (float) ($campaignProduct->old_price ?? 0),
                         'purchase_price' => (float) ($campaignProduct->purchase_price ?? 0),
@@ -487,6 +510,29 @@ public function order_save(Request $request)
                         'wholesale_discount'  => 0,
                     ],
                 ]);
+
+                // 🏷️ Landing page order: a closed page takes no order, and the better of the
+                //    extra discount and the landing's coupon applies (plan 4.6). They never stack.
+                if ($request->filled('landing')) {
+                    $landing = \App\Models\LandingTemplate::where('id', $request->landing)
+                        ->where('product_id', $campaignProduct->id)
+                        ->first();
+
+                    if (! $landing || ! \App\Services\Landing\LandingPricing::isOpen($landing)) {
+                        Cart::instance('shopping')->destroy();
+                        Toastr::error('This offer is closed.', 'Error');
+                        return redirect()->back()->withInput();
+                    }
+
+                    $best = \App\Services\Landing\LandingPricing::best($landing, $basePrice);
+                    Session::forget(['coupon_code', 'discount']);
+                    if ($best['discount'] > 0) {
+                        if ($best['coupon']) {
+                            Session::put('coupon_code', $best['coupon']->code);
+                        }
+                        Session::put('discount', round($best['discount'], 2));
+                    }
+                }
             }
         }
 

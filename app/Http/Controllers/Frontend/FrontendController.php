@@ -16,7 +16,6 @@ use App\Models\Size;
 use App\Models\Color;
 use App\Models\District;
 use App\Models\CreatePage;
-use App\Models\Campaign;
 use App\Models\Banner;
 use App\Models\ShippingCharge;
 use App\Models\Productcolor;
@@ -1485,100 +1484,6 @@ $brands = Brand::where('status', 1)
             ->orderBy('area_name')
             ->get(['id', 'area_name']);
         return response()->json($areas);
-    }
-
-    public function campaign($slug)
-    {
-        $campaign_data = Campaign::where('slug', $slug)->with('images')->first();
-
-        // Campaign not found -> 404 instead of crashing on ->id
-        if (!$campaign_data) {
-            abort(404);
-        }
-
-        $products = Product::whereIn('id', function($query) use ($campaign_data) {
-            $query->select('product_id')
-                  ->from('campaign_product')
-                  ->where('campaign_id', $campaign_data->id);
-        })->orWhere('id', $campaign_data->product_id)
-          ->where('status', 1)
-          ->where('approval_status', 'approved')
-          ->with('image')
-          ->get();
-
-        Cart::instance('shopping')->destroy();
-        $cart_count = Cart::instance('shopping')->count();
-        $product = $products->first();
-        if ($cart_count == 0 && $product) {
-            Cart::instance('shopping')->add([
-                'id'   => $product->id,
-                'name' => $product->name,
-                'qty'  => 1,
-                'price'=> $product->new_price,
-                'options' => [
-                    'slug'           => $product->slug,
-                    'image'          => $product->image->image,
-                    'old_price'      => $product->old_price,
-                    'purchase_price' => $product->purchase_price,
-
-                    // 🔥 Advance
-                    'advance_amount' => (float) ($product->advance_amount ?? 0),
-
-                    // 🔥 Digital flag
-                    'is_digital'     => (int) ($product->is_digital ?? 0),
-
-                    // 🔥 Free Delivery flag
-                    'free_delivery'  => (int) ($product->free_delivery ?? 0),
-
-                    // 🏷️ Original prices
-                    'regular_price'       => (float) ($product->old_price ?? 0),
-                    'sale_price'          => (float) ($product->new_price ?? 0),
-                    'base_price'          => (float) ($product->new_price ?? $product->old_price ?? 1),
-
-                    // 🛡️ Warranty
-                    'warranty_tier_id'    => null,
-                    'warranty_adjustment' => 0,
-                    'wholesale_discount'  => 0,
-                ],
-            ]);
-        }
-
-        $shippingcharge = ShippingCharge::where('status', 1)->get();
-        $select_charge  = ShippingCharge::where('status', 1)->first();
-        if ($select_charge) {
-            Session::put('shipping', $select_charge->amount);
-        }
-
-        // Facebook CAPI ViewContent — server-side, event_id দিয়ে Pixel-এর সাথে deduplicate হবে
-        $fb_view_content_event_id = 'vc_camp' . $campaign_data->id . '_' . time();
-        try {
-            $capiUserData = [
-                'client_ip_address' => request()->ip(),
-                'client_user_agent' => request()->userAgent(),
-            ];
-            if (isset($_COOKIE['_fbp'])) $capiUserData['fbp'] = $_COOKIE['_fbp'];
-            if (isset($_COOKIE['_fbc'])) $capiUserData['fbc'] = $_COOKIE['_fbc'];
-            app(\App\Services\FacebookCapiService::class)->sendViewContent([
-                'content_name' => strip_tags($campaign_data->name),
-                'content_ids'  => $products->pluck('id')->map(function($id) { return (string)$id; })->values()->toArray(),
-                'content_type' => 'product',
-                'value'        => (float) (optional($products->first())->new_price ?? 0),
-                'currency'     => 'BDT',
-                'num_items'    => $products->count(),
-            ], $capiUserData, [
-                'event_id'        => $fb_view_content_event_id,
-                'event_source_url' => request()->fullUrl(),
-            ]);
-        } catch (\Throwable $e) {
-            // Silently fail — page load block করবে না
-        }
-
-        // Page builder দিয়ে ডিজাইন করা থাকলে আলাদা ভিউ
-        if (!empty($campaign_data->page_html)) {
-            return view('frontEnd.layouts.pages.campaign.campaign-builder', compact('campaign_data', 'products', 'shippingcharge', 'fb_view_content_event_id'));
-        }
-
-        return view('frontEnd.layouts.pages.campaign.campaign', compact('campaign_data', 'products', 'shippingcharge', 'fb_view_content_event_id'));
     }
 
     public function payment_success(Request $request)

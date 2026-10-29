@@ -475,7 +475,7 @@ Route::group(['namespace'=>'Frontend', 'middleware' => ['ipcheck','check_refer']
     Route::get('/shipping-charge', [FrontendController::class, 'shipping_charge'])->name('shipping.charge');
     Route::get('/page/{slug}', [FrontendController::class, 'page'])->name('page');
     Route::get('districts', [FrontendController::class, 'districts'])->name('districts');
-    Route::get('/campaign/{slug}', [FrontendController::class, 'campaign'])->name('campaign');
+    Route::get('/landing/{slug}', [\App\Http\Controllers\Frontend\LandingController::class, 'show'])->name('landing');
     Route::get('/offer', [FrontendController::class, 'offers'])->name('offers');
      Route::get('/payment-success', [FrontEndController::class, 'payment_success'])->name('payment_success');
     Route::get('/payment-cancel', [FrontEndController::class, 'payment_cancel'])->name('payment_cancel');
@@ -1064,16 +1064,17 @@ Route::group(['middleware' => ['auth:admin','admin','lock','check_refer','demo_m
     
     // campaign
     Route::get('campaign/manage', [CampaignController::class,'index'])->name('campaign.index');
-    Route::get('campaign/{id}/show', [CampaignController::class,'show'])->name('campaign.show');
-    Route::get('campaign/create', [CampaignController::class,'create'])->name('campaign.create');
-    Route::post('campaign/save', [CampaignController::class,'store'])->name('campaign.store');
-    Route::get('campaign/{id}/edit', [CampaignController::class,'edit'])->name('campaign.edit');
-    Route::post('campaign/update', [CampaignController::class,'update'])->name('campaign.update');
     Route::post('campaign/inactive', [CampaignController::class,'inactive'])->name('campaign.inactive');
     Route::post('campaign/active', [CampaignController::class,'active'])->name('campaign.active');
     Route::post('campaign/destroy', [CampaignController::class,'destroy'])->name('campaign.destroy');
-    Route::get('campaign/image/destroy', [CampaignController::class,'imgdestroy'])->name('campaign.image.destroy');
-    Route::post('campaign/builder/upload-image', [CampaignController::class,'uploadBuilderImage'])->name('campaign.builder.upload');
+
+    // Landing pages: list and create popup, editor, and the save and settings endpoints.
+    Route::get('landing-pages', [\App\Http\Controllers\Admin\LandingManageController::class, 'index'])->name('landing.manage.index');
+    Route::post('landing-pages', [\App\Http\Controllers\Admin\LandingManageController::class, 'store'])->name('landing.manage.store');
+    Route::get('landing-pages/{id}/edit', [\App\Http\Controllers\Admin\LandingManageController::class, 'edit'])->name('landing.manage.edit');
+    Route::get('landing-pages/{id}/frame', [\App\Http\Controllers\Admin\LandingManageController::class, 'frame'])->name('landing.manage.frame');
+    Route::post('landing-pages/{id}/save', [\App\Http\Controllers\Admin\LandingManageController::class, 'save'])->name('landing.manage.save');
+    Route::post('landing-pages/{id}/settings', [\App\Http\Controllers\Admin\LandingManageController::class, 'settings'])->name('landing.manage.settings');
 
     // Theme Management Routes
     Route::get('themes', [ThemeController::class, 'index'])->name('themes.index');

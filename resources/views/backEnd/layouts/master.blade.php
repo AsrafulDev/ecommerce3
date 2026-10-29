@@ -1101,7 +1101,7 @@
 </li>
 @endcanany
 
-@canany(['campaign-list', 'campaign-create'])
+@canany(['landing-list', 'landing-create'])
 <li>
   <a href="#sidebar-landing-page" data-bs-toggle="collapse">
     <i data-feather="airplay"></i>
@@ -1110,11 +1110,8 @@
   </a>
   <div class="collapse" id="sidebar-landing-page">
     <ul class="nav-second-level">
-      @can('campaign-list')
-      <li><a href="{{ route('campaign.index') }}"><i data-feather="file-plus"></i> {{ __('Campaign') }} </a></li>
-      @endcan
-      @can('campaign-create')
-      <li><a href="{{ route('campaign.create') }}"><i data-feather="file-plus"></i>{{ __('Create') }}</a></li>
+      @can('landing-list')
+      <li class="{{ request()->routeIs('landing.manage.*') ? 'active' : '' }}"><a href="{{ route('landing.manage.index') }}"><i data-feather="file-plus"></i> {{ __('Landing Pages') }} </a></li>
       @endcan
     </ul>
   </div>

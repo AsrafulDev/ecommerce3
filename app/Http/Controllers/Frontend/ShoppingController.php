@@ -183,6 +183,12 @@ class ShoppingController extends Controller
             return redirect()->back();
         }
 
+        // A landing page's coupon works only on that landing page (plan D4).
+        if (\App\Models\LandingTemplate::where('coupon_id', $coupon->id)->exists()) {
+            Toastr::error('This code can only be used on its landing page.', 'Error');
+            return redirect()->back();
+        }
+
         // Compare dates as Carbon (valid_from/valid_to are cast to date), not as
         // string vs Carbon — otherwise a coupon valid_from = today is wrongly
         // rejected ('2026-08-03' < '2026-08-03 00:00:00' is true in PHP).

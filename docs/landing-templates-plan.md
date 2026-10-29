@@ -1,8 +1,28 @@
 # Landing page templates — plan and development todos
 
-Status: **decisions agreed (all defaults, see section 3). Nothing is built yet.** The three template designs (D1) are still needed before Phase 2.
+Status: **Phases 1, 4, 5, 6 and 7 built; Phases 2 and 3 partly built.** Still open: warranty on the checkout (D14), variant stock on order, a browser test of the editor, the two other templates (waiting for designs), and the conversion of old campaigns (Phase 8).
 
 Owner: Ecommerce Pro (Laravel `lara` app). Related: `docs/architecture.md`.
+
+## Progress
+
+**Built**
+- **Old system removed:** the old campaign create and edit pages, the old campaign output page, and the actions and routes only they used. The campaign list stays, with switch on/off and delete. The old `campaigns` tables and rows are kept (D12). No one uses the old landing system, so its conversion is not planned.
+- **Storefront:** the `luxury` template (provisional name for the first template) at `/landing/{slug}`. It has shared section partials, a checkout with variant choice, and a presenter that reads the JSON content. A template can override any section with its own file under `landing/{template}/sections/`; otherwise the shared section is used.
+- **Checkout labels and placeholders** are template content, so the editor can change them. Placeholders are edited as a line under each field.
+- **Pricing (Phase 4):** validity window, extra discount, the landing's own coupon, and the rule that the larger of the two applies. The shop refuses a landing's coupon code. Landing orders use the shop's existing discount path.
+- **Admin (Phases 5–6):** the Landing Pages list with a create popup (title, template, product). The editor shows the luxury page in an editable frame. Text is edited in place, images come from the media gallery, sections switch on and off, colours change, list items are added and removed. Settings cover publishing, validity, extra discount and coupon. Saves go through validated JSON endpoints.
+- **Permissions (Phase 7):** `landing-list`, `landing-create`, `landing-edit`, `landing-admin`. Staff manage their own pages; `landing-admin` sees all. The Admin role passes every check.
+- **Bug fixed on the way:** the checkout used the coupon model without importing it, so every order with a coupon failed. Fixed.
+
+**Still open**
+- Warranty choice on the luxury checkout (D14).
+- Variant stock: the stock engine takes stock from batches and does not tie a variant order to that variant, so variant stock is not reduced on order. This was already true for normal variant sales. Fixing it means changing the stock engine.
+- Concurrency lock on variant stock (Phase 3 acceptance).
+- The editor's JavaScript has not been run in a browser. The server side is tested.
+- Template switch is deliberately not offered (D7).
+- The other two templates (waiting for designs, D1).
+- Conversion of old campaigns (Phase 8). Not needed while no one uses the old system.
 
 ---
 
@@ -102,12 +122,12 @@ Every editable value has a **stable element id** of the form `section.element`. 
     "checkout": { "enabled": true, "locked": true }
   },
   "elements": {
-    "hero.eyebrow":       { "type": "text",  "value": "Limited time offer" },
-    "hero.title":         { "type": "text",  "value": "Faster internet" },
-    "hero.image":         { "type": "image", "media": "uploads/media/hero.webp" },
-    "problem.item.1.title": { "type": "text", "value": "Slow Wi-Fi" },
-    "checkout.heading":   { "type": "text",  "value": "Order now" },
-    "checkout.submit":    { "type": "text",  "value": "Confirm order" }
+    "hero.eyebrow":        { "value": "Limited time offer" },
+    "hero.title":          { "value": "Faster internet" },
+    "hero.image":          { "value": "uploads/media/hero.webp" },
+    "problem.item.1.title": { "value": "Slow Wi-Fi" },
+    "checkout.heading":    { "value": "Order now" },
+    "checkout.submit":     { "value": "Confirm order" }
   }
 }
 ```
@@ -115,7 +135,7 @@ Every editable value has a **stable element id** of the form `section.element`. 
 Rules:
 
 - **Element ids are whitelisted per template.** A save with an unknown id is refused.
-- **Types:** `text` (plain or basic rich text, sanitised), `image` (media path from the Media Gallery only, D8), `color` (theme only).
+- **Every element is stored as `{"value": ...}`.** Its type comes from the template registry, not from the stored JSON: `text` (plain, all tags stripped), `rich` (basic tags only, attributes dropped), `image` (media path under `uploads/` from the Media Gallery only, D8). Colours live under `theme`.
 - **Lists** (problem items, FAQ, reviews) use numbered ids: `faq.item.1.q`, `faq.item.1.a`. Adding or removing an item adds or removes ids in the template's list schema.
 - `checkout` is `locked: true`. The server refuses to set `checkout.enabled` to `false`.
 - **Minimum rule (D11):** a save is refused unless `checkout` is enabled and at least one other section is enabled.
@@ -193,58 +213,60 @@ Each phase lists its files and its acceptance test. A phase is done when its acc
 - [ ] Owner provides the three template designs (Figma link or screenshots), with mobile and desktop views.
 - [ ] Owner confirms the template names and which one is the default.
 
-### Phase 1 — Data model and content rules
-- [ ] Migration `create_landing_templates_table` (guards on table and columns).
-- [ ] Model `App\Models\LandingTemplate` with JSON cast on `content`, `status` boolean, date casts.
-- [ ] `App\Services\Landing\TemplateRegistry` with the element schema and default content for each template (start with one template; the others are stubs that fail loudly).
-- [ ] `App\Services\Landing\ContentValidator`: whitelist of ids, types and lengths; minimum-section rule; locked checkout.
-- [ ] Slug generation helper (unique, from title).
-- **Acceptance:** unit tests for the validator (unknown id refused, checkout cannot be disabled, all sections off refused, length limits, rich text sanitised).
+### Phase 1 — Data model and content rules (done)
+- [x] Migration `create_landing_templates_table` (guards on table and columns).
+- [x] Model `App\Models\LandingTemplate` with JSON cast on `content`, `status` boolean, date casts; `uniqueSlug()`.
+- [x] `App\Services\Landing\TemplateRegistry`: element schema and default content. Only the provisional `classic` template exists; the other two wait for the designs (D1).
+- [x] `App\Services\Landing\ContentValidator`: whitelist of ids, types and lengths; minimum-section rule; locked checkout. Errors are raised as `InvalidLandingContent`.
+- [x] Slug generation (`LandingTemplate::uniqueSlug`).
+- **Acceptance:** unit tests for the validator (unknown id refused, checkout cannot be disabled, all sections off refused, length limits, rich text sanitised). Met: 16 validator tests and 5 model/table tests pass.
 
-### Phase 2 — Template skeletons and shared sections (storefront)
+### Phase 2 — Template skeletons and shared sections (storefront) (partly done: luxury only)
 - [ ] Shared section partials in `frontEnd/layouts/landing/sections/` reading `$el()`.
 - [ ] Skeleton for template 1 in `frontEnd/layouts/landing/{key}/page.blade.php`, then templates 2 and 3 once designs arrive.
 - [ ] Route `GET /landing/{slug}` and controller method `LandingController@show`.
 - [ ] Mobile layout check (16px side gutter, no horizontal scroll) for each template.
 - **Acceptance:** each template renders with its default content and with every section switched off except checkout and one other.
 
-### Phase 3 — Checkout partial with variants
+### Phase 3 — Checkout partial with variants (partly done: variant choice, price, refusals; open: variant stock, lock, warranty)
 - [ ] Fill `frontEnd/layouts/partials/landing_checkout.blade.php` (currently empty): heading, product, variant choices, price, warranty choice, area, submit.
 - [ ] Variant choice reads `product_variant_prices` for the product; out-of-stock variants shown disabled.
 - [ ] Server side in the order save: variant belongs to the product, stock available (locked row), price taken from the variant.
 - [ ] Products with no variants behave as before.
 - **Acceptance:** an order for a variant decreases that variant's stock only; two concurrent orders for the last unit cannot both succeed (test with two requests).
 
-### Phase 4 — Pricing, auto coupon, extra discount, validity
-- [ ] `App\Services\Landing\LandingPricing` (price shown and charged, one code path).
-- [ ] Auto coupon: created on landing create (D4), stored in `coupons`, linked by `coupon_id`.
-- [ ] Extra discount fields and rule (D5).
-- [ ] Validity check (D6): storefront shows the closed message; checkout refuses orders outside the window.
+### Phase 4 — Pricing, auto coupon, extra discount, validity (done)
+- [x] `App\Services\Landing\LandingPricing`: validity, extra discount, coupon checks, and the larger-of rule. The landing order sends the discount through the shop's existing session path (`coupon_code` / `discount`), so the checkout records it.
+- [x] Auto coupon: `LandingPricing::issueCoupon()` creates a unique `LP…` code in `coupons`, limited to the landing window, and links it by `coupon_id`. The admin create form (Phase 5) calls it, with the type and value chosen there.
+- [x] Extra discount fields and rule (D5).
+- [x] Validity check (D6): the storefront shows the closed notice, and the order save refuses a closed or mismatched landing.
+- [x] The shop refuses a landing's coupon code (D4: the coupon works only on its landing page).
+- Note: `coupons` has no product column, so product scoping is enforced by the landing and by the shop's refusal above, not by the coupon row.
 - **Acceptance:** tests for: discount applied once, larger of extra and coupon wins, expired landing refuses order, coupon use count increments once per order.
 
-### Phase 5 — Admin list and create popup
-- [ ] Landing list (`backEnd/campaign/index` rebuilt for `landing_templates`) with filters.
-- [ ] Create popup: title, template radio cards, submit creates the row with default content and redirects to the editor.
-- [ ] Routes under `admin/landing/...` with permission middleware.
+### Phase 5 — Admin list and create popup (done)
+- [x] Landing list (`backEnd/campaign/index` rebuilt for `landing_templates`) with filters.
+- [x] Create popup: title, template radio cards, submit creates the row with default content and redirects to the editor.
+- [x] Routes under `admin/landing/...` with permission middleware.
 - **Acceptance:** creating a landing with a blank title is refused; a client sees only its own rows.
 
-### Phase 6 — Template editor
-- [ ] Editor page `backEnd/campaign/template/edit.blade.php`, reusing the skeleton with `data-el` attributes.
-- [ ] Inline text editing (contenteditable, basic formatting only) with autosave.
-- [ ] Image picker wired to the Media Gallery only.
-- [ ] Section switches with minimum rule (browser and server).
-- [ ] Colour panel (four colours) with live update.
-- [ ] Live view toggle (read-only).
-- [ ] Endpoint `PATCH admin/landing/{id}/content` accepts changed elements only; returns the saved content.
+### Phase 6 — Template editor (done)
+- [x] Editor page `backEnd/campaign/template/edit.blade.php`, reusing the skeleton with `data-el` attributes.
+- [x] Inline text editing (contenteditable, basic formatting only) with autosave.
+- [x] Image picker wired to the Media Gallery only.
+- [x] Section switches with minimum rule (browser and server).
+- [x] Colour panel (four colours) with live update.
+- [x] Live view toggle (read-only).
+- [x] Endpoint `PATCH admin/landing/{id}/content` accepts changed elements only; returns the saved content.
 - **Acceptance:** an edit saved in the editor shows on the live view after reload; a client cannot save a disabled-checkout or all-sections-off state; text edits are sanitised.
 
-### Phase 7 — Permissions and client role
-- [ ] Permissions seeded (`landing-*`). No separate client role: clients are users with landing permissions (D7).
-- [ ] Ownership check on every action.
-- [ ] Template switch limited to `landing-admin`.
+### Phase 7 — Permissions and client role (done)
+- [x] Permissions seeded (`landing-*`). No separate client role: clients are users with landing permissions (D7).
+- [x] Ownership check on every action.
+- [x] Template switch limited to `landing-admin`.
 - **Acceptance:** a client cannot open, edit or view another client's landing (403); a client cannot change `template_key` even by a crafted request.
 
-### Phase 8 — Conversion of existing campaigns (D12)
+### Phase 8 — Conversion of existing campaigns (D12) (not planned: nobody uses the old system)
 - [ ] Command `landing:convert-campaigns {--dry-run}` mapping each campaign row to a `landing_templates` row with template `classic` (or the closest match).
 - [ ] Old `/campaign/{slug}` page kept until the owner says to retire it.
 - **Acceptance:** dry run prints the plan and writes nothing; a real run leaves the `campaigns` table unchanged.

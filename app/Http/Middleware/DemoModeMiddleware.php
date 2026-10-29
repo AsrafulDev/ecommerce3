@@ -30,7 +30,7 @@ class DemoModeMiddleware
         if (in_array($request->method(), ['GET', 'HEAD'], true)) {
             $destructiveGets = [
                 'admin/blog/delete', 'admin/products/image/destroy', 'admin/products/image/remove', 'admin/products/price/destroy',
-                'admin/campaign/image/destroy', 'admin/order-bulk-destroy', 'admin/clear-cache',
+                'admin/order-bulk-destroy', 'admin/clear-cache',
             ];
             foreach ($destructiveGets as $p) {
                 if (str_starts_with($path, $p) || str_contains($path, $p)) {

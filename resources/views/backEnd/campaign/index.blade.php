@@ -77,10 +77,8 @@
         <div class="col-12 d-flex justify-content-between align-items-center">
             <div>
                 <h4 class="page-title mb-0" style="font-weight: 700; color: #2d3436;"> {{ __('Landing Pages') }} </h4>
-                <p class="text-muted font-size-13 mb-0"> {{ __('Manage your marketing campaign pages.') }} </p>
+                <p class="text-muted font-size-13 mb-0"> {{ __('Older landing pages. New landing pages are built from templates.') }} </p>
             </div>
-            <a href="{{route('campaign.create')}}" class="btn btn-primary rounded-pill shadow-sm px-4">
-                <i class="fe-plus me-1"></i> {{ __('Create New Page') }} </a>
         </div>
     </div>
 
@@ -104,25 +102,12 @@
                                 <td>
                                     <div class="d-flex flex-column">
                                         <span class="campaign-title">{{$value->name}}</span>
-                                        <a href="{{url('campaign',$value->slug)}}" target="_blank" class="campaign-link">
-                                            <i class="fe-external-link me-1"></i> {{url('campaign',$value->slug)}}
-                                        </a>
                                     </div>
                                 </td>
 
                                 <td class="text-end">
                                     <div class="d-inline-flex gap-2">
                                         
-                                        {{-- View Live --}}
-                                        <a href="{{url('campaign',$value->slug)}}" target="_blank" class="action-btn btn-view" title="View Live">
-                                            <i class="fe-eye"></i>
-                                        </a>
-
-                                        {{-- Edit --}}
-                                        <a href="{{route('campaign.edit',$value->id)}}" class="action-btn btn-edit" title="{{ __('Edit') }}">
-                                            <i class="fe-edit"></i>
-                                        </a>
-
                                         {{-- Delete --}}
                                         <form method="post" action="{{ route('campaign.destroy') }}" class="d-inline">
                                             @csrf
