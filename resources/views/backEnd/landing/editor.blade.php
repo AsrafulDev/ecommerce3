@@ -19,6 +19,7 @@
         </div>
         <div class="d-flex align-items-center gap-2">
             <span id="lpStatus" class="badge bg-success">{{ __('Saved') }}</span>
+            <button type="button" id="lpSave" class="btn btn-sm btn-success" disabled>{{ __('Save changes') }}</button>
             <a href="{{ $liveUrl }}" target="_blank" class="btn btn-sm btn-outline-secondary">{{ __('Open live page') }}</a>
             <a href="{{ route('landing.manage.index') }}" class="btn btn-sm btn-light">{{ __('Back to list') }}</a>
         </div>
@@ -77,17 +78,20 @@
                         value="{{ $landing->valid_until?->format('Y-m-d\TH:i') }}">
                 </div>
 
+                {{-- Planned: extra discount and coupon are hidden until they are ready. The fields are
+                     disabled so the settings save leaves their stored values alone. --}}
+                <div class="d-none" data-planned="discount-coupon">
                 <h6>{{ __('Extra discount') }}</h6>
                 <div class="row g-2 mb-3">
                     <div class="col-5">
-                        <select class="form-select form-select-sm" name="extra_discount_type" aria-label="{{ __('Discount type') }}">
+                        <select disabled class="form-select form-select-sm" name="extra_discount_type" aria-label="{{ __('Discount type') }}">
                             <option value="">{{ __('None') }}</option>
                             <option value="percent" @selected($landing->extra_discount_type === 'percent')>%</option>
                             <option value="fixed" @selected($landing->extra_discount_type === 'fixed')>৳</option>
                         </select>
                     </div>
                     <div class="col-7">
-                        <input type="number" min="0" step="0.01" class="form-control form-control-sm" name="extra_discount_value"
+                        <input disabled type="number" min="0" step="0.01" class="form-control form-control-sm" name="extra_discount_value"
                             value="{{ $landing->extra_discount_value }}" aria-label="{{ __('Discount amount') }}">
                     </div>
                 </div>
@@ -95,20 +99,21 @@
                 <h6>{{ __('Coupon') }}</h6>
                 <div class="row g-2 mb-1">
                     <div class="col-5">
-                        <select class="form-select form-select-sm" name="coupon_type" aria-label="{{ __('Coupon type') }}">
+                        <select disabled class="form-select form-select-sm" name="coupon_type" aria-label="{{ __('Coupon type') }}">
                             <option value="">{{ __('None') }}</option>
                             <option value="percent" @selected(optional($landing->coupon)->type === 'percent')>%</option>
                             <option value="fixed" @selected(optional($landing->coupon)->type === 'fixed')>৳</option>
                         </select>
                     </div>
                     <div class="col-7">
-                        <input type="number" min="0" step="0.01" class="form-control form-control-sm" name="coupon_value"
+                        <input disabled type="number" min="0" step="0.01" class="form-control form-control-sm" name="coupon_value"
                             value="{{ optional($landing->coupon)->value }}" aria-label="{{ __('Coupon amount') }}">
                     </div>
                 </div>
                 <small class="text-muted d-block mb-3">
                     {{ $landing->coupon ? __('Code:') . ' ' . $landing->coupon->code : __('A code is created when you save a coupon.') }}
                 </small>
+                </div>
 
                 <button type="submit" class="btn btn-primary btn-sm w-100">{{ __('Save settings') }}</button>
             </form>
@@ -129,7 +134,7 @@
     var frame = document.getElementById('lpFrame');
     var statusEl = document.getElementById('lpStatus');
     var pending = { elements: {}, sections: {}, theme: {} };
-    var timer = null;
+    var saveBtn = document.getElementById('lpSave');
 
     function hasPending() {
         return Object.keys(pending.elements).length + Object.keys(pending.sections).length + Object.keys(pending.theme).length > 0;
@@ -149,6 +154,7 @@
         if (!hasPending()) return;
         var body = pending;
         pending = { elements: {}, sections: {}, theme: {} };
+        saveBtn.disabled = true;
         setStatus(@json(__('Saving…')), 'bg-secondary');
 
         fetch(saveUrl, {
@@ -161,19 +167,37 @@
             if (res.ok) {
                 setStatus(@json(__('Saved')), 'bg-success');
             } else {
+                restore(body);
                 setStatus(@json(__('Not saved')), 'bg-danger');
+                saveBtn.disabled = false;
                 (res.json.errors || []).forEach(function (msg) { toastr.error(msg); });
-                frame.src = frame.src; // show the saved version again
             }
         }).catch(function () {
+            restore(body);
             setStatus(@json(__('Not saved')), 'bg-danger');
+            saveBtn.disabled = false;
         });
     }
 
+    saveBtn.addEventListener('click', flush);
+    document.addEventListener('keydown', function (e) {
+        if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+            e.preventDefault();
+            flush();
+        }
+    });
+
+    // Autosave is off: an edit only marks the page as changed until Save is pressed.
     function queue() {
         setStatus(@json(__('Unsaved changes')), 'bg-warning text-dark');
-        clearTimeout(timer);
-        timer = setTimeout(flush, 700);
+        saveBtn.disabled = false;
+    }
+
+    // Changes that were not saved are merged back, so a failed save never loses edits.
+    function restore(body) {
+        ['elements', 'sections', 'theme'].forEach(function (key) {
+            pending[key] = Object.assign({}, body[key], pending[key]);
+        });
     }
 
     window.addEventListener('message', function (e) {

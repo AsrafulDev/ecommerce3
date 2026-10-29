@@ -50,6 +50,10 @@
                             <td class="text-end">
                                 @can('landing-edit')
                                     <a href="{{ route('landing.manage.edit', $landing->id) }}" class="btn btn-sm btn-outline-primary">{{ __('Edit') }}</a>
+                                    <button type="button" class="btn btn-sm btn-outline-danger ms-1 landing-delete"
+                                        data-action="{{ route('landing.manage.destroy', $landing->id) }}"
+                                        data-name="{{ $landing->name }}"
+                                        data-bs-toggle="modal" data-bs-target="#landingDelete">{{ __('Delete') }}</button>
                                 @endcan
                             </td>
                         </tr>
@@ -61,6 +65,42 @@
         </div>
     </div>
 </div>
+
+{{-- Delete confirmation: one popup for every row. The row's name and delete address are filled in before it opens. --}}
+@can('landing-edit')
+<div class="modal fade" id="landingDelete" tabindex="-1" aria-labelledby="landingDeleteLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <form method="POST" id="landingDeleteForm" action="#" class="modal-content">
+            @csrf
+            <div class="modal-header">
+                <h5 class="modal-title text-danger" id="landingDeleteLabel">{{ __('Delete this landing page?') }}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p class="mb-2">{{ __('You are about to delete') }} <strong id="landingDeleteName"></strong>.</p>
+                <div class="alert alert-warning mb-0">
+                    {{ __('The page, its content and its link will be removed. Its coupon will be switched off. This cannot be undone.') }}
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-light" data-bs-dismiss="modal">{{ __('Cancel') }}</button>
+                <button type="submit" class="btn btn-danger">{{ __('Yes, delete the page') }}</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@push('scripts')
+<script>
+    document.querySelectorAll('.landing-delete').forEach(function (button) {
+        button.addEventListener('click', function () {
+            document.getElementById('landingDeleteForm').action = button.dataset.action;
+            document.getElementById('landingDeleteName').textContent = button.dataset.name;
+        });
+    });
+</script>
+@endpush
+@endcan
 
 {{-- Create popup: title, template, product. Everything else is set in the editor. --}}
 @can('landing-create')

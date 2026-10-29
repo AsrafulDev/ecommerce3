@@ -28,7 +28,7 @@ class LandingManageController extends Controller
     {
         $this->middleware('permission:landing-list', ['only' => ['index']]);
         $this->middleware('permission:landing-create', ['only' => ['store']]);
-        $this->middleware('permission:landing-edit', ['only' => ['edit', 'frame', 'save', 'settings']]);
+        $this->middleware('permission:landing-edit', ['only' => ['edit', 'frame', 'save', 'settings', 'destroy']]);
     }
 
     public function index()
@@ -112,7 +112,11 @@ class LandingManageController extends Controller
             'theme' => 'nullable|array',
         ]);
 
-        $stored = is_array($landing->content) ? $landing->content : TemplateRegistry::defaultContent($landing->template_key);
+        // Stored content may hold ids from an earlier version of the template; they are dropped, not refused.
+        $stored = ContentValidator::prune(
+            is_array($landing->content) ? $landing->content : TemplateRegistry::defaultContent($landing->template_key),
+            $landing->template_key
+        );
 
         $merged = [
             'theme' => array_merge($stored['theme'] ?? [], $request->input('theme', [])),
@@ -154,9 +158,15 @@ class LandingManageController extends Controller
             'status' => (bool) ($data['status'] ?? false),
             'valid_from' => $data['valid_from'] ?? null,
             'valid_until' => $data['valid_until'] ?? null,
-            'extra_discount_type' => $data['extra_discount_type'] ?? null,
-            'extra_discount_value' => ($data['extra_discount_type'] ?? null) ? ($data['extra_discount_value'] ?? 0) : null,
         ]);
+
+        // Extra discount is planned, not yet in the editor. Only touch it when the request sends it.
+        if (array_key_exists('extra_discount_type', $data)) {
+            $landing->update([
+                'extra_discount_type' => $data['extra_discount_type'],
+                'extra_discount_value' => $data['extra_discount_type'] ? ($data['extra_discount_value'] ?? 0) : null,
+            ]);
+        }
 
         if (! empty($data['coupon_type']) && isset($data['coupon_value'])) {
             $coupon = $landing->coupon_id ? \App\Models\Coupon::find($landing->coupon_id) : null;
@@ -173,6 +183,25 @@ class LandingManageController extends Controller
         }
 
         return response()->json(['ok' => true, 'status' => $landing->fresh()->status]);
+    }
+
+    /**
+     * Delete a landing page. Its coupon is switched off first, so the code cannot be used in the shop
+     * afterwards; orders that already used it keep their record.
+     */
+    public function destroy(int $id)
+    {
+        $landing = $this->owned($id);
+        $name = $landing->name;
+
+        if ($landing->coupon_id) {
+            \App\Models\Coupon::whereKey($landing->coupon_id)->update(['status' => 0]);
+        }
+        $landing->delete();
+
+        Toastr::success(__('Landing page deleted: :name', ['name' => $name]), 'Success');
+
+        return redirect()->route('landing.manage.index');
     }
 
     /** A landing page the user may manage: its own, or any for landing-admin. */

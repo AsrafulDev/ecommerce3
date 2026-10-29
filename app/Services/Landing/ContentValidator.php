@@ -170,6 +170,32 @@ final class ContentValidator
     }
 
     /**
+     * Drop what the template no longer has: element ids, sections and colours left over from an
+     * earlier version of the template. Used on stored content before a save, so an old page can
+     * still be edited. The live page already ignores these.
+     */
+    public static function prune(array $content, string $templateKey): array
+    {
+        $sections = TemplateRegistry::schema($templateKey)['sections'];
+
+        $content['elements'] = array_filter(
+            is_array($content['elements'] ?? null) ? $content['elements'] : [],
+            fn ($value, $id) => self::spec($sections, (string) $id) !== null,
+            ARRAY_FILTER_USE_BOTH
+        );
+        $content['sections'] = array_intersect_key(
+            is_array($content['sections'] ?? null) ? $content['sections'] : [],
+            $sections
+        );
+        $content['theme'] = array_intersect_key(
+            is_array($content['theme'] ?? null) ? $content['theme'] : [],
+            array_flip(self::THEME_KEYS)
+        );
+
+        return $content;
+    }
+
+    /**
      * Basic formatting only: the allowed tags stay, their attributes go, so nothing like onclick survives.
      * Used when saving and again when the page is shown.
      */

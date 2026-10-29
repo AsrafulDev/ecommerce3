@@ -294,4 +294,92 @@ class ManageLandingTest extends TestCase
         $this->assertSame('Your name', $stored['checkout.label_name']['value']);
         $this->assertSame('Flat, road, area', $stored['checkout.placeholder_address']['value']);
     }
+
+    public function test_discount_and_coupon_are_planned_and_hidden_in_the_editor(): void
+    {
+        $landing = $this->landing();
+
+        $this->get(route('landing.manage.edit', $landing->id))
+            ->assertOk()
+            ->assertSee('data-planned="discount-coupon"', false)
+            ->assertSee('class="d-none" data-planned', false);
+    }
+
+    public function test_saving_settings_without_discount_fields_keeps_the_stored_discount(): void
+    {
+        $landing = $this->landing(['extra_discount_type' => 'percent', 'extra_discount_value' => 12]);
+
+        $this->postJson(route('landing.manage.settings', $landing->id), ['status' => true])->assertOk();
+
+        $fresh = $landing->fresh();
+        $this->assertTrue($fresh->status);
+        $this->assertSame('percent', $fresh->extra_discount_type);
+        $this->assertEquals(12, (float) $fresh->extra_discount_value);
+    }
+
+    public function test_the_editor_saves_only_when_asked(): void
+    {
+        $landing = $this->landing();
+
+        $this->get(route('landing.manage.edit', $landing->id))
+            ->assertOk()
+            ->assertSee('id="lpSave"', false)
+            ->assertDontSee('setTimeout(flush', false);
+    }
+
+    public function test_an_old_page_with_removed_fields_can_still_be_saved(): void
+    {
+        $landing = $this->landing(['template_key' => TemplateRegistry::FASHION, 'content' => array_replace_recursive(
+            TemplateRegistry::defaultContent(TemplateRegistry::FASHION),
+            ['elements' => [
+                'care.item.1.title' => ['value' => 'Old title'],
+                'sizes.item.1.size' => ['value' => 'S'],
+            ], 'sections' => ['sizes' => ['enabled' => true]]]
+        )]);
+
+        $this->postJson(route('landing.manage.save', $landing->id), [
+            'elements' => ['hero.title' => ['value' => 'Updated headline']],
+        ])->assertOk()->assertJson(['ok' => true]);
+
+        $stored = $landing->fresh()->content;
+        $this->assertSame('Updated headline', $stored['elements']['hero.title']['value']);
+        $this->assertArrayNotHasKey('sizes.item.1.size', $stored['elements']);
+        $this->assertArrayNotHasKey('care.item.1.title', $stored['elements']);
+        $this->assertArrayNotHasKey('sizes', $stored['sections']);
+    }
+
+    public function test_the_list_offers_delete_with_a_warning_popup(): void
+    {
+        $landing = $this->landing(['name' => 'Delete Me']);
+
+        $this->get(route('landing.manage.index'))
+            ->assertOk()
+            ->assertSee('id="landingDelete"', false)
+            ->assertSee('Delete this landing page?')
+            ->assertSee(route('landing.manage.destroy', $landing->id), false);
+    }
+
+    public function test_delete_removes_the_page_and_switches_off_its_coupon(): void
+    {
+        $landing = $this->landing();
+        $coupon = \App\Services\Landing\LandingPricing::issueCoupon($landing, 'percent', 10);
+
+        $this->post(route('landing.manage.destroy', $landing->id))
+            ->assertRedirect(route('landing.manage.index'));
+
+        $this->assertNull(LandingTemplate::find($landing->id));
+        $this->assertSame(0, (int) \App\Models\Coupon::find($coupon->id)->status);
+    }
+
+    public function test_a_staff_member_cannot_delete_someone_elses_page(): void
+    {
+        $owner = $this->staff(['landing-list', 'landing-create', 'landing-edit']);
+        $other = $this->staff(['landing-list', 'landing-edit']);
+        $page = $this->landing(['created_by' => $owner->id]);
+
+        $this->actingAs($other, 'admin');
+        $this->post(route('landing.manage.destroy', $page->id))->assertForbidden();
+
+        $this->assertNotNull(LandingTemplate::find($page->id));
+    }
 }

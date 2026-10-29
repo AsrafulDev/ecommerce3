@@ -358,7 +358,7 @@ Route::prefix('admin')->middleware(['auth:admin', 'admin', 'demo_mode'])->group(
     Route::get('/transaction-control', [\App\Http\Controllers\Admin\TransactionControlController::class, 'index'])
         ->name('admin.transaction-control.index');
     Route::post('/transaction-control/{type}/{id}/purge', [\App\Http\Controllers\Admin\TransactionControlController::class, 'purge'])
-        ->where('type', 'expense|other_income|owner_capital|owner_withdrawal')
+        ->where('type', 'expense|other_income|owner_capital|owner_withdrawal|purchase|product')
         ->middleware('throttle:5,1')
         ->name('admin.transaction-control.purge');
 
@@ -1075,6 +1075,7 @@ Route::group(['middleware' => ['auth:admin','admin','lock','check_refer','demo_m
     Route::get('landing-pages/{id}/frame', [\App\Http\Controllers\Admin\LandingManageController::class, 'frame'])->name('landing.manage.frame');
     Route::post('landing-pages/{id}/save', [\App\Http\Controllers\Admin\LandingManageController::class, 'save'])->name('landing.manage.save');
     Route::post('landing-pages/{id}/settings', [\App\Http\Controllers\Admin\LandingManageController::class, 'settings'])->name('landing.manage.settings');
+    Route::post('landing-pages/{id}/delete', [\App\Http\Controllers\Admin\LandingManageController::class, 'destroy'])->name('landing.manage.destroy');
 
     // Theme Management Routes
     Route::get('themes', [ThemeController::class, 'index'])->name('themes.index');

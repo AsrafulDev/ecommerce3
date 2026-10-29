@@ -15,6 +15,9 @@ Owner: Ecommerce Pro (Laravel `lara` app). Related: `docs/architecture.md`.
 - **Permissions (Phase 7):** `landing-list`, `landing-create`, `landing-edit`, `landing-admin`. Staff manage their own pages; `landing-admin` sees all. The Admin role passes every check.
 - **Bug fixed on the way:** the checkout used the coupon model without importing it, so every order with a coupon failed. Fixed.
 
+- **Fashion and Gadget templates** (from the ELAN and VOLTA designs): each has its own section list, its own page and style, and reuses the shared sections for cards, articles, galleries, tables, reviews, FAQ and the closing call to action. Both appear in the create popup and the editor, and their content is editable like the luxury template.
+- **Extra discount and coupon** are hidden and disabled in the editor for now. Saving the settings no longer clears a stored discount when the discount fields are not sent. Their future design is planned, not built.
+
 **Still open**
 - Warranty choice on the luxury checkout (D14).
 - Variant stock: the stock engine takes stock from batches and does not tie a variant order to that variant, so variant stock is not reduced on order. This was already true for normal variant sales. Fixing it means changing the stock engine.

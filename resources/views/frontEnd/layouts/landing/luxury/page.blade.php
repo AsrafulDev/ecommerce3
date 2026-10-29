@@ -90,7 +90,7 @@
 
     <footer class="lp-foot">{{ $generalsetting?->copyright_text ?? '' }}</footer>
     @if($page->isEditable())
-        @include('frontEnd.layouts.landing.luxury._editor')
+        @include('frontEnd.layouts.landing._editor')
     @endif
 </body>
 </html>

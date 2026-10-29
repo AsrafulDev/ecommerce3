@@ -67,6 +67,40 @@ final class LandingPage
         return $this->stored($id) ?? (string) ($this->defaults['elements'][$id]['value'] ?? '');
     }
 
+    /**
+     * Whether a field should be drawn. In the editor every field is shown, so it can be filled.
+     * On the live page an empty field is hidden.
+     */
+    public function show(string $id): bool
+    {
+        return $this->editable || $this->text($id) !== '';
+    }
+
+    /**
+     * Whether a section has anything to show on the live page: a text field, an image, or a list row.
+     * A section with nothing in it is left out of the page.
+     */
+    public function sectionHasContent(string $section): bool
+    {
+        if ($this->editable) {
+            return true;
+        }
+
+        foreach (array_keys($this->sections[$section]['elements'] ?? []) as $id) {
+            if ($this->text($id) !== '') {
+                return true;
+            }
+        }
+
+        foreach (array_keys($this->sections[$section]['lists'] ?? []) as $list) {
+            if ($this->items($section, $list) !== []) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     /** Rich text, sanitised again on the way out. */
     public function rich(string $id): string
     {
@@ -107,6 +141,26 @@ final class LandingPage
     public function sectionAttr(string $section): string
     {
         return ' data-section="' . e($section) . '"' . ($this->enabled($section) ? '' : ' data-off="1"');
+    }
+
+    /**
+     * A star rating. On the live page it is plain stars. In the editor it is five stars to click,
+     * which set the rating field (1 to 5).
+     */
+    public function stars(string $id): string
+    {
+        $value = max(0, min(5, (int) $this->text($id)));
+
+        if (! $this->editable) {
+            return $value > 0 ? '<span class="fx-stars" aria-label="' . $value . ' / 5">' . str_repeat('★', $value) . '</span>' : '';
+        }
+
+        $buttons = '';
+        for ($n = 1; $n <= 5; $n++) {
+            $buttons .= '<button type="button" class="lp-star' . ($n <= $value ? ' is-on' : '') . '" data-value="' . $n . '" aria-label="' . $n . '">★</button>';
+        }
+
+        return '<span class="lp-star-edit" data-el="' . e($id) . '" data-type="rating">' . $buttons . '</span>';
     }
 
     /** Buttons the editor adds to a list: "add item" under the list. */

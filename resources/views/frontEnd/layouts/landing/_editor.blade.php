@@ -10,6 +10,10 @@
     .lp-img { position: relative; }
     .lp-img-change { position: absolute; right: 12px; bottom: 12px; background: #1c1917; color: #fff; border: 0; padding: 8px 12px; font-size: 13px; border-radius: 2px; cursor: pointer; }
     .lp-row-add { margin-top: 18px; background: none; border: 1px dashed var(--primary); color: var(--primary); padding: 10px 16px; cursor: pointer; font: inherit; }
+    .lp-star-edit { display: inline-flex; gap: 2px; }
+    .lp-star { background: none; border: 0; padding: 0 1px; font-size: 18px; line-height: 1; color: #cbbfae; cursor: pointer; }
+    .lp-star.is-on { color: var(--primary); }
+    .lp-star:hover { color: var(--accent); }
     .lp-row-remove { position: absolute; top: 8px; right: 8px; border: 0; background: #1c1917; color: #fff; width: 26px; height: 26px; border-radius: 50%; cursor: pointer; line-height: 1; }
 </style>
 <script>
@@ -78,6 +82,17 @@
             return;
         }
 
+        var star = e.target.closest('.lp-star');
+        if (star) {
+            var holder = star.closest('[data-el]');
+            var rating = Number(star.dataset.value);
+            holder.querySelectorAll('.lp-star').forEach(function (s) {
+                s.classList.toggle('is-on', Number(s.dataset.value) <= rating);
+            });
+            post({ type: 'change', id: holder.dataset.el, value: String(rating) });
+            return;
+        }
+
         var img = e.target.closest('.lp-img-change');
         if (img) {
             post({ type: 'image-request', id: img.closest('[data-el]').dataset.el });
@@ -92,6 +107,10 @@
         if (m.type === 'image') {
             var box = document.querySelector('[data-el="' + m.id + '"]');
             if (!box) return;
+            if (box.hasAttribute('data-bg')) {
+                box.style.backgroundImage = "url('" + m.url + "')";
+                return;
+            }
             var img = box.querySelector('img');
             if (!img) {
                 img = document.createElement('img');
