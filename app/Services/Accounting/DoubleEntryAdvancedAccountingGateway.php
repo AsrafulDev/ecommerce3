@@ -253,6 +253,7 @@ final class DoubleEntryAdvancedAccountingGateway implements AdvancedAccountingGa
             'owner_withdrawal' => [SourceType::OWNER_WITHDRAWAL->value],
             'customer_payment' => [SourceType::CUSTOMER_PAYMENT->value],
             'supplier_payment' => [SourceType::SUPPLIER_PAYMENT->value],
+            'purchase' => [SourceType::PURCHASE->value],
             default => [],
         };
     }

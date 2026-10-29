@@ -8,13 +8,18 @@ use App\Models\FinancialTransactionPurgeLog;
 use App\Models\FundTransaction;
 use App\Services\Accounting\TransactionPurgeEligibilityService;
 use App\Services\Accounting\FinancialTransactionPurgeService;
+use App\Services\Accounting\PurchaseProductPurgeService;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Http\Request;
 
 class TransactionControlController extends Controller
 {
-    public function __construct(private TransactionPurgeEligibilityService $eligibility, private FinancialTransactionPurgeService $purgeService)
+    public function __construct(
+        private TransactionPurgeEligibilityService $eligibility,
+        private FinancialTransactionPurgeService $purgeService,
+        private PurchaseProductPurgeService $stockPurge,
+    )
     {
         $this->middleware('permission:purge-financial-transactions');
     }
@@ -46,7 +51,9 @@ class TransactionControlController extends Controller
         }
 
         try {
-            $this->purgeService->purge($type, $id, $actor, $validated['reason']);
+            in_array($type, PurchaseProductPurgeService::SUPPORTED, true)
+                ? $this->stockPurge->purge($type, $id, $actor, $validated['reason'])
+                : $this->purgeService->purge($type, $id, $actor, $validated['reason']);
             RateLimiter::clear($key);
             return back()->with('success', 'Transaction purged and recorded in the immutable audit history.');
         } catch (\Throwable $e) {
@@ -72,6 +79,7 @@ class TransactionControlController extends Controller
 
         $rows = $expenses->limit(25)->get()->map(fn ($row) => $this->row('expense', $row))
             ->concat($funds->limit(25)->get()->map(fn ($row) => $this->row('fund_transaction', $row)))
+            ->concat($query === '' ? $this->stockPurge->listRows() : collect())
             ->sortByDesc('effective_date')->values();
 
         return view('backEnd.transaction-control.index', [
