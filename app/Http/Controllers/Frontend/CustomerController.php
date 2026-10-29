@@ -956,8 +956,9 @@ public function order_save(Request $request)
                 }
                 
                 // Send Purchase event after response is sent (non-blocking)
-                // Use register_shutdown_function to send after response is sent to user
-                register_shutdown_function(function () use ($order, $userData, $request) {
+                // Use register_shutdown_function to send after response is sent to user.
+                // Not under tests: the app is torn down before shutdown, so a failure here would crash the run.
+                if (! app()->runningUnitTests()) register_shutdown_function(function () use ($order, $userData, $request) {
                     try {
                         $orderDetails = $order->orderdetails ?? \App\Models\Order::with('orderdetails')->find($order->id)?->orderdetails ?? collect();
                         $contentIds  = $orderDetails->pluck('product_id')->map(fn($id) => (string)$id)->values()->toArray();
