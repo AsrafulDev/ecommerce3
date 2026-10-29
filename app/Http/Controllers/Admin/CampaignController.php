@@ -50,7 +50,12 @@ class CampaignController extends Controller
         $cta              = [];
         $reviews          = [];
 
-        return view('backEnd.campaign.create', compact('products', 'preview_products', 'default_sections', 'section_config', 'default_labels', 'features', 'problem', 'solution', 'benefits', 'trust', 'faq', 'cta', 'reviews'));
+        // A blank campaign, so the shared form reads the same fields as the edit page.
+        $edit_data       = new \App\Models\Campaign(['status' => 1]);
+        $labels          = $default_labels;
+        $select_products = collect();
+
+        return view('backEnd.campaign.create', compact('edit_data', 'products', 'select_products', 'preview_products', 'default_sections', 'section_config', 'default_labels', 'labels', 'features', 'problem', 'solution', 'benefits', 'trust', 'faq', 'cta', 'reviews'));
     }
 
     /**
@@ -101,7 +106,7 @@ class CampaignController extends Controller
     
         // Prepare the input data
         $input = $request->except(['image', 'product_id', 'banner_url', 'image_one_url', 'image_two_url', 'image_three_url']);
-        $input['status'] = true; // Set status to true if not checked
+        $input['status'] = $request->has('status') ? 1 : 0;
         $input['sections'] = $this->buildSections($request);
         $input['labels']   = $this->buildLabels($request);
         $input['features'] = $this->buildFeatures($request);
