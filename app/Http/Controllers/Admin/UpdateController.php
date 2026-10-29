@@ -1206,6 +1206,53 @@ class UpdateController extends Controller
                 }
             }
         }
+
+        $this->installCustomPackages($source);
+    }
+
+    /**
+     * Installs the custom packages shipped in a release (packages/<folder>) into vendor/<composer name>,
+     * then rebuilds the autoloader. If the package or vendor is not there, nothing is changed; the
+     * accounting features then stay off as before.
+     */
+    private function installCustomPackages(string $source): void
+    {
+        $manifest = $source . '/release.json';
+        if (! File::exists($manifest)) {
+            return;
+        }
+
+        $data = json_decode((string) File::get($manifest), true) ?: [];
+        $installed = [];
+        foreach (array_keys($data['packages'] ?? []) as $name) {
+            $from = $source . '/packages/' . str_replace('/', '-', $name);
+            $target = base_path('vendor/' . $name);
+            if (! File::isDirectory($from) || ! File::isDirectory(base_path('vendor'))) {
+                continue;
+            }
+            // A symlinked package is a developer's source folder. Never write through it.
+            if (is_link($target)) {
+                Log::info("Release package {$name} is symlinked for development; not overwritten.");
+                continue;
+            }
+            $this->copyDirectoryRobust($from, $target);
+            $installed[] = $name;
+        }
+
+        if ($installed === []) {
+            return;
+        }
+
+        try {
+            $result = \Illuminate\Support\Facades\Process::timeout(180)
+                ->path(base_path())
+                ->run(['composer', 'dump-autoload', '--no-interaction']);
+            if (! $result->successful()) {
+                Log::warning('Custom packages copied but composer dump-autoload failed: ' . $result->errorOutput());
+            }
+        } catch (\Throwable $e) {
+            Log::warning('Custom packages copied but the autoloader could not be rebuilt: ' . $e->getMessage());
+        }
     }
 
     /**
