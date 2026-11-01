@@ -94,6 +94,36 @@ class LandingCheckoutTest extends TestCase
         $this->assertCount(0, Cart::instance('shopping')->content());
     }
 
+    public function test_the_chosen_quantity_orders_that_many_units(): void
+    {
+        $variant = ProductVariantPrice::create(['product_id' => $this->product->id, 'price' => 650, 'stock' => 4, 'sku' => 'SS-R']);
+
+        $this->order(['variant' => $variant->id, 'quantity' => 3]);
+
+        $line = \App\Models\OrderDetails::where('product_id', $this->product->id)->firstOrFail();
+        $this->assertSame(3, (int) $line->qty);
+        $this->assertEquals(650, (float) $line->sale_price);
+    }
+
+    public function test_a_quantity_above_the_stock_of_the_option_is_refused(): void
+    {
+        $variant = ProductVariantPrice::create(['product_id' => $this->product->id, 'price' => 650, 'stock' => 2, 'sku' => 'SS-R']);
+
+        $this->order(['variant' => $variant->id, 'quantity' => 3]);
+
+        $this->assertCount(0, Cart::instance('shopping')->content());
+    }
+
+    public function test_the_quantity_is_capped_at_the_order_limit(): void
+    {
+        $variant = ProductVariantPrice::create(['product_id' => $this->product->id, 'price' => 650, 'stock' => 50, 'sku' => 'SS-R']);
+
+        $this->order(['variant' => $variant->id, 'quantity' => 99]);
+
+        $line = \App\Models\OrderDetails::where('product_id', $this->product->id)->firstOrFail();
+        $this->assertSame(\App\Services\Landing\LandingPricing::MAX_QUANTITY, (int) $line->qty);
+    }
+
     public function test_a_product_without_options_orders_at_its_own_price(): void
     {
         $this->order();

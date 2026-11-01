@@ -245,6 +245,10 @@ class IncompleteOrderController extends Controller
                 $detail->product_discount = 0;
                 $detail->sale_price       = $item['price'] ?? ($product->new_price ?? 0);
                 $detail->qty              = $qty;
+                // 🎨 Landing orders carry the chosen option: keep it on the order line.
+                $detail->variant_price_id = $item['variant_price_id'] ?? null;
+                $detail->product_color    = $item['product_color'] ?? null;
+                $detail->product_size     = $item['product_size'] ?? null;
                 $detail->save();
 
                 // 🔻 স্টক কমানো — batch-aware via StockManagementService (Phase 2.2).

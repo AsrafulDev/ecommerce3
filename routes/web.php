@@ -476,6 +476,8 @@ Route::group(['namespace'=>'Frontend', 'middleware' => ['ipcheck','check_refer']
     Route::get('/page/{slug}', [FrontendController::class, 'page'])->name('page');
     Route::get('districts', [FrontendController::class, 'districts'])->name('districts');
     Route::get('/landing/{slug}', [\App\Http\Controllers\Frontend\LandingController::class, 'show'])->name('landing');
+    Route::post('/landing/incomplete-order', [\App\Http\Controllers\Frontend\LandingController::class, 'incompleteOrder'])
+        ->middleware('throttle:60,1')->name('landing.incomplete');
     Route::get('/offer', [FrontendController::class, 'offers'])->name('offers');
      Route::get('/payment-success', [FrontEndController::class, 'payment_success'])->name('payment_success');
     Route::get('/payment-cancel', [FrontEndController::class, 'payment_cancel'])->name('payment_cancel');

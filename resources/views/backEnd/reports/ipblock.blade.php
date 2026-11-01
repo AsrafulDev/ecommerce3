@@ -399,7 +399,7 @@
 
                     <div class="form-group mb-3">
                         <label for="phone" class="form-label"> {{ __('Phone Number') }} <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control" name="phone" value="{{$value->phone}}" required>
+                        <input type="tel" class="form-control" name="phone" value="{{$value->phone}}" required>
                     </div>
 
                     <div class="form-group mb-4">

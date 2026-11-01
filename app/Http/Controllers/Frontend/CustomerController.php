@@ -454,6 +454,9 @@ public function order_save(Request $request)
                     }
                 }
 
+                // 🔢 Quantity from the landing page: 1 up to the order limit.
+                $quantity = max(1, min(\App\Services\Landing\LandingPricing::MAX_QUANTITY, (int) $request->input('quantity', 1)));
+
                 // 🎨 Variant chosen on the landing page: its own price and stock.
                 $variant = null;
                 $variantRequired = \App\Models\ProductVariantPrice::where('product_id', $campaignProduct->id)->exists();
@@ -463,6 +466,10 @@ public function order_save(Request $request)
                         ->find($request->variant);
                     if (! $variant || (int) $variant->stock < 1) {
                         Toastr::error('This option is out of stock. Please choose another.', 'Error');
+                        return redirect()->back()->withInput();
+                    }
+                    if ($quantity > (int) $variant->stock) {
+                        Toastr::error('Only ' . (int) $variant->stock . ' left for this option.', 'Error');
                         return redirect()->back()->withInput();
                     }
                 } elseif ($variantRequired) {
@@ -479,7 +486,7 @@ public function order_save(Request $request)
                 Cart::instance('shopping')->add([
                     'id'   => $campaignProduct->id,
                     'name' => $campaignProduct->name,
-                    'qty'  => 1,
+                    'qty'  => $quantity,
                     'price'=> $campaignPrice,
                     'options' => [
                         'slug'           => $campaignProduct->slug,
@@ -524,7 +531,7 @@ public function order_save(Request $request)
                         return redirect()->back()->withInput();
                     }
 
-                    $best = \App\Services\Landing\LandingPricing::best($landing, $basePrice);
+                    $best = \App\Services\Landing\LandingPricing::best($landing, $basePrice * $quantity);
                     Session::forget(['coupon_code', 'discount']);
                     if ($best['discount'] > 0) {
                         if ($best['coupon']) {

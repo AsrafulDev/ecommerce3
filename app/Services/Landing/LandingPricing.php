@@ -15,6 +15,9 @@ use Illuminate\Support\Str;
  */
 final class LandingPricing
 {
+    /** Most units one landing order can take. */
+    public const MAX_QUANTITY = 10;
+
     /** Active, and inside the validity window when one is set (D6). */
     public static function isOpen(LandingTemplate $landing, ?Carbon $at = null): bool
     {

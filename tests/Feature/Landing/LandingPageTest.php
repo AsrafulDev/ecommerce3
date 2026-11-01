@@ -136,6 +136,30 @@ class LandingPageTest extends TestCase
             ->assertSee('৳650.00');
     }
 
+    public function test_the_order_form_offers_colours_sizes_quantity_and_delivery_areas(): void
+    {
+        $product = $this->product();
+        $this->landing(['product_id' => $product->id]);
+        $rose = \App\Models\Color::create(['colorName' => 'Dusty Rose', 'color' => '#b98a84', 'status' => 1]);
+        $small = \App\Models\Size::create(['sizeName' => 'S', 'status' => 1]);
+        $medium = \App\Models\Size::create(['sizeName' => 'M', 'status' => 1]);
+        \App\Models\ProductVariantPrice::create(['product_id' => $product->id, 'color_id' => $rose->id, 'size_id' => $small->id, 'price' => 650, 'stock' => 3, 'sku' => 'R-S']);
+        \App\Models\ProductVariantPrice::create(['product_id' => $product->id, 'color_id' => $rose->id, 'size_id' => $medium->id, 'price' => 650, 'stock' => 0, 'sku' => 'R-M']);
+        \App\Models\ShippingCharge::create(['name' => 'Inside Dhaka', 'amount' => 70, 'status' => '1']);
+
+        $this->get('/landing/silk-launch')
+            ->assertOk()
+            ->assertSee('name="color"', false)
+            ->assertSee('name="variant"', false)
+            ->assertSee('Dusty Rose')
+            ->assertSee('name="quantity"', false)
+            ->assertSee('name="order_note"', false)
+            ->assertSee('name="area" value', false)
+            ->assertSee('Inside Dhaka')
+            ->assertSee('id="lp-price"', false)
+            ->assertSee('is-out', false);
+    }
+
     public function test_checkout_labels_and_placeholders_show_the_saved_text(): void
     {
         $content = ContentValidator::clean(TemplateRegistry::defaultContent(TemplateRegistry::LUXURY), TemplateRegistry::LUXURY);
@@ -147,6 +171,6 @@ class LandingPageTest extends TestCase
             ->assertOk()
             ->assertSee('Full name')
             ->assertSee('placeholder="Mobile for delivery"', false)
-            ->assertSee('placeholder="Your name"', false);
+            ->assertSee('placeholder="যেমন: নুসরাত জাহান"', false);
     }
 }

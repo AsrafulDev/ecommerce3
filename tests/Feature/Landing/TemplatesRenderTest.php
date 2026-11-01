@@ -55,7 +55,7 @@ class TemplatesRenderTest extends TestCase
 
     public function test_each_template_renders_its_default_page_with_the_checkout(): void
     {
-        foreach ([TemplateRegistry::LUXURY, TemplateRegistry::FASHION, TemplateRegistry::GADGET] as $key) {
+        foreach ([TemplateRegistry::LUXURY, TemplateRegistry::FASHION, TemplateRegistry::GADGET, TemplateRegistry::GROCERY] as $key) {
             $landing = $this->landing($key);
 
             $this->get('/landing/' . $landing->slug)
@@ -100,7 +100,7 @@ class TemplatesRenderTest extends TestCase
         $this->seed(DefaultDatabaseSeeder::class);
         $this->actingAs(User::first(), 'admin');
 
-        foreach ([TemplateRegistry::FASHION, TemplateRegistry::GADGET] as $key) {
+        foreach ([TemplateRegistry::FASHION, TemplateRegistry::GADGET, TemplateRegistry::GROCERY] as $key) {
             $landing = $this->landing($key);
 
             $this->get(route('landing.manage.frame', ['id' => $landing->id, 'editable' => 1]))
@@ -120,7 +120,70 @@ class TemplatesRenderTest extends TestCase
             ->assertOk()
             ->assertSee('value="luxury"', false)
             ->assertSee('value="fashion"', false)
-            ->assertSee('value="gadget"', false);
+            ->assertSee('value="gadget"', false)
+            ->assertSee('value="grocery"', false);
+    }
+
+    public function test_grocery_shows_its_sections_and_the_icon_badges(): void
+    {
+        $this->landing(TemplateRegistry::GROCERY);
+
+        $this->get('/landing/page-grocery')
+            ->assertOk()
+            ->assertSee('id="offer"', false)
+            ->assertSee('id="policy"', false)
+            ->assertSee('id="faq"', false)
+            ->assertSee('id="final"', false)
+            ->assertSee('class="gr-dot"', false)
+            ->assertSee('fa-solid fa-leaf', false)
+            ->assertSee('class="gr-bundle"', false);
+    }
+
+    public function test_grocery_shows_a_placeholder_review_card_until_reviews_exist(): void
+    {
+        $this->landing(TemplateRegistry::GROCERY);
+
+        $this->get('/landing/page-grocery')
+            ->assertOk()
+            ->assertSee('gr-empty-card', false)
+            ->assertSee('এখনো কোনো রিভিউ প্রকাশ করা হয়নি');
+    }
+
+    public function test_fashion_shows_the_store_logo_and_the_chosen_benefit_icon(): void
+    {
+        $this->landing(TemplateRegistry::FASHION, ['elements' => ['benefits.item.1.icon' => ['value' => 'gem']]]);
+
+        $this->get('/landing/page-fashion')
+            ->assertOk()
+            ->assertSee('class="fx-logo"', false)
+            ->assertDontSee(TemplateRegistry::defaultContent(TemplateRegistry::FASHION)['elements']['nav.brand']['value'])
+            ->assertSee('fa-solid fa-gem', false);
+    }
+
+    public function test_fashion_falls_back_to_the_brand_text_without_a_store_logo(): void
+    {
+        GeneralSetting::query()->update(['dark_logo' => '']);
+        Cache::forget('general_setting');
+        view()->share('generalsetting', GeneralSetting::first());
+
+        $this->landing(TemplateRegistry::FASHION);
+
+        $this->get('/landing/page-fashion')
+            ->assertOk()
+            ->assertDontSee('class="fx-logo"', false)
+            ->assertSee(TemplateRegistry::defaultContent(TemplateRegistry::FASHION)['elements']['nav.brand']['value']);
+    }
+
+    public function test_the_editor_offers_an_icon_picker_for_each_benefit(): void
+    {
+        $this->seed(DefaultDatabaseSeeder::class);
+        $this->actingAs(User::first(), 'admin');
+        $landing = $this->landing(TemplateRegistry::FASHION);
+
+        $this->get(route('landing.manage.frame', ['id' => $landing->id, 'editable' => 1]))
+            ->assertOk()
+            ->assertSee('data-el="benefits.item.1.icon" data-type="icon"', false)
+            ->assertSee('value="leaf" selected', false);
     }
 
     public function test_an_empty_field_is_hidden_on_the_live_page(): void

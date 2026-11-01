@@ -47,12 +47,6 @@
         .lp-field { margin-bottom: 16px; }
         .lp-field label { display: block; font-weight: 600; margin-bottom: 6px; font-size: 15px; }
         .lp-field input, .lp-field select { width: 100%; padding: 12px 14px; border: 1px solid #d8cfc1; border-radius: 3px; font: inherit; background: #fff; }
-        .lp-variants { border: 0; padding: 0; margin: 0 0 18px; display: grid; gap: 10px; }
-        .lp-variants legend { font-weight: 600; margin-bottom: 8px; }
-        .lp-variant { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; border: 1px solid #d8cfc1; border-radius: 3px; padding: 12px 14px; cursor: pointer; }
-        .lp-variant input:checked + span { font-weight: 700; }
-        .lp-variant.is-out { opacity: .5; cursor: not-allowed; }
-        .lp-variant strong { margin-left: auto; color: var(--primary); }
         .lp-total { font-size: 18px; margin: 18px 0; }
         .lp-note { font-size: 14px; color: #6b6255; margin: 14px 0 0; }
         .lp-closed { font-size: 17px; color: #4d463d; }

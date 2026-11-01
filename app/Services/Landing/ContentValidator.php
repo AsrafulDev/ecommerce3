@@ -7,7 +7,8 @@ namespace App\Services\Landing;
  *
  * Rules (plan 4.2):
  *  - every element id must exist in the template (unknown ids are refused)
- *  - each value matches its type: text is plain, rich keeps basic tags only, image is a media path
+ *  - each value matches its type: text is plain, rich keeps basic tags only, image is a media path,
+ *    icon is a name from LandingIcons
  *  - colours are six-digit hex values, and only the four theme keys are allowed
  *  - the checkout section is always on
  *  - at least one section besides checkout stays on
@@ -222,6 +223,16 @@ final class ContentValidator
             $inMediaLibrary = str_starts_with($text, 'uploads/') || str_starts_with($text, 'public/uploads/');
             if ($text !== '' && (!$inMediaLibrary || str_contains($text, '..') || strlen($text) > 255)) {
                 $errors[] = "'{$id}' must be an image from the media library.";
+
+                return '';
+            }
+
+            return $text;
+        }
+
+        if ($spec['type'] === 'icon') {
+            if ($text !== '' && !LandingIcons::has($text)) {
+                $errors[] = "'{$id}' must be an icon from the list.";
 
                 return '';
             }

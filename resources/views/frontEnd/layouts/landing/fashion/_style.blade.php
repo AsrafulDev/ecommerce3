@@ -1,4 +1,5 @@
 {{-- Fashion look, following the ELAN design: cream and rose palette, arch photos, dark band, mosaic. --}}
+<link rel="stylesheet" href="{{ asset('public/frontEnd/css/all.min.css') }}">
 <style>
     :root { --font-head: 'Cormorant Garamond', Georgia, serif; --font-body: 'Hind Siliguri', system-ui, sans-serif; --card: #fffdf9; --line: #e6dccd; --muted: #6f655a; --soft: #f1e8da; --rose: #a86a5f; --ink: #2b2622; }
     body { background: #faf7f2; }
@@ -20,6 +21,7 @@
     .fx-nav-inner { max-width: 1200px; margin: 0 auto; padding: 18px 24px; display: flex; align-items: center; justify-content: space-between; }
     .fx-brand span { font-family: var(--font-head); font-size: 24px; letter-spacing: .3em; color: var(--ink); }
     .fx-brand small { display: block; font-size: 10px; letter-spacing: .3em; color: var(--muted); }
+    .fx-logo { max-height: 48px; width: auto; }
     .fx-nav-cta { background: var(--ink); color: #fff; padding: 9px 20px; border-radius: 999px; text-decoration: none; font-size: 14px; }
 
     /* Hero */
@@ -49,7 +51,7 @@
     .fx-strip-cell::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 10px; background: #e6d9c8; }
     .fx-strip-cell h3 { font-family: var(--font-body); font-size: 18px; font-weight: 600; color: var(--ink); margin: 14px 0 8px; }
     .fx-strip-cell p { font-size: 14px; color: var(--muted); margin: 0; line-height: 1.7; }
-    .fx-dot { display: inline-block; width: 40px; height: 40px; border-radius: 50%; background: #f7dcd4; }
+    .fx-dot { display: inline-flex; align-items: center; justify-content: center; width: 40px; height: 40px; border-radius: 50%; background: #f7dcd4; color: var(--rose); font-size: 17px; }
     .fx-stars { color: var(--rose); letter-spacing: 2px; }
     .fx-photo-reviews { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
     .fx-photo-review { margin: 0; background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 12px; position: relative; }
@@ -127,21 +129,21 @@
     /* Policy */
     .fx-policy-two { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; margin: 8px 0 22px; }
     .fx-zones { display: grid; gap: 0; }
-    .fx-zone { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 14px 0; border-bottom: 1px solid #e0d3bf; }
+    .fx-zone { position: relative; display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 14px 0; border-bottom: 1px solid #e0d3bf; }
     .fx-zone strong { display: block; font-weight: 500; color: var(--ink); font-size: 15px; }
     .fx-zone small { display: block; color: var(--muted); font-size: 13px; }
     .fx-zone span { font-weight: 600; color: var(--ink); }
     .fx-payments { display: grid; gap: 12px; }
-    .fx-pay { background: var(--card); border-radius: 12px; padding: 14px 16px; font-size: 14px; color: var(--muted); }
+    .fx-pay { position: relative; background: var(--card); border-radius: 12px; padding: 14px 16px; font-size: 14px; color: var(--muted); }
     .fx-policy-four { display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; }
-    .fx-policy-cell { background: var(--soft); border-radius: 18px; padding: 24px 22px; }
+    .fx-policy-cell { position: relative; background: var(--soft); border-radius: 18px; padding: 24px 22px; }
     .fx-policy-cell h3 { font-family: var(--font-body); font-size: 17px; font-weight: 600; color: var(--ink); margin: 0 0 10px; }
     .fx-policy-cell p { margin: 0; font-size: 14px; color: var(--muted); line-height: 1.7; }
 
     /* FAQ */
     .fx-split-faq { grid-template-columns: 1fr 1.4fr; }
-    .fx-faq { border-bottom: 1px solid var(--line); padding: 20px 0; }
-    .fx-faq summary { cursor: pointer; font-size: 16px; color: var(--ink); font-weight: 500; list-style: none; }
+    .fx-faq { position: relative; border-bottom: 1px solid var(--line); padding: 20px 0; }
+    .fx-faq summary { cursor: pointer; font-size: 16px; color: var(--ink); font-weight: 500; list-style: none; padding-right: 36px; }
     .fx-faq .fx-body { margin-top: 10px; }
 
     /* Final banner */

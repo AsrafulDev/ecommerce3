@@ -9,6 +9,7 @@
     .lp-card, .lp-faq { position: relative; }
     .lp-img { position: relative; }
     .lp-img-change { position: absolute; right: 12px; bottom: 12px; background: #1c1917; color: #fff; border: 0; padding: 8px 12px; font-size: 13px; border-radius: 2px; cursor: pointer; }
+    .lp-icon-select { display: block; margin-top: 10px; font: inherit; font-size: 13px; color: #6b6255; border: 1px dashed var(--primary); border-radius: 2px; padding: 2px 6px; background: #fff; cursor: pointer; }
     .lp-row-add { margin-top: 18px; background: none; border: 1px dashed var(--primary); color: var(--primary); padding: 10px 16px; cursor: pointer; font: inherit; }
     .lp-star-edit { display: inline-flex; gap: 2px; }
     .lp-star { background: none; border: 0; padding: 0 1px; font-size: 18px; line-height: 1; color: #cbbfae; cursor: pointer; }
@@ -44,8 +45,18 @@
         }
     });
 
+    // An icon picker: post the chosen name, and show it on the badge beside the picker.
+    document.addEventListener('change', function (e) {
+        var picker = e.target.closest ? e.target.closest('select[data-el][data-type="icon"]') : null;
+        if (!picker) return;
+        post({ type: 'change', id: picker.dataset.el, value: picker.value });
+
+        var preview = picker.parentNode.querySelector('[data-icon-preview]');
+        if (preview) preview.className = picker.value ? 'fa-solid fa-' + picker.value : '';
+    });
+
     // The order form is for looking at, not for placing orders, while editing.
-    document.querySelectorAll('form.lp-form').forEach(function (form) {
+    document.querySelectorAll('form.lp-order').forEach(function (form) {
         form.addEventListener('submit', function (e) { e.preventDefault(); });
     });
 

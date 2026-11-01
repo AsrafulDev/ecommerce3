@@ -202,6 +202,32 @@ final class LandingPage
     }
 
     /**
+     * The round badge of a card, drawn with the template's badge class. On the live page it shows the
+     * chosen Font Awesome icon, or a plain badge when none is set. In the editor it shows the same
+     * badge with a picker under it, and the picker's change updates the badge at once.
+     */
+    public function icon(string $id, string $value, string $badge = 'fx-dot'): string
+    {
+        $name = LandingIcons::has($value) ? $value : '';
+
+        if (! $this->editable) {
+            return '<span class="' . e($badge) . '" aria-hidden="true">'
+                . ($name !== '' ? '<i class="fa-solid fa-' . e($name) . '"></i>' : '') . '</span>';
+        }
+
+        // The editor always keeps the preview element, so the picker can change it without a reload.
+        $preview = '<span class="' . e($badge) . '" aria-hidden="true"><i class="' . ($name !== '' ? 'fa-solid fa-' . e($name) : '') . '" data-icon-preview></i></span>';
+
+        $options = '<option value="">' . e(__('No icon')) . '</option>';
+        foreach (LandingIcons::all() as $key => $label) {
+            $options .= '<option value="' . e($key) . '"' . ($key === $name ? ' selected' : '') . '>' . e($label) . '</option>';
+        }
+
+        return $preview . '<select class="lp-icon-select" data-el="' . e($id) . '" data-type="icon" aria-label="' . e(__('Icon')) . '">'
+            . $options . '</select>';
+    }
+
+    /**
      * Numbered list rows (section.list.N.field) in order. Outside the editor only rows with a value
      * are returned. The editor also gets every empty row, marked with _filled = false.
      *

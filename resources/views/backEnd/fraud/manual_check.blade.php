@@ -73,7 +73,7 @@
         <form action="{{ route('manualFraud.check') }}" method="POST" class="text-center mb-4">
             @csrf
             <div class="input-group justify-content-center" style="max-width:400px; margin:auto;">
-                <input type="text" name="mobile" class="form-control text-center"
+                <input type="tel" name="mobile" class="form-control text-center"
                     value="{{ $mobile ?? '' }}" placeholder="017XXXXXXXX" required>
                 <button class="btn btn-success px-4">সার্চ দিন</button>
             </div>

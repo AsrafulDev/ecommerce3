@@ -11,7 +11,7 @@
         <div class="fx-strip" {!! $page->listAttr('benefits') !!}>
             @foreach($rows as $row)
                 <div class="fx-strip-cell{{ $page->rowClass($row) }}">
-                    <span class="fx-dot" aria-hidden="true"></span>
+                    {!! $page->icon("benefits.item.{$row['_n']}.icon", $row['icon']) !!}
                     @if($page->isEditable() || $row['title'] !== '')
                     <h3 {!! $page->attr("benefits.item.{$row['_n']}.title") !!}>{{ $row['title'] }}</h3>
                     @endif

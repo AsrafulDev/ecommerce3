@@ -155,6 +155,25 @@ class ContentValidatorTest extends TestCase
         $this->assertContains("Unknown colour 'font'.", $errors);
     }
 
+    public function test_an_icon_must_be_one_from_the_list(): void
+    {
+        $fashion = TemplateRegistry::FASHION;
+        $content = fn (string $icon) => array_replace_recursive(
+            TemplateRegistry::defaultContent($fashion),
+            ['elements' => ['benefits.item.1.icon' => ['value' => $icon]]]
+        );
+
+        $clean = ContentValidator::clean($content('palette'), $fashion);
+        $this->assertSame('palette', $clean['elements']['benefits.item.1.icon']['value']);
+
+        try {
+            ContentValidator::clean($content('fa-secret'), $fashion);
+            $this->fail('Expected the icon to be refused.');
+        } catch (InvalidLandingContent $e) {
+            $this->assertContains("'benefits.item.1.icon' must be an icon from the list.", $e->errors);
+        }
+    }
+
     public function test_unknown_template_fails_loudly(): void
     {
         $this->expectException(\InvalidArgumentException::class);

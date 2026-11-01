@@ -182,7 +182,7 @@
                                         </div>
                                         <div class="col-md-6">
                                             <label class="form-label fw-bold small">{{ __('Mobile Number') }} *</label>
-                                            <input type="text" name="mobile" class="form-control" placeholder="০১xxx-xxxxxx" required>
+                                            <input type="tel" name="mobile" class="form-control" placeholder="০১xxx-xxxxxx" required>
                                         </div>
                                         <div class="col-12">
                                             <label class="form-label fw-bold small">{{ __('Email Address') }}</label>
