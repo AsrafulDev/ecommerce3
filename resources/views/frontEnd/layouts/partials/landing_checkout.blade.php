@@ -39,6 +39,8 @@
                 @csrf
                 <input type="hidden" name="product" value="{{ $product->id }}">
                 <input type="hidden" name="landing" value="{{ $page->landing()->id }}">
+                {{-- Landing pages take cash on delivery only. --}}
+                <input type="hidden" name="payment_method" value="cod">
 
                 <div class="lp-form">
                     {{-- 1. Product options --}}

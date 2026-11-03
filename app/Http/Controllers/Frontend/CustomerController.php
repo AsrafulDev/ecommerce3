@@ -431,6 +431,12 @@ public function order_save(Request $request)
             'area'=>'required',
         ]);
 
+        // 💵 A landing order is cash on delivery. Without a method it would be saved as an online order with
+        //    no gateway, and the success page would show the amount as paid.
+        if ($request->filled('landing') && ! $request->filled('payment_method')) {
+            $request->merge(['payment_method' => 'cod']);
+        }
+
         // 📵 Blocked phone numbers may not place online orders.
         //    (The reason stays internal — the customer only sees a refusal.)
         if (is_phone_blocked($request->phone)) {

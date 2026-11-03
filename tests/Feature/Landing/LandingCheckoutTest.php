@@ -124,6 +124,27 @@ class LandingCheckoutTest extends TestCase
         $this->assertSame(\App\Services\Landing\LandingPricing::MAX_QUANTITY, (int) $line->qty);
     }
 
+    public function test_a_landing_order_without_a_payment_method_is_cash_on_delivery_and_stays_unpaid(): void
+    {
+        // The landing form sends no payment method: the order must still be cash on delivery, pending.
+        $landing = \App\Models\LandingTemplate::create([
+            'name' => 'Silk launch', 'slug' => 'silk-launch', 'template_key' => \App\Services\Landing\TemplateRegistry::LUXURY,
+            'product_id' => $this->product->id,
+            'content' => \App\Services\Landing\ContentValidator::clean(
+                \App\Services\Landing\TemplateRegistry::defaultContent(\App\Services\Landing\TemplateRegistry::LUXURY),
+                \App\Services\Landing\TemplateRegistry::LUXURY
+            ),
+            'status' => true,
+        ]);
+        $this->order(['landing' => $landing->id]);
+
+        $order = \App\Models\Order::firstOrFail();
+        $this->assertSame('cod', $order->order_type);
+        $payment = \App\Models\Payment::where('order_id', $order->id)->firstOrFail();
+        $this->assertSame('cod', $payment->payment_method);
+        $this->assertSame('pending', $payment->payment_status);
+    }
+
     public function test_a_product_without_options_orders_at_its_own_price(): void
     {
         $this->order();
