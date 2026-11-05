@@ -84,11 +84,19 @@ class CheckCourierOrderStatus extends Command
 
                 $oldEnum = $order->status_enum;
 
-                // Phase 3.1 — enum-driven transition (enum value + system order_note).
-                $order->transitionTo($status, "Status updated via {$order->courier_type} courier sync");
+                // Locked, re-read and applied in one transaction with its stock and serial effects (see changeStatusLocked).
+                // A status the order can no longer take (for example after a reset) is refused, not forced.
+                $result = app(OrderStatusService::class)->changeStatusLocked(
+                    (int) $order->id,
+                    $status,
+                    "Status updated via {$order->courier_type} courier sync"
+                );
+                if ($result !== 'applied') {
+                    $unchanged++;
+                    $this->info("Order #{$order->invoice_id} ({$order->courier_type}): {$result}");
 
-                // ONE shared stock engine — batch-tracked stockOut/stockIn side effects.
-                app(OrderStatusService::class)->handleStatusChange($order, $oldEnum->value, $status->value);
+                    continue;
+                }
 
                 $updated++;
                 $this->info("Order #{$order->invoice_id} ({$order->courier_type}): {$oldEnum->label()} → {$status->label()}");

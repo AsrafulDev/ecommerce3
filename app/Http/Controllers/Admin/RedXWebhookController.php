@@ -27,98 +27,89 @@ class RedXWebhookController extends Controller
     public function handleWebhook(Request $request)
     {
         try {
-            // Log incoming webhook
-            Log::info('RedX Webhook Received', [
-                'payload' => $request->all(),
-                'headers' => $request->headers->all()
-            ]);
+            $trackingNumber = trim((string) $request->input('tracking_number', ''));
+            $invoiceNumber = trim((string) $request->input('invoice_number', ''));
 
-            // Validate required fields
-            $trackingNumber = $request->input('tracking_number');
-            $status = $request->input('status');
-            $invoiceNumber = $request->input('invoice_number');
-
-            if (!$trackingNumber || !$status) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Missing required fields: tracking_number or status'
-                ], 400);
+            // The payload is not trusted. RedX's webhook authentication is not documented or verified in this codebase,
+            // so a callback can only trigger a lookup. The status is read back from RedX's own parcel API, with our
+            // authenticated token, and that status is the only one applied. A forged callback cannot set a status.
+            if ($trackingNumber === '') {
+                return response()->json(['success' => false, 'message' => 'Missing required field: tracking_number'], 400);
             }
 
-            // Find order by tracking_id or invoice_id
-            $order = Order::where('courier_tracking_id', $trackingNumber)
-                ->orWhere('invoice_id', $invoiceNumber)
+            $order = Order::query()
+                ->where('courier_type', 'redx')
+                ->where('courier_tracking_id', $trackingNumber)
                 ->first();
 
-            if (!$order) {
-                Log::warning('RedX Webhook: Order not found', [
+            if (!$order || ($invoiceNumber !== '' && (string) $order->invoice_id !== $invoiceNumber)) {
+                Log::warning('RedX Webhook: order not found for the callback', [
                     'tracking_number' => $trackingNumber,
-                    'invoice_number' => $invoiceNumber
                 ]);
-                
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Order not found'
-                ], 404);
+
+                return response()->json(['success' => false, 'message' => 'Order not found'], 404);
             }
 
-            // Map RedX status → OrderStatus enum (RedXService, Phase 3.1).
-            $redxService = new RedXService();
-            $newEnum = $redxService->mapStatusToOrderStatus($status);
+            $details = (new RedXService())->getParcelDetails($trackingNumber);
+            $redxStatus = strtolower((string) data_get($details, 'parcel.status', ''));
 
-            if ($newEnum !== null) {
-                $current = $order->order_status;
-                $oldEnum = is_numeric($current)
-                    ? OrderStatusEnum::fromLegacyId((int) $current)     // legacy int rows
-                    : (OrderStatusEnum::tryFrom($current) ?? OrderStatusEnum::PENDING);
+            if ($redxStatus === '') {
+                // Fail closed: nothing is changed unless RedX confirms the status.
+                Log::warning('RedX Webhook: status could not be verified with RedX; nothing changed', [
+                    'order_id' => $order->id,
+                    'tracking_number' => $trackingNumber,
+                ]);
 
-                // Phase 2.3 — enum-driven transition (writes enum value + a system
-                // order_note via Order::transitionTo). Never a raw int write.
-                // No hardcoded user id (webhook is system-driven; FK-safe).
-                $order->transitionTo($newEnum, 'Status updated via RedX webhook');
+                return response()->json(['success' => false, 'message' => 'Status could not be verified; nothing changed'], 503);
+            }
 
-                // ONE shared stock engine (OrderStatusService) — never a private
-                // direct-write copy that drifted products.stock.
-                app(\App\Services\OrderStatusService::class)
-                    ->handleStatusChange($order, $oldEnum->value, $newEnum->value);
+            $newEnum = (new RedXService())->mapStatusToOrderStatus($redxStatus);
+            if ($newEnum === null) {
+                Log::warning('RedX Webhook: no status mapping for the verified RedX status', [
+                    'order_id' => $order->id,
+                    'redx_status' => $redxStatus,
+                ]);
 
-                // Guarded fund credit — one 'in' sale row per order (Phase 4).
-                if ($newEnum === OrderStatusEnum::COMPLETED && $oldEnum !== OrderStatusEnum::COMPLETED) {
-                    \App\Helpers\FundHelper::creditSale(
-                        $order,
-                        'Order complete via RedX webhook (#' . $order->invoice_id . ')',
-                        1
-                    );
+                return response()->json(['success' => true, 'message' => 'No status change'], 200);
+            }
+
+            // Locked, re-read and applied in one transaction with its stock, serial and cash effects. A repeated
+            // delivery is a no-op, and a change the order's current status does not allow (for example after a reset)
+            // is refused, never forced.
+            $result = app(\App\Services\OrderStatusService::class)->changeStatusLocked(
+                (int) $order->id,
+                $newEnum,
+                'Status updated via RedX webhook (verified with RedX)',
+                null,
+                function (Order $locked) use ($newEnum) {
+                    // Guarded: one sale credit per order, however many times the webhook arrives.
+                    if ($newEnum === OrderStatusEnum::COMPLETED) {
+                        \App\Helpers\FundHelper::creditSale(
+                            $locked,
+                            'Order complete via RedX webhook (#'.$locked->invoice_id.')',
+                            1
+                        );
+                    }
                 }
+            );
 
-                // Send SMS notification if configured
-                $this->sendStatusUpdateSMS($order, $newEnum);
-
-                Log::info('RedX Webhook: Order status updated successfully', [
-                    'order_id' => $order->id,
-                    'invoice_id' => $order->invoice_id,
-                    'tracking_id' => $trackingNumber,
-                    'old_status' => $oldEnum->value,
-                    'new_status' => $newEnum->value,
-                    'redx_status' => $status
-                ]);
-            } else {
-                Log::warning('RedX Webhook: Status mapping not found', [
-                    'order_id' => $order->id,
-                    'redx_status' => $status
-                ]);
+            if ($result === 'applied') {
+                $this->sendStatusUpdateSMS($order->fresh(), $newEnum);
             }
 
-            return response()->json([
-                'success' => true,
-                'message' => 'Webhook processed successfully'
-            ], 200);
+            Log::info('RedX Webhook: status change '.$result, [
+                'order_id' => $order->id,
+                'invoice_id' => $order->invoice_id,
+                'tracking_id' => $trackingNumber,
+                'redx_status' => $redxStatus,
+                'new_status' => $newEnum->value,
+            ]);
 
+            return response()->json(['success' => true, 'message' => 'Webhook processed', 'result' => $result], 200);
         } catch (\Exception $e) {
             Log::error('RedX Webhook Error', [
                 'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString(),
-                'payload' => $request->all()
+                'tracking_number' => (string) $request->input('tracking_number', ''),
             ]);
 
             return response()->json([

@@ -170,6 +170,7 @@ Route::post('/incomplete-order/store',
 
 // RedX Webhook (CSRF excluded)
 Route::post('/api/redx/webhook', [\App\Http\Controllers\Admin\RedXWebhookController::class, 'handleWebhook'])
+    ->middleware('throttle:60,1')
     ->name('redx.webhook');
 
 	
@@ -946,6 +947,9 @@ Route::group(['middleware' => ['auth:admin','admin','lock','check_refer','demo_m
     // Google Analytics 4 settings
     Route::get('vat/settings', [App\Http\Controllers\Admin\VatSettingController::class, 'edit'])->name('admin.vat.edit');
     Route::post('vat/settings', [App\Http\Controllers\Admin\VatSettingController::class, 'update'])->name('admin.vat.update');
+    // Hidden reset page (not in the menu): cancel or completely delete sales, with the admin password.
+    Route::get('transaction-reset', [App\Http\Controllers\Admin\TransactionResetController::class, 'index'])->name('admin.transaction-reset.index');
+    Route::post('transaction-reset', [App\Http\Controllers\Admin\TransactionResetController::class, 'act'])->name('admin.transaction-reset.act');
     Route::get('vat/reports', [App\Http\Controllers\Admin\VatReportController::class, 'index'])->name('admin.vat.reports');
     Route::get('vat/reports/export/{type}', [App\Http\Controllers\Admin\VatReportController::class, 'export'])->name('admin.vat.export');
     Route::get('vat/hs-codes', [App\Http\Controllers\Admin\HsCodeController::class, 'search'])->name('admin.vat.hs_codes');

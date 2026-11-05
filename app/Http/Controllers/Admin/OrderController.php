@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use GuzzleHttp\Client;
 use App\Http\Controllers\Controller;
@@ -961,30 +962,48 @@ class OrderController extends Controller
         }
 
         $newStatus = $newStatusEnum->value;
+
+        // Locked and re-read, so the change is made from the status as it is now. The status change and its stock,
+        // serial and ledger effects are one transaction: a failure rolls back all of it and returns the reason.
         $oldStatus = $oldStatusEnum?->value ?? (string) $oldStatusRaw;
 
-        $order->order_status = $newStatus;
-        $order->save();
+        try {
+            DB::transaction(function () use (&$order, &$oldStatus, $newStatus) {
+                $order = Order::query()->lockForUpdate()->findOrFail($order->id);
+                $oldStatus = is_numeric($order->order_status)
+                    ? (OrderStatusEnum::fromLegacyId((int) $order->order_status)?->value ?? (string) $order->order_status)
+                    : (string) $order->order_status;
 
-        // Handle fund transaction if status changed to completed
-        // Delta-based: tops up any partial payment credits to the full order amount, never double-credits
-        if ($newStatus === OrderStatusEnum::COMPLETED->value && $oldStatus !== OrderStatusEnum::COMPLETED->value) {
-            FundHelper::creditSale($order, 'Order complete (#' . $order->invoice_id . ') - Manual update');
-
-            $payment = Payment::where('order_id', $order->id)->first();
-            if ($payment && strtolower(trim((string) $payment->payment_status)) !== 'paid') {
-                $payment->payment_status = 'paid';
-                $payment->save();
-            }
-
-            if (strtolower(trim((string) $order->payment_status)) !== 'paid') {
-                $order->payment_status = 'paid';
+                $order->order_status = $newStatus;
                 $order->save();
-            }
-        }
 
-        // Handle stock change
-        app(OrderStatusService::class)->handleStatusChange($order, $oldStatus, $newStatus);
+            // Handle fund transaction if status changed to completed
+            // Delta-based: tops up any partial payment credits to the full order amount, never double-credits
+            if ($newStatus === OrderStatusEnum::COMPLETED->value && $oldStatus !== OrderStatusEnum::COMPLETED->value) {
+                FundHelper::creditSale($order, 'Order complete (#' . $order->invoice_id . ') - Manual update');
+
+                $payment = Payment::where('order_id', $order->id)->first();
+                if ($payment && strtolower(trim((string) $payment->payment_status)) !== 'paid') {
+                    $payment->payment_status = 'paid';
+                    $payment->save();
+                }
+
+                if (strtolower(trim((string) $order->payment_status)) !== 'paid') {
+                    $order->payment_status = 'paid';
+                    $order->save();
+                }
+            }
+
+            // Handle stock change
+
+                app(OrderStatusService::class)->handleStatusChange($order, $oldStatus, $newStatus);
+            });
+        } catch (\DomainException $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => $e->getMessage(),
+            ], 422);
+        }
 
         \Log::info('Order status manually updated', [
             'order_id' => $order->id,
@@ -1011,8 +1030,6 @@ class OrderController extends Controller
             $link = $request->status;
         }
 
-        $order     = Order::find($request->id);
-        $oldStatus = $order->order_status;
         $newStatus = $request->status; // Can be int (legacy) or string (enum)
 
         // If integer, convert to enum value
@@ -1021,46 +1038,60 @@ class OrderController extends Controller
             $newStatus = $newEnum->value;
         }
 
-        $order->order_status = $newStatus;
+        // Locked and re-read: the status change, its stock, the note, the sale credit and the shipping details are one
+        // transaction, so a refused change rolls all of it back. The courier call below runs only after it commits.
+        try {
+            [$order, $oldStatus] = DB::transaction(function () use ($request, $newStatus) {
+                $order     = Order::query()->lockForUpdate()->findOrFail($request->id);
+                $oldStatus = $order->order_status;
 
-        // Add admin note if provided
-        if ($request->filled('admin_note')) {
-            $order->addNote(
-                content: $request->admin_note,
-                type: 'info',
-                source: 'admin',
-                userId: auth()->id(),
-                metadata: ['old_status' => $oldStatus, 'new_status' => $newStatus]
-            );
-        }
+                $order->order_status = $newStatus;
 
-        if ($newStatus === OrderStatusEnum::COMPLETED->value && $oldStatus !== OrderStatusEnum::COMPLETED->value) {
-            // Phase 4 — guarded credit: one sale row per order even if the same
-            // order is completed via multiple paths (process page, webhook, bulk…).
-            \App\Helpers\FundHelper::creditSale($order, 'Order complete (#' . $order->invoice_id . ') via process page', auth()->id());
-        }
+                // Add admin note if provided
+                if ($request->filled('admin_note')) {
+                    $order->addNote(
+                        content: $request->admin_note,
+                        type: 'info',
+                        source: 'admin',
+                        userId: auth()->id(),
+                        metadata: ['old_status' => $oldStatus, 'new_status' => $newStatus]
+                    );
+                }
 
-        $order->save();
+                if ($newStatus === OrderStatusEnum::COMPLETED->value && $oldStatus !== OrderStatusEnum::COMPLETED->value) {
+                    // Phase 4 — guarded credit: one sale row per order even if the same
+                    // order is completed via multiple paths (process page, webhook, bulk…).
+                    \App\Helpers\FundHelper::creditSale($order, 'Order complete (#' . $order->invoice_id . ') via process page', auth()->id());
+                }
 
-        // স্টক হ্যান্ডেল
-        app(OrderStatusService::class)->handleStatusChange($order, $oldStatus, $newStatus);
+                $order->save();
 
-        $shipping_update = Shipping::where('order_id', $order->id)->first();
-        $shippingfee     = ShippingCharge::find($request->area);
+                // স্টক হ্যান্ডেল
+                app(OrderStatusService::class)->handleStatusChange($order, $oldStatus, $newStatus);
 
-        if ($shippingfee && ($shippingfee->name != $request->area)) {
-            $total                = $order->amount + ($shippingfee->amount - $order->shipping_charge);
-            $order->shipping_charge = $shippingfee->amount;
-            $order->amount          = $total;
-            $order->save();
-        }
+                $shipping_update = Shipping::where('order_id', $order->id)->first();
+                $shippingfee     = ShippingCharge::find($request->area);
 
-        if ($shipping_update) {
-            $shipping_update->name    = $request->name;
-            $shipping_update->phone   = $request->phone;
-            $shipping_update->address = $request->address;
-            $shipping_update->area    = isset($shippingfee->name) ? $shippingfee->name : $shipping_update->area;
-            $shipping_update->save();
+                if ($shippingfee && ($shippingfee->name != $request->area)) {
+                    $total                = $order->amount + ($shippingfee->amount - $order->shipping_charge);
+                    $order->shipping_charge = $shippingfee->amount;
+                    $order->amount          = $total;
+                    $order->save();
+                }
+
+                if ($shipping_update) {
+                    $shipping_update->name    = $request->name;
+                    $shipping_update->phone   = $request->phone;
+                    $shipping_update->address = $request->address;
+                    $shipping_update->area    = isset($shippingfee->name) ? $shippingfee->name : $shipping_update->area;
+                    $shipping_update->save();
+                }
+
+                return [$order, $oldStatus];
+            });
+        } catch (\DomainException $e) {
+            Toastr::error($e->getMessage(), 'Failed!');
+            return redirect()->back();
         }
 
         if ($newStatus == 5 && $oldStatus != 5) {
@@ -1229,30 +1260,41 @@ class OrderController extends Controller
             ->with('customer:id,id,name,phone')
             ->get();
 
+        $failed = [];
+
         foreach ($orders as $order) {
-            $oldStatus = $order->order_status;
-            $oldEnum = OrderStatusEnum::tryFrom($oldStatus);
+            // Each order is its own transaction: a refused order is left as it was, and the others still change.
+            try {
+                DB::transaction(function () use ($order, $targetEnum, $targetStatusValue, $targetLabel) {
+                    $locked    = Order::query()->lockForUpdate()->findOrFail($order->id);
+                    $oldStatus = $locked->order_status;
+                    $oldEnum   = OrderStatusEnum::tryFrom($oldStatus);
 
-            $order->order_status = $targetStatusValue;
-            $order->save();
-            
-            // Auto-note the status change
-            $order->addNote(
-                content: "Bulk status change: " . ($oldEnum?->label() ?? $oldStatus) . " → {$targetLabel}",
-                type: 'info',
-                source: 'system',
-                userId: auth()->id()
-            );
+                    $locked->order_status = $targetStatusValue;
+                    $locked->save();
 
-            // Fund transaction if completing
-            if ($targetEnum === OrderStatusEnum::COMPLETED && $oldStatus !== OrderStatusEnum::COMPLETED->value) {
-                FundHelper::creditSale($order, 'Order complete (#' . $order->invoice_id . ') - Bulk update');
+                    // Auto-note the status change
+                    $locked->addNote(
+                        content: "Bulk status change: " . ($oldEnum?->label() ?? $oldStatus) . " → {$targetLabel}",
+                        type: 'info',
+                        source: 'system',
+                        userId: auth()->id()
+                    );
+
+                    // Fund transaction if completing
+                    if ($targetEnum === OrderStatusEnum::COMPLETED && $oldStatus !== OrderStatusEnum::COMPLETED->value) {
+                        FundHelper::creditSale($locked, 'Order complete (#' . $locked->invoice_id . ') - Bulk update');
+                    }
+
+                    // Stock handling (pass string values, OrderStatusService converts internally)
+                    app(OrderStatusService::class)->handleStatusChange($locked, $oldStatus, $targetStatusValue);
+                });
+            } catch (\DomainException $e) {
+                $failed[] = $order->invoice_id . ': ' . $e->getMessage();
+                continue;
             }
 
-            // Stock handling (pass string values, OrderStatusService converts internally)
-            app(OrderStatusService::class)->handleStatusChange($order, $oldStatus, $targetStatusValue);
-
-            // SMS notification
+            // SMS notification, sent only once this order is committed
             if ($sms_gateway && $order->customer) {
                 $url  = $sms_gateway->url;
                 $data = [
@@ -1275,6 +1317,13 @@ class OrderController extends Controller
                 curl_exec($ch);
                 curl_close($ch);
             }
+        }
+
+        if ($failed !== []) {
+            return response()->json([
+                'status'  => 'error',
+                'message' => 'Some orders were not changed: ' . implode(' ', $failed),
+            ], 422);
         }
 
         return response()->json([
@@ -1854,257 +1903,271 @@ class OrderController extends Controller
             }
         }
 
-        $exits_customer = Customer::where('phone', $request->phone)
-            ->select('phone', 'id')->first();
-
-        if ($exits_customer) {
-            $customer_id = $exits_customer->id;
-        } else {
-            $password        = rand(111111, 999999);
-            $store           = new Customer();
-            $store->name     = $request->name;
-            $store->slug     = $request->name;
-            $store->phone    = $request->phone;
-            $store->password = bcrypt($password);
-            $store->verify   = 1;
-            $store->status   = 'active';
-            $store->save();
-            $customer_id = $store->id;
-        }
-
-        $order                  = new Order();
-        $order->invoice_id      = \App\Helpers\InvoiceHelper::generateInvoiceId();
-        // ✅ Cart::subtotal() already includes warranty_adjustment in price, so don't add $warrantyCharge again
-        $order->amount          = ($subtotal + (isset($shippingfee->amount) ? $shippingfee->amount : 0)) - $discount;
-        $order->discount        = $discount ? $discount : 0;
-        $order->shipping_charge = isset($shippingfee->amount) ? $shippingfee->amount : 0;
-        $order->customer_id     = $customer_id;
-        $order->coupon_code     = Session::get('pos_coupon_code') ?? ($request->coupon_code ?? null);
-
-        // 🆕 Payment type: paid | partial | cod (from POS form)
-        $paymentType            = strtolower(trim((string) $request->input('payment_type', 'paid')));
-        $paymentSubMethod       = trim((string) $request->input('payment_method', 'Cash'));
-        $paymentNote            = trim((string) $request->input('payment_note', ''));
-
         // 🆕 "Save & Pending" — park the sale without completing it. Nothing is
         //    settled (no payment collected) and no stock moves, matching the
         //    COD-pending semantics.
         $saveAsPending = $request->boolean('save_as_pending');
 
-        // 💰 Compute paid / due
-        $total = (float) $order->amount;
-        $paid  = $saveAsPending ? 0.0 : min((float) ($request->paid_amount ?? $total), $total);
-        $due   = max(0, $total - $paid);
+        // Customer, order, lines, warranty, stock, status and payment are one transaction. A refused line rolls all of
+        // it back, and the cart is kept so the sale can be retried. The cart is cleared only after the commit.
+        try {
+            $order = DB::transaction(function () use ($request, $subtotal, $discount, $shippingfee, $saveAsPending) {
+                $exits_customer = Customer::where('phone', $request->phone)
+                    ->select('phone', 'id')->first();
 
-        $order->paid_amount   = $paid;
-        $order->due_amount    = $due;
-        $order->order_type    = $paymentType === 'cod' ? 'cod' : 'pos';
-        // POS fully paid → completed immediately (skip fulfillment)
-        // POS partial → completed (goods given) but still has due
-        // POS COD → pending (will complete on delivery/payment)
-        // Save & Pending → pending, nothing collected
-        $order->order_status  = ($paymentType === 'cod' || $saveAsPending)
-            ? OrderStatusEnum::PENDING->value
-            : OrderStatusEnum::COMPLETED->value;
-        $order->payment_status = $paid >= $total ? 'paid' : ($paid > 0 ? 'partial' : 'pending');
-        $order->note           = $request->note;
-        $order->save();
-
-        log_activity('order', 'create', 'Created order #' . $order->invoice_id . ' — ৳' . number_format($order->amount, 2) . ' (' . $order->payment_status . ')', $order, [
-            'customer_id'    => $order->customer_id,
-            'amount'         => $order->amount,
-            'paid'           => $order->paid_amount,
-            'due'            => $order->due_amount,
-            'payment_status' => $order->payment_status,
-            'order_status'   => $order->order_status,
-        ]);
-
-        // Record order note with payment info
-        $order->addNote(
-            content: 'POS order created' . ($saveAsPending ? ' as PENDING (nothing collected)' : '')
-                . ' | Payment: ' . ($saveAsPending ? 'PENDING' : strtoupper($paymentType))
-                . ' | Paid: ৳' . number_format($paid, 2)
-                . ($due > 0 ? ' | Due: ৳' . number_format($due, 2) : '')
-                . ' | Method: ' . $paymentSubMethod
-                . ($paymentNote ? ' | Ref: ' . $paymentNote : ''),
-            type: 'info',
-            source: 'system',
-            userId: auth()->id()
-        );
-
-        $shipping              = new Shipping();
-        $shipping->order_id    = $order->id;
-        $shipping->customer_id = $customer_id;
-        $shipping->name        = $request->name;
-        $shipping->phone       = $request->phone;
-        $shipping->address     = $request->address;
-        $shipping->area        = isset($shippingfee->name) ? $shippingfee->name : ($request->area == '0' ? 'Store Pickup' : '');
-        $shipping->save();
-
-        // 🆕 Single collection primitive: writes the order_payments row, derives
-        // paid/due/status from that ledger, syncs the flat Payment row and books
-        // the Lite fund cash-in. Replaces the previous hand-rolled duplicate.
-        // Dedup is intentionally OFF here — $paymentNote is free text, not a
-        // gateway transaction id, so it must never silently skip a real payment.
-        if ($paid > 0) {
-            \app(\App\Services\PaymentCollectionService::class)->collect(
-                $order,
-                (float) $paid,
-                $paymentSubMethod,
-                null,
-                auth()->id(),
-                $paymentNote ?: null
-            );
-
-            // collect() fills payment_method only when empty; keep the POS label.
-            $flat = Payment::where('order_id', $order->id)->first();
-            if ($flat) {
-                $flat->payment_method = $this->resolvePaymentMethodLabel($paymentSubMethod);
-                $flat->save();
-            }
-        } else {
-            $payment                 = Payment::where('order_id', $order->id)->firstOrNew(['order_id' => $order->id]);
-            $payment->customer_id    = $customer_id;
-            $payment->payment_method = $this->resolvePaymentMethodLabel($paymentSubMethod);
-            $payment->amount         = $paid;
-            $payment->payment_status = $order->payment_status;
-            $payment->save();
-        }
-
-        foreach (Cart::instance('pos_shopping')->content() as $cart) {
-            $sizeId   = $cart->options->size_id ?? null;
-            $sizeName = $cart->options->product_size ?? null;
-            $colorId   = $cart->options->color_id ?? null;
-            $colorName = $cart->options->product_color ?? null;
-
-            Log::channel('single')->info('[POS order_store] Cart options', [
-                'product_id' => $cart->id,
-                'product_name' => $cart->name,
-                'size_id' => $sizeId,
-                'product_size' => $sizeName,
-                'color_id' => $colorId,
-                'product_color' => $colorName,
-                'options_raw' => $cart->options ? json_decode(json_encode($cart->options), true) : [],
-            ]);
-
-            if (!$sizeName && $sizeId) {
-                $s = Size::find($sizeId);
-                $sizeName = $s ? ($s->sizeName ?? $s->size_name ?? null) : null;
-            }
-            if (!$colorName && $colorId) {
-                $c = Color::find($colorId);
-                $colorName = $c ? ($c->getAttribute('colorName') ?? $c->getAttribute('color_name') ?? $c->colorName ?? null) : null;
-            }
-
-            $savedSize  = $sizeId ?: $sizeName;
-            $savedColor = $colorId ?: $colorName;
-            Log::channel('single')->info('[POS order_store] Saving to order_details', [
-                'product_id' => $cart->id,
-                'product_size' => $savedSize,
-                'product_color' => $savedColor,
-            ]);
-
-            $order_details                   = new OrderDetails();
-            $order_details->order_id         = $order->id;
-            $order_details->product_id       = $cart->options->product_id ?? $cart->id;
-            $order_details->product_name     = $cart->name;
-            $order_details->purchase_price   = isset($cart->options->purchase_price) ? $cart->options->purchase_price : 0;
-            $order_details->product_discount = isset($cart->options->product_discount) ? $cart->options->product_discount : 0;
-            $order_details->sale_price       = $cart->price;
-            $order_details->qty              = $cart->qty;
-            $order_details->product_size     = $savedSize;
-            $order_details->product_color    = $savedColor;
-
-            // 🛡️ Warranty
-            if (warranty_enabled() && ($cart->options->warranty_tier_id ?? null)) {
-                $tier = \App\Models\ProductWarrantyTier::find($cart->options->warranty_tier_id);
-                if ($tier && $tier->is_active) {
-                    $order_details->warranty_tier_id = $tier->id;
-                    $order_details->warranty_price   = (float)($tier->additional_cost ?? 0);
+                if ($exits_customer) {
+                    $customer_id = $exits_customer->id;
+                } else {
+                    $password        = rand(111111, 999999);
+                    $store           = new Customer();
+                    $store->name     = $request->name;
+                    $store->slug     = $request->name;
+                    $store->phone    = $request->phone;
+                    $store->password = bcrypt($password);
+                    $store->verify   = 1;
+                    $store->status   = 'active';
+                    $store->save();
+                    $customer_id = $store->id;
                 }
-            }
 
-            $order_details->save();
+                $order                  = new Order();
+                $order->invoice_id      = \App\Helpers\InvoiceHelper::generateInvoiceId();
+                // ✅ Cart::subtotal() already includes warranty_adjustment in price, so don't add $warrantyCharge again
+                $order->amount          = ($subtotal + (isset($shippingfee->amount) ? $shippingfee->amount : 0)) - $discount;
+                $order->discount        = $discount ? $discount : 0;
+                $order->shipping_charge = isset($shippingfee->amount) ? $shippingfee->amount : 0;
+                $order->customer_id     = $customer_id;
+                $order->coupon_code     = Session::get('pos_coupon_code') ?? ($request->coupon_code ?? null);
 
-            // � SN uniqueness validation
-            $serialNumbers = $cart->options->serial_numbers ?? [];
-            if (!empty($serialNumbers)) {
-                foreach ($serialNumbers as $sn) {
-                    $exists = \App\Models\WarrantySale::where('product_id', $order_details->product_id)
-                        ->whereJsonContains('serial_numbers', $sn)
-                        ->whereIn('status', ['active', 'claimed'])
-                        ->exists();
-                    if ($exists) {
-                        throw new \RuntimeException("Serial number '{$sn}' is already registered for this product.");
+                // 🆕 Payment type: paid | partial | cod (from POS form)
+                $paymentType            = strtolower(trim((string) $request->input('payment_type', 'paid')));
+                $paymentSubMethod       = trim((string) $request->input('payment_method', 'Cash'));
+                $paymentNote            = trim((string) $request->input('payment_note', ''));
+
+                // 💰 Compute paid / due
+                $total = (float) $order->amount;
+                $paid  = $saveAsPending ? 0.0 : min((float) ($request->paid_amount ?? $total), $total);
+                $due   = max(0, $total - $paid);
+
+                $order->paid_amount   = $paid;
+                $order->due_amount    = $due;
+                $order->order_type    = $paymentType === 'cod' ? 'cod' : 'pos';
+                // POS fully paid → completed immediately (skip fulfillment)
+                // POS partial → completed (goods given) but still has due
+                // POS COD → pending (will complete on delivery/payment)
+                // Save & Pending → pending, nothing collected
+                $order->order_status  = ($paymentType === 'cod' || $saveAsPending)
+                    ? OrderStatusEnum::PENDING->value
+                    : OrderStatusEnum::COMPLETED->value;
+                $order->payment_status = $paid >= $total ? 'paid' : ($paid > 0 ? 'partial' : 'pending');
+                $order->note           = $request->note;
+                $order->save();
+
+                log_activity('order', 'create', 'Created order #' . $order->invoice_id . ' — ৳' . number_format($order->amount, 2) . ' (' . $order->payment_status . ')', $order, [
+                    'customer_id'    => $order->customer_id,
+                    'amount'         => $order->amount,
+                    'paid'           => $order->paid_amount,
+                    'due'            => $order->due_amount,
+                    'payment_status' => $order->payment_status,
+                    'order_status'   => $order->order_status,
+                ]);
+
+                // Record order note with payment info
+                $order->addNote(
+                    content: 'POS order created' . ($saveAsPending ? ' as PENDING (nothing collected)' : '')
+                        . ' | Payment: ' . ($saveAsPending ? 'PENDING' : strtoupper($paymentType))
+                        . ' | Paid: ৳' . number_format($paid, 2)
+                        . ($due > 0 ? ' | Due: ৳' . number_format($due, 2) : '')
+                        . ' | Method: ' . $paymentSubMethod
+                        . ($paymentNote ? ' | Ref: ' . $paymentNote : ''),
+                    type: 'info',
+                    source: 'system',
+                    userId: auth()->id()
+                );
+
+                $shipping              = new Shipping();
+                $shipping->order_id    = $order->id;
+                $shipping->customer_id = $customer_id;
+                $shipping->name        = $request->name;
+                $shipping->phone       = $request->phone;
+                $shipping->address     = $request->address;
+                $shipping->area        = isset($shippingfee->name) ? $shippingfee->name : ($request->area == '0' ? 'Store Pickup' : '');
+                $shipping->save();
+
+                // 🆕 Single collection primitive: writes the order_payments row, derives
+                // paid/due/status from that ledger, syncs the flat Payment row and books
+                // the Lite fund cash-in. Replaces the previous hand-rolled duplicate.
+                // Dedup is intentionally OFF here — $paymentNote is free text, not a
+                // gateway transaction id, so it must never silently skip a real payment.
+                if ($paid > 0) {
+                    \app(\App\Services\PaymentCollectionService::class)->collect(
+                        $order,
+                        (float) $paid,
+                        $paymentSubMethod,
+                        null,
+                        auth()->id(),
+                        $paymentNote ?: null
+                    );
+
+                    // collect() fills payment_method only when empty; keep the POS label.
+                    $flat = Payment::where('order_id', $order->id)->first();
+                    if ($flat) {
+                        $flat->payment_method = $this->resolvePaymentMethodLabel($paymentSubMethod);
+                        $flat->save();
                     }
+                } else {
+                    $payment                 = Payment::where('order_id', $order->id)->firstOrNew(['order_id' => $order->id]);
+                    $payment->customer_id    = $customer_id;
+                    $payment->payment_method = $this->resolvePaymentMethodLabel($paymentSubMethod);
+                    $payment->amount         = $paid;
+                    $payment->payment_status = $order->payment_status;
+                    $payment->save();
                 }
-            }
 
-            // 🛡️ Always create/update WarrantySale (for SN tracking even without warranty)
-            $warrantyData = [
-                'order_id'       => $order->id,
-                'customer_id'    => $customer_id,
-                'product_id'     => $order_details->product_id,
-                'variant_id'     => $order_details->variant_price_id ?? null,
-                'serial_numbers' => $serialNumbers,
-                'stock_batch_id' => $cart->options->batch_id ?? null,
-                'purchase_id'    => $this->resolvePurchaseId($order_details->product_id, $cart->options->batch_id ?? null),
-                'sold_by'        => auth()->id(),
-                'warranty_type'  => 'none',
-                'status'         => \App\Enums\WarrantySaleStatus::ACTIVE->value,
-            ];
+                foreach (Cart::instance('pos_shopping')->content() as $cart) {
+                    $sizeId   = $cart->options->size_id ?? null;
+                    $sizeName = $cart->options->product_size ?? null;
+                    $colorId   = $cart->options->color_id ?? null;
+                    $colorName = $cart->options->product_color ?? null;
 
-            if ($order_details->warranty_tier_id) {
-                $tier = \App\Models\ProductWarrantyTier::find($order_details->warranty_tier_id);
-                if ($tier && $tier->warranty_days > 0) {
-                    $startDate = now();
-                    $endDate   = now()->addDays($tier->warranty_days);
-                    $supplierWarrantyId = null;
+                    Log::channel('single')->info('[POS order_store] Cart options', [
+                        'product_id' => $cart->id,
+                        'product_name' => $cart->name,
+                        'size_id' => $sizeId,
+                        'product_size' => $sizeName,
+                        'color_id' => $colorId,
+                        'product_color' => $colorName,
+                        'options_raw' => $cart->options ? json_decode(json_encode($cart->options), true) : [],
+                    ]);
 
-                    if ($tier->warranty_type === 'supplier_warranty') {
-                        $sw = \App\Models\SupplierWarranty::where('product_id', $order_details->product_id)
-                            ->where('is_transferable', true)
-                            ->where('warranty_end_date', '>', now())
-                            ->orderBy('warranty_end_date', 'asc')
-                            ->first();
-                        if ($sw) {
-                            $supplierWarrantyId = $sw->id;
-                            $endDate = $sw->warranty_end_date;
+                    if (!$sizeName && $sizeId) {
+                        $s = Size::find($sizeId);
+                        $sizeName = $s ? ($s->sizeName ?? $s->size_name ?? null) : null;
+                    }
+                    if (!$colorName && $colorId) {
+                        $c = Color::find($colorId);
+                        $colorName = $c ? ($c->getAttribute('colorName') ?? $c->getAttribute('color_name') ?? $c->colorName ?? null) : null;
+                    }
+
+                    $savedSize  = $sizeId ?: $sizeName;
+                    $savedColor = $colorId ?: $colorName;
+                    Log::channel('single')->info('[POS order_store] Saving to order_details', [
+                        'product_id' => $cart->id,
+                        'product_size' => $savedSize,
+                        'product_color' => $savedColor,
+                    ]);
+
+                    $order_details                   = new OrderDetails();
+                    $order_details->order_id         = $order->id;
+                    $order_details->product_id       = $cart->options->product_id ?? $cart->id;
+                    $order_details->product_name     = $cart->name;
+                    $order_details->purchase_price   = isset($cart->options->purchase_price) ? $cart->options->purchase_price : 0;
+                    $order_details->product_discount = isset($cart->options->product_discount) ? $cart->options->product_discount : 0;
+                    $order_details->sale_price       = $cart->price;
+                    $order_details->qty              = $cart->qty;
+                    $order_details->product_size     = $savedSize;
+                    $order_details->product_color    = $savedColor;
+
+                    // 🛡️ Warranty
+                    if (warranty_enabled() && ($cart->options->warranty_tier_id ?? null)) {
+                        $tier = \App\Models\ProductWarrantyTier::find($cart->options->warranty_tier_id);
+                        if ($tier && $tier->is_active) {
+                            $order_details->warranty_tier_id = $tier->id;
+                            $order_details->warranty_price   = (float)($tier->additional_cost ?? 0);
                         }
                     }
 
-                    $warrantyData = array_merge($warrantyData, [
-                        'product_warranty_tier_id' => $tier->id,
-                        'supplier_warranty_id'     => $supplierWarrantyId,
-                        'warranty_type'            => $tier->warranty_type,
-                        'warranty_days'            => $tier->warranty_days,
-                        'warranty_start_date'      => $startDate,
-                        'warranty_end_date'        => $endDate,
-                        'warranty_price'           => (float)($tier->additional_cost ?? 0),
-                    ]);
+                    $order_details->save();
+
+                    // � SN uniqueness validation
+                    $serialNumbers = $cart->options->serial_numbers ?? [];
+                    if (!empty($serialNumbers)) {
+                        foreach ($serialNumbers as $sn) {
+                            $exists = \App\Models\WarrantySale::where('product_id', $order_details->product_id)
+                                ->whereJsonContains('serial_numbers', $sn)
+                                ->whereIn('status', ['active', 'claimed'])
+                                ->exists();
+                            if ($exists) {
+                                throw new \DomainException("Serial number '{$sn}' is already registered for this product.");
+                            }
+                        }
+                    }
+
+                    // 🛡️ Always create/update WarrantySale (for SN tracking even without warranty)
+                    $warrantyData = [
+                        'order_id'       => $order->id,
+                        'customer_id'    => $customer_id,
+                        'product_id'     => $order_details->product_id,
+                        'variant_id'     => $order_details->variant_price_id ?? null,
+                        'serial_numbers' => $serialNumbers,
+                        'stock_batch_id' => $cart->options->batch_id ?? null,
+                        'purchase_id'    => $this->resolvePurchaseId($order_details->product_id, $cart->options->batch_id ?? null),
+                        'sold_by'        => auth()->id(),
+                        'warranty_type'  => 'none',
+                        'status'         => \App\Enums\WarrantySaleStatus::ACTIVE->value,
+                    ];
+
+                    if ($order_details->warranty_tier_id) {
+                        $tier = \App\Models\ProductWarrantyTier::find($order_details->warranty_tier_id);
+                        if ($tier && $tier->warranty_days > 0) {
+                            $startDate = now();
+                            $endDate   = now()->addDays($tier->warranty_days);
+                            $supplierWarrantyId = null;
+
+                            if ($tier->warranty_type === 'supplier_warranty') {
+                                $sw = \App\Models\SupplierWarranty::where('product_id', $order_details->product_id)
+                                    ->where('is_transferable', true)
+                                    ->where('warranty_end_date', '>', now())
+                                    ->orderBy('warranty_end_date', 'asc')
+                                    ->first();
+                                if ($sw) {
+                                    $supplierWarrantyId = $sw->id;
+                                    $endDate = $sw->warranty_end_date;
+                                }
+                            }
+
+                            $warrantyData = array_merge($warrantyData, [
+                                'product_warranty_tier_id' => $tier->id,
+                                'supplier_warranty_id'     => $supplierWarrantyId,
+                                'warranty_type'            => $tier->warranty_type,
+                                'warranty_days'            => $tier->warranty_days,
+                                'warranty_start_date'      => $startDate,
+                                'warranty_end_date'        => $endDate,
+                                'warranty_price'           => (float)($tier->additional_cost ?? 0),
+                            ]);
+                        }
+                    }
+
+                    \App\Models\WarrantySale::updateOrCreate(
+                        ['order_detail_id' => $order_details->id],
+                        $warrantyData
+                    );
+
+                    // Flag the sold batch as carrying a (real) sell warranty
+                    $hasSellWarranty = (($warrantyData['warranty_type'] ?? 'none') !== 'none');
+                    if ($hasSellWarranty && !empty($warrantyData['stock_batch_id'])) {
+                        \App\Models\StockBatch::whereKey((int) $warrantyData['stock_batch_id'])
+                            ->update(['has_sell_warranty' => true]);
+                    }
                 }
+
+                // নতুন অর্ডার প্লেস করলে স্টক কমানো (pass string enum value, NOT cast to int)
+                app(OrderStatusService::class)->handleStatusChange($order, 0, $order->order_status);
+
+                // 💰 Payment received হলে ফান্ডে টাকা যোগ করুন (only the paid amount).
+                //    Capped at order.amount so repeat/duplicate credits can't overstate the fund.
+                if ($paid > 0) {
+                    FundHelper::creditPayment($order, (float) $paid, 'POS Order #' . $order->invoice_id);
+                }
+
+                return $order;
+            });
+        } catch (\DomainException $e) {
+            Toastr::error($e->getMessage(), 'Failed!');
+            if ($request->expectsJson()) {
+                return response()->json(['status' => 'error', 'message' => $e->getMessage()], 422);
             }
-
-            \App\Models\WarrantySale::updateOrCreate(
-                ['order_detail_id' => $order_details->id],
-                $warrantyData
-            );
-
-            // Flag the sold batch as carrying a (real) sell warranty
-            $hasSellWarranty = (($warrantyData['warranty_type'] ?? 'none') !== 'none');
-            if ($hasSellWarranty && !empty($warrantyData['stock_batch_id'])) {
-                \App\Models\StockBatch::whereKey((int) $warrantyData['stock_batch_id'])
-                    ->update(['has_sell_warranty' => true]);
-            }
-        }
-
-        // নতুন অর্ডার প্লেস করলে স্টক কমানো (pass string enum value, NOT cast to int)
-        app(OrderStatusService::class)->handleStatusChange($order, 0, $order->order_status);
-
-        // 💰 Payment received হলে ফান্ডে টাকা যোগ করুন (only the paid amount).
-        //    Capped at order.amount so repeat/duplicate credits can't overstate the fund.
-        if ($paid > 0) {
-            FundHelper::creditPayment($order, (float) $paid, 'POS Order #' . $order->invoice_id);
+            return redirect()->back();
         }
 
         Cart::instance('pos_shopping')->destroy();
@@ -2854,234 +2917,248 @@ class OrderController extends Controller
             $warrantyCharge += (float)($item->options->warranty_adjustment ?? 0) * $item->qty;
         }
 
-        $customer = Customer::firstOrCreate(
-            ['phone' => $request->phone],
-            [
-                'name'     => $request->name,
-                'slug'     => $request->name,
-                'password' => bcrypt(rand(111111, 999999)),
-                'verify'   => 1,
-                'status'   => 'active'
-            ]
-        );
+        // Customer, order, lines, warranty, stock and status are one transaction, and the order row is locked and
+        // re-read first. A refused line or stock conflict rolls all of it back, and the cart is kept.
+        try {
+            $order = DB::transaction(function () use ($request, $subtotal, $discount, $shippingfee) {
+                $customer = Customer::firstOrCreate(
+                    ['phone' => $request->phone],
+                    [
+                        'name'     => $request->name,
+                        'slug'     => $request->name,
+                        'password' => bcrypt(rand(111111, 999999)),
+                        'verify'   => 1,
+                        'status'   => 'active'
+                    ]
+                );
 
-        $order                  = Order::findOrFail($request->order_id);
-        // ✅ Cart::subtotal() already includes warranty_adjustment in price, so don't add $warrantyCharge again
-        $order->amount          = ($subtotal + (isset($shippingfee->amount) ? $shippingfee->amount : 0)) - $discount;
-        $order->discount        = isset($discount) ? $discount : 0;
-        $order->shipping_charge = isset($shippingfee->amount) ? $shippingfee->amount : 0;
-        $order->customer_id     = $customer->id;
-        $order->coupon_code     = Session::get('pos_coupon_code') ?? ($request->coupon_code ?? $order->coupon_code);
-        $oldOrderStatus         = $order->order_status;
-        $paymentGatewayInput    = strtolower(trim((string) $request->input('payment_gateway', 'cod')));
-        $paymentStatusInput     = strtolower(trim((string) $request->input('payment_status', 'pending')));
-        $order->order_type      = $paymentGatewayInput === 'cod' ? 'cod' : 'pos';
-        if (in_array($paymentStatusInput, ['paid', 'completed', 'success', 'approved'], true)) {
-            $order->order_status = 'completed';
-        }
-        $order->note            = $request->note;
-
-        // 💰 Recompute paid / due on the new total (keep existing paid unless new payment given)
-        // Record any newly-collected money through the single collection primitive.
-        // Dedup is OFF (a payment_note is free text, not a gateway transaction id);
-        // collect() caps to the outstanding due derived from the order_payments
-        // ledger, so an edit can never over-collect and never loses an online payment
-        // whose paid_amount column was set without a matching ledger row.
-        $requestedPaid = (float) ($request->paid_amount ?? 0);
-        if ($requestedPaid > 0) {
-            $collected = \app(\App\Services\PaymentCollectionService::class)->collect(
-                $order,
-                $requestedPaid,
-                $paymentGatewayInput,
-                null,
-                auth()->id(),
-                $request->payment_note ?: null
-            );
-
-            if ($collected) {
-                $flat = Payment::where('order_id', $order->id)->first();
-                if ($flat) {
-                    $flat->payment_method = $this->resolvePaymentMethodLabel($paymentGatewayInput);
-                    $flat->save();
+                $order                  = Order::findOrFail($request->order_id);
+                // ✅ Cart::subtotal() already includes warranty_adjustment in price, so don't add $warrantyCharge again
+                $order->amount          = ($subtotal + (isset($shippingfee->amount) ? $shippingfee->amount : 0)) - $discount;
+                $order->discount        = isset($discount) ? $discount : 0;
+                $order->shipping_charge = isset($shippingfee->amount) ? $shippingfee->amount : 0;
+                $order->customer_id     = $customer->id;
+                $order->coupon_code     = Session::get('pos_coupon_code') ?? ($request->coupon_code ?? $order->coupon_code);
+                $oldOrderStatus         = $order->order_status;
+                $paymentGatewayInput    = strtolower(trim((string) $request->input('payment_gateway', 'cod')));
+                $paymentStatusInput     = strtolower(trim((string) $request->input('payment_status', 'pending')));
+                $order->order_type      = $paymentGatewayInput === 'cod' ? 'cod' : 'pos';
+                if (in_array($paymentStatusInput, ['paid', 'completed', 'success', 'approved'], true)) {
+                    $order->order_status = 'completed';
                 }
-            }
-        }
+                $order->note            = $request->note;
 
-        // One source of truth for paid/due/status, even when no new money arrived
-        // (e.g. the order amount itself was edited).
-        $order->recalculatePaymentTotals();
+                // 💰 Recompute paid / due on the new total (keep existing paid unless new payment given)
+                // Record any newly-collected money through the single collection primitive.
+                // Dedup is OFF (a payment_note is free text, not a gateway transaction id);
+                // collect() caps to the outstanding due derived from the order_payments
+                // ledger, so an edit can never over-collect and never loses an online payment
+                // whose paid_amount column was set without a matching ledger row.
+                $requestedPaid = (float) ($request->paid_amount ?? 0);
+                if ($requestedPaid > 0) {
+                    $collected = \app(\App\Services\PaymentCollectionService::class)->collect(
+                        $order,
+                        $requestedPaid,
+                        $paymentGatewayInput,
+                        null,
+                        auth()->id(),
+                        $request->payment_note ?: null
+                    );
 
-        log_activity('order', 'update', 'Updated order #' . $order->invoice_id . ' — status ' . $oldOrderStatus . ' → ' . $order->order_status, $order, [
-            'old_status'     => $oldOrderStatus,
-            'new_status'     => $order->order_status,
-            'amount'         => $order->amount,
-            'payment_status' => $order->payment_status,
-        ]);
-
-        $shipping           = Shipping::where('order_id', $order->id)->firstOrFail();
-        $shipping->name     = $request->name;
-        $shipping->phone    = $request->phone;
-        $shipping->address  = $request->address;
-        $shipping->area     = isset($shippingfee->name) ? $shippingfee->name : ($request->area == '0' ? 'Store Pickup' : $shipping->area);
-        $shipping->save();
-
-        $existingDetails = OrderDetails::where('order_id', $order->id)->pluck('id')->toArray();
-        $updatedIds      = [];
-        $batchAdjustments = [];
-
-        // 📦 Snapshot old batch + qty per detail — used to re-adjust stock when batch changes
-        $oldDetailData = [];
-        foreach ($existingDetails as $did) {
-            $d = OrderDetails::find($did);
-            if ($d) {
-                $oldDetailData[$did] = [
-                    'qty'       => (int) $d->qty,
-                    'batch_ids' => $d->batch_ids ?: [],
-                ];
-            }
-        }
-
-        foreach (Cart::instance('pos_shopping')->content() as $cart) {
-            $detailsId = $cart->options->details_id ?? null;
-            // Old batch/qty for this cart line (if it existed before this update)
-            $oldDetailRow = $oldDetailData[$detailsId] ?? null;
-
-            if (!empty($detailsId) && in_array($detailsId, $existingDetails)) {
-                $detail = OrderDetails::find($detailsId);
-            } else {
-                $detail              = new OrderDetails();
-                $detail->order_id    = $order->id;
-                $detail->product_id  = $cart->options->product_id ?? $cart->id;
-                $detail->product_name= $cart->name;
-            }
-
-            $detail->purchase_price   = isset($cart->options->purchase_price) ? $cart->options->purchase_price : 0;
-            $detail->product_discount = isset($cart->options->product_discount) ? $cart->options->product_discount : 0;
-            $detail->product_color    = isset($cart->options->product_color) ? $cart->options->product_color : null;
-            $detail->product_size     = isset($cart->options->product_size) ? $cart->options->product_size : null;
-            $detail->sale_price       = $cart->price;
-            $detail->qty              = $cart->qty;
-
-            // 🛡️ Warranty
-            if ($cart->options->warranty_tier_id ?? null) {
-                $tier = \App\Models\ProductWarrantyTier::find($cart->options->warranty_tier_id);
-                $detail->warranty_tier_id = $tier->id ?? null;
-                $detail->warranty_price   = $tier ? (float)($tier->additional_cost ?? 0) : 0;
-            } else {
-                $detail->warranty_tier_id = null;
-                $detail->warranty_price   = 0;
-            }
-
-            // 📦 Save batch_ids for re-opening in edit
-            // NOTE: batch_ids has an `array` cast — assign the array directly,
-            // never json_encode() (that double-encodes and breaks the cast).
-            $detail->batch_ids = $cart->options->batch_id ? [$cart->options->batch_id] : null;
-
-            $detail->save();
-
-            // � SN uniqueness validation (skip for existing details — updating their own SN is fine)
-            $serialNumbers = $cart->options->serial_numbers ?? [];
-            if (!empty($serialNumbers) && empty($detail->id)) {
-                foreach ($serialNumbers as $sn) {
-                    $exists = \App\Models\WarrantySale::where('product_id', $detail->product_id)
-                        ->whereJsonContains('serial_numbers', $sn)
-                        ->whereIn('status', ['active', 'claimed'])
-                        ->exists();
-                    if ($exists) {
-                        throw new \RuntimeException("Serial number '{$sn}' is already registered for this product.");
+                    if ($collected) {
+                        $flat = Payment::where('order_id', $order->id)->first();
+                        if ($flat) {
+                            $flat->payment_method = $this->resolvePaymentMethodLabel($paymentGatewayInput);
+                            $flat->save();
+                        }
                     }
                 }
-            }
 
-            // 🛡️ Always create/update WarrantySale (for SN tracking even without warranty)
-            $warrantyData = [
-                'order_id'       => $order->id,
-                'customer_id'    => $order->customer_id,
-                'product_id'     => $detail->product_id,
-                'serial_numbers' => $serialNumbers,
-                'stock_batch_id' => $cart->options->batch_id ?? null,
-                'purchase_id'    => $this->resolvePurchaseId($detail->product_id, $cart->options->batch_id ?? null),
-                'sold_by'        => auth()->id(),
-                'warranty_type'  => 'none',
-                'status'         => \App\Enums\WarrantySaleStatus::ACTIVE->value,
-            ];
+                // One source of truth for paid/due/status, even when no new money arrived
+                // (e.g. the order amount itself was edited).
+                $order->recalculatePaymentTotals();
 
-            if ($detail->warranty_tier_id) {
-                $tier = \App\Models\ProductWarrantyTier::find($detail->warranty_tier_id);
-                if ($tier && $tier->warranty_days > 0) {
-                    $startDate = now();
-                    $endDate   = now()->addDays($tier->warranty_days);
-                    $supplierWarrantyId = null;
+                log_activity('order', 'update', 'Updated order #' . $order->invoice_id . ' — status ' . $oldOrderStatus . ' → ' . $order->order_status, $order, [
+                    'old_status'     => $oldOrderStatus,
+                    'new_status'     => $order->order_status,
+                    'amount'         => $order->amount,
+                    'payment_status' => $order->payment_status,
+                ]);
 
-                    if ($tier->warranty_type === 'supplier_warranty') {
-                        $sw = \App\Models\SupplierWarranty::where('product_id', $detail->product_id)
-                            ->where('is_transferable', true)
-                            ->where('warranty_end_date', '>', now())
-                            ->orderBy('warranty_end_date', 'asc')
-                            ->first();
-                        if ($sw) {
-                            $supplierWarrantyId = $sw->id;
-                            $endDate = $sw->warranty_end_date;
+                $shipping           = Shipping::where('order_id', $order->id)->firstOrFail();
+                $shipping->name     = $request->name;
+                $shipping->phone    = $request->phone;
+                $shipping->address  = $request->address;
+                $shipping->area     = isset($shippingfee->name) ? $shippingfee->name : ($request->area == '0' ? 'Store Pickup' : $shipping->area);
+                $shipping->save();
+
+                $existingDetails = OrderDetails::where('order_id', $order->id)->pluck('id')->toArray();
+                $updatedIds      = [];
+                $batchAdjustments = [];
+
+                // 📦 Snapshot old batch + qty per detail — used to re-adjust stock when batch changes
+                $oldDetailData = [];
+                foreach ($existingDetails as $did) {
+                    $d = OrderDetails::find($did);
+                    if ($d) {
+                        $oldDetailData[$did] = [
+                            'qty'       => (int) $d->qty,
+                            'batch_ids' => $d->batch_ids ?: [],
+                        ];
+                    }
+                }
+
+                foreach (Cart::instance('pos_shopping')->content() as $cart) {
+                    $detailsId = $cart->options->details_id ?? null;
+                    // Old batch/qty for this cart line (if it existed before this update)
+                    $oldDetailRow = $oldDetailData[$detailsId] ?? null;
+
+                    if (!empty($detailsId) && in_array($detailsId, $existingDetails)) {
+                        $detail = OrderDetails::find($detailsId);
+                    } else {
+                        $detail              = new OrderDetails();
+                        $detail->order_id    = $order->id;
+                        $detail->product_id  = $cart->options->product_id ?? $cart->id;
+                        $detail->product_name= $cart->name;
+                    }
+
+                    $detail->purchase_price   = isset($cart->options->purchase_price) ? $cart->options->purchase_price : 0;
+                    $detail->product_discount = isset($cart->options->product_discount) ? $cart->options->product_discount : 0;
+                    $detail->product_color    = isset($cart->options->product_color) ? $cart->options->product_color : null;
+                    $detail->product_size     = isset($cart->options->product_size) ? $cart->options->product_size : null;
+                    $detail->sale_price       = $cart->price;
+                    $detail->qty              = $cart->qty;
+
+                    // 🛡️ Warranty
+                    if ($cart->options->warranty_tier_id ?? null) {
+                        $tier = \App\Models\ProductWarrantyTier::find($cart->options->warranty_tier_id);
+                        $detail->warranty_tier_id = $tier->id ?? null;
+                        $detail->warranty_price   = $tier ? (float)($tier->additional_cost ?? 0) : 0;
+                    } else {
+                        $detail->warranty_tier_id = null;
+                        $detail->warranty_price   = 0;
+                    }
+
+                    // 📦 Save batch_ids for re-opening in edit
+                    // NOTE: batch_ids has an `array` cast — assign the array directly,
+                    // never json_encode() (that double-encodes and breaks the cast).
+                    $detail->batch_ids = $cart->options->batch_id ? [$cart->options->batch_id] : null;
+
+                    $detail->save();
+
+                    // � SN uniqueness validation (skip for existing details — updating their own SN is fine)
+                    $serialNumbers = $cart->options->serial_numbers ?? [];
+                    if (!empty($serialNumbers) && empty($detail->id)) {
+                        foreach ($serialNumbers as $sn) {
+                            $exists = \App\Models\WarrantySale::where('product_id', $detail->product_id)
+                                ->whereJsonContains('serial_numbers', $sn)
+                                ->whereIn('status', ['active', 'claimed'])
+                                ->exists();
+                            if ($exists) {
+                                throw new \DomainException("Serial number '{$sn}' is already registered for this product.");
+                            }
                         }
                     }
 
-                    $warrantyData = array_merge($warrantyData, [
-                        'product_warranty_tier_id' => $tier->id,
-                        'supplier_warranty_id'     => $supplierWarrantyId,
-                        'warranty_type'            => $tier->warranty_type,
-                        'warranty_days'            => $tier->warranty_days,
-                        'warranty_start_date'      => $startDate,
-                        'warranty_end_date'        => $endDate,
-                        'warranty_price'           => (float)($tier->additional_cost ?? 0),
-                    ]);
+                    // 🛡️ Always create/update WarrantySale (for SN tracking even without warranty)
+                    $warrantyData = [
+                        'order_id'       => $order->id,
+                        'customer_id'    => $order->customer_id,
+                        'product_id'     => $detail->product_id,
+                        'serial_numbers' => $serialNumbers,
+                        'stock_batch_id' => $cart->options->batch_id ?? null,
+                        'purchase_id'    => $this->resolvePurchaseId($detail->product_id, $cart->options->batch_id ?? null),
+                        'sold_by'        => auth()->id(),
+                        'warranty_type'  => 'none',
+                        'status'         => \App\Enums\WarrantySaleStatus::ACTIVE->value,
+                    ];
+
+                    if ($detail->warranty_tier_id) {
+                        $tier = \App\Models\ProductWarrantyTier::find($detail->warranty_tier_id);
+                        if ($tier && $tier->warranty_days > 0) {
+                            $startDate = now();
+                            $endDate   = now()->addDays($tier->warranty_days);
+                            $supplierWarrantyId = null;
+
+                            if ($tier->warranty_type === 'supplier_warranty') {
+                                $sw = \App\Models\SupplierWarranty::where('product_id', $detail->product_id)
+                                    ->where('is_transferable', true)
+                                    ->where('warranty_end_date', '>', now())
+                                    ->orderBy('warranty_end_date', 'asc')
+                                    ->first();
+                                if ($sw) {
+                                    $supplierWarrantyId = $sw->id;
+                                    $endDate = $sw->warranty_end_date;
+                                }
+                            }
+
+                            $warrantyData = array_merge($warrantyData, [
+                                'product_warranty_tier_id' => $tier->id,
+                                'supplier_warranty_id'     => $supplierWarrantyId,
+                                'warranty_type'            => $tier->warranty_type,
+                                'warranty_days'            => $tier->warranty_days,
+                                'warranty_start_date'      => $startDate,
+                                'warranty_end_date'        => $endDate,
+                                'warranty_price'           => (float)($tier->additional_cost ?? 0),
+                            ]);
+                        }
+                    }
+
+                    \App\Models\WarrantySale::updateOrCreate(
+                        ['order_detail_id' => $detail->id],
+                        $warrantyData
+                    );
+
+                    $updatedIds[] = $detail->id;
+
+                    // 🆕 Track batch change for stock re-allocation (only when status is unchanged,
+                    // i.e. stock was already consumed and needs to move to the newly selected batch).
+                    if ($oldDetailRow && $oldOrderStatus === $order->order_status) {
+                        $batchAdjustments[] = [
+                            'detail'        => $detail,
+                            'old_batch_ids' => $oldDetailRow['batch_ids'] ?? null,
+                            'old_qty'       => (int) ($oldDetailRow['qty'] ?? $detail->qty),
+                            'new_batch_id'  => $cart->options->batch_id ?? null,
+                        ];
+                    }
                 }
-            }
 
-            \App\Models\WarrantySale::updateOrCreate(
-                ['order_detail_id' => $detail->id],
-                $warrantyData
-            );
-
-            $updatedIds[] = $detail->id;
-
-            // 🆕 Track batch change for stock re-allocation (only when status is unchanged,
-            // i.e. stock was already consumed and needs to move to the newly selected batch).
-            if ($oldDetailRow && $oldOrderStatus === $order->order_status) {
-                $batchAdjustments[] = [
-                    'detail'        => $detail,
-                    'old_batch_ids' => $oldDetailRow['batch_ids'] ?? null,
-                    'old_qty'       => (int) ($oldDetailRow['qty'] ?? $detail->qty),
-                    'new_batch_id'  => $cart->options->batch_id ?? null,
-                ];
-            }
-        }
-
-        if ($oldOrderStatus !== $order->order_status) {
-            app(OrderStatusService::class)->handleStatusChange($order, $oldOrderStatus, $order->order_status);
-        }
-
-        // 🆕 Status unchanged → but user may have changed batch/qty. Move the stock
-        // allocation to the newly selected batch (restore old batch, deduct new batch).
-        if ($oldOrderStatus === $order->order_status) {
-            $this->reAdjustStockForBatchChange($order, $batchAdjustments);
-
-            // Items removed from the order → restore their old batch stock
-            foreach (array_diff($existingDetails, $updatedIds) as $removedId) {
-                $oldRow = $oldDetailData[$removedId] ?? null;
-                if (!$oldRow) {
-                    continue;
+                if ($oldOrderStatus !== $order->order_status) {
+                    app(OrderStatusService::class)->handleStatusChange($order, $oldOrderStatus, $order->order_status);
                 }
-                $oldQty = max(1, (int) ($oldRow['qty'] ?? 1));
-                foreach ($this->normalizeBatchEntries($oldRow['batch_ids'] ?? [], $oldQty) as $e) {
-                    \App\Models\StockBatch::where('id', $e['batch_id'])
-                        ->increment('remaining_qty', max(1, $e['qty']));
-                }
-            }
-        }
 
-        OrderDetails::where('order_id', $order->id)
-            ->whereNotIn('id', $updatedIds)
-            ->delete();
+                // 🆕 Status unchanged → but user may have changed batch/qty. Move the stock
+                // allocation to the newly selected batch (restore old batch, deduct new batch).
+                if ($oldOrderStatus === $order->order_status) {
+                    $this->reAdjustStockForBatchChange($order, $batchAdjustments);
+
+                    // Items removed from the order → restore their old batch stock
+                    foreach (array_diff($existingDetails, $updatedIds) as $removedId) {
+                        $oldRow = $oldDetailData[$removedId] ?? null;
+                        if (!$oldRow) {
+                            continue;
+                        }
+                        $oldQty = max(1, (int) ($oldRow['qty'] ?? 1));
+                        foreach ($this->normalizeBatchEntries($oldRow['batch_ids'] ?? [], $oldQty) as $e) {
+                            \App\Models\StockBatch::where('id', $e['batch_id'])
+                                ->increment('remaining_qty', max(1, $e['qty']));
+                        }
+                    }
+                }
+
+                OrderDetails::where('order_id', $order->id)
+                    ->whereNotIn('id', $updatedIds)
+                    ->delete();
+
+                return $order;
+            });
+        } catch (\DomainException $e) {
+            Toastr::error($e->getMessage(), 'Failed!');
+            if ($request->expectsJson()) {
+                return response()->json(['status' => 'error', 'message' => $e->getMessage()], 422);
+            }
+            return redirect()->back();
+        }
 
         Cart::instance('pos_shopping')->destroy();
         Session::forget(['pos_shipping', 'pos_discount', 'product_discount']);
@@ -3380,9 +3457,28 @@ class OrderController extends Controller
         $order = Order::findOrFail($request->order_id);
         $userId = auth()->id();
 
-        // Handle stock: entering active status
-        $oldStatus = $order->order_status;
-        $success = $order->confirm($request->note, $userId);
+        // The confirmation and its stock, serial and ledger effects are one transaction on the locked order.
+        // If any sold serial cannot be allocated, the confirmation is rolled back and the reason is returned.
+        try {
+            $success = DB::transaction(function () use (&$order, $request, $userId) {
+                $locked = Order::query()->lockForUpdate()->findOrFail($order->id);
+                $oldStatus = $locked->order_status;
+
+                if (! $locked->confirm($request->note, $userId)) {
+                    return false;
+                }
+
+                app(OrderStatusService::class)->handleStatusChange($locked, $oldStatus, $locked->order_status);
+                $order = $locked;
+
+                return true;
+            });
+        } catch (\DomainException $e) {
+            return response()->json([
+                'status'  => 'error',
+                'message' => $e->getMessage(),
+            ], 422);
+        }
 
         if (!$success) {
             return response()->json([
@@ -3390,8 +3486,6 @@ class OrderController extends Controller
                 'message' => 'Cannot confirm this order. Invalid status transition.',
             ], 422);
         }
-
-        app(OrderStatusService::class)->handleStatusChange($order, $oldStatus, $order->getOriginal('order_status'));
 
         return response()->json([
             'status'      => 'success',
@@ -3665,15 +3759,28 @@ class OrderController extends Controller
      */
     private function applyReturnTransition(Order $order, callable $transition): bool
     {
-        $oldStatus = $order->order_status;
+        try {
+            return DB::transaction(function () use ($order, $transition) {
+                // Locked and re-read, so the transition runs on the status as it is now. The status change and its
+                // stock effects are one transaction: a failure rolls back both.
+                Order::query()->lockForUpdate()->findOrFail($order->id);
+                $order->refresh();
 
-        if (!$transition()) {
-            return false;
+                $oldStatus = $order->order_status;
+
+                if (!$transition()) {
+                    return false;
+                }
+
+                app(OrderStatusService::class)->handleStatusChange($order, $oldStatus, $order->fresh()->order_status);
+
+                return true;
+            });
+        } catch (\DomainException $e) {
+            throw new \Illuminate\Http\Exceptions\HttpResponseException(
+                response()->json(['status' => 'error', 'message' => $e->getMessage()], 422)
+            );
         }
-
-        app(OrderStatusService::class)->handleStatusChange($order, $oldStatus, $order->fresh()->order_status);
-
-        return true;
     }
 
     /**
@@ -3709,19 +3816,32 @@ class OrderController extends Controller
             'note'     => 'nullable|string',
         ]);
 
-        $order = Order::findOrFail($request->order_id);
-        $oldStatus = $order->order_status;
-        $success = $order->cancel($request->note, auth()->id());
+        // Locked and re-read: the cancel and its restock are one transaction. An order that is already cancelled, or
+        // otherwise not cancellable, is refused and is not restocked a second time.
+        try {
+            $order = DB::transaction(function () use ($request) {
+                $order     = Order::query()->lockForUpdate()->findOrFail($request->order_id);
+                $oldStatus = $order->order_status;
 
-        if (!$success) {
+                if (!$order->cancel($request->note, auth()->id())) {
+                    return null;
+                }
+
+                // Restore stock on cancellation
+                app(OrderStatusService::class)->handleStatusChange($order, $oldStatus, OrderStatusEnum::CANCELLED->value);
+
+                return $order;
+            });
+        } catch (\DomainException $e) {
+            return response()->json(['status' => 'error', 'message' => $e->getMessage()], 422);
+        }
+
+        if ($order === null) {
             return response()->json([
                 'status'  => 'error',
                 'message' => 'Cannot cancel this order. It may already be shipped or completed.',
             ], 422);
         }
-
-        // Restore stock on cancellation
-        app(OrderStatusService::class)->handleStatusChange($order, $oldStatus, OrderStatusEnum::CANCELLED->value);
 
         return $this->actionSuccessResponse($order, 'Order cancelled');
     }

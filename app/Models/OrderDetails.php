@@ -50,6 +50,35 @@ class OrderDetails extends Model
         'cogs',
     ];
 
+    /**
+     * The stock batches this line was taken from, as [{batch_id, qty, unit_cost}]. Null when they were not
+     * recorded or do not hold a quantity and a cost for every part. A cost is never filled in from the product's
+     * current price: a missing allocation must block the restock, not guess the cost.
+     *
+     * @return ?list<array{batch_id: mixed, qty: int, unit_cost: float}>
+     */
+    public function stockAllocation(): ?array
+    {
+        $recorded = is_array($this->batch_ids) ? $this->batch_ids : json_decode((string) $this->batch_ids, true);
+        if (! is_array($recorded) || $recorded === []) {
+            return null;
+        }
+
+        $parts = [];
+        foreach ($recorded as $part) {
+            if (! isset($part['qty'], $part['unit_cost']) || (int) $part['qty'] <= 0) {
+                return null;
+            }
+            $parts[] = [
+                'batch_id' => $part['batch_id'] ?? null,
+                'qty' => (int) $part['qty'],
+                'unit_cost' => (float) $part['unit_cost'],
+            ];
+        }
+
+        return $parts;
+    }
+
     protected function casts(): array
     {
         return [
