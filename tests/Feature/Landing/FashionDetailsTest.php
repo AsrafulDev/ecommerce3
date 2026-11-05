@@ -171,6 +171,24 @@ class FashionDetailsTest extends TestCase
             ->assertSee('fx-split fx-split-solo', false);
     }
 
+    public function test_the_product_colour_items_are_not_part_of_the_details_section(): void
+    {
+        $this->seed(DefaultDatabaseSeeder::class);
+        $this->actingAs(User::first(), 'admin');
+        $landing = $this->fashion();
+
+        $this->get('/landing/'.$landing->slug)
+            ->assertOk()
+            ->assertDontSee('class="fx-colours"', false)
+            ->assertDontSee('class="fx-chip"', false);
+
+        $this->get(route('landing.manage.frame', ['id' => $landing->id, 'editable' => 1]))
+            ->assertOk()
+            ->assertDontSee('data-el="details.colour.1.name"', false);
+
+        $this->assertArrayNotHasKey('colour', TemplateRegistry::schema(TemplateRegistry::FASHION)['sections']['details']['lists']);
+    }
+
     public function test_the_live_table_shows_only_the_filled_rows(): void
     {
         $elements = $this->allRowsRemoved();

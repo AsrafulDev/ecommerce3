@@ -1,8 +1,7 @@
-{{-- Product details: photo on the left; eyebrow, heading and copy, a second photo, spec rows and colour chips on the right.
+{{-- Product details: photo on the left; eyebrow, heading and copy, a second photo, spec rows on the right.
      A photo that was cleared stays cleared. An empty photo or an empty spec table is left off the live page. --}}
 @php
     $rows = $page->items('details', 'row');
-    $colours = $page->items('details', 'colour');
     $mainImage = $page->image('details.image');
     if ($mainImage === '' && ! $page->cleared('details.image')) {
         $mainImage = $product->image ? asset($product->image->image) : '';
@@ -68,17 +67,6 @@
             </table>
             {!! $page->addButton('details', 'row') !!}
             @endif
-
-            <div class="fx-colours" {!! $page->listAttr('details', 'colour') !!}>
-                @foreach($colours as $row)
-                    <span class="fx-chip{{ $page->rowClass($row) }}">
-                        <i style="background:{{ e($row['hex']) }}"></i>
-                        @if($page->isEditable() || $row['name'] !== '')
-                        <b {!! $page->attr("details.colour.{$row['_n']}.name") !!}>{{ $row['name'] }}</b>
-                        @endif
-                    </span>
-                @endforeach
-            </div>
         </div>
     </div>
 </section>

@@ -278,7 +278,7 @@ class TemplatesRenderTest extends TestCase
             ->assertSee('data-el="reviews.item.1.rating"', false)
             ->assertSee('class="lp-star is-on"', false)
             ->assertSee('data-el="reviews.photo.1.image"', false)
-            ->assertSee('data-el="reviews.photo.1.rating"', false);
+            ->assertDontSee('data-el="reviews.photo.1.rating"', false);
     }
 
     public function test_luxury_reviews_have_an_editable_star_rating_and_show_stars_on_the_live_page(): void
@@ -394,7 +394,7 @@ class TemplatesRenderTest extends TestCase
             ->assertSee('data-row-list="gallery.item"', false);
     }
 
-    public function test_a_photo_review_and_its_stars_show_on_the_live_page(): void
+    public function test_a_fashion_photo_review_shows_its_photo_only_on_the_live_page(): void
     {
         $this->landing(TemplateRegistry::FASHION, ['elements' => [
             'reviews.photo.1.name' => ['value' => 'Rahim'],
@@ -402,10 +402,11 @@ class TemplatesRenderTest extends TestCase
             'reviews.photo.1.image' => ['value' => 'public/uploads/review-photo.webp'],
         ]]);
 
+        // The photo shows; its name is not printed with it. Stars are not printed for photos, only for text reviews.
         $this->get('/landing/page-fashion')
             ->assertOk()
             ->assertSee('review-photo.webp', false)
-            ->assertSee('★★★★★', false)
+            ->assertDontSee('Rahim')
             ->assertDontSee('lp-star-edit', false);
     }
 

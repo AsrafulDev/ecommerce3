@@ -57,6 +57,13 @@
     .fx-photo-review { margin: 0; background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 12px; position: relative; }
     .fx-photo-review .fx-tile-img { aspect-ratio: 4 / 5; height: auto; }
     .fx-photo-review figcaption { font-size: 13px; color: var(--rose); margin-top: 6px; }
+    .fx-photo-slider { overflow: hidden; margin-top: 28px; }
+    .fx-photo-track { display: flex; gap: 18px; transition: transform .7s ease; will-change: transform; }
+    .fx-photo-slide { flex: 0 0 calc((100% - 3 * 18px) / 4); margin: 0; }
+    .fx-photo-slide img { display: block; width: 100%; aspect-ratio: 4 / 5; object-fit: cover; }
+    .fx-photo-slider.is-fixed .fx-photo-slide { flex: 1 1 0; }
+    @media (max-width: 900px) { .fx-photo-slide { flex-basis: calc((100% - 18px) / 2); } }
+    @media (max-width: 560px) { .fx-photo-slide { flex-basis: 100%; } }
     @media (max-width: 900px) { .fx-photo-reviews { grid-template-columns: 1fr 1fr; } }
     @media (max-width: 560px) { .fx-photo-reviews { grid-template-columns: 1fr; } }
     .fx-strip-cell blockquote { margin: 10px 0; font-size: 14px; color: var(--muted); }
@@ -75,10 +82,6 @@
     .fx-spec td { color: var(--ink); font-weight: 500; }
     .fx-spec .fx-spec-tools { width: 34px; padding: 0; border-bottom: 0; }
     .fx-spec .lp-row-remove { position: static; }
-    .fx-colours { display: flex; gap: 12px; flex-wrap: wrap; }
-    .fx-chip { display: inline-flex; align-items: center; gap: 8px; border: 1px solid var(--line); border-radius: 999px; padding: 6px 14px 6px 6px; background: var(--card); font-size: 14px; }
-    .fx-chip i { width: 24px; height: 24px; border-radius: 50%; border: 1px solid var(--line); display: inline-block; }
-    .fx-chip b { font-weight: 500; }
 
     /* Size card and care list */
     .fx-card-soft { background: var(--soft); border-radius: 22px; padding: 34px 36px; }
