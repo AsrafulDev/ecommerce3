@@ -9,6 +9,7 @@ use App\Services\Landing\ContentValidator;
 use App\Services\Landing\InvalidLandingContent;
 use App\Services\Landing\LandingPage;
 use App\Services\Landing\LandingPricing;
+use App\Services\Landing\LandingThemes;
 use App\Services\Landing\TemplateRegistry;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
@@ -84,6 +85,7 @@ class LandingManageController extends Controller
             'landing' => $landing,
             'sections' => TemplateRegistry::schema($landing->template_key)['sections'],
             'theme' => array_merge(TemplateRegistry::defaultContent($landing->template_key)['theme'], $landing->content['theme'] ?? []),
+            'themePresets' => LandingThemes::presets(),
             'enabled' => collect($landing->content['sections'] ?? [])->map(fn ($s) => (bool) ($s['enabled'] ?? true)),
             'frameUrl' => route('landing.manage.frame', ['id' => $landing->id, 'editable' => 1]),
             'previewUrl' => route('landing.manage.frame', ['id' => $landing->id, 'editable' => 0]),

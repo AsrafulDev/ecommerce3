@@ -7,6 +7,10 @@
     .lp-panel { background: #fff; border-radius: 10px; box-shadow: 0 2px 10px rgba(15, 23, 42, .05); padding: 14px 16px; margin-bottom: 14px; }
     .lp-panel h6 { font-size: 12px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: #64748b; margin-bottom: 10px; }
     .lp-panel .form-check { margin-bottom: 6px; }
+    .lp-theme-preset { display: flex; align-items: center; gap: 10px; }
+    .lp-theme-preset.active { border-color: #1c1917; background: #f1f5f9; font-weight: 600; }
+    .lp-swatches { display: inline-flex; }
+    .lp-swatches i { width: 16px; height: 16px; border-radius: 50%; border: 1px solid #e2e8f0; margin-right: -4px; display: inline-block; }
 </style>
 @endsection
 
@@ -51,7 +55,25 @@
             </div>
 
             <div class="lp-panel">
-                <h6>{{ __('Colours') }}</h6>
+                <h6>{{ __('Theme') }}</h6>
+                <div class="d-grid gap-2 mb-3">
+                    @foreach($themePresets as $key => $preset)
+                        <button type="button" class="btn btn-sm btn-outline-secondary text-start lp-theme-preset"
+                            data-preset="{{ $key }}"
+                            data-primary="{{ $preset['colours']['primary'] }}"
+                            data-accent="{{ $preset['colours']['accent'] }}"
+                            data-background="{{ $preset['colours']['background'] }}"
+                            data-text="{{ $preset['colours']['text'] }}">
+                            <span class="lp-swatches" aria-hidden="true">
+                                @foreach($preset['colours'] as $hex)
+                                    <i style="background: {{ $hex }}"></i>
+                                @endforeach
+                            </span>
+                            {{ __($preset['label']) }}
+                        </button>
+                    @endforeach
+                </div>
+                <h6>{{ __('Customise colours') }}</h6>
                 @foreach(['primary' => 'Primary', 'accent' => 'Accent', 'background' => 'Background', 'text' => 'Text'] as $key => $label)
                     <div class="d-flex justify-content-between align-items-center mb-2">
                         <label for="colour-{{ $key }}" class="mb-0">{{ __($label) }}</label>
@@ -225,6 +247,33 @@
             queue();
         });
     });
+
+    // Theme presets: choosing one fills the four colour pickers, and each picker's own change sends it to the frame.
+    // The page is only changed when it is saved, like any other edit.
+    var themeKeys = ['primary', 'accent', 'background', 'text'];
+    var presetButtons = document.querySelectorAll('.lp-theme-preset');
+    function markActivePreset() {
+        presetButtons.forEach(function (button) {
+            var same = themeKeys.every(function (key) {
+                return document.getElementById('colour-' + key).value.toLowerCase() === button.dataset[key].toLowerCase();
+            });
+            button.classList.toggle('active', same);
+        });
+    }
+    presetButtons.forEach(function (button) {
+        button.addEventListener('click', function () {
+            themeKeys.forEach(function (key) {
+                var input = document.getElementById('colour-' + key);
+                input.value = button.dataset[key];
+                input.dispatchEvent(new Event('input'));
+            });
+            markActivePreset();
+        });
+    });
+    document.querySelectorAll('.lp-colour').forEach(function (input) {
+        input.addEventListener('input', markActivePreset);
+    });
+    markActivePreset();
 
     document.querySelectorAll('.lp-colour').forEach(function (input) {
         input.addEventListener('input', function () {
