@@ -953,6 +953,15 @@ Route::group(['middleware' => ['auth:admin','admin','lock','check_refer','demo_m
     Route::get('vat/reports', [App\Http\Controllers\Admin\VatReportController::class, 'index'])->name('admin.vat.reports');
     Route::get('vat/reports/export/{type}', [App\Http\Controllers\Admin\VatReportController::class, 'export'])->name('admin.vat.export');
     Route::get('vat/hs-codes', [App\Http\Controllers\Admin\HsCodeController::class, 'search'])->name('admin.vat.hs_codes');
+    // Mushak 6.3 tax challans. The export route is declared before the {challan} routes so it is not read as an id.
+    Route::get('vat/challans', [App\Http\Controllers\Admin\VatChallanController::class, 'index'])->name('admin.vat.challans.index');
+    Route::get('vat/challans/export', [App\Http\Controllers\Admin\VatChallanController::class, 'export'])->name('admin.vat.challans.export');
+    Route::post('vat/challans/issue-selected', [App\Http\Controllers\Admin\VatChallanController::class, 'issueSelected'])->name('admin.vat.challans.issue_selected');
+    Route::post('vat/challans/issue/{order}', [App\Http\Controllers\Admin\VatChallanController::class, 'issue'])->name('admin.vat.challans.issue');
+    Route::post('vat/challans/buyer-bin/{order}', [App\Http\Controllers\Admin\VatChallanController::class, 'setBuyerBin'])->name('admin.vat.challans.buyer_bin');
+    Route::get('vat/challans/{challan}', [App\Http\Controllers\Admin\VatChallanController::class, 'show'])->name('admin.vat.challans.show');
+    Route::get('vat/challans/{challan}/pdf', [App\Http\Controllers\Admin\VatChallanController::class, 'pdf'])->name('admin.vat.challans.pdf');
+    Route::post('vat/challans/{challan}/void', [App\Http\Controllers\Admin\VatChallanController::class, 'void'])->name('admin.vat.challans.void');
     Route::get('system/check', [App\Http\Controllers\Admin\SystemCheckController::class, 'index'])->name('admin.system.check');
     Route::post('system/repair', [App\Http\Controllers\Admin\SystemCheckController::class, 'repair'])->name('admin.system.repair');
     Route::get('google-analytics/settings', [GoogleAnalyticSettingController::class, 'edit'])->name('admin.google_analytics.edit');

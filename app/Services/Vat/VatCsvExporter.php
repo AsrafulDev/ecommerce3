@@ -27,6 +27,24 @@ class VatCsvExporter
             'Taxable Value'  => 'taxable',
             'Input VAT'      => 'vat',
         ],
+        'credit-sales' => [
+            'Credit Note No'   => 'number',
+            'Date'             => 'date',
+            'Invoice No'       => 'original',
+            'Buyer'            => 'party',
+            'Taxable Value'    => 'taxable',
+            'Output VAT Reversed' => 'vat',
+            'Reason'           => 'reason',
+        ],
+        'credit-purchases' => [
+            'Credit Note No'   => 'number',
+            'Date'             => 'date',
+            'Purchase Invoice No' => 'original',
+            'Supplier'         => 'party',
+            'Taxable Value'    => 'taxable',
+            'Input VAT Reversed' => 'vat',
+            'Reason'           => 'reason',
+        ],
     ];
 
     /**

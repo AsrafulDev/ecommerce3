@@ -24,8 +24,17 @@ class VatCreditNoteTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
+        // Returns are dated "now", and these tests reason about October 2026. Freeze the clock so they do not depend on
+        // the day they run. Test-only: the VAT logic reads the same clock as it does in production.
+        Carbon::setTestNow(Carbon::parse('2026-10-15 12:00:00'));
         $this->seed(DefaultDatabaseSeeder::class);
         GeneralSetting::query()->update(['vat_enabled' => true, 'vat_prices_include_vat' => false]);
+    }
+
+    protected function tearDown(): void
+    {
+        Carbon::setTestNow();
+        parent::tearDown();
     }
 
     private function product(): Product

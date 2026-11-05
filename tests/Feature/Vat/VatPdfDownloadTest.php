@@ -47,20 +47,22 @@ class VatPdfDownloadTest extends TestCase
             ->assertOk();
 
         $this->assertStringContainsString('application/pdf', $response->headers->get('Content-Type'));
-        $this->assertStringContainsString('vat-sales-date-2026-10-05.pdf', $response->headers->get('Content-Disposition'));
+        $this->assertStringContainsString('mushak-6.2-date-2026-10-05.pdf', $response->headers->get('Content-Disposition'));
         $this->assertStringStartsWith('%PDF', $response->getContent());
     }
 
-    public function test_the_pdf_is_marked_as_a_working_draft_not_for_filing(): void
+    public function test_the_pdf_is_the_official_book_layout_marked_as_a_draft_until_approved(): void
     {
-        $html = view('backEnd.vat.register-pdf', [
-            'kind' => 'sales (Mushak 6.2)', 'columns' => ['Invoice No' => 'invoice', 'Taxable Value' => 'taxable', 'Output VAT' => 'vat'],
-            'rows' => [], 'business' => 'Test Trader', 'bin' => '123456789012', 'selection' => 'Date 2026-10-05',
-            'generated' => 'now', 'totalTaxable' => 0, 'totalVat' => 0,
+        $html = view('backEnd.vat.mushak-book', [
+            'book' => (new \App\Services\Vat\MushakBook(app(\App\Services\Vat\VatReportService::class)))
+                ->salesBook(\Carbon\Carbon::parse('2026-10-05'), \Carbon\Carbon::parse('2026-10-05')),
+            'business' => ['name' => 'Test Trader', 'address' => 'Dhaka', 'bin' => '123456789012'],
+            'generated' => 'now',
         ])->render();
 
-        $this->assertStringContainsString('WORKING DRAFT', $html);
-        $this->assertStringContainsString('NOT FOR FILING', $html);
+        $this->assertStringContainsString('মূসক-৬.২', $html);
+        $this->assertStringContainsString('বিক্রয় হিসাব পুস্তক', $html);
+        $this->assertStringContainsString('NOT APPROVED FOR FILING', $html);
         $this->assertStringContainsString('Test Trader', $html);
     }
 
