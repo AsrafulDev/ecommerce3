@@ -108,7 +108,7 @@ final class ContentValidator
             }
 
             if (!empty($def['locked']) && $enabled !== true) {
-                $errors[] = 'The checkout section cannot be switched off.';
+                $errors[] = ($key === 'nav' ? 'The header' : 'The checkout').' section cannot be switched off.';
                 $enabled = true;
             }
 
@@ -210,6 +210,11 @@ final class ContentValidator
     private static function cleanValue(array $spec, mixed $value, string $id, array &$errors): string
     {
         $raw = is_array($value) ? ($value['value'] ?? null) : $value;
+
+        // A value that was cleared arrives without content: it is empty text, not an error.
+        if ($raw === null) {
+            $raw = '';
+        }
 
         if (!is_string($raw)) {
             $errors[] = "'{$id}' must be text.";

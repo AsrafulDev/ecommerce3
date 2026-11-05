@@ -57,6 +57,32 @@
         .lp-table th { color: var(--accent); font-weight: 700; }
         .lp-table td:first-child { color: var(--accent); font-weight: 600; }
         .lp-note { font-size: 13px; color: var(--muted); margin: 10px 0 0; }
+        /* Gallery: one large photo, thumbnails to the right on wide screens and underneath on phones. */
+        .lp-gallery { display: grid; gap: 14px; margin-top: 8px; }
+        .lp-gallery-main { position: relative; border-radius: 6px; overflow: hidden; background: var(--card); border: 1px solid var(--line); }
+        .lp-gallery-slide { display: none; margin: 0; }
+        .lp-gallery-slide.is-active { display: block; }
+        .lp-gallery-slide img { width: 100%; aspect-ratio: 4 / 3; object-fit: cover; }
+        .lp-gallery-slide figcaption { padding: 14px 18px; }
+        .lp-gallery-slide figcaption strong { display: block; font-family: var(--font-head); font-size: 20px; color: var(--accent); }
+        .lp-gallery-slide figcaption span { color: var(--muted); font-size: 15px; }
+        .lp-gallery-thumbs { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 4px; }
+        .lp-gallery-thumb { flex: 0 0 84px; padding: 0; border: 2px solid transparent; border-radius: 6px; overflow: hidden; background: none; cursor: pointer; opacity: .7; }
+        .lp-gallery-thumb.is-active { border-color: var(--primary); opacity: 1; }
+        .lp-gallery-thumb img { width: 100%; height: 64px; object-fit: cover; display: block; }
+        @media (min-width: 900px) {
+            .lp-gallery { grid-template-columns: 1fr 104px; align-items: start; }
+            .lp-gallery-thumbs { flex-direction: column; overflow-x: visible; overflow-y: auto; max-height: 520px; }
+            .lp-gallery-thumb { flex: 0 0 auto; }
+        }
+        /* Photo review slider: swipeable on phones, with arrows. */
+        .lp-slider { position: relative; margin-top: 36px; }
+        .lp-slider-track { display: flex; gap: 18px; overflow-x: auto; scroll-snap-type: x mandatory; scroll-behavior: smooth; padding-bottom: 6px; }
+        .lp-slide { position: relative; flex: 0 0 min(300px, 82%); margin: 0; scroll-snap-align: start; border-radius: 6px; overflow: hidden; }
+        .lp-slide-img { position: relative; border-radius: 6px; overflow: hidden; background: var(--line); aspect-ratio: 4 / 5; }
+        .lp-slide-img img { width: 100%; height: 100%; object-fit: cover; }
+        .lp-slider-nav { display: flex; justify-content: flex-end; gap: 10px; margin-top: 16px; }
+        .lp-slider-btn { width: 40px; height: 40px; border-radius: 50%; border: 1px solid var(--line); background: var(--card); color: var(--accent); font-size: 22px; line-height: 1; cursor: pointer; }
         /* Order form: the steps on the left, the summary on the right. Colours come from the theme. */
         .lp-checkout { background: color-mix(in srgb, var(--bg) 92%, var(--accent) 8%); }
         .lp-checkout-head { margin-bottom: 36px; }

@@ -77,6 +77,15 @@ final class LandingPage
     }
 
     /**
+     * Whether an image was taken off on purpose. A cleared image stays off, so a template's fallback picture does not
+     * come back in its place.
+     */
+    public function cleared(string $id): bool
+    {
+        return $this->stored($id) === '';
+    }
+
+    /**
      * Whether a section has anything to show on the live page: a text field, an image, or a list row.
      * A section with nothing in it is left out of the page.
      */
@@ -144,15 +153,15 @@ final class LandingPage
     }
 
     /**
-     * A star rating. On the live page it is plain stars. In the editor it is five stars to click,
-     * which set the rating field (1 to 5).
+     * A star rating. On the live page it is plain stars, styled by the template's class. In the editor it is
+     * five stars to click, which set the rating field (1 to 5).
      */
-    public function stars(string $id): string
+    public function stars(string $id, string $class = 'fx-stars'): string
     {
         $value = max(0, min(5, (int) $this->text($id)));
 
         if (! $this->editable) {
-            return $value > 0 ? '<span class="fx-stars" aria-label="' . $value . ' / 5">' . str_repeat('★', $value) . '</span>' : '';
+            return $value > 0 ? '<span class="' . e($class) . '" aria-label="' . $value . ' / 5">' . str_repeat('★', $value) . '</span>' : '';
         }
 
         $buttons = '';

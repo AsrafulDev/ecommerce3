@@ -3,7 +3,7 @@
 
 @section('css')
 <style>
-    .lp-editor-frame { width: 100%; height: calc(100vh - 200px); min-height: 640px; border: 1px solid #e2e8f0; border-radius: 10px; background: #fff; }
+    .lp-editor-frame { width: 100%; height: calc(100vh - 200px); min-height: 640px; border: 1px solid #e2e8f0; border-radius: 10px; background: #fff; position: sticky; }
     .lp-panel { background: #fff; border-radius: 10px; box-shadow: 0 2px 10px rgba(15, 23, 42, .05); padding: 14px 16px; margin-bottom: 14px; }
     .lp-panel h6 { font-size: 12px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: #64748b; margin-bottom: 10px; }
     .lp-panel .form-check { margin-bottom: 6px; }

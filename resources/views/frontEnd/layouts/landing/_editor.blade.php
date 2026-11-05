@@ -9,6 +9,7 @@
     .lp-card, .lp-faq { position: relative; }
     .lp-img { position: relative; }
     .lp-img-change { position: absolute; right: 12px; bottom: 12px; background: #1c1917; color: #fff; border: 0; padding: 8px 12px; font-size: 13px; border-radius: 2px; cursor: pointer; }
+    .lp-img-remove { position: absolute; left: 12px; bottom: 12px; background: #fff; color: #1c1917; border: 1px solid #1c1917; padding: 7px 11px; font-size: 13px; border-radius: 2px; cursor: pointer; }
     .lp-icon-select { display: block; margin-top: 10px; font: inherit; font-size: 13px; color: #6b6255; border: 1px dashed var(--primary); border-radius: 2px; padding: 2px 6px; background: #fff; cursor: pointer; }
     .lp-row-add { margin-top: 18px; background: none; border: 1px dashed var(--primary); color: var(--primary); padding: 10px 16px; cursor: pointer; font: inherit; }
     .lp-star-edit { display: inline-flex; gap: 2px; }
@@ -45,6 +46,7 @@
         }
     });
 
+    // An icon picker: post the chosen name, and show it on the badge beside the picker.
     // An icon picker: post the chosen name, and show it on the badge beside the picker.
     document.addEventListener('change', function (e) {
         var picker = e.target.closest ? e.target.closest('select[data-el][data-type="icon"]') : null;
@@ -84,8 +86,21 @@
         var remove = e.target.closest('.lp-row-remove');
         if (remove) {
             var row = remove.closest('.lp-row');
-            row.querySelectorAll('[data-el][contenteditable]').forEach(function (el) {
-                el.textContent = '';
+            // Clear every field of the row, text, rating, photo and icon. A field left behind would make the row count as
+            // filled again on the next load, so the row would come back. Empty values are what the page reads as removed.
+            row.querySelectorAll('[data-el]').forEach(function (el) {
+                if (el.dataset.type === 'image') {
+                    el.querySelectorAll('img').forEach(function (picture) { picture.remove(); });
+                    if (el.hasAttribute('data-bg')) el.style.backgroundImage = '';
+                } else if (el.dataset.type === 'rating') {
+                    el.querySelectorAll('.lp-star').forEach(function (star) { star.classList.remove('is-on'); });
+                } else if (el.tagName === 'SELECT') {
+                    el.value = '';
+                    var preview = el.parentNode.querySelector('[data-icon-preview]');
+                    if (preview) preview.className = '';
+                } else if (el.hasAttribute('contenteditable')) {
+                    el.textContent = '';
+                }
                 post({ type: 'change', id: el.dataset.el, value: '' });
             });
             row.classList.remove('lp-added');
@@ -101,6 +116,16 @@
                 s.classList.toggle('is-on', Number(s.dataset.value) <= rating);
             });
             post({ type: 'change', id: holder.dataset.el, value: String(rating) });
+            return;
+        }
+
+        // Remove an image: take it off the frame now, and save an empty value, which the page reads as cleared.
+        var clear = e.target.closest('.lp-img-remove');
+        if (clear) {
+            var holder = clear.closest('[data-el]');
+            holder.querySelectorAll('img').forEach(function (picture) { picture.remove(); });
+            if (holder.hasAttribute('data-bg')) holder.style.backgroundImage = '';
+            post({ type: 'change', id: holder.dataset.el, value: '' });
             return;
         }
 

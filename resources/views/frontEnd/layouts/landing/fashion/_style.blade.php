@@ -64,13 +64,17 @@
 
     /* Two columns */
     .fx-split { display: grid; grid-template-columns: 1fr 1fr; gap: 64px; align-items: start; }
+    .fx-split.fx-split-solo { grid-template-columns: 1fr; }
     .fx-photo { border-radius: 18px; overflow: hidden; position: relative; aspect-ratio: 4 / 5; background: #e9dccb; }
     .fx-photo img { width: 100%; height: 100%; object-fit: cover; }
     .fx-photo-wide { aspect-ratio: 16 / 11; margin: 28px 0 0; }
+    .fx-photo img ~ .fx-empty { display: none; }
     .fx-spec { width: 100%; border-collapse: collapse; margin: 26px 0 22px; }
     .fx-spec th, .fx-spec td { text-align: left; padding: 14px 0; border-bottom: 1px solid var(--line); font-size: 15px; vertical-align: top; }
     .fx-spec th { width: 36%; font-weight: 500; color: var(--muted); }
     .fx-spec td { color: var(--ink); font-weight: 500; }
+    .fx-spec .fx-spec-tools { width: 34px; padding: 0; border-bottom: 0; }
+    .fx-spec .lp-row-remove { position: static; }
     .fx-colours { display: flex; gap: 12px; flex-wrap: wrap; }
     .fx-chip { display: inline-flex; align-items: center; gap: 8px; border: 1px solid var(--line); border-radius: 999px; padding: 6px 14px 6px 6px; background: var(--card); font-size: 14px; }
     .fx-chip i { width: 24px; height: 24px; border-radius: 50%; border: 1px solid var(--line); display: inline-block; }

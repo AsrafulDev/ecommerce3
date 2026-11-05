@@ -67,8 +67,8 @@ class ContentValidatorTest extends TestCase
     public function test_at_least_one_section_besides_checkout_must_stay_on(): void
     {
         $sections = [];
-        foreach (array_keys(TemplateRegistry::schema(TemplateRegistry::LUXURY)['sections']) as $key) {
-            $sections[$key] = ['enabled' => false];
+        foreach (TemplateRegistry::schema(TemplateRegistry::LUXURY)['sections'] as $key => $def) {
+            $sections[$key] = ['enabled' => ! empty($def['locked'])];
         }
         $sections['checkout'] = ['enabled' => true];
 
@@ -80,8 +80,8 @@ class ContentValidatorTest extends TestCase
     public function test_one_content_section_with_checkout_is_enough(): void
     {
         $sections = [];
-        foreach (array_keys(TemplateRegistry::schema(TemplateRegistry::LUXURY)['sections']) as $key) {
-            $sections[$key] = ['enabled' => false];
+        foreach (TemplateRegistry::schema(TemplateRegistry::LUXURY)['sections'] as $key => $def) {
+            $sections[$key] = ['enabled' => ! empty($def['locked'])];
         }
         $sections['checkout'] = ['enabled' => true];
         $sections['faq'] = ['enabled' => true];
@@ -172,6 +172,13 @@ class ContentValidatorTest extends TestCase
         } catch (InvalidLandingContent $e) {
             $this->assertContains("'benefits.item.1.icon' must be an icon from the list.", $e->errors);
         }
+    }
+
+    public function test_a_cleared_value_without_content_is_saved_as_empty_text(): void
+    {
+        $clean = ContentValidator::clean($this->content(['elements' => ['hero.title' => ['value' => null]]]), TemplateRegistry::LUXURY);
+
+        $this->assertSame('', $clean['elements']['hero.title']['value']);
     }
 
     public function test_unknown_template_fails_loudly(): void

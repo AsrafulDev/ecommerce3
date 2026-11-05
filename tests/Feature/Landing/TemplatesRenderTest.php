@@ -100,7 +100,7 @@ class TemplatesRenderTest extends TestCase
         $this->seed(DefaultDatabaseSeeder::class);
         $this->actingAs(User::first(), 'admin');
 
-        foreach ([TemplateRegistry::FASHION, TemplateRegistry::GADGET, TemplateRegistry::GROCERY] as $key) {
+        foreach ([TemplateRegistry::LUXURY, TemplateRegistry::FASHION, TemplateRegistry::GADGET, TemplateRegistry::GROCERY] as $key) {
             $landing = $this->landing($key);
 
             $this->get(route('landing.manage.frame', ['id' => $landing->id, 'editable' => 1]))
@@ -279,6 +279,119 @@ class TemplatesRenderTest extends TestCase
             ->assertSee('class="lp-star is-on"', false)
             ->assertSee('data-el="reviews.photo.1.image"', false)
             ->assertSee('data-el="reviews.photo.1.rating"', false);
+    }
+
+    public function test_luxury_reviews_have_an_editable_star_rating_and_show_stars_on_the_live_page(): void
+    {
+        $this->seed(DefaultDatabaseSeeder::class);
+        $this->actingAs(User::first(), 'admin');
+        $landing = $this->landing(TemplateRegistry::LUXURY, ['elements' => [
+            'reviews.item.1.name' => ['value' => 'Nusrat'],
+            'reviews.item.1.rating' => ['value' => '4'],
+            'reviews.item.1.text' => ['value' => 'Soft and light.'],
+        ]]);
+
+        $this->get(route('landing.manage.frame', ['id' => $landing->id, 'editable' => 1]))
+            ->assertOk()
+            ->assertSee('data-el="reviews.item.1.rating"', false)
+            ->assertSee('class="lp-star is-on"', false);
+
+        $this->get('/landing/page-luxury')
+            ->assertOk()
+            ->assertSee('class="lp-stars"', false)
+            ->assertSee('aria-label="4 / 5"', false);
+    }
+
+    public function test_the_luxury_gallery_is_its_own_section_with_a_main_photo_and_thumbnails(): void
+    {
+        $this->landing(TemplateRegistry::LUXURY, ['elements' => [
+            'gallery.heading' => ['value' => 'Look closer'],
+            'gallery.item.1.title' => ['value' => 'Soft linen'],
+            'gallery.item.1.image' => ['value' => 'public/uploads/linen.webp'],
+            'gallery.item.2.title' => ['value' => 'Tonal stitch'],
+            'gallery.item.2.image' => ['value' => 'public/uploads/stitch.webp'],
+        ]]);
+
+        $this->get('/landing/page-luxury')
+            ->assertOk()
+            ->assertSee('id="gallery"', false)
+            ->assertSee('Look closer')
+            ->assertSee('data-gallery', false)
+            ->assertSee('lp-gallery-thumb', false)
+            ->assertSee('Tonal stitch');
+    }
+
+    public function test_the_luxury_gallery_stays_off_the_live_page_until_it_has_photos(): void
+    {
+        $this->landing(TemplateRegistry::LUXURY);
+
+        $this->get('/landing/page-luxury')
+            ->assertOk()
+            ->assertDontSee('id="gallery"', false);
+    }
+
+    public function test_luxury_features_stay_as_cards_by_default(): void
+    {
+        $this->landing(TemplateRegistry::LUXURY, ['elements' => [
+            'features.item.1.title' => ['value' => 'Soft linen'],
+            'features.item.1.image' => ['value' => 'public/uploads/linen.webp'],
+        ]]);
+
+        $this->get('/landing/page-luxury')
+            ->assertOk()
+            ->assertDontSee('data-gallery', false)
+            ->assertSee('lp-card-img', false);
+    }
+
+    public function test_photo_reviews_show_only_the_image(): void
+    {
+        $this->landing(TemplateRegistry::LUXURY, ['elements' => [
+            'reviews.item.1.name' => ['value' => ''],
+            'reviews.photo.1.image' => ['value' => 'public/uploads/review-photo.webp'],
+            'reviews.photo.1.rating' => ['value' => '5'],
+        ]]);
+
+        $this->get('/landing/page-luxury')
+            ->assertOk()
+            ->assertSee('data-slider', false)
+            ->assertDontSee('<figcaption>—', false);
+    }
+
+    public function test_the_luxury_photo_reviews_show_as_a_slider_only_when_photos_exist(): void
+    {
+        $this->landing(TemplateRegistry::LUXURY, ['elements' => [
+            'reviews.photo.1.name' => ['value' => 'Rahim'],
+            'reviews.photo.1.rating' => ['value' => '5'],
+            'reviews.photo.1.image' => ['value' => 'public/uploads/review-photo.webp'],
+            'reviews.photo.2.name' => ['value' => 'Karim'],
+            'reviews.photo.2.image' => ['value' => 'public/uploads/review-photo-2.webp'],
+        ]]);
+
+        $this->get('/landing/page-luxury')
+            ->assertOk()
+            ->assertSee('data-slider', false)
+            ->assertSee('lp-slider-btn', false);
+    }
+
+    public function test_without_photo_reviews_the_luxury_page_has_no_slider(): void
+    {
+        $this->landing(TemplateRegistry::LUXURY);
+
+        $this->get('/landing/page-luxury')
+            ->assertOk()
+            ->assertDontSee('data-slider', false);
+    }
+
+    public function test_the_editor_offers_gallery_photo_slots(): void
+    {
+        $this->seed(DefaultDatabaseSeeder::class);
+        $this->actingAs(User::first(), 'admin');
+        $landing = $this->landing(TemplateRegistry::LUXURY);
+
+        $this->get(route('landing.manage.frame', ['id' => $landing->id, 'editable' => 1]))
+            ->assertOk()
+            ->assertSee('data-el="gallery.item.1.image"', false)
+            ->assertSee('data-row-list="gallery.item"', false);
     }
 
     public function test_a_photo_review_and_its_stars_show_on_the_live_page(): void

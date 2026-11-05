@@ -103,6 +103,15 @@ final class TemplateRegistry
                     'text' => '#1c1917',
                 ],
                 'sections' => [
+                    // Always on, like the other templates' header.
+                    'nav' => [
+                        'locked' => true,
+                        'elements' => [
+                            'nav.brand' => ['type' => 'text', 'max' => 40, 'default' => 'আপনার ব্র্যান্ড'],
+                            'nav.brand_sub' => ['type' => 'text', 'max' => 60, 'default' => 'LUXURY COLLECTION'],
+                            'nav.cta' => ['type' => 'text', 'max' => 40, 'default' => 'অর্ডার করুন'],
+                        ],
+                    ],
                     'hero' => [
                         'elements' => [
                             'hero.eyebrow' => ['type' => 'text', 'max' => 120, 'default' => 'Limited time offer'],
@@ -154,6 +163,24 @@ final class TemplateRegistry
                             ],
                         ],
                     ],
+                    // Its own section, separate from the features: a main photo with thumbnails to browse the rest.
+                    // The heading starts empty, so the section stays off the live page until photos are added.
+                    'gallery' => [
+                        'elements' => [
+                            'gallery.heading' => ['type' => 'text', 'max' => 200, 'default' => ''],
+                        ],
+                        'lists' => [
+                            'item' => [
+                                'max_items' => 8,
+                                'fields' => [
+                                    'image' => ['type' => 'image', 'max' => 255],
+                                    'title' => ['type' => 'text', 'max' => 120],
+                                    'text' => ['type' => 'text', 'max' => 300],
+                                ],
+                                'defaults' => [],
+                            ],
+                        ],
+                    ],
                     'reviews' => [
                         'elements' => [
                             'reviews.heading' => ['type' => 'text', 'max' => 200, 'default' => 'What people say'],
@@ -169,6 +196,14 @@ final class TemplateRegistry
                                 'defaults' => [
                                     ['name' => 'Customer', 'rating' => '5', 'text' => 'Great product.'],
                                 ],
+                            ],
+                            // Photo reviews: an image only, shown in a slider. Only the photos that are set appear on the live page.
+                            'photo' => [
+                                'max_items' => 10,
+                                'fields' => [
+                                    'image' => ['type' => 'image', 'max' => 255],
+                                ],
+                                'defaults' => [],
                             ],
                         ],
                     ],
