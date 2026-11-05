@@ -1,6 +1,15 @@
 @extends('backEnd.layouts.master')
 @section('title', 'Opening Balances')
 
+@section('css')
+<style>
+    /* The opening lines are typed in, so their fields are full size. */
+    #openingLines input.form-control,
+    #openingLines select.form-select { font-size: 1rem; min-height: 44px; padding: .5rem .75rem; }
+    #openingLines td { vertical-align: middle; }
+</style>
+@endsection
+
 @section('content')
 <div class="container-fluid">
 
@@ -54,14 +63,14 @@
                 </p>
 
                 <div class="table-responsive">
-                    <table class="table table-sm align-middle mb-0" id="openingLines">
+                    <table class="table align-middle mb-0" id="openingLines">
                         <thead class="table-light">
                             <tr>
                                 <th style="min-width:230px;">Account</th>
                                 <th style="min-width:210px;">Description</th>
-                                <th style="width:120px;" class="text-end">Debit</th>
-                                <th style="width:120px;" class="text-end">Credit</th>
-                                <th style="width:150px;">Party</th>
+                                <th style="min-width:150px;" class="text-end">Debit</th>
+                                <th style="min-width:150px;" class="text-end">Credit</th>
+                                <th style="min-width:280px;">Party</th>
                                 <th style="min-width:150px;">How it was worked out</th>
                                 <th style="width:44px;"></th>
                             </tr>
@@ -71,7 +80,7 @@
                             <tr>
                                 <td>
                                     @php $value = (string) ($line['account_id'] ?? ''); @endphp
-                                    <select name="lines[{{ $i }}][account_id]" class="form-select form-select-sm">
+                                    <select name="lines[{{ $i }}][account_id]" class="form-select form-select">
                                         <option value="">— none —</option>
                                         @foreach ($accounts as $option)
                                             <option value="{{ $option->id }}" @selected($value === (string) $option->id)>
@@ -87,29 +96,29 @@
                                     @error("lines.{$i}.account_id")<span class="text-danger small">{{ $message }}</span>@enderror
                                 </td>
                                 <td>
-                                    <input type="text" name="lines[{{ $i }}][description]" class="form-control form-control-sm"
+                                    <input type="text" name="lines[{{ $i }}][description]" class="form-control form-control"
                                            value="{{ $line['description'] ?? '' }}" maxlength="255">
                                 </td>
                                 <td>
                                     <input type="number" step="0.01" min="0" name="lines[{{ $i }}][debit]"
-                                           class="form-control form-control-sm text-end" value="{{ $line['debit'] ?? '' }}">
+                                           class="form-control form-control text-end" value="{{ $line['debit'] ?? '' }}">
                                     @error("lines.{$i}.debit")<span class="text-danger small">{{ $message }}</span>@enderror
                                 </td>
                                 <td>
                                     <input type="number" step="0.01" min="0" name="lines[{{ $i }}][credit]"
-                                           class="form-control form-control-sm text-end" value="{{ $line['credit'] ?? '' }}">
+                                           class="form-control form-control text-end" value="{{ $line['credit'] ?? '' }}">
                                     @error("lines.{$i}.credit")<span class="text-danger small">{{ $message }}</span>@enderror
                                 </td>
                                 <td>
                                     <div class="d-flex gap-1">
-                                        <select name="lines[{{ $i }}][party_type]" class="form-select form-select-sm">
+                                        <select name="lines[{{ $i }}][party_type]" class="form-select form-select">
                                             <option value="">—</option>
                                             @foreach ($parties as $party)
                                                 <option value="{{ $party->value }}" @selected(($line['party_type'] ?? '') === $party->value)>{{ $party->value }}</option>
                                             @endforeach
                                         </select>
-                                        <input type="number" min="1" name="lines[{{ $i }}][party_id]" class="form-control form-control-sm"
-                                               value="{{ $line['party_id'] ?? '' }}" placeholder="id" style="width:66px;">
+                                        <input type="number" min="1" name="lines[{{ $i }}][party_id]" class="form-control form-control"
+                                               value="{{ $line['party_id'] ?? '' }}" placeholder="id" style="width:110px;">
                                     </div>
                                 </td>
                                 <td><small class="text-muted">{{ $line['source'] ?? 'keyed in by hand' }}</small></td>
