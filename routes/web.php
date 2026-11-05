@@ -1091,6 +1091,9 @@ Route::group(['middleware' => ['auth:admin','admin','lock','check_refer','demo_m
     Route::post('landing-pages/{id}/save', [\App\Http\Controllers\Admin\LandingManageController::class, 'save'])->name('landing.manage.save');
     Route::post('landing-pages/{id}/settings', [\App\Http\Controllers\Admin\LandingManageController::class, 'settings'])->name('landing.manage.settings');
     Route::post('landing-pages/{id}/delete', [\App\Http\Controllers\Admin\LandingManageController::class, 'destroy'])->name('landing.manage.destroy');
+    Route::post('landing-pages/{id}/duplicate', [\App\Http\Controllers\Admin\LandingManageController::class, 'duplicate'])->name('landing.manage.duplicate');
+    Route::post('landing-pages/{id}/product', [\App\Http\Controllers\Admin\LandingManageController::class, 'changeProduct'])->name('landing.manage.product');
+    Route::post('landing-pages/{id}/details', [\App\Http\Controllers\Admin\LandingManageController::class, 'updateDetails'])->name('landing.manage.details');
 
     // Theme Management Routes
     Route::get('themes', [ThemeController::class, 'index'])->name('themes.index');

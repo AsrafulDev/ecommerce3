@@ -12,6 +12,7 @@ use App\Services\Landing\LandingPricing;
 use App\Services\Landing\TemplateRegistry;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Toastr;
 
@@ -27,8 +28,8 @@ class LandingManageController extends Controller
     public function __construct()
     {
         $this->middleware('permission:landing-list', ['only' => ['index']]);
-        $this->middleware('permission:landing-create', ['only' => ['store']]);
-        $this->middleware('permission:landing-edit', ['only' => ['edit', 'frame', 'save', 'settings', 'destroy']]);
+        $this->middleware('permission:landing-create', ['only' => ['store', 'duplicate']]);
+        $this->middleware('permission:landing-edit', ['only' => ['edit', 'frame', 'save', 'settings', 'destroy', 'changeProduct', 'updateDetails']]);
     }
 
     public function index()
@@ -200,6 +201,77 @@ class LandingManageController extends Controller
         $landing->delete();
 
         Toastr::success(__('Landing page deleted: :name', ['name' => $name]), 'Success');
+
+        return redirect()->route('landing.manage.index');
+    }
+
+    /**
+     * A copy of a landing page: same template, content and product, with its own name and link. The copy is a draft.
+     * The coupon and the validity window are not copied, so the copy starts with no code and no dates.
+     */
+    public function duplicate(int $id)
+    {
+        $source = $this->owned($id);
+        $name = Str::limit($source->name.' (copy)', 191, '');
+
+        $copy = LandingTemplate::create([
+            'name' => $name,
+            'slug' => LandingTemplate::uniqueSlug($name),
+            'template_key' => $source->template_key,
+            'product_id' => $source->product_id,
+            'created_by' => auth('admin')->id(),
+            'content' => $source->content,
+            'status' => false,
+            'extra_discount_type' => $source->extra_discount_type,
+            'extra_discount_value' => $source->extra_discount_value,
+        ]);
+
+        Toastr::success(__('Copied. The copy is a draft: check it, then switch it on.'), 'Success');
+
+        return redirect()->route('landing.manage.edit', $copy->id);
+    }
+
+    /** Points the landing page at another product. The template, content and link stay as they are. */
+    public function changeProduct(Request $request, int $id)
+    {
+        $landing = $this->owned($id);
+
+        $data = $request->validateWithBag('product', [
+            'product_id' => ['required', Rule::exists('products', 'id')->where('status', 1)],
+        ], [
+            'product_id.required' => 'Choose a product.',
+            'product_id.exists' => 'Choose an active product.',
+        ]);
+
+        $landing->update(['product_id' => $data['product_id']]);
+
+        Toastr::success(__('Product changed for :name.', ['name' => $landing->name]), 'Success');
+
+        return redirect()->route('landing.manage.index');
+    }
+
+    /**
+     * The title and the link name. The template is never read here: a page keeps the template it was made with.
+     * Changing the link name stops the old address working, so the page is shared again under the new one.
+     */
+    public function updateDetails(Request $request, int $id)
+    {
+        $landing = $this->owned($id);
+
+        $request->merge(['slug' => Str::slug((string) $request->input('slug'))]);
+
+        $data = $request->validateWithBag('details', [
+            'name' => 'required|string|max:191',
+            'slug' => ['required', 'string', 'max:191', Rule::unique('landing_templates', 'slug')->ignore($landing->id)],
+        ], [
+            'name.required' => 'Enter a title for the landing page.',
+            'slug.required' => 'Enter a link name. It becomes part of the page address.',
+            'slug.unique' => 'Another landing page already uses this link name.',
+        ]);
+
+        $landing->update(['name' => $data['name'], 'slug' => $data['slug']]);
+
+        Toastr::success(__('Saved. The page address is now /landing/:slug.', ['slug' => $landing->slug]), 'Success');
 
         return redirect()->route('landing.manage.index');
     }

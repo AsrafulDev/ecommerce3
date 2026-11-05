@@ -15,6 +15,13 @@
         @endcan
     </div>
 
+    @if($errors->product->any())
+        <div class="alert alert-danger">{{ $errors->product->first() }}</div>
+    @endif
+    @if($errors->details->any())
+        <div class="alert alert-danger">{{ $errors->details->first() }}</div>
+    @endif
+
     <div class="card">
         <div class="table-responsive">
             <table class="table table-hover align-middle mb-0">
@@ -48,13 +55,34 @@
                                 @endif
                             </td>
                             <td class="text-end">
-                                @can('landing-edit')
-                                    <a href="{{ route('landing.manage.edit', $landing->id) }}" class="btn btn-sm btn-outline-primary">{{ __('Edit') }}</a>
-                                    <button type="button" class="btn btn-sm btn-outline-danger ms-1 landing-delete"
-                                        data-action="{{ route('landing.manage.destroy', $landing->id) }}"
-                                        data-name="{{ $landing->name }}"
-                                        data-bs-toggle="modal" data-bs-target="#landingDelete">{{ __('Delete') }}</button>
-                                @endcan
+                                <div class="d-flex flex-wrap justify-content-end gap-1">
+                                    @can('landing-edit')
+                                        <a href="{{ route('landing.manage.edit', $landing->id) }}" class="btn btn-sm btn-outline-primary">{{ __('Edit') }}</a>
+                                        <button type="button" class="btn btn-sm btn-outline-secondary landing-details"
+                                            data-action="{{ route('landing.manage.details', $landing->id) }}"
+                                            data-name="{{ $landing->name }}"
+                                            data-slug="{{ $landing->slug }}"
+                                            data-template="{{ \App\Services\Landing\TemplateRegistry::label($landing->template_key) }}"
+                                            data-bs-toggle="modal" data-bs-target="#landingDetails">{{ __('Title & link') }}</button>
+                                        <button type="button" class="btn btn-sm btn-outline-secondary landing-product"
+                                            data-action="{{ route('landing.manage.product', $landing->id) }}"
+                                            data-name="{{ $landing->name }}"
+                                            data-current="{{ $landing->product_id }}"
+                                            data-bs-toggle="modal" data-bs-target="#landingProduct">{{ __('Change product') }}</button>
+                                    @endcan
+                                    @can('landing-create')
+                                        <form method="POST" action="{{ route('landing.manage.duplicate', $landing->id) }}" class="d-inline">
+                                            @csrf
+                                            <button type="submit" class="btn btn-sm btn-outline-secondary">{{ __('Duplicate') }}</button>
+                                        </form>
+                                    @endcan
+                                    @can('landing-edit')
+                                        <button type="button" class="btn btn-sm btn-outline-danger landing-delete"
+                                            data-action="{{ route('landing.manage.destroy', $landing->id) }}"
+                                            data-name="{{ $landing->name }}"
+                                            data-bs-toggle="modal" data-bs-target="#landingDelete">{{ __('Delete') }}</button>
+                                    @endcan
+                                </div>
                             </td>
                         </tr>
                     @empty
@@ -90,6 +118,66 @@
     </div>
 </div>
 
+{{-- Change product: only the product changes. The template, content and link stay. --}}
+<div class="modal fade" id="landingProduct" tabindex="-1" aria-labelledby="landingProductLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <form method="POST" id="landingProductForm" action="#" class="modal-content">
+            @csrf
+            <div class="modal-header">
+                <h5 class="modal-title" id="landingProductLabel">{{ __('Change product') }}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p class="mb-2">{{ __('Landing page') }}: <strong id="landingProductName"></strong></p>
+                <label for="landingProductSelect" class="form-label fw-semibold">{{ __('Product') }} <span class="text-danger">*</span></label>
+                <select id="landingProductSelect" name="product_id" class="form-select" required>
+                    <option value="">{{ __('Choose a product') }}</option>
+                    @foreach($products as $product)
+                        <option value="{{ $product->id }}">{{ $product->name }}</option>
+                    @endforeach
+                </select>
+                <div class="form-text">{{ __('The template, text, images and link stay the same.') }}</div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-light" data-bs-dismiss="modal">{{ __('Cancel') }}</button>
+                <button type="submit" class="btn btn-primary">{{ __('Save product') }}</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+{{-- Title and link. The template is shown but cannot be changed here. --}}
+<div class="modal fade" id="landingDetails" tabindex="-1" aria-labelledby="landingDetailsLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <form method="POST" id="landingDetailsForm" action="#" class="modal-content">
+            @csrf
+            <div class="modal-header">
+                <h5 class="modal-title" id="landingDetailsLabel">{{ __('Title & link') }}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p class="small text-muted mb-3">{{ __('Template') }}: <strong id="landingDetailsTemplate"></strong> — {{ __('cannot be changed here.') }}</p>
+                <div class="mb-3">
+                    <label for="landingDetailsName" class="form-label fw-semibold">{{ __('Landing title') }} <span class="text-danger">*</span></label>
+                    <input id="landingDetailsName" type="text" name="name" class="form-control" required maxlength="191">
+                </div>
+                <div class="mb-1">
+                    <label for="landingDetailsSlug" class="form-label fw-semibold">{{ __('Link name') }} <span class="text-danger">*</span></label>
+                    <input id="landingDetailsSlug" type="text" name="slug" class="form-control" required maxlength="191">
+                    <div class="form-text">{{ __('Address') }}: /landing/<span id="landingDetailsLink"></span></div>
+                </div>
+                <div class="alert alert-warning mt-3 mb-0">
+                    {{ __('Changing the link name stops the old address working. Share the new address with customers.') }}
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-light" data-bs-dismiss="modal">{{ __('Cancel') }}</button>
+                <button type="submit" class="btn btn-primary">{{ __('Save') }}</button>
+            </div>
+        </form>
+    </div>
+</div>
+
 @push('scripts')
 <script>
     document.querySelectorAll('.landing-delete').forEach(function (button) {
@@ -97,6 +185,27 @@
             document.getElementById('landingDeleteForm').action = button.dataset.action;
             document.getElementById('landingDeleteName').textContent = button.dataset.name;
         });
+    });
+
+    document.querySelectorAll('.landing-product').forEach(function (button) {
+        button.addEventListener('click', function () {
+            document.getElementById('landingProductForm').action = button.dataset.action;
+            document.getElementById('landingProductName').textContent = button.dataset.name;
+            document.getElementById('landingProductSelect').value = button.dataset.current || '';
+        });
+    });
+
+    document.querySelectorAll('.landing-details').forEach(function (button) {
+        button.addEventListener('click', function () {
+            document.getElementById('landingDetailsForm').action = button.dataset.action;
+            document.getElementById('landingDetailsName').value = button.dataset.name;
+            document.getElementById('landingDetailsSlug').value = button.dataset.slug;
+            document.getElementById('landingDetailsTemplate').textContent = button.dataset.template;
+            document.getElementById('landingDetailsLink').textContent = button.dataset.slug;
+        });
+    });
+    document.getElementById('landingDetailsSlug').addEventListener('input', function (e) {
+        document.getElementById('landingDetailsLink').textContent = e.target.value;
     });
 </script>
 @endpush
