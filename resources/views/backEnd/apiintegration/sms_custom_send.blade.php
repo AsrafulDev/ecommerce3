@@ -150,7 +150,7 @@
         </div>
 
         <p class="text-center text-muted mt-4 small">
-            Powered by <strong> {{ __('Creative Design SMS Gateway') }} </strong>
+            Powered by <strong> {{ __('SMS Gateway') }} </strong>
         </p>
     </div>
 </div>
