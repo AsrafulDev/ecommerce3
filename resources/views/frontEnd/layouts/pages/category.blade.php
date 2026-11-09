@@ -112,6 +112,7 @@
                         </div>
                         <!--sidebar item end-->
                         @endif
+                        @if($category->subcategories->count() > 0)
                         <div class="sidebar_item wraper__item">
                             <div class="accordion" id="category_sidebar">
                                 <div class="accordion-item">
@@ -138,6 +139,7 @@
                             </div>
                         </div>
                         <!--sidebar item end-->
+                        @endif
                         @if(isset($subcategories) && $subcategories->count() > 0)
                         <div class="sidebar_item wraper__item">
                             <div class="accordion" id="filter_sidebar">

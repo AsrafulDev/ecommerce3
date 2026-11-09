@@ -1113,6 +1113,9 @@
       @can('landing-list')
       <li class="{{ request()->routeIs('landing.manage.*') ? 'active' : '' }}"><a href="{{ route('landing.manage.index') }}"><i data-feather="file-plus"></i> {{ __('Landing Pages') }} </a></li>
       @endcan
+      @can('landing-list')
+      <li class="{{ request()->routeIs('landing.themes.*') ? 'active' : '' }}"><a href="{{ route('landing.themes.index') }}"><i data-feather="droplet"></i> {{ __('Landing Themes') }} </a></li>
+      @endcan
     </ul>
   </div>
 </li>
@@ -1391,6 +1394,9 @@
       <li><a href="{{ route('headerfooter.index') }}"><i data-feather="layout"></i> {{ __('Header & Footer') }} </a></li>
       @canany(['theme-list', 'theme-create', 'theme-edit'])
       <li><a href="{{ route('product.design') }}"><i data-feather="grid"></i> {{ __('Product Design') }} </a></li>
+      @can('theme-list')
+      <li class="{{ request()->routeIs('single-layout.*') ? 'active' : '' }}"><a href="{{ route('single-layout.index') }}"><i data-feather="monitor"></i> {{ __('Single Layout') }} </a></li>
+      @endcan
       @endcanany
       <li><a href="{{ route('demo.index') }}"><i data-feather="upload"></i> {{ __('Demo Import/Export') }} </a></li>
     </ul>

@@ -9,6 +9,29 @@ namespace App\Services\Landing;
  */
 final class LandingThemes
 {
+    /**
+     * The themes an editor can choose from: the built-in presets, then the custom themes. Each entry has a key the editor
+     * uses ('builtin-gold', 'custom-3'), a label, the four colours, and whether it is a custom theme.
+     *
+     * @return array<string, array{key: string, label: string, colours: array<string, string>, custom: bool, id: ?int}>
+     */
+    public static function all(): array
+    {
+        $themes = [];
+        foreach (self::presets() as $key => $preset) {
+            $themes['builtin-'.$key] = [
+                'key' => 'builtin-'.$key, 'label' => $preset['label'], 'colours' => $preset['colours'], 'custom' => false, 'id' => null,
+            ];
+        }
+        foreach (\App\Models\LandingTheme::orderBy('name')->get() as $theme) {
+            $themes['custom-'.$theme->id] = [
+                'key' => 'custom-'.$theme->id, 'label' => $theme->name, 'colours' => $theme->colours(), 'custom' => true, 'id' => $theme->id,
+            ];
+        }
+
+        return $themes;
+    }
+
     /** @return array<string, array{label: string, colours: array{primary: string, accent: string, background: string, text: string}}> */
     public static function presets(): array
     {

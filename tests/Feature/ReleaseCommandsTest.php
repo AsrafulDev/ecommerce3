@@ -34,6 +34,14 @@ class ReleaseCommandsTest extends TestCase
         $this->assertFalse(File::exists($zip));
     }
 
+    public function test_every_release_carries_the_public_backend_assets_and_the_whole_custom_package(): void
+    {
+        $this->artisan('release:build', ['version' => '9.8.4', '--dry-run' => true])
+            ->expectsOutputToContain('Public folders: public/backEnd (')
+            ->expectsOutputToContain('packages/softmit-bd-double-entry')
+            ->assertExitCode(0);
+    }
+
     public function test_upload_needs_a_built_release(): void
     {
         File::delete(storage_path('app/updates/update-9.8.6.zip'));

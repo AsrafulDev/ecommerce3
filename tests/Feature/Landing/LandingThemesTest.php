@@ -66,7 +66,7 @@ class LandingThemesTest extends TestCase
             ->assertSee('Customise colours');
 
         foreach (array_keys(LandingThemes::presets()) as $key) {
-            $response->assertSee('data-preset="'.$key.'"', false);
+            $response->assertSee('data-preset="builtin-'.$key.'"', false);
         }
         foreach (LandingThemes::presets() as $preset) {
             $response->assertSee($preset['label']);

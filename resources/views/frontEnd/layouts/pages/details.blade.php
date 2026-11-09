@@ -178,9 +178,43 @@ if (typeof ttq !== 'undefined') {
     50% { outline: 2px solid transparent; outline-offset: 4px; }
 }
 </style>
+<style>
+/* Single Layout: colours from the active layout; sections, shapes, extra text and custom buttons switched by classes on the wrapper. */
+.sl-scope { background: var(--sl-background, transparent); color: var(--sl-text, inherit); }
+.sl-scope a { color: var(--sl-primary, inherit); }
+.sl-scope :is(.order_now_btn, .add_cart_btn, .gomobd-review-btn, .sl-btn-phone, .sl-btn-whatsapp, .sl-custom-btn) { background-color: var(--sl-btn-bg) !important; border-color: var(--sl-btn-bg) !important; color: var(--sl-btn-color) !important; }
+.sl-scope :is(.order_now_btn, .add_cart_btn, .gomobd-review-btn, .sl-btn-phone, .sl-btn-whatsapp, .sl-custom-btn):hover { background-color: var(--sl-btn-hover-bg) !important; border-color: var(--sl-btn-hover-bg) !important; color: var(--sl-btn-hover-color) !important; }
+.sl-scope .order_now_btn { --sl-btn-bg: var(--sl-order-now); --sl-btn-hover-bg: var(--sl-order-now-hover); --sl-btn-color: var(--sl-order-now-text); --sl-btn-hover-color: var(--sl-order-now-hover-text); }
+.sl-scope :is(.add_cart_btn, .gomobd-review-btn) { --sl-btn-bg: var(--sl-add-to-cart); --sl-btn-hover-bg: var(--sl-add-to-cart-hover); --sl-btn-color: var(--sl-add-to-cart-text); --sl-btn-hover-color: var(--sl-add-to-cart-hover-text); }
+.sl-scope .sl-btn-phone { --sl-btn-bg: var(--sl-phone); --sl-btn-hover-bg: var(--sl-phone-hover); --sl-btn-color: var(--sl-phone-text); --sl-btn-hover-color: var(--sl-phone-hover-text); }
+.sl-scope .sl-btn-whatsapp { --sl-btn-bg: var(--sl-whatsapp); --sl-btn-hover-bg: var(--sl-whatsapp-hover); --sl-btn-color: var(--sl-whatsapp-text); --sl-btn-hover-color: var(--sl-whatsapp-hover-text); }
+.sl-scope .sl-custom-btn { --sl-btn-bg: var(--sl-custom-bg); --sl-btn-hover-bg: var(--sl-custom-hover-bg); --sl-btn-color: var(--sl-custom-text); --sl-btn-hover-color: var(--sl-custom-hover-text); }
+.sl-button-square :is(.order_now_btn, .add_cart_btn, .gomobd-review-btn, .sl-btn-phone, .sl-btn-whatsapp, .sl-custom-btn) { border-radius: 0 !important; }
+.sl-button-rounded :is(.order_now_btn, .add_cart_btn, .gomobd-review-btn, .sl-btn-phone, .sl-btn-whatsapp, .sl-custom-btn) { border-radius: 0.375rem !important; }
+.sl-button-circle :is(.order_now_btn, .add_cart_btn, .gomobd-review-btn, .sl-btn-phone, .sl-btn-whatsapp, .sl-custom-btn) { border-radius: 50px !important; }
+.sl-scope .product-details-discount-badge span.sale-badge-text { background-color: var(--sl-accent) !important; }
+.sl-scope .product-details-discount-badge:hover span.sale-badge-text { background-color: var(--sl-badge-hover) !important; }
+.sl-badge-square .product-details-discount-badge span.sale-badge-text { border-radius: 0 !important; }
+.sl-badge-rounded .product-details-discount-badge span.sale-badge-text { border-radius: 10px !important; }
+.sl-badge-circle .product-details-discount-badge span.sale-badge-text { border-radius: 50% !important; }
+.sl-extra-text { margin-top: 0.5rem; font-size: 14px; }
+.sl-extra-text:empty { display: none; }
+.sl-custom-buttons:empty { display: none; }
+.sl-hide-description [data-sl-section="description"],
+.sl-hide-reviews [data-sl-section="reviews"],
+.sl-hide-write_review [data-sl-section="write_review"],
+.sl-hide-related [data-sl-section="related"],
+.sl-hide-order_now [data-sl-section="order_now"],
+.sl-hide-call [data-sl-section="call"],
+.sl-hide-whatsapp [data-sl-section="whatsapp"],
+.sl-hide-shipping [data-sl-section="shipping"] { display: none !important; }
+.sl-gallery-right .product-section > .container > .row > div:first-child { order: 2; }
+.sl-sticky-info .product-section > .container > .row > div:last-child { position: sticky; top: 90px; align-self: flex-start; }
+</style>
 @endpush
 
 @section('content')
+<div class="{{ $singleLayout['classes'] }}" data-sl-scope style="{{ $singleLayout['style'] }}">
 <div class="homeproduct main-details-page">
     <div class="container">
         <div class="row">
@@ -457,30 +491,31 @@ if (typeof ttq !== 'undefined') {
                                                             </div>
                                                             <div class="d-flex single_product col-sm-12">
                                                   <input type="submit" class="btn px-4 add_cart_btn" onclick="return sendSuccess();" name="add_cart" value="{{ __('Add to Cart') }}" />
-<input type="submit" class="btn px-4 order_now_btn order_now_btn_m" onclick="return sendSuccess();" name="order_now" value="{{ __('Order Now') }}" />
+<input type="submit" class="btn px-4 order_now_btn order_now_btn_m" data-sl-section="order_now" onclick="return sendSuccess();" name="order_now" value="{{ __('Order Now') }}" />
                                                             </div>
                                                         </div>
-                                                        <div class="mt-md-2 mt-2">
+                                                        <div class="mt-md-2 mt-2" data-sl-section="call">
                                                             <h4 class="font-weight-bold">
-                                                                <a class="btn btn-success w-100 call_now_btn"
+                                                                <a class="btn btn-success w-100 call_now_btn sl-btn-phone"
                                                                     href="tel: {{ $contact->hotline ?? '01XXX-XXXXXX' }}">
-                                                                    <i class="fa fa-phone-square"></i>
+                                                                    <i class="fa-solid fa-square-phone"></i>
                                                                     {{ $contact->hotline ?? '01XXX-XXXXXX' }}
                                                                 </a>
                                                             </h4>
                                                         </div>
-                                                       <div class="mt-md-2 mt-2">
+                                                       <div class="mt-md-2 mt-2" data-sl-section="whatsapp">
                                                         <h4 class="font-weight-bold">
-                                                            <a class="btn btn-success w-100 call_now_btn"
+                                                            <a class="btn btn-success w-100 call_now_btn sl-btn-whatsapp"
                                                                 href="https://api.whatsapp.com/send?phone={{ $contact->whatsapp ?? '8801519607646' }}&text=হ্যালো, আমি এই পণ্যটির ব্যাপারে জানতে চাই: {{ urlencode(Request::url()) }}"
                                                                 target="_blank">
-                                                                <i class="fa fa-whatsapp"></i>
+                                                                <i class="fa-brands fa-whatsapp"></i>
                                                                 {{ __('Ask about this product') }}
                                                             </a>
                                                         </h4>
                                                     </div>
 
-                                                        <div class="mt-md-2 mt-2">
+                                                        <div class="sl-custom-buttons" data-sl-custom-list>@foreach($singleLayout['custom_buttons'] as $button)<a class="btn w-100 mt-2 sl-custom-btn" href="{{ $button['link'] }}" target="_blank" rel="noopener" style="--sl-custom-bg: {{ $button['background'] }}; --sl-custom-hover-bg: {{ $button['hover_background'] }}; --sl-custom-text: {{ $button['text'] }}; --sl-custom-hover-text: {{ $button['hover_text'] }}">{{ $button['label'] }}</a>@endforeach</div>
+                                                        <div class="mt-md-2 mt-2" data-sl-section="shipping">
                                                             <div class="del_charge_area">
                                                                 <div class="alert alert-info text-xs">
                                                                     <div class="flext_area">
@@ -496,6 +531,7 @@ if (typeof ttq !== 'undefined') {
                                                             </div>
                                                         </div>
                                                      
+                                            <div class="sl-extra-text">{{ $singleLayout['extra_text'] }}</div>
                                             </form>
 
 
@@ -541,7 +577,7 @@ if (typeof ttq !== 'undefined') {
     <div class="container">
         <div class="row">
             <div class="col-sm-8">
-                <div class="description tab-content details-action-box" id="description">
+                <div class="description tab-content details-action-box" id="description" data-sl-section="description">
                     <h2>{{ __('Details') }}</h2>
                     <p>{!! $details->description !!}</p>
                 </div>
@@ -553,12 +589,12 @@ if (typeof ttq !== 'undefined') {
 							  
 							  
 							  
-							<section class="gomobd-review-section mt-5" id="reviewsList">
+							<section class="gomobd-review-section mt-5" id="reviewsList" data-sl-section="reviews">
     <div class="gomobd-review-header d-flex justify-content-between align-items-center mb-3 flex-wrap">
         <h3 class="gomobd-review-title fw-bold mb-2 mb-md-0">
             Customer Reviews ({{ $reviews->count() }})
         </h3>
-        <button type="button" class="gomobd-review-btn btn btn-success btn-sm"
+        <button type="button" class="gomobd-review-btn btn btn-success btn-sm" data-sl-section="write_review"
             data-bs-toggle="modal" data-bs-target="#exampleModal">
             <i class="fa fa-edit me-1"></i> Write a Review
         </button>
@@ -637,7 +673,7 @@ if (typeof ttq !== 'undefined') {
     </div>
 </section>
 
-<section class="related-product-section">
+<section class="related-product-section" data-sl-section="related">
     <div class="container">
         <div class="row">
             <div class="related-title">
@@ -698,6 +734,7 @@ if (typeof ttq !== 'undefined') {
     </div>
 </div>
 
+</div>
 @endsection @push('script')
 <script src="{{ asset('public/frontEnd/js/owl.carousel.min.js') }}"></script>
 
@@ -1499,4 +1536,51 @@ if (typeof ttq !== 'undefined') {
         zoomrange: [3, 3]
     });
 </script>
+@if(request()->boolean('sl_preview') && auth('admin')->check())
+<script>
+// Single Layout preview: the admin editor sends the settings as they are being changed, and this page applies them
+// with the same classes and variables the saved layout uses. Only an admin session gets this listener.
+(function () {
+    var scope = document.querySelector('[data-sl-scope]');
+    if (!scope || window.parent === window) return;
+    var shapeNames = ['square', 'rounded', 'circle'];
+    function apply(s) {
+        Object.keys(s.colours).forEach(function (k) { scope.style.setProperty('--sl-' + k.replace(/_/g, '-'), s.colours[k]); });
+        Object.keys(s.shapes).forEach(function (k) {
+            shapeNames.forEach(function (shape) { scope.classList.remove('sl-' + k + '-' + shape); });
+            scope.classList.add('sl-' + k + '-' + s.shapes[k]);
+        });
+        scope.classList.toggle('sl-gallery-right', s.layout.gallery === 'right');
+        scope.classList.toggle('sl-sticky-info', !!s.layout.sticky_info);
+        Object.keys(s.sections).forEach(function (k) { scope.classList.toggle('sl-hide-' + k, !s.sections[k]); });
+        var extra = scope.querySelector('.sl-extra-text');
+        if (extra) extra.textContent = s.extra_text || '';
+        var list = scope.querySelector('[data-sl-custom-list]');
+        if (list) {
+            list.textContent = '';
+            (s.custom_buttons || []).forEach(function (b) {
+                var a = document.createElement('a');
+                a.className = 'btn w-100 mt-2 sl-custom-btn';
+                a.textContent = b.label;
+                if (/^(https?:\/\/\S+|tel:\S+|mailto:\S+)$/i.test(b.link)) {
+                    a.setAttribute('href', b.link);
+                    a.setAttribute('target', '_blank');
+                    a.rel = 'noopener';
+                }
+                a.style.setProperty('--sl-custom-bg', b.background);
+                a.style.setProperty('--sl-custom-hover-bg', b.hover_background);
+                a.style.setProperty('--sl-custom-text', b.text);
+                a.style.setProperty('--sl-custom-hover-text', b.hover_text);
+                list.appendChild(a);
+            });
+        }
+    }
+    window.addEventListener('message', function (e) {
+        if (e.origin !== window.location.origin || !e.data || e.data.source !== 'sl-parent') return;
+        if (e.data.type === 'apply') apply(e.data.settings);
+    });
+    window.parent.postMessage({ source: 'sl-frame', type: 'ready' }, window.location.origin);
+})();
+</script>
+@endif
 @endpush

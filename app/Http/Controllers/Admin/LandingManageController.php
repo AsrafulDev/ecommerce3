@@ -85,7 +85,7 @@ class LandingManageController extends Controller
             'landing' => $landing,
             'sections' => TemplateRegistry::schema($landing->template_key)['sections'],
             'theme' => array_merge(TemplateRegistry::defaultContent($landing->template_key)['theme'], $landing->content['theme'] ?? []),
-            'themePresets' => LandingThemes::presets(),
+            'themePresets' => LandingThemes::all(),
             'enabled' => collect($landing->content['sections'] ?? [])->map(fn ($s) => (bool) ($s['enabled'] ?? true)),
             'frameUrl' => route('landing.manage.frame', ['id' => $landing->id, 'editable' => 1]),
             'previewUrl' => route('landing.manage.frame', ['id' => $landing->id, 'editable' => 0]),

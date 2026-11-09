@@ -1230,6 +1230,8 @@ $brands = Brand::where('status', 1)
             }
         }
 
+        $singleLayout = \App\Services\SingleLayout\SingleLayout::forPage();
+
         return view('frontEnd.layouts.pages.details', compact(
             'details',
             'products',
@@ -1238,7 +1240,8 @@ $brands = Brand::where('status', 1)
             'vc_event_id',
             'isWebsiteSellable',
             'activeBatch',
-            'variantAvailability'
+            'variantAvailability',
+            'singleLayout'
         ));
     }
 

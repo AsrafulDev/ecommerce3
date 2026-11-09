@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\File;
 use ZipArchive;
 
 /**
- * Builds a release ZIP: Lara's app folders, the custom packages (set to the same version),
+ * Builds a release ZIP: Lara's app folders, the public assets, the custom packages (set to the same version),
  * and a release.json manifest the client installer reads. Nothing is uploaded here; see release:upload.
  */
 class ReleaseBuild extends Command
@@ -23,8 +23,14 @@ class ReleaseBuild extends Command
     /** Lara folders packed into every release. */
     private const APP_DIRS = ['app', 'routes', 'resources', 'config', 'database/migrations'];
 
-    /** Files a package needs for the installer to use it. */
-    private const PACKAGE_ITEMS = ['src', 'composer.json', 'LICENSE', 'README.md'];
+    /**
+     * Public folders packed into every release. The client installer copies only the app folders by name, so every file
+     * here is also listed in files.txt, which the installer copies one file at a time.
+     */
+    private const PUBLIC_DIRS = ['public/backEnd'];
+
+    /** Folders inside a custom package that are never packed: source control and installed dependencies. */
+    private const PACKAGE_SKIP = ['vendor', 'node_modules'];
 
     public function handle(): int
     {
@@ -46,8 +52,11 @@ class ReleaseBuild extends Command
             $packages[$name] = $path;
         }
 
+        $publicFiles = $this->publicFiles();
+
         $this->info("Release {$version}" . ($dry ? ' (dry run)' : ''));
         $this->line('Lara folders: ' . implode(', ', self::APP_DIRS));
+        $this->line('Public folders: ' . implode(', ', self::PUBLIC_DIRS) . ' (' . count($publicFiles) . ' files, listed in files.txt)');
         foreach ($packages as $name => $path) {
             $this->line("Package: {$name} → packages/" . CustomPackages::folderName($name) . " (version {$version}, from {$path})");
         }
@@ -75,17 +84,12 @@ class ReleaseBuild extends Command
         foreach (self::APP_DIRS as $dir) {
             $files += $this->addDirectory($zip, base_path($dir), $dir);
         }
+        foreach (self::PUBLIC_DIRS as $dir) {
+            $files += $this->addDirectory($zip, base_path($dir), $dir);
+        }
+        $zip->addFromString('files.txt', implode("\n", $publicFiles) . "\n");
         foreach ($packages as $name => $path) {
-            $folder = 'packages/' . CustomPackages::folderName($name);
-            foreach (self::PACKAGE_ITEMS as $item) {
-                $abs = $path . '/' . $item;
-                if (File::isDirectory($abs)) {
-                    $files += $this->addDirectory($zip, $abs, $folder . '/' . $item);
-                } elseif (File::exists($abs)) {
-                    $zip->addFile($abs, $folder . '/' . $item);
-                    $files++;
-                }
-            }
+            $files += $this->addDirectory($zip, $path, 'packages/' . CustomPackages::folderName($name), self::PACKAGE_SKIP);
         }
 
         $manifest = [
@@ -97,7 +101,7 @@ class ReleaseBuild extends Command
         $zip->addFromString('release.json', json_encode($manifest, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) . "\n");
         $zip->close();
 
-        $this->info(sprintf('✔ Built %s (%d files, %s)', $zipPath, $files + 1, $this->humanSize((int) File::size($zipPath))));
+        $this->info(sprintf('✔ Built %s (%d files, %s)', $zipPath, $files + 2, $this->humanSize((int) File::size($zipPath))));
         $this->line("Next: php artisan release:upload {$version} --secret=… to publish it.");
 
         return self::SUCCESS;
@@ -114,7 +118,28 @@ class ReleaseBuild extends Command
         return $value;
     }
 
-    private function addDirectory(ZipArchive $zip, string $absDir, string $prefix): int
+    /** Every file in the public folders, as paths from the project root, sorted, for files.txt. */
+    private function publicFiles(): array
+    {
+        $files = [];
+        foreach (self::PUBLIC_DIRS as $dir) {
+            if (! File::isDirectory(base_path($dir))) {
+                continue;
+            }
+            foreach (File::allFiles(base_path($dir)) as $file) {
+                $files[] = $dir . '/' . str_replace('\\', '/', $file->getRelativePathname());
+            }
+        }
+        sort($files);
+
+        return $files;
+    }
+
+    /**
+     * Adds every file under a folder to the ZIP under a prefix. Files inside a folder named in $skip are left out,
+     * by the folder's name at the top level of $absDir.
+     */
+    private function addDirectory(ZipArchive $zip, string $absDir, string $prefix, array $skip = []): int
     {
         if (! File::isDirectory($absDir)) {
             return 0;
@@ -124,6 +149,9 @@ class ReleaseBuild extends Command
         $base = rtrim(str_replace('\\', '/', $absDir), '/');
         foreach (File::allFiles($absDir) as $file) {
             $relative = ltrim(str_replace($base, '', str_replace('\\', '/', $file->getPathname())), '/');
+            if ($skip !== [] && in_array(explode('/', $relative)[0], $skip, true)) {
+                continue;
+            }
             $zip->addFile($file->getPathname(), $prefix . '/' . $relative);
             $count++;
         }

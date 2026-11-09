@@ -1095,6 +1095,24 @@ Route::group(['middleware' => ['auth:admin','admin','lock','check_refer','demo_m
     Route::post('landing-pages/{id}/product', [\App\Http\Controllers\Admin\LandingManageController::class, 'changeProduct'])->name('landing.manage.product');
     Route::post('landing-pages/{id}/details', [\App\Http\Controllers\Admin\LandingManageController::class, 'updateDetails'])->name('landing.manage.details');
 
+    // Landing page themes: a theme is four colours that an editor can apply.
+    Route::get('landing-themes', [\App\Http\Controllers\Admin\LandingThemeController::class, 'index'])->name('landing.themes.index');
+    Route::get('landing-themes/create', [\App\Http\Controllers\Admin\LandingThemeController::class, 'create'])->name('landing.themes.create');
+    Route::post('landing-themes', [\App\Http\Controllers\Admin\LandingThemeController::class, 'store'])->name('landing.themes.store');
+    Route::get('landing-themes/{id}/edit', [\App\Http\Controllers\Admin\LandingThemeController::class, 'edit'])->whereNumber('id')->name('landing.themes.edit');
+    Route::post('landing-themes/{id}', [\App\Http\Controllers\Admin\LandingThemeController::class, 'update'])->whereNumber('id')->name('landing.themes.update');
+    Route::post('landing-themes/copy', [\App\Http\Controllers\Admin\LandingThemeController::class, 'copy'])->name('landing.themes.copy');
+    Route::post('landing-themes/{id}/delete', [\App\Http\Controllers\Admin\LandingThemeController::class, 'destroy'])->whereNumber('id')->name('landing.themes.destroy');
+
+    // Single Layout: the product detail page design (saved layouts; one is active).
+    Route::get('single-layout', [\App\Http\Controllers\Admin\SingleLayoutController::class, 'index'])->name('single-layout.index');
+    Route::post('single-layout', [\App\Http\Controllers\Admin\SingleLayoutController::class, 'store'])->name('single-layout.store');
+    Route::get('single-layout/{id}/edit', [\App\Http\Controllers\Admin\SingleLayoutController::class, 'edit'])->whereNumber('id')->name('single-layout.edit');
+    Route::post('single-layout/{id}', [\App\Http\Controllers\Admin\SingleLayoutController::class, 'update'])->whereNumber('id')->name('single-layout.update');
+    Route::post('single-layout/{id}/activate', [\App\Http\Controllers\Admin\SingleLayoutController::class, 'activate'])->whereNumber('id')->name('single-layout.activate');
+    Route::post('single-layout/{id}/duplicate', [\App\Http\Controllers\Admin\SingleLayoutController::class, 'duplicate'])->whereNumber('id')->name('single-layout.duplicate');
+    Route::post('single-layout/{id}/delete', [\App\Http\Controllers\Admin\SingleLayoutController::class, 'destroy'])->whereNumber('id')->name('single-layout.destroy');
+
     // Theme Management Routes
     Route::get('themes', [ThemeController::class, 'index'])->name('themes.index');
     Route::get('theme/create', [ThemeController::class, 'create'])->name('themes.create');

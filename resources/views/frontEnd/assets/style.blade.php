@@ -4571,7 +4571,7 @@ section.pro_details_area {
 .details_right {
     border: 1px solid #ddd;
     padding: 10px 20px;
-    height: 100%;
+    /*height: 100%;*/
     border-radius: 5px;
 }
 

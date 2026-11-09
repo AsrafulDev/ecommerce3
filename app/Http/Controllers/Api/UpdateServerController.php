@@ -224,7 +224,7 @@ class UpdateServerController extends Controller
                 $remoteChecksumUrl = 'https://softmit.xyz/api/updates/checksum/' . $version;
                 $checksumResponse = Http::withoutVerifying()
                     ->timeout(10)
-                    ->get($remoteChecksumUrl);
+                    ->get($remoteChecksumUrl, ['product' => config('updater.script_name')]);
                 
                 if ($checksumResponse->successful()) {
                     $checksumData = $checksumResponse->json();
@@ -350,7 +350,7 @@ class UpdateServerController extends Controller
             $remoteSizeUrl = 'https://softmit.xyz/api/updates/size/' . $version;
             $sizeResponse = Http::withoutVerifying()
                 ->timeout(10)
-                ->get($remoteSizeUrl);
+                ->get($remoteSizeUrl, ['product' => config('updater.script_name')]);
             
             if ($sizeResponse->successful()) {
                 $sizeData = $sizeResponse->json();
