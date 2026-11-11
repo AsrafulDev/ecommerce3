@@ -77,6 +77,7 @@
                 
                 <div class="filter_close"><i class="fa fa-long-arrow-left"></i>{{ __('Filter') }}</div>
                 <form action="" class="attribute-submit">
+                    @if($subcategory->childcategories->count() > 0)
                     <div class="sidebar_item wraper__item">
                         <div class="accordion" id="category_sidebar">
                             <div class="accordion-item">
@@ -103,6 +104,8 @@
                         </div>
                     </div>
                     <!--sidebar item end-->
+                    @endif
+                    @if(isset($min_price, $max_price) && $max_price > 0)
                     <div class="sidebar_item wraper__item">
                         <div class="accordion" id="price_sidebar">
                             <div class="accordion-item">
@@ -139,6 +142,8 @@
                         </div>
                     </div>
                     <!--sidebar item end-->
+                    @endif
+                    @if(isset($childcategories) && $childcategories->count() > 0)
                     <div class="sidebar_item wraper__item">
                         <div class="accordion" id="filter_sidebar">
                             <div class="accordion-item">
@@ -176,6 +181,7 @@
                         </div>
                     </div>
                     <!--sidebar item end-->
+                    @endif
                 </form>
             </div>
             <div class="col-sm-9">

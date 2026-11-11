@@ -66,7 +66,7 @@ class ReleaseBuild extends Command
         }
 
         foreach ($packages as $name => $path) {
-            $this->setPackageVersion($path, $version);
+            CustomPackages::setVersion($path, $version);
         }
         $this->setAppVersion($version);
 
@@ -157,15 +157,6 @@ class ReleaseBuild extends Command
         }
 
         return $count;
-    }
-
-    /** Sets the version in the package's own composer.json, so the package says which release it shipped in. */
-    private function setPackageVersion(string $path, string $version): void
-    {
-        $file = $path . '/composer.json';
-        $json = json_decode((string) File::get($file), true, 512, JSON_THROW_ON_ERROR);
-        $json['version'] = $version;
-        File::put($file, json_encode($json, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) . "\n");
     }
 
     /** Sets the version Lara reports in config/app.php. */

@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Support\Release\CustomPackages;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Http;
@@ -67,8 +68,10 @@ class BuildUpdateRelease extends Command
         'vite.config.js',
     ];
 
+    /** Runtime data that is never packed: customer uploads and complaint screenshots. */
     private const FULL_EXCLUDED_PATHS = [
         'public/uploads',
+        'public/complaints',
     ];
 
     /**
@@ -190,6 +193,18 @@ class BuildUpdateRelease extends Command
             }
         }
 
+        // The installer copies public files only when they are listed, so a regular update lists public/backEnd. A full
+        // release already carries all of public/ (minus uploads).
+        if (! $full) {
+            $publicDir = $base . '/public/backEnd';
+            if (File::isDirectory($publicDir)) {
+                $fileCount += $this->addDirToZip($zip, $publicDir, 'public/backEnd');
+                foreach ($this->listRelativeFiles($publicDir, 'public/backEnd') as $file) {
+                    $extraFiles[] = $file;
+                }
+            }
+        }
+
         // Extra includes → written into files.txt so the client copies them individually.
         foreach ((array) $this->option('include') as $rel) {
             $rel = ltrim((string) $rel, '/');
@@ -213,6 +228,15 @@ class BuildUpdateRelease extends Command
         if ($extraFiles) {
             $zip->addFromString('files.txt', implode("\n", array_unique($extraFiles)) . "\n");
         }
+
+        // The custom packages travel in every release, and release.json tells the installer which ones to install.
+        $packages = $this->addCustomPackages($zip, $version, $fileCount);
+        $zip->addFromString('release.json', json_encode([
+            'version' => $version,
+            'changelog' => $this->resolveChangelog(),
+            'requires_migration' => true,
+            'packages' => $packages,
+        ], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) . "\n");
 
         // Manifest (informational; the installer itself always runs migrations).
         $manifest = [
@@ -280,6 +304,28 @@ class BuildUpdateRelease extends Command
             }
         }
         return $files;
+    }
+
+    /**
+     * Adds each custom package to the ZIP under packages/<folder>, at this release's version. Source control and installed
+     * dependencies are left out. Returns composer name => version, for release.json.
+     */
+    private function addCustomPackages(ZipArchive $zip, string $version, int &$fileCount): array
+    {
+        $added = [];
+        foreach (CustomPackages::all() as $name => $path) {
+            if (! File::isDirectory($path) || ! File::exists($path . '/composer.json')) {
+                $this->warn("Custom package not found, so it is not in this release: {$name} ({$path})");
+                continue;
+            }
+
+            CustomPackages::setVersion($path, $version);
+            $folder = 'packages/' . CustomPackages::folderName($name);
+            $fileCount += $this->addDirToZip($zip, $path, $folder, [$folder . '/.git', $folder . '/vendor', $folder . '/node_modules']);
+            $added[$name] = $version;
+        }
+
+        return $added;
     }
 
     private function isExcludedPath(string $path, array $excludedPaths): bool
